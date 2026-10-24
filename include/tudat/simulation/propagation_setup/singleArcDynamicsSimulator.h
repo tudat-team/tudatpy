@@ -659,36 +659,46 @@ private:
         dynamicsStateDerivative_->updateStateDerivativeModelSettings(
                 processedInitialState.block( 0, processedInitialState.cols( ) - 1, processedInitialState.rows( ), 1 ) );
 
-        // Propagate from initial state until given termination condition
-        auto propagateUntilTermination = [ & ]( const std::shared_ptr< PropagationTerminationCondition > terminationCondition ) {
-            SingleArcPropagationController< Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >,
-                                            TimeType >
-                    propagationController( dynamicsStateDerivative_,
-                                           integratorSettings_,
-                                           terminationCondition,
-                                           dependentVariablesFunctions_,
-                                           propagatorSettings_->getOutputSettings( ) );
-            propagationController.initialize( processedInitialState, propagatorSettings_->getInitialTime( ) );
-            propagationController.propagate( );
-            propagationController.writeResults( propagationResults );
-        };
-
         if( sequentialPropagation_ )
         {
-            propagateUntilTermination( propagationTerminationCondition_ );
+            propagateUntilTermination( processedInitialState, propagationResults, propagationTerminationCondition_ );
         }
         else
         {
             std::shared_ptr< NonSequentialPropagationTerminationCondition > nonSequentialTerminations =
                     std::dynamic_pointer_cast< NonSequentialPropagationTerminationCondition >( propagationTerminationCondition_ );
-            propagateUntilTermination( nonSequentialTerminations->getForwardPropagationTerminationCondition( ) );
+            propagateUntilTermination(
+                    processedInitialState, propagationResults, nonSequentialTerminations->getForwardPropagationTerminationCondition( ) );
 
             integratorSettings_->initialTimeStep_ *= -1.0;
-            propagateUntilTermination( nonSequentialTerminations->getBackwardPropagationTerminationCondition( ) );
+            propagateUntilTermination(
+                    processedInitialState, propagationResults, nonSequentialTerminations->getBackwardPropagationTerminationCondition( ) );
             integratorSettings_->initialTimeStep_ *= -1.0;
         }
 
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
+    }
+
+    //! Function that propagates the dynamics and (if requested) variational equations until a given termination condition.
+    /*
+     *  Function that propagates the dynamics and (if requested) variational equations from the initial state until a given
+     *  termination condition, and writes the results to the propagationResults object.
+     */
+    template< typename SimulationResults >
+    void propagateUntilTermination(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >& processedInitialState,
+            const std::shared_ptr< SimulationResults > propagationResults,
+            const std::shared_ptr< PropagationTerminationCondition > terminationCondition )
+    {
+        SingleArcPropagationController< Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >
+                propagationController( dynamicsStateDerivative_,
+                                       integratorSettings_,
+                                       terminationCondition,
+                                       dependentVariablesFunctions_,
+                                       propagatorSettings_->getOutputSettings( ) );
+        propagationController.initialize( processedInitialState, propagatorSettings_->getInitialTime( ) );
+        propagationController.propagate( );
+        propagationController.writeResults( propagationResults );
     }
 
     //! Function to perform steps necessary to reset all relevant models for the upcoming propagation
