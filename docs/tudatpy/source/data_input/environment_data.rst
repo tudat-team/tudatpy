@@ -6,7 +6,8 @@
 This module contains interfaces for loading and querying external data that can
 be used to define environment models in Tudat. It includes interfaces for SPICE
 kernels, JPL Horizons, JPL's Small-Body Database, Space-Track, DISCOS,
-space-weather data, comet-coma data, and mission-specific environment products.
+space-weather data, comet-coma data, DAMIT asteroid shape models, and
+mission-specific environment products.
 
 The functions and classes in this module retrieve or load data. The conversion
 of these data into Tudat environment models is handled by the corresponding
@@ -17,6 +18,7 @@ functions in :ref:`environment_setup`.
    :caption: Modules
 
    environment_data/coma
+   environment_data/damit
    environment_data/discos
    environment_data/horizons
    environment_data/missions
