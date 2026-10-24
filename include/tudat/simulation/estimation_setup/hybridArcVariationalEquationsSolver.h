@@ -418,8 +418,6 @@ protected:
                 parametersToEstimate_->getEstimatedDoubleParameters( ),
                 parametersToEstimate_->getEstimatedVectorParameters( ),
                 extendedMultiArcParameters );
-        //        std::cout << "TEST: " << "\n\n";
-        estimatable_parameters::printEstimatableParameterEntries( multiArcParametersToEstimate_ );
     }
 
     //! Function to reset the initial multi-arc states

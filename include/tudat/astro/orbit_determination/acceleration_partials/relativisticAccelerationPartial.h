@@ -110,11 +110,10 @@ public:
                              accelerationModel,
                              basic_astrodynamics::relativistic_correction_acceleration )
     {
-        // Only Schwarzschild correction is implemented so far.
-        if( accelerationModel->getCalculateDeSitterCorrection( ) || accelerationModel->getCalculateLenseThirringCorrection( ) )
+        // Only the Schwarzschild partials are implemented; the Lense-Thirring term is included in the dynamics, with zero partials
+        if( accelerationModel->getCalculateDeSitterCorrection( ) )
         {
-            throw std::runtime_error(
-                    "Error when creating relativistic acceleration correction partial, only Schwarzschild term implemented" );
+            throw std::runtime_error( "Error when creating relativistic acceleration correction partial, de Sitter term not implemented" );
         }
         centralBodyState_ = accelerationModel->getStateFunctionOfCentralBody( );
         acceleratedBodyState_ = accelerationModel->getStateFunctionOfAcceleratedBody( );
@@ -122,7 +121,6 @@ public:
         ppnGammaParameterFunction_ = accelerationModel->getPpnParameterGammaFunction_( );
         ppnBetaParameterFunction_ = accelerationModel->getPpnParameterBetaFunction_( );
         centralBodyGravitationalParameterFunction_ = accelerationModel->getGravitationalParameterFunctionOfCentralBody( );
-        currentAccelerationFunction_ = std::bind( &relativity::RelativisticAccelerationCorrection::getAcceleration, accelerationModel );
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.
@@ -332,9 +330,6 @@ private:
 
     //! Function to retrieve current gravitational parameter of central body.
     std::function< double( ) > centralBodyGravitationalParameterFunction_;
-
-    //! Function to retrieve current relativistic acceleration correction.
-    std::function< Eigen::Vector3d( ) > currentAccelerationFunction_;
 
     //! Current partial of relativistic acceleration correction w.r.t. position of body undergoing acceleration
     /*!
