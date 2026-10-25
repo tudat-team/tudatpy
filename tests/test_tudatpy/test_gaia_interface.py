@@ -86,6 +86,7 @@ def bodies(gaia_astrometry, spice_kernels):
         settings.get(str(number)).ephemeris_settings = environment_setup.ephemeris.constant(
             [3.0e11, 1.0e11, 2.0e10, 0.0, 0.0, 0.0], "SSB", "J2000"
         )
+        settings.get(str(number)).shape_settings = environment_setup.shape.spherical(1000.0)
     return create_system_of_bodies(settings)
 
 
@@ -252,14 +253,12 @@ def test_corrections_are_deferred_and_preserve_source_data(gaia_astrometry, bodi
     table_before = gaia_astrometry.table.copy()
     tracking, supplementary = gaia_astrometry.to_tracking_data(
         light_deflection_bodies=("Sun", "Jupiter"),
-        photocenter_body_dimensions={TEST_ASTEROID_MPC[0]: 1000.0},
+        photocenter_correction=True,
     )
     observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary)
     calls = []
 
-    def photocenter(observations, body_dimensions, body_name, **kwargs):
-        assert body_name == str(TEST_ASTEROID_MPC[0])
-        assert body_dimensions == 1000.0
+    def photocenter(observations, body_name, **kwargs):
         calls.append(("photocenter", body_name, observations.copy()))
         return np.full((len(observations), 2), 1.0e-9)
 
@@ -293,7 +292,7 @@ def test_corrections_are_deferred_and_preserve_source_data(gaia_astrometry, bodi
         corrected_angles = np.asarray(
             corrected.get_data(condition, fields=("observations",))["observations"]
         )
-        expected = raw_angles + (3.0e-9 if number == TEST_ASTEROID_MPC[0] else 2.0e-9)
+        expected = raw_angles + 3.0e-9
         expected[:, 0] = (expected[:, 0] + np.pi) % (2 * np.pi) - np.pi
         np.testing.assert_array_equal(corrected_angles, expected)
     np.testing.assert_array_equal(corrected.get_observations(), repeated.get_observations())
@@ -339,15 +338,24 @@ def test_failed_correction_does_not_change_source(gaia_astrometry, bodies):
     pdt.assert_frame_equal(gaia_astrometry.table, table_before)
 
 
+def test_photocenter_correction_requires_shape_model(gaia_astrometry, bodies):
+    bodies.get(str(TEST_ASTEROID_MPC[1])).shape_model = None
+    tracking, supplementary = gaia_astrometry.to_tracking_data(photocenter_correction=True)
+    observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary)
+    with pytest.raises(ValueError, match="needs a shape model"):
+        observations.create_observation_dataset_from_tracking_data(
+            tracking, bodies, apply_corrections=True
+        )
+
+
 def test_converter_matches_existing_correction_formulas(gaia_astrometry, bodies):
     from tudatpy.estimation.observations.observation_corrections import (
         light_deflection_correction_angular_observations,
         photocenter_correction_angular_observations,
     )
 
-    radii = {number: 1000.0 for number in TEST_ASTEROID_MPC}
     tracking, supplementary = gaia_astrometry.to_tracking_data(
-        light_deflection_bodies=("Sun", "Jupiter"), photocenter_body_dimensions=radii
+        light_deflection_bodies=("Sun", "Jupiter"), photocenter_correction=True
     )
     observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary)
     raw = observations.create_observation_dataset_from_tracking_data(tracking, bodies)
@@ -363,9 +371,7 @@ def test_converter_matches_existing_correction_formulas(gaia_astrometry, bodies)
         inputs = np.column_stack(([float(epoch) for epoch in source["times"]], angles))
         expected = (
             angles
-            + photocenter_correction_angular_observations(
-                inputs, radii[number], bodies, str(number), "Gaia"
-            )
+            + photocenter_correction_angular_observations(inputs, bodies, str(number), "Gaia")
             + light_deflection_correction_angular_observations(
                 inputs, bodies, str(number), "Gaia", perturbing_bodies_list=("Sun", "Jupiter")
             )

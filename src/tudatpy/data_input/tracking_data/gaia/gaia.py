@@ -287,7 +287,7 @@ class GaiaAstrometry:
     def to_tracking_data(
         self,
         light_deflection_bodies: Iterable[str] | None = None,
-        photocenter_body_dimensions: dict | None = None,
+        photocenter_correction: bool = False,
     ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
         """Collect Gaia observations into one :class:`~tudatpy.data_input.tracking_data.TrackingData` object per
         transit and attach the observation weights according to the Gaia weighting scheme.
@@ -299,10 +299,13 @@ class GaiaAstrometry:
         Parameters
         ----------
         light_deflection_bodies : Iterable[str] | None, optional
-            Names of bodies whose relativistic light-deflection correction is requested.
-        photocenter_body_dimensions : dict | None, optional
-            Radius [m] or three ellipsoid semi-axes [m], keyed by MPC number.
-            Objects without an entry receive no photocenter correction.
+            Body names of bodies that exert relativistic light-deflection in the environment. Each body must have an
+            ephemeris and mass. The bodies being estimated must also have an ephemeris so that their position in time
+            can be retrieved. If ``None``, no correction will be applied.
+        photocenter_correction : bool, optional
+            If true, computes the photocenter-barycenter offset for each observation. The sun, Gaia and the estimated
+            bodies must have an ephemeris in the environment. The estimated bodies must also have a shape model, of the
+            type ``SphericalBodyShapeModel`` or ``TriAxialEllipsoidBodyShapeModel``.
 
         Returns
         -------
@@ -314,23 +317,17 @@ class GaiaAstrometry:
         # Force the weight matrix to be completely symmetric (due to possible numerical error introduced in inversion)
         force_symmetric = lambda mat: (mat + mat.T) / 2
 
-        light_deflection_bodies = (
-            [] if light_deflection_bodies is None else list(light_deflection_bodies)
+        correction_settings = AngularObservationCorrectionSettings(
+            light_deflection_bodies=(
+                [] if light_deflection_bodies is None else list(light_deflection_bodies)
+            ),
+            photocenter_correction=photocenter_correction,
         )
         tracking_data_objects = []
         for mpc_number in self.mpc_numbers_in_table:
             # Get the data for current asteroid
             table_for_object = self._table_for_single_object(mpc_number)
             observation_covariance_matrices = self._get_observation_covariance(mpc_number)
-            dimensions = (
-                []
-                if photocenter_body_dimensions is None
-                else np.atleast_1d(photocenter_body_dimensions.get(mpc_number, [])).astype(float)
-            )
-            correction_settings = AngularObservationCorrectionSettings(
-                light_deflection_bodies=light_deflection_bodies,
-                photocenter_body_dimensions=dimensions,
-            )
 
             for (_, transit_rows), covariance_matrix in zip(
                 table_for_object.groupby("transit_id", sort=False),
