@@ -75,6 +75,12 @@ Functions
 
    differenced_frequency_of_arrival
 
+   position_angle
+
+   separation_distance
+
+   position_angle_and_separation
+
    get_observable_size
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_range
@@ -128,6 +134,12 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_time_of_arrival
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_frequency_of_arrival
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.position_angle
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.separation_distance
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.get_observable_size
 

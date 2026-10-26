@@ -123,6 +123,20 @@ private:
     std::string instrumentSupplementaryDataKind_;
 };
 
+//! Calibration of one picture, for a camera whose calibration changes between pictures (for instance by pixel binning).
+struct CameraPictureCalibration {
+    double focalLength_ = 0.0;
+    Eigen::Vector2d principalPoint_ = Eigen::Vector2d::Zero( );
+    Eigen::Vector4d fieldOfViewBounds_ = Eigen::Vector4d::Zero( );
+    Eigen::Matrix< double, 2, 3 > kMatrix_ = Eigen::Matrix< double, 2, 3 >::Zero( );
+
+    bool operator==( const CameraPictureCalibration& other ) const
+    {
+        return focalLength_ == other.focalLength_ && principalPoint_ == other.principalPoint_ &&
+                fieldOfViewBounds_ == other.fieldOfViewBounds_ && kMatrix_ == other.kMatrix_;
+    }
+};
+
 class CameraInstrumentSupplementaryData : public InstrumentSupplementaryData
 {
 public:
@@ -183,12 +197,76 @@ public:
         return rotationFromInertialToCameraFrameHistory_;
     }
 
-    //! Merge compatible camera histories; conflicting calibration or attitudes are errors.
+    //! Body whose body-fixed frame the pointing history starts from.
+    /*!
+     * When empty, the pointing history holds rotations from the inertial frame to the camera frame. When set, it holds
+     * rotations from the body-fixed frame of this body to the camera frame. The body's rotation model then completes
+     * the rotation from the inertial frame when the camera is created.
+     */
+    const std::string& getPointingReferenceBodyName( ) const
+    {
+        return pointingReferenceBodyName_;
+    }
+
+    void setPointingReferenceBodyName( const std::string& pointingReferenceBodyName )
+    {
+        pointingReferenceBodyName_ = pointingReferenceBodyName;
+    }
+
+    //! Position of the camera in the body-fixed frame of the body that carries it [m]. Zero by default.
+    const Eigen::Vector3d& getBodyFixedPosition( ) const
+    {
+        return bodyFixedPosition_;
+    }
+
+    void setBodyFixedPosition( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        bodyFixedPosition_ = bodyFixedPosition;
+    }
+
+    //! Calibration of each picture, per picture epoch of the pointing history. When empty, all pictures use the calibration of
+    //! the camera.
+    const std::map< double, CameraPictureCalibration >& getPictureCalibrationHistory( ) const
+    {
+        return pictureCalibrationHistory_;
+    }
+
+    void setPictureCalibrationHistory( const std::map< double, CameraPictureCalibration >& pictureCalibrationHistory )
+    {
+        pictureCalibrationHistory_ = pictureCalibrationHistory;
+    }
+
+    //! Identifier of each picture, per picture epoch of the pointing history. Empty when not provided.
+    const std::map< double, std::string >& getPictureIdHistory( ) const
+    {
+        return pictureIdHistory_;
+    }
+
+    void setPictureIdHistory( const std::map< double, std::string >& pictureIdHistory )
+    {
+        pictureIdHistory_ = pictureIdHistory;
+    }
+
+    //! A-priori uncertainty of the camera pointing about the three camera axes [rad], per picture epoch of the pointing history.
+    //! Empty when not provided.
+    const std::map< double, Eigen::Vector3d >& getPointingUncertaintyHistory( ) const
+    {
+        return pointingUncertaintyHistory_;
+    }
+
+    void setPointingUncertaintyHistory( const std::map< double, Eigen::Vector3d >& pointingUncertaintyHistory )
+    {
+        pointingUncertaintyHistory_ = pointingUncertaintyHistory;
+    }
+
+    //! Merge compatible camera histories; conflicting calibrations, attitudes, picture identifiers or pointing uncertainties are
+    //! errors.
     void merge( const CameraInstrumentSupplementaryData& other )
     {
         if( cameraId_ != other.cameraId_ || focalLength_ != other.focalLength_ || !principalPoint_.isApprox( other.principalPoint_ ) ||
             !fieldOfViewBounds_.isApprox( other.fieldOfViewBounds_ ) || !kMatrix_.isApprox( other.kMatrix_ ) ||
-            !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) )
+            !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) ||
+            bodyFixedPosition_ != other.bodyFixedPosition_ || pointingReferenceBodyName_ != other.pointingReferenceBodyName_ )
         {
             throw std::runtime_error( "Inconsistent calibration for PSF camera " + cameraId_ );
         }
@@ -201,7 +279,37 @@ public:
                 throw std::runtime_error( "Conflicting pointing epochs for PSF camera " + cameraId_ );
             }
         }
+        auto mergedPictureCalibrationHistory = pictureCalibrationHistory_;
+        for( const auto& entry : other.pictureCalibrationHistory_ )
+        {
+            const auto inserted = mergedPictureCalibrationHistory.emplace( entry );
+            if( !inserted.second && !( inserted.first->second == entry.second ) )
+            {
+                throw std::runtime_error( "Conflicting picture calibrations for PSF camera " + cameraId_ );
+            }
+        }
+        auto mergedPictureIdHistory = pictureIdHistory_;
+        for( const auto& entry : other.pictureIdHistory_ )
+        {
+            const auto inserted = mergedPictureIdHistory.emplace( entry );
+            if( !inserted.second && inserted.first->second != entry.second )
+            {
+                throw std::runtime_error( "Conflicting picture identifiers for PSF camera " + cameraId_ );
+            }
+        }
+        auto mergedUncertaintyHistory = pointingUncertaintyHistory_;
+        for( const auto& entry : other.pointingUncertaintyHistory_ )
+        {
+            const auto inserted = mergedUncertaintyHistory.emplace( entry );
+            if( !inserted.second && inserted.first->second != entry.second )
+            {
+                throw std::runtime_error( "Conflicting pointing uncertainties for PSF camera " + cameraId_ );
+            }
+        }
         rotationFromInertialToCameraFrameHistory_.swap( mergedHistory );
+        pictureCalibrationHistory_.swap( mergedPictureCalibrationHistory );
+        pictureIdHistory_.swap( mergedPictureIdHistory );
+        pointingUncertaintyHistory_.swap( mergedUncertaintyHistory );
     }
 
 private:
@@ -220,6 +328,16 @@ private:
     Eigen::Vector3d mountingOffsets_ = Eigen::Vector3d::Zero( );
 
     std::map< double, Eigen::Quaterniond > rotationFromInertialToCameraFrameHistory_;
+
+    std::string pointingReferenceBodyName_;
+
+    Eigen::Vector3d bodyFixedPosition_ = Eigen::Vector3d::Zero( );
+
+    std::map< double, CameraPictureCalibration > pictureCalibrationHistory_;
+
+    std::map< double, std::string > pictureIdHistory_;
+
+    std::map< double, Eigen::Vector3d > pointingUncertaintyHistory_;
 };
 
 class TranslationalStateSupplementaryData
@@ -307,6 +425,35 @@ private:
     bool isAngularVelocityDefined_ = false;
 };
 
+//! Position of a reference point that is fixed to a body, such as a ground station or a surface landmark.
+class ReferencePointSupplementaryData
+{
+public:
+    explicit ReferencePointSupplementaryData( const Eigen::Vector3d& bodyFixedPosition ): bodyFixedPosition_( bodyFixedPosition ) {}
+
+    //! Cartesian position of the reference point in the body-fixed frame [m].
+    const Eigen::Vector3d& getBodyFixedPosition( ) const
+    {
+        return bodyFixedPosition_;
+    }
+
+    //! A-priori uncertainty of each body-fixed position component [m]. NaN when the source gives no value.
+    const Eigen::Vector3d& getPositionUncertainty( ) const
+    {
+        return positionUncertainty_;
+    }
+
+    void setPositionUncertainty( const Eigen::Vector3d& positionUncertainty )
+    {
+        positionUncertainty_ = positionUncertainty;
+    }
+
+private:
+    Eigen::Vector3d bodyFixedPosition_;
+
+    Eigen::Vector3d positionUncertainty_ = Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
+};
+
 class TrackingSupplementaryData
 {
 public:
@@ -376,6 +523,17 @@ public:
         return referencePointName_;
     }
 
+    //! Body-fixed position of the reference point. Null when the reference point position is not provided.
+    void setReferencePointSupplementaryData( const std::shared_ptr< ReferencePointSupplementaryData >& referencePointSupplementaryData )
+    {
+        referencePointSupplementaryData_ = referencePointSupplementaryData;
+    }
+
+    const std::shared_ptr< ReferencePointSupplementaryData >& getReferencePointSupplementaryData( ) const
+    {
+        return referencePointSupplementaryData_;
+    }
+
     bool isPassiveRadarReflector( ) const
     {
         return isPassiveRadarReflector_;
@@ -394,6 +552,8 @@ private:
     std::vector< std::shared_ptr< FrequencySupplementaryData > > frequencySupplementaryData_;
 
     std::vector< std::shared_ptr< InstrumentSupplementaryData > > instrumentSupplementaryData_;
+
+    std::shared_ptr< ReferencePointSupplementaryData > referencePointSupplementaryData_;
 
     std::string bodyName_;
 

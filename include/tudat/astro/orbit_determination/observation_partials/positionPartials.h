@@ -253,7 +253,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {}
 
     //! Function to retrieve the scaling factor for specific link end
@@ -311,7 +312,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         currentLinkEndType_ = fixedLinkEnd;
     }
@@ -385,7 +387,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {}
 
     //! Function to retrieve the scaling factor for specific link end
@@ -424,7 +427,7 @@ public:
         return observation_models::observed_body;
     }
 
-    virtual bool isVelocityScalingNonZero( )
+    virtual bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType )
     {
         return true;
     }

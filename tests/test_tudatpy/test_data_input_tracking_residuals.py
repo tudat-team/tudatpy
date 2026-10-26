@@ -23,6 +23,7 @@ from tudatpy.data_input.tracking_data.obs_80_cols.parsers import parse_80cols_da
 from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
 from tudatpy.data_input.tracking_data.odf import read_odf_data
 from tudatpy.data_input.tracking_data.psf import read_psf_data
+from tudatpy.data_input.tracking_data.sum_lmk import read_sum_lmk_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
     DOPPLER_OBSERVABLE,
     RANGE_OBSERVABLE,
@@ -983,6 +984,147 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     assert residuals.size == 59
     assert abs(np.mean(residuals)) < 1.5e-3
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
+
+
+def test_sum_lmk_ingestion_and_pixel_residuals():
+    """Load SUM/LMK files and process their cameras, landmarks, epochs and pixels."""
+    data_directory = _test_data_path() / "sum_lmk"
+    tracking_data, supplementary_data = read_sum_lmk_data(
+        {"Camera": [str(data_directory / "sample.sum")]},
+        [str(data_directory / "LMK0001.lmk"), str(data_directory / "LMK0002.lmk")],
+        "Target",
+        "Spacecraft",
+    )
+    assert len(tracking_data) == 2
+
+    # The camera sits 10 m along Y from the spacecraft centre. This gives a one-pixel line residual at 10 km range.
+    camera_data = next(
+        entry for entry in supplementary_data if entry.instrument_supplementary_data
+    ).instrument_supplementary_data[0]
+    camera_data.body_fixed_position = np.array([0.0, 10.0, 0.0])
+
+    spice.load_standard_kernels()
+    body_settings = environment_setup.BodyListSettings("SSB", "J2000")
+    states = {
+        "Target": np.zeros(6),
+        "Spacecraft": np.array([0.0, 0.0, -10000.0, 0.0, 0.0, 0.0]),
+    }
+    for name, state in states.items():
+        body_settings.add_empty_settings(name)
+        settings = body_settings.get(name)
+        settings.ephemeris_settings = ephemeris.constant(state, "SSB", "J2000")
+        settings.rotation_model_settings = rotation_model.constant_rotation_model(
+            "J2000", f"{name}_Fixed", np.eye(3)
+        )
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+    dataset = create_observation_dataset_from_tracking_data(tracking_data, bodies)
+
+    assert "Camera" in bodies.get("Spacecraft").system_models.camera_dict
+    assert set(bodies.get("Target").ground_station_list) == {"LMK0001", "LMK0002"}
+    np.testing.assert_allclose(
+        np.concatenate(dataset.get_observations(ordering="estimation")),
+        [512.0, 512.0, 612.0, 512.0],
+        rtol=0.0,
+        atol=1e-12,
+    )
+    expected_epoch = spice.convert_date_string_to_ephemeris_time("2015 JUN 05 07:24:42.053 UTC")
+    np.testing.assert_allclose(
+        np.asarray(dataset.get_times(), dtype=float), expected_epoch, rtol=0.0, atol=1e-3
+    )
+    camera = bodies.get("Spacecraft").system_models.get_camera("Camera")
+    assert camera.picture_ids[camera.get_picture_index(expected_epoch)] == "IMG001"
+
+    link_definitions = dataset.link_definitions_for_observable(
+        model_settings.pixel_coordinates_type
+    )
+    simulators = observations_simulation_settings.create_observation_simulators(
+        [model_settings.pixel_coordinates(link) for link in link_definitions], bodies
+    )
+    compute_residuals_and_dependent_variables(dataset, simulators, bodies)
+    # The fixture's 100 mm focal length and 10 pixels/mm calibration give a
+    # 1000-pixel focal length. Its landmarks are at (0, 0, 0) and (1000, 0, 0) m,
+    # so the predicted pixels are (512, 511) and (612, 511), respectively.
+    np.testing.assert_allclose(
+        np.concatenate(dataset.get_residuals(ordering="estimation")),
+        [0.0, 1.0, 0.0, 1.0],
+        rtol=0.0,
+        atol=1e-6,
+    )
+
+
+def test_sum_lmk_landmark_position_helpers():
+    """Use SUM SIGMA_PTG and LMK SIGMA_LMK for the a-priori covariance, and SIGMA_LMK for the consider covariance."""
+    from tudatpy.dynamics import parameters_setup
+    from tudatpy.estimation.estimation_analysis import (
+        create_covariance_from_diagonal_entries,
+        create_reference_point_consider_covariance,
+        get_camera_pointing_inverse_apriori_covariance_entries,
+        get_reference_point_position_inverse_apriori_covariance_entries,
+    )
+    from tudatpy.estimation.observations import (
+        get_observed_reference_point_position_parameter_settings,
+    )
+
+    data_directory = _test_data_path() / "sum_lmk"
+    tracking_data, supplementary_data = read_sum_lmk_data(
+        {"Camera": [str(data_directory / "sample.sum")]},
+        [str(data_directory / "LMK0001.lmk"), str(data_directory / "LMK0002.lmk")],
+        "Target",
+        "Spacecraft",
+    )
+
+    # The fixture gives SIGMA_LMK = 1 m.
+    landmark = next(
+        entry for entry in supplementary_data if entry.reference_point_name == "LMK0001"
+    ).reference_point_supplementary_data
+    np.testing.assert_allclose(landmark.position_uncertainty, [1.0, 1.0, 1.0])
+
+    spice.load_standard_kernels()
+    body_settings = environment_setup.BodyListSettings("SSB", "J2000")
+    for name, state in {
+        "Target": np.zeros(6),
+        "Spacecraft": np.array([0.0, 0.0, -10000.0, 0.0, 0.0, 0.0]),
+    }.items():
+        body_settings.add_empty_settings(name)
+        settings = body_settings.get(name)
+        settings.ephemeris_settings = ephemeris.constant(state, "SSB", "J2000")
+        settings.rotation_model_settings = rotation_model.constant_rotation_model(
+            "J2000", f"{name}_Fixed", np.eye(3)
+        )
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+    dataset = create_observation_dataset_from_tracking_data(tracking_data, bodies)
+
+    parameter_settings = get_observed_reference_point_position_parameter_settings(dataset, "Target")
+    assert len(parameter_settings) == 2
+
+    # Both landmarks estimated: the inverse a-priori covariance is 1 / (1 m)^2 on the diagonal.
+    parameter_set = parameters_setup.create_parameter_set(parameter_settings, bodies)
+    entries = get_reference_point_position_inverse_apriori_covariance_entries(supplementary_data)
+    np.testing.assert_allclose(
+        create_covariance_from_diagonal_entries(parameter_set, entries), np.eye(6)
+    )
+
+    # Camera pointing estimated: the inverse a-priori covariance is 1 / (1e-4 rad)^2 on the diagonal.
+    pointing_set = parameters_setup.create_parameter_set(
+        [parameters_setup.camera_pointing_correction("Spacecraft", "Camera")], bodies
+    )
+    pointing_entries = get_camera_pointing_inverse_apriori_covariance_entries(supplementary_data)
+    assert len(pointing_entries) == 1
+    np.testing.assert_allclose(
+        create_covariance_from_diagonal_entries(pointing_set, pointing_entries),
+        1.0e8 * np.eye(3),
+    )
+
+    # LMK0001 estimated and LMK0002 held fixed: the consider covariance is (1 m)^2 on the diagonal.
+    consider_parameter_set = parameters_setup.create_parameter_set(
+        parameter_settings[:1], bodies, consider_parameters_names=parameter_settings[1:]
+    )
+    np.testing.assert_allclose(
+        create_reference_point_consider_covariance(supplementary_data, consider_parameter_set),
+        np.eye(3),
+    )
 
 
 def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():

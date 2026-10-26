@@ -28,7 +28,7 @@ This module provides two manners in which to create ancillary settings objects:
      # Show that this is indeed an ObservationAncillarySimulationSettings object
      print(doppler_ancillary_settings)
 
-* Manual creation of an empty :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings` object, followed by the manual setting of all the relevant quantities using the :meth:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings` and :meth:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_list_settings` methods
+* Manual creation of an empty :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings` object, followed by the manual setting of all the relevant quantities using the :meth:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`, :meth:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_int_settings` and :meth:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_list_settings` methods
 
 Functions
 ---------
@@ -51,6 +51,10 @@ Functions
    dsn_n_way_doppler_ancillary_settings
 
    doppler_measured_frequency_ancillary_settings
+
+   position_angle_ancillary_settings
+
+   custom_position_angle_ancillary_settings
 
    add_ancillary_settings_to_observable
 
@@ -76,6 +80,10 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.doppler_measured_frequency_ancillary_settings
 
+.. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings
+
+.. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.custom_position_angle_ancillary_settings
+
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.add_ancillary_settings_to_observable
 
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.add_ancillary_settings_to_observable_for_link_ends
@@ -98,6 +106,8 @@ Enumerations
 
    FrequencyBands
 
+   PositionAngleReferenceFrame
+
 
 .. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationVariable
    :members:
@@ -106,6 +116,9 @@ Enumerations
    :members:
 
 .. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+   :members:
+
+.. autoclass:: tudatpy.estimation.observations_setup.ancillary_settings.PositionAngleReferenceFrame
    :members:
 
 

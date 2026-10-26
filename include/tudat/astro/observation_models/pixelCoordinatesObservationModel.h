@@ -18,10 +18,10 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 #include "tudat/astro/system_models/camera.h"
 
 namespace tudat
@@ -37,6 +37,7 @@ namespace observation_models
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  *  The camera maps body-fixed relative positions to pixel coordinates; the receiver body's rotational ephemeris maps inertial relative
  *  positions to the receiver body-fixed frame.
+ *  No lens distortion is modelled, so measured pixel coordinates must be corrected for distortion before they are used as observations.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class PixelCoordinatesObservationModel : public ObservationModel< 2, ObservationScalarType, TimeType >
@@ -140,9 +141,8 @@ public:
         Eigen::Vector3d inertialDirectionToProject = inertialRelativePosition.template cast< double >( );
         if( correctForStellarAberration_ )
         {
-            inertialDirectionToProject = computeApparentDirectionWithStellarAberration(
-                    inertialDirectionToProject.normalized( ),
-                    observerState.segment( 3, 3 ).template cast< double >( ) / physical_constants::SPEED_OF_LIGHT );
+            inertialDirectionToProject = calculateApparentDirectionWithStellarAberration(
+                    inertialDirectionToProject.normalized( ), observerState.segment( 3, 3 ).template cast< double >( ) );
         }
 
         Eigen::Vector2d pixelCoordinates;
@@ -152,9 +152,13 @@ public:
         }
         else
         {
-            pixelCoordinates = camera_->calculateObservableFromInertial(
-                    inertialDirectionToProject,
-                    receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ) );
+            pixelCoordinates =
+                    camera_->getProjectionModel( static_cast< double >( time ) )
+                            ->projectUnitVectorToPixelLine(
+                                    camera_->getRotationFromInertialToCameraFrame(
+                                            receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ),
+                                            static_cast< double >( time ) ) *
+                                    inertialDirectionToProject );
         }
         return pixelCoordinates.template cast< ObservationScalarType >( );
     }
@@ -176,16 +180,6 @@ public:
     }
 
 protected:
-    //! Convert actual geometric direction to apparent direction using the inverse of Jacobson's stellar-aberration correction.
-    Eigen::Vector3d computeApparentDirectionWithStellarAberration( const Eigen::Vector3d& actualDirection,
-                                                                   const Eigen::Vector3d& observerVelocityDividedBySpeedOfLight ) const
-    {
-        const double directionDotVelocity = actualDirection.dot( observerVelocityDividedBySpeedOfLight );
-        const double velocitySquared = observerVelocityDividedBySpeedOfLight.squaredNorm( );
-        const double scaleFactor = -directionDotVelocity + std::sqrt( 1.0 - velocitySquared + directionDotVelocity * directionDotVelocity );
-        return ( scaleFactor * actualDirection + observerVelocityDividedBySpeedOfLight ).normalized( );
-    }
-
     //! Object to compute the light-time (including any corrections w.r.t. Euclidean case) between source and receiver
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 

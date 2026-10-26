@@ -232,12 +232,13 @@ public:
 
     Eigen::MatrixXd getObservationsDependentVariablesMatrix( )
     {
-        const std::vector< Eigen::VectorXd > observationsDependentVariables = getObservationsDependentVariables( );
+        // No dependent variable bookkeeping is configured for this set (e.g. sets created without
+        // dependent variables). Return an empty matrix rather than dereferencing a null pointer.
         if( getDependentVariableBookkeeping( ) == nullptr )
         {
-            throw std::runtime_error(
-                    "Error when getting observation dependent-variable matrix, no dependent-variable bookkeeping is available." );
+            return Eigen::MatrixXd::Zero( dataset_->getNumberOfObservationsForSet( setId_ ), 0 );
         }
+        const std::vector< Eigen::VectorXd > observationsDependentVariables = getObservationsDependentVariables( );
         if( observationsDependentVariables.empty( ) && dataset_->getNumberOfObservationsForSet( setId_ ) > 0 )
         {
             throw std::runtime_error(

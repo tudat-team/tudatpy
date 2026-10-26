@@ -57,6 +57,7 @@ Functions
    observation_simulation_settings_from_dataset
    compute_residuals_and_dependent_variables
    set_tracking_supplementary_data_in_bodies
+   get_observed_reference_point_position_parameter_settings
 
 .. autofunction:: create_observation_dataset_from_tracking_data
 .. autofunction:: create_observation_dataset_from_arrays
@@ -68,6 +69,7 @@ Functions
 .. autofunction:: observation_simulation_settings_from_dataset
 .. autofunction:: compute_residuals_and_dependent_variables
 .. autofunction:: set_tracking_supplementary_data_in_bodies
+.. autofunction:: get_observed_reference_point_position_parameter_settings
 
 Classes
 -------

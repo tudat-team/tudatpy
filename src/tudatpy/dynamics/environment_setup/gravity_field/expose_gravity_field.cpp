@@ -305,8 +305,12 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
     py::class_< tss::FromFileSphericalHarmonicsGravityFieldSettings,
                 std::shared_ptr< tss::FromFileSphericalHarmonicsGravityFieldSettings >,
-                tss::SphericalHarmonicsGravityFieldSettings >(
-            m, "FromFileSphericalHarmonicsGravityFieldSettings", R"doc(No documentation found.)doc" );
+                tss::SphericalHarmonicsGravityFieldSettings >( m, "FromFileSphericalHarmonicsGravityFieldSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic`,
+         :func:`~tudatpy.dynamics.environment_setup.gravity_field.predefined_spherical_harmonic`.
+
+      )doc" );
 
     py::class_< tss::PolyhedronGravityFieldSettings, std::shared_ptr< tss::PolyhedronGravityFieldSettings >, tss::GravityFieldSettings >(
             m,
@@ -918,7 +922,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  elliptic_integral_s_from_d_and_b : bool, default = True
      Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
-     
+
  Returns
  -------
  GravityFieldSettings

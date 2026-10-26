@@ -63,6 +63,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case rotation_pole_position:
             parameterDescription = "pole position ";
             break;
+        case shared_observation_bias:
+            parameterDescription = "shared observation bias ";
+            break;
         case constant_additive_observation_bias:
             parameterDescription = "absolute observation bias ";
             break;
@@ -243,6 +246,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case arc_wise_exponential_atmosphere_scale_height:
             parameterDescription = "arc-wise scale height of exponential atmosphere model ";
             break;
+        case camera_pointing_correction:
+            parameterDescription = "camera pointing correction ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -312,6 +318,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_pole_position:
             isDoubleParameter = false;
             break;
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             isDoubleParameter = false;
             break;
@@ -487,6 +494,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case arc_wise_exponential_atmosphere_scale_height:
             isDoubleParameter = false;
             break;
+        case camera_pointing_correction:
+            isDoubleParameter = false;
+            break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                       " not found when getting parameter type" );
@@ -549,6 +559,7 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     bool flag;
     switch( parameterType )
     {
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             flag = true;
             break;

@@ -31,6 +31,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/io/readPsfFile.h"
+#include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
@@ -94,50 +95,13 @@ inline std::string convertStringToUpperCase( const std::string& input )
     return output;
 }
 
-inline int getPsfMonthNumber( const std::string& monthString )
-{
-    static const std::map< std::string, int > monthNumbers = { { "JAN", 1 }, { "FEB", 2 },  { "MAR", 3 },  { "APR", 4 },
-                                                               { "MAY", 5 }, { "JUN", 6 },  { "JUL", 7 },  { "AUG", 8 },
-                                                               { "SEP", 9 }, { "OCT", 10 }, { "NOV", 11 }, { "DEC", 12 } };
-
-    const std::string upperMonthString = convertStringToUpperCase( monthString );
-    if( monthNumbers.count( upperMonthString ) == 0 )
-    {
-        throw std::runtime_error( "Error when converting PSF epoch: unsupported month string '" + monthString + "'." );
-    }
-    return monthNumbers.at( upperMonthString );
-}
-
 namespace detail
 {
 
 template< typename TimeType = double >
 TimeType convertPsfUtcStringToSecondsSinceJ2000( const std::string& utcString, const bool convertUtcToTdb = true )
 {
-    std::stringstream stream( utcString );
-    int year = 0;
-    std::string monthString;
-    int day = 0;
-    std::string timeString;
-    stream >> year >> monthString >> day >> timeString;
-    if( stream.fail( ) || timeString.empty( ) )
-    {
-        throw std::runtime_error( "Error when converting PSF epoch: malformed UTC string '" + utcString + "'." );
-    }
-
-    std::replace( timeString.begin( ), timeString.end( ), ':', ' ' );
-    std::stringstream timeStream( timeString );
-    int hour = 0;
-    int minute = 0;
-    double seconds = 0.0;
-    timeStream >> hour >> minute >> seconds;
-    if( timeStream.fail( ) )
-    {
-        throw std::runtime_error( "Error when converting PSF epoch: malformed time field in '" + utcString + "'." );
-    }
-
-    const TimeType utcSecondsSinceJ2000 =
-            basic_astrodynamics::DateTime( year, getPsfMonthNumber( monthString ), day, hour, minute, seconds ).epoch< TimeType >( );
+    const TimeType utcSecondsSinceJ2000 = input_output::parseTrackingDateTime( utcString ).epoch< TimeType >( );
     if( convertUtcToTdb )
     {
         return earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< TimeType >(

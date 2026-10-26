@@ -282,7 +282,7 @@ private:
                 originState.setZero( );
                 break;
             case from_ephemeris:
-                originState = centralBodiesFromEphemerides_.at( bodyIndex )( static_cast< double >( time ) );
+                originState = centralBodiesFromEphemerides_.at( bodyIndex )( time );
                 break;
             case from_integration:
                 originState = internalSolution.segment( centralBodiesFromIntegration_.at( bodyIndex ) * 6, 6 );

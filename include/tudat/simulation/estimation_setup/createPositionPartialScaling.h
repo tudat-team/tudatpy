@@ -20,8 +20,10 @@
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/positionAngleAndSeparationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/azimuthElevationPartial.h"
 #include "tudat/astro/observation_models/azimuthElevationObservationModel.h"
+#include "tudat/astro/observation_models/pixelCoordinatesObservationModel.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
@@ -29,8 +31,7 @@
 #include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/simulation/environment_setup/body.h"
-
-#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 namespace tudat
 {
@@ -81,6 +82,24 @@ inline std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerP
     return properTimeRateDopplerPartial;
 }
 
+//! Function to create the position partial scaling object for position angle and/or separation distance observables
+template< int ObservationSize, typename ParameterType, typename TimeType >
+std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > createPositionAngleAndSeparationScaling(
+        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel )
+{
+    std::shared_ptr< observation_models::PositionAngleAndSeparationObservationModel< ObservationSize, ParameterType, TimeType > >
+            positionAngleModel = std::dynamic_pointer_cast<
+                    observation_models::PositionAngleAndSeparationObservationModel< ObservationSize, ParameterType, TimeType > >(
+                    observationModel );
+    if( positionAngleModel == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when making position angle/separation distance partial scaling, observation model is incompatible" );
+    }
+    return std::make_shared< PositionAngleAndSeparationScaling< ObservationSize > >(
+            positionAngleModel->getObservableType( ), positionAngleModel->getJ2000ToGlobalFrameTransformation( ) );
+}
+
 template< int ObservationSize >
 class ObservationPartialScalingCreator
 {
@@ -91,7 +110,8 @@ public:
             const observation_models::ObservableType observableType,
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel =
-                    nullptr );
+                    nullptr,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate = nullptr );
 
     template< typename ParameterType = double, typename TimeType = double >
     static std::shared_ptr< PositionPartialScaling > createDifferencedPositionPartialScalingObject(
@@ -110,7 +130,8 @@ public:
             const observation_models::LinkEnds& linkEnds,
             const observation_models::ObservableType observableType,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel = nullptr )
+            const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel = nullptr,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate = nullptr )
     {
         std::shared_ptr< DirectPositionPartialScaling< 1 > > positionPartialScaler;
 
@@ -158,7 +179,9 @@ public:
                                    std::placeholders::_1 ),
                         dopplerObservationModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
-                        receiverProperTimePartials );
+                        receiverProperTimePartials,
+                        observation_models::one_way_doppler,
+                        dopplerObservationModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
 
                 break;
             }
@@ -214,7 +237,8 @@ public:
                         oneWayDopplerModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
                         receiverProperTimePartials,
-                        observation_models::one_way_doppler );
+                        observation_models::one_way_doppler,
+                        oneWayDopplerModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
 
                 // Get the frequency interpolator from the observation model
                 auto frequencyInterpolator = owdmfObservationModel->getFrequencyInterpolator( );
@@ -236,6 +260,10 @@ public:
 
                 break;
             }
+            case observation_models::position_angle:
+            case observation_models::separation_distance:
+                positionPartialScaler = createPositionAngleAndSeparationScaling< 1, ParameterType, TimeType >( observationModel );
+                break;
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +
@@ -361,7 +389,8 @@ public:
             const observation_models::LinkEnds& linkEnds,
             const observation_models::ObservableType observableType,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 2, ParameterType, TimeType > > observationModel = nullptr )
+            const std::shared_ptr< observation_models::ObservationModel< 2, ParameterType, TimeType > > observationModel = nullptr,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate = nullptr )
     {
         std::shared_ptr< DirectPositionPartialScaling< 2 > > positionPartialScaler;
 
@@ -379,6 +408,13 @@ public:
                 break;
             }
             case observation_models::pixel_coordinates: {
+                const auto pixelCoordinatesModel =
+                        std::dynamic_pointer_cast< observation_models::PixelCoordinatesObservationModel< ParameterType, TimeType > >(
+                                observationModel );
+                if( observationModel != nullptr && pixelCoordinatesModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when making pixel coordinates partial scaling: observation model not recognized." );
+                }
                 std::shared_ptr< simulation_setup::Body > receiverBody = bodies.at( linkEnds.at( observation_models::receiver ).bodyName_ );
                 if( receiverBody->getRotationalEphemeris( ) == nullptr )
                 {
@@ -402,11 +438,30 @@ public:
                                         "ephemeris." );
                             }
                             return camera->getRotationFromInertialToCameraFrame(
-                                    receiverBody->getRotationalEphemeris( )->getRotationToTargetFrame( time ) );
+                                    receiverBody->getRotationalEphemeris( )->getRotationToTargetFrame( time ), time );
                         },
-                        [ camera ]( const Eigen::Vector3d& cameraFramePosition ) {
-                            return camera->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
-                        } );
+                        [ camera ]( const Eigen::Vector3d& cameraFramePosition, const double time ) {
+                            return camera->getProjectionModel( time )->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
+                        },
+                        pixelCoordinatesModel != nullptr && pixelCoordinatesModel->getCorrectForStellarAberration( ) );
+                const std::shared_ptr< PixelCoordinatesScaling > pixelCoordinatesScaling =
+                        std::static_pointer_cast< PixelCoordinatesScaling >( positionPartialScaler );
+                pixelCoordinatesScaling->setPointingCamera( linkEnds.at( observation_models::receiver ), camera );
+
+                // If the camera pointing is given relative to a body-fixed frame, the camera orientation depends on that body's rotation.
+                const std::string& referenceBodyName = camera->getPointingReferenceBodyName( );
+                if( parametersToEstimate != nullptr && camera->hasRotationFromInertialToCameraFrameFunction( ) &&
+                    !referenceBodyName.empty( ) )
+                {
+                    const std::shared_ptr< ephemerides::RotationalEphemeris > referenceRotationModel =
+                            bodies.at( referenceBodyName )->getRotationalEphemeris( );
+                    pixelCoordinatesScaling->setRotationMatrixPartials(
+                            referenceBodyName,
+                            [ referenceRotationModel ]( const double time ) {
+                                return referenceRotationModel->getRotationToBaseFrame( time );
+                            },
+                            createObservationRotationMatrixPartials( parametersToEstimate, referenceBodyName, bodies ) );
+                }
                 break;
             }
             case observation_models::azimuth_elevation_angle: {
@@ -421,6 +476,9 @@ public:
                                                                                      observation_models::receiver );
                 break;
             }
+            case observation_models::position_angle_and_separation:
+                positionPartialScaler = createPositionAngleAndSeparationScaling< 2, ParameterType, TimeType >( observationModel );
+                break;
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +
@@ -489,7 +547,8 @@ public:
             const observation_models::LinkEnds& linkEnds,
             const observation_models::ObservableType observableType,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< 3, ParameterType, TimeType > > observationModel = nullptr )
+            const std::shared_ptr< observation_models::ObservationModel< 3, ParameterType, TimeType > > observationModel = nullptr,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate = nullptr )
     {
         std::shared_ptr< DirectPositionPartialScaling< 3 > > positionPartialScaler;
 

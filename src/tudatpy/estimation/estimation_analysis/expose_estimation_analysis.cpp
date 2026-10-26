@@ -248,6 +248,117 @@ void expose_estimation_analysis( py::module& m )
 
      )doc" );
 
+    m.def( "get_camera_pointing_inverse_apriori_covariance_entries",
+           &tss::getCameraPointingInverseAprioriCovarianceEntries,
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+ Function to get pointing a-priori entries for cameras.
+
+ Each camera in ``supplementary_data`` with a pointing uncertainty gives one entry for its
+ ``camera_pointing_correction`` parameter. The entry holds the inverse variance of each pointing correction
+ component, for every picture in time order. For SUM/LMK data, the uncertainty is the SUM ``SIGMA_PTG`` value.
+
+ The result can be passed to :func:`create_covariance_from_diagonal_entries` to build an inverse a-priori
+ covariance. Use ``require_all_entries_to_match=False`` there if not all cameras are estimated.
+
+ Parameters
+ ----------
+ supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+     Tracking supplementary data, for example as returned by
+     :func:`~tudatpy.data_input.tracking_data.sum_lmk.read_sum_lmk_data`.
+
+ Returns
+ -------
+ list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
+     One ``(parameter_identifier, inverse_variances)`` entry per camera with a pointing uncertainty.
+
+     )doc" );
+
+    m.def( "get_reference_point_position_inverse_apriori_covariance_entries",
+           &tss::getReferencePointPositionInverseAprioriCovarianceEntries,
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+ Function to get position a-priori entries for reference points, such as ground stations or landmarks.
+
+ Each reference point in ``supplementary_data`` with a position uncertainty gives one entry for its
+ ``ground_station_position`` parameter. The entry holds the inverse variance of each body-fixed position
+ component. For SUM/LMK data, the uncertainty is the LMK ``SIGMA_LMK`` value.
+
+ The result can be passed to :func:`create_covariance_from_diagonal_entries` to build an inverse a-priori
+ covariance. Use ``require_all_entries_to_match=False`` there if not all reference points are estimated.
+
+ Parameters
+ ----------
+ supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+     Tracking supplementary data, for example as returned by
+     :func:`~tudatpy.data_input.tracking_data.sum_lmk.read_sum_lmk_data`.
+
+ Returns
+ -------
+ list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
+     One ``(parameter_identifier, inverse_variances)`` entry per reference point with a position uncertainty.
+
+     )doc" );
+
+    m.def( "get_reference_point_position_apriori_covariance_entries",
+           &tss::getReferencePointPositionAprioriCovarianceEntries,
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+ Function to get position variance entries for reference points, such as ground stations or landmarks.
+
+ Same as :func:`get_reference_point_position_inverse_apriori_covariance_entries`, but each entry holds the
+ variance of each body-fixed position component instead of its inverse. For SUM/LMK data, the variance is
+ the square of the LMK ``SIGMA_LMK`` value.
+
+ Parameters
+ ----------
+ supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+     Tracking supplementary data, for example as returned by
+     :func:`~tudatpy.data_input.tracking_data.sum_lmk.read_sum_lmk_data`.
+
+ Returns
+ -------
+ list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
+     One ``(parameter_identifier, variances)`` entry per reference point with a position uncertainty.
+
+     )doc" );
+
+    m.def( "create_reference_point_consider_covariance",
+           &tss::createReferencePointConsiderCovariance< STATE_SCALAR_TYPE >,
+           py::arg( "supplementary_data" ),
+           py::arg( "parameter_set" ),
+           py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+           R"doc(
+
+ Function to create the consider covariance for reference points (e.g. landmarks) that are held fixed.
+
+ Use this to keep landmark positions fixed in an estimation, while still including their uncertainty in the
+ covariance of the estimated parameters. Add the landmarks as consider parameters (``consider_parameters_names`` in
+ :func:`~tudatpy.dynamics.parameters_setup.create_parameter_set`) and pass the result as the consider covariance of
+ the estimation or covariance analysis input.
+
+ Each ``ground_station_position`` consider parameter gets its position variance (for SUM/LMK data, ``SIGMA_LMK``
+ squared) on the diagonal. Other consider parameters keep their values from ``consider_covariance``.
+
+ Parameters
+ ----------
+ supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+     Tracking supplementary data holding the position uncertainties.
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Parameter set that holds the consider parameters.
+ consider_covariance : numpy.ndarray[numpy.float64[m, m]], default = empty
+     Consider covariance to add to. If empty, the function starts from a zero matrix.
+
+ Returns
+ -------
+ numpy.ndarray[numpy.float64[m, m]]
+     Covariance of the consider parameters, in the order of the consider parameter set.
+
+     )doc" );
+
     m.def( "create_covariance_from_diagonal_entries",
            &tss::createCovarianceFromDiagonalEntries< STATE_SCALAR_TYPE >,
            py::arg( "parameter_set" ),
@@ -919,9 +1030,8 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters, 
+         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters,
          equal to the sum of the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance` matrix and the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` matrix.
-
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -1071,16 +1181,48 @@ void expose_estimation_analysis( py::module& m )
       )doc" )
             .def_readonly( "final_parameters",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::parameterEstimate_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Parameter estimate from the selected best iteration of the estimation.
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+
+      )doc" )
             .def_readonly( "exception_during_inversion",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringInversion_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Whether an exception occurred while solving the estimation normal equations.
+
+         :type: bool
+
+      )doc" )
             .def_readonly( "exception_during_propagation",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringPropagation_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Whether an exception occurred while propagating the dynamics or variational equations.
+
+         :type: bool
+
+      )doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Zero-based index of the estimation iteration selected as the best result.
+
+         :type: int
+
+      )doc" )
             .def_property_readonly( "inter_arc_continuity_cost_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCostHistory,
                                     R"doc(

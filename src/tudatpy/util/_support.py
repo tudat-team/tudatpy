@@ -265,7 +265,6 @@ def pareto_optimums(points: list | np.ndarray, operator: Union[None, list[Callab
     return pareto_optimal
 
 
-#
 # def split_history(
 #     state_history: dict[float, np.ndarray],
 #     propagator_settings: "propagator.PropagatorSettings",

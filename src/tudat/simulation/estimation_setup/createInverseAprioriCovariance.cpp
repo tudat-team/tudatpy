@@ -18,6 +18,78 @@ namespace tudat
 namespace simulation_setup
 {
 
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getCameraPointingInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
+{
+    std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries;
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentData : supplementaryData )
+    {
+        for( const std::shared_ptr< data::InstrumentSupplementaryData >& instrument : currentData->getInstrumentSupplementaryData( ) )
+        {
+            const auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrument );
+            if( camera == nullptr || camera->getPointingUncertaintyHistory( ).empty( ) )
+            {
+                continue;
+            }
+
+            // One entry per picture of the pointing history, in time order, which is the order of the pointing correction arcs.
+            const std::map< double, Eigen::Vector3d >& uncertaintyHistory = camera->getPointingUncertaintyHistory( );
+            Eigen::VectorXd inverseVariances( 3 * camera->getRotationFromInertialToCameraFrameHistory( ).size( ) );
+            int pictureIndex = 0;
+            for( const auto& pointingEntry : camera->getRotationFromInertialToCameraFrameHistory( ) )
+            {
+                const auto uncertaintyIterator = uncertaintyHistory.find( pointingEntry.first );
+                if( uncertaintyIterator == uncertaintyHistory.end( ) || !uncertaintyIterator->second.allFinite( ) ||
+                    ( uncertaintyIterator->second.array( ) <= 0.0 ).any( ) )
+                {
+                    throw std::runtime_error( "Error when creating pointing a-priori for camera " + camera->getCameraId( ) +
+                                              ": uncertainties must be finite, positive and given for every picture." );
+                }
+                inverseVariances.segment< 3 >( 3 * pictureIndex++ ) = uncertaintyIterator->second.array( ).square( ).inverse( );
+            }
+            entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
+                                                       estimatable_parameters::camera_pointing_correction,
+                                                       std::make_pair( currentData->getBodyName( ), camera->getCameraId( ) ) ),
+                                               inverseVariances ) );
+        }
+    }
+    return entries;
+}
+
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getReferencePointPositionAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
+{
+    std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries;
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentData : supplementaryData )
+    {
+        const std::shared_ptr< data::ReferencePointSupplementaryData >& referencePoint = currentData->getReferencePointSupplementaryData( );
+        if( referencePoint == nullptr || referencePoint->getPositionUncertainty( ).array( ).isNaN( ).all( ) )
+        {
+            continue;
+        }
+        entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
+                                                   estimatable_parameters::ground_station_position,
+                                                   std::make_pair( currentData->getBodyName( ), currentData->getReferencePointName( ) ) ),
+                                           Eigen::VectorXd( referencePoint->getPositionUncertainty( ).array( ).square( ) ) ) );
+    }
+    return entries;
+}
+
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getReferencePointPositionInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
+{
+    std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries =
+            getReferencePointPositionAprioriCovarianceEntries( supplementaryData );
+    for( auto& entry : entries )
+    {
+        entry.second = entry.second.array( ).inverse( );
+    }
+    return entries;
+}
+
 //! Validate matrix dimensions or create a correctly sized zero matrix from a 0x0 input.
 Eigen::MatrixXd getValidatedCovarianceInput( const Eigen::MatrixXd& covarianceMatrix, const int numberOfEstimatedParameters )
 {
