@@ -988,8 +988,7 @@ protected:
 private:
     friend class cereal::access;
 
-    // Archive versions: 0 stores the design matrix dense (empty if not saved); 1 stores the storage type of the design matrix
-    // (0: not saved, 1: dense, 2: sparse), followed by the matrix if it was saved.
+    // The design matrix is stored as its storage type (0: not saved, 1: dense, 2: sparse), followed by the matrix if it was saved.
     template< class Archive >
     void save( Archive& ar, const std::uint32_t version ) const
     {
@@ -1026,37 +1025,29 @@ private:
     template< class Archive >
     void load( Archive& ar, const std::uint32_t version )
     {
-        if( version == 0 )
+        static_cast< void >( version );
+        std::uint32_t normalizedDesignMatrixStorage;
+        ar( CEREAL_NVP( normalizedDesignMatrixStorage ) );
+        if( normalizedDesignMatrixStorage == 0 )
+        {
+            normalizedDesignMatrix_ = std::monostate( );
+        }
+        else if( normalizedDesignMatrixStorage == 1 )
         {
             Eigen::MatrixXd normalizedDesignMatrix;
             ar( cereal::make_nvp( "normalizedDesignMatrix_", normalizedDesignMatrix ) );
             normalizedDesignMatrix_ = std::move( normalizedDesignMatrix );
         }
+        else if( normalizedDesignMatrixStorage == 2 )
+        {
+            Eigen::SparseMatrix< double > normalizedDesignMatrix;
+            ar( cereal::make_nvp( "normalizedDesignMatrix_", normalizedDesignMatrix ) );
+            normalizedDesignMatrix_ = std::move( normalizedDesignMatrix );
+        }
         else
         {
-            std::uint32_t normalizedDesignMatrixStorage;
-            ar( CEREAL_NVP( normalizedDesignMatrixStorage ) );
-            if( normalizedDesignMatrixStorage == 0 )
-            {
-                normalizedDesignMatrix_ = std::monostate( );
-            }
-            else if( normalizedDesignMatrixStorage == 1 )
-            {
-                Eigen::MatrixXd normalizedDesignMatrix;
-                ar( cereal::make_nvp( "normalizedDesignMatrix_", normalizedDesignMatrix ) );
-                normalizedDesignMatrix_ = std::move( normalizedDesignMatrix );
-            }
-            else if( normalizedDesignMatrixStorage == 2 )
-            {
-                Eigen::SparseMatrix< double > normalizedDesignMatrix;
-                ar( cereal::make_nvp( "normalizedDesignMatrix_", normalizedDesignMatrix ) );
-                normalizedDesignMatrix_ = std::move( normalizedDesignMatrix );
-            }
-            else
-            {
-                throw std::runtime_error( "Cannot deserialize CovarianceAnalysisOutput: unknown design matrix storage type " +
-                                          std::to_string( normalizedDesignMatrixStorage ) + "." );
-            }
+            throw std::runtime_error( "Cannot deserialize CovarianceAnalysisOutput: unknown design matrix storage type " +
+                                      std::to_string( normalizedDesignMatrixStorage ) + "." );
         }
         ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
         ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
@@ -1075,12 +1066,6 @@ private:
         ar( CEREAL_NVP( interArcContinuityDiscrepancies_ ) );
         ar( CEREAL_NVP( exceptionDuringPropagation_ ) );
         ar( CEREAL_NVP( considerParametersIncluded_ ) );
-
-        // In version 0 archives, a design matrix that was not saved is stored as an empty dense matrix
-        if( version == 0 && !designMatrixSaved_ )
-        {
-            normalizedDesignMatrix_ = std::monostate( );
-        }
     }
 };
 
@@ -1389,9 +1374,5 @@ using EstimationOutputDT = EstimationOutput< double, Time >;
 }  // namespace simulation_setup
 
 }  // namespace tudat
-
-// Version 1: design matrix stored with its storage type (absent, dense or sparse); see CovarianceAnalysisOutput::save
-CEREAL_CLASS_VERSION( tudat::simulation_setup::CovarianceAnalysisOutputDD, 1 )
-CEREAL_CLASS_VERSION( tudat::simulation_setup::CovarianceAnalysisOutputDT, 1 )
 
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H

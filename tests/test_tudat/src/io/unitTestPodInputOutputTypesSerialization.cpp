@@ -13,10 +13,12 @@
 #include <memory>
 #include <sstream>
 #include <typeinfo>
+#include <variant>
 #include <vector>
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 
 #include <cereal/archives/binary.hpp>
 
@@ -52,9 +54,10 @@ std::shared_ptr< OutputType > roundTripSerialize( const std::shared_ptr< OutputT
 }
 
 template< typename TimeType >
-std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< double, TimeType > > createCovarianceAnalysisOutput( )
+std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< double, TimeType > > createCovarianceAnalysisOutput(
+        const simulation_setup::optionalAnyMatrix& normalizedDesignMatrix =
+                Eigen::MatrixXd( ( Eigen::MatrixXd( 3, 2 ) << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 ).finished( ) ) )
 {
-    const Eigen::MatrixXd normalizedDesignMatrix( ( Eigen::MatrixXd( 3, 2 ) << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 ).finished( ) );
     const Eigen::VectorXd weightsMatrixDiagonal( ( Eigen::VectorXd( 3 ) << 7.0, 8.0, 9.0 ).finished( ) );
     const Eigen::VectorXd designMatrixTransformationDiagonal( ( Eigen::VectorXd( 2 ) << 10.0, 11.0 ).finished( ) );
     const Eigen::MatrixXd inverseNormalizedCovarianceMatrix( ( Eigen::MatrixXd( 2, 2 ) << 12.0, 13.0, 14.0, 15.0 ).finished( ) );
@@ -78,11 +81,12 @@ std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< double, TimeType > 
 }
 
 template< typename TimeType >
-std::shared_ptr< simulation_setup::EstimationOutput< double, TimeType > > createEstimationOutput( )
+std::shared_ptr< simulation_setup::EstimationOutput< double, TimeType > > createEstimationOutput(
+        const simulation_setup::optionalAnyMatrix& normalizedDesignMatrix =
+                Eigen::MatrixXd( ( Eigen::MatrixXd( 3, 2 ) << 33.0, 34.0, 35.0, 36.0, 37.0, 38.0 ).finished( ) ) )
 {
     const Eigen::Matrix< double, Eigen::Dynamic, 1 > parameterEstimate( ( Eigen::Vector2d( ) << 28.0, 29.0 ).finished( ) );
     const Eigen::VectorXd residuals( ( Eigen::Vector3d( ) << 30.0, 31.0, 32.0 ).finished( ) );
-    const Eigen::MatrixXd normalizedDesignMatrix( ( Eigen::MatrixXd( 3, 2 ) << 33.0, 34.0, 35.0, 36.0, 37.0, 38.0 ).finished( ) );
     const Eigen::VectorXd weightsMatrixDiagonal( ( Eigen::VectorXd( 3 ) << 39.0, 40.0, 41.0 ).finished( ) );
     const Eigen::VectorXd designMatrixTransformationDiagonal( ( Eigen::VectorXd( 2 ) << 42.0, 43.0 ).finished( ) );
     const Eigen::MatrixXd inverseNormalizedCovarianceMatrix( ( Eigen::MatrixXd( 2, 2 ) << 44.0, 45.0, 46.0, 47.0 ).finished( ) );
@@ -145,6 +149,48 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysisOutputSerialization )
 
     // checkEstimationOutputRoundTrip< double >( );
     // checkEstimationOutputRoundTrip< tudat::Time >( );
+}
+
+BOOST_AUTO_TEST_CASE( test_SparseDesignMatrixSerialization )
+{
+    // Sparse 3x2 design matrix with an empty row, an empty column entry and an explicitly stored zero
+    std::vector< Eigen::Triplet< double > > triplets = { { 0, 0, 1.5 }, { 2, 0, -2.5 }, { 2, 1, 3.5 }, { 1, 1, 0.0 } };
+    Eigen::SparseMatrix< double > sparseDesignMatrix( 3, 2 );
+    sparseDesignMatrix.setFromTriplets( triplets.begin( ), triplets.end( ) );
+
+    std::vector< std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< double, double > > > resultsVector = {
+        createCovarianceAnalysisOutput< double >( sparseDesignMatrix ), createEstimationOutput< double >( sparseDesignMatrix )
+    };
+
+    for( const auto& result : resultsVector )
+    {
+        auto roundTripped = roundTripSerialize( result );
+        BOOST_REQUIRE( roundTripped != nullptr );
+        const auto& resultObject = *result;
+        BOOST_CHECK_MESSAGE( *result == *roundTripped,
+                             "Round-tripped object is not equal to original. Type: " << typeid( resultObject ).name( ) );
+
+        // The design matrix is still stored sparse, with the same values
+        BOOST_CHECK( std::holds_alternative< Eigen::SparseMatrix< double > >( roundTripped->normalizedDesignMatrix_ ) );
+        BOOST_CHECK( roundTripped->designMatrixSaved_ );
+        const Eigen::MatrixXd expectedDesignMatrix = Eigen::MatrixXd( sparseDesignMatrix );
+        const Eigen::MatrixXd roundTrippedDesignMatrix = Eigen::MatrixXd( roundTripped->getNormalizedDesignMatrixSparse( ) );
+        BOOST_CHECK( roundTrippedDesignMatrix == expectedDesignMatrix );
+    }
+
+    // Check that a changed sparse design matrix is detected by the comparison
+    Eigen::SparseMatrix< double > changedDesignMatrix = sparseDesignMatrix;
+    changedDesignMatrix.coeffRef( 2, 1 ) = 4.5;
+    BOOST_CHECK( *roundTripSerialize( createCovarianceAnalysisOutput< double >( sparseDesignMatrix ) ) !=
+                 *createCovarianceAnalysisOutput< double >( changedDesignMatrix ) );
+
+    // Absent design matrix
+    auto withoutDesignMatrix = createCovarianceAnalysisOutput< double >( simulation_setup::optionalAnyMatrix( ) );
+    auto roundTrippedWithoutDesignMatrix = roundTripSerialize( withoutDesignMatrix );
+    BOOST_REQUIRE( roundTrippedWithoutDesignMatrix != nullptr );
+    BOOST_CHECK( *withoutDesignMatrix == *roundTrippedWithoutDesignMatrix );
+    BOOST_CHECK( std::holds_alternative< std::monostate >( roundTrippedWithoutDesignMatrix->normalizedDesignMatrix_ ) );
+    BOOST_CHECK( !roundTrippedWithoutDesignMatrix->designMatrixSaved_ );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
