@@ -101,6 +101,21 @@ struct MatrixTraits<Real, Dense>
         return matrix_type::Zero(rows, cols);
     }
 
+    //! Function to convert a dense matrix to this storage. Passes the matrix through without copying.
+    inline static const matrix_type& from_dense(const matrix_type &A) {
+        return A;
+    }
+
+    //! Function to convert a sparse matrix to this storage.
+    inline static matrix_type from_sparse(const Eigen::SparseMatrix<Real> &A) {
+        return matrix_type(A);
+    }
+
+    //! Function to convert a matrix in this storage to a dense matrix.
+    inline static matrix_type to_dense(matrix_type A) {
+        return A;
+    }
+
     /*! Extends a square matrix with a second one in a symmetric way. The matrix `A` is
      * grown to fit `B` in the extended rows, and `B^T` in the extended columns.
      */
@@ -211,6 +226,21 @@ struct MatrixTraits<Real, Sparse>
     //! Function to create an empty (all-zero) sparse matrix of the given size.
     inline static matrix_type zeros(unsigned rows, unsigned cols) {
         return matrix_type(rows, cols);
+    }
+
+    //! Function to convert a dense matrix to this storage. Only exact zeros are dropped.
+    inline static matrix_type from_dense(const Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> &A) {
+        return A.sparseView( );
+    }
+
+    //! Function to convert a sparse matrix to this storage. Passes the matrix through without copying.
+    inline static const matrix_type& from_sparse(const matrix_type &A) {
+        return A;
+    }
+
+    //! Function to convert a matrix in this storage to a dense matrix.
+    inline static Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> to_dense(const matrix_type &A) {
+        return Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>(A);
     }
 
     /*! Extends a square sparse matrix with a second one in a symmetric way. Same semantics as the dense

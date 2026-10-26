@@ -13,6 +13,8 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
@@ -60,7 +62,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
-    Eigen::MatrixXd bestDesignMatrixEstimatedParameters = Eigen::MatrixXd::Zero( 0, 0 );
+    // Dense or sparse, depending on the estimation input; left empty if the design matrix is not saved
+    optionalAnyMatrix bestDesignMatrixEstimatedParameters;
     Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
     Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix =
             Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
@@ -96,6 +99,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
 
     bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
+
+    // Use sparse linear algebra for the design matrix in the least-squares solution
+    const bool useSparseDesignMatrix = estimationInput->getSparseDesignMatrix( );
 
     // Iterate until convergence (at least once)
     int bestIteration = -1;
@@ -151,6 +157,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Perform least squares calculation for correction to parameter vector.
         std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
+        Eigen::SparseMatrix< double > sparseDesignMatrixEstimatedParameters;
         try
         {
             // Get constraints
@@ -163,17 +170,33 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             {
                 conditionNumberCheck = TUDAT_NAN;
             }
-            // Perform LSQ inversion
-            leastSquaresOutput =
-                    std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                              residuals.template cast< double >( ),
-                                                                                              weightsMatrixDiagonals,
-                                                                                              normalizedInverseAprioriCovarianceMatrix,
-                                                                                              conditionNumberCheck,
-                                                                                              constraintStateMultiplier,
-                                                                                              constraintRightHandSide,
-                                                                                              designMatrixConsiderParameters,
-                                                                                              normalizedConsiderParametersDeviation ) );
+            // Perform LSQ inversion in the storage of the given design matrix (dense or sparse). The other matrices
+            // are converted to the same storage, the inverse covariance is returned as a dense matrix.
+            auto performLeastSquares = [ & ]( const auto& designMatrix ) {
+                using MatrixType = std::decay_t< decltype( designMatrix ) >;
+                using Traits = typename linear_algebra::from_eigen< MatrixType >::traits;
+                auto output = linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix< MatrixType >(
+                        designMatrix,
+                        residuals.template cast< double >( ),
+                        weightsMatrixDiagonals,
+                        Traits::from_dense( normalizedInverseAprioriCovarianceMatrix ),
+                        conditionNumberCheck,
+                        Traits::from_dense( constraintStateMultiplier ),
+                        constraintRightHandSide,
+                        Traits::from_dense( designMatrixConsiderParameters ),
+                        normalizedConsiderParametersDeviation );
+                return std::make_pair( std::move( output.first ), Traits::to_dense( std::move( output.second ) ) );
+            };
+
+            if( useSparseDesignMatrix )
+            {
+                sparseDesignMatrixEstimatedParameters = designMatrixEstimatedParameters.sparseView( );
+                leastSquaresOutput = performLeastSquares( sparseDesignMatrixEstimatedParameters );
+            }
+            else
+            {
+                leastSquaresOutput = performLeastSquares( designMatrixEstimatedParameters );
+            }
 
             if( constraintStateMultiplier.rows( ) > 0 )
             {
@@ -257,7 +280,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             estimationInput->getObservationCollection( )->setResiduals( residuals );
             if( estimationInput->getSaveDesignMatrix( ) )
             {
-                bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
+                if( useSparseDesignMatrix )
+                {
+                    bestDesignMatrixEstimatedParameters = std::move( sparseDesignMatrixEstimatedParameters );
+                }
+                else
+                {
+                    bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
+                }
                 bestDesignMatrixConsiderParameters = std::move( designMatrixConsiderParameters );
             }
             bestWeightsMatrixDiagonal = weightsMatrixDiagonals;

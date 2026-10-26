@@ -29,7 +29,7 @@
 
 #include "tudat/math/basic/leastSquaresTraits.h"
 
-using DesignMatrixStorageClass = tudat::linear_algebra::Dense;
+using DesignMatrixStorageClass = tudat::linear_algebra::Sparse;
 using DesignMatrixPrecision = double;
 
 using DesignMatrixTraits = tudat::linear_algebra::MatrixTraits<DesignMatrixPrecision, DesignMatrixStorageClass>;
@@ -141,25 +141,56 @@ int main( )
     }
     parametersToEstimate->resetParameterValues( initialEstimate );
 
-    // Perform estimation
-    std::shared_ptr< EstimationInput< double, double > > estimationInput =
-            std::make_shared< EstimationInput< double, double > >( observations );
-    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
-    estimationInput->defineEstimationSettings( true, true, true, true );
+    // Perform estimation, starting from the perturbed initial estimate, with sparse or dense linear algebra.
+    // Returns the estimation output, and the parameter values after the final correction has been applied.
+    auto runEstimation = [ & ]( const bool useSparseDesignMatrix ) {
+        parametersToEstimate->resetParameterValues( initialEstimate );
+        std::shared_ptr< EstimationInput< double, double > > estimationInput =
+                std::make_shared< EstimationInput< double, double > >( observations );
+        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+        estimationInput->defineEstimationSettings( true, true, true, true );
+        estimationInput->setSparseDesignMatrix( useSparseDesignMatrix );
+        std::shared_ptr< EstimationOutput< double, double > > output = orbitDeterminationManager.estimateParameters( estimationInput );
+        return std::make_pair( output, Eigen::VectorXd( parametersToEstimate->getFullParameterValues< double >( ) ) );
+    };
 
-    // ask to use sparse matrix solvers
-    estimationInput->setSparseDesignMatrix( true );
-
-    std::shared_ptr< EstimationOutput< double, double > > output = orbitDeterminationManager.estimateParameters( estimationInput );
+    auto [ sparseOutput, sparseCorrectedParameters ] = runEstimation( true );
+    auto [ denseOutput, denseCorrectedParameters ] = runEstimation( false );
 
     // Test sparsity
     const DesignMatrixTraits::matrix_type designMatrix =
-        output->getUnnormalizedDesignMatrixGeneric<DesignMatrixStorageClass>( );
+        sparseOutput->getUnnormalizedDesignMatrixGeneric<DesignMatrixStorageClass>( );
     const double tolerance = 1.0E-20;
-    const int nonZeroCount = ( designMatrix.array( ).abs( ) > tolerance ).count( );
+    const int nonZeroCount = ( designMatrix.coeffs( ).abs( ) > tolerance ).count( );
     std::cout << std::setprecision( 16 ) << std::scientific;
     std::cout << "Design matrix entries: " << designMatrix.rows( ) * designMatrix.cols( ) << "\n"
               << "Nonzeros > " << tolerance << ": " << nonZeroCount << "\n"
               << "Density: " << static_cast< double >( nonZeroCount ) / static_cast< double >( designMatrix.size( ) ) << "\n";
 
+    // Compare sparse and dense solutions. The corrected parameters are compared, since the parameter estimate in the output
+    // is the one from the best iteration, before its correction was applied.
+    const Eigen::VectorXd parameterDifference = sparseCorrectedParameters - denseCorrectedParameters;
+    const double maximumParameterCorrection = ( denseCorrectedParameters - initialEstimate ).cwiseAbs( ).maxCoeff( );
+    const Eigen::VectorXd relativeFormalErrorDifference =
+            ( sparseOutput->getFormalErrorVector( ) - denseOutput->getFormalErrorVector( ) )
+                    .cwiseQuotient( denseOutput->getFormalErrorVector( ) );
+    const double maximumDesignMatrixDifference =
+            ( Eigen::MatrixXd( designMatrix ) - denseOutput->getUnnormalizedDesignMatrix( ) ).cwiseAbs( ).maxCoeff( );
+    std::cout << "Max. parameter correction (dense): " << maximumParameterCorrection << "\n"
+              << "Max. parameter difference (sparse - dense): " << parameterDifference.cwiseAbs( ).maxCoeff( ) << "\n"
+              << "Max. relative formal error difference: " << relativeFormalErrorDifference.cwiseAbs( ).maxCoeff( ) << "\n"
+              << "Max. design matrix difference: " << maximumDesignMatrixDifference << "\n";
+
+    // Position components are perturbed by 1 m, velocities by 1E-5 m/s; the solutions should agree far below that
+    // Check that each run stored the design matrix in the storage it was asked to use
+    const bool storageAsRequested =
+            std::holds_alternative< Eigen::SparseMatrix< double > >( sparseOutput->normalizedDesignMatrix_ ) &&
+            std::holds_alternative< Eigen::MatrixXd >( denseOutput->normalizedDesignMatrix_ );
+    std::cout << "Design matrix stored as requested (sparse/dense): " << std::boolalpha << storageAsRequested << "\n";
+
+    const bool solutionsAgree = storageAsRequested && maximumParameterCorrection > 1.0E-3 &&
+            parameterDifference.cwiseAbs( ).maxCoeff( ) < 1.0E-6 &&
+            relativeFormalErrorDifference.cwiseAbs( ).maxCoeff( ) < 1.0E-8 && maximumDesignMatrixDifference == 0.0;
+    std::cout << ( solutionsAgree ? "Sparse and dense solutions agree" : "Sparse and dense solutions DIFFER" ) << std::endl;
+    return solutionsAgree ? EXIT_SUCCESS : EXIT_FAILURE;
 }

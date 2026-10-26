@@ -15,6 +15,8 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <type_traits>
+#include <variant>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -761,6 +763,21 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
 
 using optionalAnyMatrix = std::variant<std::monostate, Eigen::MatrixXd, Eigen::SparseMatrix<double>>;
 
+//! Function to get the number of columns of an optionally saved (dense or sparse) matrix; zero if it is absent
+inline int getNumberOfColumns( const optionalAnyMatrix& matrix )
+{
+    return std::visit( []( const auto& m ) -> int {
+        if constexpr( std::is_same_v< std::decay_t< decltype( m ) >, std::monostate > )
+        {
+            return 0;
+        }
+        else
+        {
+            return static_cast< int >( m.cols( ) );
+        }
+    }, matrix );
+}
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
 CovarianceAnalysisOutput(     const optionalAnyMatrix& normalizedDesignMatrix,
@@ -864,14 +881,36 @@ CovarianceAnalysisOutput(     const optionalAnyMatrix& normalizedDesignMatrix,
         return unnormalizedCovarianceMatrix_;
     }
 
+    //! Function to retrieve the matrix of normalized partial derivatives in the requested storage
+    /*!
+     * Function to retrieve the matrix of normalized partial derivatives, converted to the storage class `S`
+     * (`Dense` or `Sparse`) if it was saved in the other one.
+     * \return Matrix of normalized partial derivatives
+     */
+    template <typename S>
+    typename MatrixTraits<double, S>::matrix_type getNormalizedDesignMatrixGeneric( ) const
+    {
+        using traits = MatrixTraits<double, S>;
+        if( designMatrixSaved_ && std::holds_alternative<Eigen::MatrixXd>(normalizedDesignMatrix_) )
+        {
+            return traits::from_dense( std::get<Eigen::MatrixXd>(normalizedDesignMatrix_) );
+        }
+        else if( designMatrixSaved_ && std::holds_alternative<Eigen::SparseMatrix<double>>(normalizedDesignMatrix_) )
+        {
+            return traits::from_sparse( std::get<Eigen::SparseMatrix<double>>(normalizedDesignMatrix_) );
+        }
+        else
+        {
+            return returnNoDesignMatrixAvailableGeneric<S>( );
+        }
+    }
+
     template <typename S>
     typename MatrixTraits<double, S>::matrix_type getUnnormalizedDesignMatrixGeneric( ) const
     {
-        using matrix_t = typename MatrixTraits<double, S>::matrix_type;
-        if( designMatrixSaved_ && std::holds_alternative<matrix_t>(normalizedDesignMatrix_) )
+        if( designMatrixSaved_ )
         {
-            auto const &A = std::get<matrix_t>(normalizedDesignMatrix_);
-            return A * designMatrixTransformationDiagonal_.asDiagonal();
+            return getNormalizedDesignMatrixGeneric<S>( ) * designMatrixTransformationDiagonal_.asDiagonal();
         }
         else
         {
@@ -901,21 +940,19 @@ CovarianceAnalysisOutput(     const optionalAnyMatrix& normalizedDesignMatrix,
 
     Eigen::MatrixXd getNormalizedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ && std::holds_alternative<Eigen::MatrixXd>(normalizedDesignMatrix_) )
-        {
-            return std::get<Eigen::MatrixXd>(normalizedDesignMatrix_);
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailable( );
-        }
+        return getNormalizedDesignMatrixGeneric<Dense>( );
+    }
+
+    Eigen::SparseMatrix<double> getNormalizedDesignMatrixSparse( ) const
+    {
+        return getNormalizedDesignMatrixGeneric<Sparse>( );
     }
 
     Eigen::MatrixXd getNormalizedWeightedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ && std::holds_alternative<Eigen::MatrixXd>(normalizedDesignMatrix_) )
+        if( designMatrixSaved_ )
         {
-            auto A = std::get<Eigen::MatrixXd>(normalizedDesignMatrix_);
+            Eigen::MatrixXd A = getNormalizedDesignMatrixGeneric<Dense>( );
             scaleDesignMatrixWithWeights( A, weightsMatrixDiagonal_ );
             return A;
         }
@@ -1102,7 +1139,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
      */
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                       const Eigen::VectorXd& residuals,
-                      const Eigen::MatrixXd& normalizedDesignMatrix,
+                      const optionalAnyMatrix& normalizedDesignMatrix,
                       const Eigen::VectorXd& weightsMatrixDiagonal,
                       const Eigen::VectorXd& designMatrixTransformationDiagonal,
                       const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
@@ -1128,7 +1165,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      exceptionDuringPropagation ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
-        exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )
+        exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( getNumberOfColumns( normalizedDesignMatrix ) )
     {}
 
     //! Function to get residual vectors per iteration concatenated into a matrix

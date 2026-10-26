@@ -76,6 +76,25 @@ typename from_eigen<M>::dense_vector_type solveSystemOfEquations(
             matrixToInvert, rightHandSideVector, limitConditionNumberForWarning );
 }
 
+//! Solve system of equations with SVD decomposition, checking condition number in the process
+/*!
+ * Solve system of equations with SVD decomposition, checking condition number in the process. This function solves
+ * A*x = b for the vector x. Dense matrices only; use `solveSystemOfEquations` to select the solver from the storage type.
+ * \param matrixToInvert Matrix A that is to be inverted to solve the equation
+ * \param rightHandSideVector Vector on the righthandside of the matrix equation that is to be solved
+ * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
+ * (warning printed when exceeded)
+ * \return Solution x of matrix equation A*x=b
+ */
+template <typename M>
+typename from_eigen<M>::dense_vector_type solveSystemOfEquationsWithSvd(
+    const M& matrixToInvert,
+    const typename from_eigen<M>::dense_vector_type& rightHandSideVector,
+    typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 )
+{
+    return SolverTraits< M, SVD >::solve( matrixToInvert, rightHandSideVector, limitConditionNumberForWarning );
+}
+
 //! Function to multiply information matrix by diagonal weights matrix
 /*!
  * Function to multiply information matrix by diagonal weights matrix
