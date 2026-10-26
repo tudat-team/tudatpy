@@ -4,12 +4,34 @@
 Migration Guides
 ******************************
 
-TudatPy v1.0
------------------
-
-This section provides a guide for users migrating from TudatPy v0.9 and older to v1.0.
+This section provides guides for users migrating from older to later versions of TudatPy.
+For the full list of changes, refer to the :ref:`release notes <release_notes>`.
 
 Have questions or feedback? As always, let us know in our `Github Discussion forum <https://github.com/orgs/tudat-team/discussions?discussions_q=>`_!
+
+TudatPy v1.2
+------------
+
+Tracking Data Processing
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Why was this needed?
+====================
+
+...
+
+How does it effect users?
+=========================
+
+...
+
+How to migrate?
+===============
+
+...
+
+TudatPy v1.0
+-----------------
 
 Installation
 ^^^^^^^^^^^^
