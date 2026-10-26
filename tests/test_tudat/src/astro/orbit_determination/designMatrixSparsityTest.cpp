@@ -29,6 +29,26 @@
 
 #include "tudat/math/basic/leastSquaresTraits.h"
 
+#if defined( __unix__ ) || defined( __APPLE__ )
+#include <sys/resource.h>
+#endif
+
+//! Peak resident memory of this process so far, in MB (zero where not available)
+double getPeakMemoryUsageInMegabytes( )
+{
+#if defined( __unix__ ) || defined( __APPLE__ )
+    struct rusage usage;
+    getrusage( RUSAGE_SELF, &usage );
+#if defined( __APPLE__ )
+    return static_cast< double >( usage.ru_maxrss ) / ( 1024.0 * 1024.0 );  // bytes
+#else
+    return static_cast< double >( usage.ru_maxrss ) / 1024.0;  // kilobytes
+#endif
+#else
+    return 0.0;
+#endif
+}
+
 using DesignMatrixStorageClass = tudat::linear_algebra::Sparse;
 using DesignMatrixPrecision = double;
 
@@ -154,8 +174,15 @@ int main( )
         return std::make_pair( output, Eigen::VectorXd( parametersToEstimate->getFullParameterValues< double >( ) ) );
     };
 
+    // The sparse run is done first, so that the peak memory after it is that of the sparse run only
+    const double peakMemoryBeforeEstimation = getPeakMemoryUsageInMegabytes( );
     auto [ sparseOutput, sparseCorrectedParameters ] = runEstimation( true );
+    const double peakMemoryAfterSparseEstimation = getPeakMemoryUsageInMegabytes( );
     auto [ denseOutput, denseCorrectedParameters ] = runEstimation( false );
+    const double peakMemoryAfterDenseEstimation = getPeakMemoryUsageInMegabytes( );
+    std::cout << "Peak memory (MB) before estimation: " << peakMemoryBeforeEstimation
+              << ", after sparse estimation: " << peakMemoryAfterSparseEstimation
+              << ", after dense estimation: " << peakMemoryAfterDenseEstimation << "\n";
 
     // Test sparsity
     const DesignMatrixTraits::matrix_type designMatrix =

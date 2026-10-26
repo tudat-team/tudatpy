@@ -33,6 +33,26 @@ std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
+    if( estimationInput->getSparseDesignMatrix( ) )
+    {
+        return performCovarianceAnalysis< Eigen::SparseMatrix< double > >( estimationInput );
+    }
+    else
+    {
+        return performCovarianceAnalysis< Eigen::MatrixXd >( estimationInput );
+    }
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+template< typename DesignMatrixType >
+std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performCovarianceAnalysis(
+        const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
+{
+    using DesignMatrixTraits = typename linear_algebra::from_eigen< DesignMatrixType >::traits;
+
     // Get total number of observations
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
@@ -50,12 +70,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     // Compute design matrices (estimated and consider), and residuals (empty for covariance analysis)
     bool exceptionDuringPropagation = false;
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-    std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-            designMatricesAndResiduals =
-                    performPreEstimationSteps( estimationInput, parameterValues, false, 0, exceptionDuringPropagation, simulationResults );
-    Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
-    Eigen::MatrixXd designMatrixConsiderParameters;
-    designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
+    std::pair< std::pair< DesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+            designMatricesAndResiduals = performPreEstimationSteps< DesignMatrixType >(
+                    estimationInput, parameterValues, false, 0, exceptionDuringPropagation, simulationResults );
+    DesignMatrixType designMatrixEstimatedParameters = std::move( designMatricesAndResiduals.first.first );
+    Eigen::MatrixXd designMatrixConsiderParameters = std::move( designMatricesAndResiduals.first.second );
 
     // Normalise partials and inverse a priori covariance
     Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
@@ -81,45 +100,21 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     Eigen::VectorXd constraintRightHandSide;
     parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
 
-    // Compute inverse of updated covariance in the storage of the given design matrix (dense or sparse). The other
-    // matrices are converted to the same storage, the inverse covariance is returned as a dense matrix.
+    // Compute inverse of updated covariance in the storage of the design matrix (dense or sparse). The other matrices
+    // are converted to the same storage, the inverse covariance is returned as a dense matrix.
+    std::optional< DesignMatrixType > constraintStateMultiplierOptional = constraintStateMultiplier.rows( ) == 0
+            ? std::nullopt
+            : std::optional< DesignMatrixType >( DesignMatrixTraits::from_dense( constraintStateMultiplier ) );
     std::optional< Eigen::VectorXd > constraintRightHandSideOptional =
             constraintStateMultiplier.rows( ) == 0 ? std::nullopt : std::optional< Eigen::VectorXd >( constraintRightHandSide );
-    auto computeInverseCovariance = [ & ]( const auto& designMatrix ) {
-        using MatrixType = std::decay_t< decltype( designMatrix ) >;
-        using Traits = typename linear_algebra::from_eigen< MatrixType >::traits;
-        std::optional< MatrixType > constraintStateMultiplierOptional = constraintStateMultiplier.rows( ) == 0
-                ? std::nullopt
-                : std::optional< MatrixType >( Traits::from_dense( constraintStateMultiplier ) );
-        return Traits::to_dense( linear_algebra::calculateInverseOfUpdatedCovarianceMatrix< MatrixType >(
-                designMatrix,
-                estimationInput->getWeightsMatrixDiagonals( ),
-                Traits::from_dense( normalizedInverseAprioriCovarianceMatrix ),
-                constraintStateMultiplierOptional,
-                constraintRightHandSideOptional,
-                estimationInput->getLimitConditionNumberForWarning( ) ) );
-    };
-
-    // Design matrix to store in the output; left empty if the design matrix is not saved
-    optionalAnyMatrix savedDesignMatrixEstimatedParameters;
-    Eigen::MatrixXd inverseNormalizedCovariance;
-    if( estimationInput->getSparseDesignMatrix( ) )
-    {
-        Eigen::SparseMatrix< double > sparseDesignMatrixEstimatedParameters = designMatrixEstimatedParameters.sparseView( );
-        inverseNormalizedCovariance = computeInverseCovariance( sparseDesignMatrixEstimatedParameters );
-        if( estimationInput->getSaveDesignMatrix( ) )
-        {
-            savedDesignMatrixEstimatedParameters = std::move( sparseDesignMatrixEstimatedParameters );
-        }
-    }
-    else
-    {
-        inverseNormalizedCovariance = computeInverseCovariance( designMatrixEstimatedParameters );
-        if( estimationInput->getSaveDesignMatrix( ) )
-        {
-            savedDesignMatrixEstimatedParameters = designMatrixEstimatedParameters;
-        }
-    }
+    Eigen::MatrixXd inverseNormalizedCovariance =
+            DesignMatrixTraits::to_dense( linear_algebra::calculateInverseOfUpdatedCovarianceMatrix< DesignMatrixType >(
+                    designMatrixEstimatedParameters,
+                    estimationInput->getWeightsMatrixDiagonals( ),
+                    DesignMatrixTraits::from_dense( normalizedInverseAprioriCovarianceMatrix ),
+                    constraintStateMultiplierOptional,
+                    constraintRightHandSideOptional,
+                    estimationInput->getLimitConditionNumberForWarning( ) ) );
 
     // Compute contribution consider parameters
     Eigen::MatrixXd covarianceContributionConsiderParameters;
@@ -141,7 +136,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     // Create covariance output object
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput =
             std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
-                    savedDesignMatrixEstimatedParameters,
+                    estimationInput->getSaveDesignMatrix( ) ? optionalAnyMatrix( std::move( designMatrixEstimatedParameters ) )
+                                                            : optionalAnyMatrix( ),
                     estimationInput->getWeightsMatrixDiagonals( ),
                     normalizationTerms,
                     inverseNormalizedCovariance,

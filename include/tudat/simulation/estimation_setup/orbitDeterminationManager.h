@@ -166,6 +166,9 @@ public:
      */
     Eigen::VectorXd normalizeDesignMatrix( Eigen::MatrixXd& observationMatrix );
 
+    //! Function to normalize a sparse matrix of partial derivatives; same normalization as the dense version
+    Eigen::VectorXd normalizeDesignMatrix( Eigen::SparseMatrix< double >& observationMatrix );
+
     void getNormalizedConsiderCovariance(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
             const Eigen::VectorXd& considerNormalizationTerms,
@@ -265,7 +268,19 @@ protected:
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true );
 
-    std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+    //! Function to perform the parameter estimation, with a design matrix of type DesignMatrixType (dense or sparse)
+    template< typename DesignMatrixType >
+    std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > performEstimation(
+            std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput );
+
+    //! Function to perform the covariance analysis, with a design matrix of type DesignMatrixType (dense or sparse)
+    template< typename DesignMatrixType >
+    std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > performCovarianceAnalysis(
+            const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput );
+
+    //! Function to compute the design matrices (estimated parameters: DesignMatrixType, consider parameters: dense) and residuals
+    template< typename DesignMatrixType = Eigen::MatrixXd >
+    std::pair< std::pair< DesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
     performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
                                const ParameterVectorType& newParameterEstimate,
                                const bool calculateResiduals,
@@ -275,6 +290,11 @@ protected:
 
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices( const Eigen::MatrixXd& designMatrix,
                                                                                               const int numberObservations );
+
+    //! Function to separate a sparse design matrix; the partials w.r.t. consider parameters are returned dense
+    std::pair< Eigen::SparseMatrix< double >, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices(
+            const Eigen::SparseMatrix< double >& designMatrix,
+            const int numberObservations );
 
     //! Boolean to denote whether any dynamical parameters are estimated
     bool integrateAndEstimateOrbit_;

@@ -34,8 +34,27 @@ template< typename ObservationScalarType,
 std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimateParameters(
         std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
-
 {
+    if( estimationInput->getSparseDesignMatrix( ) )
+    {
+        return performEstimation< Eigen::SparseMatrix< double > >( estimationInput );
+    }
+    else
+    {
+        return performEstimation< Eigen::MatrixXd >( estimationInput );
+    }
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+template< typename DesignMatrixType >
+std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEstimation(
+        std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
+{
+    using DesignMatrixTraits = typename linear_algebra::from_eigen< DesignMatrixType >::traits;
+
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
     // Get number of observations
@@ -100,9 +119,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
 
-    // Use sparse linear algebra for the design matrix in the least-squares solution
-    const bool useSparseDesignMatrix = estimationInput->getSparseDesignMatrix( );
-
     // Iterate until convergence (at least once)
     int bestIteration = -1;
     int numberOfIterations = 0;
@@ -112,13 +128,12 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Compute design matrices (for estimated and consider parameters) and residuals.
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-        std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-                designMatricesAndResiduals = performPreEstimationSteps(
+        std::pair< std::pair< DesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+                designMatricesAndResiduals = performPreEstimationSteps< DesignMatrixType >(
                         estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = designMatricesAndResiduals.second;
-        Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
-        Eigen::MatrixXd designMatrixConsiderParameters;
-        designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = std::move( designMatricesAndResiduals.second );
+        DesignMatrixType designMatrixEstimatedParameters = std::move( designMatricesAndResiduals.first.first );
+        Eigen::MatrixXd designMatrixConsiderParameters = std::move( designMatricesAndResiduals.first.second );
 
         // Set simulation results
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
@@ -157,7 +172,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Perform least squares calculation for correction to parameter vector.
         std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
-        Eigen::SparseMatrix< double > sparseDesignMatrixEstimatedParameters;
         try
         {
             // Get constraints
@@ -170,33 +184,21 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             {
                 conditionNumberCheck = TUDAT_NAN;
             }
-            // Perform LSQ inversion in the storage of the given design matrix (dense or sparse). The other matrices
-            // are converted to the same storage, the inverse covariance is returned as a dense matrix.
-            auto performLeastSquares = [ & ]( const auto& designMatrix ) {
-                using MatrixType = std::decay_t< decltype( designMatrix ) >;
-                using Traits = typename linear_algebra::from_eigen< MatrixType >::traits;
-                auto output = linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix< MatrixType >(
-                        designMatrix,
-                        residuals.template cast< double >( ),
-                        weightsMatrixDiagonals,
-                        Traits::from_dense( normalizedInverseAprioriCovarianceMatrix ),
-                        conditionNumberCheck,
-                        Traits::from_dense( constraintStateMultiplier ),
-                        constraintRightHandSide,
-                        Traits::from_dense( designMatrixConsiderParameters ),
-                        normalizedConsiderParametersDeviation );
-                return std::make_pair( std::move( output.first ), Traits::to_dense( std::move( output.second ) ) );
-            };
-
-            if( useSparseDesignMatrix )
-            {
-                sparseDesignMatrixEstimatedParameters = designMatrixEstimatedParameters.sparseView( );
-                leastSquaresOutput = performLeastSquares( sparseDesignMatrixEstimatedParameters );
-            }
-            else
-            {
-                leastSquaresOutput = performLeastSquares( designMatrixEstimatedParameters );
-            }
+            // Perform LSQ inversion in the storage of the design matrix (dense or sparse). The other matrices are
+            // converted to the same storage, the inverse covariance is returned as a dense matrix.
+            std::pair< Eigen::VectorXd, DesignMatrixType > leastSquaresSolution =
+                    linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix< DesignMatrixType >(
+                            designMatrixEstimatedParameters,
+                            residuals.template cast< double >( ),
+                            weightsMatrixDiagonals,
+                            DesignMatrixTraits::from_dense( normalizedInverseAprioriCovarianceMatrix ),
+                            conditionNumberCheck,
+                            DesignMatrixTraits::from_dense( constraintStateMultiplier ),
+                            constraintRightHandSide,
+                            DesignMatrixTraits::from_dense( designMatrixConsiderParameters ),
+                            normalizedConsiderParametersDeviation );
+            leastSquaresOutput = std::make_pair( std::move( leastSquaresSolution.first ),
+                                                 DesignMatrixTraits::to_dense( std::move( leastSquaresSolution.second ) ) );
 
             if( constraintStateMultiplier.rows( ) > 0 )
             {
@@ -280,14 +282,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             estimationInput->getObservationCollection( )->setResiduals( residuals );
             if( estimationInput->getSaveDesignMatrix( ) )
             {
-                if( useSparseDesignMatrix )
-                {
-                    bestDesignMatrixEstimatedParameters = std::move( sparseDesignMatrixEstimatedParameters );
-                }
-                else
-                {
-                    bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
-                }
+                bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
                 bestDesignMatrixConsiderParameters = std::move( designMatrixConsiderParameters );
             }
             bestWeightsMatrixDiagonal = weightsMatrixDiagonals;
@@ -414,7 +409,8 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::resetP
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+template< typename DesignMatrixType >
+std::pair< std::pair< DesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreEstimationSteps(
         std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
         const ParameterVectorType& newParameterEstimate,
@@ -458,7 +454,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
 
     // Calculate residuals and observation matrix for current parameter estimate.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals;
-    Eigen::MatrixXd designMatrix;
+    DesignMatrixType designMatrix;
     if( calculateResiduals )
     {
         calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
@@ -479,10 +475,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     }
 
     // Divide partials matrix between estimated and consider parameters
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > designMatrices =
+    std::pair< DesignMatrixType, Eigen::MatrixXd > designMatrices =
             separateEstimatedAndConsiderDesignMatrices( designMatrix, totalNumberOfObservations );
 
-    return std::make_pair( designMatrices, residuals );
+    return std::make_pair( std::move( designMatrices ), std::move( residuals ) );
 }
 
 }  // namespace simulation_setup

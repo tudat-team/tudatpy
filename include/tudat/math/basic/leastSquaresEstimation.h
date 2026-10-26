@@ -173,6 +173,23 @@ M calculateConsiderParametersCovarianceContribution( const M& normalisedCovarian
             ( considerDesignMatrix.transpose( ) * covarianceTimesWeightedPartials.transpose( ) );
 }
 
+//! Function to compute the contribution of consider parameters to the covariance matrix, for a sparse design matrix
+/*!
+ * Same result as the dense version, (P H^T W H_c) C (P H^T W H_c)^T with P the normalised covariance, but with the products
+ * ordered such that no dense matrix of the size of the design matrix is formed. The partials w.r.t. the consider parameters
+ * (H_c) are dense.
+ */
+inline Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
+                                                                          const Eigen::SparseMatrix< double >& designMatrix,
+                                                                          const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                                          const Eigen::MatrixXd& considerDesignMatrix,
+                                                                          const Eigen::MatrixXd& considerCovariance )
+{
+    Eigen::MatrixXd covarianceTimesConsiderNormalMatrix = normalisedCovarianceMatrix *
+            ( designMatrix.transpose( ) * ( diagonalOfWeightMatrix.asDiagonal( ) * considerDesignMatrix ) );
+    return covarianceTimesConsiderNormalMatrix * considerCovariance * covarianceTimesConsiderNormalMatrix.transpose( );
+}
+
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
 //! information
 /*!
