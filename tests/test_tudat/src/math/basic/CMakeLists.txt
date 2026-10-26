@@ -12,6 +12,8 @@ TUDAT_ADD_TEST_CASE(MathematicalConstants)
 
 TUDAT_ADD_TEST_CASE(LinearAlgebra PRIVATE_LINKS tudat_basic_mathematics)
 
+TUDAT_ADD_TEST_CASE(LeastSquaresEstimation PRIVATE_LINKS tudat_basic_mathematics)
+
 TUDAT_ADD_TEST_CASE(CoordinateConversions PRIVATE_LINKS tudat_basic_mathematics)
 
 TUDAT_ADD_TEST_CASE(NearestNeighbourSearch PRIVATE_LINKS tudat_interpolators tudat_basic_mathematics)
