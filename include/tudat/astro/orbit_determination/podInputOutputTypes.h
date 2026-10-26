@@ -46,8 +46,8 @@ namespace tudat
 namespace simulation_setup
 {
 
-using linear_algebra::MatrixTraits;
 using linear_algebra::Dense;
+using linear_algebra::MatrixTraits;
 using linear_algebra::Sparse;
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -60,8 +60,7 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
         observationCollection_( observationCollection ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
         considerCovariance_( considerCovariance ), limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
-        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true ),
-        useSparseDesignMatrix_( false )
+        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true ), useSparseDesignMatrix_( false )
     {
         //        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
 
@@ -506,21 +505,23 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
                                                              Eigen::VectorXd& normalisationFactors,
                                                              const bool normalise );
 
-using optionalAnyMatrix = std::variant<std::monostate, Eigen::MatrixXd, Eigen::SparseMatrix<double>>;
+using optionalAnyMatrix = std::variant< std::monostate, Eigen::MatrixXd, Eigen::SparseMatrix< double > >;
 
 //! Function to get the number of columns of an optionally saved (dense or sparse) matrix; zero if it is absent
 inline int getNumberOfColumns( const optionalAnyMatrix& matrix )
 {
-    return std::visit( []( const auto& m ) -> int {
-        if constexpr( std::is_same_v< std::decay_t< decltype( m ) >, std::monostate > )
-        {
-            return 0;
-        }
-        else
-        {
-            return static_cast< int >( m.cols( ) );
-        }
-    }, matrix );
+    return std::visit(
+            []( const auto& m ) -> int {
+                if constexpr( std::is_same_v< std::decay_t< decltype( m ) >, std::monostate > )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return static_cast< int >( m.cols( ) );
+                }
+            },
+            matrix );
 }
 
 //! Function to compare two optionally saved (dense or sparse) matrices for exact equality of storage type and values
@@ -538,8 +539,7 @@ inline bool areOptionalMatricesEqual( const optionalAnyMatrix& first, const opti
     {
         const Eigen::MatrixXd& firstMatrix = std::get< Eigen::MatrixXd >( first );
         const Eigen::MatrixXd& secondMatrix = std::get< Eigen::MatrixXd >( second );
-        return firstMatrix.rows( ) == secondMatrix.rows( ) && firstMatrix.cols( ) == secondMatrix.cols( ) &&
-                firstMatrix == secondMatrix;
+        return firstMatrix.rows( ) == secondMatrix.rows( ) && firstMatrix.cols( ) == secondMatrix.cols( ) && firstMatrix == secondMatrix;
     }
     else if( std::holds_alternative< Eigen::SparseMatrix< double > >( first ) )
     {
@@ -612,7 +612,7 @@ struct CovarianceAnalysisOutput {
         // no design matrix being saved. Where we use `std::optional` or `std::variant`
         // instead, we have an explicit representation for the absence of a saved
         // design matrix, and the current check should suffice.
-        if ( normalizedDesignMatrix_.index() == 0 )
+        if( normalizedDesignMatrix_.index( ) == 0 )
         {
             designMatrixSaved_ = false;
         }
@@ -698,34 +698,34 @@ struct CovarianceAnalysisOutput {
      * (`Dense` or `Sparse`) if it was saved in the other one.
      * \return Matrix of normalized partial derivatives
      */
-    template <typename S>
-    typename MatrixTraits<double, S>::matrix_type getNormalizedDesignMatrixGeneric( ) const
+    template< typename S >
+    typename MatrixTraits< double, S >::matrix_type getNormalizedDesignMatrixGeneric( ) const
     {
-        using traits = MatrixTraits<double, S>;
-        if( designMatrixSaved_ && std::holds_alternative<Eigen::MatrixXd>(normalizedDesignMatrix_) )
+        using traits = MatrixTraits< double, S >;
+        if( designMatrixSaved_ && std::holds_alternative< Eigen::MatrixXd >( normalizedDesignMatrix_ ) )
         {
-            return traits::from_dense( std::get<Eigen::MatrixXd>(normalizedDesignMatrix_) );
+            return traits::from_dense( std::get< Eigen::MatrixXd >( normalizedDesignMatrix_ ) );
         }
-        else if( designMatrixSaved_ && std::holds_alternative<Eigen::SparseMatrix<double>>(normalizedDesignMatrix_) )
+        else if( designMatrixSaved_ && std::holds_alternative< Eigen::SparseMatrix< double > >( normalizedDesignMatrix_ ) )
         {
-            return traits::from_sparse( std::get<Eigen::SparseMatrix<double>>(normalizedDesignMatrix_) );
+            return traits::from_sparse( std::get< Eigen::SparseMatrix< double > >( normalizedDesignMatrix_ ) );
         }
         else
         {
-            return returnNoDesignMatrixAvailableGeneric<S>( );
+            return returnNoDesignMatrixAvailableGeneric< S >( );
         }
     }
 
-    template <typename S>
-    typename MatrixTraits<double, S>::matrix_type getUnnormalizedDesignMatrixGeneric( ) const
+    template< typename S >
+    typename MatrixTraits< double, S >::matrix_type getUnnormalizedDesignMatrixGeneric( ) const
     {
         if( designMatrixSaved_ )
         {
-            return getNormalizedDesignMatrixGeneric<S>( ) * designMatrixTransformationDiagonal_.asDiagonal();
+            return getNormalizedDesignMatrixGeneric< S >( ) * designMatrixTransformationDiagonal_.asDiagonal( );
         }
         else
         {
-            return returnNoDesignMatrixAvailableGeneric<S>( );
+            return returnNoDesignMatrixAvailableGeneric< S >( );
         }
     }
 
@@ -736,7 +736,7 @@ struct CovarianceAnalysisOutput {
      */
     Eigen::MatrixXd getUnnormalizedDesignMatrix( ) const
     {
-        return getUnnormalizedDesignMatrixGeneric<Dense>();
+        return getUnnormalizedDesignMatrixGeneric< Dense >( );
     }
 
     //! Function to retrieve the sparse matrix of unnormalized partial derivatives
@@ -744,26 +744,26 @@ struct CovarianceAnalysisOutput {
      * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
      * \return Sparse Matrix of unnormalized partial derivatives
      */
-    Eigen::SparseMatrix<double> getUnnormalizedDesignMatrixSparse( ) const
+    Eigen::SparseMatrix< double > getUnnormalizedDesignMatrixSparse( ) const
     {
-        return getUnnormalizedDesignMatrixGeneric<Sparse>();
+        return getUnnormalizedDesignMatrixGeneric< Sparse >( );
     }
 
     Eigen::MatrixXd getNormalizedDesignMatrix( ) const
     {
-        return getNormalizedDesignMatrixGeneric<Dense>( );
+        return getNormalizedDesignMatrixGeneric< Dense >( );
     }
 
-    Eigen::SparseMatrix<double> getNormalizedDesignMatrixSparse( ) const
+    Eigen::SparseMatrix< double > getNormalizedDesignMatrixSparse( ) const
     {
-        return getNormalizedDesignMatrixGeneric<Sparse>( );
+        return getNormalizedDesignMatrixGeneric< Sparse >( );
     }
 
     Eigen::MatrixXd getNormalizedWeightedDesignMatrix( ) const
     {
         if( designMatrixSaved_ )
         {
-            Eigen::MatrixXd A = getNormalizedDesignMatrixGeneric<Dense>( );
+            Eigen::MatrixXd A = getNormalizedDesignMatrixGeneric< Dense >( );
             scaleDesignMatrixWithWeights( A, weightsMatrixDiagonal_ );
             return A;
         }
@@ -875,10 +875,10 @@ struct CovarianceAnalysisOutput {
         }
     }
 
-    template <typename S>
-    typename MatrixTraits<double, S>::matrix_type returnNoDesignMatrixAvailableGeneric( ) const
+    template< typename S >
+    typename MatrixTraits< double, S >::matrix_type returnNoDesignMatrixAvailableGeneric( ) const
     {
-        using matrix_t = typename MatrixTraits<double, S>::matrix_type;
+        using matrix_t = typename MatrixTraits< double, S >::matrix_type;
         std::cerr << "Warning, returning empty matrix when retrieving design matrix, design matrix is not saved. Returning empty 0x0 "
                      "matrix. Toggle the option to save it using the CovarianceAnalysisInput.define_covariance_settings function"
                   << std::endl;
@@ -887,7 +887,7 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd returnNoDesignMatrixAvailable( ) const
     {
-        return returnNoDesignMatrixAvailableGeneric<Dense>();
+        return returnNoDesignMatrixAvailableGeneric< Dense >( );
     }
 
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
@@ -999,7 +999,8 @@ private:
         {
             ar( cereal::make_nvp( "normalizedDesignMatrix_", *denseMatrix ) );
         }
-        else if( const Eigen::SparseMatrix< double >* sparseMatrix = std::get_if< Eigen::SparseMatrix< double > >( &normalizedDesignMatrix_ ) )
+        else if( const Eigen::SparseMatrix< double >* sparseMatrix =
+                         std::get_if< Eigen::SparseMatrix< double > >( &normalizedDesignMatrix_ ) )
         {
             ar( cereal::make_nvp( "normalizedDesignMatrix_", *sparseMatrix ) );
         }

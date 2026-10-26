@@ -2,8 +2,10 @@
 #include "tudat/basics/utilities.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 
-namespace tudat {
-namespace linear_algebra {
+namespace tudat
+{
+namespace linear_algebra
+{
 
 Eigen::VectorXd evaluatePolynomial( const Eigen::VectorXd& independentValues,
                                     const Eigen::VectorXd& polynomialCoefficients,
@@ -53,4 +55,5 @@ std::vector< double > getLeastSquaresPolynomialFit( const std::map< double, doub
             polynomialPowers ) );
 }
 
-}}
+}  // namespace linear_algebra
+}  // namespace tudat

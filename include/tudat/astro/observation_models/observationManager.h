@@ -462,9 +462,8 @@ protected:
             }
             else
             {
-                partialsMatrix =
-                        utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, double, ObservationSize, Eigen::Dynamic >(
-                                partialsMatrices );
+                partialsMatrix = utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, double, ObservationSize, Eigen::Dynamic >(
+                        partialsMatrices );
             }
         }
     }

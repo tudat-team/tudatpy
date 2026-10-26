@@ -32,52 +32,60 @@ namespace tudat
 namespace linear_algebra
 {
 
-struct StorageClass {};
-struct Dense: public StorageClass {};
-struct Sparse: public StorageClass {};
+struct StorageClass {
+};
+struct Dense : public StorageClass {
+};
+struct Sparse : public StorageClass {
+};
 
-struct SolverClass {};
-struct SVD: public SolverClass {};
-struct QR: public SolverClass {};
+struct SolverClass {
+};
+struct SVD : public SolverClass {
+};
+struct QR : public SolverClass {
+};
 
 /*! Traits class generalizing over different possible matrix representations.
  * Mainly used to control whether operations are performed on Dense or Sparse
  * matrices, but can also be used to switch to single precision.
  */
-template <typename Real, typename Storage>
-struct MatrixTraits {};
+template< typename Real, typename Storage >
+struct MatrixTraits {
+};
 
 /*! Traits class generalizing over different solvers implemented in Eigen.
  */
-template <typename Matrix, typename Solver>
-struct SolverTraits {};
+template< typename Matrix, typename Solver >
+struct SolverTraits {
+};
 
 /*! Convenience traits class to get `MatrixTraits` and `SolverTraits` defaults from an Eigen matrix type.
  */
-template <typename E>
-struct from_eigen {};
+template< typename E >
+struct from_eigen {
+};
 
-template <typename T>
-struct from_eigen<Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>> {
-    using traits = MatrixTraits<T, Dense>;
+template< typename T >
+struct from_eigen< Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > > {
+    using traits = MatrixTraits< T, Dense >;
     using value_type = T;
-    using dense_vector_type = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+    using dense_vector_type = Eigen::Matrix< T, Eigen::Dynamic, 1 >;
     using solver = SVD;
 };
 
-template <typename T>
-struct from_eigen<Eigen::SparseMatrix<T>> {
-    using traits = MatrixTraits<T, Sparse>;
+template< typename T >
+struct from_eigen< Eigen::SparseMatrix< T > > {
+    using traits = MatrixTraits< T, Sparse >;
     using value_type = T;
-    using dense_vector_type = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+    using dense_vector_type = Eigen::Matrix< T, Eigen::Dynamic, 1 >;
     using solver = QR;
 };
 
-template <typename Real>
-struct MatrixTraits<Real, Dense>
-{
+template< typename Real >
+struct MatrixTraits< Real, Dense > {
     using value_type = Real;
-    using matrix_type = Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>;
+    using matrix_type = Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >;
 
     /*! Function to set an element in a dense matrix.
      *
@@ -88,49 +96,56 @@ struct MatrixTraits<Real, Dense>
      * \param i row
      * \param j column
      */
-    inline static void set_element(matrix_type &A, unsigned i, unsigned j, Real value) {
-        A(i, j) = value;
+    inline static void set_element( matrix_type& A, unsigned i, unsigned j, Real value )
+    {
+        A( i, j ) = value;
     }
 
-    inline static void set_zero(matrix_type &A, unsigned i, unsigned j) {
-        A(i, j) = value_type(0);
+    inline static void set_zero( matrix_type& A, unsigned i, unsigned j )
+    {
+        A( i, j ) = value_type( 0 );
     }
 
     //! Function to create a matrix of zeros of the given size.
-    inline static matrix_type zeros(unsigned rows, unsigned cols) {
-        return matrix_type::Zero(rows, cols);
+    inline static matrix_type zeros( unsigned rows, unsigned cols )
+    {
+        return matrix_type::Zero( rows, cols );
     }
 
     //! Function to convert a dense matrix to this storage. Passes the matrix through without copying.
-    inline static const matrix_type& from_dense(const matrix_type &A) {
+    inline static const matrix_type& from_dense( const matrix_type& A )
+    {
         return A;
     }
 
     //! Function to convert a sparse matrix to this storage.
-    inline static matrix_type from_sparse(const Eigen::SparseMatrix<Real> &A) {
-        return matrix_type(A);
+    inline static matrix_type from_sparse( const Eigen::SparseMatrix< Real >& A )
+    {
+        return matrix_type( A );
     }
 
     //! Function to convert a matrix in this storage to a dense matrix.
-    inline static matrix_type to_dense(matrix_type A) {
+    inline static matrix_type to_dense( matrix_type A )
+    {
         return A;
     }
 
     /*! Extends a square matrix with a second one in a symmetric way. The matrix `A` is
      * grown to fit `B` in the extended rows, and `B^T` in the extended columns.
      */
-    inline static void extend_symmetric( matrix_type &A, matrix_type const &B ) {
+    inline static void extend_symmetric( matrix_type& A, matrix_type const& B )
+    {
         const Eigen::Index n = A.cols( );
         const Eigen::Index c = B.rows( );
 
-        if ( A.rows( ) != n )
+        if( A.rows( ) != n )
         {
             std::ostringstream msg;
-            msg << "Internal error: expected square matrix, got size " << A.rows() << " x " << A.cols();
+            msg << "Internal error: expected square matrix, got size " << A.rows( ) << " x " << A.cols( );
             throw std::runtime_error( msg.str( ) );
         }
 
-        if ( B.cols( ) != n )
+        if( B.cols( ) != n )
         {
             throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
         }
@@ -142,14 +157,17 @@ struct MatrixTraits<Real, Dense>
     }
 
     //! Adds `B` to the top-left block of `A` (of the same size as `B`).
-    inline static void add_to_top_left( matrix_type &A, matrix_type const &B ) {
+    inline static void add_to_top_left( matrix_type& A, matrix_type const& B )
+    {
         A.topLeftCorner( B.rows( ), B.cols( ) ) += B;
     }
 
-    template <typename SparseRange>  // requires std::range<R>
-    inline static void set_from_triplets(matrix_type &A, SparseRange const &rng) {
-        for (auto const &[i, j, v] : rng) {
-            A(i, j) = v;
+    template< typename SparseRange >  // requires std::range<R>
+    inline static void set_from_triplets( matrix_type& A, SparseRange const& rng )
+    {
+        for( auto const& [ i, j, v ] : rng )
+        {
+            A( i, j ) = v;
         }
     }
 
@@ -165,13 +183,17 @@ struct MatrixTraits<Real, Dense>
      * \tparam Fn Type of the function argument.
      * \returns The generated matrix.
      */
-    template <typename Fn>
-    static matrix_type generate(unsigned rows, unsigned cols, Fn f) {
-        matrix_type result = matrix_type::Zero(rows, cols);
-        for (unsigned i = 0; i < rows; ++i) {
-            for (unsigned j = 0; j < cols; ++j) {
-                if (std::optional<value_type> v = f(i, j)) {
-                    result(i, j) = *v;
+    template< typename Fn >
+    static matrix_type generate( unsigned rows, unsigned cols, Fn f )
+    {
+        matrix_type result = matrix_type::Zero( rows, cols );
+        for( unsigned i = 0; i < rows; ++i )
+        {
+            for( unsigned j = 0; j < cols; ++j )
+            {
+                if( std::optional< value_type > v = f( i, j ) )
+                {
+                    result( i, j ) = *v;
                 }
             }
         }
@@ -189,25 +211,26 @@ struct MatrixTraits<Real, Dense>
      * \param r Range over [row, col, value] triples.
      * \returns The generated matrix.
      */
-    template <typename SparseRange>
-    static matrix_type from_sparse_range(unsigned rows, unsigned cols, SparseRange const &r) {
-        matrix_type result = matrix_type::Zero(rows, cols);
-        for (auto const &[i, j, v] : r) {
-            result(i, j) = v;
+    template< typename SparseRange >
+    static matrix_type from_sparse_range( unsigned rows, unsigned cols, SparseRange const& r )
+    {
+        matrix_type result = matrix_type::Zero( rows, cols );
+        for( auto const& [ i, j, v ] : r )
+        {
+            result( i, j ) = v;
         }
         return result;
     }
 
     //! Function that compresses a sparse matrix. This is needed for sparse
     //! matrices, empty for dense matrices.
-    inline static void make_compressed(matrix_type &A) {}
+    inline static void make_compressed( matrix_type& A ) {}
 };
 
-template <typename Real>
-struct MatrixTraits<Real, Sparse>
-{
+template< typename Real >
+struct MatrixTraits< Real, Sparse > {
     using value_type = Real;
-    using matrix_type = Eigen::SparseMatrix<Real>;
+    using matrix_type = Eigen::SparseMatrix< Real >;
 
     /*! Function to set an element in a sparse matrix.
      *
@@ -218,68 +241,74 @@ struct MatrixTraits<Real, Sparse>
      * \param i row
      * \param j column
      */
-    inline static void set_element(matrix_type &A, unsigned i, unsigned j, Real value) {
-        A.insert(i, j) = value;
+    inline static void set_element( matrix_type& A, unsigned i, unsigned j, Real value )
+    {
+        A.insert( i, j ) = value;
     }
 
     /*! Function to set an element to zero.
      *
      * In sparse matrices this is a noop.
      */
-    inline static void set_zero(matrix_type &A, unsigned i, unsigned j) {}
+    inline static void set_zero( matrix_type& A, unsigned i, unsigned j ) {}
 
     //! Function to create an empty (all-zero) sparse matrix of the given size.
-    inline static matrix_type zeros(unsigned rows, unsigned cols) {
-        return matrix_type(rows, cols);
+    inline static matrix_type zeros( unsigned rows, unsigned cols )
+    {
+        return matrix_type( rows, cols );
     }
 
     //! Function to convert a dense matrix to this storage. Only exact zeros are dropped.
-    inline static matrix_type from_dense(const Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> &A) {
+    inline static matrix_type from_dense( const Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >& A )
+    {
         return A.sparseView( );
     }
 
     //! Function to convert a sparse matrix to this storage. Passes the matrix through without copying.
-    inline static const matrix_type& from_sparse(const matrix_type &A) {
+    inline static const matrix_type& from_sparse( const matrix_type& A )
+    {
         return A;
     }
 
     //! Function to convert a matrix in this storage to a dense matrix.
-    inline static Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> to_dense(const matrix_type &A) {
-        return Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>(A);
+    inline static Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic > to_dense( const matrix_type& A )
+    {
+        return Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >( A );
     }
 
     /*! Extends a square sparse matrix with a second one in a symmetric way. Same semantics as the dense
      * version: `A` is grown to fit `B` in the extended rows, and `B^T` in the extended columns. Rebuilt
      * from triplets, since sparse matrices cannot be resized in place without losing their entries.
      */
-    inline static void extend_symmetric( matrix_type &A, matrix_type const &B ) {
+    inline static void extend_symmetric( matrix_type& A, matrix_type const& B )
+    {
         const Eigen::Index n = A.cols( );
         const Eigen::Index c = B.rows( );
 
-        if ( A.rows( ) != n )
+        if( A.rows( ) != n )
         {
             std::ostringstream msg;
-            msg << "Internal error: expected square matrix, got size " << A.rows() << " x " << A.cols();
+            msg << "Internal error: expected square matrix, got size " << A.rows( ) << " x " << A.cols( );
             throw std::runtime_error( msg.str( ) );
         }
 
-        if ( B.cols( ) != n )
+        if( B.cols( ) != n )
         {
             throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
         }
 
         std::vector< Eigen::Triplet< Real > > triplets;
         triplets.reserve( A.nonZeros( ) + 2 * B.nonZeros( ) );
-        for ( int k = 0; k < A.outerSize( ); ++k )
+        for( int k = 0; k < A.outerSize( ); ++k )
         {
-            for ( typename matrix_type::InnerIterator it( A, k ); it; ++it )
+            for( typename matrix_type::InnerIterator it( A, k ); it; ++it )
             {
                 triplets.emplace_back( it.row( ), it.col( ), it.value( ) );
             }
         }
-        for ( int k = 0; k < B.outerSize( ); ++k )
+        for( int k = 0; k < B.outerSize( ); ++k )
         {
-            for ( typename matrix_type::InnerIterator it( B, k ); it; ++it )
+            for( typename matrix_type::InnerIterator it( B, k ); it; ++it )
             {
                 triplets.emplace_back( n + it.row( ), it.col( ), it.value( ) );
                 triplets.emplace_back( it.col( ), n + it.row( ), it.value( ) );
@@ -291,7 +320,8 @@ struct MatrixTraits<Real, Sparse>
     }
 
     //! Adds `B` to the top-left block of `A`; `B` is padded with zeros to the size of `A` if needed.
-    inline static void add_to_top_left( matrix_type &A, matrix_type const &B ) {
+    inline static void add_to_top_left( matrix_type& A, matrix_type const& B )
+    {
         if( A.rows( ) == B.rows( ) && A.cols( ) == B.cols( ) )
         {
             A += B;
@@ -304,14 +334,16 @@ struct MatrixTraits<Real, Sparse>
         }
     }
 
-    template <typename SparseRange>  // requires std::range<R>
-    inline static void set_from_triplets(matrix_type &A, SparseRange const &rng) {
-        A.setFromTriplets(rng.begin(), rng.end());
+    template< typename SparseRange >  // requires std::range<R>
+    inline static void set_from_triplets( matrix_type& A, SparseRange const& rng )
+    {
+        A.setFromTriplets( rng.begin( ), rng.end( ) );
     }
 
     //! Function that compresses a sparse matrix. Empty for dense matrices.
-    inline static void make_compressed(matrix_type &A) {
-        A.makeCompressed();
+    inline static void make_compressed( matrix_type& A )
+    {
+        A.makeCompressed( );
     }
 
     /*! Fill a matrix using a range.
@@ -325,10 +357,11 @@ struct MatrixTraits<Real, Sparse>
      * \param r Range over [row, col, value] triples.
      * \returns The generated matrix.
      */
-    template <typename SparseRange>
-    static matrix_type from_sparse_range(unsigned rows, unsigned cols, SparseRange const &r) {
+    template< typename SparseRange >
+    static matrix_type from_sparse_range( unsigned rows, unsigned cols, SparseRange const& r )
+    {
         matrix_type result( rows, cols );
-        result.setFromTriplets(r.begin(), r.end());
+        result.setFromTriplets( r.begin( ), r.end( ) );
         return result;
     }
 };
@@ -338,11 +371,10 @@ struct MatrixTraits<Real, Sparse>
  * Emits a warning on stdout when the condition number exceeds `limitConditionNumberForWarning`.
  * A NaN limit disables the check.
  */
-template <typename Real>
-struct SolverTraits<Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>, SVD>
-{
-    using matrix_type = Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>;
-    using vector_type = Eigen::Matrix<Real, Eigen::Dynamic, 1>;
+template< typename Real >
+struct SolverTraits< Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >, SVD > {
+    using matrix_type = Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >;
+    using vector_type = Eigen::Matrix< Real, Eigen::Dynamic, 1 >;
 
     static vector_type solve( const matrix_type& A, const vector_type& b, Real limitConditionNumberForWarning )
     {
@@ -364,11 +396,10 @@ struct SolverTraits<Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>, SVD>
  *
  * Eigen's sparse QR does not provide a condition number estimate, so the limit is ignored.
  */
-template <typename Real>
-struct SolverTraits<Eigen::SparseMatrix<Real>, QR>
-{
-    using matrix_type = Eigen::SparseMatrix<Real>;
-    using vector_type = Eigen::Matrix<Real, Eigen::Dynamic, 1>;
+template< typename Real >
+struct SolverTraits< Eigen::SparseMatrix< Real >, QR > {
+    using matrix_type = Eigen::SparseMatrix< Real >;
+    using vector_type = Eigen::Matrix< Real, Eigen::Dynamic, 1 >;
 
     static vector_type solve( const matrix_type& A, const vector_type& b, Real /* limitConditionNumberForWarning */ )
     {

@@ -52,7 +52,7 @@ double getPeakMemoryUsageInMegabytes( )
 using DesignMatrixStorageClass = tudat::linear_algebra::Sparse;
 using DesignMatrixPrecision = double;
 
-using DesignMatrixTraits = tudat::linear_algebra::MatrixTraits<DesignMatrixPrecision, DesignMatrixStorageClass>;
+using DesignMatrixTraits = tudat::linear_algebra::MatrixTraits< DesignMatrixPrecision, DesignMatrixStorageClass >;
 
 // Tunable sparsity/size parameters
 const int numberOfArcs = 100;
@@ -137,9 +137,8 @@ int main( )
     // Create obsevation model settings
     LinkEnds linkEnds;
     linkEnds[ observed_body ] = LinkEndId( "Mars", "" );
-    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettings = {
-        std::make_shared< ObservationModelSettings >( position_observable, linkEnds )
-    };
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettings = { std::make_shared< ObservationModelSettings >(
+            position_observable, linkEnds ) };
 
     // Create estimator
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
@@ -148,7 +147,8 @@ int main( )
     // Simuate observations
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings = {
         std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                position_observable, linkEnds, observationTimes, observed_body )  };
+                position_observable, linkEnds, observationTimes, observed_body )
+    };
     std::shared_ptr< ObservationCollection< double, double > > observations = simulateObservations< double, double >(
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
@@ -185,8 +185,7 @@ int main( )
               << ", after dense estimation: " << peakMemoryAfterDenseEstimation << "\n";
 
     // Test sparsity
-    const DesignMatrixTraits::matrix_type designMatrix =
-        sparseOutput->getUnnormalizedDesignMatrixGeneric<DesignMatrixStorageClass>( );
+    const DesignMatrixTraits::matrix_type designMatrix = sparseOutput->getUnnormalizedDesignMatrixGeneric< DesignMatrixStorageClass >( );
     const double tolerance = 1.0E-20;
     const int nonZeroCount = ( designMatrix.coeffs( ).abs( ) > tolerance ).count( );
     std::cout << std::setprecision( 16 ) << std::scientific;
@@ -198,9 +197,8 @@ int main( )
     // is the one from the best iteration, before its correction was applied.
     const Eigen::VectorXd parameterDifference = sparseCorrectedParameters - denseCorrectedParameters;
     const double maximumParameterCorrection = ( denseCorrectedParameters - initialEstimate ).cwiseAbs( ).maxCoeff( );
-    const Eigen::VectorXd relativeFormalErrorDifference =
-            ( sparseOutput->getFormalErrorVector( ) - denseOutput->getFormalErrorVector( ) )
-                    .cwiseQuotient( denseOutput->getFormalErrorVector( ) );
+    const Eigen::VectorXd relativeFormalErrorDifference = ( sparseOutput->getFormalErrorVector( ) - denseOutput->getFormalErrorVector( ) )
+                                                                  .cwiseQuotient( denseOutput->getFormalErrorVector( ) );
     const double maximumDesignMatrixDifference =
             ( Eigen::MatrixXd( designMatrix ) - denseOutput->getUnnormalizedDesignMatrix( ) ).cwiseAbs( ).maxCoeff( );
     std::cout << "Max. parameter correction (dense): " << maximumParameterCorrection << "\n"
@@ -210,14 +208,13 @@ int main( )
 
     // Position components are perturbed by 1 m, velocities by 1E-5 m/s; the solutions should agree far below that
     // Check that each run stored the design matrix in the storage it was asked to use
-    const bool storageAsRequested =
-            std::holds_alternative< Eigen::SparseMatrix< double > >( sparseOutput->normalizedDesignMatrix_ ) &&
+    const bool storageAsRequested = std::holds_alternative< Eigen::SparseMatrix< double > >( sparseOutput->normalizedDesignMatrix_ ) &&
             std::holds_alternative< Eigen::MatrixXd >( denseOutput->normalizedDesignMatrix_ );
     std::cout << "Design matrix stored as requested (sparse/dense): " << std::boolalpha << storageAsRequested << "\n";
 
     const bool solutionsAgree = storageAsRequested && maximumParameterCorrection > 1.0E-3 &&
-            parameterDifference.cwiseAbs( ).maxCoeff( ) < 1.0E-6 &&
-            relativeFormalErrorDifference.cwiseAbs( ).maxCoeff( ) < 1.0E-8 && maximumDesignMatrixDifference == 0.0;
+            parameterDifference.cwiseAbs( ).maxCoeff( ) < 1.0E-6 && relativeFormalErrorDifference.cwiseAbs( ).maxCoeff( ) < 1.0E-8 &&
+            maximumDesignMatrixDifference == 0.0;
     std::cout << ( solutionsAgree ? "Sparse and dense solutions agree" : "Sparse and dense solutions DIFFER" ) << std::endl;
     return solutionsAgree ? EXIT_SUCCESS : EXIT_FAILURE;
 }

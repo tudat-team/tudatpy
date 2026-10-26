@@ -134,8 +134,8 @@ Eigen::VectorXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dumm
     for( int i = 0; i < observationMatrix.cols( ); i++ )
     {
         // Get the extreme values of the column; as in the dense version, these include the (implicit) zero entries
-        bool columnHasZeros = observationMatrix.col( i ).nonZeros( ) < observationMatrix.rows( ) ||
-                observationMatrix.col( i ).nonZeros( ) == 0;
+        bool columnHasZeros =
+                observationMatrix.col( i ).nonZeros( ) < observationMatrix.rows( ) || observationMatrix.col( i ).nonZeros( ) == 0;
         double minimum = columnHasZeros ? 0.0 : std::numeric_limits< double >::infinity( );
         double maximum = columnHasZeros ? 0.0 : -std::numeric_limits< double >::infinity( );
         for( Eigen::SparseMatrix< double >::InnerIterator it( observationMatrix, i ); it; ++it )

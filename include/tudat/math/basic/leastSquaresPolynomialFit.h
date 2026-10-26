@@ -21,9 +21,10 @@
 #include <vector>
 #include <map>
 
-
-namespace tudat {
-namespace linear_algebra {
+namespace tudat
+{
+namespace linear_algebra
+{
 
 Eigen::VectorXd evaluatePolynomial( const Eigen::VectorXd& independentValues,
                                     const Eigen::VectorXd& polynomialCoefficients,
@@ -57,6 +58,7 @@ Eigen::VectorXd getLeastSquaresPolynomialFit( const Eigen::VectorXd& independent
 std::vector< double > getLeastSquaresPolynomialFit( const std::map< double, double >& independentDependentValueMap,
                                                     const std::vector< double >& polynomialPowers );
 
-}} // namespace
+}  // namespace linear_algebra
+}  // namespace tudat
 
 #endif
