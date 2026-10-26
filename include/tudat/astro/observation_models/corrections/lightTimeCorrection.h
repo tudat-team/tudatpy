@@ -54,7 +54,8 @@ public:
      * \param lightTimeCorrectionType Type of light-time correction represented by instance of class.
      */
     LightTimeCorrection( const LightTimeCorrectionType lightTimeCorrectionType ):
-        lightTimeCorrectionType_( lightTimeCorrectionType ), timePerturbation_( 15.0 ), positionRelativePerturbation_( 1.0E-4 )
+        lightTimeCorrectionType_( lightTimeCorrectionType ), timePerturbation_( 15.0 ), positionRelativePerturbation_( 1.0E-4 ),
+        isDownlinkOfTwoWayLink_( false )
     {}
 
     //! Destructor
@@ -150,7 +151,47 @@ public:
         return lightTimeCorrectionType_;
     }
 
+    /*!
+     * Function to set whether this correction belongs to the single-leg model of the downlink of a two-way link (e.g. the
+     * downlink one-way Doppler model of a two-way Doppler observable). Such a model evaluates its correction as a single
+     * leg (with transmitter index 0), so corrections that select the frequency by leg index need this to use the downlink
+     * (rather than the uplink) frequency.
+     * \param isDownlinkOfTwoWayLink Boolean denoting whether correction is for downlink of two-way link
+     */
+    void setIsDownlinkOfTwoWayLink( const bool isDownlinkOfTwoWayLink )
+    {
+        isDownlinkOfTwoWayLink_ = isDownlinkOfTwoWayLink;
+    }
+
 protected:
+    /*!
+     * Function to retrieve the index of the transmitter of the current leg in the full link, accounting for corrections
+     * of a downlink that is evaluated as a single leg (see setIsDownlinkOfTwoWayLink).
+     * \param currentMultiLegTransmitterIndex Index of the transmitter of the current leg in the link end states/times
+     * \return Index of the transmitter of the current leg in the full link
+     */
+    unsigned int getTransmitterIndexInFullLink( const unsigned int currentMultiLegTransmitterIndex ) const
+    {
+        return ( isDownlinkOfTwoWayLink_ && currentMultiLegTransmitterIndex == 0 ) ? 2 : currentMultiLegTransmitterIndex;
+    }
+
+    /*!
+     * Function to retrieve the forward and backward perturbations of the link end time used to numerically compute the
+     * partial of the light-time correction w.r.t. link end time. By default, both are equal to timePerturbation_.
+     * Derived classes for which the correction is discontinuous in time (e.g. at the boundaries of tabulated data)
+     * should override this function, such that the perturbed times do not cross a discontinuity.
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of signal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
+     * \return Pair with forward (first) and backward (second) time perturbation (both non-negative)
+     */
+    virtual std::pair< double, double > getLinkEndTimePerturbations( const double transmissionTime,
+                                                                     const double receptionTime,
+                                                                     const LinkEndType linkEndAtWhichPartialIsEvaluated )
+    {
+        return std::make_pair( timePerturbation_, timePerturbation_ );
+    }
+
     void getTransmissionReceptionTimesAndStates( const std::vector< Eigen::Vector6d >& linkEndsStatesInput,
                                                  const std::vector< double >& linkEndsTimesInput,
                                                  const unsigned int currentMultiLegTransmitterIndex,
@@ -180,6 +221,9 @@ protected:
     double timePerturbation_;
 
     double positionRelativePerturbation_;
+
+    // Boolean denoting whether correction belongs to the single-leg model of the downlink of a two-way link
+    bool isDownlinkOfTwoWayLink_;
 };
 
 }  // namespace observation_models
