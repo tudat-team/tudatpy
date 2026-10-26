@@ -21,6 +21,7 @@ Details on the procedure to create observation models, and the various top-level
 Functions
 ---------
 .. currentmodule:: tudatpy.estimation.observable_models_setup.model_settings
+
 .. autosummary::
 
    one_way_range
@@ -64,6 +65,8 @@ Functions
    azimuth_elevation
 
    relative_angular_position
+
+   pixel_coordinates
 
    cartesian_position
 
@@ -124,6 +127,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.azimuth_elevation
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_angular_position
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.pixel_coordinates
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_position
 
