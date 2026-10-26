@@ -118,6 +118,12 @@ TUDAT_ADD_TEST_CASE(TwoLineElementsEphemeris
        ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(TleFitting
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        tudat_estimatable_parameters
+        )
+
 TUDAT_ADD_TEST_CASE(IauRotationalEphemeris
         PRIVATE_LINKS
         tudat_ephemerides

@@ -141,6 +141,11 @@ struct MatrixTraits<Real, Dense>
         A.block( n, n, c, c ).setZero( );
     }
 
+    //! Adds `B` to the top-left block of `A` (of the same size as `B`).
+    inline static void add_to_top_left( matrix_type &A, matrix_type const &B ) {
+        A.topLeftCorner( B.rows( ), B.cols( ) ) += B;
+    }
+
     template <typename SparseRange>  // requires std::range<R>
     inline static void set_from_triplets(matrix_type &A, SparseRange const &rng) {
         for (auto const &[i, j, v] : rng) {
@@ -283,6 +288,20 @@ struct MatrixTraits<Real, Sparse>
 
         A.resize( n + c, n + c );
         A.setFromTriplets( triplets.begin( ), triplets.end( ) );
+    }
+
+    //! Adds `B` to the top-left block of `A`; `B` is padded with zeros to the size of `A` if needed.
+    inline static void add_to_top_left( matrix_type &A, matrix_type const &B ) {
+        if( A.rows( ) == B.rows( ) && A.cols( ) == B.cols( ) )
+        {
+            A += B;
+        }
+        else
+        {
+            matrix_type paddedB = B;
+            paddedB.conservativeResize( A.rows( ), A.cols( ) );
+            A += paddedB;
+        }
     }
 
     template <typename SparseRange>  // requires std::range<R>

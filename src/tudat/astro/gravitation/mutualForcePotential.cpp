@@ -2,6 +2,8 @@
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/astro/gravitation/mutualForcePotential.h"
 
+#include <boost/math/special_functions/factorials.hpp>
+
 namespace tudat
 {
 

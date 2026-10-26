@@ -577,6 +577,24 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > getLinkEndCompleteCur
 //         const std::string groundStationName,
 //         const std::vector< double > times );
 
+//! Function to determine whether the Sun is below a given elevation angle as seen from a ground station.
+/*!
+ * Function to determine whether a ground station is in darkness at a given time, based on the elevation angle of the Sun
+ * as seen from that station. The station is considered dark if the Sun's elevation angle is below maxSunElevation (e.g. a
+ * civil twilight bound of -6 degrees, or a custom bound such as 0 degrees for the geometric horizon).
+ * \param groundStationName Name of the ground station, which must be defined on the body identified by centralBodyName.
+ * \param timeTdb Time (TDB seconds since J2000) at which the check is to be performed.
+ * \param maxSunElevation Sun elevation angle [rad] below which the ground station is considered to be in darkness.
+ * \param bodies System of bodies, used to retrieve the ground station, and the ephemerides of the central body and the Sun.
+ * \param centralBodyName Name of the body on which the ground station is located.
+ * \return True if the Sun's elevation angle at the ground station is below maxSunElevation, false otherwise.
+ */
+bool isItDarkAtGroundStation( const std::string& groundStationName,
+                              const double timeTdb,
+                              const double maxSunElevation,
+                              const SystemOfBodies& bodies,
+                              const std::string& centralBodyName = "Earth" );
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

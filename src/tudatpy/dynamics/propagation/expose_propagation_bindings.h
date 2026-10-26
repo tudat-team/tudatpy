@@ -12,8 +12,10 @@ namespace dynamics
 namespace propagation
 {
 
+void expose_propagation_state_utility_types( py::module& m );
 void expose_propagation_state_utility_bindings( py::module& m );
 void expose_propagation_results_bindings( py::module& m );
+void expose_propagation_thrust_types( py::module& m );
 void expose_propagation_thrust_bindings( py::module& m );
 
 }  // namespace propagation

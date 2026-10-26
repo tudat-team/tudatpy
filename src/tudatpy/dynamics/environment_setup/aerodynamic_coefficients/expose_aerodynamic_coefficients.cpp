@@ -75,7 +75,7 @@ namespace environment_setup
 namespace aerodynamic_coefficients
 {
 
-void expose_aerodynamic_coefficient_setup( py::module& m )
+void expose_aerodynamic_coefficient_types( py::module& m )
 {
     py::enum_< ta::AerodynamicCoefficientsIndependentVariables >( m,
                                                                   "AerodynamicCoefficientsIndependentVariables",
@@ -204,16 +204,32 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
 )doc" )
             .export_values( );
 
-    py::enum_< ta::AtmosphericCompositionSpecies >( m, "AtmosphericCompositionSpecies", R"doc(No documentation found.)doc" )
-            .value( "o_species", ta::AtmosphericCompositionSpecies::o_species, R"doc(No documentation found.)doc" )
-            .value( "o2_species", ta::AtmosphericCompositionSpecies::o2_species, R"doc(No documentation found.)doc" )
-            .value( "n2_species", ta::AtmosphericCompositionSpecies::n2_species, R"doc(No documentation found.)doc" )
-            .value( "he_species", ta::AtmosphericCompositionSpecies::he_species, R"doc(No documentation found.)doc" )
-            .value( "h_species", ta::AtmosphericCompositionSpecies::h_species, R"doc(No documentation found.)doc" )
-            .value( "ar_species", ta::AtmosphericCompositionSpecies::ar_species, R"doc(No documentation found.)doc" )
-            .value( "n_species", ta::AtmosphericCompositionSpecies::n_species, R"doc(No documentation found.)doc" )
-            .value( "anomalous_o_species", ta::AtmosphericCompositionSpecies::anomalous_o_species, R"doc(No documentation found.)doc" )
+    py::enum_< ta::AtmosphericCompositionSpecies >( m, "AtmosphericCompositionSpecies", R"doc(
+
+         Enumeration of atmospheric chemical species, with anomalous oxygen distinct from atomic oxygen.
+
+      )doc" )
+            .value( "o_species", ta::AtmosphericCompositionSpecies::o_species, R"doc(Atomic oxygen.)doc" )
+            .value( "o2_species", ta::AtmosphericCompositionSpecies::o2_species, R"doc(Molecular oxygen.)doc" )
+            .value( "n2_species", ta::AtmosphericCompositionSpecies::n2_species, R"doc(Molecular nitrogen.)doc" )
+            .value( "he_species", ta::AtmosphericCompositionSpecies::he_species, R"doc(Helium.)doc" )
+            .value( "h_species", ta::AtmosphericCompositionSpecies::h_species, R"doc(Atomic hydrogen.)doc" )
+            .value( "ar_species", ta::AtmosphericCompositionSpecies::ar_species, R"doc(Argon.)doc" )
+            .value( "n_species", ta::AtmosphericCompositionSpecies::n_species, R"doc(Atomic nitrogen.)doc" )
+            .value( "anomalous_o_species",
+                    ta::AtmosphericCompositionSpecies::anomalous_o_species,
+                    R"doc(Anomalous oxygen component of the atmospheric composition.)doc" )
             .export_values( );
+
+    py::class_< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
+                std::shared_ptr< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings > >(
+            m, "ControlSurfaceIncrementAerodynamicCoefficientSettings", R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_control_surface`,
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.tabulated_from_files_control_surface`.
+
+      )doc" );
 
     py::enum_< trf::AerodynamicsReferenceFrameAngles >( m, "AerodynamicsReferenceFrameAngles", R"doc(
 
@@ -330,7 +346,10 @@ The body-fixed frame of the body itself.
 
 )doc" )
             .export_values( );
+}
 
+void expose_aerodynamic_coefficient_setup( py::module& m )
+{
     /////////////////////////////////////////////////////////////////////////////
     // createAerodynamicCoefficientInterface.h
     /////////////////////////////////////////////////////////////////////////////
@@ -420,23 +439,35 @@ The body-fixed frame of the body itself.
 
     py::class_< tss::CustomAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::CustomAerodynamicCoefficientSettings >,
-                tss::AerodynamicCoefficientSettings >( m, "CustomAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
+                tss::AerodynamicCoefficientSettings >( m, "CustomAerodynamicCoefficientSettings", R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_coefficients`,
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_and_moment_coefficients`.
+
+      )doc" );
 
     py::class_< tss::ScaledAerodynamicCoefficientInterfaceSettings,
                 std::shared_ptr< tss::ScaledAerodynamicCoefficientInterfaceSettings >,
-                tss::AerodynamicCoefficientSettings >(
-            m, "ScaledAerodynamicCoefficientInterfaceSettings", R"doc(No documentation found.)doc" );
+                tss::AerodynamicCoefficientSettings >( m, "ScaledAerodynamicCoefficientInterfaceSettings", R"doc(
 
-    py::class_< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
-                std::shared_ptr< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings > >(
-            m, "ControlSurfaceIncrementAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_constant`,
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_vector`,
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.scaled_by_vector_function`.
+
+      )doc" );
 
     py::class_< tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings >,
                 tss::ControlSurfaceIncrementAerodynamicCoefficientSettings >( m,
                                                                               "CustomControlSurfaceIncrementAerodynamicCoefficientSet"
                                                                               "tings",
-                                                                              R"doc(No documentation found.)doc" );
+                                                                              R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_control_surface`.
+
+      )doc" );
 
     py::enum_< ta::GasSurfaceInteractionModelType >( m,
                                                      "GasSurfaceInteractionModelType",
@@ -828,7 +859,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            py::arg( "moment_coefficients_frame" ) = ta::body_fixed_frame_coefficients,
            py::arg( "moment_reference_point" ) = Eigen::Vector3d::Constant( TUDAT_NAN ),
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from user-defined, 1-d tabulated coefficients.
@@ -871,7 +902,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class (via :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettingsBase` class)
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -927,7 +958,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "reference_area" ),
            py::arg( "independent_variable_name" ),
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-           py::arg( "interpolator_settings" ) = ti::linearInterpolation( ),
+           py::arg_v( "interpolator_settings", ti::linearInterpolation( ), "..." ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from user-defined, 1-d tabulated force coefficients.
@@ -956,7 +987,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -999,7 +1030,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "reference_area" ),
            py::arg( "independent_variable_names" ),
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from tabulated force coefficients from files.
@@ -1026,7 +1057,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -1073,13 +1104,40 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            py::arg( "moment_coefficients_frame" ) = ta::body_fixed_frame_coefficients,
            py::arg( "moment_reference_point" ) = Eigen::Vector3d::Constant( TUDAT_NAN ),
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from tabulated coefficients from files.
 
  Function for settings object, defining aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
  (tabulated w.r.t. independent variable), obtained from data files.
+
+ File format
+ -----------
+ Each coefficient component is stored in a separate plain-text file. Empty lines and lines whose first non-whitespace
+ character is ``#`` are ignored. Values may be separated by whitespace, commas, or semicolons. The remaining lines are:
+
+ 1. The number :math:`N` of independent variables (an integer from 1 through 3).
+ 2. :math:`N` lines containing the grid values of the independent variables, in the same order as
+    ``independent_variable_names``.
+ 3. The coefficient values on the resulting structured grid.
+
+ For one independent variable, write one coefficient value per row. For two independent variables, rows correspond to
+ successive values of the first independent variable and columns to values of the second. For three independent variables,
+ append such two-dimensional blocks for successive values of the third variable. All force and moment component files
+ supplied in one call must use identical independent-variable grids. Omitted component indices are set to zero.
+
+ For example, a coefficient depending on angle of attack ``[0.0, 0.1]`` and Mach number ``[2.0, 3.0, 4.0]`` is written as:
+
+ .. code-block:: text
+
+    2
+    0.0 0.1
+    2.0 3.0 4.0
+    0.20 0.25 0.30
+    0.22 0.27 0.32
+
+ The repository's ``examples/tudatpy/propagation/input/STS_CD.dat`` file provides a complete two-dimensional example.
 
 
  Parameters
@@ -1115,7 +1173,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 

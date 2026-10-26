@@ -19,6 +19,7 @@
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/simulation/estimation_setup/interArcContinuityConstraint.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
@@ -106,6 +107,13 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
     std::vector< ParameterVectorType > parameterHistory;
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration;
 
+    // Inter-arc continuity-prior setup. Empty constraint list (the default) skips the feature entirely.
+    const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
+    double bestInterArcContinuityCost = 0.0;
+    std::vector< Eigen::VectorXd > bestInterArcContinuityDiscrepancies;
+    std::vector< double > interArcContinuityCostHistory;
+    std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory;
+
     // Declare residual bookkeeping variables
     std::vector< double > rmsResidualHistory;
     std::vector< double > costFunctionHistory;
@@ -116,6 +124,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
     // Set current parameter estimate as both previous and current estimate
     ParameterVectorType newParameterEstimate = currentParameterEstimate_;
     ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
+    const ParameterVectorType aprioriParameterEstimate = currentParameterEstimate_;
 
     bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
 
@@ -138,13 +147,45 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
         // Set simulation results
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
         {
+            if( simulationResults == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when saving state history for each estimation iteration: no propagation results exist "
+                        "in observation-only estimation." );
+            }
             simulationResultsPerIteration.push_back( simulationResults->clone( ) );
         }
 
         // Normalise estimated parameters partials and inverse apriori covariance
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
+        const Eigen::VectorXd estimatedParameterNormalizationTerms = normalizationTerms.segment( 0, numberEstimatedParameters_ );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
+                estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), estimatedParameterNormalizationTerms );
+        Eigen::VectorXd normalizedAprioriParameterDeviation = Eigen::VectorXd::Zero( 0 );
+        if( estimationInput->getApplyAprioriParameterDeviation( ) )
+        {
+            normalizedAprioriParameterDeviation = ( oldParameterEstimate - aprioriParameterEstimate )
+                                                          .template cast< double >( )
+                                                          .cwiseProduct( estimatedParameterNormalizationTerms );
+        }
+
+        InterArcConstraintContribution interArcContribution;
+        if( !interArcConstraints.empty( ) )
+        {
+            // Assemble soft inter-arc continuity-prior contribution for this iteration. The normalisation factors are the same
+            // ones just applied to the observation design matrix above.
+            interArcContribution = assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
+                    interArcConstraints,
+                    parametersToEstimate_,
+                    stateTransitionAndSensitivityMatrixInterface_,
+                    variationalEquationsSolver_,
+                    normalizationTerms,
+                    static_cast< int >( numberEstimatedParameters_ ),
+                    "parameter estimation",
+                    static_cast< int >( designMatrixEstimatedParameters.rows( ) ) );
+            interArcContinuityCostHistory.push_back( interArcContribution.totalConstraintCost );
+            interArcContinuityDiscrepancyHistory.push_back( interArcContribution.perPairDiscrepancies );
+        }
 
         // Normalise partials w.r.t. consider parameters, consider covariance and parameters deviations
         Eigen::VectorXd normalizationTermsConsider, normalizedConsiderParametersDeviation;
@@ -155,7 +196,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
             getNormalizedConsiderCovariance( estimationInput, normalizationTermsConsider, normalizedConsiderCovariance );
             if( estimationInput->considerParametersDeviations_.rows( ) == 0 )
             {
-                normalizedConsiderParametersDeviation = Eigen::VectorXd( normalizationTermsConsider.rows( ) );
+                normalizedConsiderParametersDeviation = Eigen::VectorXd::Zero( normalizationTermsConsider.rows( ) );
             }
             else
             {
@@ -178,6 +219,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
             Eigen::MatrixXd constraintStateMultiplier;
             Eigen::VectorXd constraintRightHandSide;
             parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
+            normalizeLinearConstraints( constraintStateMultiplier, constraintRightHandSide, normalizationTerms );
 
             double conditionNumberCheck = estimationInput->getLimitConditionNumberForWarning( );
             if( numberOfIterations > 0 && estimationInput->conditionNumberWarningEachIteration_ == false )
@@ -196,7 +238,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
                             DesignMatrixTraits::from_dense( constraintStateMultiplier ),
                             constraintRightHandSide,
                             DesignMatrixTraits::from_dense( designMatrixConsiderParameters ),
-                            normalizedConsiderParametersDeviation );
+                            normalizedConsiderParametersDeviation,
+                            DesignMatrixTraits::from_dense( interArcContribution.additionalNormalMatrix ),
+                            interArcContribution.additionalRightHandSide,
+                            normalizedAprioriParameterDeviation );
             leastSquaresOutput = std::make_pair( std::move( leastSquaresSolution.first ),
                                                  DesignMatrixTraits::to_dense( std::move( leastSquaresSolution.second ) ) );
 
@@ -214,9 +259,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
             break;
         }
 
-        ParameterVectorType parameterAddition =
-                ( leastSquaresOutput.first.cwiseQuotient( normalizationTerms.segment( 0, numberEstimatedParameters_ ) ) )
-                        .template cast< ObservationScalarType >( );
+        ParameterVectorType parameterAddition = ( leastSquaresOutput.first.cwiseQuotient( estimatedParameterNormalizationTerms ) )
+                                                        .template cast< ObservationScalarType >( );
 
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
@@ -238,6 +282,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
         costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
+        double aprioriCost = 0.0;
+        if( estimationInput->getApplyAprioriParameterDeviation( ) )
+        {
+            aprioriCost = 0.5 *
+                    normalizedAprioriParameterDeviation.dot( normalizedInverseAprioriCovarianceMatrix *
+                                                             normalizedAprioriParameterDeviation );
+        }
+        // In deviation-based mode, best-iteration selection additionally includes the absolute a priori cost. Residual RMS
+        // is unchanged so observation-only diagnostics remain meaningful.
+        costFunction += aprioriCost + interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 
@@ -291,6 +345,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
             bestIteration = numberOfIterations;
             bestConsiderTransformationData = std::move( normalizationTermsConsider );
             bestConsiderCovarianceContribution = covarianceContributionConsiderParameters;
+            if( !interArcConstraints.empty( ) )
+            {
+                bestInterArcContinuityCost = interArcContribution.totalConstraintCost;
+                bestInterArcContinuityDiscrepancies = interArcContribution.perPairDiscrepancies;
+            }
         }
 
         // Increment number of iterations
@@ -353,11 +412,18 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
                                                                                      bestConsiderCovarianceContribution,
                                                                                      estimationInput->getConsiderCovariance( ),
                                                                                      exceptionDuringInversion,
-                                                                                     exceptionDuringPropagation );
+                                                                                     exceptionDuringPropagation,
+                                                                                     bestInterArcContinuityCost,
+                                                                                     bestInterArcContinuityDiscrepancies );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {
         estimationOutput->setSimulationResults( simulationResultsPerIteration );
+    }
+    if( !interArcConstraints.empty( ) )
+    {
+        estimationOutput->setInterArcContinuityCostHistory( interArcContinuityCostHistory );
+        estimationOutput->setInterArcContinuityDiscrepancyHistory( interArcContinuityDiscrepancyHistory );
     }
 
     return estimationOutput;
@@ -422,6 +488,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     // Get number of observations
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > parameterEstimationInput =
+            std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput );
+    if( parameterEstimationInput != nullptr && parameterEstimationInput->getSaveStateHistoryForEachIteration( ) &&
+        variationalEquationsSolver_ == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when preparing estimation iteration: saving state history requires propagated dynamics and "
+                "is not supported in observation-only estimation." );
+    }
+
     // Re-integrate equations of motion and variational equations with new parameter estimate.
     try
     {
@@ -430,10 +506,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
             resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
         }
 
-        if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput ) != nullptr )
+        if( parameterEstimationInput != nullptr )
         {
-            if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput )
-                        ->getSaveStateHistoryForEachIteration( ) )
+            if( parameterEstimationInput->getSaveStateHistoryForEachIteration( ) )
             {
                 simulationResults = variationalEquationsSolver_->getVariationalPropagationResults( );
             }

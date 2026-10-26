@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+#include <iomanip>
 #include <limits>
 #include <string>
 #include <vector>
@@ -26,6 +28,8 @@
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/support/numericalObservationPartial.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -204,12 +208,24 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( ( observableType == observation_models::position_angle || observableType == observation_models::separation_distance ||
+              observableType == observation_models::position_angle_and_separation ) &&
+            ( linkEndIterator->first != receiver ) )
+        {
+            runSimulation = false;
+        }
+
         if( ( observableType == observation_models::n_way_differenced_range ) && ( linkEndIterator->first == retransmitter ) )
         {
             runSimulation = false;
         }
 
         if( observableType == observation_models::dsn_n_way_averaged_doppler && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
+        if( observableType == observation_models::dsn_n_way_range && linkEndIterator->first != receiver )
         {
             runSimulation = false;
         }
@@ -274,8 +290,11 @@ void testObservationPartials(
             // Calculate analytical observation partials.
             if( positionPartialScaler != nullptr )
             {
-                positionPartialScaler->update(
-                        vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ), currentObservation );
+                positionPartialScaler->update( vectorOfStates,
+                                               vectorOfTimes,
+                                               static_cast< LinkEndType >( linkEndIterator->first ),
+                                               currentObservation,
+                                               modifiedAncillarySettings );
             }
 
             typedef std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > >
@@ -539,6 +558,126 @@ void testObservationPartials(
             }
         }
     }
+}
+
+//! Create the gravitational parameters of the given bodies, and optionally PPN gamma, as the only estimated parameters.
+inline std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > createShapiroParameters(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::vector< std::string >& gravitationalParameterBodies,
+        const bool estimateGamma,
+        std::vector< double >& parameterPerturbations,
+        const double perturbationScaling = 1.0 )
+{
+    using namespace tudat::estimatable_parameters;
+
+    // All parameters enter the (bending-free) Shapiro delay linearly, so large perturbations are used to suppress
+    // round-off in the numerical partials. For planets, the Shapiro Doppler is so small that the perturbation must exceed
+    // the nominal GM by orders of magnitude to resolve it. Observables with a large nominal value (e.g. frequencies) need
+    // a further perturbationScaling.
+    std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameters;
+    parameterPerturbations.clear( );
+    for( const std::string& bodyName : gravitationalParameterBodies )
+    {
+        doubleParameters.push_back(
+                std::make_shared< GravitationalParameter >( bodies.at( bodyName )->getGravityFieldModel( ), bodyName ) );
+        parameterPerturbations.push_back( perturbationScaling * std::max( 0.5 * doubleParameters.back( )->getParameterValue( ), 1.0E19 ) );
+    }
+    if( estimateGamma )
+    {
+        doubleParameters.push_back( std::make_shared< PPNParameterGamma >( bodies.getSpaceTimeProperties( )->getPpnParameterSet( ) ) );
+        parameterPerturbations.push_back( perturbationScaling );
+    }
+    return std::make_shared< EstimatableParameterSet< double > >(
+            doubleParameters, std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ) );
+}
+
+//! Compare analytical partials w.r.t. double parameters with central-difference partials of the observable.
+/*!
+ * Intended for parameters that enter the observation model directly (e.g. gravitational parameters of light-time
+ * perturbing bodies, PPN gamma), so the parameter set must contain only double parameters. The observable is evaluated
+ * for each requested reference link end, and the largest relative error per parameter is returned (for diagnostics).
+ */
+template< int ObservableSize = 1, typename TimeType = double >
+std::vector< double > testDirectDoubleParameterPartials(
+        const std::shared_ptr< ObservationModel< ObservableSize, double, TimeType > > observationModel,
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< EstimatableParameterSet< double > > parameterSet,
+        const std::vector< LinkEndType >& referenceLinkEnds,
+        const std::vector< double >& parameterPerturbations,
+        const double tolerance,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
+        const double observationTime = 1.1E7 )
+{
+    const std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameters = parameterSet->getEstimatedDoubleParameters( );
+    if( parameterSet->getParameterSetSize( ) != static_cast< int >( doubleParameters.size( ) ) ||
+        parameterPerturbations.size( ) != doubleParameters.size( ) )
+    {
+        throw std::runtime_error( "Error in testDirectDoubleParameterPartials: only double parameters are supported." );
+    }
+
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservableSize > > >,
+               std::shared_ptr< PositionPartialScaling > >
+            partialSet = ObservationPartialCreator< ObservableSize, double, TimeType >::createObservationPartials(
+                    observationModel, bodies, parameterSet );
+
+    std::vector< double > maximumRelativeErrors( doubleParameters.size( ), 0.0 );
+    for( const LinkEndType referenceLinkEnd : referenceLinkEnds )
+    {
+        std::vector< Eigen::Vector6d > linkEndStates;
+        std::vector< double > linkEndTimes;
+        Eigen::Matrix< double, ObservableSize, 1 > nominalObservation = observationModel->computeObservationsWithLinkEndData(
+                observationTime, referenceLinkEnd, linkEndTimes, linkEndStates, ancillarySettings );
+        if( partialSet.second != nullptr )
+        {
+            partialSet.second->update( linkEndStates, linkEndTimes, referenceLinkEnd, nominalObservation );
+        }
+
+        // Compute all analytical partials before any perturbed evaluation: light-time correction partials use the
+        // correction cached by the last light-time computation.
+        std::vector< Eigen::Matrix< double, ObservableSize, 1 > > analyticalPartials( doubleParameters.size( ),
+                                                                                      Eigen::Matrix< double, ObservableSize, 1 >::Zero( ) );
+        for( const auto& partialEntry : partialSet.first )
+        {
+            const auto partialList = partialEntry.second->calculatePartial(
+                    linkEndStates, linkEndTimes, referenceLinkEnd, ancillarySettings, nominalObservation );
+            for( const auto& partial : partialList )
+            {
+                analyticalPartials.at( partialEntry.first.first ) += partial.first;
+            }
+        }
+
+        for( unsigned int i = 0; i < doubleParameters.size( ); i++ )
+        {
+            const Eigen::Matrix< double, ObservableSize, 1 >& analyticalPartial = analyticalPartials.at( i );
+            const double nominalValue = doubleParameters.at( i )->getParameterValue( );
+            doubleParameters.at( i )->setParameterValue( nominalValue + parameterPerturbations.at( i ) );
+            const Eigen::Matrix< double, ObservableSize, 1 > upObservation =
+                    observationModel->computeObservations( observationTime, referenceLinkEnd, ancillarySettings );
+            doubleParameters.at( i )->setParameterValue( nominalValue - parameterPerturbations.at( i ) );
+            const Eigen::Matrix< double, ObservableSize, 1 > downObservation =
+                    observationModel->computeObservations( observationTime, referenceLinkEnd, ancillarySettings );
+            doubleParameters.at( i )->setParameterValue( nominalValue );
+
+            const Eigen::Matrix< double, ObservableSize, 1 > numericalPartial =
+                    ( upObservation - downObservation ) / ( 2.0 * parameterPerturbations.at( i ) );
+            const double relativeError = ( analyticalPartial - numericalPartial ).norm( ) / numericalPartial.norm( );
+            maximumRelativeErrors.at( i ) = std::max( maximumRelativeErrors.at( i ), relativeError );
+
+            std::cout << "Direct parameter partial " << getParameterTypeString( doubleParameters.at( i )->getParameterName( ).first ) << " "
+                      << doubleParameters.at( i )->getParameterName( ).second.first << ", reference link end "
+                      << getLinkEndTypeString( referenceLinkEnd ) << ": analytical " << std::setprecision( 16 )
+                      << analyticalPartial.transpose( ) << ", numerical " << numericalPartial.transpose( ) << ", relative error "
+                      << relativeError << std::endl;
+
+            BOOST_TEST_CONTEXT( "Parameter " << doubleParameters.at( i )->getParameterDescription( ) << ", reference link end "
+                                             << getLinkEndTypeString( referenceLinkEnd ) )
+            {
+                BOOST_CHECK( numericalPartial.norm( ) > 0.0 );
+                BOOST_CHECK_SMALL( relativeError, tolerance );
+            }
+        }
+    }
+    return maximumRelativeErrors;
 }
 
 }  // namespace unit_tests

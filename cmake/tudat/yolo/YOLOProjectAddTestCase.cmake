@@ -1,38 +1,11 @@
 include(CMakeParseArguments)
 
-# TODO: remove this: all tests shoulld be run, if some are omitted, a warning/error should at least be printed
-if (TUDAT_SKIP_JSON_TESTS)
-    # https://github.com/tudat-team/tudat/issues/8
-    set(TEST_TO_BE_SKIPPED
-            test_json_Acceleration
-            test_json_Aerodynamics
-            test_json_Body
-            test_json_Ephemeris
-            test_json_GroundStation
-            test_json_Interpolation
-            test_json_Propagator
-            test_json_SimulationSingleSatellite
-            test_json_SimulationSinglePerturbedSatellite
-            test_json_SimulationInnerSolarSystem
-            test_json_SimulationGalileoConstellation
-            test_json_SimulationThrustAlongVelocityVector
-            test_json_SimulationThrustAccelerationFromFile
-            test_json_State
-            test_json_Thrust
-            )
-else ()
-    set(TEST_TO_BE_SKIPPED
-            )
-endif ()
+set(TEST_TO_BE_SKIPPED)
 
 if (TUDAT_SKIP_BROKEN_MSVC_CLANG_PRECISION_TESTS)
     # https://github.com/tudat-team/tudat/issues/7
     set(TEST_TO_BE_SKIPPED ${TEST_TO_BE_SKIPPED})
 endif ()
-
-function("TUDAT_ADD_TEST_CASE" arg1)
-
-endfunction()
 
 function("TUDAT_ADD_TEST_CASE" arg1)
     # arg1 : Test name. Will add source file ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp
@@ -55,6 +28,9 @@ function("TUDAT_ADD_TEST_CASE" arg1)
     else ()
         # Add executable.
         add_executable(${target_name} ${CMAKE_CURRENT_SOURCE_DIR}/unitTest${arg1}.cpp ${PARSED_ARGS_SOURCES})
+        if (WIN32)
+            target_compile_definitions("${target_name}" PRIVATE NOMINMAX)
+        endif ()
         if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             target_compile_options("${target_name}" PRIVATE
                     -Wno-overloaded-virtual
@@ -91,10 +67,10 @@ function("TUDAT_ADD_TEST_CASE" arg1)
             list(APPEND test_private_links ${Tudat_ESTIMATION_LIBRARIES})
         endif ()
 
-        # Unity build on Linux can expose circular static-library dependencies;
-        # GNU ld resolves archives in one pass unless grouped.
+        # Linux static-library links can expose circular dependencies between
+        # Tudat libraries; GNU ld resolves archives in one pass unless grouped.
         set(test_private_link_items ${test_private_links})
-        if (CMAKE_UNITY_BUILD AND TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        if (TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
             set(test_private_link_items
                     -Wl,--start-group
                     ${test_private_links}
@@ -104,7 +80,9 @@ function("TUDAT_ADD_TEST_CASE" arg1)
 
         target_link_libraries("${target_name}"
                 PUBLIC ${test_private_link_items}
-                PRIVATE "${Boost_LIBRARIES}"
+                PRIVATE
+                "Boost::boost"
+                "Boost::disable_autolinking"
                 )
 
         if (TUDAT_BUILD_WITH_PCH)

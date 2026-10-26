@@ -9,12 +9,11 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -22,6 +21,7 @@
 
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
+#include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
@@ -46,6 +46,7 @@ using namespace propagators;
 
 BOOST_AUTO_TEST_SUITE( test_multi_arc_dynamics )
 
+//! Test multi-arc propagation variants, including custom interpolation of the integrated state histories.
 BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 {
     // Load spice kernels.
@@ -120,32 +121,47 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
-        std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
-        for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
-        {
-            arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
-        }
-
         // For case 0: test multi-arc estimation with same integration settings for each arc
         if( testCase == 0 )
         {
-            std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 120.0 );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 120.0 );
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
+            for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
+            {
+                arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialStates.at( i ),
+                        integrationArcStarts.at( i ),
+                        integratorSettings->clone( ),
+                        std::make_shared< PropagationTimeTerminationSettings >( integrationArcEnds.at( i ) ) ) );
+            }
             std::shared_ptr< MultiArcPropagatorSettings< double > > multiArcPropagatorSettings =
-                    validateDeprecatedMultiArcSettings< double, double >(
-                            integratorSettings,
-                            std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList ),
-                            integrationArcStarts,
-                            true,
-                            true );
-
-            std::shared_ptr< PropagationPrintSettings > multiArcPrintSettings = std::make_shared< PropagationPrintSettings >( );
-            multiArcPrintSettings->reset( true, true, TUDAT_NAN, 0, true, true, true, true, true, true );
-
-            multiArcPropagatorSettings->getOutputSettings( )->resetAndApplyConsistentSingleArcPrintSettings( multiArcPrintSettings );
+                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList );
+            multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            // Enable environment updates with a non-default interpolation order for all propagated arcs.
+            multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            multiArcPropagatorSettings->getOutputSettings( )->setInterpolatorSettings( lagrangeInterpolation( 8 ) );
 
             MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
+
+            // Verify that every tabulated arc ephemeris uses the requested interpolation order.
+            std::shared_ptr< MultiArcEphemeris > integratedMoonEphemeris =
+                    std::dynamic_pointer_cast< MultiArcEphemeris >( bodies.at( "Moon" )->getEphemeris( ) );
+            BOOST_REQUIRE( integratedMoonEphemeris != nullptr );
+            BOOST_REQUIRE( !integratedMoonEphemeris->getSingleArcEphemerides( ).empty( ) );
+            for( const std::shared_ptr< Ephemeris >& arcEphemeris : integratedMoonEphemeris->getSingleArcEphemerides( ) )
+            {
+                std::shared_ptr< TabulatedCartesianEphemeris<> > tabulatedArcEphemeris =
+                        std::dynamic_pointer_cast< TabulatedCartesianEphemeris<> >( arcEphemeris );
+                BOOST_REQUIRE( tabulatedArcEphemeris != nullptr );
+                std::shared_ptr< LagrangeInterpolator< double, Eigen::Vector6d > > arcInterpolator =
+                        std::dynamic_pointer_cast< LagrangeInterpolator< double, Eigen::Vector6d > >(
+                                tabulatedArcEphemeris->getInterpolator( ) );
+                BOOST_REQUIRE( arcInterpolator != nullptr );
+                BOOST_CHECK_EQUAL( arcInterpolator->getNumberOfStages( ), 8 );
+            }
         }
         // For case 1: test multi-arc estimation with different integration settings object for each arc
         else if( testCase == 1 )
@@ -153,25 +169,45 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             std::vector< std::shared_ptr< IntegratorSettings<> > > integratorSettingsList;
             for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
             {
-                integratorSettingsList.push_back(
-                        std::make_shared< IntegratorSettings<> >( rungeKutta4, integrationArcStarts.at( i ), 120.0 ) );
+                integratorSettingsList.push_back( std::make_shared< IntegratorSettings<> >( rungeKutta4, 120.0 ) );
             }
-            MultiArcDynamicsSimulator<> dynamicsSimulator(
-                    bodies,
-                    integratorSettingsList,
-                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList ) );
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
+            for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
+            {
+                arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialStates.at( i ),
+                        integrationArcStarts.at( i ),
+                        integratorSettingsList.at( i ),
+                        std::make_shared< PropagationTimeTerminationSettings >( integrationArcEnds.at( i ) ) ) );
+            }
+            const auto multiArcPropagatorSettings = std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList );
+            multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
         }
         // For case 0: test multi-arc estimation with same integration settings for each arc, and arc initial state interpolated
         // from previous state
         else if( testCase == 2 )
         {
-            std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 120.0 );
-            MultiArcDynamicsSimulator<> dynamicsSimulator(
-                    bodies,
-                    integratorSettings,
-                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList, true ),
-                    integrationArcStarts );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 120.0 );
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
+            for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
+            {
+                arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialStates.at( i ),
+                        integrationArcStarts.at( i ),
+                        integratorSettings->clone( ),
+                        std::make_shared< PropagationTimeTerminationSettings >( integrationArcEnds.at( i ) ) ) );
+            }
+            const auto multiArcPropagatorSettings =
+                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList, true );
+            multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
         }
 
         std::shared_ptr< Ephemeris > moonEphemeris = bodies.at( "Moon" )->getEphemeris( );

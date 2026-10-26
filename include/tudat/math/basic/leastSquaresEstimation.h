@@ -15,8 +15,11 @@
 #ifndef TUDAT_LEASTSQUARESESTIMATION_H
 #define TUDAT_LEASTSQUARESESTIMATION_H
 
+#include <functional>
 #include <iostream>
 #include <optional>
+#include <stdexcept>
+#include <string>
 #include <utility>
 
 #include <Eigen/Core>
@@ -205,6 +208,8 @@ inline Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const 
  * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
  * \param constraintMultiplier Multiplier for estimated parameter that defines linear constraint
  * \param constraintRightHandside Right-hand side estimation linear constraint
+ * \param aprioriParameterDeviation Deviation of the current parameter estimate from the a priori parameter vector, expressed in
+ * the same normalized coordinates as the parameter correction
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 template <typename M>
@@ -219,8 +224,14 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
             typename from_eigen<M>::dense_vector_type(0),
         const M& designMatrixConsiderParameters = M( 0, 0 ),
         const typename from_eigen<M>::dense_vector_type& considerParametersDeviations =
+            typename from_eigen<M>::dense_vector_type(0),
+        const M& additionalNormalMatrix = M( 0, 0 ),
+        const typename from_eigen<M>::dense_vector_type& additionalRightHandSide =
+            typename from_eigen<M>::dense_vector_type(0),
+        const typename from_eigen<M>::dense_vector_type& aprioriParameterDeviation =
             typename from_eigen<M>::dense_vector_type(0))
 {
+    using traits = typename from_eigen<M>::traits;
     using dense_vector_type = typename from_eigen<M>::dense_vector_type;
 
     dense_vector_type rightHandSide;
@@ -235,6 +246,27 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
         rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
     }
 
+    const int nParams = static_cast< int >( designMatrix.cols( ) );
+    if( inverseOfAPrioriCovarianceMatrix.rows( ) != nParams || inverseOfAPrioriCovarianceMatrix.cols( ) != nParams )
+    {
+        throw std::runtime_error(
+                "Error in performLeastSquaresAdjustmentFromDesignMatrix: inverseOfAPrioriCovarianceMatrix has dimensions " +
+                std::to_string( inverseOfAPrioriCovarianceMatrix.rows( ) ) + "x" +
+                std::to_string( inverseOfAPrioriCovarianceMatrix.cols( ) ) + ", expected " + std::to_string( nParams ) + "x" +
+                std::to_string( nParams ) + "." );
+    }
+    if( aprioriParameterDeviation.size( ) > 0 )
+    {
+        if( aprioriParameterDeviation.size( ) != nParams )
+        {
+            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: aprioriParameterDeviation has size " +
+                                      std::to_string( aprioriParameterDeviation.size( ) ) + ", expected " + std::to_string( nParams ) +
+                                      "." );
+        }
+        // The prior residual is the a priori parameter vector minus the current estimate, i.e. the negative deviation.
+        rightHandSide -= inverseOfAPrioriCovarianceMatrix * aprioriParameterDeviation;
+    }
+
     M inverseOfCovarianceMatrix;
     if( constraintMultiplier.rows( ) != 0 )
     {
@@ -246,10 +278,10 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
                 constraintRightHandside );
 
         int numberOfConstraints = constraintMultiplier.rows( );
-        int numberOfParameters = constraintMultiplier.cols( );
+        int numberOfConstrainedParameters = constraintMultiplier.cols( );
 
-        rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
-        rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
+        rightHandSide.conservativeResize( numberOfConstrainedParameters + numberOfConstraints );
+        rightHandSide.segment( numberOfConstrainedParameters, numberOfConstraints ) = constraintRightHandside;
     }
     else
     {
@@ -259,8 +291,64 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
                 inverseOfAPrioriCovarianceMatrix );
     }
 
+    // Soft-constraint additions (e.g. inter-arc continuity): inject into the parameter block of the LHS/RHS,
+    // leaving any Lagrange-multiplier rows from the hard equality constraint above untouched.
+    if( additionalNormalMatrix.size( ) > 0 )
+    {
+        if( additionalNormalMatrix.rows( ) != nParams || additionalNormalMatrix.cols( ) != nParams )
+        {
+            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalNormalMatrix has shape " +
+                                      std::to_string( additionalNormalMatrix.rows( ) ) + "x" +
+                                      std::to_string( additionalNormalMatrix.cols( ) ) + ", expected " + std::to_string( nParams ) + "x" +
+                                      std::to_string( nParams ) + "." );
+        }
+        traits::add_to_top_left( inverseOfCovarianceMatrix, additionalNormalMatrix );
+    }
+    if( additionalRightHandSide.size( ) > 0 )
+    {
+        if( additionalRightHandSide.size( ) != nParams )
+        {
+            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalRightHandSide has size " +
+                                      std::to_string( additionalRightHandSide.size( ) ) + ", expected " + std::to_string( nParams ) + "." );
+        }
+        rightHandSide.head( nParams ) += additionalRightHandSide;
+    }
+
     return std::make_pair( solveSystemOfEquations< M >( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
                            inverseOfCovarianceMatrix );
+}
+
+//! Function to perform an iteration least squares estimation, for dense matrices
+/*!
+ * Dense version of the function above, which also accepts arguments that are convertible to dense dynamic-size matrices and
+ * vectors (e.g. fixed-size matrices or expressions), for which the template arguments of the general version cannot be deduced.
+ */
+inline std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const double limitConditionNumberForWarning = 1.0E8,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ),
+        const Eigen::VectorXd& aprioriParameterDeviation = Eigen::VectorXd( 0 ) )
+{
+    return performLeastSquaresAdjustmentFromDesignMatrix< Eigen::MatrixXd >( designMatrix,
+                                                                             observationResiduals,
+                                                                             diagonalOfWeightMatrix,
+                                                                             inverseOfAPrioriCovarianceMatrix,
+                                                                             limitConditionNumberForWarning,
+                                                                             constraintMultiplier,
+                                                                             constraintRightHandside,
+                                                                             designMatrixConsiderParameters,
+                                                                             considerParametersDeviations,
+                                                                             additionalNormalMatrix,
+                                                                             additionalRightHandSide,
+                                                                             aprioriParameterDeviation );
 }
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
@@ -332,15 +420,28 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
  *  \param maximumNumberOfIterations Integer denoting the maximum number of iterations.
  *  \return Optimal value of the model parameters that minimize the least squares error between expected and actual observations.
  */
-template <typename Fn, typename Vec>
-Vec nonLinearLeastSquaresFit(
-        // std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >&
-        Fn observationAndJacobianFunctions,
-        const Vec& initialEstimate,
-        const Vec& actualObservations,
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate,
+        const Eigen::VectorXd& actualObservations,
         const double initialScaling = 1.0e-6,
         const double convergenceTolerance = 1.0e-8,
         const unsigned int maximumNumberOfIterations = 25 );
+
+//! Perform a non-linear least-squares estimation and return iteration diagnostics by reference.
+/*!
+ * This overload uses the same Levenberg-Marquardt implementation as nonLinearLeastSquaresFit, while additionally
+ * returning the number of iterations and whether the update-norm convergence criterion was met.
+ */
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate,
+        const Eigen::VectorXd& actualObservations,
+        const double initialScaling,
+        const double convergenceTolerance,
+        const unsigned int maximumNumberOfIterations,
+        unsigned int& numberOfIterations,
+        bool& converged );
 
 }  // namespace linear_algebra
 

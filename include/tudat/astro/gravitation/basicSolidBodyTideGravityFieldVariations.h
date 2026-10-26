@@ -12,7 +12,6 @@
 #define TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
 
 #include <functional>
-#include <boost/multi_array.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>

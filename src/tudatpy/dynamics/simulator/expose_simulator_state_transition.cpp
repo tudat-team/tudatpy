@@ -66,7 +66,7 @@ void expose_simulator_state_transition_bindings( py::module& m )
 
          Parameters
          ----------
-         time : astro.time_representation.Time
+         time : float
              Time at which concatenated state transition and sensitivity matrix are to be retrieved.
          Returns
          -------
@@ -88,7 +88,7 @@ void expose_simulator_state_transition_bindings( py::module& m )
 
          Parameters
          ----------
-         time : astro.time_representation.Time
+         time : float
              Time at which full concatenated state transition and sensitivity matrix are to be retrieved.
          Returns
          -------

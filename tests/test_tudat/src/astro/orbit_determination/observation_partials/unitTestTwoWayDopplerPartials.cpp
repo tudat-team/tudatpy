@@ -9,14 +9,13 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -239,6 +238,87 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                               ancillarySettings,
                                               1.1E7,
                                               100.0 );
+            }
+        }
+    }
+}
+
+//! Test GM and gamma partials of the Shapiro part of two-way Doppler (and two-way measured frequency) against numerical partials.
+BOOST_AUTO_TEST_CASE( testTwoWayDopplerShapiroParameterPartials )
+{
+    using namespace tudat::observation_models;
+    using namespace tudat::simulation_setup;
+    using namespace tudat::estimatable_parameters;
+
+    std::vector< std::pair< std::string, std::string > > groundStations = { { "Earth", "Graz" }, { "Mars", "MSL" } };
+
+    // Earth is evaluated at the transmission time of the downlink and the reception time of the uplink; Sun mid-way.
+    const std::vector< std::string > perturbingBodies = { "Earth", "Sun" };
+
+    for( unsigned int useFrequency = 0; useFrequency < 2; useFrequency++ )
+    {
+        // Real ephemerides: the perturbing bodies move, so the explicit time terms are non-zero.
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings;
+        if( useFrequency == 1 )
+        {
+            bodies.at( "Earth" )->getGroundStation( "Graz" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
+            bodies.at( "Mars" )->getGroundStation( "MSL" )->setTransmittingFrequencyCalculator(
+                    std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 5.0E9 ) );
+            ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+            ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                             { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
+            ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
+            ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( x_band ) );
+        }
+
+        LinkDefinition linkEnds;
+        linkEnds[ transmitter ] = groundStations[ 1 ];
+        linkEnds[ reflector1 ] = groundStations[ 0 ];
+        linkEnds[ receiver ] = groundStations[ 1 ];
+
+        for( unsigned int normalizeObservable = 0; normalizeObservable < ( useFrequency == 0 ? 2 : 1 ); normalizeObservable++ )
+        {
+            std::shared_ptr< ObservationModel< 1 > > twoWayDopplerModel;
+            if( useFrequency == 0 )
+            {
+                twoWayDopplerModel = ObservationModelCreator< 1, double, double >::createObservationModel(
+                        std::make_shared< TwoWayDopplerObservationModelSettings >(
+                                linkEnds,
+                                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >(
+                                        { std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
+                                nullptr,
+                                std::make_shared< LightTimeConvergenceCriteria >( ),
+                                static_cast< bool >( normalizeObservable ) ),
+                        bodies );
+            }
+            else
+            {
+                twoWayDopplerModel = ObservationModelCreator< 1, double, double >::createObservationModel(
+                        std::make_shared< TwoWayDopplerObservationModelSettings >(
+                                std::make_shared< OneWayDopplerObservationModelSettings >(
+                                        getUplinkFromTwoWayLinkEnds( linkEnds ),
+                                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
+                                std::make_shared< OneWayDopplerObservationModelSettings >(
+                                        getDownlinkFromTwoWayLinkEnds( linkEnds ),
+                                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
+                                doppler_measured_frequency ),
+                        bodies );
+            }
+
+            std::vector< double > parameterPerturbations;
+            std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
+                    createShapiroParameters( bodies, perturbingBodies, true, parameterPerturbations, useFrequency == 0 ? 1.0 : 1.0E4 );
+
+            const std::vector< LinkEndType > referenceLinkEnds = ( useFrequency == 0 )
+                    ? std::vector< LinkEndType >( { transmitter, reflector1, receiver } )
+                    : std::vector< LinkEndType >( { receiver } );
+
+            BOOST_TEST_CONTEXT( "frequency=" << useFrequency << ", normalized=" << normalizeObservable )
+            {
+                testDirectDoubleParameterPartials< 1 >(
+                        twoWayDopplerModel, bodies, parameterSet, referenceLinkEnds, parameterPerturbations, 1.0E-6, ancillarySettings );
             }
         }
     }

@@ -20,6 +20,7 @@ namespace tudatpy
 namespace estimation
 {
 
+void expose_estimation_types( py::module& m );
 void expose_estimation( py::module& m );
 
 }  // namespace estimation

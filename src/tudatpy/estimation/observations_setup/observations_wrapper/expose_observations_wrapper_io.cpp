@@ -24,6 +24,7 @@
 #include "tudat/simulation/estimation_setup/processPsfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;
@@ -39,11 +40,6 @@ namespace observations_wrapper
 
 void expose_observations_wrapper_io_bindings( py::module& m )
 {
-    py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
-                                                                 tudat::observation_models::FrequencyBands band2 ) {
-        return tom::getDsnDefaultTurnaroundRatios( band1, band2 );
-    };
-
     py::class_< tom::ProcessedOdfFileContents< TIME_TYPE >, std::shared_ptr< tom::ProcessedOdfFileContents< TIME_TYPE > > >(
             m, "ProcessedOdfFileContents", R"doc(
         Class containing processed ODF data.
@@ -120,19 +116,119 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         )doc" )
             .def( py::init< const std::string&, const std::map< std::string, std::string >& >( ),
                   py::arg( "receiver_body_name" ),
-                  py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ) )
-            .def_readwrite( "receiver_body_name", &tom::PsfFileObservationConversionSettings::receiverBodyName_ )
-            .def_readwrite( "image_name_to_body_name", &tom::PsfFileObservationConversionSettings::imageNameToBodyName_ )
+                  py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ),
+                  R"doc(
+
+         Configure PSF conversion with the receiving body name and optional mapping from image target names to body
+         names.
+
+         Parameters
+         ----------
+         receiver_body_name : str
+             Name of the body hosting the receiving camera.
+         image_name_to_body_name : dict[str, str], default = {}
+             Mapping from PSF image target names to names in the system of bodies.
+
+      )doc" )
+            .def_readwrite( "receiver_body_name",
+                            &tom::PsfFileObservationConversionSettings::receiverBodyName_,
+                            R"doc(
+
+         Name of the receiving body carrying the camera.
+
+         :type: str
+
+      )doc" )
+            .def_readwrite( "image_name_to_body_name",
+                            &tom::PsfFileObservationConversionSettings::imageNameToBodyName_,
+                            R"doc(
+
+         Mapping from PSF image target names to names in the system of bodies.
+
+         :type: dict[str, str]
+
+      )doc" )
             .def_readwrite( "use_raw_image_name_as_body_name_if_unmapped",
-                            &tom::PsfFileObservationConversionSettings::useRawImageNameAsBodyNameIfUnmapped_ )
-            .def_readwrite( "use_corrected_pixel_line", &tom::PsfFileObservationConversionSettings::useCorrectedPixelLine_ )
-            .def_readwrite( "use_mid_exposure_time", &tom::PsfFileObservationConversionSettings::useMidExposureTime_ )
-            .def_readwrite( "include_deleted_pictures", &tom::PsfFileObservationConversionSettings::includeDeletedPictures_ )
-            .def_readwrite( "include_end_marker_records", &tom::PsfFileObservationConversionSettings::includeEndMarkerRecords_ )
-            .def_readwrite( "filter_by_use_flag", &tom::PsfFileObservationConversionSettings::filterByUseFlag_ )
-            .def_readwrite( "required_use_flag", &tom::PsfFileObservationConversionSettings::requiredUseFlag_ )
-            .def_readwrite( "body_fixed_camera_position", &tom::PsfFileObservationConversionSettings::bodyFixedCameraPosition_ )
-            .def_readwrite( "use_picture_pointing", &tom::PsfFileObservationConversionSettings::usePicturePointing_ );
+                            &tom::PsfFileObservationConversionSettings::useRawImageNameAsBodyNameIfUnmapped_,
+                            R"doc(
+
+         Whether an unmapped image target name is used directly as a body name.
+
+         :type: bool
+
+      )doc" )
+            .def_readwrite( "use_corrected_pixel_line",
+                            &tom::PsfFileObservationConversionSettings::useCorrectedPixelLine_,
+                            R"doc(
+
+         Whether to use corrected pixel and line coordinates when they are available.
+
+         :type: bool
+
+      )doc" )
+            .def_readwrite( "use_mid_exposure_time",
+                            &tom::PsfFileObservationConversionSettings::useMidExposureTime_,
+                            R"doc(
+
+         Whether to associate observations with the middle of the image exposure.
+
+         :type: bool
+
+      )doc" )
+            .def_readwrite( "include_deleted_pictures",
+                            &tom::PsfFileObservationConversionSettings::includeDeletedPictures_,
+                            R"doc(
+
+         Whether pictures marked as deleted are included in the converted observations.
+
+         :type: bool
+
+      )doc" )
+            .def_readwrite( "include_end_marker_records",
+                            &tom::PsfFileObservationConversionSettings::includeEndMarkerRecords_,
+                            R"doc(
+
+         Whether end-marker records are included in the converted observations.
+
+         :type: bool
+
+      )doc" )
+            .def_readwrite( "filter_by_use_flag",
+                            &tom::PsfFileObservationConversionSettings::filterByUseFlag_,
+                            R"doc(
+
+         Whether to retain only PSF records matching the required use flag.
+
+         :type: bool
+
+      )doc" )
+            .def_readwrite( "required_use_flag",
+                            &tom::PsfFileObservationConversionSettings::requiredUseFlag_,
+                            R"doc(
+
+         PSF use flag required when use-flag filtering is enabled.
+
+         :type: int
+
+      )doc" )
+            .def_readwrite( "body_fixed_camera_position",
+                            &tom::PsfFileObservationConversionSettings::bodyFixedCameraPosition_,
+                            R"doc(
+
+         Camera position relative to the receiving body origin, in body-fixed metres.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+
+      )doc" )
+            .def_readwrite( "use_picture_pointing",
+                            &tom::PsfFileObservationConversionSettings::usePicturePointing_,
+                            R"doc(
+
+         Whether the picture pointing information is used during PSF conversion.
+
+         :type: bool
+
+      )doc" );
 
     m.def( "add_psf_cameras_to_bodies",
            py::overload_cast< const std::string&, const tss::SystemOfBodies&, const tom::PsfFileObservationConversionSettings& >(
@@ -240,7 +336,9 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg( "processed_odf_file" ),
            py::arg( "bodies" ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
-           py::arg( "turnaround_ratio_function" ) = getDsnDefaultTurnaroundRatios_wrapper,
+           py::arg_v( "turnaround_ratio_function",
+                      std::function< double( tom::FrequencyBands, tom::FrequencyBands ) >( &tom::getDsnDefaultTurnaroundRatios ),
+                      "tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios" ),
            R"doc(
         Sets the ODF information required for simulating observations into the system of bodies.
 
@@ -256,7 +354,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             System of bodies.
         body_with_ground_stations_name : str, optional
             Name of the body in which the ground stations are located, by default "Earth".
-        turnaround_ratio_function : function, optional
+        turnaround_ratio_function : Callable[[FrequencyBands, FrequencyBands], float], default = :func:`~tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios`
             Function returning the turnaround ratio as a function of the uplink and downlink bands.
         )doc" );
 
@@ -277,7 +375,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             Processed ODF data.
         observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
             Observable types to process.
-        start_and_end_times_to_process : tuple[float, float]
+        start_and_end_times_to_process : tuple[astro.time_representation.Time, astro.time_representation.Time]
             Start and end times of the data to process.
         allow_duplicate_observations_within_single_set: bool
             Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation, default is True.
@@ -500,6 +598,9 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg( "compression_ratio" ),
            py::arg( "minimum_number_of_observations" ) = 10,
            py::arg( "max_arc_gap" ) = 300.0,
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
            R"doc(
         Create a compressed Doppler observation collection.
 
@@ -535,7 +636,9 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg_v( "earth_fixed_ground_station_positions",
                       tss::getApproximateDsnGroundStationPositions( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
-           py::arg( "ancillary_settings" ) = tom::ObservationAncillarySimulationSettings( ),
+           py::arg_v( "ancillary_settings",
+                      tom::ObservationAncillarySimulationSettings( ),
+                      "tudatpy.estimation.observations_setup.ancillary_settings.empty_ancillary_settings()" ),
            R"doc(
         Create an observation collection from raw tracking file data.
 
@@ -549,7 +652,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             List of observable types to process. If empty, all available types are processed.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions of DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) will be used.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
+        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, default = tudatpy.estimation.observations_setup.ancillary_settings.empty_ancillary_settings()
             Ancillary settings for the observations.
 
         Returns

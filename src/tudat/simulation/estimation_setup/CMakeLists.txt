@@ -62,6 +62,9 @@ set(estimation_HEADERS
         processOdfFile.h
         processPsfFile.h
         processTrackingTxtFile.h
+        interArcStateContinuityConstraintSettings.h
+        interArcContinuityConstraint.h
+        compressDopplerObservationCollection.h
         )
 
 # Add header files.
@@ -90,7 +93,13 @@ set(estimation_SOURCES
         createClockPartials.cpp
         processOdfFile.cpp
         processTrackingTxtFile.cpp
+        interArcContinuityConstraint.cpp
+        interArcStateContinuityConstraintSettings.cpp
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND estimation_SOURCES observationOutputSerialization.cpp)
+endif ()
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND estimation_SOURCES
@@ -106,6 +115,7 @@ endif ()
 TUDAT_ADD_LIBRARY("estimation_setup"
         "${estimation_SOURCES}"
         "${estimation_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PUBLIC_SERIALIZATION
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

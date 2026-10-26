@@ -175,7 +175,18 @@ void expose_gravitation( py::module& m )
 
 
       )doc" )
-            .def( py::init< const int >( ), py::arg( "maximum_degree" ) )
+            .def( py::init< const int >( ),
+                  py::arg( "maximum_degree" ),
+                  R"doc(
+
+         Create the object, and specify that it should calculate matrices up to and including given maximum degree.
+
+         Parameters
+         ----------
+         maximum_degree : int
+             Maximum spherical harmonic degree to include in the calculation.
+
+      )doc" )
             .def( "update_matrices",
                   &tbm::WignerDMatricesCache::updateMatrices,
                   py::arg( "cayley_klein_a" ),
@@ -356,7 +367,21 @@ void expose_gravitation( py::module& m )
 
 
       )doc" )
-            .def( py::init< const int, const int >( ), py::arg( "maximum_degree" ), py::arg( "maximum_order" ) )
+            .def( py::init< const int, const int >( ),
+                  py::arg( "maximum_degree" ),
+                  py::arg( "maximum_order" ),
+                  R"doc(
+
+         Create the object, and specify that it should calculate spherical harmonic transformations up to and including given maximum degree and order.
+
+         Parameters
+         ----------
+         maximum_degree : int
+             Maximum spherical harmonic degree to include in the calculation.
+         maximum_order : int
+             Maximum spherical harmonic order to include in the calculation.
+
+      )doc" )
             .def( "update_from_cayley_klein_parameters",
                   &tbm::SphericalHarmonicTransformationCache::updateFromCayleyKleinParameters,
                   py::arg( "cayley_klein_a" ),
@@ -598,7 +623,7 @@ void expose_gravitation( py::module& m )
 
  Parameters
  ----------
- inertia tensor : numpy.ndarray[numpy.float64[3, 3]]
+ inertia_tensor : numpy.ndarray[numpy.float64[3, 3]]
      Full inertia tensor :math:`\mathbf{I}` of the body for which spherical harmonic coefficients are to be computed.
  gravitational_parameter : float
      Gravitational parameter :math:`\mu` of the body for which spherical harmonic coefficients are to be computed.
@@ -608,8 +633,8 @@ void expose_gravitation( py::module& m )
      Boolean denoting whether the coefficients computed are normalized (if true) or unnormalized (if false)
  Returns
  -------
- tuple[numpy.ndarray, numpy.ndarray]
-     Tuple of two matrices, containing the spherical harmonic coefficients :math:`{C}_{lm}` (first) and :math:`{S}_{lm}` (second) up to degree and order 2.
+ tuple[numpy.ndarray, numpy.ndarray, float]
+     Tuple containing the spherical harmonic coefficients :math:`{C}_{lm}` (first), :math:`{S}_{lm}` (second), and the mean moment of inertia (third).
      The degree-two coefficients are computed from the inertia tensor, the degree-one coefficients are set to zero (and :math:`C_{00}=0`)
 
 
@@ -630,9 +655,9 @@ void expose_gravitation( py::module& m )
 
  Function to rotate spherical harmonic coefficients with precomputed Wigner D-matrices
 
-	 Function to rotate real-valued spherical harmonic coefficients using precomputed Wigner D-matrices.
-	 The transformation follows the Wigner-D coefficient rotation formalism used by :cite:t:`boue2017`; see
-	 :class:`~tudatpy.astro.gravitation.WignerDMatricesCache` for the algorithm used to compute the Wigner D-matrices.
+ Function to rotate real-valued spherical harmonic coefficients using precomputed Wigner D-matrices.
+ The transformation follows the Wigner-D coefficient rotation formalism used by :cite:t:`boue2017`; see
+ :class:`~tudatpy.astro.gravitation.WignerDMatricesCache` for the algorithm used to compute the Wigner D-matrices.
  For each degree :math:`l`, input coefficients :math:`C_{lk},S_{lk}` are mapped to
  :math:`C'_{lm},S'_{lm}` using the Wigner-D entries :math:`D^l_{m,k}` as
 

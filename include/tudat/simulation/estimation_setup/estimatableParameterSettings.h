@@ -15,6 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/observation_models/observationBias.h"
 
 namespace tudat
 {
@@ -218,6 +219,55 @@ public:
 
     //! Maximum order of field that is to be estimated.
     int maximumOrder_;
+};
+
+//! Settings for a bias shared by all models matching an observable and one link end.
+class SharedObservationBiasEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Store the selection and arc settings, rejecting unsupported or inconsistent combinations.
+    SharedObservationBiasEstimatableParameterSettings(
+            observation_models::ObservationBiasTypes biasType,
+            observation_models::ObservableType observableType,
+            observation_models::LinkEndType linkEndType,
+            const observation_models::LinkEndId& linkEndId,
+            const std::vector< double >& arcStartTimes = {},
+            observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end ):
+        EstimatableParameterSettings( linkEndId.bodyName_, shared_observation_bias, linkEndId.getReferencePointName( ) ),
+        biasType_( biasType ), observableType_( observableType ), linkEndType_( linkEndType ), linkEndId_( linkEndId ),
+        arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd )
+    {
+        // Validate at the public factory boundary, using the same rules as the parameter.
+        validate( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Validate settings without constructing an estimatable parameter or binding any models.
+    static void validate( observation_models::ObservationBiasTypes biasType,
+                          observation_models::LinkEndType linkEndType,
+                          const observation_models::LinkEndId& linkEndId,
+                          const std::vector< double >& arcStartTimes,
+                          observation_models::LinkEndType timeLinkEnd )
+    {
+        observation_models::validateSharedObservationBiasSettings( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Bias model type that each selected observation model must contain.
+    observation_models::ObservationBiasTypes biasType_;
+
+    //! Observable type for which the bias parameter is shared.
+    observation_models::ObservableType observableType_;
+
+    //! Link-end role used to select matching observation links.
+    observation_models::LinkEndType linkEndType_;
+
+    //! Body and reference point required at the selected link-end role.
+    observation_models::LinkEndId linkEndId_;
+
+    //! Shared arc boundaries; empty for constant biases.
+    std::vector< double > arcStartTimes_;
+
+    //! Event time used for arc selection; unidentified_link_end defaults to linkEndType_.
+    observation_models::LinkEndType timeLinkEnd_;
 };
 
 //! Class to define settings for estimation of constant observation biases (absolute or relative)
@@ -817,9 +867,9 @@ public:
 /*!
  *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class FullDegreeTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -876,9 +926,9 @@ public:
  *  Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree and a set of orders at this
  *  degree. The estimation will provide separate Love numbers for each order
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -1283,6 +1333,15 @@ inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoeffici
     return std::make_shared< EstimatableParameterSettings >( bodyName, radiation_pressure_coefficient );
 }
 
+//! Settings for estimating the three area coefficients of a three-coefficient radiation-pressure acceleration.
+inline std::shared_ptr< EstimatableParameterSettings > threeCoefficientRadiationPressureCoefficients(
+        const std::string& bodyName,
+        const std::string& radiationSourceName )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+            bodyName, three_coefficient_radiation_pressure_coefficients, radiationSourceName );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsCosineBlock( const std::string bodyName,
                                                                                       const int minimumDegree,
                                                                                       const int minimumOrder,
@@ -1339,6 +1398,19 @@ inline std::shared_ptr< EstimatableParameterSettings > constantRotationRate( std
 inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition( std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position );
+}
+
+//! Create settings for one bias vector shared by all observation links matching the selector.
+inline std::shared_ptr< EstimatableParameterSettings > sharedObservationBias(
+        observation_models::ObservationBiasTypes biasType,
+        observation_models::ObservableType observableType,
+        observation_models::LinkEndType linkEndType,
+        const observation_models::LinkEndId& linkEndId,
+        const std::vector< double >& arcStartTimes = {},
+        observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end )
+{
+    return std::make_shared< SharedObservationBiasEstimatableParameterSettings >(
+            biasType, observableType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > observationBias( const observation_models::LinkDefinition& linkEnds,
@@ -1689,6 +1761,62 @@ inline std::shared_ptr< EstimatableParameterSettings > diffuseReflectivity( cons
 inline std::shared_ptr< EstimatableParameterSettings > specularReflectivity( const std::string bodyName, const std::string panel_group_id )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, specular_reflectivity, panel_group_id );
+}
+
+//! Create settings to estimate the energy accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Sentman and Cook gas-surface interaction models; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless energy accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > energyAccommodationCoefficient( const std::string bodyName,
+                                                                                       const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, energy_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the normal accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless normal accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > normalAccommodationCoefficient( const std::string bodyName,
+                                                                                       const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the tangential accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless tangential accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > tangentialAccommodationCoefficient( const std::string bodyName,
+                                                                                           const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, tangential_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the normal velocity at wall ratio shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless normal velocity at wall ratio.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > normalVelocityAtWallRatio( const std::string bodyName,
+                                                                                  const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_velocity_at_wall_ratio, panel_group_id );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVariationParameter(

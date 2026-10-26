@@ -108,7 +108,7 @@ public:
 
         Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
         currentRotationToLocalFrameDerivative_ =
-                linear_algebra::getCrossProductMatrix( constantState_.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
+                -linear_algebra::getCrossProductMatrix( constantState_.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
     }
 
 private:

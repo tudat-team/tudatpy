@@ -18,6 +18,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 import os
+from pathlib import Path
 import sys
 import importlib
 import re
@@ -48,33 +49,52 @@ if bool(os.getenv("READTHEDOCS")) is True:
 
 else:
     # when building locally, use the binaries generated with tudat-bundle
-    sys.path.insert(0, os.path.abspath("../../../build/tudatpy"))
+    local_build_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../..", "build", "src")
+    )
+    sys.path.insert(0, local_build_path)
 
 
-def has_mcd_support():
-    """Return whether the imported tudatpy build exposes atmosphere.mcd."""
+def module_has_members(module_name, member_names):
     try:
-        atmosphere = importlib.import_module("tudatpy.dynamics.environment_setup.atmosphere")
+        module = importlib.import_module(module_name)
     except Exception:
         return False
-    return hasattr(atmosphere, "mcd")
+    return all(hasattr(module, member_name) for member_name in member_names)
 
 
-HAS_MCD_SUPPORT = has_mcd_support()
+has_mcd_support = module_has_members(
+    "tudatpy.dynamics.environment_setup.atmosphere",
+    [
+        "mars_climate_database_atmosphere_model",
+        "mars_climate_database_climate_model",
+    ],
+)
+
+MCD_DOCUMENTATION_MARKER = ".. tudatpy-mcd-documentation"
+MCD_DOCUMENTATION = """
+Mars Climate Database
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+
+   tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model
+   tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model
+
+.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model
+
+.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model
+"""
 
 
-def filter_mcd_docs(app, docname, source):
-    """Hide MCD docs when the imported tudatpy build has no MCD support."""
-    if docname != "dynamics/environment_setup/atmosphere" or HAS_MCD_SUPPORT:
+def insert_optional_mcd_documentation(app, docname, source):
+    """Insert MCD API directives only when the built module provides them."""
+
+    if docname != "dynamics/environment_setup/atmosphere":
         return
 
-    text = source[0]
-    text = text.replace("\n   mcd\n", "\n")
-    text = text.replace(
-        "\n.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd\n",
-        "\n",
-    )
-    source[0] = text
+    replacement = MCD_DOCUMENTATION if app.config.has_mcd_support else ""
+    source[0] = source[0].replace(MCD_DOCUMENTATION_MARKER, replacement)
 
 
 # -- General configuration ------------------------------------------------
@@ -154,6 +174,30 @@ def process_constants_docstring(app, what, name, obj, options, lines):
         lines.clear()
         # retrieve variable type directly from the object
         lines.append(f":type: {type(obj).__name__}")
+
+
+READ_ONLY_MARKER = "**read-only**"
+
+
+def mark_property_mutability(app, what, name, obj, options, lines):
+    """Keep rendered property mutability labels consistent with the runtime API."""
+
+    if not isinstance(obj, property):
+        return
+
+    marker_indices = [
+        index
+        for index, line in enumerate(lines)
+        if line.strip().lower() == READ_ONLY_MARKER.lower()
+    ]
+
+    if obj.fset is None:
+        if not marker_indices:
+            lines[:0] = [READ_ONLY_MARKER, ""]
+        return
+
+    for index in reversed(marker_indices):
+        del lines[index]
 
 
 NUMPY_DOCSTRING_SECTION_TITLES = {
@@ -237,6 +281,7 @@ def _rewrite_overloaded_list_items(lines):
             continue
 
         indent, index, signature = match.groups()
+        signature = simplify_type_annotations(signature)
         rewritten_lines.append(f"{indent}Overload {index}:")
         rewritten_lines.append(f"{indent}``{signature}``")
 
@@ -333,7 +378,17 @@ def replace_annotated_nparrays(text: str) -> str:
         typing\.Annotated\[
             \s*numpy\.typing\.ArrayLike\s*,
             \s*(?P<dtype>[^,\]]+)\s*,
-            \s*"\[(?P<shape>[^\]]+)\]"\s*
+            \s*(?P<quote>["'])\[(?P<shape>[^\]]+)\](?P=quote)\s*
+        \]
+        """,
+        re.VERBOSE,
+    )
+
+    pattern_unshaped_arraylike = re.compile(
+        r"""
+        typing\.Annotated\[
+            \s*numpy\.typing\.ArrayLike\s*,
+            \s*(?P<dtype>[^,\]]+)\s*
         \]
         """,
         re.VERBOSE,
@@ -347,7 +402,7 @@ def replace_annotated_nparrays(text: str) -> str:
                 \s*(?P<dtype>[^\]]+)\s*
             \]
             \s*,\s*
-            "\[(?P<shape>[^\]]+)\]"
+            (?P<quote>["'])\[(?P<shape>[^\]]+)\](?P=quote)
             \s*
         \]
         """,
@@ -360,48 +415,88 @@ def replace_annotated_nparrays(text: str) -> str:
         return f"numpy.ndarray[{dtype}[{shape}]]"
 
     text = pattern_arraylike.sub(repl, text)
+    text = pattern_unshaped_arraylike.sub(
+        lambda match: f"numpy.ndarray[{match.group('dtype').strip()}]", text
+    )
     text = pattern_ndarray.sub(repl, text)
 
     return text
 
 
-def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
+SCALAR_PROTOCOL_UNIONS = (
+    (
+        re.compile(
+            r"(?:(?:typing\.)?SupportsComplex|complex)\s*\|\s*"
+            r"(?:(?:typing\.)?SupportsFloat|float)\s*\|\s*"
+            r"(?:typing\.)?SupportsIndex"
+        ),
+        "complex",
+    ),
+    (
+        re.compile(r"(?:(?:typing\.)?SupportsFloat|float)\s*\|\s*" r"(?:typing\.)?SupportsIndex"),
+        "float",
+    ),
+    (
+        re.compile(r"(?:(?:typing\.)?SupportsInt|int)\s*\|\s*" r"(?:typing\.)?SupportsIndex"),
+        "int",
+    ),
+)
+
+ADDRESS_BEARING_OBJECT_REPR = re.compile(r"<[A-Za-z_][A-Za-z0-9_.]* object at 0x[0-9A-Fa-f]+>")
+
+
+def simplify_type_annotations(text: str) -> str:
+    """Replace converter-oriented annotations with public Python types."""
+
+    text = ADDRESS_BEARING_OBJECT_REPR.sub("...", text)
+    text = re.sub(r"(?<!\w)~(?=[A-Za-z_])", "", text)
+
+    for pattern, replacement in SCALAR_PROTOCOL_UNIONS:
+        text = pattern.sub(replacement, text)
 
     # map complex type hints to simpler representations
     type_replacements = {
+        "typing.SupportsComplex": "complex",
         "typing.SupportsInt": "int",
         "typing.SupportsFloat": "float",
+        "typing.SupportsIndex": "int",
         "typing.List": "list",
         "typing.Dict": "dict",
         "typing.Callable": "Callable",
-        "typing.Any": "any",
+        "typing.Any": "Any",
         "collections.abc.Sequence": "list",
         "collections.abc.Mapping": "dict",
         "collections.abc.Callable": "Callable",
+        "SupportsComplex": "complex",
         "SupportsFloat": "float",
         "SupportsInt": "int",
+        "SupportsIndex": "int",
     }
 
     for full_type, simple_type in type_replacements.items():
-        if signature:
-            signature = signature.replace(full_type, simple_type)
-        if return_annotation:
-            return_annotation = return_annotation.replace(full_type, simple_type)
+        text = text.replace(full_type, simple_type)
+
+    return replace_annotated_nparrays(text)
+
+
+def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
 
     if signature:
-        signature = replace_annotated_nparrays(signature)
+        signature = simplify_type_annotations(signature)
     if return_annotation:
-        return_annotation = replace_annotated_nparrays(return_annotation)
+        return_annotation = simplify_type_annotations(return_annotation)
 
     return signature, return_annotation
 
 
 def setup(app):
+    app.add_config_value("has_mcd_support", has_mcd_support, "env")
+    app.connect("source-read", insert_optional_mcd_documentation)
     app.connect("autodoc-process-docstring", process_constants_docstring)
+    app.connect("autodoc-process-docstring", mark_property_mutability, priority=100)
     # run before default-priority (500) docstring processors
     app.connect("autodoc-process-docstring", fix_docstring_section_title_spacing, priority=200)
     app.connect("autodoc-process-signature", simplify_signature_types)
-    app.connect("source-read", filter_mcd_docs)
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -411,7 +506,7 @@ templates_path = ["_templates"]
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ".rst"
+source_suffix = {".rst": "restructuredtext"}
 
 # The master toctree document.
 master_doc = "index"
@@ -426,10 +521,10 @@ author = "Tudat Team"
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
+# The full version, including development tags.
+release = (Path(__file__).resolve().parents[3] / "version").read_text().strip()
 # The short X.Y version.
-version = ""
-# The full version, including alpha/beta/rc tags.
-release = ""
+version = ".".join(release.split(".")[:2])
 
 # The language for content autogenerated by Sphinx. Refer to documentation
 # for a list of supported languages.
@@ -456,9 +551,19 @@ todo_include_todos = True
 #
 # html_theme = 'sphinx_rtd_theme'
 html_theme = "furo"
+# Both documentation versions announce the released version.
+_announcement = (
+    f"TudatPy {release.split('.dev')[0]} has been released! See the "
+    "<a href='https://py.api.tudat.space/en/stable/release_notes.html'>Release notes</a> "
+    "for all the new features.<br>"
+    "Contact us in our "
+    "<a href='https://github.com/orgs/tudat-team/discussions'>Github Discussion forum</a> "
+    "for any questions!"
+)
+
 html_theme_options = {
     "navigation_with_keys": True,
-    "announcement": "TudatPy v1.0 has been released 🥳 See the <a href='https://docs.tudat.space/en/latest/user-guide/project-updates/migration-guide.html'>migration guide</a> or contact us in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a> for any questions!",
+    "announcement": _announcement,
     # "announcement": "Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>!",
 }
 
@@ -545,7 +650,7 @@ texinfo_documents = [
 # intersphinx_mapping = {'https://docs.python.org/': None}
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/", None),
+    "python": ("https://docs.python.org/3/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
     "pagmo": ("https://esa.github.io/pagmo2/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),

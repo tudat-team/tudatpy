@@ -61,6 +61,14 @@ public:
      */
     virtual int getObservationSize( ) = 0;
 
+    //! Function to retrieve residual wrapping settings for the model with the specified link ends.
+    /*!
+     * Function to retrieve residual wrapping settings for the model with the specified link ends.
+     * \param linkEnds Link ends identifying the observation model.
+     * \return Residual wrapping settings for the observation model.
+     */
+    virtual ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& linkEnds ) = 0;
+
     virtual void computeObservations( const std::vector< TimeType >& times,
                                       const LinkEnds linkEnds,
                                       const LinkEndType linkEndAssociatedWithTime,
@@ -99,9 +107,14 @@ public:
      * Function to get the size of the observable for a given set of link ends
      * \return Size of the observable for a given set of link ends
      */
-    int getObservationSize( )
+    int getObservationSize( ) override
     {
         return observationModels_.begin( )->second->getObservationSize( );
+    }
+
+    ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& linkEnds ) override
+    {
+        return getObservationModel( linkEnds )->getResidualWrappingSettings( );
     }
 
     //! Function to get the observation model for a given set of link ends
@@ -137,7 +150,7 @@ public:
                               const LinkEnds linkEnds,
                               const LinkEndType linkEndAssociatedWithTime,
                               const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
-                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
+                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) override
     {
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
