@@ -211,7 +211,7 @@ public:
             const std::pair< double, double > propagationTimeInterval = std::make_pair( std::numeric_limits< double >::quiet_NaN( ),
                                                                                         std::numeric_limits< double >::quiet_NaN( ) ) ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
-        couplingEntriesToSuppress_( -1 ), reduceSensitivityMatrixColumns_( parametersToEstimate->getReduceSensitivityMatrixColumns( ) )
+        reduceSensitivityMatrixColumns_( parametersToEstimate->getReduceSensitivityMatrixColumns( ) )
     {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >( parametersToEstimate );
@@ -299,19 +299,6 @@ public:
         // Add partials of body positions and velocities.
         currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
                 ( variationalMatrix_.template cast< StateScalarType >( ) * stateTransitionAndSensitivityMatrices );
-
-        if( couplingEntriesToSuppress_ > 0 )
-        {
-            int numberOfStaticParameters = numberOfParameterValues_ - totalDynamicalStateSize_;
-            int numberOfUncoupledEntries = totalDynamicalStateSize_ - couplingEntriesToSuppress_;
-
-            currentMatrixDerivative.block(
-                    couplingEntriesToSuppress_, totalDynamicalStateSize_, numberOfUncoupledEntries, numberOfStaticParameters ) =
-                    variationalMatrix_.template cast< StateScalarType >( ).block(
-                            couplingEntriesToSuppress_, couplingEntriesToSuppress_, numberOfUncoupledEntries, numberOfUncoupledEntries ) *
-                    stateTransitionAndSensitivityMatrices.block(
-                            couplingEntriesToSuppress_, totalDynamicalStateSize_, numberOfUncoupledEntries, numberOfStaticParameters );
-        }
     }
 
     //! Calculates matrix containing partial derivatives of state derivatives w.r.t. parameters.
@@ -472,11 +459,6 @@ public:
             const
     {
         return stateDerivativePartialList_;
-    }
-
-    void suppressParameterCoupling( const int couplingEntriesToSuppress )
-    {
-        couplingEntriesToSuppress_ = couplingEntriesToSuppress;
     }
 
     //! Function to retrieve whether sensitivity matrix columns that are zero in the propagation arc are omitted
@@ -856,8 +838,6 @@ private:
 
     //! Total size of (single-arc) state vector of dynamics that is to be estimated.
     int totalDynamicalStateSize_;
-
-    int couplingEntriesToSuppress_;
 
     //! Boolean denoting whether sensitivity matrix columns that are zero in the propagation arc are omitted
     bool reduceSensitivityMatrixColumns_;
