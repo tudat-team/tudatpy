@@ -192,11 +192,11 @@ class StubGenerator:
         "FrequencyGapHandling": "tudatpy.kernel.dynamics.environment",
         "IAUConventions": ("tudatpy.kernel.dynamics.environment_setup.rotation_model"),
         "IntegratedObservationPropertyHandling": (
-            "tudatpy.kernel.estimation.observations_setup." "observations_dependent_variables"
+            "tudatpy.kernel.estimation.observations_setup.observations_dependent_variables"
         ),
         "LagrangeInterpolatorBoundaryHandling": ("tudatpy.kernel.math.interpolators"),
         "LightTimeFailureHandling": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
         "LinkEndType": ("tudatpy.kernel.estimation.observable_models_setup.links"),
         "MaximumIterationHandling": "tudatpy.kernel.math.root_finders",
@@ -205,19 +205,19 @@ class StubGenerator:
         ),
         "OrderToIntegrate": ("tudatpy.kernel.dynamics.propagation_setup.integrator"),
         "PositionElementTypes": "tudatpy.kernel.astro.element_conversion",
+        "PositionAngleReferenceFrame": "tudatpy.kernel.estimation.observations_setup.ancillary_settings.PositionAngleReferenceFrame",
         "RadiationPressureTargetModelType": (
             "tudatpy.kernel.dynamics.environment_setup.radiation_pressure"
         ),
         "RotationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
-        "ThrustFrames": "tudatpy.kernel.dynamics.propagation_setup.thrust",
         "TimeScales": "tudatpy.kernel.astro.time_representation",
         "TrackingTxtFileReadFilterType": "tudatpy.kernel.data",
         "TranslationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
         "TroposphericMappingModel": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
         "WaterVaporPartialPressureModel": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
     }
 

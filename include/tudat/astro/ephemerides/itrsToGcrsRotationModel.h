@@ -74,12 +74,6 @@ public:
         frameBias_( Eigen::Matrix3d::Identity( ) )
 
     {
-        functionToGetRotationAngles =
-                std::bind( &earth_orientation::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs< double >,
-                           anglesCalculator,
-                           std::placeholders::_1,
-                           inputTimeScale );
-
         if( baseFrame == "J2000" )
         {
             frameBias_ = sofa_interface::getFrameBias(
@@ -155,9 +149,74 @@ public:
      */
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
     {
+        return getDerivativeOfRotationToBaseFrameFromExtendedTime( Time( ephemerisTime ) );
+    }
+
+    //! Function to calculate the derivative of the rotation matrix from ITRS to base frame
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from ITRS to base frame at specified time, in extended
+     *  (e.g. Time class) format. The rotation R = R_CG * R_TC * R_IT (CIRS->GCRS, TIRS->CIRS, ITRS->TIRS) is differentiated
+     *  w.r.t. the input time scale, consistently with getRotationToBaseFrameFromExtendedTime. The derivative of R_TC is computed
+     *  analytically, with the Earth rotation angle rate scaled by the rate of UT1 w.r.t. the input time scale (which includes
+     *  length-of-day variations). The derivatives of the slowly varying R_CG (precession, nutation) and R_IT (polar motion) are
+     *  computed by a central difference of the same angles that are used for the rotation itself.
+     *  \param ephemerisTime Time at which derivative of rotation is to be calculated.
+     *  \return Derivative of rotation from ITRS to base frame at specified time.
+     */
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrameFromExtendedTime( const Time ephemerisTime )
+    {
+        using namespace earth_orientation;
+
+        // Compute angles and UT1 at, before and after current time
+        std::pair< Eigen::Vector5d, Time > currentAngles =
+                anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime, inputTimeScale_ );
+        std::pair< Eigen::Vector5d, Time > previousAngles =
+                anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime - derivativeTimeStep_, inputTimeScale_ );
+        std::pair< Eigen::Vector5d, Time > nextAngles =
+                anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime + derivativeTimeStep_, inputTimeScale_ );
+
+        auto getRotationFromCirsToGcrs = []( const Eigen::Vector5d& angles ) {
+            return calculateRotationFromCirsToGcrs( angles[ 0 ], angles[ 1 ], angles[ 2 ] ).toRotationMatrix( );
+        };
+        auto getRotationFromItrsToTirs = []( const Eigen::Vector5d& angles, const double tioLocatorTime ) {
+            return calculateRotationFromItrsToTirs( angles[ 3 ], angles[ 4 ], getApproximateTioLocator( tioLocatorTime ) )
+                    .toRotationMatrix( );
+        };
+
+        // Compute derivatives of the rotations due to precession-nutation and polar motion
+        const double currentTime = static_cast< double >( ephemerisTime );
+        Eigen::Matrix3d rotationFromCirsToGcrsDerivative =
+                ( getRotationFromCirsToGcrs( nextAngles.first ) - getRotationFromCirsToGcrs( previousAngles.first ) ) /
+                ( 2.0 * derivativeTimeStep_ );
+        Eigen::Matrix3d rotationFromItrsToTirsDerivative =
+                ( getRotationFromItrsToTirs( nextAngles.first, currentTime + derivativeTimeStep_ ) -
+                  getRotationFromItrsToTirs( previousAngles.first, currentTime - derivativeTimeStep_ ) ) /
+                ( 2.0 * derivativeTimeStep_ );
+
+        // Compute derivative due to Earth rotation angle, scaled by rate of UT1 w.r.t. input time scale
+        double ut1Rate = static_cast< double >( nextAngles.second - previousAngles.second ) / ( 2.0 * derivativeTimeStep_ );
+        Eigen::Matrix3d earthRotationAngleDerivative = calculateRotationRateFromItrsToGcrs< Time >( currentAngles, currentTime ) * ut1Rate;
+
+        Eigen::Matrix3d rotationFromTirsToCirs =
+                calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< Time >( currentAngles.second ) )
+                        .toRotationMatrix( );
         return frameBias_ *
-                earth_orientation::calculateRotationRateFromItrsToGcrs< double >( functionToGetRotationAngles( ephemerisTime ),
-                                                                                  ephemerisTime );
+                ( rotationFromCirsToGcrsDerivative * rotationFromTirsToCirs *
+                          getRotationFromItrsToTirs( currentAngles.first, currentTime ) +
+                  earthRotationAngleDerivative +
+                  getRotationFromCirsToGcrs( currentAngles.first ) * rotationFromTirsToCirs * rotationFromItrsToTirsDerivative );
+    }
+
+    //! Function to calculate the derivative of the rotation matrix from base frame to ITRS
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from base frame to ITRS at specified time, in extended
+     *  (e.g. Time class) format.
+     *  \param ephemerisTime Time at which derivative of rotation is to be calculated.
+     *  \return Derivative of rotation from base frame to ITRS at specified time.
+     */
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrameFromExtendedTime( const Time ephemerisTime )
+    {
+        return getDerivativeOfRotationToBaseFrameFromExtendedTime( ephemerisTime ).transpose( );
     }
 
     //! Function to calculate the derivative of the rotation matrix from base frame to ITRS
@@ -265,14 +324,37 @@ public:
         return inputTimeScale_;
     }
 
-private:
-    //! Function providing the earth orientation angles as a function of time
+    //! Function to retrieve time step of the central difference used in getDerivativeOfRotationToBaseFrameFromExtendedTime
     /*!
-     * Function providing the earth orientation angles as a function of time.
-     *  The return vector of the interpolator provides the values for X-nutation correction, Y-nutation correction,
-     *  CIO-locator, earth orientation angle, x-component polar motion, y-component polar motion.
+     * Function to retrieve time step of the central difference used in getDerivativeOfRotationToBaseFrameFromExtendedTime
+     * \return Time step (in seconds) of the central difference
      */
-    std::function< std::pair< Eigen::Vector5d, double >( const double& ) > functionToGetRotationAngles;
+    double getDerivativeTimeStep( )
+    {
+        return derivativeTimeStep_;
+    }
+
+    //! Function to reset time step of the central difference used in getDerivativeOfRotationToBaseFrameFromExtendedTime
+    /*!
+     * Function to reset time step of the central difference used in getDerivativeOfRotationToBaseFrameFromExtendedTime
+     * \param derivativeTimeStep Time step (in seconds) of the central difference
+     */
+    void setDerivativeTimeStep( const double derivativeTimeStep )
+    {
+        if( !( derivativeTimeStep > 0.0 ) )
+        {
+            throw std::runtime_error( "Error in GCRS<->ITRS model, derivative time step must be positive" );
+        }
+        derivativeTimeStep_ = derivativeTimeStep;
+    }
+
+private:
+    //! Time step (in seconds) of the central difference for the precession-nutation, polar motion and UT1 rates.
+    /*!
+     * Time step (in seconds) of the central difference for the precession-nutation, polar motion and UT1 rates. The default of
+     * 30 s is small compared to the shortest (semi-diurnal) periods in these rotations, and to the (daily) spacing of the EOP data.
+     */
+    double derivativeTimeStep_ = 30.0;
 
     //! Object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.)
     /*!

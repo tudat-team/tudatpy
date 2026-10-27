@@ -1182,11 +1182,15 @@ public:
                     multiArcStateTransition.block( singleArcStateSize_, 0, originalMultiArcStateSize, singleArcStateSize_ ) *
                     singleArcStateTransitionAtArcStart.block( 0, 0, singleArcStateSize_, singleArcStateSize_ );
 
-            // Set multi-arc sensitivity block
+            // Set multi-arc sensitivity block: the multi-arc propagation provides the dependency on the parameters that builds up
+            // during the arc (directly, and through the single-arc states); the dependency through the single-arc states at the start
+            // of the arc is added using the coupled state transition matrix block.
             combinedStateTransitionMatrix.block(
                     singleArcStateSize_, multiArcStateSize, originalMultiArcStateSize, sensitivityMatrixSize_ ) =
                     multiArcStateTransition.block(
-                            singleArcStateSize_, multiArcStateSize, originalMultiArcStateSize, sensitivityMatrixSize_ );
+                            singleArcStateSize_, multiArcStateSize, originalMultiArcStateSize, sensitivityMatrixSize_ ) +
+                    multiArcStateTransition.block( singleArcStateSize_, 0, originalMultiArcStateSize, singleArcStateSize_ ) *
+                            singleArcStateTransitionAtArcStart.block( 0, singleArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ );
 
             std::vector< std::pair< int, int > > statePartialAdditionIndices =
                     multiArcInterface_->getStatePartialAdditionIndices( currentArc.first );
