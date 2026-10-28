@@ -279,6 +279,35 @@ public:
         return numericalObservationMetadata_.at( key );
     }
 
+    //! Set the (1-sigma) uncertainty of the epochs of angular position observations (in seconds), equal for all observations.
+    //! When creating an observation dataset, its contribution is added to the observation covariance, using the right
+    //! ascension and declination rates computed from the environment.
+    void setAstrometryTimeUncertainty( const double timeUncertainty )
+    {
+        setAstrometryTimeUncertainties( std::vector< double >( numberOfObservations_, timeUncertainty ) );
+    }
+
+    //! Set the (1-sigma) uncertainty of the epochs of angular position observations (in seconds), one value per observation.
+    void setAstrometryTimeUncertainties( const std::vector< double >& timeUncertainties )
+    {
+        addNumericalObservationMetadata( astrometryTimeUncertaintyKey, timeUncertainties );
+    }
+
+    //! Return whether the uncertainties of the angular position observation epochs have been defined.
+    bool hasAstrometryTimeUncertainties( ) const
+    {
+        return numericalObservationMetadata_.count( astrometryTimeUncertaintyKey ) > 0;
+    }
+
+    //! Return the uncertainties of the angular position observation epochs (in seconds), one value per observation.
+    const std::vector< double >& getAstrometryTimeUncertainties( ) const
+    {
+        return getNumericalObservationMetadata( astrometryTimeUncertaintyKey );
+    }
+
+    //! Key of the numerical observation metadata in which the observation epoch uncertainties are stored.
+    static constexpr const char* astrometryTimeUncertaintyKey = "astrometry_time_uncertainty";
+
     bool isObservationMetadata( const std::string& key ) const
     {
         return observationMetadataKeys_.count( key ) != 0;
