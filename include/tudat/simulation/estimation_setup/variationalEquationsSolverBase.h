@@ -128,12 +128,6 @@ public:
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getVariationalPropagationResults( ) = 0;
 
-    //! Function to retrieve the (single-arc) dynamics results with which the environment is updated after a propagation
-    virtual std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > getEnvironmentDynamicsResults( ) = 0;
-
-    //! Function to update the environment with the current contents of the results returned by getEnvironmentDynamicsResults
-    virtual void processEnvironmentDynamicsResults( ) = 0;
-
 protected:
     //! Create initial matrix of numerical soluation to variational + dynamical equations.
     /*!
