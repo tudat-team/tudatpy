@@ -23,6 +23,8 @@
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
+#include "tudat/interface/sofa/sofaTimeConversions.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 
 namespace tudat
 {
@@ -483,13 +485,15 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
     // Create bodies
     spice_interface::loadStandardSpiceKernels( );
 
-    std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Sun" };
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Sun", "Moon" };
     simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
     bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
 
     std::string spacecraftName = "MRO";
     bodySettings.addSettings( spacecraftName );
-    bodySettings.at( spacecraftName )->ephemerisSettings = std::make_shared< simulation_setup::DirectSpiceEphemerisSettings >( );
+    // Use the Mars ephemeris, matching the approximate link states below.
+    bodySettings.at( spacecraftName )->ephemerisSettings =
+            std::make_shared< simulation_setup::DirectSpiceEphemerisSettings >( "SSB", "ECLIPJ2000", std::string( "Mars" ) );
 
     simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
@@ -575,6 +579,60 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
                                    linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings ) -
                                    computedTabulatedCorrection,
                            2.1 );
+    }
+
+    // Check ionospheric correction of two-way and measured-frequency Doppler, for which the frequencies are provided by the
+    // ancillary settings, against an analytical prediction. A single CHPART card with a range delay that is linear in time
+    // (offset 100 m, slope 1000 m over half of the 1-day validity interval) gives a constant Doppler shift.
+    const auto card =
+            std::make_shared< CspRawFile >( std::vector< std::string >{ "ADJUST(DOPRNG)BY NRMPOW(100.0, 1000.0) MODEL(CHPART)"
+                                                                        "FROM(17/04/07,00:00)TO(17/04/08,00:00)DSN(C10)SCID(74)." } );
+    const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > corrections = {
+        std::make_shared< TabulatedIonosphericCorrectionSettings >(
+                extractIonosphericCorrection( { card }, spacecraftNamePerSpacecraftId ) )
+    };
+    // Two-way link from the station to MRO and back, with S-band uplink and Ka-band downlink
+    LinkEnds twoWayLinkEnds = { { transmitter, linkEnds.at( transmitter ) },
+                                { reflector1, linkEnds.at( receiver ) },
+                                { receiver, linkEnds.at( transmitter ) } };
+    bodies.at( spacecraftName )->getVehicleSystems( )->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+    const double observationTime = initialTime + 6.0 * 3600.0;
+    const double downlinkFrequency = frequency * getDsnDefaultTurnaroundRatios( s_band, ka_band );
+
+    // Expected shift (in Hz at the downlink frequency): range-rate of the delay, scaled from the 2295 MHz reference
+    // frequency to the uplink and downlink frequencies (1/f^2) and summed over both legs
+    const double expectedShift = downlinkFrequency / SPEED_OF_LIGHT * ( 2000.0 / 86400.0 ) *
+            ( std::pow( 2295.0e6 / frequency, 2 ) + std::pow( 2295.0e6 / downlinkFrequency, 2 ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { s_band, ka_band } );
+
+    for( const auto observable : { two_way_doppler, doppler_measured_frequency } )
+    {
+        // Models with and without ionospheric correction
+        const auto model = ObservationModelCreator< 1, double, Time >::createObservationModel(
+                std::make_shared< ObservationModelSettings >( observable, twoWayLinkEnds, corrections ), bodies );
+        const auto vacuum = ObservationModelCreator< 1, double, Time >::createObservationModel(
+                std::make_shared< ObservationModelSettings >( observable, twoWayLinkEnds ), bodies );
+        const auto observation = model->computeObservations( Time( observationTime ), receiver, ancillarySettings );
+        // Ionospheric Doppler shift, in Hz (two-way Doppler is a range-rate, the measured frequency is in Hz)
+        const double toHertz = ( observable == two_way_doppler ) ? downlinkFrequency / SPEED_OF_LIGHT : 1.0;
+        const double ionosphericShift =
+                toHertz * ( observation( 0 ) - vacuum->computeObservations( Time( observationTime ), receiver, ancillarySettings )( 0 ) );
+        BOOST_CHECK_CLOSE_FRACTION( ionosphericShift, expectedShift, 2.0E-4 );
+    }
+
+    // Check that one-way Doppler models, which retrieve the transmitted frequency from the station, give the same result
+    // without ancillary settings as with ancillary settings that contain no frequencies
+    const std::vector< std::shared_ptr< ObservationModelSettings > > oneWaySettings = {
+        std::make_shared< ObservationModelSettings >( one_way_doppler, linkEnds, corrections ),
+        oneWayDopplerMeasuredFrequencySettings( linkEnds, corrections )
+    };
+    for( const auto& settings : oneWaySettings )
+    {
+        const auto model = ObservationModelCreator< 1, double, Time >::createObservationModel( settings, bodies );
+        BOOST_CHECK_EQUAL(
+                model->computeObservations( Time( observationTime ), receiver )( 0 ),
+                model->computeObservations(
+                        Time( observationTime ), receiver, std::make_shared< ObservationAncillarySimulationSettings >( ) )( 0 ) );
     }
 }
 
@@ -764,6 +822,84 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
         }
         std::cout << maxError << " " << maxErrorRelative << " " << maxErrorElevation << std::endl;
     }
+}
+
+// Check that the time derivative of tabulated ionospheric corrections does not use data across validity boundaries
+BOOST_AUTO_TEST_CASE( testTabulatedIonosphericTimeDerivativeAtValidityBoundaries )
+{
+    // Two consecutive cards, each linear in time (TRK-2-23 power series), with different values and slopes
+    const double boundaryTime = 544795200.0;
+    const double boundaryUtcTime = sofa_interface::convertTTtoUTC( boundaryTime );
+    const double cardDuration = 3600.0;
+    const std::vector< std::vector< double > > cardCoefficients = { { 1.0, 0.2 }, { 3.0, -0.5 } };
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > correctionManager =
+            std::make_shared< TabulatedMediaReferenceCorrectionManager >(
+                    std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > >{
+                            std::make_shared< PowerSeriesReferenceCorrection >(
+                                    boundaryUtcTime - cardDuration, boundaryUtcTime, cardCoefficients.at( 0 ) ),
+                            std::make_shared< PowerSeriesReferenceCorrection >(
+                                    boundaryUtcTime, boundaryUtcTime + cardDuration, cardCoefficients.at( 1 ) ) } );
+
+    const double referenceFrequency = 2295.0E6;
+    const double frequency = 7.2E9;
+    TabulatedIonosphericCorrection ionosphericCorrection( correctionManager, n_way_range, true, referenceFrequency );
+
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
+
+    // Epochs in card 1 and card 2, both far from and close to (5 s) the boundaries between cards, and at the end of the data
+    const std::vector< double > timesFromBoundary = { -600.0, -5.0, 5.0, 600.0, cardDuration - 5.0 };
+    for( const double timeFromBoundary : timesFromBoundary )
+    {
+        const std::vector< double >& coefficients = cardCoefficients.at( timeFromBoundary < 0.0 ? 0 : 1 );
+        // Analytical derivative: slope of the card (per unit normalised time, which spans the card duration from -1 to 1),
+        // scaled to the transmitted frequency and converted to light time
+        const double expectedTimeDerivative = 2.0 * coefficients.at( 1 ) / cardDuration * std::pow( referenceFrequency / frequency, 2.0 ) /
+                physical_constants::SPEED_OF_LIGHT;
+
+        // Numerical derivative w.r.t. transmission time (station is transmitter of the uplink). At 5 s from a boundary,
+        // the default 15 s time perturbation would cross the boundary
+        const double transmissionTime = boundaryTime + timeFromBoundary;
+        const double computedTimeDerivative =
+                ionosphericCorrection.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( Eigen::Vector6d::Zero( ),
+                                                                                                   Eigen::Vector6d::Zero( ),
+                                                                                                   transmissionTime,
+                                                                                                   transmissionTime + 1000.0,
+                                                                                                   transmitter,
+                                                                                                   ancillarySettings );
+
+        BOOST_CHECK_CLOSE_FRACTION( computedTimeDerivative, expectedTimeDerivative, 1.0E-6 );
+    }
+}
+
+// Check numerical position partials of light-time corrections for a near-Earth link, with barycentric link end states
+BOOST_AUTO_TEST_CASE( testNumericalCorrectionPositionPartialsNearEarth )
+{
+    // Correction depending only on the line-of-sight direction, mimicking an elevation-dependent media correction
+    const Eigen::Vector3d stationDirection = Eigen::Vector3d( 0.3, -0.5, 0.8 ).normalized( );
+    LightTimeCorrectionFunctionWrapper correction(
+            LightTimeCorrectionFunctionSingleLeg( [ = ]( const Eigen::Vector6d& transmitterState,
+                                                         const Eigen::Vector6d& receiverState,
+                                                         const double,
+                                                         const double,
+                                                         const std::shared_ptr< ObservationAncillarySimulationSettings > ) {
+                return 1.0E-8 * ( receiverState - transmitterState ).segment( 0, 3 ).normalized( ).dot( stationDirection );
+            } ) );
+
+    // Station on an Earth at ~1 AU from the origin, spacecraft at 1000 km from the station
+    Eigen::Vector6d stationState = Eigen::Vector6d::Zero( ), spacecraftState = Eigen::Vector6d::Zero( );
+    stationState.segment( 0, 3 ) = Eigen::Vector3d( 1.0E11, 1.1E11, 0.4E11 ) + 6378.0E3 * stationDirection;
+    spacecraftState.segment( 0, 3 ) = stationState.segment( 0, 3 ) + 1000.0E3 * Eigen::Vector3d( 0.6, -0.2, 0.7 ).normalized( );
+
+    // Compare with analytical partial w.r.t. receiver (spacecraft) position
+    const Eigen::Vector3d lineOfSight = ( spacecraftState - stationState ).segment( 0, 3 );
+    const Eigen::Vector3d unitLineOfSight = lineOfSight.normalized( );
+    const Eigen::Vector3d expectedPartial =
+            1.0E-8 * ( stationDirection - unitLineOfSight.dot( stationDirection ) * unitLineOfSight ) / lineOfSight.norm( );
+    const Eigen::Vector3d computedPartial = correction.calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            stationState, spacecraftState, 0.0, 0.0, receiver, nullptr );
+    BOOST_CHECK_SMALL( ( computedPartial - expectedPartial ).norm( ) / expectedPartial.norm( ), 1.0E-5 );
 }
 
 BOOST_AUTO_TEST_CASE( testVmf3TroposphericCorrection )

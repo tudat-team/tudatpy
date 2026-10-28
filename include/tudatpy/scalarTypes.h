@@ -15,7 +15,11 @@
 
 using tudat::Time;
 
+#ifdef TUDATPY_LONG_DOUBLE_STATE
+#define STATE_SCALAR_TYPE long double
+#else
 #define STATE_SCALAR_TYPE double  // long double
+#endif
 #define TIME_TYPE Time
 #define INTERPOLATOR_TIME_TYPE Time
 

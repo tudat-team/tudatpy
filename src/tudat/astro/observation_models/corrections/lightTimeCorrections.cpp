@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <tuple>
+
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 
 namespace tudat
@@ -22,6 +24,8 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
     switch( lightTimeCorrectionType )
     {
         case first_order_relativistic:
+        // Custom corrections receive the ancillary settings, but are not assumed to require frequencies
+        case function_wrapper_light_time_correction:
         case tabulated_tropospheric:
         case measured_tropospheric:
         case saastamoinen_tropospheric:
@@ -103,29 +107,39 @@ double LightTimeCorrection::calculateLightTimeCorrectionPartialDerivativeWrtLink
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
+    // Perturbations may be asymmetric (or one-sided) to avoid crossing discontinuities in the correction
+    double upTimePerturbation, downTimePerturbation;
+    std::tie( upTimePerturbation, downTimePerturbation ) =
+            getLinkEndTimePerturbations( transmissionTime, receptionTime, linkEndAtWhichPartialIsEvaluated );
+    if( !( upTimePerturbation + downTimePerturbation > 0.0 ) )
+    {
+        upTimePerturbation = timePerturbation_;
+        downTimePerturbation = timePerturbation_;
+    }
+
     double upPerturbedCorrection = 0.0, downPerturbedCorrection = 0.0;
     if( ( linkEndAtWhichPartialIsEvaluated == transmitter ) )
     {
-        double upPerturbedTransmissionTime = transmissionTime + timePerturbation_;
+        double upPerturbedTransmissionTime = transmissionTime + upTimePerturbation;
         upPerturbedCorrection = calculateLightTimeCorrection(
                 transmitterState, receiverState, upPerturbedTransmissionTime, receptionTime, ancillarySettings );
 
-        double downPerturbedTransmissionTime = transmissionTime - timePerturbation_;
+        double downPerturbedTransmissionTime = transmissionTime - downTimePerturbation;
         downPerturbedCorrection = calculateLightTimeCorrection(
                 transmitterState, receiverState, downPerturbedTransmissionTime, receptionTime, ancillarySettings );
     }
     else if( ( linkEndAtWhichPartialIsEvaluated == receiver ) )
     {
-        double upPerturbedReceptionTime = receptionTime + timePerturbation_;
+        double upPerturbedReceptionTime = receptionTime + upTimePerturbation;
         upPerturbedCorrection = calculateLightTimeCorrection(
                 transmitterState, receiverState, transmissionTime, upPerturbedReceptionTime, ancillarySettings );
 
-        double downPerturbedReceptionTime = receptionTime - timePerturbation_;
+        double downPerturbedReceptionTime = receptionTime - downTimePerturbation;
         downPerturbedCorrection = calculateLightTimeCorrection(
                 transmitterState, receiverState, transmissionTime, downPerturbedReceptionTime, ancillarySettings );
     }
 
-    return ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * timePerturbation_ );
+    return ( upPerturbedCorrection - downPerturbedCorrection ) / ( upTimePerturbation + downTimePerturbation );
 }
 
 /*!
@@ -149,9 +163,10 @@ Eigen::Matrix< double, 3, 1 > LightTimeCorrection::calculateLightTimeCorrectionP
 {
     Eigen::Matrix< double, 3, 1 > positionPartial = Eigen::Matrix< double, 3, 1 >::Zero( );
 
-    double positionPerturbation = ( linkEndAtWhichPartialIsEvaluated == receiver )
-            ? ( positionRelativePerturbation_ * receiverState.segment( 0, 3 ).norm( ) )
-            : ( positionRelativePerturbation_ * transmitterState.segment( 0, 3 ).norm( ) );
+    // Scale perturbation with link length, such that it is suitable for the link geometry (e.g. elevation) also when
+    // link end states are barycentric
+    double positionPerturbation =
+            positionRelativePerturbation_ * ( receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 ) ).norm( );
 
     Eigen::Vector6d perturbedState;
     for( int i = 0; i < 3; i++ )

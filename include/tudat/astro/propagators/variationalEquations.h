@@ -62,8 +62,7 @@ public:
                           const std::map< IntegratedStateType, int >& stateTypeStartIndices,
                           const int currentArcIndex = -1,
                           const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ) ):
-        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
-        couplingEntriesToSuppress_( -1 )
+        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
     {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >( parametersToEstimate );
@@ -137,19 +136,6 @@ public:
         // Add partials of body positions and velocities.
         currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
                 ( variationalMatrix_.template cast< StateScalarType >( ) * stateTransitionAndSensitivityMatrices );
-
-        if( couplingEntriesToSuppress_ > 0 )
-        {
-            int numberOfStaticParameters = numberOfParameterValues_ - totalDynamicalStateSize_;
-            int numberOfUncoupledEntries = totalDynamicalStateSize_ - couplingEntriesToSuppress_;
-
-            currentMatrixDerivative.block(
-                    couplingEntriesToSuppress_, totalDynamicalStateSize_, numberOfUncoupledEntries, numberOfStaticParameters ) =
-                    variationalMatrix_.template cast< StateScalarType >( ).block(
-                            couplingEntriesToSuppress_, couplingEntriesToSuppress_, numberOfUncoupledEntries, numberOfUncoupledEntries ) *
-                    stateTransitionAndSensitivityMatrices.block(
-                            couplingEntriesToSuppress_, totalDynamicalStateSize_, numberOfUncoupledEntries, numberOfStaticParameters );
-        }
     }
 
     //! Calculates matrix containing partial derivatives of state derivatives w.r.t. parameters.
@@ -309,11 +295,6 @@ public:
             const
     {
         return stateDerivativePartialList_;
-    }
-
-    void suppressParameterCoupling( const int couplingEntriesToSuppress )
-    {
-        couplingEntriesToSuppress_ = couplingEntriesToSuppress;
     }
 
 protected:
@@ -610,8 +591,6 @@ private:
 
     //! Total size of (single-arc) state vector of dynamics that is to be estimated.
     int totalDynamicalStateSize_;
-
-    int couplingEntriesToSuppress_;
 
     //! Total matrix of partial derivatives of state derivatives w.r.t. current states.
     Eigen::MatrixXd variationalMatrix_;

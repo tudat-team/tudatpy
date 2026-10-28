@@ -116,12 +116,6 @@ public:
         multiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                 bodies, extendedMultiArcSettings, multiArcParametersToEstimate_, false );
 
-        for( unsigned int i = 0; i < multiArcSolver_->getDynamicsStateDerivatives( ).size( ); i++ )
-        {
-            multiArcSolver_->getDynamicsStateDerivatives( ).at( i )->getVariationalEquationsCalculator( )->suppressParameterCoupling(
-                    propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) );
-        }
-
         // Create function to retrieve single-arc initial states for extended multi-arc
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > singleArcPropagationSettings =
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
@@ -418,8 +412,6 @@ protected:
                 parametersToEstimate_->getEstimatedDoubleParameters( ),
                 parametersToEstimate_->getEstimatedVectorParameters( ),
                 extendedMultiArcParameters );
-        //        std::cout << "TEST: " << "\n\n";
-        estimatable_parameters::printEstimatableParameterEntries( multiArcParametersToEstimate_ );
     }
 
     //! Function to reset the initial multi-arc states

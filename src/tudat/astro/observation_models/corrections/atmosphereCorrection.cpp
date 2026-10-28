@@ -186,6 +186,50 @@ double TabulatedMediaReferenceCorrectionManager::computeMediaCorrection( double 
     return correction;
 }
 
+std::pair< double, double > TabulatedMediaReferenceCorrectionManager::getTimeStepsWithinValidity( const double time,
+                                                                                                  const double maximumTimeStep ) const
+{
+    // Margin w.r.t. validity boundaries, to account for rounding errors in perturbed times (and time scale conversions)
+    const double boundaryMargin = 1.0E-3;
+
+    // Distances to the nearest boundaries at which the set of active corrections changes
+    double forwardDistance = maximumTimeStep + boundaryMargin;
+    double backwardDistance = maximumTimeStep + boundaryMargin;
+    for( unsigned int i = 0; i < correctionVector_.size( ); ++i )
+    {
+        // Validity intervals include their boundaries: a correction starting at the current time is only left when
+        // stepping backward, and one ending at the current time only when stepping forward
+        const double startTime = startTimes_.at( i );
+        if( !std::isnan( startTime ) )
+        {
+            if( startTime > time )
+            {
+                forwardDistance = std::min( forwardDistance, startTime - time );
+            }
+            else
+            {
+                backwardDistance = std::min( backwardDistance, time - startTime );
+            }
+        }
+
+        const double endTime = endTimes_.at( i );
+        if( !std::isnan( endTime ) )
+        {
+            if( endTime >= time )
+            {
+                forwardDistance = std::min( forwardDistance, endTime - time );
+            }
+            else
+            {
+                backwardDistance = std::min( backwardDistance, time - endTime );
+            }
+        }
+    }
+
+    return std::make_pair( std::max( 0.0, std::min( maximumTimeStep, forwardDistance - boundaryMargin ) ),
+                           std::max( 0.0, std::min( maximumTimeStep, backwardDistance - boundaryMargin ) ) );
+}
+
 double SimplifiedChaoTroposphericMapping::troposphericSimplifiedChaoMapping( const double elevation, const bool dryCorrection )
 {
     double a, b;
@@ -968,6 +1012,24 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
 
     // Moyer (2000), eq. 10-11
     return lightTimeCorrection;
+}
+
+std::pair< double, double > TabulatedIonosphericCorrection::getLinkEndTimePerturbations(
+        const double transmissionTime,
+        const double receptionTime,
+        const LinkEndType linkEndAtWhichPartialIsEvaluated )
+{
+    // Correction only depends on the time at the station
+    const bool isStationTimePerturbed =
+            isUplinkCorrection_ ? ( linkEndAtWhichPartialIsEvaluated == transmitter ) : ( linkEndAtWhichPartialIsEvaluated == receiver );
+    if( !isStationTimePerturbed )
+    {
+        return LightTimeCorrection::getLinkEndTimePerturbations( transmissionTime, receptionTime, linkEndAtWhichPartialIsEvaluated );
+    }
+
+    // Validity boundaries are in UTC, at the level of the step sizes the time scale difference is irrelevant
+    const double stationTime = isUplinkCorrection_ ? transmissionTime : receptionTime;
+    return referenceCorrectionCalculator_->getTimeStepsWithinValidity( sofa_interface::convertTTtoUTC( stationTime ), timePerturbation_ );
 }
 
 double JakowskiVtecCalculator::calculateVtec( const double time, const Eigen::Vector3d subIonosphericPointGeodeticPosition )

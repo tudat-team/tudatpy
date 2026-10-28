@@ -37,10 +37,12 @@
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/positionObservationModel.h"
 #include "tudat/astro/observation_models/relativeAngularPositionObservationModel.h"
+#include "tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h"
 #include "tudat/astro/observation_models/relativePositionObservationModel.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/astro/system_models/camera.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -52,6 +54,23 @@ namespace tudat
 
 namespace observation_models
 {
+
+inline Eigen::Matrix3d getJ2000ToGlobalFrameTransformation( const simulation_setup::SystemOfBodies& bodies )
+{
+    const std::string globalFrameOrientation = bodies.getFrameOrientation( );
+    if( globalFrameOrientation == "J2000" || globalFrameOrientation == "ICRF" )
+    {
+        return Eigen::Matrix3d::Identity( );
+    }
+    if( globalFrameOrientation == "ECLIPJ2000" )
+    {
+        return reference_frames::getJ2000toECLIPJ2000TransformationMatrix( );
+    }
+
+    throw std::runtime_error( "Position-angle observations require a J2000/ICRF or ECLIPJ2000 global frame; found " +
+                              globalFrameOrientation + "." );
+}
+
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
  *  Function to create the proper time rate calculator for use in one-way Doppler
@@ -649,6 +668,52 @@ std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmitting
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds );
 
+//! Function to create a position angle, separation distance, or combined position angle and separation observation model.
+template< int ObservationSize, typename ObservationScalarType, typename TimeType >
+std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > createPositionAngleAndSeparationObservationModel(
+        const std::shared_ptr< ObservationModelSettings > observationSettings,
+        const simulation_setup::SystemOfBodies& bodies,
+        const ObservableType topLevelObservableType )
+{
+    const LinkEnds linkEnds = observationSettings->linkEnds_.linkEnds_;
+    const std::string modelName = getObservableName( observationSettings->observableType_ );
+    if( linkEnds.size( ) != 3 )
+    {
+        throw std::runtime_error( "Error when making " + modelName + " model, " + std::to_string( linkEnds.size( ) ) + " link ends found" );
+    }
+    if( linkEnds.count( receiver ) == 0 ) throw std::runtime_error( "Error when making " + modelName + " model, no receiver found" );
+    if( linkEnds.count( transmitter ) == 0 ) throw std::runtime_error( "Error when making " + modelName + " model, no transmitter found" );
+    if( linkEnds.count( transmitter2 ) == 0 )
+        throw std::runtime_error( "Error when making " + modelName + " model, no second transmitter found" );
+
+    std::shared_ptr< ObservationBias< ObservationSize > > observationBias;
+    if( observationSettings->biasSettings_ != nullptr )
+    {
+        observationBias = createObservationBiasCalculator< ObservationSize >(
+                linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+    }
+
+    return std::make_shared< PositionAngleAndSeparationObservationModel< ObservationSize, ObservationScalarType, TimeType > >(
+            observationSettings->observableType_,
+            linkEnds,
+            createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                          transmitter,
+                                                                          receiver,
+                                                                          bodies,
+                                                                          topLevelObservableType,
+                                                                          observationSettings->lightTimeCorrectionsList_,
+                                                                          observationSettings->lightTimeConvergenceCriteria_ ),
+            createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                          transmitter2,
+                                                                          receiver,
+                                                                          bodies,
+                                                                          topLevelObservableType,
+                                                                          observationSettings->lightTimeCorrectionsList_,
+                                                                          observationSettings->lightTimeConvergenceCriteria_ ),
+            observationBias,
+            getJ2000ToGlobalFrameTransformation( bodies ) );
+}
+
 //! Interface class for creating observation models
 /*!
  *  Interface class for creating observation models. This class is used instead of a single
@@ -861,7 +926,8 @@ public:
                             oneWayDopplerSettings->normalizeWithSpeedOfLight_ );
                 }
 
-                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                // A leg of a two-way/measured-frequency model gets its frequencies through the parent's ancillary settings
+                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) && topLevelObservableType == one_way_doppler )
                 {
                     oneWayDopplerModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
                 }
@@ -975,6 +1041,13 @@ public:
                                                     one_way_doppler, downlinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ),
                                             bodies,
                                             topLevelObservableType ) );
+                }
+
+                // The downlink model evaluates its corrections as a single leg: flag them, so that frequency-dependent
+                // corrections select the downlink frequency (also when computing partials)
+                for( const auto& downlinkCorrection : downlinkDopplerCalculator->getLightTimeCalculator( )->getLightTimeCorrection( ) )
+                {
+                    downlinkCorrection->setIsDownlinkOfTwoWayLink( true );
                 }
 
                 bool normalizeWithSpeedOfLight = false;
@@ -1426,19 +1499,18 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
+                // Retrieve ground station states, used to convert the transmission time to UTC when evaluating the
+                // transmitted frequency
                 std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
-                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                for( auto it : linkEnds )
                 {
-                    for( auto it : linkEnds )
+                    if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                ->getGroundStationMap( )
+                                .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                     {
-                        if( bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                    ->getGroundStationMap( )
-                                    .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
-                        {
-                            stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                                ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
-                                                                ->getNominalStationState( );
-                        }
+                        stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                            ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
+                                                            ->getNominalStationState( );
                     }
                 }
 
@@ -1725,6 +1797,11 @@ public:
                 observationModel = differencedFrequencyOfArrivalModel;
                 break;
             }
+            case position_angle:
+            case separation_distance:
+                observationModel = createPositionAngleAndSeparationObservationModel< 1, ObservationScalarType, TimeType >(
+                        observationSettings, bodies, topLevelObservableType );
+                break;
             default:
                 std::string errorMessage = "Error, observable " + std::to_string( observationSettings->observableType_ ) +
                         "  not recognized when making size 1 observation model.";
@@ -1917,6 +1994,10 @@ public:
 
                 break;
             }
+            case position_angle_and_separation:
+                observationModel = createPositionAngleAndSeparationObservationModel< 2, ObservationScalarType, TimeType >(
+                        observationSettings, bodies, topLevelObservableType );
+                break;
             case pixel_coordinates: {
                 // Check consistency input.
                 if( linkEnds.size( ) != 2 )
@@ -2470,6 +2551,24 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
                     relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
             currentLightTimeCorrections.push_back(
                     relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+            break;
+        }
+        case observation_models::position_angle:
+        case observation_models::separation_distance:
+        case observation_models::position_angle_and_separation: {
+            // Position angle/separation models only exist for observation sizes 1 and 2.
+            if constexpr( ObservationSize == 1 || ObservationSize == 2 )
+            {
+                const auto positionAngleAndSeparationModel =
+                        std::dynamic_pointer_cast< observation_models::PositionAngleAndSeparationObservationModel< ObservationSize,
+                                                                                                                   ObservationScalarType,
+                                                                                                                   TimeType > >(
+                                observationModel );
+                currentLightTimeCorrections.push_back(
+                        positionAngleAndSeparationModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                        positionAngleAndSeparationModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+            }
             break;
         }
         case observation_models::relative_position_observable: {
