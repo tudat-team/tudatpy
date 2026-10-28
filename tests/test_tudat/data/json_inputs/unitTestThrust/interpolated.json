@@ -1,0 +1,47 @@
+{
+  "dataInterpolation": {
+    "data": {
+      "dependentVariableFirstDerivativeValues": [
+        [
+          0,
+          0.1,
+          0
+        ],
+        [
+          0.1,
+          -0.1,
+          0
+        ],
+        [
+          -0.02,
+          0,
+          0
+        ]
+      ],
+      "map": {
+        "0": [
+          0,
+          0,
+          5
+        ],
+        "6068": [
+          0,
+          1,
+          5
+        ],
+        "6097": [
+          1,
+          0,
+          5
+        ]
+      }
+    },
+    "interpolator": {
+      "type": "hermiteSpline"
+    }
+  },
+  "specificImpulse": 3000,
+  "frame": "intertial",
+  "centralBody": "Moon",
+  "type": "thrust"
+}

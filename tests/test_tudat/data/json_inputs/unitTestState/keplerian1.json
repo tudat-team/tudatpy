@@ -1,0 +1,5 @@
+{
+  "centralBodyGravitationalParameter": 4.0E+8,
+  "radius": 2,
+  "type": "keplerian"
+}

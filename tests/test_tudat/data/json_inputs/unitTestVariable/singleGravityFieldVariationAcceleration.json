@@ -1,0 +1,8 @@
+{
+  "body": "vehicle",
+  "dependentVariableType": "singleGravityFieldVariationAcceleration",
+  "bodyExertingAcceleration": "body",
+  "deformationType": "basicSolidBody",
+  "identifier": "",
+  "componentIndex": -1
+}

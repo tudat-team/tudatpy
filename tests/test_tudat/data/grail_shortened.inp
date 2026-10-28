@@ -1,0 +1,8 @@
+LEAPSECONDS_KERNEL   = naif0012.tls
+SPK_KERNEL           = grail_shortened.bsp
+ BEGIN_TIME          = 2012 APR 08
+ END_TIME            = 2012 APR 12
+ SOURCE_SPK_KERNEL   = grail_120301_120529_sci_v02.bsp
+   BODIES          = -177, -181
+
+
