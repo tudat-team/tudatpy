@@ -167,7 +167,7 @@ Note that when running tests in parallel with `-j`, CTest may execute tests in a
 
 ### Optional: Mars Climate Database Interface
 
-Tudat contains an interface to the [Mars Climate Database (MCD)](https://www-mars.lmd.jussieu.fr/MCD_pro/mcd_pro.html), which provides the `mars_climate_database_climate_model` and `mars_climate_database_atmosphere_model` functions in `tudatpy.dynamics.environment_setup.atmosphere`.
+Tudat contains an interface to the [Mars Climate Database (MCD)](https://www-mars.lmd.jussieu.fr/MCD_pro/mcd_pro.html), which provides the [`mars_climate_database_climate_model`](https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model) and [`mars_climate_database_atmosphere_model`](https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model) functions in `tudatpy.dynamics.environment_setup.atmosphere`.
 This interface is not included in the default build or in the conda packages.
 
 > [!IMPORTANT]
@@ -199,7 +199,7 @@ To build Tudat with the MCD interface:
    ```
 
 The absolute path of `third_parties/mcd/data` is stored in the compiled library as the default location of the MCD data files.
-If you move the data files after compiling, provide their location through the `mcd_data_path` argument of `mars_climate_database_climate_model`.
+If you move the data files after compiling, provide their location through the `mcd_data_path` argument of [`mars_climate_database_climate_model`](https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model).
 
 ## Contributing
 
