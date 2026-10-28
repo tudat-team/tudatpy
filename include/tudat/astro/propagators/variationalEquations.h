@@ -67,8 +67,7 @@ public:
                           const int currentArcIndex = -1,
                           const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ),
                           const std::map< std::string, std::string >& ephemerisOrigins = std::map< std::string, std::string >( ) ):
-        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
-
+        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
     {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >( parametersToEstimate );
