@@ -138,6 +138,29 @@ struct ObservationWeightSettings {
         }
     }
 
+    //! Return the component-level weight block of a single observation (not available for set-level blocks).
+    Eigen::MatrixXd getObservationWeightBlock( const std::size_t observationIndex, const unsigned int singleObservationSize ) const
+    {
+        switch( type_ )
+        {
+            case WeightsBlockType::default_weights:
+                return Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
+            case WeightsBlockType::constant_scalar:
+                return scalarWeight_ * Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
+            case WeightsBlockType::scalar_per_observation:
+                return scalarWeights_.at( observationIndex ) * Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
+            case WeightsBlockType::diagonal_per_observation:
+                return diagonalWeights_.at( observationIndex ).asDiagonal( );
+            case WeightsBlockType::constant_block:
+                return weightBlock_;
+            case WeightsBlockType::block_per_observation:
+                return weightBlocks_.at( observationIndex );
+            default:
+                throw std::runtime_error(
+                        "Error, single-observation weight blocks cannot be retrieved for set-level observation weights." );
+        }
+    }
+
     //! Selected weight representation.
     WeightsBlockType type_ = WeightsBlockType::default_weights;
     //! Scalar value used by the constant-scalar representation.

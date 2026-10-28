@@ -491,6 +491,49 @@ number of observation events, regardless of the number of scalar components.)doc
                     py::overload_cast<>( &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalObservationMetadata, py::const_ ),
                     py::return_value_policy::copy,
                     "A detached dictionary of named numerical metadata vectors, aligned with observation events." )
+            .def( "set_astrometry_time_uncertainty",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setAstrometryTimeUncertainty,
+                  py::arg( "time_uncertainty" ),
+                  R"doc(
+         Set the uncertainty of the observation epochs of angular position observations, equal for all observations.
+
+         When the tracking data is converted to an observation dataset, the contribution of the epoch uncertainty
+         :math:`\sigma_{T}` is added to the covariance :math:`\mathbf{C}_{P}` of each observation (the inverse of its
+         positional weights, which must be defined), following Farnocchia et al. (2022):
+
+         .. math::
+            \mathbf{C}=\mathbf{C}_{P}+\sigma_{T}^{2}\begin{pmatrix}\dot{\alpha}^{2} & \dot{\alpha}\dot{\delta}\\ \dot{\alpha}\dot{\delta} & \dot{\delta}^{2}\end{pmatrix}
+
+         where :math:`\dot{\alpha}` and :math:`\dot{\delta}` are the rates of right ascension and declination, computed
+         from the states of the observer and observed body in the environment. The inverse of :math:`\mathbf{C}` is used
+         as the (non-diagonal) weight block of each observation.
+
+         Parameters
+         ----------
+         time_uncertainty : float
+             (1-sigma) uncertainty of the observation epochs, in seconds.
+      )doc" )
+            .def( "set_astrometry_time_uncertainties",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setAstrometryTimeUncertainties,
+                  py::arg( "time_uncertainties" ),
+                  R"doc(
+         Set the uncertainty of the observation epochs of angular position observations, one value per observation.
+
+         See :meth:`set_astrometry_time_uncertainty` for how these uncertainties are used.
+
+         Parameters
+         ----------
+         time_uncertainties : list[float]
+             (1-sigma) uncertainties of the observation epochs, in seconds, one per observation.
+      )doc" )
+            .def_property_readonly( "astrometry_time_uncertainties",
+                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAstrometryTimeUncertainties,
+                                    py::return_value_policy::copy,
+                                    "(1-sigma) uncertainties of the observation epochs (in seconds), one per observation. "
+                                    "A missing definition raises IndexError." )
+            .def_property_readonly( "has_astrometry_time_uncertainties",
+                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::hasAstrometryTimeUncertainties,
+                                    "Whether uncertainties of the observation epochs have been defined." )
             .def( "remove_single_observation_entry",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry,
                   py::arg( "index" ),

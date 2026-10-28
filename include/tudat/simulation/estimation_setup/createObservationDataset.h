@@ -282,13 +282,26 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     int setId;
     if( trackingData->hasObservationWeightSettings( ) )
     {
+        // Add contribution of observation epoch uncertainties to weights of angular position observations
+        ObservationWeightSettings observationWeightSettings = trackingData->getObservationWeightSettings( );
+        if( trackingData->hasAstrometryTimeUncertainties( ) )
+        {
+            if( observableType != observation_models::angular_position )
+            {
+                throw std::runtime_error(
+                        "Error when adding tracking data to an observation dataset, observation epoch uncertainties are only supported "
+                        "for angular position observations." );
+            }
+            observationWeightSettings = getAngularPositionWeightsWithTimeUncertainty( trackingData, bodies, rawLinkEnds, epochsTdb );
+        }
+
         setId = observationDataset.addObservationSetWithWeights(
                 observableType,
                 linkEnds,
                 observations,
                 epochsTdb,
                 referenceLinkEnd,
-                trackingData->getObservationWeightSettings( ),
+                observationWeightSettings,
                 std::vector< Eigen::VectorXd >( ),
                 nullptr,
                 ancillarySettings,
@@ -298,6 +311,12 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
 
     else
     {
+        if( trackingData->hasAstrometryTimeUncertainties( ) )
+        {
+            throw std::runtime_error(
+                    "Error when adding tracking data to an observation dataset, observation epoch uncertainties are defined, but no "
+                    "positional weights." );
+        }
         setId = observationDataset.addObservationSet( observableType,
                                                       linkEnds,
                                                       observations,
