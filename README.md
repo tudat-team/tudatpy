@@ -169,6 +169,7 @@ Note that when running tests in parallel with `-j`, CTest may execute tests in a
 
 Tudat contains an interface to the [Mars Climate Database (MCD)](https://www-mars.lmd.jussieu.fr/MCD_pro/mcd_pro.html), which provides the [`mars_climate_database_climate_model`](https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model) and [`mars_climate_database_atmosphere_model`](https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model) functions in `tudatpy.dynamics.environment_setup.atmosphere`.
 This interface is not included in the default build or in the conda packages.
+These two functions only exist in `tudatpy` (and are only listed in the API documentation) when Tudat is built with the MCD interface active, as described below.
 
 > [!IMPORTANT]
 > The MCD code and data are **not** distributed with Tudat, and are not open source.
