@@ -659,7 +659,7 @@ protected:
  * The measured zenith [dry, wet] path delays (indexed by TDB time) are interpolated (using interpolatorSettings), at times between
  * measurements separated by at most maximumInterpolationGap. The measured wet delay replaces that of the fallback model, the measured dry
  * delay is only used if useMeasuredDryDelay is true (in which case measurements with NaN dry delay are skipped). Outside of the measured
- * data, the fallback model is used.
+ * data, or if forced (see setForceFallback), the fallback model is used.
  */
 class MeasuredTroposphericCorrection : public MappedTroposphericCorrection
 {
@@ -673,6 +673,21 @@ public:
             const bool useMeasuredDryDelay = false,
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
 
+    bool hasFallback( ) const override
+    {
+        return true;
+    }
+
+    bool isFallbackUsed( ) const override
+    {
+        return isFallbackUsed_;
+    }
+
+    void setForceFallback( const bool forceFallback ) override
+    {
+        forceFallback_ = forceFallback;
+    }
+
 private:
     bool isMeasurementAvailable( const double time ) const;
 
@@ -683,6 +698,12 @@ private:
     std::shared_ptr< MappedTroposphericCorrection > fallbackCorrection_;
     double maximumInterpolationGap_;
     bool useMeasuredDryDelay_;
+
+    // Boolean denoting whether the fallback model was used for the wet delay in the last computation
+    bool isFallbackUsed_ = false;
+
+    // Boolean denoting whether the fallback model is used, irrespective of the availability of measurements
+    bool forceFallback_ = false;
 };
 
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.

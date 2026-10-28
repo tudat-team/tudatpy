@@ -1306,6 +1306,49 @@ BOOST_AUTO_TEST_CASE( testDsnAmcReadingAndScreening )
     BOOST_CHECK_CLOSE_FRACTION( wetAndDry.getDryZenithRangeCorrectionFunction( )( time ), 2.061805, 1.0e-12 );
 }
 
+// Test the forcing of the fallback model for light-time corrections that use it at only one of the start and end of an integrated
+// observable, as used by the DSN averaged Doppler observation model
+BOOST_AUTO_TEST_CASE( testMeasuredTroposphericConsistentFallback )
+{
+    // Create measured corrections at zenith for the start and end of an integrated observable, with measurements between 1070 and
+    // 1100 s, and a fallback correction with wet delay 0.4 m
+    const auto mapping =
+            std::make_shared< NiellTroposphericMapping >( []( Eigen::Vector3d, double ) { return mathematical_constants::PI / 2.0; },
+                                                          []( double ) { return Eigen::Vector3d( 800.0, 0.6, 0.0 ); },
+                                                          true );
+    const auto fallback = std::make_shared< MappedTroposphericCorrection >(
+            tabulated_tropospheric, mapping, true, []( double ) { return 2.0; }, []( double ) { return 0.4; } );
+    const std::map< double, Eigen::Vector2d > samples = { { 1070.0, Eigen::Vector2d( 2.1, 0.04 ) },
+                                                          { 1100.0, Eigen::Vector2d( 2.3, 0.10 ) } };
+    const auto arcStartCorrection = std::make_shared< MeasuredTroposphericCorrection >( samples, fallback, mapping, true, 30.0 );
+    const auto arcEndCorrection = std::make_shared< MeasuredTroposphericCorrection >( samples, fallback, mapping, true, 30.0 );
+    const std::vector< std::shared_ptr< LightTimeCalculator< double, double > > > arcStartCalculators = {
+        std::make_shared< LightTimeCalculator< double, double > >(
+                nullptr, nullptr, std::vector< std::shared_ptr< LightTimeCorrection > >{ arcStartCorrection } )
+    };
+    const std::vector< std::shared_ptr< LightTimeCalculator< double, double > > > arcEndCalculators = {
+        std::make_shared< LightTimeCalculator< double, double > >(
+                nullptr, nullptr, std::vector< std::shared_ptr< LightTimeCorrection > >{ arcEndCorrection } )
+    };
+    const std::vector< Eigen::Vector6d > states( 2, Eigen::Vector6d::Zero( ) );
+
+    // Check that the measured correction is identified as having a fallback model
+    BOOST_CHECK( doLightTimeCorrectionsHaveFallback( arcStartCalculators ) );
+
+    // Check that no fallback is forced if measurements are available at both the start and end
+    arcStartCorrection->calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, { 1080.0, 1180.0 }, 0, nullptr );
+    arcEndCorrection->calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, { 1090.0, 1190.0 }, 0, nullptr );
+    BOOST_CHECK( !forceConsistentLightTimeCorrectionFallbacks( arcStartCalculators, arcEndCalculators ) );
+
+    // Check that the fallback is forced at both start and end if measurements are only available at the start, so that the fallback
+    // wet delay is used at the start, and that measurements are used again after resetting
+    arcEndCorrection->calculateLightTimeCorrectionWithMultiLegLinkEndStates( states, { 1110.0, 1210.0 }, 0, nullptr );
+    BOOST_CHECK( forceConsistentLightTimeCorrectionFallbacks( arcStartCalculators, arcEndCalculators ) );
+    BOOST_CHECK_EQUAL( arcStartCorrection->getWetZenithRangeCorrectionFunction( )( 1080.0 ), 0.4 );
+    resetLightTimeCorrectionFallbacks( arcStartCalculators );
+    BOOST_CHECK_CLOSE_FRACTION( arcStartCorrection->getWetZenithRangeCorrectionFunction( )( 1080.0 ), 0.06, 1.0e-14 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

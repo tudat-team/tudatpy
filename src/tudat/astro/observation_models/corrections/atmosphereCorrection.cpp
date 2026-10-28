@@ -65,7 +65,12 @@ bool MeasuredTroposphericCorrection::isMeasurementAvailable( const double time )
 
 double MeasuredTroposphericCorrection::computeZenithCorrection( const double stationTime, const int component )
 {
-    if( ( component == 1 || useMeasuredDryDelay_ ) && isMeasurementAvailable( stationTime ) )
+    const bool useMeasurement = !forceFallback_ && isMeasurementAvailable( stationTime );
+    if( component == 1 )
+    {
+        isFallbackUsed_ = !useMeasurement;
+    }
+    if( ( component == 1 || useMeasuredDryDelay_ ) && useMeasurement )
     {
         return interpolator_->interpolate( stationTime )( component );
     }
