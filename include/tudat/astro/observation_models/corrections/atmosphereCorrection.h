@@ -658,7 +658,8 @@ protected:
  * Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers).
  * The measured zenith [dry, wet] path delays (indexed by TDB time) are interpolated (using interpolatorSettings), at times between
  * measurements separated by at most maximumInterpolationGap. The measured wet delay replaces that of the fallback model, the measured dry
- * delay is only used if useMeasuredDryDelay is true. Outside of the measured data, the fallback model is used.
+ * delay is only used if useMeasuredDryDelay is true (in which case measurements with NaN dry delay are skipped). Outside of the measured
+ * data, the fallback model is used.
  */
 class MeasuredTroposphericCorrection : public MappedTroposphericCorrection
 {

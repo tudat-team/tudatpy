@@ -24,7 +24,7 @@ namespace input_output
 
 //! Single record of a DSN Advanced Media Calibration (AMC) path delay file (see DSN document DORS_002_020501)
 struct DsnAmcRecord {
-    //! UTC time, in seconds since J2000 (converted from UTC seconds since 1970 in the file)
+    //! UTC time, in seconds since J2000
     double utcTime;
 
     //! Azimuth of the Advanced Water Vapor Radiometer (AWVR) [deg]
@@ -33,10 +33,10 @@ struct DsnAmcRecord {
     //! Elevation of the AWVR [deg]
     double elevation;
 
-    //! Zenith wet path delay [m] (converted from cm in the file; 999 cm denotes a missing retrieval)
+    //! Zenith wet path delay [m] (9.99 m denotes a missing retrieval)
     double zenithWetDelay;
 
-    //! Zenith dry (static) path delay [m] (converted from cm in the file; 999 cm denotes a missing retrieval)
+    //! Zenith dry (static) path delay [m] (9.99 m denotes a missing retrieval)
     double zenithDryDelay;
 
     //! Cloud liquid [micrometer]
@@ -67,17 +67,19 @@ struct DsnAmcRecord {
     //! pickup for statistical algorithm)
     int pathDelayFlag;
 
-    //! Wind speed [mph]
+    //! Wind speed [mph] (NaN if not in file)
     double windSpeed;
 
-    //! Wind direction [deg]
+    //! Wind direction [deg] (NaN if not in file)
     double windDirection;
 };
 
 //! Function to read all records of a DSN AMC path delay file (without any quality screening)
 /*!
- * Function to read all records of a DSN AMC path delay file (without any quality screening). The time is converted from UTC
- * seconds since 1970 to UTC seconds since J2000, and path delays from cm to m. Other quantities are in the units of the file.
+ * Function to read all records of a DSN AMC path delay file (without any quality screening). The time is given in UTC seconds since
+ * J2000, and path delays in m. Other quantities are in the units of the file. Both 16-column files (e.g. Juno) and 14-column files
+ * without wind speed and direction (e.g. Cassini) are accepted, where the columns include the leading 'P'. For 14-column files, the
+ * wind speed and direction are set to NaN.
  * \param fileName Name of AMC file
  * \return List of records in file
  */
@@ -85,16 +87,23 @@ std::vector< DsnAmcRecord > readDsnAmcFile( const std::string& fileName );
 
 //! Function to retrieve valid zenith path delays from DSN AMC records
 /*!
- * Function to retrieve valid zenith path delays from DSN AMC records, retaining only records for which the cloud flag is below
- * minimumRejectedCloudFlag, all other quality flags are 0, and the path delays are valid (non-negative, and not equal to the 999 cm
- * placeholder for a missing retrieval).
+ * Function to retrieve valid zenith path delays from DSN AMC records. Records with an invalid wet path delay or bad quality flags are
+ * rejected, where the input arguments define part of the rejection criteria. An invalid dry path delay is stored as NaN.
  * \param records AMC records (from readDsnAmcFile)
  * \param minimumRejectedCloudFlag Cloud flag value at and above which records are rejected (default 1: only records with cloud
  * flag 0, i.e. liquid water below 20 micrometer, are retained)
+ * \param rejectOnElevationFlag Boolean denoting whether records with elevation outside the prescribed range are rejected
+ * \param rejectOnMtpFlag Boolean denoting whether records with non-zero MTP flag are rejected
+ * \param rejectOnSurfaceFlag Boolean denoting whether records with non-zero surface meteorology flag are rejected
+ * \param rejectOnWindFlag Boolean denoting whether records with non-zero wind flag are rejected
  * \return Zenith [dry, wet] path delays [m], with UTC time (seconds since J2000) as key.
  */
 std::map< double, Eigen::Vector2d > getValidDsnAmcZenithDelays( const std::vector< DsnAmcRecord >& records,
-                                                                const int minimumRejectedCloudFlag = 1 );
+                                                                const int minimumRejectedCloudFlag = 1,
+                                                                const bool rejectOnElevationFlag = true,
+                                                                const bool rejectOnMtpFlag = true,
+                                                                const bool rejectOnSurfaceFlag = true,
+                                                                const bool rejectOnWindFlag = true );
 
 }  // namespace input_output
 }  // namespace tudat

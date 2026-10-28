@@ -15,12 +15,16 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/basics/testMacros.h"
 
+#include <cstdio>
+#include <fstream>
 #include <numeric>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
+#include "tudat/io/readDsnAmcFile.h"
+#include "tudat/support/testFileUtilities.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
@@ -1247,6 +1251,59 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
     const auto mapped = std::dynamic_pointer_cast< MappedTroposphericCorrection >( otherStation );
     BOOST_REQUIRE( mapped != nullptr );
     BOOST_CHECK_EQUAL( mapped->getWetZenithRangeCorrectionFunction( )( tdb ), 0.4 );
+}
+
+// Test reading of DSN AMC files with (Juno-era) and without (Cassini-era) wind columns, the user-selectable screening of the
+// records, and the skipping of measurements with invalid dry delay by the measured tropospheric correction using the measured dry delay
+BOOST_AUTO_TEST_CASE( testDsnAmcReadingAndScreening )
+{
+    // Write AMC file with three Cassini-era records (the second with missing dry delay, the third with non-zero MTP flag), and a
+    // Juno-era record with path delay flag 2
+    const std::string fileName = createTemporaryFilePath( "tudat-amc", ".pd2" );
+    {
+        std::ofstream file( fileName );
+        file << "# Path delay data file\n";
+        file << "P 1141174860 -096.172 0153.643 0005.016 0206.193 -00003 002 0 0 0 0 0 0\n";
+        file << "P 1141174890 -096.105 0153.542 0005.032 0999.000 -00002 002 0 0 0 0 0 0\n";
+        file << "P 1141174920 -096.038 0153.441 0005.066 0206.168 -00002 002 0 0 1 0 0 0\n";
+        file << "P 1476883560 -079.427 0169.488 0005.599 0207.236 -00002 012 0 0 0 0 0 2 002.6 121\n";
+    }
+    const std::vector< DsnAmcRecord > records = readDsnAmcFile( fileName );
+    std::remove( fileName.c_str( ) );
+
+    // Check that wind data is NaN for Cassini-era records, and read for Juno-era records
+    BOOST_REQUIRE_EQUAL( records.size( ), 4 );
+    BOOST_CHECK( std::isnan( records.at( 0 ).windSpeed ) && std::isnan( records.at( 0 ).windDirection ) );
+    BOOST_CHECK_EQUAL( records.at( 3 ).windSpeed, 2.6 );
+    BOOST_CHECK_EQUAL( records.at( 3 ).windDirection, 121.0 );
+
+    // Check that by default the records with MTP flag and path delay flag are rejected, and that the record with missing dry delay
+    // is retained, with NaN dry delay
+    const std::map< double, Eigen::Vector2d > defaultDelays = getValidDsnAmcZenithDelays( records );
+    BOOST_REQUIRE_EQUAL( defaultDelays.size( ), 2 );
+    BOOST_CHECK( std::isnan( defaultDelays.at( records.at( 1 ).utcTime )( 0 ) ) );
+    BOOST_CHECK_CLOSE_FRACTION( defaultDelays.at( records.at( 1 ).utcTime )( 1 ), 0.05032, 1.0e-14 );
+
+    // Check that all records are retained when the MTP and elevation flags are not used for rejection
+    const std::map< double, Eigen::Vector2d > relaxedDelays = getValidDsnAmcZenithDelays( records, 1, false, false );
+    BOOST_REQUIRE_EQUAL( relaxedDelays.size( ), 4 );
+
+    // Create measured corrections (at zenith, so that the path delays can be checked directly) from these delays
+    const auto mapping =
+            std::make_shared< NiellTroposphericMapping >( []( Eigen::Vector3d, double ) { return mathematical_constants::PI / 2.0; },
+                                                          []( double ) { return Eigen::Vector3d( 800.0, 0.6, 0.0 ); },
+                                                          true );
+    const auto fallback = std::make_shared< MappedTroposphericCorrection >(
+            tabulated_tropospheric, mapping, true, []( double ) { return 2.0; }, []( double ) { return 0.4; } );
+    MeasuredTroposphericCorrection wetOnly( relaxedDelays, fallback, mapping, true, 60.0 );
+    MeasuredTroposphericCorrection wetAndDry( relaxedDelays, fallback, mapping, true, 60.0, true );
+
+    // Check that at the record with missing dry delay, the measured wet delay is used, and the dry delay is either the fallback
+    // delay, or interpolated from the adjacent measurements (skipping the missing dry delay)
+    const double time = records.at( 1 ).utcTime;
+    BOOST_CHECK_CLOSE_FRACTION( wetOnly.getWetZenithRangeCorrectionFunction( )( time ), 0.05032, 1.0e-14 );
+    BOOST_CHECK_EQUAL( wetOnly.getDryZenithRangeCorrectionFunction( )( time ), 2.0 );
+    BOOST_CHECK_CLOSE_FRACTION( wetAndDry.getDryZenithRangeCorrectionFunction( )( time ), 2.061805, 1.0e-12 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -505,7 +505,8 @@ fallback_settings : LightTimeCorrectionSettings
 maximum_interpolation_gap : float
     Maximum interval [s] between two measurements over which they are interpolated.
 use_measured_dry_delay : bool, default = False
-    Boolean denoting whether the measured dry path delay replaces that of the fallback correction.
+    Boolean denoting whether the measured dry path delay replaces that of the fallback correction. If true, measurements with NaN
+    dry path delay are skipped.
 body_with_atmosphere_name : str, default = "Earth"
     Name of the body with the atmosphere.
 mapping_model : TroposphericMappingModel, default = niell
