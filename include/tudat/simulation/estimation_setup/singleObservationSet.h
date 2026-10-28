@@ -851,16 +851,16 @@ public:
                 {
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual =
                             ( observationFilter->filterOut( ) ? residuals_.at( j ) : filteredObservationSet_->getResidual( j ) );
-                    bool removeObservation = false;
+                    bool conditionMet = false;
                     for( unsigned int k = 0; k < singleObservationSize_; k++ )
                     {
-                        if( ( !useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) <= residualCutOff[ k ] ) ) )
+                        if( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] )
                         {
-                            removeObservation = true;
+                            conditionMet = true;
                         }
                     }
-                    if( removeObservation )
+                    // Opposite condition is applied to the observation as a whole, not per component
+                    if( conditionMet != useOppositeCondition )
                     {
                         indicesToRemove.push_back( j );
                     }
@@ -891,16 +891,15 @@ public:
                 {
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation =
                             ( observationFilter->filterOut( ) ? observations_.at( j ) : filteredObservationSet_->getObservation( j ) );
-                    bool removeObservation = false;
+                    bool conditionMet = false;
                     for( unsigned int k = 0; k < singleObservationSize_; k++ )
                     {
-                        if( ( !useOppositeCondition && ( singleObservation[ k ] > absoluteValueCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( singleObservation[ k ] <= absoluteValueCutOff[ k ] ) ) )
+                        if( singleObservation[ k ] > absoluteValueCutOff[ k ] )
                         {
-                            removeObservation = true;
+                            conditionMet = true;
                         }
                     }
-                    if( removeObservation )
+                    if( conditionMet != useOppositeCondition )
                     {
                         indicesToRemove.push_back( j );
                     }
@@ -983,16 +982,15 @@ public:
                 // Check dependent variable values against cut-off value
                 for( unsigned int j = 0; j < nbObservationsToTest; j++ )
                 {
-                    bool removeObservation = false;
+                    bool conditionMet = false;
                     for( unsigned int k = 0; k < dependentVariableSize; k++ )
                     {
-                        if( ( !useOppositeCondition && ( singleDependentVariableValues( j, k ) ) > dependentVariableCutOff[ k ] ) ||
-                            ( useOppositeCondition && ( singleDependentVariableValues( j, k ) ) <= dependentVariableCutOff[ k ] ) )
+                        if( singleDependentVariableValues( j, k ) > dependentVariableCutOff[ k ] )
                         {
-                            removeObservation = true;
+                            conditionMet = true;
                         }
                     }
-                    if( removeObservation )
+                    if( conditionMet != useOppositeCondition )
                     {
                         indicesToRemove.push_back( j );
                     }
