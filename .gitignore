@@ -105,6 +105,7 @@ json.json
 /third_parties/mcd/mcd.h
 /third_parties/mcd/data/
 /third_parties/mcd/README
+/third_parties/mcd/interfaces/
 
 # Fortran module files
 *.mod

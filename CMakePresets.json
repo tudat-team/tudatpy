@@ -17,7 +17,7 @@
                 "Boost_NO_BOOST_CMAKE": "ON",
                 "CMAKE_BUILD_TYPE": "Release",
                 "TUDAT_BUILD_TESTS": "ON",
-                "TUDAT_BUILD_WITH_MCD": "OFF"
+                "TUDAT_BUILD_WITH_MCD_INTERFACE": "OFF"
             }
         },
         {
@@ -33,7 +33,7 @@
             "inherits": "default",
             "description": "Build with Mars Climate Database support",
             "cacheVariables": {
-                "TUDAT_BUILD_WITH_MCD": "ON",
+                "TUDAT_BUILD_WITH_MCD_INTERFACE": "ON",
                 "CMAKE_Fortran_COMPILER": "/home/valeriofilice/miniconda3/envs/tudatpy-dev/bin/gfortran"
             }
         },
@@ -42,7 +42,7 @@
             "inherits": "default-no-tests",
             "description": "Build with MCD support without tests",
             "cacheVariables": {
-                "TUDAT_BUILD_WITH_MCD": "ON",
+                "TUDAT_BUILD_WITH_MCD_INTERFACE": "ON",
                 "CMAKE_Fortran_COMPILER": "/home/valeriofilice/miniconda3/envs/tudatpy-dev/bin/gfortran"
             }
         },
@@ -67,7 +67,7 @@
             "inherits": "debug",
             "description": "Debug build with MCD support",
             "cacheVariables": {
-                "TUDAT_BUILD_WITH_MCD": "ON"
+                "TUDAT_BUILD_WITH_MCD_INTERFACE": "ON"
             }
         },
         {
@@ -75,7 +75,7 @@
             "inherits": "debug-no-tests",
             "description": "Debug build with MCD support without tests",
             "cacheVariables": {
-                "TUDAT_BUILD_WITH_MCD": "ON"
+                "TUDAT_BUILD_WITH_MCD_INTERFACE": "ON"
             }
         }
     ],
