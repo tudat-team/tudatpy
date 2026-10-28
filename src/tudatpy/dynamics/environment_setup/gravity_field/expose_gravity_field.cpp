@@ -624,6 +624,40 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
      )doc" );
 
+    m.def( "from_shadr_file",
+           &tss::shadrSphericalHarmonicsGravityFieldSettings,
+           py::arg( "file" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "associated_reference_frame" ) = "",
+           R"doc(
+
+ Function to load spherical harmonics gravity field settings from a SHADR file.
+
+ Function to load spherical harmonics gravity field settings from a file in the Planetary Data System (PDS) spherical harmonics
+ ASCII data record (SHADR) format, as described `here <https://atmos.nmsu.edu/PDS/data/jnogrv_0002/DOCUMENT/SHADR.ASC>`__.
+ The reference radius and gravitational parameter are read from the header record of the file, and converted from km and
+ km^3/s^2 to m and m^3/s^2, respectively. Only files with **fully normalized** coefficients (normalization state 1 in the header) are supported.
+ Coefficients that are not defined in the file are set to zero, and covariance records in the file are ignored.
+
+ Parameters
+ ----------
+ file : str
+     Full file path and name where the SHADR gravity field file is located
+ maximum_degree : int
+     Maximum degree of the coefficients that are to be loaded (may not exceed that of the file)
+ maximum_order : int
+     Maximum order of the coefficients that are to be loaded (may not exceed that of the file)
+ associated_reference_frame : str, default = ""
+     Name of the body-fixed reference frame to which the gravity field is to be fixed. If left empty, this reference frame will automatically be set to the body-fixed frame defined by this body's rotation (see :ref:`rotation_model` for specifying rotation models).
+
+ Returns
+ -------
+ SphericalHarmonicsGravityFieldSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
+
+     )doc" );
+
     m.def( "predefined_spherical_harmonic",
            tss::predefinedSphericalHarmonic,
            py::arg( "predefined_model" ),

@@ -768,6 +768,36 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                                                   const int gravitationalParameterIndex = -1,
                                                   const int referenceRadiusIndex = -1 );
 
+//! Function to read a spherical harmonics ASCII data record (SHADR) gravity field file
+/*
+ *  Function to read a gravity field file in the PDS spherical harmonics ASCII data record (SHADR) format. The header
+ *  record provides the reference radius (in km) and gravitational parameter (in km^3/s^2), which are returned in SI units.
+ *  Only files with normalized coefficients are supported. Coefficients not defined in the file are set to zero (except C(0,0),
+ *  which is always 1.0). Covariance records are ignored.
+ *  \param fileName Name of SHADR gravity field file to be loaded.
+ *  \param maximumDegree Maximum degree of gravity field to be loaded.
+ *  \param maximumOrder Maximum order of gravity field to be loaded.
+ *  \param coefficients Spherical harmonics coefficients (first is cosine, second is sine).
+ *  \return Pair of gravitational parameter (m^3/s^2) and reference radius (m).
+ */
+std::pair< double, double > readShadrGravityFieldFile( const std::string& fileName,
+                                                       const int maximumDegree,
+                                                       const int maximumOrder,
+                                                       std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients );
+
+//! Function to create spherical harmonic gravity field settings from a SHADR gravity field file
+inline std::shared_ptr< SphericalHarmonicsGravityFieldSettings > shadrSphericalHarmonicsGravityFieldSettings(
+        const std::string& fileName,
+        const int maximumDegree,
+        const int maximumOrder,
+        const std::string& associatedReferenceFrame = "" )
+{
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+    std::pair< double, double > referenceData = readShadrGravityFieldFile( fileName, maximumDegree, maximumOrder, coefficients );
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            referenceData.first, referenceData.second, coefficients.first, coefficients.second, associatedReferenceFrame );
+}
+
 // Function to create a gravity field model.
 /*
  *  Function to create a gravity field model based on model-specific settings for the gravity field.

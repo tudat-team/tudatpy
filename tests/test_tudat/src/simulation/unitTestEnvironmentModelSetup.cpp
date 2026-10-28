@@ -10,6 +10,8 @@
 
 #define BOOST_TEST_MAIN
 
+#include <filesystem>
+#include <fstream>
 #include <limits>
 
 #include <boost/test/included/unit_test.hpp>
@@ -2098,6 +2100,39 @@ BOOST_AUTO_TEST_CASE( test_DefaultSettingsDifferentBody )
 
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Earth" );
     BOOST_CHECK_EQUAL( bodies.at( "Mars" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Mars" );
+}
+
+//! Test reading of gravity field from a SHADR file (header and coefficients of example in PDS SHADR specification)
+BOOST_AUTO_TEST_CASE( test_shadrGravityFieldFileReading )
+{
+    const std::string fileName = ( std::filesystem::temp_directory_path( ) / "tudat_test_shadr_gravity_field.tab" ).string( );
+    {
+        std::ofstream file( fileName );
+        file << "3.3970000000000000E+03, 4.2828370245291269E+04, 6.1699999999999995E-05,   90,   90,    1, "
+                "0.0000000000000000E+00, 0.0000000000000000E+00\n";
+        file << "    2,    2, 8.4612335136206705E-05,-4.8939418702301600E-05, 1.0000000000000000E-10, 1.0000000000000000E-10,\n";
+        file << "    2,    0,-8.7450461309664714E-04, 0.0000000000000000E+00, 8.6998585172904000E-11, 0.0000000000000000E+00,\n";
+        file << "    3,    1, 3.0000000000000000E-06, 2.0000000000000000E-06, 1.0000000000000000E-10, 1.0000000000000000E-10,\n";
+        file << "    2,    0,    2,    0, 7.5687236278213800E-21, 0.0000000000000000E+00, 0.0000000000000000E+00, "
+                "0.0000000000000000E+00\n";
+    }
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > gravityFieldSettings =
+            shadrSphericalHarmonicsGravityFieldSettings( fileName, 2, 2, "IAU_Mars" );
+    std::filesystem::remove( fileName );
+
+    BOOST_CHECK_CLOSE_FRACTION( gravityFieldSettings->getGravitationalParameter( ), 4.2828370245291269E13, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( gravityFieldSettings->getReferenceRadius( ), 3.397E6, 1.0E-15 );
+    BOOST_CHECK_EQUAL( gravityFieldSettings->getAssociatedReferenceFrame( ), "IAU_Mars" );
+
+    Eigen::MatrixXd expectedCosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd expectedSineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    expectedCosineCoefficients( 0, 0 ) = 1.0;
+    expectedCosineCoefficients( 2, 0 ) = -8.7450461309664714E-04;
+    expectedCosineCoefficients( 2, 2 ) = 8.4612335136206705E-05;
+    expectedSineCoefficients( 2, 2 ) = -4.8939418702301600E-05;
+    BOOST_CHECK( gravityFieldSettings->getCosineCoefficients( ) == expectedCosineCoefficients );
+    BOOST_CHECK( gravityFieldSettings->getSineCoefficients( ) == expectedSineCoefficients );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
