@@ -222,7 +222,8 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
     int counter = 0;
     std::string previousLine = "";
     // Read coefficients up to required maximum degree and order.
-    while( !stream.fail( ) && !stream.eof( ) && ( currentDegree <= maximumDegree && currentOrder < maximumOrder ) )
+    while( !stream.fail( ) && !stream.eof( ) &&
+           ( currentDegree < maximumDegree || ( currentDegree == maximumDegree && currentOrder < maximumOrder ) ) )
     {
         // Read current line
         std::getline( stream, line );
@@ -287,55 +288,33 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
     return std::make_pair( gravitationalParameter, referenceRadius );
 }
 
-//! Function to split a line of a SHADR file into its (comma-separated) fields
-std::vector< std::string > splitShadrRecord( const std::string& line )
-{
-    std::string trimmedLine = boost::algorithm::trim_copy( line );
-    std::vector< std::string > fields;
-    if( !trimmedLine.empty( ) )
-    {
-        boost::algorithm::split( fields, trimmedLine, boost::algorithm::is_any_of( "," ) );
-        for( std::string& field : fields )
-        {
-            boost::algorithm::trim( field );
-        }
-        // Records may end with a trailing delimiter
-        if( fields.back( ).empty( ) )
-        {
-            fields.pop_back( );
-        }
-    }
-    return fields;
-}
-
 //! Function to read a spherical harmonics ASCII data record (SHADR) gravity field file
 std::pair< double, double > readShadrGravityFieldFile( const std::string& fileName,
                                                        const int maximumDegree,
                                                        const int maximumOrder,
                                                        std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients )
 {
-    std::ifstream stream( fileName );
-    if( !stream.good( ) )
-    {
-        throw std::runtime_error( "Error when reading SHADR gravity field file, could not open " + fileName );
-    }
-
     // Read header record: reference radius (km), GM (km^3/s^2), GM uncertainty, degree, order, normalization state,
     // reference longitude, reference latitude
+    std::ifstream stream( fileName );
     std::string line;
+    std::getline( stream, line );
     std::vector< std::string > header;
-    while( header.empty( ) && std::getline( stream, line ) )
-    {
-        header = splitShadrRecord( line );
-    }
+    boost::algorithm::split(
+            header, boost::algorithm::trim_copy( line ), boost::algorithm::is_any_of( ", \t" ), boost::algorithm::token_compress_on );
     if( header.size( ) < 6 )
     {
-        throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName + ", header record is incomplete." );
+        throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName + ", could not read header record." );
     }
-    const double referenceRadius = std::stod( header.at( 0 ) ) * 1.0E3;
-    const double gravitationalParameter = std::stod( header.at( 1 ) ) * 1.0E9;
     const int fileMaximumDegree = std::stoi( header.at( 3 ) );
     const int fileMaximumOrder = std::stoi( header.at( 4 ) );
+    if( maximumDegree > fileMaximumDegree || maximumOrder > fileMaximumOrder )
+    {
+        throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName + ", requested degree/order (" +
+                                  std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + ") exceeds that of the file (" +
+                                  std::to_string( fileMaximumDegree ) + "/" + std::to_string( fileMaximumOrder ) + ")." );
+    }
+
     // Normalization state 0 denotes unnormalized, and 1 normalized, coefficients
     const int normalizationState = std::stoi( header.at( 5 ) );
     if( normalizationState != 0 && normalizationState != 1 )
@@ -344,43 +323,16 @@ std::pair< double, double > readShadrGravityFieldFile( const std::string& fileNa
                                   ", only files with unnormalized (normalization state 0) or normalized (normalization state 1) "
                                   "coefficients are supported." );
     }
-    if( maximumDegree > fileMaximumDegree || maximumOrder > fileMaximumOrder )
+
+    // Read coefficients, with the gravitational parameter and reference radius from the header
+    std::pair< double, double > referenceData = readGravityFieldFile( fileName, maximumDegree, maximumOrder, coefficients, 1, 0 );
+    if( normalizationState == 0 )
     {
-        throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName + ", requested degree/order (" +
-                                  std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + ") exceeds that of the file (" +
-                                  std::to_string( fileMaximumDegree ) + "/" + std::to_string( fileMaximumOrder ) + ")." );
+        coefficients = basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients( coefficients.first, coefficients.second );
     }
 
-    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
-    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
-
-    // Read coefficient records (degree, order, C, S, C uncertainty, S uncertainty), which have no required ordering.
-    // Covariance records (with 8 fields) are not used.
-    while( std::getline( stream, line ) )
-    {
-        std::vector< std::string > fields = splitShadrRecord( line );
-        if( fields.size( ) == 6 )
-        {
-            const int degree = std::stoi( fields.at( 0 ) );
-            const int order = std::stoi( fields.at( 1 ) );
-            if( degree <= maximumDegree && order <= maximumOrder )
-            {
-                cosineCoefficients( degree, order ) = std::stod( fields.at( 2 ) );
-                sineCoefficients( degree, order ) = std::stod( fields.at( 3 ) );
-            }
-        }
-        else if( !fields.empty( ) && fields.size( ) != 8 )
-        {
-            throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName + ", unexpected record: " + line );
-        }
-    }
-
-    cosineCoefficients( 0, 0 ) = 1.0;
-    coefficients = ( normalizationState == 0 )
-            ? basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients( cosineCoefficients, sineCoefficients )
-            : std::make_pair( cosineCoefficients, sineCoefficients );
-
-    return std::make_pair( gravitationalParameter, referenceRadius );
+    // Convert from km^3/s^2 and km to SI units
+    return std::make_pair( referenceData.first * 1.0E9, referenceData.second * 1.0E3 );
 }
 
 //! Function to create a gravity field model.

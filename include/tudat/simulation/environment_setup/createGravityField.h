@@ -770,10 +770,9 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
 
 //! Function to read a spherical harmonics ASCII data record (SHADR) gravity field file
 /*
- *  Function to read a gravity field file in the PDS spherical harmonics ASCII data record (SHADR) format. The header
- *  record provides the reference radius (in km) and gravitational parameter (in km^3/s^2), which are returned in SI units.
- *  Files with unnormalized coefficients are converted to (geodesy-)normalized coefficients. Coefficients not defined in the file are
- *  set to zero (except C(0,0), which is always 1.0). Covariance records are ignored.
+ *  Function to read a gravity field file in the PDS spherical harmonics ASCII data record (SHADR) format, using
+ *  readGravityFieldFile. The header record provides the reference radius (in km) and gravitational parameter (in km^3/s^2),
+ *  which are returned in SI units, and unnormalized coefficients are converted to (geodesy-)normalized coefficients.
  *  \param fileName Name of SHADR gravity field file to be loaded.
  *  \param maximumDegree Maximum degree of gravity field to be loaded.
  *  \param maximumOrder Maximum order of gravity field to be loaded.

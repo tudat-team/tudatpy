@@ -2110,8 +2110,8 @@ BOOST_AUTO_TEST_CASE( test_shadrGravityFieldFileReading )
         std::ofstream file( fileName );
         file << "3.3970000000000000E+03, 4.2828370245291269E+04, 6.1699999999999995E-05,   90,   90,    1, "
                 "0.0000000000000000E+00, 0.0000000000000000E+00\n";
-        file << "    2,    2, 8.4612335136206705E-05,-4.8939418702301600E-05, 1.0000000000000000E-10, 1.0000000000000000E-10,\n";
         file << "    2,    0,-8.7450461309664714E-04, 0.0000000000000000E+00, 8.6998585172904000E-11, 0.0000000000000000E+00,\n";
+        file << "    2,    2, 8.4612335136206705E-05,-4.8939418702301600E-05, 1.0000000000000000E-10, 1.0000000000000000E-10,\n";
         file << "    3,    1, 3.0000000000000000E-06, 2.0000000000000000E-06, 1.0000000000000000E-10, 1.0000000000000000E-10,\n";
         file << "    2,    0,    2,    0, 7.5687236278213800E-21, 0.0000000000000000E+00, 0.0000000000000000E+00, "
                 "0.0000000000000000E+00\n";
@@ -2119,7 +2119,14 @@ BOOST_AUTO_TEST_CASE( test_shadrGravityFieldFileReading )
 
     std::shared_ptr< SphericalHarmonicsGravityFieldSettings > gravityFieldSettings =
             shadrSphericalHarmonicsGravityFieldSettings( fileName, 2, 2, "IAU_Mars" );
+
+    // Check that all degrees are read if the maximum order is lower than the maximum degree
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > lowOrderGravityFieldSettings =
+            shadrSphericalHarmonicsGravityFieldSettings( fileName, 3, 1 );
     std::filesystem::remove( fileName );
+    BOOST_CHECK_EQUAL( lowOrderGravityFieldSettings->getCosineCoefficients( )( 2, 0 ), -8.7450461309664714E-04 );
+    BOOST_CHECK_EQUAL( lowOrderGravityFieldSettings->getCosineCoefficients( )( 3, 1 ), 3.0E-6 );
+    BOOST_CHECK_EQUAL( lowOrderGravityFieldSettings->getSineCoefficients( )( 3, 1 ), 2.0E-6 );
 
     BOOST_CHECK_CLOSE_FRACTION( gravityFieldSettings->getGravitationalParameter( ), 4.2828370245291269E13, 1.0E-15 );
     BOOST_CHECK_CLOSE_FRACTION( gravityFieldSettings->getReferenceRadius( ), 3.397E6, 1.0E-15 );
