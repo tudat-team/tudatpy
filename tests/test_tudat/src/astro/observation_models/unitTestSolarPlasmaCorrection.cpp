@@ -166,6 +166,36 @@ BOOST_AUTO_TEST_CASE( testDopplerDownlinkFrequency )
     }
 }
 
+// Check that non-integer exponents (integrated numerically) agree with the analytical integral for lines of sight
+// passing close to the Sun
+BOOST_AUTO_TEST_CASE( testNonIntegerExponentsCloseToSun )
+{
+    std::function< Eigen::Vector6d( double time ) > sunStateFunction = []( double time ) { return Eigen::Vector6d::Zero( ); };
+    const std::vector< double > coefficients = { 0.12e14, 1.0e13, 0.41e12 };
+    InversePowerSeriesSolarCoronaCorrection analyticalCorrection( n_way_range, sunStateFunction, coefficients, { 6.0, 3.0, 2.0 } );
+    InversePowerSeriesSolarCoronaCorrection numericalCorrection(
+            n_way_range, sunStateFunction, coefficients, { 6.0 + 1.0e-12, 3.0 + 1.0e-12, 2.0 + 1.0e-12 } );
+
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, 7.2e9 );
+
+    // Earth at 1 AU, spacecraft at 1.5 AU behind the Sun, with the line of sight passing 2 to 20 solar radii from the Sun
+    for( const double impactParameter : { 2.0, 5.0, 20.0 } )
+    {
+        const double distance = impactParameter * 696.0e6;
+        Eigen::Vector6d earthState = Eigen::Vector6d::Zero( );
+        earthState.segment( 0, 2 ) << -std::sqrt( std::pow( physical_constants::ASTRONOMICAL_UNIT, 2 ) - distance * distance ), distance;
+        Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
+        spacecraftState.segment( 0, 2 ) << std::sqrt( std::pow( 1.5 * physical_constants::ASTRONOMICAL_UNIT, 2 ) - distance * distance ),
+                distance;
+        BOOST_CHECK_CLOSE_FRACTION( numericalCorrection.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                                            { spacecraftState, earthState }, { 0.0, 0.0 }, 0, ancillarySettings ),
+                                    analyticalCorrection.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                                            { spacecraftState, earthState }, { 0.0, 0.0 }, 0, ancillarySettings ),
+                                    1.0e-8 );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

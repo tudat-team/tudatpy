@@ -736,7 +736,7 @@ Returns
 
     m.def( "inverse_power_series_solar_corona_light_time_correction",
            &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
-           py::arg( "coefficients" ) = std::vector< double >{ 1.3e14, 0.5e12 },
+           py::arg( "coefficients" ) = std::vector< double >{ 0.12e14, 0.41e12 },
            py::arg( "positive_exponents" ) = std::vector< double >{ 6.0, 2.0 },
            py::arg( "delay_coefficient" ) = 40.3,
            py::arg( "sun_body_name" ) = "Sun",
@@ -744,20 +744,42 @@ Returns
 
          Create a dispersive solar-corona light-time correction from an inverse-power electron density model.
 
-         ``coefficients`` gives density amplitudes in inverse cubic metres and ``positive_exponents`` gives the
-         corresponding positive powers of distance normalized by the solar radius. ``delay_coefficient`` is the plasma
-         delay constant; ``sun_body_name`` identifies the central star.
+         The electron density is modelled as :math:`N_e(r)=\sum_i c_i (r/R_\odot)^{-k_i}`, with :math:`r` the distance
+         to the centre of the Sun and :math:`R_\odot` the (average) radius of its shape model, without dependence on
+         the heliographic latitude or time. The light-time correction of each leg of the link is
+         :math:`\pm 40.3 / (c f^2) \int N_e \, ds` (positive for group-delay observables such as range, negative for
+         phase observables such as Doppler), with :math:`f` the frequency of the leg [Hz] (Verma et al., 2013, eq. 1).
+         The integral is computed per term over the angle along the line of sight (analytically for integer exponents
+         of at least 2). The frequencies are obtained from the link (frequency bands and transmitted frequencies), so the
+         correction is only available for observables with frequency information (e.g. DSN data).
+
+         The default coefficients are those estimated by Morley and Budnik (2007) for the Rosetta 2006 solar
+         conjunction (8.9 electrons per cm³ at 1 AU). With these, the 2002-2013 Odyssey and MRO range residuals
+         w.r.t. DE440 show no dependence on the solar elongation (to about 1 m) down to 3 degrees. Other values from the
+         literature, in m⁻³ for :math:`r` in solar radii:
+
+         - DE102 and the original ESOC model: :math:`c` = [1.3e14, 0.5e12], :math:`k` = [6, 2] (10.8 cm⁻³ at 1 AU);
+           over-corrects the Odyssey and MRO ranges close to the Sun by about 8 m.
+         - Muhleman et al. (1977), Mariner 7: [1.3e14, 0.66e12], [6, 2.08].
+         - Aksim and Pavlov (2022), EPM: [:math:`C N_0` (1 AU / :math:`R_\odot`)²], [2], with :math:`N_0` = 5.97 cm⁻³
+           and :math:`C` = 1.31 (7.8 cm⁻³ at 1 AU).
+         - Verma et al. (2013): single power laws :math:`B (r/R_\odot)^{-\epsilon}` with :math:`B` = 0.1e12 to
+           1.9e12 and :math:`\epsilon` = 2.0 to 2.54, per solar conjunction and solar wind type (slow, fast).
+
+         The electron density varies by a factor of about two between solar conjunctions and with the solar cycle, so
+         residuals close to the Sun remain at the level of several metres (X-band); ephemeris analyses typically
+         remove range data with a line of sight closer than 30-60 solar radii to the Sun.
 
          Parameters
          ----------
-         coefficients : list[float], default = [1.3e14, 0.5e12]
-             Coefficients of the inverse-power series defining solar-corona electron density.
+         coefficients : list[float], default = [0.12e14, 0.41e12]
+             Coefficients :math:`c_i` [m⁻³] of the inverse-power series defining the solar-corona electron density.
          positive_exponents : list[float], default = [6.0, 2.0]
-             Positive radial powers for the inverse-power density series, paired with the coefficients.
+             Positive powers :math:`k_i` of the distance normalized by the solar radius, paired with the coefficients.
          delay_coefficient : float, default = 40.3
-             Coefficient converting the electron-density integral into the light-time correction.
+             Coefficient [m³ s⁻²] converting the electron-density integral into the light-time correction.
          sun_body_name : str, default = "Sun"
-             Name of the Sun body in the system of bodies.
+             Name of the Sun body in the system of bodies (must have a shape model).
 
          Returns
          -------

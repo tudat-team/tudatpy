@@ -653,12 +653,12 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
         case inverse_power_series_solar_corona: {
             std::shared_ptr< InversePowerSeriesSolarCoronaCorrectionSettings > coronaCorrectionSettings =
                     std::dynamic_pointer_cast< InversePowerSeriesSolarCoronaCorrectionSettings >( correctionSettings );
-            if( correctionSettings == nullptr )
+            if( coronaCorrectionSettings == nullptr )
             {
                 throw std::runtime_error( "Error when creating inverse power series solar corona correction: incompatible settings type." );
             }
 
-            std::string sunBodyName = "Sun";  // coronaCorrectionSettings->getSunBodyName( );
+            std::string sunBodyName = coronaCorrectionSettings->getSunBodyName( );
 
             std::function< Eigen::Vector6d( const double ) > sunStateFunction =
                     std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,

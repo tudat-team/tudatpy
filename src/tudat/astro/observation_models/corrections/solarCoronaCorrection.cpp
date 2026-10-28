@@ -89,28 +89,20 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
 
     // Compute electron density integral: Verma et al. (2013), eq. 3/4
     double electronDensityIntegral = 0.0;
-    // If all exponents are integer calculate integral of electron density analytically
-    if( exponentsAreIntegers_ && std::abs( receiverSunTransmitterAngle ) > 0.1 * mathematical_constants::PI / 180.0 )
+    // Integrate each term over the angle along the line of sight (analytically for integer exponents), unless the
+    // Sun is (almost) on the extension of the line of sight, where this formulation is ill-conditioned
+    if( std::abs( receiverSunTransmitterAngle ) > 0.1 * mathematical_constants::PI / 180.0 )
     {
         // Reset analytical integrals
         cosinePowersIntegralsCache_.clear( );
         for( unsigned int i = 0; i < coefficients_.size( ); ++i )
         {
             electronDensityIntegral += coefficients_.at( i ) *
-                    computeSingleTermIntegralAnalytically( receiverPositionWrtSun,
-                                                           sunReceiverTransmitterAngle,
-                                                           receiverSunTransmitterAngle,
-                                                           static_cast< unsigned int >( positiveExponents_.at( i ) ) );
+                    computeSingleTermIntegral(
+                            receiverPositionWrtSun, sunReceiverTransmitterAngle, receiverSunTransmitterAngle, positiveExponents_.at( i ) );
         }
     }
-    // If exponents aren't integer, calculate integral numerically
-    // Verma et al. (2013) calculate it via integration of Taylor series (eq. A.6), but the expansion they use isn't valid.
-    // The function is integrated in [alpha - pi/2, beta + alpha - pi/2], using a Taylor series defined around 0.
-    // alpha = Sun-Receiver-Transmitter angle
-    // beta = Receiver-Sun-Transmitter angle
-    // Near conjunctions alpha is small (close to 0) and beta large (close to pi), so the integration is executed roughly
-    // between [-pi/2, pi/2]. Evidently the Taylor series can't be expected to be valid over that range. Numerical tests
-    // confirmed this.
+    // Otherwise (line of sight far from the Sun), integrate the electron density along the line of sight
     else
     {
         electronDensityIntegral = computeElectronDensityIntegralNumerically(
@@ -167,10 +159,10 @@ double InversePowerSeriesSolarCoronaCorrection::computeElectronDensity( const Ei
 }
 
 // Verma et al., eq. A.4
-double InversePowerSeriesSolarCoronaCorrection::computeSingleTermIntegralAnalytically( const Eigen::Vector3d& receiverPositionWrtSun,
-                                                                                       const double sunReceiverTransmitterAngle,
-                                                                                       const double receiverSunTransmitterAngle,
-                                                                                       const unsigned int positiveExponent )
+double InversePowerSeriesSolarCoronaCorrection::computeSingleTermIntegral( const Eigen::Vector3d& receiverPositionWrtSun,
+                                                                           const double sunReceiverTransmitterAngle,
+                                                                           const double receiverSunTransmitterAngle,
+                                                                           const double positiveExponent )
 {
     // Rename terms for simplicity
     double alpha = sunReceiverTransmitterAngle;
@@ -182,7 +174,22 @@ double InversePowerSeriesSolarCoronaCorrection::computeSingleTermIntegralAnalyti
     double mulTerm = std::pow( sunRadius_, positiveExponent ) /
             std::pow( receiverPositionWrtSun.norm( ) * std::sin( alpha ), positiveExponent - 1.0 );
 
-    return mulTerm * computeCosinePowerIntegral( lowerBound, upperBound, positiveExponent - 2 );
+    // Integral of cos^(k-2) over the angle: analytical for integer k >= 2, otherwise numerical (smooth integrand, in
+    // contrast to the electron density along the line of sight, which peaks sharply close to the Sun)
+    double cosinePowerIntegral;
+    if( std::fmod( positiveExponent, 1.0 ) == 0.0 && positiveExponent >= 2.0 )
+    {
+        cosinePowerIntegral = computeCosinePowerIntegral( lowerBound, upperBound, static_cast< unsigned int >( positiveExponent ) - 2 );
+    }
+    else
+    {
+        std::function< double( double ) > cosinePower = [ = ]( const double angle ) {
+            return std::pow( std::cos( angle ), positiveExponent - 2.0 );
+        };
+        cosinePowerIntegral =
+                numerical_quadrature::GaussianQuadrature< double, double >( cosinePower, lowerBound, upperBound, 50 ).getQuadrature( );
+    }
+    return mulTerm * cosinePowerIntegral;
 }
 
 // Wikipedia, https://en.wikipedia.org/wiki/List_of_integrals_of_trigonometric_functions

@@ -474,8 +474,8 @@ private:
 class InversePowerSeriesSolarCoronaCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
-    InversePowerSeriesSolarCoronaCorrectionSettings( const std::vector< double >& coefficients = { 1.31 * 5.97e-6 },
-                                                     const std::vector< double >& positiveExponents = { 2.0 },
+    InversePowerSeriesSolarCoronaCorrectionSettings( const std::vector< double >& coefficients = { 0.12e14, 0.41e12 },
+                                                     const std::vector< double >& positiveExponents = { 6.0, 2.0 },
                                                      const double criticalPlasmaDensityDelayCoefficient = 40.3,
                                                      const std::string& sunBodyName = "Sun" ):
         LightTimeCorrectionSettings( inverse_power_series_solar_corona ), coefficients_( coefficients ),
@@ -510,7 +510,7 @@ private:
 
     const double criticalPlasmaDensityDelayCoefficient_;
 
-    const std::string& sunBodyName_;
+    const std::string sunBodyName_;
 };
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
@@ -645,8 +645,8 @@ inline std::shared_ptr< LightTimeCorrectionSettings > vmf3oTroposphericCorrectio
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCoronaCorrectionSettings(
-        const std::vector< double >& coefficients = { 1.31 * 5.97e-6 },
-        const std::vector< double >& positiveExponents = { 2.0 },
+        const std::vector< double >& coefficients = { 0.12e14, 0.41e12 },
+        const std::vector< double >& positiveExponents = { 6.0, 2.0 },
         const double criticalPlasmaDensityDelayCoefficient = 40.3,
         const std::string& sunBodyName = "Sun" )
 {
