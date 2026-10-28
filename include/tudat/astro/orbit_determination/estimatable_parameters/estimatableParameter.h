@@ -182,16 +182,6 @@ bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum par
 
 bool isParameterClockProperty( const EstimatebleParametersEnum parameterType );
 
-//! Function to determine whether the given parameter can never influence the dynamics (e.g. observation biases)
-/*!
- * Function to determine whether the given parameter can never influence the dynamics, so that the associated columns
- * of the sensitivity matrix are always zero. This is the case for observation biases, clock parameters, and ground
- * station/reference point positions.
- * \param parameterType Parameter identifier.
- * \return True if parameter can never influence the dynamics
- */
-bool isParameterWithoutDynamicalInfluence( const EstimatebleParametersEnum parameterType );
-
 //! Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics
 /*!
  * Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics, for which each

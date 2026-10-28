@@ -21,7 +21,6 @@
 #include <cereal/types/tuple.hpp>
 
 #include "tudat/basics/timeType.h"
-#include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/io/serialization/base.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
@@ -881,8 +880,12 @@ private:
         std::map< double, Eigen::MatrixXd > fullSensitivitySolution;
         for( auto it : sensitivitySolution_ )
         {
-            fullSensitivitySolution[ it.first ] =
-                    linear_algebra::expandMatrixColumns( it.second, reducedSensitivityMatrixColumns_, sensitivityMatrixSize_ );
+            Eigen::MatrixXd& fullSensitivityMatrix = fullSensitivitySolution[ it.first ];
+            fullSensitivityMatrix = Eigen::MatrixXd::Zero( it.second.rows( ), sensitivityMatrixSize_ );
+            for( unsigned int i = 0; i < reducedSensitivityMatrixColumns_.size( ); i++ )
+            {
+                fullSensitivityMatrix.col( reducedSensitivityMatrixColumns_.at( i ) ) = it.second.col( i );
+            }
         }
         return fullSensitivitySolution;
     }

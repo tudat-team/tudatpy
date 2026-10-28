@@ -687,25 +687,6 @@ bool isParameterClockProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
-//! Function to determine whether the given parameter can never influence the dynamics (e.g. observation biases)
-bool isParameterWithoutDynamicalInfluence( const EstimatebleParametersEnum parameterType )
-{
-    bool flag;
-    switch( parameterType )
-    {
-        case ground_station_position:
-            flag = true;
-            break;
-        case reference_point_position:
-            flag = true;
-            break;
-        default:
-            flag = isParameterObservationLinkProperty( parameterType );
-            break;
-    }
-    return flag;
-}
-
 //! Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics
 bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parameterType )
 {

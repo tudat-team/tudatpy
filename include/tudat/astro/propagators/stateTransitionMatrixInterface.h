@@ -18,7 +18,6 @@
 
 #include <Eigen/Core>
 
-#include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
@@ -287,7 +286,6 @@ public:
     {
         isSensitivityMatrixReduced_ = true;
         reducedSensitivityMatrixColumns_ = reducedSensitivityMatrixColumns;
-        reducedSensitivityMatrixColumnBlocks_ = linear_algebra::getConsecutiveIndexBlocks( reducedSensitivityMatrixColumns );
     }
 
 private:
@@ -299,9 +297,6 @@ private:
 
     //! Index in the full sensitivity matrix of each propagated column (if isSensitivityMatrixReduced_)
     std::vector< int > reducedSensitivityMatrixColumns_;
-
-    //! Blocks of consecutive values in reducedSensitivityMatrixColumns_
-    std::vector< std::pair< int, int > > reducedSensitivityMatrixColumnBlocks_;
 
     //! Interpolator returning the state transition matrix as a function of time.
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > stateTransitionMatrixInterpolator_;
@@ -732,12 +727,6 @@ public:
                     "inconsistent." );
         }
         reducedSensitivityMatrixColumns_ = reducedSensitivityMatrixColumns;
-        reducedSensitivityMatrixColumnBlocks_.clear( );
-        for( unsigned int i = 0; i < reducedSensitivityMatrixColumns.size( ); i++ )
-        {
-            reducedSensitivityMatrixColumnBlocks_.push_back(
-                    linear_algebra::getConsecutiveIndexBlocks( reducedSensitivityMatrixColumns.at( i ) ) );
-        }
     }
 
     int getArcWiseStateTransitionMatrixSize( const int currentArc ) const
@@ -822,14 +811,16 @@ protected:
                     stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
             if( reducedSensitivityMatrixColumns_.size( ) > 0 )
             {
-                if( reducedSensitivityMatrixColumns_.at( currentArc ).size( ) > 0 )
+                const std::vector< int >& reducedColumns = reducedSensitivityMatrixColumns_.at( currentArc );
+                if( reducedColumns.size( ) > 0 )
                 {
-                    linear_algebra::setMatrixColumns(
-                            sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime ),
-                            reducedSensitivityMatrixColumns_.at( currentArc ),
-                            reducedSensitivityMatrixColumnBlocks_.at( currentArc ),
-                            combinedStateTransitionMatrix.block(
-                                    0, stateTransitionMatrixSize, stateTransitionMatrixSize, sensitivityMatrixSize ) );
+                    Eigen::MatrixXd reducedSensitivityMatrix =
+                            sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+                    for( unsigned int i = 0; i < reducedColumns.size( ); i++ )
+                    {
+                        combinedStateTransitionMatrix.col( stateTransitionMatrixSize + reducedColumns.at( i ) ) =
+                                reducedSensitivityMatrix.col( i );
+                    }
                 }
             }
             else
@@ -1096,9 +1087,6 @@ private:
 
     //! Index in the full sensitivity matrix of each propagated column, per arc (empty if all columns are propagated)
     std::vector< std::vector< int > > reducedSensitivityMatrixColumns_;
-
-    //! Blocks of consecutive values in reducedSensitivityMatrixColumns_, per arc
-    std::vector< std::vector< std::pair< int, int > > > reducedSensitivityMatrixColumnBlocks_;
 
     //! map with indices of initial parameters in multi-arc solution and in the full combined solution
     //! key is the arc index. second element is a map: for each body to be estimated (key) in the given arc, we provide a pair of pairs, as follows:

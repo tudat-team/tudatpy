@@ -506,15 +506,19 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
                     std::function< void( Eigen::MatrixXd& ) > singleArcPartialFunction;
                     if( parameter->getParameterName( ).first == estimatable_parameters::arc_wise_exponential_atmosphere_base_density )
                     {
-                        singleArcPartialFunction = [ this, exponentialAtmosphere ]( Eigen::MatrixXd& partial ) mutable {
-                            computeAccelerationPartialWrtExponentialAtmosphereBaseDensity( partial, exponentialAtmosphere );
-                        };
+                        singleArcPartialFunction =
+                                std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereBaseDensity,
+                                           this,
+                                           std::placeholders::_1,
+                                           exponentialAtmosphere );
                     }
                     else
                     {
-                        singleArcPartialFunction = [ this, exponentialAtmosphere ]( Eigen::MatrixXd& partial ) mutable {
-                            computeAccelerationPartialWrtExponentialAtmosphereScaleHeight( partial, exponentialAtmosphere );
-                        };
+                        singleArcPartialFunction =
+                                std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereScaleHeight,
+                                           this,
+                                           std::placeholders::_1,
+                                           exponentialAtmosphere );
                     }
                     partialFunction = createArcWiseParameterPartialFunction(
                             singleArcPartialFunction, arcWiseParameter->getArcTimeLookupScheme( ), parameter->getParameterSize( ) );

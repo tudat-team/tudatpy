@@ -73,17 +73,17 @@ std::vector< bool > getParameterEntriesActiveInTimeInterval(
     return isEntryActive;
 }
 
-//! Function to determine whether any of a set of state derivative partials depends on a given parameter
+//! Function to set the parameter partial update function in each of a set of state derivative partials
 /*!
- * Function to determine whether any of a set of state derivative partials depends on a given parameter. Note that this function
- * sets the parameter partial update function in each partial object that depends on the parameter, as done when setting up the
- * variational equations.
+ * Function to set the parameter partial update function in each of a set of state derivative partials (see
+ * StateDerivativePartial::setParameterPartialUpdateFunction), as is also done when setting up the variational equations
+ * (repeated calls have no effect).
  * \param stateDerivativePartials List of state derivative partials, per propagated state type
- * \param parameter Parameter for which the dependency is to be determined
+ * \param parameter Parameter for which the partial update functions are to be set
  * \return True if any of the state derivative partials depends on the parameter
  */
 template< typename ParameterValueType >
-bool doStateDerivativePartialsDependOnParameter(
+bool setParameterPartialUpdateFunctionsOfAllPartials(
         const std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterValueType > > parameter )
 {
@@ -107,9 +107,8 @@ bool doStateDerivativePartialsDependOnParameter(
 //! Function to determine which entries of a parameter lead to non-zero sensitivity matrix columns in a propagation arc
 /*!
  * Function to determine which entries of a parameter lead to non-zero sensitivity matrix columns in a propagation arc. This
- * is the case if: the parameter type can influence the dynamics (see isParameterWithoutDynamicalInfluence), any of the
- * state derivative partials depends on the parameter, and the parameter entry is active in the propagation time interval
- * (see getParameterEntriesActiveInTimeInterval).
+ * is the case if any of the state derivative partials depends on the parameter, and the parameter entry is active in the
+ * propagation time interval (see getParameterEntriesActiveInTimeInterval).
  * \param stateDerivativePartials List of state derivative partials of the propagation arc, per propagated state type
  * \param parameter Parameter for which the active entries are to be determined
  * \param propagationTimeInterval Minimum and maximum time of the propagation arc. If either is NaN, the time-dependence of
@@ -122,8 +121,7 @@ std::vector< bool > getParameterEntriesWithNonZeroSensitivity(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterValueType > > parameter,
         const std::pair< double, double >& propagationTimeInterval )
 {
-    if( estimatable_parameters::isParameterWithoutDynamicalInfluence( parameter->getParameterName( ).first ) ||
-        !doStateDerivativePartialsDependOnParameter( stateDerivativePartials, parameter ) )
+    if( !setParameterPartialUpdateFunctionsOfAllPartials( stateDerivativePartials, parameter ) )
     {
         return std::vector< bool >( parameter->getParameterSize( ), false );
     }
@@ -445,7 +443,7 @@ public:
      *  If sensitivity matrix columns are omitted (see getReduceSensitivityMatrixColumns), only the propagated columns are counted.
      *  \return Number of parameter values.
      */
-    double getNumberOfParameterValues( )
+    int getNumberOfParameterValues( )
     {
         return numberOfParameterValues_;
     }

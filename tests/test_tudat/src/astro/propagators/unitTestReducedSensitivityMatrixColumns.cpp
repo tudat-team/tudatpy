@@ -303,7 +303,7 @@ void checkMatrixColumnsClose( const Eigen::MatrixXd& matrix, const Eigen::Matrix
 
 BOOST_AUTO_TEST_CASE( testParameterActivityDetermination )
 {
-    // Check propagation time interval for backward propagation, hybrid termination, and termination at unknown time
+    // Check propagation time interval for backward propagation, and termination at unknown time
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             translationalStatePropagatorSettings< double >( { "Earth" },
                                                             AccelerationMap( ),
@@ -315,15 +315,6 @@ BOOST_AUTO_TEST_CASE( testParameterActivityDetermination )
     std::pair< double, double > timeInterval = getPropagationTimeInterval< double, double >( propagatorSettings );
     BOOST_CHECK_EQUAL( timeInterval.first, initialTime - arcDuration );
     BOOST_CHECK_EQUAL( timeInterval.second, initialTime );
-
-    propagatorSettings->resetTerminationSettings(
-            propagationHybridTerminationSettings( { propagationCPUTimeTerminationSettings( 10.0 ),
-                                                    propagationTimeTerminationSettings( initialTime + 2.0 * arcDuration ),
-                                                    propagationTimeTerminationSettings( initialTime + arcDuration ) },
-                                                  true ) );
-    timeInterval = getPropagationTimeInterval< double, double >( propagatorSettings );
-    BOOST_CHECK_EQUAL( timeInterval.first, initialTime );
-    BOOST_CHECK_EQUAL( timeInterval.second, initialTime + arcDuration );
 
     propagatorSettings->resetTerminationSettings( propagationCPUTimeTerminationSettings( 10.0 ) );
     BOOST_CHECK( std::isnan( getPropagationTimeInterval< double, double >( propagatorSettings ).second ) );

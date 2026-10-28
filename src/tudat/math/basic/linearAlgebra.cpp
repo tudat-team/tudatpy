@@ -12,7 +12,6 @@
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
-#include <string>
 
 #include <Eigen/LU>
 
@@ -241,60 +240,6 @@ double computeLeastSquaresCostFunctionFromFullWeights( const Eigen::SparseMatrix
     }
 
     return 0.5 * residual.dot( weightMatrix * residual );
-}
-
-//! Function to retrieve the blocks of consecutive values in a list of ascending indices
-std::vector< std::pair< int, int > > getConsecutiveIndexBlocks( const std::vector< int >& indices )
-{
-    std::vector< std::pair< int, int > > consecutiveIndexBlocks;
-    for( unsigned int i = 0; i < indices.size( ); i++ )
-    {
-        if( i > 0 && indices.at( i ) == indices.at( i - 1 ) + 1 )
-        {
-            consecutiveIndexBlocks.back( ).second++;
-        }
-        else
-        {
-            consecutiveIndexBlocks.push_back( std::make_pair( i, 1 ) );
-        }
-    }
-    return consecutiveIndexBlocks;
-}
-
-//! Function to set the columns of a matrix at given column indices of a larger matrix block
-void setMatrixColumns( const Eigen::MatrixXd& reducedMatrix,
-                       const std::vector< int >& columnIndices,
-                       const std::vector< std::pair< int, int > >& consecutiveIndexBlocks,
-                       Eigen::Block< Eigen::MatrixXd > fullMatrix )
-{
-    if( static_cast< int >( columnIndices.size( ) ) != reducedMatrix.cols( ) || reducedMatrix.rows( ) != fullMatrix.rows( ) )
-    {
-        throw std::runtime_error( "Error when setting matrix columns, number of column indices (" +
-                                  std::to_string( columnIndices.size( ) ) + ") or rows (" + std::to_string( fullMatrix.rows( ) ) +
-                                  ") is inconsistent with input matrix size (" + std::to_string( reducedMatrix.rows( ) ) + "x" +
-                                  std::to_string( reducedMatrix.cols( ) ) + ")." );
-    }
-
-    for( unsigned int i = 0; i < consecutiveIndexBlocks.size( ); i++ )
-    {
-        fullMatrix.block(
-                0, columnIndices.at( consecutiveIndexBlocks.at( i ).first ), fullMatrix.rows( ), consecutiveIndexBlocks.at( i ).second ) =
-                reducedMatrix.block(
-                        0, consecutiveIndexBlocks.at( i ).first, reducedMatrix.rows( ), consecutiveIndexBlocks.at( i ).second );
-    }
-}
-
-//! Function to place the columns of a matrix at given column indices of a larger matrix, with all other columns zero
-Eigen::MatrixXd expandMatrixColumns( const Eigen::MatrixXd& reducedMatrix,
-                                     const std::vector< int >& columnIndices,
-                                     const int numberOfColumns )
-{
-    Eigen::MatrixXd fullMatrix = Eigen::MatrixXd::Zero( reducedMatrix.rows( ), numberOfColumns );
-    setMatrixColumns( reducedMatrix,
-                      columnIndices,
-                      getConsecutiveIndexBlocks( columnIndices ),
-                      fullMatrix.block( 0, 0, reducedMatrix.rows( ), numberOfColumns ) );
-    return fullMatrix;
 }
 
 }  // namespace linear_algebra

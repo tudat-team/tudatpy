@@ -217,42 +217,6 @@ void computePartialDerivativeOfRotationMatrixWrtQuaternion( const Eigen::Vector4
 double computeLeastSquaresCostFunction( const Eigen::VectorXd& weightDiagonal, const Eigen::VectorXd& residual );
 double computeLeastSquaresCostFunctionFromFullWeights( const Eigen::SparseMatrix< double >& weightMatrix, const Eigen::VectorXd& residual );
 
-//! Function to retrieve the blocks of consecutive values in a list of ascending indices
-/*!
- * Function to retrieve the blocks of consecutive values in a list of ascending indices, used to efficiently copy matrix
- * columns with setMatrixColumns
- * \param indices List of ascending indices
- * \return For each block of consecutive values: position in indices of the first value (first) and number of values (second)
- */
-std::vector< std::pair< int, int > > getConsecutiveIndexBlocks( const std::vector< int >& indices );
-
-//! Function to set the columns of a matrix at given column indices of a larger matrix block
-/*!
- * Function to set the columns of a matrix at given column indices of a larger matrix block (e.g. to retrieve a full sensitivity
- * matrix from a sensitivity matrix in which zero columns were omitted). Columns of fullMatrix that are not in columnIndices are
- * not modified.
- * \param reducedMatrix Matrix of which the columns are to be placed in the larger matrix
- * \param columnIndices Column index in the larger matrix of each column of reducedMatrix (ascending)
- * \param consecutiveIndexBlocks Blocks of consecutive values in columnIndices (see getConsecutiveIndexBlocks)
- * \param fullMatrix Larger matrix block in which the columns of reducedMatrix are to be set (returned by reference)
- */
-void setMatrixColumns( const Eigen::MatrixXd& reducedMatrix,
-                       const std::vector< int >& columnIndices,
-                       const std::vector< std::pair< int, int > >& consecutiveIndexBlocks,
-                       Eigen::Block< Eigen::MatrixXd > fullMatrix );
-
-//! Function to place the columns of a matrix at given column indices of a larger matrix, with all other columns zero
-/*!
- * Function to place the columns of a matrix at given column indices of a larger matrix, with all other columns zero
- * \param reducedMatrix Matrix of which the columns are to be placed in the larger matrix
- * \param columnIndices Column index in the larger matrix of each column of reducedMatrix (ascending)
- * \param numberOfColumns Number of columns of the larger matrix
- * \return Larger matrix, with the columns of reducedMatrix at columnIndices, and zero otherwise
- */
-Eigen::MatrixXd expandMatrixColumns( const Eigen::MatrixXd& reducedMatrix,
-                                     const std::vector< int >& columnIndices,
-                                     const int numberOfColumns );
-
 }  // namespace linear_algebra
 
 }  // namespace tudat

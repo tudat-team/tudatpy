@@ -51,12 +51,12 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
         {
             if( reducedSensitivityMatrixColumns_.size( ) > 0 )
             {
-                linear_algebra::setMatrixColumns(
-                        sensitivityMatrixInterpolator_->interpolate( evaluationTime ),
-                        reducedSensitivityMatrixColumns_,
-                        reducedSensitivityMatrixColumnBlocks_,
-                        combinedStateTransitionMatrix_.block(
-                                0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) );
+                Eigen::MatrixXd reducedSensitivityMatrix = sensitivityMatrixInterpolator_->interpolate( evaluationTime );
+                for( unsigned int i = 0; i < reducedSensitivityMatrixColumns_.size( ); i++ )
+                {
+                    combinedStateTransitionMatrix_.col( stateTransitionMatrixSize_ + reducedSensitivityMatrixColumns_.at( i ) ) =
+                            reducedSensitivityMatrix.col( i );
+                }
             }
         }
         else if( sensitivityMatrixSize_ > 0 )

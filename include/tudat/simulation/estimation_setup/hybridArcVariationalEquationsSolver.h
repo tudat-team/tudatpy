@@ -411,8 +411,9 @@ protected:
         multiArcParametersToEstimate_ = std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
                 parametersToEstimate_->getEstimatedDoubleParameters( ),
                 parametersToEstimate_->getEstimatedVectorParameters( ),
-                extendedMultiArcParameters );
-        multiArcParametersToEstimate_->setReduceSensitivityMatrixColumns( parametersToEstimate_->getReduceSensitivityMatrixColumns( ) );
+                extendedMultiArcParameters,
+                nullptr,
+                parametersToEstimate_->getReduceSensitivityMatrixColumns( ) );
     }
 
     //! Function to reset the initial multi-arc states
