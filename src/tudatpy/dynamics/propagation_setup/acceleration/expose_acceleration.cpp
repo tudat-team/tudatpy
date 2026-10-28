@@ -1411,23 +1411,52 @@ AccelerationSettings
 
 Creates settings for tidal acceleration.
 
-Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+Creates settings for tidal accelerations. The effect of tides in a satellite system is applied directly as
 an acceleration (as opposed to a modification of spherical harmonic coefficients).
 The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
 particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
 effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
 to be tidally locked to the planet.
 
+The acceleration acts on the satellite :math:`S` (body undergoing the acceleration) and is exerted by the planet
+:math:`P` (body exerting the acceleration). The explicit expressions for both tides are given by :cite:t:`lari2018`.
+With :math:`\mathbf{r}=\mathbf{r}_{S}-\mathbf{r}_{P}` and :math:`\mathbf{v}=\mathbf{v}_{S}-\mathbf{v}_{P}` the position
+and velocity of the satellite w.r.t. the planet, and :math:`r=||\mathbf{r}||`, the acceleration due to the tide raised
+on the planet (``use_tide_raised_on_planet`` true) is:
+
+.. math::
+    \mathbf{a}=-3k_{2,P}\frac{\mu_{S}R_{P}^{5}}{r^{8}}\left(\mathbf{r}+\Delta t_{P}\left(2\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}+\mathbf{r}\times\boldsymbol{\omega}_{P}+\mathbf{v}\right)\right)
+
+The acceleration due to the tide raised on the satellite (``use_tide_raised_on_planet`` false) is:
+
+.. math::
+    \mathbf{a}=-3k_{2,S}\frac{\mu_{P}^{2}R_{S}^{5}}{\mu_{S}r^{8}}\left(\mathbf{r}+7\Delta t_{S}\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}\right)
+
+where the factor 7 accounts for both the radial and the librational tide of a satellite in synchronous rotation, with the
+dissipation due to the librational tide being 4/3 times that of the radial tide (:cite:t:`lari2018`). If
+``explicit_libraional_tide_on_satellite`` is true, this averaging is not used. Instead, the expression for the tide on the
+planet is used, scaled to the tide raised on the satellite:
+
+.. math::
+    \mathbf{a}=-3k_{2,S}\frac{\mu_{P}^{2}R_{S}^{5}}{\mu_{S}r^{8}}\left(\mathbf{r}+\Delta t_{S}\left(2\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}+\mathbf{r}\times\boldsymbol{\omega}_{P}+\mathbf{v}\right)\right)
+
+Here, :math:`\mu` denotes a gravitational parameter, :math:`k_{2}`, :math:`R` and :math:`\Delta t` the Love number,
+reference radius of the spherical harmonic gravity field and tidal time lag of the deformed body, and
+:math:`\boldsymbol{\omega}_{P}` the angular velocity vector of the planet. The first term in brackets, :math:`\mathbf{r}`,
+is independent of the time lag, and is omitted if ``include_direct_radial_component`` is false.
+
 Parameters
 ----------
 k2_love_number : float
     Value of the k2 Love number.
 time_lag : float
-    Value of the tidal time lag.
+    Value of the tidal time lag (in seconds).
 include_direct_radial_component : bool, default=True
     It denotes whether the term independent of the time lag is to be computed.
 use_tide_raised_on_planet : bool, default=True
     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+explicit_libraional_tide_on_satellite : bool, default=False
+    It denotes whether the tide raised on the satellite is computed with the expression for the tide on the planet, scaled to the tide on the satellite (if true), instead of the averaged expression with the factor 7 (if false). Cannot be set to true if ``use_tide_raised_on_planet`` is true.
 Returns
 -------
 DirectTidalDissipationAccelerationSettings
@@ -1444,11 +1473,11 @@ through the spherical harmonic gravity:
     love_number = 0.1
     time_lag = 100.0
     # Add entry to acceleration settings dict
-    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
-    love_number,
-    time_lag,
-    False,
-    False)]
+    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation_acceleration(
+        love_number,
+        time_lag,
+        False,
+        False)]
 
 
      )doc" );
@@ -1465,23 +1494,32 @@ through the spherical harmonic gravity:
 
 Creates settings for tidal acceleration.
 
-Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+Creates settings for tidal accelerations. The effect of tides in a satellite system is applied directly as
 an acceleration (as opposed to a modification of spherical harmonic coefficients).
 The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
 particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
 effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
 to be tidally locked to the planet.
 
+In this overload, the tidal time lag is not provided directly, but is computed from the inverse tidal quality factor
+:math:`Q^{-1}` and the tidal period :math:`T` as :math:`\Delta t = T\arctan(Q^{-1})/(2\pi)` (:cite:t:`lari2018`).
+The equations of the acceleration model are given in the documentation of the overload of this function that
+takes ``time_lag`` as input.
+
 Parameters
 ----------
 k2_love_number : float
     Value of the k2 Love number.
-time_lag : float
-    Value of the tidal time lag.
+inverse_tidal_quality_factor : float
+    Value of the inverse of the tidal quality factor :math:`Q`.
+tidal_period : float
+    Tidal period (in seconds) used to compute the tidal time lag from the tidal quality factor.
 include_direct_radial_component : bool, default=True
     It denotes whether the term independent of the time lag is to be computed.
 use_tide_raised_on_planet : bool, default=True
     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+explicit_libraional_tide_on_satellite : bool, default=False
+    It denotes whether the tide raised on the satellite is computed with the expression for the tide on the planet, scaled to the tide on the satellite (if true), instead of the averaged expression with the factor 7 (if false). Only used if ``use_tide_raised_on_planet`` is false.
 Returns
 -------
 DirectTidalDissipationAccelerationSettings
@@ -1496,11 +1534,13 @@ through the spherical harmonic gravity:
 
     # Define parameters
     love_number = 0.1
-    time_lag = 100.0
+    inverse_tidal_quality_factor = 0.01
+    tidal_period = 1.77 * 86400.0
     # Add entry to acceleration settings dict
-    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
+    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation_acceleration(
         love_number,
-        time_lag,
+        inverse_tidal_quality_factor,
+        tidal_period,
         False,
         False)]
 
