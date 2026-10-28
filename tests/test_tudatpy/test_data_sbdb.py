@@ -1,10 +1,9 @@
 import numpy as np
 import pytest
 from astropy import units as u
-from astropy.time import Time
 
-from tudatpy.data.sbdb import SBDBquery
 from tudatpy.astro.time_representation import DateTime
+from tudatpy.data_input.environment_data.sbdb import SBDBquery
 
 
 @pytest.fixture

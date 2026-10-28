@@ -1,17 +1,17 @@
 import pytest
 import pandas as pd
-from tudatpy.data.mpc import BatchMPC
-from tudatpy.data.mpc.parser_80col.parsers import (
-    parse_80cols_data,
-    parse_80cols_file,
-    identify_object,
-)
-from tudatpy.data.mpc.parser_80col.unpackers import (
-    unpack_permanent_minor_planet,
-    unpack_provisional_minor_planet,
-    unpack_provisional_comet_or_satellite,
-    unpack_permanent_natural_satellite,
-)
+import numpy as np
+from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.obs_80_cols import parsers, unpackers
+from tudatpy.data_input.tracking_data.optical_utilities import create_augmented_optical_table
+
+parse_80cols_data = parsers.parse_80cols_data
+parse_80cols_file = parsers.parse_80cols_file
+identify_object = parsers.identify_object
+unpack_permanent_minor_planet = unpackers.unpack_permanent_minor_planet
+unpack_provisional_minor_planet = unpackers.unpack_provisional_minor_planet
+unpack_provisional_comet_or_satellite = unpackers.unpack_provisional_comet_or_satellite
+unpack_permanent_natural_satellite = unpackers.unpack_permanent_natural_satellite
 
 # ==============================================================================
 # SECTION A: UNIT TESTS (Logic Only, Offline)
@@ -155,6 +155,72 @@ def test_80cols_line_parser_logic():
     assert ids[2] == "134341"  # 'D4341' -> 134341 Unpacking
     assert ids[3] == "2025 FA22"  # Provisional Unpacking
 
+    # Column 72 contains the catalogue code, between the band and reference.
+    assert parsed_table.to_pandas()["catalog"].fillna("").tolist() == ["W", "", "", "r"]
+
+    # The sample's paired S/s records must also preserve the parallax type and
+    # attach the spacecraft position, converted from kilometres to metres.
+    eros_row = parsed_table[1]
+    assert int(eros_row["spacecraft_parallax_type"]) == 1
+    np.testing.assert_allclose(eros_row["spacecraft_position_x"], -198301940.0)
+    np.testing.assert_allclose(eros_row["spacecraft_position_y"], 198171039.0)
+    np.testing.assert_allclose(eros_row["spacecraft_position_z"], 56287985.0)
+
+
+@pytest.mark.parametrize("catalog", ["U", "u", "?", " "])
+@pytest.mark.parametrize("space_based", [False, True])
+def test_80cols_preserves_catalog_code(catalog, space_based):
+    """Keep case and unrecognized codes; only a blank field means missing data."""
+    observation = "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+    observation = observation[:71] + catalog + observation[72:]
+    if space_based:
+        lines = [
+            observation,
+            "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57",
+        ]
+    else:
+        lines = [observation[:14] + "C" + observation[15:]]
+    table = parse_80cols_data(lines).to_pandas()
+    assert len(table) == 1
+    assert table["catalog"].fillna("").tolist() == [catalog.strip()]
+    assert table["band"].tolist() == ["V"]
+    assert table["observatory"].tolist() == ["500"]
+
+
+def test_80cols_parser_splits_concatenated_satellite_records():
+    # Check that an astroquery-style concatenated S/s pair is split and joined
+    # into one optical observation with its spacecraft position.
+    combined_satellite_record = (
+        "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+        "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
+    )
+
+    parsed_table = parse_80cols_data([combined_satellite_record])
+
+    # The parallax line must not become a second observation, and its position
+    # must be attached to the correctly unpacked Eros observation.
+    assert len(parsed_table) == 1
+    assert str(parsed_table["number"][0]) == "433"
+    np.testing.assert_allclose(parsed_table["spacecraft_position_x"][0], -198301940.0)
+
+
+def test_80cols_parser_handles_satellite_parallax_spacing():
+    # Check that signs separated from the digits in MPC spacecraft coordinates
+    # are parsed correctly and that kilometre values are converted to metres.
+    line_hst_valid = (
+        "     T1S1222  S1995 10 19.53839 23 45 35.737+09 09 38.13                     250"
+    )
+    line_hst_parallax = (
+        "     T1S1222  s1995 10 19.53839 1 + 5530.3041 - 4255.1515 -  550.2319        250"
+    )
+
+    parsed_table = parse_80cols_data([line_hst_valid, line_hst_parallax])
+
+    # All three signed position components must retain their sign and scale.
+    np.testing.assert_allclose(parsed_table["spacecraft_position_x"][0], 5530304.1)
+    np.testing.assert_allclose(parsed_table["spacecraft_position_y"][0], -4255151.5)
+    np.testing.assert_allclose(parsed_table["spacecraft_position_z"][0], -550231.9)
+
 
 def test_80cols_malformed_lines():
     """Tests that invalid line lengths or formats raise ValueError."""
@@ -167,6 +233,65 @@ def test_80cols_malformed_lines():
 
     with pytest.raises(ValueError, match="Invalid Separator"):
         parse_80cols_data([bad_fmt])
+
+
+@pytest.mark.parametrize(
+    "line, ra_degrees, dec_degrees",
+    [
+        (
+            "00001         A1801 01 11.79783 03 36 43.82 +16 55                      MC004535",
+            15 * (3 + 36 / 60 + 43.82 / 3600),
+            16 + 55 / 60,
+        ),
+        (
+            "00704J10T00C* A1910 10 03.05    01 04.6     +36 05                8.5   AN186037",
+            15 * (1 + 4.6 / 60),
+            36 + 5 / 60,
+        ),
+    ],
+)
+def test_80cols_historical_observations(line, ra_degrees, dec_degrees):
+    """Real Ceres/Interamnia records must load without discarding old astrometry."""
+    table = parse_80cols_data([line])
+    assert len(table) == 1
+    np.testing.assert_allclose(table["RA"], np.deg2rad(ra_degrees), rtol=0, atol=1e-14)
+    np.testing.assert_allclose(table["DEC"], np.deg2rad(dec_degrees), rtol=0, atol=1e-14)
+
+
+@pytest.mark.parametrize(
+    "ra, dec, ra_degrees, dec_degrees",
+    [
+        ("01 04", "+36 05", 16.0, 36 + 5 / 60),
+        ("01 04.6", "-00 05.5", 16.15, -5.5 / 60),
+        ("01 04.625", "+36 05.125", 15 * (1 + 4.625 / 60), 36 + 5.125 / 60),
+        ("01 04 36", "-36 05.5", 16.15, -(36 + 5.5 / 60)),
+        ("01 04.6", "+36 05 30.12", 16.15, 36 + 5 / 60 + 30.12 / 3600),
+    ],
+)
+def test_80cols_mixed_coordinate_precision(ra, dec, ra_degrees, dec_degrees):
+    line = "00704J10T00C* A1910 10 03.05    01 04.6     +36 05                8.5   AN186037"
+    table = parse_80cols_data([line[:32] + f"{ra:<12}{dec:<12}" + line[56:]])
+    np.testing.assert_allclose(table["RA"], np.deg2rad(ra_degrees), rtol=0, atol=1e-14)
+    np.testing.assert_allclose(table["DEC"], np.deg2rad(dec_degrees), rtol=0, atol=1e-14)
+
+
+@pytest.mark.parametrize(
+    "ra, dec",
+    [
+        ("01 60.1", "+36 05"),
+        ("01 04", "+36 60.1"),
+        ("01 04.6 12", "+36 05"),
+        ("01 04", "+36 05.5 12"),
+        ("01", "+36 05"),
+        ("01 04", "+36"),
+        ("01 04.xx", "+36 05"),
+        ("01x04.6", "+36 05"),
+    ],
+)
+def test_80cols_reduced_precision_still_rejects_malformed_coordinates(ra, dec):
+    line = "00704J10T00C* A1910 10 03.05    01 04.6     +36 05                8.5   AN186037"
+    with pytest.raises(ValueError, match="Parsing Error"):
+        parse_80cols_data([line[:32] + f"{ra:<12}{dec:<12}" + line[56:]])
 
 
 def test_parse_80cols_file_io(tmp_path):
@@ -274,12 +399,41 @@ def test_identify_object_types(row_data, expected_type, expected_name):
     assert result["unpacked_name"] == expected_name
 
 
+def test_survey_designation_is_unpacked():
+    """Route survey designations through the minor-planet unpacker."""
+    # Survey codes have a digit in position six but still use the minor-planet route.
+    row = pd.Series({"number": None, "provisional_designation": "T1S1222"})
+
+    # The packed survey code must be expanded to the canonical MPC designation.
+    assert parsers.identify_object(row)["unpacked_name"] == "1222 T-1"
+
+
 def test_identify_object_missing_ids():
     """Ensures error is raised if both ID columns are empty."""
     row = pd.Series({"number": "     ", "provisional_designation": "       "})
     # Updated match string to reflect actual error message in parser
     with pytest.raises(ValueError, match="Missing both permanent ID and provisional ID"):
         identify_object(row)
+
+
+def test_optical_table_accepts_phottype_without_band():
+    table = pd.DataFrame(
+        {
+            "number": ["3"],
+            "epoch": [2460860.448219],
+            "RA": [270.0],
+            "DEC": [-18.0],
+            "phottype": ["G"],
+            "observatory": ["598"],
+        }
+    )
+
+    augmented_table = create_augmented_optical_table(table)
+
+    assert "phottype" in augmented_table.columns
+    assert augmented_table["phottype"].tolist() == ["G"]
+    assert "band" in augmented_table.columns
+    assert augmented_table["band"].isna().all()
 
 
 # ==============================================================================
@@ -303,11 +457,9 @@ def test_batch_mpc_vs_parser_consistency():
     target_objects = ["3I", 134341, "2025 FA22", 433]
     target_types = ["comet_number", "asteroid_number", "asteroid_designation", "asteroid_number"]
 
-    try:
-        # Fetch expected names from MPC (The Source of Truth)
-        batch.get_observations(target_objects, id_types=target_types)
-    except Exception as e:
-        pytest.skip(f"Skipping online integration test: {e}")
+    # Fetch expected names from MPC (The Source of Truth). This includes 3I,
+    # whose MPC response currently exposes phottype without a band column.
+    batch.get_observations(target_objects, id_types=target_types)
 
     # Raw lines matching the query above
     lines_main = [
@@ -325,8 +477,10 @@ def test_batch_mpc_vs_parser_consistency():
     table_sat = parse_80cols_data(lines_sat)
 
     # Combine results (Order: 3I, 134341, 2025 FA22, 433)
-    parsed_ids = (
-        table_main["number"].astype(str).tolist() + table_sat["number"].astype(str).tolist()
+    parsed_ids = list(
+        dict.fromkeys(
+            table_main["number"].astype(str).tolist() + table_sat["number"].astype(str).tolist()
+        )
     )
 
     # Normalize BatchMPC objects to strings for comparison
