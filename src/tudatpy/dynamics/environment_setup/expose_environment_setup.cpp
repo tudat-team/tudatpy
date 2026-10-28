@@ -77,6 +77,10 @@ void expose_environment_setup_types( py::module& m )
 
     auto space_time_setup = m.def_submodule( "space_time" );
     space_time::expose_space_time_types( space_time_setup );
+
+    // Exposed before the environment module, which uses the Tle class
+    auto ephemeris_setup = m.def_submodule( "ephemeris" );
+    ephemeris::expose_ephemeris_types( ephemeris_setup );
 }
 
 std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > directRelativisticTimeConverterSettings(
