@@ -508,6 +508,46 @@ void expose_environment( py::module& m )
 
                 :type: str
                 )doc" )
+            .def( py::init<  // ctor 3
+                          const double,
+                          const double,
+                          const double,
+                          const double,
+                          const double,
+                          const double,
+                          const double,
+                          const double >( ),
+                  py::arg( "reference_epoch" ),
+                  py::arg( "b_star" ),
+                  py::arg( "inclination" ),
+                  py::arg( "right_ascension" ),
+                  py::arg( "eccentricity" ),
+                  py::arg( "argument_of_perigee" ),
+                  py::arg( "mean_anomaly" ),
+                  py::arg( "mean_motion" ),
+                  R"doc(
+
+                Initialize TLE object directly from SGP4 mean elements, for instance as provided by an Orbit Mean-Elements Message (OMM), for which no two-line representation is available.
+
+                Parameters
+                ----------
+                reference_epoch : float
+                    Reference epoch of the element set, in TDB seconds since J2000.
+                b_star : float
+                    B* drag coefficient, in inverse Earth radii.
+                inclination : float
+                    Inclination, in radians.
+                right_ascension : float
+                    Right ascension of the ascending node, in radians.
+                eccentricity : float
+                    Eccentricity.
+                argument_of_perigee : float
+                    Argument of perigee, in radians.
+                mean_anomaly : float
+                    Mean anomaly at the reference epoch, in radians.
+                mean_motion : float
+                    Mean motion, in radians per minute.
+                )doc" )
             .def_property_readonly( "reference_epoch",
                                     &te::Tle::getEpoch,
                                     R"doc(

@@ -987,6 +987,34 @@ void expose_ephemeris_setup( py::module& m )
 
      )doc" );
 
+    m.def( "sgp4",
+           &tss::directTleEphemerisSettings,
+           py::arg( "tle" ),
+           py::arg( "frame_origin" ) = "Earth",
+           py::arg( "frame_orientation" ) = "J2000",
+           R"doc(
+
+ Function for creating ephemeris model settings for an SGP4-propagated TLE object.
+
+ As the version of this function that takes the two lines of the TLE as input, but taking a :class:`~tudatpy.dynamics.environment.Tle` object instead.
+ This allows SGP4 ephemerides to be created for element sets without a two-line representation (for instance from an Orbit Mean-Elements Message),
+ using the element-based constructor of :class:`~tudatpy.dynamics.environment.Tle`.
+
+ Parameters
+ ----------
+ tle : Tle
+     TLE object containing the SGP4 mean elements
+ frame_origin : str, default="Earth"
+     Origin of frame in which ephemeris data is defined. At present, only "Earth" is supported.
+ frame_orientation : str, default="J2000"
+     Orientation of frame in which ephemeris data is defined.
+ Returns
+ -------
+ DirectTleEphemerisSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.DirectTleEphemerisSettings` class
+
+     )doc" );
+
     m.def( "constant",
            &tss::constantEphemerisSettings,
            py::arg( "constant_state" ),
