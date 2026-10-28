@@ -16,6 +16,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
 
 namespace tudat
@@ -335,10 +336,13 @@ std::pair< double, double > readShadrGravityFieldFile( const std::string& fileNa
     const double gravitationalParameter = std::stod( header.at( 1 ) ) * 1.0E9;
     const int fileMaximumDegree = std::stoi( header.at( 3 ) );
     const int fileMaximumOrder = std::stoi( header.at( 4 ) );
-    if( std::stoi( header.at( 5 ) ) != 1 )
+    // Normalization state 0 denotes unnormalized, and 1 normalized, coefficients
+    const int normalizationState = std::stoi( header.at( 5 ) );
+    if( normalizationState != 0 && normalizationState != 1 )
     {
         throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName +
-                                  ", only files with normalized coefficients (normalization state 1) are supported." );
+                                  ", only files with unnormalized (normalization state 0) or normalized (normalization state 1) "
+                                  "coefficients are supported." );
     }
     if( maximumDegree > fileMaximumDegree || maximumOrder > fileMaximumOrder )
     {
@@ -372,7 +376,9 @@ std::pair< double, double > readShadrGravityFieldFile( const std::string& fileNa
     }
 
     cosineCoefficients( 0, 0 ) = 1.0;
-    coefficients = std::make_pair( cosineCoefficients, sineCoefficients );
+    coefficients = ( normalizationState == 0 )
+            ? basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients( cosineCoefficients, sineCoefficients )
+            : std::make_pair( cosineCoefficients, sineCoefficients );
 
     return std::make_pair( gravitationalParameter, referenceRadius );
 }

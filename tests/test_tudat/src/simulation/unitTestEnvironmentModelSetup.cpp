@@ -2133,6 +2133,25 @@ BOOST_AUTO_TEST_CASE( test_shadrGravityFieldFileReading )
     expectedSineCoefficients( 2, 2 ) = -4.8939418702301600E-05;
     BOOST_CHECK( gravityFieldSettings->getCosineCoefficients( ) == expectedCosineCoefficients );
     BOOST_CHECK( gravityFieldSettings->getSineCoefficients( ) == expectedSineCoefficients );
+
+    // Check that unnormalized coefficients (normalization state 0) are normalized
+    {
+        std::ofstream file( fileName );
+        file << "7.1492000000000000E+04, 1.2668653500000000E+08, 0.0000000000000000E+00,    2,    2,    0, "
+                "0.0000000000000000E+00, 0.0000000000000000E+00\n";
+        file << "    2,    0,-1.0000000000000000E-03, 0.0000000000000000E+00, 0.0000000000000000E+00, 0.0000000000000000E+00\n";
+        file << "    2,    2, 2.0000000000000000E-04,-1.0000000000000000E-04, 0.0000000000000000E+00, 0.0000000000000000E+00\n";
+    }
+    gravityFieldSettings = shadrSphericalHarmonicsGravityFieldSettings( fileName, 2, 2 );
+    std::filesystem::remove( fileName );
+
+    // Normalization factors sqrt( ( 2 - delta_0m ) * ( 2n + 1 ) * ( n - m )! / ( n + m )! )
+    const double normalizationFactor20 = std::sqrt( 5.0 );
+    const double normalizationFactor22 = std::sqrt( 10.0 / 24.0 );
+    BOOST_CHECK_EQUAL( gravityFieldSettings->getCosineCoefficients( )( 0, 0 ), 1.0 );
+    BOOST_CHECK_CLOSE_FRACTION( gravityFieldSettings->getCosineCoefficients( )( 2, 0 ), -1.0E-3 / normalizationFactor20, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( gravityFieldSettings->getCosineCoefficients( )( 2, 2 ), 2.0E-4 / normalizationFactor22, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( gravityFieldSettings->getSineCoefficients( )( 2, 2 ), -1.0E-4 / normalizationFactor22, 1.0E-14 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

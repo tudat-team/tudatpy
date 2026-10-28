@@ -637,7 +637,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function to load spherical harmonics gravity field settings from a file in the Planetary Data System (PDS) spherical harmonics
  ASCII data record (SHADR) format, as described `here <https://atmos.nmsu.edu/PDS/data/jnogrv_0002/DOCUMENT/SHADR.ASC>`__.
  The reference radius and gravitational parameter are read from the header record of the file, and converted from km and
- km^3/s^2 to m and m^3/s^2, respectively. Only files with **fully normalized** coefficients (normalization state 1 in the header) are supported.
+ km^3/s^2 to m and m^3/s^2, respectively. Files with fully normalized coefficients (normalization state 1 in the header) and unnormalized
+ coefficients (normalization state 0) are supported. Unnormalized coefficients are converted to fully normalized coefficients
+ (see :func:`~tudatpy.astro.gravitation.normalize_spherical_harmonic_coefficients`).
  Coefficients that are not defined in the file are set to zero, and covariance records in the file are ignored.
 
  Parameters
