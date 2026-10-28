@@ -466,6 +466,7 @@ void expose_estimation_analysis( py::module& m )
                             const Eigen::MatrixXd,
                             const Eigen::VectorXd,
                             const bool,
+                            const bool,
                             const bool >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -476,6 +477,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
                   py::arg( "apply_apriori_parameter_deviation" ) = false,
+                  py::arg( "reset_parameters_to_best_iteration" ) = false,
                   R"doc(
 
          Class constructor.
@@ -496,13 +498,17 @@ void expose_estimation_analysis( py::module& m )
          consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
              Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
          apply_final_parameter_correction : bool, default = True
-             Whether to add the parameter vector with the correction computed in the final iteration (for which the performance has *not*
-             been computed) to the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.parameter_history`. Regardless of
-             this setting, the simulation models are set to the parameters of the best iteration after the estimation.
+             Whether to apply the final estimated parameter correction to the simulation models after convergence. Only used to set
+             the simulation models if ``reset_parameters_to_best_iteration`` is ``False``.
          apply_apriori_parameter_deviation : bool, default = False
              Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
              of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
              each differential correction independently.
+         reset_parameters_to_best_iteration : bool, default = False
+             Whether to set the estimated parameters (in the ``parameters_to_estimate``) to those of the best iteration of the
+             estimation after the estimation is finished. If ``False``, they are set to those of the last iteration (see
+             :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`). Setting this to ``False`` is deprecated,
+             and prints a warning: the default will change to ``True``, after which this input will be removed.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`

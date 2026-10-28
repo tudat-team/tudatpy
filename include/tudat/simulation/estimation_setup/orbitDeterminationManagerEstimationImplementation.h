@@ -371,10 +371,21 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     // Reset parameters to the best iteration (residuals in the observation collection are already from the best iteration). Note
     // that the environment (e.g. ephemerides of propagated bodies) is not reset, and corresponds to the last propagation.
-    if( bestIteration >= 0 )
+    if( estimationInput->resetParametersToBestIteration_ )
     {
-        parametersToEstimate_->template resetParameterValues< ObservationScalarType >( bestParameterEstimate );
-        currentParameterEstimate_ = bestParameterEstimate;
+        if( bestIteration >= 0 )
+        {
+            parametersToEstimate_->template resetParameterValues< ObservationScalarType >( bestParameterEstimate );
+            currentParameterEstimate_ = bestParameterEstimate;
+        }
+    }
+    else
+    {
+        std::cerr << "Warning: after the estimation, the estimated parameters are set to those of the last iteration, instead of the "
+                     "best iteration. This behaviour is deprecated, and will be removed in a future version. Set the "
+                     "reset_parameters_to_best_iteration input of the EstimationInput to true to use the parameters of the best "
+                     "iteration (and remove this warning)."
+                  << std::endl;
     }
 
     // Create estimation output object

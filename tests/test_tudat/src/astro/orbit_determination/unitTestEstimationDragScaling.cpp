@@ -162,6 +162,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationDragScaling )
         std::shared_ptr< EstimationInput< double > > estimationInput =
                 std::make_shared< EstimationInput< double > >( observationCollection );
         estimationInput->defineEstimationSettings( 0, 1, 0, 1, 1, 1 );
+        estimationInput->resetParametersToBestIteration_ = true;
 
         std::shared_ptr< EstimationOutput<> > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
