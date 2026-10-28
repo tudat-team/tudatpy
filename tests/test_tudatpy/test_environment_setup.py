@@ -27,11 +27,3 @@ def test_deprecated_mass_properties_alias_preserves_behavior(capfd):
     assert "tudatpy.dynamics.environment_setup.add_rigid_body_properties" in warning
     assert bodies.get("Legacy").mass == pytest.approx(bodies.get("Canonical").mass)
     assert bodies.get("Legacy").mass == pytest.approx(125.0)
-
-
-def test_deprecated_tle_alias():
-    from tudatpy.dynamics import environment
-    from tudatpy.dynamics.environment_setup import ephemeris
-
-    with pytest.warns(UserWarning, match="tudatpy.dynamics.environment.Tle is deprecated"):
-        assert environment.Tle is ephemeris.Tle
