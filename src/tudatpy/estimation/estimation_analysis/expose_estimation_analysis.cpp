@@ -873,6 +873,16 @@ void expose_estimation_analysis( py::module& m )
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
+            .def_property_readonly( "residual_times",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualTimes,
+                                    R"doc(
+
+         **read-only**
+
+         Observation times corresponding to the entries of the residual vectors (in :attr:`final_residuals` and :attr:`residual_history`), in the same order as :attr:`~tudatpy.estimation.observations.ObservationCollection.concatenated_times` of the observation collection used in the estimation.
+
+         :type: list[float]
+      )doc" )
             .def_property_readonly( "parameter_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getParameterHistoryMatrix,
                                     R"doc(

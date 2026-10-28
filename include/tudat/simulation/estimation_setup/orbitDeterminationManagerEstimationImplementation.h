@@ -389,6 +389,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                      exceptionDuringPropagation,
                                                                                      bestInterArcContinuityCost,
                                                                                      bestInterArcContinuityDiscrepancies );
+    estimationOutput->setResidualTimes( estimationInput->getObservationCollection( )->getConcatenatedDoubleTimeVector( ) );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {
