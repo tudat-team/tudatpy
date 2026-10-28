@@ -41,7 +41,8 @@ enum ObservationDependentVariables {
     integration_time_dependent_variable,
     retransmission_delays_dependent_variable,
     link_end_epochs_dependent_variable,
-    light_time_correction_components
+    light_time_correction_components,
+    light_time_dependent_variable
 };
 
 //! Function checking whether the interlinks between two link ends are compatible (i.e., for both the originating and receiving ends of the interlink,
@@ -607,7 +608,8 @@ inline std::shared_ptr< ObservationDependentVariableSettings > azimuthAngleDepen
             station_azimuth_angle, linkEndId, linkEndRole, originatingLinkEndId, originatingLinkEndRole, integratedObservableHandling );
 }
 
-//! Function to create a dependent variable computing the range between the two ends of the link
+//! Function to create a dependent variable computing the distance between the positions of two consecutive link ends, each evaluated at
+//! its own link-end time (light-time corrections affect these times, but are not included in the distance)
 inline std::shared_ptr< ObservationDependentVariableSettings > targetRangeBetweenLinkEndsDependentVariable(
         const LinkEndType startLinkEndType = unidentified_link_end,
         const LinkEndType endLinkEndType = unidentified_link_end,
@@ -617,6 +619,19 @@ inline std::shared_ptr< ObservationDependentVariableSettings > targetRangeBetwee
 {
     return std::make_shared< InterlinkObservationDependentVariableSettings >(
             target_range, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling );
+}
+
+//! Function to create a dependent variable computing the light time of a single leg (between two consecutive link ends), as solved by
+//! the observation model (including light-time corrections, excluding link-end delays)
+inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeBetweenLinkEndsDependentVariable(
+        const LinkEndType startLinkEndType = unidentified_link_end,
+        const LinkEndType endLinkEndType = unidentified_link_end,
+        const LinkEndId startLinkEndId = LinkEndId( "", "" ),
+        const LinkEndId endLinkEndId = LinkEndId( "", "" ),
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
+{
+    return std::make_shared< InterlinkObservationDependentVariableSettings >(
+            light_time_dependent_variable, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling );
 }
 
 //! Function to create a dependent variable computing the link avoidance angle w.r.t. a given body
