@@ -17,12 +17,40 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h"
 
 namespace tudat
 {
 
 namespace observation_models
 {
+
+//! Whether ancillary settings select a celestial frame and/or stellar aberration for angular position observables.
+/*!
+ * The settings are those of the position angle observable (position_angle_reference_frame, position_angle_reference_epoch and
+ * position_angle_use_stellar_aberration). If none is set, right ascension and declination are given in the global frame.
+ */
+inline bool useAngularPositionFrameSettings( const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+{
+    return ancillarySettings != nullptr &&
+            ( ancillarySettings->hasAncillaryIntData( position_angle_reference_frame ) ||
+              ancillarySettings->hasAncillaryIntData( position_angle_use_stellar_aberration ) );
+}
+
+//! Direction from receiver to transmitter, optionally aberrated, rotated from the global frame to the frame selected by ancillary settings
+inline Eigen::Vector3d getAngularPositionDirectionInSelectedFrame(
+        const Eigen::Vector3d& relativePosition,
+        const Eigen::Vector3d& receiverVelocity,
+        const double receptionTime,
+        const Eigen::Matrix3d& j2000ToGlobalFrameTransformation,
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+{
+    const Eigen::Vector3d direction = getPositionAngleUseStellarAberration( ancillarySettings )
+            ? calculateApparentDirectionWithStellarAberration( relativePosition, receiverVelocity )
+            : relativePosition;
+    return getPositionAngleReferenceFrameRotationFromJ2000( receptionTime, ancillarySettings ) *
+            j2000ToGlobalFrameTransformation.transpose( ) * direction;
+}
 
 //! Class for simulating angular position (right ascension/declination) observables.
 /*!
@@ -49,7 +77,8 @@ public:
             const LinkEnds linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr,
-            const bool normalizeRightAscension = false ):
+            const bool normalizeRightAscension = false,
+            const Eigen::Matrix3d& j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( ) ):
         ObservationModel< 2, ObservationScalarType, TimeType >(
                 angular_position,
                 linkEnds,
@@ -60,7 +89,7 @@ public:
                                 lightTimeCalculator },
                         std::make_shared< LightTimeConvergenceCriteria >( ),
                         false ) } ),
-        normalizeRightAscension_( normalizeRightAscension )
+        normalizeRightAscension_( normalizeRightAscension ), j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation )
     {}
 
     //! Destructor
@@ -93,17 +122,21 @@ public:
                 getLightTimeCalculator( );
         this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator, ancillarySetingsInput, ancillarySetings );
 
-        if( ancillarySetings != nullptr )
-        {
-            throw std::runtime_error( "Error, calling angular position observable with ancillary settings, but none are supported." );
-        }
-
         this->getFullLinkLightTimeCalculatorFromBase( )->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
                 linkEndStates.at( 0 ).template cast< ObservationScalarType >( ).segment( 0, 3 ) -
                 linkEndStates.at( 1 ).template cast< ObservationScalarType >( ).segment( 0, 3 );
+        if( useAngularPositionFrameSettings( ancillarySetingsInput ) )
+        {
+            relativePosition = getAngularPositionDirectionInSelectedFrame( relativePosition.template cast< double >( ),
+                                                                           linkEndStates.at( 1 ).segment( 3, 3 ),
+                                                                           linkEndTimes.at( 1 ),
+                                                                           j2000ToGlobalFrameTransformation_,
+                                                                           ancillarySetingsInput )
+                                       .template cast< ObservationScalarType >( );
+        }
 
         // Return observable
         double rightAscension = 2.0 *
@@ -144,6 +177,11 @@ public:
         return normalizeRightAscension_;
     }
 
+    const Eigen::Matrix3d& getJ2000ToGlobalFrameTransformation( ) const
+    {
+        return j2000ToGlobalFrameTransformation_;
+    }
+
     ResidualWrappingSettings getResidualWrappingSettings( ) const override
     {
         ResidualWrappingSettings residualWrappingSettings;
@@ -153,6 +191,9 @@ public:
 
 private:
     bool normalizeRightAscension_;
+
+    //! Rotation from ICRF/J2000 to the frame of the link-end states, used when a celestial frame is selected
+    Eigen::Matrix3d j2000ToGlobalFrameTransformation_;
 };
 
 }  // namespace observation_models

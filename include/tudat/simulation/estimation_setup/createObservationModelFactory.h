@@ -1874,7 +1874,12 @@ public:
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias,
-                        observationSettings->useNormalization_ );
+                        observationSettings->useNormalization_,
+                        // Only used for observations with celestial frame ancillary settings (NaN if not defined)
+                        ( bodies.getFrameOrientation( ) == "J2000" || bodies.getFrameOrientation( ) == "ICRF" ||
+                          bodies.getFrameOrientation( ) == "ECLIPJ2000" )
+                                ? getJ2000ToGlobalFrameTransformation( bodies )
+                                : Eigen::Matrix3d::Constant( TUDAT_NAN ) );
 
                 break;
             }

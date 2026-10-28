@@ -28,6 +28,11 @@ namespace tudat
 namespace observation_models
 {
 
+//! Return the rotation from ICRF/J2000 to the celestial frame selected by ancillary settings (not defined for a custom pole).
+Eigen::Matrix3d getPositionAngleReferenceFrameRotationFromJ2000(
+        const double observationTime,
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr );
+
 //! Return the celestial north-pole direction selected by ancillary settings, expressed in ICRF/J2000.
 /*!
  * \param observationTime Observation reception time in TDB seconds since J2000. This epoch is used for a time-dependent frame unless

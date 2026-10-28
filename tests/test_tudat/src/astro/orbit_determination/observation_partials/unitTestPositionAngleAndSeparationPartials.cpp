@@ -225,6 +225,10 @@ BOOST_AUTO_TEST_CASE( testAberratedPositionAngleAndSeparationPartials )
     linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MSL" );
     linkEnds[ transmitter2 ] = std::make_pair< std::string, std::string >( "Moon", "" );
 
+    LinkDefinition angularPositionLinkEnds;
+    angularPositionLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "Graz" );
+    angularPositionLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MSL" );
+
     const std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettingsList = {
         getPositionAngleAncillarySettings( j2000_position_angle_reference_frame, TUDAT_NAN, true ),
         getPositionAngleAncillarySettings( true_of_date_iau_2006_2000a_position_angle_reference_frame, TUDAT_NAN, true )
@@ -237,6 +241,9 @@ BOOST_AUTO_TEST_CASE( testAberratedPositionAngleAndSeparationPartials )
                 std::make_shared< ObservationModelSettings >( separation_distance, linkEnds ), ancillarySettings );
         checkAberratedPositionAngleAndSeparationPartials< 2 >(
                 std::make_shared< ObservationModelSettings >( position_angle_and_separation, linkEnds ), ancillarySettings );
+        // Angular position in the same celestial frame, with stellar aberration
+        checkAberratedPositionAngleAndSeparationPartials< 2 >(
+                std::make_shared< ObservationModelSettings >( angular_position, angularPositionLinkEnds ), ancillarySettings );
     }
 }
 
