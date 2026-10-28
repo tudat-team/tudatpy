@@ -460,6 +460,40 @@ void expose_observations_io_bindings( py::module& m )
             A new observation collection with compressed Doppler data.
         )doc" );
 
+    m.def( "create_count_time_compressed_doppler_collection",
+           &tom::createCountTimeCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "bodies" ),
+           py::arg( "target_count_time" ),
+           py::arg( "minimum_number_of_observations" ) = 10,
+           py::arg( "max_arc_gap" ) = 300.0,
+           R"doc(
+        Create a Doppler observation collection compressed to a target count time.
+
+        Same as :func:`create_compressed_doppler_collection`, but with the number of observations to average determined
+        separately for each observation set, from its count time and the ``target_count_time``. The ground station
+        positions used for the time scale conversions are taken from the ground stations on Earth in ``bodies``.
+
+        Parameters
+        ----------
+        original_observation_collection : tudatpy.estimation.observations.ObservationCollection
+            The original observation collection containing Doppler data.
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
+            System of bodies, containing the Earth with the ground stations of the Doppler observations.
+        target_count_time : float
+            Count time (in seconds) of the compressed observations, which must be an integer multiple of the count time of each
+            observation set.
+        minimum_number_of_observations : int, optional
+            The minimum number of observations required in an arc to be considered for compression, by default 10.
+        max_arc_gap : float, optional
+            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationCollection
+            A new observation collection with compressed Doppler data.
+        )doc" );
+
     m.def(
             "create_tracking_txtfile_observation_collection",
             []( const std::shared_ptr< tudat::input_output::TrackingTxtFileContents > rawTrackingTxtFileContents,

@@ -42,6 +42,8 @@ Functions
 
    create_observation_collection_from_tracking_data
 
+   create_count_time_compressed_doppler_collection
+
    create_observation_collection_from_arrays
 
    create_single_type_observation_collection_from_arrays
@@ -70,6 +72,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observations.create_new_observation_collection
 
 .. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_tracking_data
+
+.. autofunction:: tudatpy.estimation.observations.create_count_time_compressed_doppler_collection
 
 .. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_arrays
 

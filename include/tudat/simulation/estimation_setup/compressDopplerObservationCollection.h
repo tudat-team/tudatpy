@@ -9,10 +9,13 @@
  *
  */
 
+#include <functional>
 #include <memory>
 
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 
@@ -132,14 +135,36 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             ancillarySimulationSettings );
 }
 
+//! Function to compute the number of Doppler observations to average to obtain a given count time
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
+unsigned int getDopplerCompressionRatio(
+        const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
+        const double targetCountTime )
+{
+    const double countTimeTolerance = 0.01;
+    double currentCountTime = originalDopplerData->getAncillarySettings( )->getAncillaryDoubleData(
+            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
+
+    unsigned int compressionRatio = static_cast< unsigned int >( std::round( targetCountTime / currentCountTime ) );
+    if( compressionRatio == 0 ||
+        std::fabs( static_cast< double >( compressionRatio ) * currentCountTime - targetCountTime ) > countTimeTolerance )
+    {
+        throw std::runtime_error( "Error in Doppler data compression, target count time " + std::to_string( targetCountTime ) +
+                                  " s is not an integer multiple of the count time " + std::to_string( currentCountTime ) + " s." );
+    }
+    return compressionRatio;
+}
+
+//! Function to compress Doppler data, with the compression ratio of each (split) observation set provided by a function
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
+createCompressedDopplerCollectionFromRatioFunction(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio,
-        const unsigned int minNumberObservations = 10,
-        const double maxArcGap = 300.0,
-        std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions =
-                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+        const std::function< unsigned int( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > ) >
+                compressionRatioFunction,
+        const unsigned int minNumberObservations,
+        const double maxArcGap,
+        std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions )
 {
     // Split Doppler observation sets into arcs
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
@@ -157,8 +182,9 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         for( unsigned int index = 0; index < observationSets.size( ); index++ )
         {
             std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressedDataSet =
-                    compressDopplerData< ObservationScalarType, TimeType >(
-                            observationSets.at( index ), compressionRatio, approximateGroundStationPositions );
+                    compressDopplerData< ObservationScalarType, TimeType >( observationSets.at( index ),
+                                                                            compressionRatioFunction( observationSets.at( index ) ),
+                                                                            approximateGroundStationPositions );
 
             if( compressedDataSet->getObservationTimes( ).size( ) )
             {
@@ -176,6 +202,53 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             { { observation_models::ObservableType::dsn_n_way_averaged_doppler, indicesSetsToRemove } } );
 
     return compressedData;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
+        const unsigned int compressionRatio,
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0,
+        std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions =
+                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    return createCompressedDopplerCollectionFromRatioFunction< ObservationScalarType, TimeType >(
+            originalDopplerData,
+            [ = ]( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > ) { return compressionRatio; },
+            minNumberObservations,
+            maxArcGap,
+            approximateGroundStationPositions );
+}
+
+//! Function to retrieve the nominal Earth-fixed positions of all ground stations on Earth
+inline std::map< std::string, Eigen::Vector3d > getEarthGroundStationPositions( const simulation_setup::SystemOfBodies& bodies )
+{
+    std::map< std::string, Eigen::Vector3d > groundStationPositions;
+    for( const auto& groundStation : bodies.at( "Earth" )->getGroundStationMap( ) )
+    {
+        groundStationPositions[ groundStation.first ] = groundStation.second->getNominalStationState( )->getNominalCartesianPosition( );
+    }
+    return groundStationPositions;
+}
+
+//! Function to compress Doppler data to a target count time, using the ground station positions in the bodies
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCountTimeCompressedDopplerCollection(
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
+        const simulation_setup::SystemOfBodies& bodies,
+        const double targetCountTime,
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0 )
+{
+    return createCompressedDopplerCollectionFromRatioFunction< ObservationScalarType, TimeType >(
+            originalDopplerData,
+            [ = ]( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet ) {
+                return getDopplerCompressionRatio< ObservationScalarType, TimeType >( observationSet, targetCountTime );
+            },
+            minNumberObservations,
+            maxArcGap,
+            getEarthGroundStationPositions( bodies ) );
 }
 }  // namespace observation_models
 }  // namespace tudat
