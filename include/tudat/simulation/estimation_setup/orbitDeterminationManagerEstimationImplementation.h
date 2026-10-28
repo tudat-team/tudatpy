@@ -85,6 +85,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     std::vector< ParameterVectorType > parameterHistory;
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration;
 
+    // Dynamics results of the best iteration, used to reset the environment to the best iteration after the estimation
+    std::vector< std::shared_ptr< propagators::SingleArcSimulationResults< ObservationScalarType, TimeType > > > bestDynamicsResults;
+    bool environmentIsFromBestIteration = true;
+
     // Inter-arc continuity-prior setup. Empty constraint list (the default) skips the feature entirely.
     const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
     double bestInterArcContinuityCost = 0.0;
@@ -120,6 +124,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                         estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = designMatricesAndResiduals.second;
         Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
+        environmentIsFromBestIteration = false;
         Eigen::MatrixXd designMatrixConsiderParameters;
         designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
 
@@ -317,6 +322,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             bestTransformationData = std::move( normalizationTerms );
             bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
             bestIteration = numberOfIterations;
+            if( integrateAndEstimateOrbit_ )
+            {
+                bestDynamicsResults.clear( );
+                for( const auto& dynamicsResults : variationalEquationsSolver_->getEnvironmentDynamicsResults( ) )
+                {
+                    bestDynamicsResults.push_back( dynamicsResults->cloneDerived( ) );
+                }
+            }
+            environmentIsFromBestIteration = true;
             bestConsiderTransformationData = std::move( normalizationTermsConsider );
             bestConsiderCovarianceContribution = covarianceContributionConsiderParameters;
             if( !interArcConstraints.empty( ) )
@@ -367,6 +381,44 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         std::cout << "Best iteration: " << bestIteration << " out of " << numberOfIterations - 1 << std::endl;
         std::cout << "Rms residual from best iteration: " << bestRmsResidual << std::endl;
         std::cout << "Cost function from best iteration: " << bestCostFunction << std::endl;
+    }
+
+    // Reset parameters and environment to the best iteration (residuals in the observation collection are already from the best
+    // iteration). The environment is reset from the stored propagation results, without an additional propagation.
+    if( bestIteration >= 0 )
+    {
+        parametersToEstimate_->template resetParameterValues< ObservationScalarType >( bestParameterEstimate );
+        currentParameterEstimate_ = bestParameterEstimate;
+
+        if( integrateAndEstimateOrbit_ && !environmentIsFromBestIteration )
+        {
+            std::vector< std::shared_ptr< propagators::SingleArcSimulationResults< ObservationScalarType, TimeType > > >
+                    currentDynamicsResults = variationalEquationsSolver_->getEnvironmentDynamicsResults( );
+            bool bestDynamicsResultsAvailable = ( bestDynamicsResults.size( ) == currentDynamicsResults.size( ) );
+            for( const auto& dynamicsResults : bestDynamicsResults )
+            {
+                bestDynamicsResultsAvailable =
+                        bestDynamicsResultsAvailable && !dynamicsResults->getEquationsOfMotionNumericalSolution( ).empty( );
+            }
+
+            if( bestDynamicsResultsAvailable )
+            {
+                for( unsigned int i = 0; i < currentDynamicsResults.size( ); i++ )
+                {
+                    currentDynamicsResults.at( i )->getEquationsOfMotionNumericalSolution( ) =
+                            bestDynamicsResults.at( i )->getEquationsOfMotionNumericalSolution( );
+                    currentDynamicsResults.at( i )->getDependentVariableHistory( ) =
+                            bestDynamicsResults.at( i )->getDependentVariableHistory( );
+                }
+                variationalEquationsSolver_->processEnvironmentDynamicsResults( );
+            }
+            else
+            {
+                std::cerr << "Warning when estimating parameters, propagation results of best iteration are not available (numerical "
+                             "solutions are cleared after propagation), environment is not reset to best iteration."
+                          << std::endl;
+            }
+        }
     }
 
     // Create estimation output object

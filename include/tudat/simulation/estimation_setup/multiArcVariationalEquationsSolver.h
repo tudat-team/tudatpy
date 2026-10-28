@@ -352,6 +352,16 @@ public:
         return getDynamicsSimulator( );
     }
 
+    std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > getEnvironmentDynamicsResults( )
+    {
+        return dynamicsSimulator_->getMultiArcPropagationResults( )->getSingleArcResults( );
+    }
+
+    void processEnvironmentDynamicsResults( )
+    {
+        dynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
+    }
+
     //! Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations.
     /*!
      *  Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations

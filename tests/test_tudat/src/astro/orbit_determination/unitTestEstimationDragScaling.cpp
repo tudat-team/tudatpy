@@ -165,6 +165,22 @@ BOOST_AUTO_TEST_CASE( test_EstimationDragScaling )
 
         std::shared_ptr< EstimationOutput<> > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
+        // Check that, after the estimation, the parameters and environment are those of the best iteration
+        Eigen::VectorXd parameterDifference =
+                parametersToEstimate->getFullParameterValues< double >( ) - estimationOutput->parameterEstimate_;
+        BOOST_CHECK_SMALL( parameterDifference.norm( ), 1.0E-14 * estimationOutput->parameterEstimate_.norm( ) );
+
+        std::map< double, Eigen::VectorXd > bestIterationStateHistory =
+                std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< double, double > >(
+                        estimationOutput->getSimulationResults( ).at( estimationOutput->bestIteration_ ) )
+                        ->getDynamicsResults( )
+                        ->getEquationsOfMotionNumericalSolution( );
+        auto bestIterationStateIterator = std::next( bestIterationStateHistory.begin( ), bestIterationStateHistory.size( ) / 2 );
+        Eigen::Vector6d stateDifference = bodies.at( "MGS" )->getEphemeris( )->getCartesianState( bestIterationStateIterator->first ) -
+                bestIterationStateIterator->second.segment( 0, 6 );
+        BOOST_CHECK_SMALL( stateDifference.segment( 0, 3 ).norm( ), 1.0E-4 );
+        BOOST_CHECK_SMALL( stateDifference.segment( 3, 3 ).norm( ), 1.0E-7 );
+
         residuals.push_back( estimationOutput->residualStandardDeviation_ );
         parameterEstimateList.push_back( estimationOutput->parameterHistory_.at( estimationOutput->parameterHistory_.size( ) - 1 )( 6 ) );
 

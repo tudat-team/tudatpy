@@ -496,7 +496,9 @@ void expose_estimation_analysis( py::module& m )
          consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
              Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
          apply_final_parameter_correction : bool, default = True
-             Whether to apply the final estimated parameter correction to the simulation models after convergence.
+             Whether to add the parameter vector with the correction computed in the final iteration (for which the performance has *not*
+             been computed) to the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.parameter_history`. Regardless of
+             this setting, the simulation models are set to the parameters of the best iteration after the estimation.
          apply_apriori_parameter_deviation : bool, default = False
              Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
              of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes

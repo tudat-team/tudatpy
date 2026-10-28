@@ -362,6 +362,24 @@ public:
         return singleArcSolver_;
     }
 
+    //! Single-arc dynamics results with which the environment is updated (single-arc, followed by original multi-arc results)
+    std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > getEnvironmentDynamicsResults( )
+    {
+        std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > environmentDynamicsResults =
+                singleArcSolver_->getEnvironmentDynamicsResults( );
+        std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > multiArcDynamicsResults =
+                originalMultiArcSolver_->getEnvironmentDynamicsResults( );
+        environmentDynamicsResults.insert(
+                environmentDynamicsResults.end( ), multiArcDynamicsResults.begin( ), multiArcDynamicsResults.end( ) );
+        return environmentDynamicsResults;
+    }
+
+    void processEnvironmentDynamicsResults( )
+    {
+        singleArcSolver_->processEnvironmentDynamicsResults( );
+        originalMultiArcSolver_->processEnvironmentDynamicsResults( );
+    }
+
     std::shared_ptr< HybridArcResults > getHybridArcVariationalPropagationResults( )
     {
         return variationalPropagationResults_;
