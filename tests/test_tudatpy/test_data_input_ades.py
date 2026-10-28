@@ -1,9 +1,5 @@
-import tudatpy.data_input.tracking_data.obs_ADES.parsers as parser
-from tudatpy.data_input.tracking_data.obs_ADES.parsers import MODE_DICT, CATALOG_DICT
-from tudatpy.data_input.tracking_data.optical_utilities import (
-    _apply_ades_weights,
-    _apply_ades_weights_per_night,
-)
+import tudatpy.data_input.tracking_data.ades.parsers as parser
+from tudatpy.data_input.tracking_data.ades.parsers import MODE_DICT, CATALOG_DICT
 
 import pandas as pd
 import pytest
@@ -11,7 +7,6 @@ from astropy.table import Table
 import numpy as np
 from numpy.testing import assert_equal
 from pathlib import Path
-from astropy import units as u
 
 current_dir = Path(__file__).resolve().parent
 
@@ -181,14 +176,14 @@ def test_rejects_row_without_identifier_radar(observations_radar):
         parser._check_possible_failures(invalid, "radar")
 
 
-def test_rejects_row_without_identifier_optical(observations_occultation):
+def test_rejects_row_without_identifier_occultation(observations_occultation):
     invalid = observations_occultation.copy()
     invalid.loc[0, ["permID", "provID", "artSat", "trkSub"]] = None
     with pytest.raises(ValueError, match="Each row must have at least one non-missing identifier"):
         parser._check_possible_failures(invalid, "occultation")
 
 
-# in this case the same snippet of code is used for all oibs_kinds - only test it once
+# in this case the same snippet of code is used for all observation kinds - only test it once
 def test_rejects_invalid_observation_time(observations):
     invalid = observations.copy()
     invalid["obsTime"] = invalid["obsTime"].astype("object")
@@ -203,7 +198,7 @@ def test_rejects_invalid_observation_kind(observations):
 
 
 # optical observations specific tests
-def test_rejects_incomplete_location_group(observations):
+def test_rejects_incomplete_location_group_optical(observations):
     invalid = observations.copy()
     invalid["sys"] = ["ICRF"] * 4
     invalid["ctr"] = ["500"] * 4
@@ -216,7 +211,7 @@ def test_rejects_incomplete_location_group(observations):
         parser._check_possible_failures(invalid, "optical")
 
 
-def test_rejects_position_that_is_not_numeric(observations):
+def test_rejects_position_that_is_not_numeric_optical(observations):
     invalid = observations.copy()
     invalid["sys"] = ["ICRF"] * 4
     invalid["ctr"] = ["500"] * 4
@@ -298,8 +293,8 @@ def test_rejects_rmsDoppler_value_that_is_not_numeric(observations_radar):
         parser._check_possible_failures(invalid, "radar")
 
 
-# occultatiom observations specific tests
-def test_rejects_incomplete_location_group(observations_occultation):
+# occultation observations specific tests
+def test_rejects_incomplete_location_group_occultation(observations_occultation):
     invalid = observations_occultation.copy()
     invalid["sys"] = ["ICRF"] * 4
     invalid["ctr"] = ["500"] * 4
@@ -312,7 +307,7 @@ def test_rejects_incomplete_location_group(observations_occultation):
         parser._check_possible_failures(invalid, "occultation")
 
 
-def test_rejects_position_that_is_not_numeric(observations_occultation):
+def test_rejects_position_that_is_not_numeric_occultation(observations_occultation):
     invalid = observations_occultation.copy()
     invalid["sys"] = ["ICRF"] * 4
     invalid["ctr"] = ["500"] * 4
@@ -418,7 +413,7 @@ def test_adds_earth_roving_columns(observations):
 
     result = parser._roving_obs_columns(df, result_data)
 
-    assert result["observatoryTipe"].tolist() == ["Earth Roving"] * len(df)
+    assert result["observatoryType"].tolist() == ["Earth Roving"] * len(df)
     assert result["roving_position_1"].tolist() == [1.0, 2.0, 3.0, 4.0]
     assert result["roving_position_2"].tolist() == [5.0, 6.0, 7.0, 8.0]
     assert result["roving_position_3"].tolist() == [9.0, 10.0, 11.0, 12.0]
@@ -440,7 +435,7 @@ def test_adds_spacecraft_roving_columns(observations):
 
     result = parser._roving_obs_columns(df, result_data)
 
-    assert result["observatoryTipe"].tolist() == ["Spacecraft"] * len(df)
+    assert result["observatoryType"].tolist() == ["Spacecraft"] * len(df)
     assert result["spacecraft_position_x"].tolist() == [1000.0] * len(df)
     assert result["spacecraft_position_y"].tolist() == [2000.0] * len(df)
     assert result["spacecraft_position_z"].tolist() == [3000.0] * len(df)
@@ -458,60 +453,6 @@ def test_rejects_different_number_of_rows(observations):
     result_data = pd.DataFrame(index=range(len(observations) - 1))
     with pytest.raises(ValueError, match="df and result_data must have the same number of rows"):
         parser._roving_obs_columns(observations.copy(), result_data)
-
-
-# test the ADES weighting scheme application (in optical_utilities.py but implemented as part of the ades parser)
-def test_apply_ades_weights(observations):
-    group = observations.rename(columns={"dec": "DEC"}).copy()
-    group["DEC"] = np.deg2rad(group["DEC"])
-
-    weights_ra, weights_dec = _apply_ades_weights(group, tracking_data_object=None)
-
-    expected_ra = ((0.15 * u.arcsec / np.cos(group["DEC"].to_numpy())).to_value(u.rad)) ** -2
-    expected_dec = (0.13 * u.arcsec).to_value(u.rad) ** -2
-
-    np.testing.assert_allclose(weights_ra, expected_ra)
-    np.testing.assert_allclose(weights_dec, expected_dec)
-
-
-def test_apply_ades_weights_per_night(observations):
-    group = observations.rename(columns={"dec": "DEC"}).copy()
-    group["DEC"] = np.deg2rad(group["DEC"])
-    group["epoch"] = group["obsTime"]
-
-    weights_ra, weights_dec = _apply_ades_weights_per_night(group, tracking_data_object=None)
-
-    counts = group["epoch"].str[:10].map(group["epoch"].str[:10].value_counts()).to_numpy()
-
-    expected_ra = np.array(
-        [
-            1 / ((((0.15 * u.arcsec) / np.cos(dec)).to_value(u.rad)) ** 2 * np.sqrt(n))
-            for dec, n in zip(group["DEC"], counts)
-        ]
-    )
-    expected_dec = np.array(
-        [1 / (((0.13 * u.arcsec).to_value(u.rad)) ** 2 * np.sqrt(n)) for n in counts]
-    )
-
-    np.testing.assert_allclose(weights_ra, expected_ra)
-    np.testing.assert_allclose(weights_dec, expected_dec)
-
-
-@pytest.mark.parametrize(
-    "function",
-    [_apply_ades_weights, _apply_ades_weights_per_night],
-)
-def test_ades_weights_reject_missing_rms(observations, function):
-    group = observations.rename(columns={"dec": "DEC"}).copy()
-    group["DEC"] = np.deg2rad(group["DEC"])
-    group["epoch"] = group["obsTime"]
-    group.loc[0, "rmsRA"] = np.nan
-
-    with pytest.raises(
-        ValueError,
-        match="ADES weighing requires non-missing rmsRA and rmsDec values",
-    ):
-        function(group, tracking_data_object=None)
 
 
 # test _numeric

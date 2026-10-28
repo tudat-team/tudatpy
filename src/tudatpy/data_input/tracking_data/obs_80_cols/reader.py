@@ -55,6 +55,14 @@ def read_80_column_data(
         Whether to attach available optical ancillary metadata. To be used only
         in special cases where additional metadata is to be associated with the
         observations.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------

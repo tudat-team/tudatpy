@@ -15,8 +15,6 @@ from .optical_utilities import (
     read_pandas_optical_data,
     standardize_optical_dataframe,
     validate_optical_table,
-    _apply_ades_weights,
-    _apply_ades_weights_per_night,
 )
 
 __all__ = [

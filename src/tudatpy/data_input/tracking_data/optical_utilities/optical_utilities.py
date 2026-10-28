@@ -84,7 +84,7 @@ ANCILLARY_STRING_COLUMNS = [
 ]
 
 NAIF_IDS = {
-    0: "Ssb",
+    0: "SSB",
     1: "Mercury Barycenter",
     2: "Venus Barycenter",
     3: "Earth Barycenter",
@@ -140,7 +140,7 @@ NAIF_IDS = {
     535: "Orthosie",
     536: "Sponde",
     537: "Kale",
-    538: "P asithee",
+    538: "Pasithee",
     539: "Hegemone",
     540: "Mneme",
     541: "Aoede",
@@ -427,13 +427,17 @@ def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSu
 
         # define the frame origin of the spacecraft's state
         if len(ctr_values) == 1:
+            if int(ctr_values[0]) not in NAIF_IDS:
+                raise ValueError(
+                    f"Unsupported ctr value {ctr_values[0]} for observatory {observatory}"
+                )
             frame_origin = NAIF_IDS[int(ctr_values[0])]
         else:
             frame_origin = "Earth"
 
         receiver_data = TrackingSupplementaryData(str(observatory), "")
 
-        # check if info about velocity is availble; if so use it to build the state history
+        # check if info about velocity is available; if so use it to build the state history
         velocities = group.reindex(columns=SPACECRAFT_VELOCITY_COLUMNS)
         has_velocity_columns = velocities.notna().any(axis=None)
         if has_velocity_columns:
@@ -445,59 +449,22 @@ def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSu
         columns_spacecraft = SPACECRAFT_POSITION_COLUMNS.copy()
         if has_velocity_columns:
             columns_spacecraft += SPACECRAFT_VELOCITY_COLUMNS
-            state_data = group.groupby("epoch_seconds_UTC")[columns_spacecraft].mean()
-            receiver_data.translational_state_supplementary_data = (
-                TranslationalStateSupplementaryData(
-                    state_history={
-                        float(epoch): state
-                        for epoch, state in zip(state_data.index, state_data.to_numpy())
-                    },
-                    frame_origin=frame_origin,
-                    is_velocity_defined=True,
-                    time_scale="UTC",
-                    frame_orientation="J2000",
+        state_data = group.groupby("epoch_seconds_UTC")[columns_spacecraft].mean()
+        receiver_data.translational_state_supplementary_data = TranslationalStateSupplementaryData(
+            state_history={
+                float(epoch): (
+                    state if has_velocity_columns else np.concatenate((state, np.zeros(3)))
                 )
-            )
-            supplementary_data.append(receiver_data)
-
-        else:
-            positions = group.groupby("epoch_seconds_UTC")[columns_spacecraft].mean()
-            receiver_data.translational_state_supplementary_data = (
-                TranslationalStateSupplementaryData(
-                    state_history={
-                        float(epoch): np.concatenate((position, np.zeros(3)))
-                        for epoch, position in zip(positions.index, positions.to_numpy())
-                    },
-                    frame_origin=frame_origin,
-                    is_velocity_defined=False,
-                    time_scale="UTC",
-                    frame_orientation="J2000",
-                )
-            )
-            supplementary_data.append(receiver_data)
+                for epoch, state in zip(state_data.index, state_data.to_numpy())
+            },
+            frame_origin=frame_origin,
+            is_velocity_defined=bool(has_velocity_columns),
+            time_scale="UTC",
+            frame_orientation="J2000",
+        )
+        supplementary_data.append(receiver_data)
 
     return supplementary_data
-
-    # def _build_roving_obs_supplementary_data(table: pd.DataFrame) -> list[TrackingSupplementaryData]:
-    """Receiver-state supplementary data for Earth-based roving observatories observations.
-
-    The position can be given in WGS84, ITRF, IAU frames and the type of given position
-    will also depend on the reference frame.
-    """
-
-    # WGS84: pos1 = east longitude (deg), pos2 = latitude (deg(, pos3 = altitude (m) - already geodetic (as Tudat
-    # accepts them) using Earth shape model WGS84
-
-    # ITRF: pos1 = east longitude (degrees), pos2 = Rxy (km), pos3 = Rz (km) - convert to cartesian coordinates
-    # to define the ground station on Earth, already body-fixed (ITRF is a body fixed reference frame)
-    # x = Rxy cos L
-    # y = Rxy sin L
-    # z = Rz
-
-    # IAU: pos1 = longitude (deg), pos2 = latitude (m), pos3 = altitude (m) - used to define a roving observatory
-    # on a body different than Earth - currently not supported
-
-    # tudat in the definition of a basic station allows for cartesian, spherical or geodetic body-fixed definitions
 
 
 def datetime_to_utc_seconds(epoch) -> float:
@@ -593,55 +560,6 @@ def _resolve_optical_target_names(table):
     return target_names
 
 
-def _apply_ades_weights(group, tracking_data_object):
-    required_columns = ["rmsRA", "rmsDec"]
-    if group[required_columns].isna().any().any():
-        raise ValueError("ADES weighing requires non-missing rmsRA and rmsDec values")
-    weightsRA = (
-        (
-            (pd.to_numeric(group["rmsRA"]).to_numpy(dtype=float) * u.arcsec)
-            / np.cos(
-                pd.to_numeric(group["DEC"]).to_numpy(dtype=float)
-            )  # the value of DEC is already in radians
-        ).to_value(u.rad)
-    ) ** (
-        -2
-    )  # scale the uncertainty by cos(Dec) and transform in radians
-    weightsDec = (pd.to_numeric(group["rmsDec"]).to_numpy(dtype=float) * u.arcsec).to_value(
-        u.rad
-    ) ** (-2)
-
-    return weightsRA, weightsDec
-
-
-def _apply_ades_weights_per_night(group, tracking_data_object):
-    # apply ADES weights and de-weight by factor sqrt(N) if N observations have been taken during the same night
-    required_columns = ["rmsRA", "rmsDec"]
-    if group[required_columns].isna().any().any():
-        raise ValueError("ADES weighing requires non-missing rmsRA and rmsDec values")
-
-    # Count observations for each calendar date, once for every row.
-    dates = group["epoch"].str[:10]
-    observations_per_night = dates.map(dates.value_counts()).tolist()
-
-    weightsRA = []
-    weightsDec = []
-    for count, rms_ra, rms_dec, dec in zip(
-        observations_per_night, group["rmsRA"], group["rmsDec"], group["DEC"]
-    ):
-        rms_weights_ra = (
-            (float(rms_ra) * u.arcsec)
-            / np.cos(float(dec))  # the value of DEC is already in radians
-        ).to_value(u.rad)
-
-        rms_weights_dec = (float(rms_dec) * u.arcsec).to_value(u.rad)
-
-        weightsRA.append(1 / (rms_weights_ra**2 * np.sqrt(count)))
-        weightsDec.append(1 / (rms_weights_dec**2 * np.sqrt(count)))
-
-    return weightsRA, weightsDec
-
-
 def optical_table_to_tracking_data(
     table: pd.DataFrame,
     add_weights: bool | None = False,
@@ -665,6 +583,14 @@ def optical_table_to_tracking_data(
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -674,6 +600,10 @@ def optical_table_to_tracking_data(
     table = create_augmented_optical_table(table, in_degrees=False)
 
     if add_weights:
+        if weighing_scheme:
+            raise ValueError(
+                "Both 'add_weights' and 'weighing_scheme' are specified; use only 'weighing_scheme'."
+            )
         warnings.warn(
             "'add_weights' is deprecated, use 'weighing_scheme' instead. "
             "If 'add_weights' is True then weighting scheme 'VFCC17' will be applied."
@@ -684,11 +614,13 @@ def optical_table_to_tracking_data(
         )
         weighing_scheme = "VFCC17"
 
-    if _roving_observation_mask(table).any():
-        raise ValueError(
-            "ADES roving-observatory positions in WGS84, ITRF or IAU are not supported "
-            "by the tracking-data conversion"
+    roving_mask = _roving_observation_mask(table)
+    if roving_mask.any():
+        warnings.warn(
+            f"Skipping {int(roving_mask.sum())} observation(s) from roving observatories: "
+            "ADES positions in WGS84, ITRF or IAU are not supported by the tracking-data conversion"
         )
+        table = table.loc[~roving_mask]
 
     if weighing_scheme in ("ADES", "ADES_NIGHT"):
         uncertainties = (
@@ -710,6 +642,9 @@ def optical_table_to_tracking_data(
     # add data required to adopt the VFCC17 weighing scheme
     if weighing_scheme == "VFCC17":
         metadata_columns.update(["note2", "catalog"])
+    # add data required to adopt the ADES weighing schemes
+    if weighing_scheme in ("ADES", "ADES_NIGHT"):
+        metadata_columns.update(["rmsRA", "rmsDec"])
     metadata_columns.add("number")
 
     target_names = _resolve_optical_target_names(table)
@@ -717,15 +652,6 @@ def optical_table_to_tracking_data(
     spacecraft_mask = _spacecraft_observation_mask(table)
     table = table.assign(_is_spacecraft_observation=spacecraft_mask.to_numpy(dtype=bool))
     supplementary_data = _build_spacecraft_supplementary_data(table)
-
-    """
-    To develop - currently no tracking data structure to store ground station information
-    Needed to be able to work with Earth-based roving observatories 
-    """
-    # roving_mask = _roving_observation_mask(table)
-    # table = table.assign(_is_roving_observation=roving_mask.to_numpy(dtype=bool))
-    # add supplementary data for the roving observatory location
-    # TO DO! WHERE TO STORE THEM????
 
     tracking_data_objects = []
     for (target, observatory, is_spacecraft), group in table.groupby(
@@ -754,25 +680,6 @@ def optical_table_to_tracking_data(
             time_scale="UTC",
             weighing_scheme=weighing_scheme,
         )
-
-        # currently only applicabile if all observations in the dataset have available rmaRA and rmsDec uncertainties
-        if weighing_scheme == "ADES":
-            weightsRA, weightsDec = _apply_ades_weights(group, tracking_data_object)
-            tracking_data_object.set_observation_weights(
-                [
-                    np.array([ra_weight, dec_weight], dtype=np.float64)
-                    for ra_weight, dec_weight in zip(weightsRA, weightsDec)
-                ]
-            )
-
-        elif weighing_scheme == "ADES_NIGHT":
-            weightsRA, weightsDec = _apply_ades_weights_per_night(group, tracking_data_object)
-            tracking_data_object.set_observation_weights(
-                [
-                    np.array([ra_weight, dec_weight], dtype=np.float64)
-                    for ra_weight, dec_weight in zip(weightsRA, weightsDec)
-                ]
-            )
 
         if add_star_catalog_corrections:
             corrections_list = [
@@ -829,6 +736,14 @@ def read_optical_data(
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -893,6 +808,14 @@ def read_pandas_optical_data(
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -940,6 +863,14 @@ def read_astropy_optical_data(
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -1086,7 +1017,7 @@ def get_biases_EFCC18(
         bias_file = BIAS_LOWRES_FILE
 
     RA = mpc_table["RA"].to_numpy()
-    DEC = np.asarray(mpc_table["DEC"].to_numpy(), dtype=float)  # mpc_table["DEC"].to_numpy()
+    DEC = mpc_table["DEC"].to_numpy()
     if "epoch_seconds_UTC" in mpc_table.columns:
         epochs = mpc_table["epoch_seconds_UTC"].to_numpy()
     else:

@@ -3,20 +3,15 @@ from astropy.table import Table
 import astropy.units as u
 from astroquery.mpc import MPC
 import numpy as np
-import re
 from pathlib import Path
+import tempfile
 import warnings
 
-# check these imports - maybe useful for radar??
-from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
 from tudatpy.data_input.tracking_data.radar_utilities import (
     RADAR_TABLE_META_KEY,
-    empty_radar_table,
     radar_data_from_raw,
 )
 import xml.etree.ElementTree as ET
-
-from ades.psvtoxml import psvtoxml
 
 # conversion between note2 and mode according to https://github.com/IAU-ADES/ADES-Master/blob/master/Python/ades/packUtil.py
 MODE_DICT = {
@@ -105,6 +100,33 @@ CATALOG_DICT = {
     "IRASPSC": "^",
 }
 
+# output columns that are kept as floats (with NaN for missing values) in the parsed table
+NUMERIC_OUTPUT_COLUMNS = [
+    "epoch_seconds_UTC",
+    "RA",
+    "DEC",
+    "magnitude",
+    "rmsRA",
+    "rmsDec",
+    "rmsCorr",
+    "rmsTime",
+    "spacecraft_position_x",
+    "spacecraft_position_y",
+    "spacecraft_position_z",
+    "spacecraft_velocity_vx",
+    "spacecraft_velocity_vy",
+    "spacecraft_velocity_vz",
+    "posCov11",
+    "posCov12",
+    "posCov13",
+    "posCov22",
+    "posCov23",
+    "posCov33",
+    "roving_position_1",
+    "roving_position_2",
+    "roving_position_3",
+]
+
 
 def _tag_name(element):
     """Return a tag name without an optional XML namespace."""
@@ -157,14 +179,12 @@ def _roving_obs_columns(df, result_data):
     if len(df) != len(result_data):
         raise ValueError("df and result_data must have the same number of rows")
 
-    output_columns = ["observatoryTipe", *spacecraft_columns, *roving_columns]
+    output_columns = ["observatoryType", *spacecraft_columns, *roving_columns]
 
-    # if columns not already presenty in the result_data dataframe add them
+    # if columns not already present in the result_data dataframe add them
     for column in output_columns:
         if column not in result_data.columns:
             result_data[column] = None
-
-    found_roving = False
 
     # loop over each row of the df dataframe
     for position in range(len(df)):
@@ -175,13 +195,14 @@ def _roving_obs_columns(df, result_data):
             observatory_type = "Spacecraft"
         elif sys in ("WGS84", "ITRF", "IAU"):
             observatory_type = "Earth Roving"
-        else:
+        elif pd.isna(sys):
             continue
+        else:
+            raise ValueError(f"Unsupported sys value for the observer location: {sys}")
 
-        found_roving = True
-        result_data.iat[position, result_data.columns.get_loc("observatoryTipe")] = observatory_type
+        result_data.iat[position, result_data.columns.get_loc("observatoryType")] = observatory_type
 
-        # insert in the corresponding row all avalable info about the roving observatory;
+        # insert in the corresponding row all available info about the roving observatory;
         # if info is unavailable the value is None
         if observatory_type == "Spacecraft":
             for output_column, input_column in spacecraft_columns.items():
@@ -235,9 +256,6 @@ def _roving_obs_columns(df, result_data):
                     value = None
 
                 result_data.iat[position, result_data.columns.get_loc(output_column)] = value
-
-    if not found_roving:
-        print("No roving observatories in this data file")
 
     return result_data
 
@@ -303,7 +321,7 @@ def _check_possible_failures(df, obs_kind):
             except:
                 raise ValueError(f"Column '{column}' must contain values convertible to floats")
 
-        # check that if presnt, rmsRA, rmsDec, rmsCorr and rmsTime are also convertible to floats
+        # check that if present, rmsRA, rmsDec, rmsCorr and rmsTime are also convertible to floats
         rms_columns = ["rmsRA", "rmsDec", "rmsCorr", "rmsTime"]
         for column in rms_columns:
             if column in df.columns:
@@ -366,7 +384,7 @@ def _check_possible_failures(df, obs_kind):
             if (has_value & ~has_rms).any():
                 raise ValueError(f"Each row with {value_col} must also have {rms_col}")
 
-        # check that if presnt, delay, rmsDelay, doppler, rmsDoppler, frq are convertible to floats
+        # check that if present, delay, rmsDelay, doppler, rmsDoppler, frq are convertible to floats
         rms_columns = ["delay", "rmsDelay", "doppler", "rmsDoppler", "frq"]
         for column in rms_columns:
             if column in df.columns:
@@ -381,18 +399,18 @@ def _check_possible_failures(df, obs_kind):
         if not df["obsTime"].str.fullmatch(pattern).fillna(False).all():
             raise ValueError("Column 'obsTime' must match yyyy-mm-ddThh:mm:ss[.ssssss]Z")
 
-        # check that both tranbsmitter and receiver stations are part of the MPC list (a recognized station code)
+        # check that both transmitter and receiver stations are part of the MPC list (a recognized station code)
         observatories_table = MPC.get_observatory_codes().to_pandas()
         stn_codes = observatories_table["Code"].astype("string").tolist()
         # extract the stations from the input file to check them
         trx = df["trx"].astype("string").str.strip()
         invalid_trx = trx.notna() & ~trx.isin(stn_codes)
-        rcv = df["trx"].astype("string").str.strip()
+        rcv = df["rcv"].astype("string").str.strip()
         invalid_rcv = rcv.notna() & ~rcv.isin(stn_codes)
         if invalid_trx.any():
-            raise ValueError(f"Unknown MPC transmitter codes: {stn[invalid].unique().tolist()}")
+            raise ValueError(f"Unknown MPC transmitter codes: {trx[invalid_trx].unique().tolist()}")
         if invalid_rcv.any():
-            raise ValueError(f"Unknown MPC receiver codes: {stn[invalid].unique().tolist()}")
+            raise ValueError(f"Unknown MPC receiver codes: {rcv[invalid_rcv].unique().tolist()}")
 
         # if all tests are passed then return df
         return df
@@ -468,7 +486,7 @@ def _check_possible_failures(df, obs_kind):
             except:
                 raise ValueError(f"Column '{column}' must contain values convertible to floats")
 
-        # check that if presnt, "deltaRA", "deltaDec", "dist", "pa", rmsRA, rmsDec, rmsCorr and rmsTime are also convertible to floats
+        # check that if present, "deltaRA", "deltaDec", "dist", "pa", rmsRA, rmsDec, rmsCorr and rmsTime are also convertible to floats
         rms_columns = [
             "deltaRA",
             "deltaDec",
@@ -529,7 +547,7 @@ def _epochs_UTC_to_seconds_UTC(df):
 
 
 def _mode_to_note2(df):
-    # converts the mode entry of ADES to the note2 format of the 80m columns format
+    # converts the mode entry of ADES to the note2 format of the 80-column format
     # this allows compatibility with the algorithm that assigns weights according to VFCC17
     # which uses the value of note2 as reference
     df["note2"] = df["mode"].map({key: value for key, value in MODE_DICT.items()})
@@ -537,7 +555,7 @@ def _mode_to_note2(df):
 
 
 def _astCat_to_catalog(df):
-    # converts the astCat entry of ADES to the catalog format of the 80m columns format
+    # converts the astCat entry of ADES to the catalog format of the 80-column format
     # this allows compatibility with the algorithm that assigns weights according to VFCC17
     # which uses the value of catalog as reference
     df["catalog"] = df["astCat"].map({key: value for key, value in CATALOG_DICT.items()})
@@ -552,7 +570,7 @@ def _numeric(df, column, scale=1.0):
 
 
 def _transform_delta_to_radec(df):
-    # from the coordinates of the star and the prvided offset define
+    # from the coordinates of the star and the provided offset define
     # the coordinates in Ra/Dec of the small body
     # return ra and Dec in degrees and save them in the dataframe
     df["ra"] = (
@@ -565,7 +583,7 @@ def _transform_delta_to_radec(df):
         + (pd.to_numeric(df["deltaDec"]).to_numpy() * u.arcsec).to(u.deg)
     ).value
 
-    # in this case the uncertainties are already correclty reported in Ra and Dec so there is no need for a transformation
+    # in this case the uncertainties are already correctly reported in Ra and Dec so there is no need for a transformation
 
     return df
 
@@ -584,7 +602,7 @@ def _transform_distpa_to_radec(df):
     df["dec"] = pd.to_numeric(df["decStar"]).to_numpy() + d_dec
 
     # transform the dist and pa uncertainties in uncertainties in RA and Dec
-    # identify is the 3 uncertainties columns are present (correlation included)
+    # identify if the 3 uncertainties columns are present (correlation included)
     if not all(col in df.columns for col in ["rmsDist", "rmsPA"]):
         return df  # no uncertainties reported
 
@@ -601,21 +619,21 @@ def _transform_distpa_to_radec(df):
         rho = np.zeros(len(df))
 
     n = len(df)
-    # build covariance amtrix of dist, pa taking correlation into account when present
+    # build covariance matrix of dist, pa taking correlation into account when present
     C = np.zeros((n, 2, 2))
     C[:, 0, 0] = rms_dist**2
     C[:, 1, 1] = rms_pa**2
     C[:, 0, 1] = C[:, 1, 0] = rho * rms_dist * rms_pa
 
     # build the jacobian matrix to perform the transformation to the covariance in RA and Dec
-    # pa has been previously already transfroemd in radians
+    # pa has been previously already transformed in radians
     J = np.zeros((n, 2, 2))
     J[:, 0, 0] = np.sin(pa)
     J[:, 0, 1] = dist * np.cos(pa)
     J[:, 1, 0] = np.cos(pa)
     J[:, 1, 1] = -dist * np.sin(pa)
 
-    # define the covariabce matrix in RA and Dec and extract the uncertainties (in arcsec)
+    # define the covariance matrix in RA and Dec and extract the uncertainties (in arcsec)
     C_radec = J @ C @ np.swapaxes(J, 1, 2)
     var_ra = C_radec[:, 0, 0]
     var_dec = C_radec[:, 1, 1]
@@ -624,7 +642,7 @@ def _transform_distpa_to_radec(df):
         corr = cov_radec / np.sqrt(var_ra * var_dec)
     df["rmsCorr"] = np.clip(
         corr, -1.0, 1.0
-    )  # define the correlation (in this case is almost always different than 0 cause the rotation introduces correlation)
+    )  # define the correlation (in this case is almost always different than 0 because the rotation introduces correlation)
     df["rmsRA"] = np.sqrt(np.clip(var_ra, 0, None))  # on-sky (RA*cos(dec))
     df["rmsDec"] = np.sqrt(np.clip(var_dec, 0, None))
 
@@ -640,15 +658,14 @@ def parse_ades_file(file_path: str):  # -> Table:
     R/r pairs. Radar observations are stored as a canonical pandas table in
     ``table.meta[RADAR_TABLE_META_KEY]``. A blank radar bounce-point field is
     interpreted as centre of mass (``C``), as found in published historical
-    records whose corresponding JPL entries use that value.
+    records whose corresponding JPL entries use that value. Offset observations,
+    and radar observations that are not w.r.t. the centre of mass, are not yet
+    supported, and are skipped with a warning.
 
     Parameters
     ----------
     file_path : str
-        The path to the ADES files
-
-    format : str
-        Either PSV or XML, indicates the format of the ADES file used as input
+        The path to the ADES file (in PSV or XML format)
 
     Returns
     -------
@@ -665,19 +682,17 @@ def parse_ades_file(file_path: str):  # -> Table:
     if not file_path:
         raise ValueError("There is no input file")
 
-    if Path(file_path).suffix == ".psv":
-        # transform the PSV file on XML format and proceed with the XML parser
-        file_path_xml = str(Path(file_path).with_suffix(".xml"))
-        # transfrom the psv file to an xml file using the MPC ades functionalities
-        # try:
-        psvtoxml(file_path, file_path_xml)
-        # except:
-        #    raise ValueError('File cannot be converted to xml due to incorrect format')
-        file_path = file_path_xml
-
     # read the xml elements and define an astropy table
-    tree = ET.parse(f"{file_path}")
-    root = tree.getroot()
+    if Path(file_path).suffix == ".psv":
+        # transform the PSV file to a temporary XML file using the MPC ades functionalities
+        from ades.psvtoxml import psvtoxml
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            file_path_xml = str(Path(temporary_directory) / f"{Path(file_path).stem}.xml")
+            psvtoxml(file_path, file_path_xml)
+            root = ET.parse(file_path_xml).getroot()
+    else:
+        root = ET.parse(f"{file_path}").getroot()
 
     # Collect observations, including those outside obsData blocks.
     rows_by_kind = {}
@@ -698,6 +713,9 @@ def parse_ades_file(file_path: str):  # -> Table:
     result_data_offset = pd.DataFrame()
 
     for obs_kind, rows in rows_by_kind.items():
+        if obs_kind not in {"optical", "radar", "occultation"}:
+            warnings.warn(f"Skipping unsupported observation kind: {obs_kind}")
+            continue
 
         df = pd.DataFrame(rows)
 
@@ -706,7 +724,7 @@ def parse_ades_file(file_path: str):  # -> Table:
         df = df.replace(r"^\s*$", None, regex=True)
         df = df.astype(object).where(pd.notna(df), None)
 
-        # validate  the dataframe, making sure that all required elements are present (according to the observation kind)
+        # validate the dataframe, making sure that all required elements are present (according to the observation kind)
         df = _check_possible_failures(df, obs_kind)
 
         # create the columns containing seconds since J2000 UTC
@@ -715,7 +733,7 @@ def parse_ades_file(file_path: str):  # -> Table:
         # optical observations
         if obs_kind == "optical":
 
-            # create the 'note2' and 'catalog' columns to allow application of the VCFF17 weighing scheme
+            # create the 'note2' and 'catalog' columns to allow application of the VFCC17 weighing scheme
             df = _mode_to_note2(df)
             df = _astCat_to_catalog(df)
 
@@ -754,6 +772,17 @@ def parse_ades_file(file_path: str):  # -> Table:
             result_data_optical = _roving_obs_columns(df, result_data_optical)
 
         elif obs_kind == "radar":
+            # only radar observations w.r.t. the centre of mass (com = 1) are currently supported;
+            # observations w.r.t. the peak power (com = 0) are skipped
+            if "com" in df.columns:
+                not_com = df["com"].notna() & (df["com"].astype(str).str.strip() != "1")
+                if not_com.any():
+                    warnings.warn(
+                        f"Skipping {int(not_com.sum())} radar observation(s) that are not "
+                        "w.r.t. the centre of mass (com = 0): this is not presently supported"
+                    )
+                    df = df.loc[~not_com].copy()
+
             # this is an outdated entry only present in 80 cols file, added here for consistency
             df["target_point"] = "C"
 
@@ -777,18 +806,20 @@ def parse_ades_file(file_path: str):  # -> Table:
             result_data_radar = radar_data_from_raw(result_data_radar, source="MPC")
 
         elif obs_kind == "occultation":
-            # create the 'note2' and 'catalog' columns to allow application of the VCFF17 weighing scheme
+            # create the 'note2' and 'catalog' columns to allow application of the VFCC17 weighing scheme
             df = _mode_to_note2(df)
             df = _astCat_to_catalog(df)
 
-            # transform the entries in the occultation table to standard RA, Dec and rmsRa, rmsDec
-            required_1 = {"deltaRA", "deltaDec"}
-            required_2 = {"dist", "pa"}
-
-            if required_1.issubset(df.columns):
-                df = _transform_delta_to_radec(df)
-            elif required_2.issubset(df.columns):
-                df = _transform_distpa_to_radec(df)
+            # transform the entries in the occultation table to standard RA, Dec and rmsRA, rmsDec;
+            # each row provides either deltaRA/deltaDec or dist/pa, so both sets of rows are
+            # transformed separately
+            has_delta = df.reindex(columns=["deltaRA", "deltaDec"]).notna().all(axis=1)
+            transformed = []
+            if has_delta.any():
+                transformed.append(_transform_delta_to_radec(df.loc[has_delta].copy()))
+            if (~has_delta).any():
+                transformed.append(_transform_distpa_to_radec(df.loc[~has_delta].copy()))
+            df = pd.concat(transformed).sort_index()
 
             result_data_occultation = pd.DataFrame(
                 {
@@ -824,10 +855,6 @@ def parse_ades_file(file_path: str):  # -> Table:
             # are created, if the value is missing for some rows then insert None
             result_data_occultation = _roving_obs_columns(df, result_data_occultation)
 
-        else:
-            warnings.warn(f"Skipping unsupported observation kind: {obs_kind}")
-            continue
-
     if result_data_optical.empty and result_data_radar.empty and result_data_occultation.empty:
         # return an empty table
         return Table()
@@ -838,11 +865,15 @@ def parse_ades_file(file_path: str):  # -> Table:
             [result_data_optical, result_data_occultation], ignore_index=True
         )
 
-    # transform all missing values or empty values to None in the final table
-    result_data_optical = result_data_optical.replace(r"^\s*$", None, regex=True)
-    result_data_optical = result_data_optical.astype(object).where(
-        pd.notna(result_data_optical), None
+    # keep the numeric columns as floats (missing values are NaN), and transform all missing
+    # or empty values in the remaining (text) columns to None in the final table
+    numeric_columns = result_data_optical.columns.intersection(NUMERIC_OUTPUT_COLUMNS)
+    text_columns = result_data_optical.columns.difference(NUMERIC_OUTPUT_COLUMNS)
+    result_data_optical[numeric_columns] = result_data_optical[numeric_columns].apply(
+        pd.to_numeric
     )
+    text_data = result_data_optical[text_columns].replace(r"^\s*$", None, regex=True)
+    result_data_optical[text_columns] = text_data.astype(object).where(pd.notna(text_data), None)
 
     optical_table = Table.from_pandas(result_data_optical)
 

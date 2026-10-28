@@ -104,6 +104,35 @@ def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, t
     np.testing.assert_allclose(collection.concatenated_weights, expected, rtol=1.0e-13)
 
 
+@pytest.mark.parametrize(
+    "scheme,observations_per_night", [("ADES", [1, 1, 1]), ("ADES_NIGHT", [2, 2, 1])]
+)
+def test_ades_weights_from_uncertainties_and_local_night(
+    optical_table, scheme, observations_per_night
+):
+    """Weight three positions by their uncertainties; for ADES_NIGHT the first two share a night."""
+    table = pd.concat([optical_table] * 3, ignore_index=True)
+    # Station 500 is at zero longitude, so the local night is the integer part of the Julian date.
+    table["epoch"] = [2460310.55, 2460310.65, 2460311.65]
+    table["DEC"] = [0.0, 30.0, 60.0]
+    table["rmsRA"] = [0.15, 0.2, 0.3]
+    table["rmsDec"] = [0.13, 0.1, 0.2]
+    data, _ = read_optical_data(table, weighing_scheme=scheme)
+    collection = create_observation_collection_from_tracking_data(data, weighting_bodies())
+
+    # The RA uncertainty is scaled by 1/cos(Dec); for ADES_NIGHT, weights are divided by sqrt(N).
+    arcsec = np.deg2rad(1.0 / 3600.0)
+    expected = np.column_stack(
+        [
+            (np.cos(np.deg2rad(table["DEC"])) / (table["rmsRA"] * arcsec)) ** 2,
+            1.0 / (table["rmsDec"] * arcsec) ** 2,
+        ]
+    ) / np.sqrt(observations_per_night)[:, None]
+    np.testing.assert_allclose(
+        collection.concatenated_weights, expected.reshape(-1), rtol=1.0e-12
+    )
+
+
 @pytest.mark.parametrize("source", ["pandas", "mpc"])
 def test_custom_target_name_reaches_optical_link(optical_table, source):
     """Read asteroid 433 directly and through an MPC batch; both must name it Eros."""
