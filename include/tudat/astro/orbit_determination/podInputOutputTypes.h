@@ -1069,6 +1069,16 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return interArcContinuityDiscrepancyHistory_;
     }
 
+    void setResidualTimes( const std::vector< double >& residualTimes )
+    {
+        residualTimes_ = residualTimes;
+    }
+
+    const std::vector< double >& getResidualTimes( ) const
+    {
+        return residualTimes_;
+    }
+
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
     {
         return simulationResultsPerIteration_.at( bestIteration_ );
@@ -1087,6 +1097,9 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 
     //! Vector of residuals per iteration
     std::vector< Eigen::VectorXd > residualHistory_;
+
+    //! Observation times corresponding to the entries of the residual vectors
+    std::vector< double > residualTimes_;
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > parameterHistory_;

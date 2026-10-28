@@ -146,6 +146,10 @@ BOOST_AUTO_TEST_CASE( test_ObservationOnlyEstimation )
     BOOST_REQUIRE_EQUAL( estimationOutput->parameterEstimate_.size( ), 3 );
     BOOST_CHECK_SMALL( ( estimationOutput->parameterEstimate_ - trueBiases ).norm( ), 1.0E-8 );
     BOOST_CHECK_SMALL( estimationOutput->residuals_.cwiseAbs( ).maxCoeff( ), 1.0E-8 );
+
+    // Check that residual times are consistent with the observation collection
+    BOOST_CHECK_EQUAL( static_cast< Eigen::Index >( estimationOutput->getResidualTimes( ).size( ) ), estimationOutput->residuals_.rows( ) );
+    BOOST_CHECK( estimationOutput->getResidualTimes( ) == simulatedObservations->getConcatenatedDoubleTimeVector( ) );
 }
 
 BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
