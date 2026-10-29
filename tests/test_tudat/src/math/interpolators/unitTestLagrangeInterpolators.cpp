@@ -168,6 +168,35 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_polynomials )
     }
 }
 
+// Test that the shifted-interval boundary handling reproduces polynomials of the interpolation order over the full range
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_shifted_interval_boundary )
+{
+    std::vector< double > independentVariableVector = getIndependentVariableVector( );
+    for( unsigned int stages = 4; stages < 11; stages += 2 )
+    {
+        std::map< int, double > coefficients = getPolynomialCoefficients( stages - 1 );
+        std::map< double, double > dataMap;
+        for( const double independentVariable : independentVariableVector )
+        {
+            dataMap[ independentVariable ] = evaluatePolynomial( coefficients, independentVariable );
+        }
+        interpolators::LagrangeInterpolator< double, double > interpolator(
+                dataMap, stages, interpolators::huntingAlgorithm, interpolators::lagrange_shifted_interval_boundary_interpolation );
+
+        // Check the first and last intervals, which are outside the range of the centred polynomials
+        for( unsigned int i : { 0u, static_cast< unsigned int >( independentVariableVector.size( ) ) - 2 } )
+        {
+            for( unsigned j = 1; j < 10; j++ )
+            {
+                double currentDataPoint = independentVariableVector.at( i ) +
+                        static_cast< double >( j ) / 10.0 * ( independentVariableVector.at( i + 1 ) - independentVariableVector.at( i ) );
+                BOOST_CHECK_CLOSE_FRACTION(
+                        interpolator.interpolate( currentDataPoint ), evaluatePolynomial( coefficients, currentDataPoint ), 1.0E-12 );
+            }
+        }
+    }
+}
+
 // Test to check whether the various boundary handling methopds are properly implemented
 BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
 {

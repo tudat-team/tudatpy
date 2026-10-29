@@ -165,6 +165,13 @@ the interpolation domain. This enum provides the available options a user has to
 A cubic-spline interpolator is created from the first and last :math:`\max(m/2-1,4)` data points of the full data set, and these cubic spline interpolators are used when an interpolation at :math:`t<t_{(m/2-1)}` or :math:`t<t_{N-(m/2)}` is called.
 
       )doc" )
+            .value( "lagrange_shifted_interval_boundary_interpolation",
+                    ti::LagrangeInterpolatorBoundaryHandling::lagrange_shifted_interval_boundary_interpolation,
+                    R"doc(
+
+No separate interpolator is created. When an interpolation at :math:`t<t_{(m/2-1)}` is called, the interpolating polynomial of the interval :math:`[t_{(m/2-1)}...t_{(m/2)}]` is used, which interpolates the first :math:`m` data points :math:`[t_{0}...t_{m-1}]`. Similarly, when an interpolation at :math:`t>t_{N-(m/2)+1}` is called, the interpolating polynomial of the interval :math:`[t_{N-(m/2)}...t_{N-(m/2)+1}]` is used, which interpolates the last :math:`m` data points :math:`[t_{N-m+1}...t_{N}]`. In contrast to the cubic-spline option, the order of the interpolating polynomial is retained up to the boundaries. Since the polynomial is then used away from the middle of the data points that define it, its error is larger than in the interior of the domain, and increases towards :math:`t_{0}` and :math:`t_{N}`. No warnings are given.
+
+      )doc" )
             .value( "lagrange_no_boundary_interpolation",
                     ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation,
                     R"doc(
