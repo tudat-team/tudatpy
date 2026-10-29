@@ -241,16 +241,23 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
             earthOrientationCalculator->getTerrestrialTimeScaleConverter( )->getDailyUtcUt1CorrectionInterpolator( )->interpolate(
                     dateTimeStartC04.epoch< double >( ) );
 
-    // Check if polar motion is zero before c04 file starts
-    BOOST_CHECK_EQUAL( polarMotionPreC04( 0 ) == 0, true );
-    BOOST_CHECK_EQUAL( polarMotionPreC04( 1 ) == 0, true );
+    // Check if polar motion before c04 file starts is held at its first value
+    const Eigen::Vector2d firstPolarMotion =
+            earthOrientationCalculator->getPolarMotionCalculator( )->getDailyIersValueInterpolator( )->getDependentValues( ).front( );
+    BOOST_CHECK_EQUAL( polarMotionPreC04( 0 ), firstPolarMotion( 0 ) );
+    BOOST_CHECK_EQUAL( polarMotionPreC04( 1 ), firstPolarMotion( 1 ) );
 
     BOOST_CHECK_EQUAL( polarMotionPostC04( 0 ) == 0, false );
     BOOST_CHECK_EQUAL( polarMotionPostC04( 1 ) == 0, false );
 
-    // Check if pn correction is zero before c04 file starts (also 0 after it starts due to absence of corrections)
-    BOOST_CHECK_EQUAL( pnCorrectionPreC04( 0 ) == 0, true );
-    BOOST_CHECK_EQUAL( pnCorrectionPreC04( 1 ) == 0, true );
+    // Check if pn correction before c04 file starts is held at its first value (also 0 after it starts due to absence of
+    // corrections)
+    const Eigen::Vector2d firstPnCorrection = earthOrientationCalculator->getPrecessionNutationCalculator( )
+                                                      ->getDailyCorrectionInterpolator( )
+                                                      ->getDependentValues( )
+                                                      .front( );
+    BOOST_CHECK_EQUAL( pnCorrectionPreC04( 0 ), firstPnCorrection( 0 ) );
+    BOOST_CHECK_EQUAL( pnCorrectionPreC04( 1 ), firstPnCorrection( 1 ) );
 
     BOOST_CHECK_EQUAL( pnCorrectionPostC04( 0 ) == 0, true );
     BOOST_CHECK_EQUAL( pnCorrectionPostC04( 1 ) == 0, true );

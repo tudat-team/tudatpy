@@ -29,21 +29,19 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
                                                               gcrsToItrsRotationSettings->getEopFileFormat( ),
                                                               gcrsToItrsRotationSettings->getNutationTheory( ) );
 
-    // Load polar motion corrections
+    // Load polar motion corrections (held at the first and last values outside the data, e.g. before 1962)
     std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
                     eopReader->getCipInItrsMapInSecondsSinceJ2000( ),
                     interpolators::huntingAlgorithm,
-                    interpolators::use_default_value,
-                    std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
+                    interpolators::use_boundary_value );
 
-    // Load nutation corrections
+    // Load nutation corrections (held at the first and last values outside the data)
     std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
                     eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ),
                     interpolators::huntingAlgorithm,
-                    interpolators::use_default_value,
-                    std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
+                    interpolators::use_boundary_value );
 
     // Create polar motion correction (sub-diural frequencies) object
     std::shared_ptr< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >

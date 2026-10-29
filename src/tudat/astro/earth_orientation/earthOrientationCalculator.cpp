@@ -60,21 +60,19 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs( const double xPolePosition, 
 //! Function to create an EarthOrientationAnglesCalculator object, with default settings
 std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator( const std::shared_ptr< EOPReader > eopReader )
 {
-    // Load polar motion corrections
+    // Load polar motion corrections (held at the first and last values outside the data, e.g. before 1962)
     std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
                     eopReader->getCipInItrsMapInSecondsSinceJ2000( ),
                     interpolators::huntingAlgorithm,
-                    interpolators::use_default_value,
-                    std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
+                    interpolators::use_boundary_value );
 
-    // Load nutation corrections
+    // Load nutation corrections (held at the first and last values outside the data)
     std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
                     eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ),
                     interpolators::huntingAlgorithm,
-                    interpolators::use_default_value,
-                    std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
+                    interpolators::use_boundary_value );
 
     // Load default polar motion correction (sub-diural frequencies) object
     std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
