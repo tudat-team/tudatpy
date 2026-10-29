@@ -741,16 +741,16 @@ Returns
       )doc" )
             .value( "morley_budnik_2007",
                     tom::morley_budnik_2007_solar_corona,
-                    "Morley and Budnik (2007), Rosetta 2006 solar conjunction: :math:`c` = [0.12e14, 0.41e12], :math:`k` = [6, 2]." )
+                    ":cite:t:`morley2007`, Rosetta 2006 solar conjunction: :math:`c` = [0.12e14, 0.41e12], :math:`k` = [6, 2]." )
             .value( "de102_esoc",
                     tom::de102_esoc_solar_corona,
-                    "DE102 and the original ESOC model: :math:`c` = [1.3e14, 0.5e12], :math:`k` = [6, 2]." )
+                    "DE102 :cite:p:`newhall1983` and the original ESOC model: :math:`c` = [1.3e14, 0.5e12], :math:`k` = [6, 2]." )
             .value( "muhleman_1977",
                     tom::muhleman_1977_solar_corona,
-                    "Muhleman et al. (1977), Mariner 7: :math:`c` = [1.3e14, 0.66e12], :math:`k` = [6, 2.08]." )
+                    ":cite:t:`muhleman1977`, Mariner 7: :math:`c` = [1.3e14, 0.66e12], :math:`k` = [6, 2.08]." )
             .value( "aksim_pavlov_2022",
                     tom::aksim_pavlov_2022_solar_corona,
-                    "Aksim and Pavlov (2022), EPM: :math:`c` = [:math:`C N_0` (1 AU / :math:`R_\\odot`)²], :math:`k` = [2], with "
+                    ":cite:t:`aksim2022`, EPM: :math:`c` = [:math:`C N_0` (1 AU / :math:`R_\\odot`)²], :math:`k` = [2], with "
                     ":math:`N_0` = 5.97 cm⁻³ and :math:`C` = 1.31." );
 
     m.def( "solar_corona_model_coefficients",
@@ -787,12 +787,12 @@ Returns
          to the centre of the Sun and :math:`R_\odot` the (average) radius of its shape model, without dependence on
          the heliographic latitude or time. The light-time correction of each leg of the link is
          :math:`\pm 40.3 / (c f^2) \int N_e \, ds` (positive for group-delay observables such as range, negative for
-         phase observables such as Doppler), with :math:`f` the frequency of the leg [Hz] (Verma et al., 2013, eq. 1).
+         phase observables such as Doppler), with :math:`f` the frequency of the leg [Hz] (eq. 1 of :cite:t:`verma2013`).
          The integral is computed per term over the angle along the line of sight (analytically for integer exponents
          of at least 2). The frequencies are obtained from the link (frequency bands and transmitted frequencies), so the
          correction is only available for observables with frequency information (e.g. DSN data).
 
-         The default coefficients are those estimated by Morley and Budnik (2007). Other published models are given by
+         The default coefficients are those estimated by :cite:t:`morley2007`. Other published models are given by
          :func:`solar_corona_model_coefficients`:
 
          .. code-block:: python
