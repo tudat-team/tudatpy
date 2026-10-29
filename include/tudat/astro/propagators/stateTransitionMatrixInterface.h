@@ -223,16 +223,6 @@ public:
         return stateTransitionMatrixInterpolator_;
     }
 
-    //! Function to get the interpolator returning the sensitivity matrix as a function of time.
-    /*!
-     * Function to get the interpolator returning the sensitivity matrix as a function of time.
-     * \return Interpolator returning the sensitivity matrix as a function of time.
-     */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > getSensitivityMatrixInterpolator( )
-    {
-        return sensitivityMatrixInterpolator_;
-    }
-
     //! Function to get the concatenated state transition and sensitivity matrix at a given time.
     /*!
      *  Function to get the concatenated state transition and sensitivity matrix at a given time.
@@ -284,7 +274,6 @@ public:
      */
     void setReducedSensitivityMatrixColumns( const std::vector< int >& reducedSensitivityMatrixColumns )
     {
-        isSensitivityMatrixReduced_ = true;
         reducedSensitivityMatrixColumns_ = reducedSensitivityMatrixColumns;
     }
 
@@ -292,10 +281,7 @@ private:
     //! Predefined matrix to use as return value when calling getCombinedStateTransitionAndSensitivityMatrix.
     Eigen::MatrixXd combinedStateTransitionMatrix_;
 
-    //! Boolean denoting whether the sensitivity matrix interpolator returns only the propagated columns
-    bool isSensitivityMatrixReduced_ = false;
-
-    //! Index in the full sensitivity matrix of each propagated column (if isSensitivityMatrixReduced_)
+    //! Index in the full sensitivity matrix of each propagated column
     std::vector< int > reducedSensitivityMatrixColumns_;
 
     //! Interpolator returning the state transition matrix as a function of time.
@@ -496,17 +482,6 @@ public:
     getStateTransitionMatrixInterpolators( )
     {
         return stateTransitionMatrixInterpolators_;
-    }
-
-    //! Function to get the vector of interpolators returning the sensitivity matrix as a function of time.
-    /*!
-     * Function to get the vector of interpolators returning the sensitivity matrix as a function of time.
-     * \return Vector of interpolators returning the sensitivity matrix as a function of time.
-     */
-    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
-    getSensitivityMatrixInterpolator( )
-    {
-        return sensitivityMatrixInterpolators_;
     }
 
     //! Function to get the size of the total parameter vector.
@@ -809,24 +784,15 @@ protected:
         {
             combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize, stateTransitionMatrixSize ) =
                     stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
-            if( reducedSensitivityMatrixColumns_.size( ) > 0 )
+            const std::vector< int >& reducedColumns = reducedSensitivityMatrixColumns_.at( currentArc );
+            if( reducedColumns.size( ) > 0 )
             {
-                const std::vector< int >& reducedColumns = reducedSensitivityMatrixColumns_.at( currentArc );
-                if( reducedColumns.size( ) > 0 )
+                Eigen::MatrixXd reducedSensitivityMatrix = sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+                for( unsigned int i = 0; i < reducedColumns.size( ); i++ )
                 {
-                    Eigen::MatrixXd reducedSensitivityMatrix =
-                            sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
-                    for( unsigned int i = 0; i < reducedColumns.size( ); i++ )
-                    {
-                        combinedStateTransitionMatrix.col( stateTransitionMatrixSize + reducedColumns.at( i ) ) =
-                                reducedSensitivityMatrix.col( i );
-                    }
+                    combinedStateTransitionMatrix.col( stateTransitionMatrixSize + reducedColumns.at( i ) ) =
+                            reducedSensitivityMatrix.col( i );
                 }
-            }
-            else
-            {
-                combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize, stateTransitionMatrixSize, sensitivityMatrixSize ) =
-                        sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
             }
         }
         catch( std::runtime_error& caughtException )

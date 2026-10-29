@@ -6,6 +6,7 @@
 #define TUDAT_PROPAGATIONRESULTS_H
 
 #include <map>
+#include <numeric>
 #include <cstdint>
 #include <string>
 
@@ -669,15 +670,16 @@ public:
             const int stateTransitionMatrixSize,
             const int sensitivityMatrixSize ):
         singleArcDynamicsResults_( singleArcDynamicsResults ), stateTransitionMatrixSize_( stateTransitionMatrixSize ),
-        sensitivityMatrixSize_( sensitivityMatrixSize )
-    {}
+        sensitivityMatrixSize_( sensitivityMatrixSize ), reducedSensitivityMatrixColumns_( sensitivityMatrixSize )
+    {
+        std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
+    }
 
     SingleArcVariationalSimulationResults( const SingleArcVariationalSimulationResults< StateScalarType, TimeType >& resultsToCopy ):
         singleArcDynamicsResults_( resultsToCopy.getDynamicsResults( )->cloneDerived( ) ),
         stateTransitionMatrixSize_( resultsToCopy.stateTransitionMatrixSize_ ),
         sensitivityMatrixSize_( resultsToCopy.sensitivityMatrixSize_ ), stateTransitionSolution_( resultsToCopy.stateTransitionSolution_ ),
         sensitivitySolution_( resultsToCopy.sensitivitySolution_ ),
-        isSensitivityMatrixReduced_( resultsToCopy.isSensitivityMatrixReduced_ ),
         reducedSensitivityMatrixColumns_( resultsToCopy.reducedSensitivityMatrixColumns_ )
     {}
 
@@ -724,7 +726,6 @@ public:
     void splitSolution( const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >& fullSolution,
                         std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolutionRaw )
     {
-        fullSensitivitySolution_.clear( );
         const int propagatedSensitivityMatrixSize = getPropagatedSensitivityMatrixSize( );
         for( auto it : fullSolution )
         {
@@ -743,7 +744,6 @@ public:
         singleArcDynamicsResults_->clearSolutionMaps( );
         stateTransitionSolution_.clear( );
         sensitivitySolution_.clear( );
-        fullSensitivitySolution_.clear( );
     }
 
     void finalizePropagation( const std::map< TimeType, unsigned int > cumulativeNumberOfFunctionEvaluations )
@@ -757,24 +757,24 @@ public:
     }
 
     //! Function to retrieve the sensitivity matrix history, including the columns that were not propagated (if any)
-    std::map< double, Eigen::MatrixXd >& getSensitivitySolution( )
+    std::map< double, Eigen::MatrixXd > getSensitivitySolution( ) const
     {
-        if( !isSensitivityMatrixReduced_ )
+        std::map< double, Eigen::MatrixXd > fullSensitivitySolution;
+        for( auto it : sensitivitySolution_ )
         {
-            return sensitivitySolution_;
+            Eigen::MatrixXd& fullSensitivityMatrix = fullSensitivitySolution[ it.first ];
+            fullSensitivityMatrix = Eigen::MatrixXd::Zero( it.second.rows( ), sensitivityMatrixSize_ );
+            for( unsigned int i = 0; i < reducedSensitivityMatrixColumns_.size( ); i++ )
+            {
+                fullSensitivityMatrix.col( reducedSensitivityMatrixColumns_.at( i ) ) = it.second.col( i );
+            }
         }
-
-        // Create full sensitivity matrix history only when it is requested
-        if( fullSensitivitySolution_.size( ) != sensitivitySolution_.size( ) )
-        {
-            fullSensitivitySolution_ = getExpandedSensitivitySolution( );
-        }
-        return fullSensitivitySolution_;
+        return fullSensitivitySolution;
     }
 
     //! Function to retrieve the sensitivity matrix history, with only the propagated columns
     /*!
-     * Function to retrieve the sensitivity matrix history, with only the propagated columns (see getReducedSensitivityMatrixColumns).
+     * Function to retrieve the sensitivity matrix history, with only the propagated columns (see setReducedSensitivityMatrixColumns).
      * Equal to getSensitivitySolution if all columns are propagated.
      * \return Sensitivity matrix history, with only the propagated columns
      */
@@ -791,21 +791,13 @@ public:
      */
     void setReducedSensitivityMatrixColumns( const std::vector< int >& reducedSensitivityMatrixColumns )
     {
-        isSensitivityMatrixReduced_ = true;
         reducedSensitivityMatrixColumns_ = reducedSensitivityMatrixColumns;
-        fullSensitivitySolution_.clear( );
-    }
-
-    //! Function to retrieve the index in the full sensitivity matrix of each propagated column (empty if all columns are propagated)
-    std::vector< int > getReducedSensitivityMatrixColumns( ) const
-    {
-        return reducedSensitivityMatrixColumns_;
     }
 
     //! Function to retrieve the number of propagated sensitivity matrix columns
     int getPropagatedSensitivityMatrixSize( ) const
     {
-        return isSensitivityMatrixReduced_ ? static_cast< int >( reducedSensitivityMatrixColumns_.size( ) ) : sensitivityMatrixSize_;
+        return static_cast< int >( reducedSensitivityMatrixColumns_.size( ) );
     }
 
     const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getDynamicsResults( ) const
@@ -857,38 +849,11 @@ protected:
     //! Sensitivity matrix history, with only the propagated columns
     std::map< double, Eigen::MatrixXd > sensitivitySolution_;
 
-    //! Boolean denoting whether only a subset of the sensitivity matrix columns is propagated
-    bool isSensitivityMatrixReduced_ = false;
-
-    //! Index in the full sensitivity matrix of each propagated column (if isSensitivityMatrixReduced_)
+    //! Index in the full sensitivity matrix of each propagated column
     std::vector< int > reducedSensitivityMatrixColumns_;
-
-    //! Full sensitivity matrix history (only created when requested, if isSensitivityMatrixReduced_)
-    std::map< double, Eigen::MatrixXd > fullSensitivitySolution_;
 
 private:
     friend class cereal::access;
-
-    //! Function to create the full sensitivity matrix history from the history of the propagated columns
-    std::map< double, Eigen::MatrixXd > getExpandedSensitivitySolution( ) const
-    {
-        if( !isSensitivityMatrixReduced_ )
-        {
-            return sensitivitySolution_;
-        }
-
-        std::map< double, Eigen::MatrixXd > fullSensitivitySolution;
-        for( auto it : sensitivitySolution_ )
-        {
-            Eigen::MatrixXd& fullSensitivityMatrix = fullSensitivitySolution[ it.first ];
-            fullSensitivityMatrix = Eigen::MatrixXd::Zero( it.second.rows( ), sensitivityMatrixSize_ );
-            for( unsigned int i = 0; i < reducedSensitivityMatrixColumns_.size( ); i++ )
-            {
-                fullSensitivityMatrix.col( reducedSensitivityMatrixColumns_.at( i ) ) = it.second.col( i );
-            }
-        }
-        return fullSensitivitySolution;
-    }
 
     bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
     {
@@ -903,7 +868,7 @@ private:
                     stateTransitionMatrixSize_ == rhsDerived->stateTransitionMatrixSize_ &&
                     sensitivityMatrixSize_ == rhsDerived->sensitivityMatrixSize_ &&
                     stateTransitionSolution_ == rhsDerived->stateTransitionSolution_ &&
-                    getExpandedSensitivitySolution( ) == rhsDerived->getExpandedSensitivitySolution( ) &&
+                    getSensitivitySolution( ) == rhsDerived->getSensitivitySolution( ) &&
                     ( ( singleArcDynamicsResults_ != nullptr && rhsDerived->singleArcDynamicsResults_ != nullptr )
                               ? ( *singleArcDynamicsResults_ == *rhsDerived->singleArcDynamicsResults_ )
                               : singleArcDynamicsResults_ == rhsDerived->singleArcDynamicsResults_ );
@@ -921,7 +886,7 @@ private:
         ar( CEREAL_NVP( stateTransitionSolution_ ) );
 
         // Sensitivity matrix history is always saved with all columns
-        std::map< double, Eigen::MatrixXd > fullSensitivitySolution = getExpandedSensitivitySolution( );
+        std::map< double, Eigen::MatrixXd > fullSensitivitySolution = getSensitivitySolution( );
         ar( cereal::make_nvp( "sensitivitySolution_", fullSensitivitySolution ) );
     }
 
@@ -935,6 +900,10 @@ private:
         ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
         ar( CEREAL_NVP( stateTransitionSolution_ ) );
         ar( CEREAL_NVP( sensitivitySolution_ ) );
+
+        // Sensitivity matrix history is always saved with all columns
+        reducedSensitivityMatrixColumns_.resize( sensitivityMatrixSize_ );
+        std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
     }
 };
 

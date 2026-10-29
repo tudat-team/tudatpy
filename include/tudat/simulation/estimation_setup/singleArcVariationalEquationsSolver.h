@@ -114,11 +114,8 @@ public:
                 dynamicsSimulator_->getSingleArcPropagationResults( ),
                 this->stateTransitionMatrixSize_,
                 this->parameterVectorSize_ - this->stateTransitionMatrixSize_ );
-        if( variationalEquationsObject_->getReduceSensitivityMatrixColumns( ) )
-        {
-            variationalPropagationResults_->setReducedSensitivityMatrixColumns(
-                    variationalEquationsObject_->getReducedSensitivityMatrixColumns( ) );
-        }
+        variationalPropagationResults_->setReducedSensitivityMatrixColumns(
+                variationalEquationsObject_->getReducedSensitivityMatrixColumns( ) );
 
         // Integrate variational equations from initial state estimate.
         if( integrateEquationsOnCreation )
@@ -201,7 +198,7 @@ public:
         return variationalPropagationResults_->getStateTransitionSolution( );
     }
 
-    std::map< double, Eigen::MatrixXd >& getSensitivityMatrixSolution( )
+    std::map< double, Eigen::MatrixXd > getSensitivityMatrixSolution( )
     {
         return variationalPropagationResults_->getSensitivitySolution( );
     }
@@ -344,10 +341,7 @@ private:
                         propagatorSettings_->getConventionalStateSize( ),
                         parameterVectorSize_,
                         variationalEquationsObject_->getStatePartialAdditionIndices( ) );
-        if( variationalEquationsObject_->getReduceSensitivityMatrixColumns( ) )
-        {
-            singleArcInterface->setReducedSensitivityMatrixColumns( variationalEquationsObject_->getReducedSensitivityMatrixColumns( ) );
-        }
+        singleArcInterface->setReducedSensitivityMatrixColumns( variationalEquationsObject_->getReducedSensitivityMatrixColumns( ) );
         stateTransitionInterface_ = singleArcInterface;
     }
 

@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <limits>
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 namespace tudat
@@ -800,7 +798,7 @@ std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInf
                                                                                         const int numberOfArcs,
                                                                                         const int entriesPerArc )
 {
-    if( static_cast< int >( arcStartTimes.size( ) ) < numberOfArcs )
+    if( static_cast< int >( arcStartTimes.size( ) ) <= numberOfArcs )
     {
         throw std::runtime_error( "Error when getting arc-wise parameter time intervals, number of arc start times is inconsistent" );
     }
@@ -808,11 +806,9 @@ std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInf
     std::vector< std::pair< double, double > > timeIntervals;
     for( int i = 0; i < numberOfArcs; i++ )
     {
-        double arcStartTime = ( i == 0 ) ? -std::numeric_limits< double >::infinity( ) : arcStartTimes.at( i );
-        double arcEndTime = ( i == numberOfArcs - 1 ) ? std::numeric_limits< double >::infinity( ) : arcStartTimes.at( i + 1 );
         for( int j = 0; j < entriesPerArc; j++ )
         {
-            timeIntervals.push_back( std::make_pair( arcStartTime, arcEndTime ) );
+            timeIntervals.push_back( std::make_pair( arcStartTimes.at( i ), arcStartTimes.at( i + 1 ) ) );
         }
     }
     return timeIntervals;

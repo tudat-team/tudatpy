@@ -199,9 +199,9 @@ bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parame
 //! Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active
 /*!
  * Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active.
- * Arc i is active from arcStartTimes[ i ] to arcStartTimes[ i + 1 ], where the first arc is (conservatively) taken to
- * be active from minus infinity, and the last arc until infinity.
- * \param arcStartTimes Start times of the arcs (a sentinel final entry, beyond numberOfArcs, is ignored)
+ * Arc i is active from arcStartTimes[ i ] to arcStartTimes[ i + 1 ] (the partials w.r.t. the parameter are zero before the
+ * start of the first arc).
+ * \param arcStartTimes Start times of the arcs, with a final entry (beyond numberOfArcs) denoting the end of the last arc
  * \param numberOfArcs Number of arcs in the parameter
  * \param entriesPerArc Number of parameter entries for each arc (stored consecutively per arc)
  * \return Start and end time of the interval in which each parameter entry is active

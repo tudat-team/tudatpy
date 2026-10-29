@@ -206,11 +206,8 @@ public:
                     singleArcDynamicsSimulators.at( i )->getSingleArcPropagationResults( ),
                     arcWiseStateTransitionMatrixSize_.at( i ),
                     arcWiseParameterVectorSize_.at( i ) - arcWiseStateTransitionMatrixSize_.at( i ) ) );
-            if( variationalEquationsObject_->getReduceSensitivityMatrixColumns( ) )
-            {
-                singleArcVariationalResults.back( )->setReducedSensitivityMatrixColumns(
-                        variationalEquationsObject_->getReducedSensitivityMatrixColumns( ) );
-            }
+            singleArcVariationalResults.back( )->setReducedSensitivityMatrixColumns(
+                    variationalEquationsObject_->getReducedSensitivityMatrixColumns( ) );
             arcWiseParameterVectorSize_.at( i ) = variationalEquationsObject_->getNumberOfParameterValues( );
         }
         variationalPropagationResults_ =
@@ -533,26 +530,18 @@ private:
         }
     }
 
-    //! Function to set the propagated sensitivity matrix columns of each arc in the state transition matrix interface (if reduced)
+    //! Function to set the propagated sensitivity matrix columns of each arc in the state transition matrix interface
     void setReducedSensitivityMatrixColumnsInInterface( )
     {
         std::vector< std::vector< int > > reducedSensitivityMatrixColumns;
         for( unsigned int i = 0; i < dynamicsStateDerivatives_.size( ); i++ )
         {
-            std::shared_ptr< VariationalEquations > variationalEquations =
-                    dynamicsStateDerivatives_.at( i )->getVariationalEquationsCalculator( );
-            if( variationalEquations->getReduceSensitivityMatrixColumns( ) )
-            {
-                reducedSensitivityMatrixColumns.push_back( variationalEquations->getReducedSensitivityMatrixColumns( ) );
-            }
+            reducedSensitivityMatrixColumns.push_back(
+                    dynamicsStateDerivatives_.at( i )->getVariationalEquationsCalculator( )->getReducedSensitivityMatrixColumns( ) );
         }
-
-        if( reducedSensitivityMatrixColumns.size( ) > 0 )
-        {
-            std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
-                    stateTransitionInterface_ )
-                    ->setReducedSensitivityMatrixColumns( reducedSensitivityMatrixColumns );
-        }
+        std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
+                stateTransitionInterface_ )
+                ->setReducedSensitivityMatrixColumns( reducedSensitivityMatrixColumns );
     }
 
     std::vector< std::vector< std::pair< int, int > > > getArcWiseStatePartialAdditionIndices( )
