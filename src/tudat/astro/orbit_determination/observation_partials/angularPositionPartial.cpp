@@ -115,8 +115,8 @@ void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkE
                 j2000ToGlobalFrameTransformation_.transpose( );
         const Eigen::Vector3d direction = observation_models::getAngularPositionDirectionInSelectedFrame(
                 relativePosition, receiverVelocity, times[ 1 ], j2000ToGlobalFrameTransformation_, ancillarySettings );
-        const Eigen::Matrix< double, 2, 3 > partialWrtReceiverToDirection = calculatePartialOfAngularPositionWrtLinkEndPosition(
-                -direction, true, normalizeRightAscension_, currentObservation );
+        const Eigen::Matrix< double, 2, 3 > partialWrtReceiverToDirection =
+                calculatePartialOfAngularPositionWrtLinkEndPosition( -direction, true, normalizeRightAscension_, currentObservation );
         scalingFactor_ = partialWrtReceiverToDirection * rotation * directionPartialWrtPosition;
         velocityScalingFactor_ = -partialWrtReceiverToDirection * rotation * directionPartialWrtVelocity;
     }
