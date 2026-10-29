@@ -381,11 +381,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     }
     else
     {
-        std::cerr << "Warning: after the estimation, the estimated parameters are set to those of the last iteration, instead of the "
-                     "best iteration. This behaviour is deprecated, and will be removed in a future version. Set the "
-                     "reset_parameters_to_best_iteration input of the EstimationInput to true to use the parameters of the best "
-                     "iteration (and remove this warning)."
-                  << std::endl;
+        static bool hasPrintedDeprecationWarning = false;
+        if( !hasPrintedDeprecationWarning )
+        {
+            std::cerr << "Warning: after the estimation, the estimated parameters are set to those of the last iteration, instead of "
+                         "the best iteration. This behaviour is deprecated, and will be removed in a future version. Set the "
+                         "reset_parameters_to_best_iteration input of the EstimationInput to true to use the parameters of the best "
+                         "iteration (and remove this warning)."
+                      << std::endl;
+            hasPrintedDeprecationWarning = true;
+        }
     }
 
     // Create estimation output object
