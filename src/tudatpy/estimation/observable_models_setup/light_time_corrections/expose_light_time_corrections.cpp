@@ -753,10 +753,7 @@ Returns
          of at least 2). The frequencies are obtained from the link (frequency bands and transmitted frequencies), so the
          correction is only available for observables with frequency information (e.g. DSN data).
 
-         The default coefficients are those estimated by Morley and Budnik (2007) for the Rosetta 2006 solar
-         conjunction (8.9 electrons per cm³ at 1 AU). With these, the 2002-2013 Odyssey and MRO range residuals
-         w.r.t. DE440 show no dependence on the solar elongation (to about 1 m) down to 3 degrees. Other values from the
-         literature, in m⁻³ for :math:`r` in solar radii:
+         The default coefficients are those estimated by Morley and Budnik (2007). Other values:
 
          - DE102 and the original ESOC model: :math:`c` = [1.3e14, 0.5e12], :math:`k` = [6, 2] (10.8 cm⁻³ at 1 AU);
            over-corrects the Odyssey and MRO ranges close to the Sun by about 8 m.
@@ -765,10 +762,6 @@ Returns
            and :math:`C` = 1.31 (7.8 cm⁻³ at 1 AU).
          - Verma et al. (2013): single power laws :math:`B (r/R_\odot)^{-\epsilon}` with :math:`B` = 0.1e12 to
            1.9e12 and :math:`\epsilon` = 2.0 to 2.54, per solar conjunction and solar wind type (slow, fast).
-
-         The electron density varies by a factor of about two between solar conjunctions and with the solar cycle, so
-         residuals close to the Sun remain at the level of several metres (X-band); ephemeris analyses typically
-         remove range data with a line of sight closer than 30-60 solar radii to the Sun.
 
          Parameters
          ----------
