@@ -126,8 +126,10 @@ public:
      * Verma et al. (2013). r corresponds to the dimensionless distance: distance / solar_radius. Model neglects the
      * effect of the latitude wrt Sun in the electron density.
      *
-     * See e.g. Verma et al. (2013) and Morley and Budnik (2007) for examples of coefficients.
-     * The default values are taken from Aksim and Pavlov (2022).
+     * See e.g. Verma et al. (2013), Morley and Budnik (2007) and Aksim and Pavlov (2022) for examples of coefficients.
+     * The default values are those estimated by Morley and Budnik (2007) from the Rosetta 2006 solar conjunction
+     * (c = 0.12e14 and 0.41e12 m^-3 for k = 6 and 2; 8.9 electrons per cm^3 at 1 AU), with which the Odyssey and MRO
+     * ranges of 2002-2013 have no solar elongation dependent residuals above 3 degrees elongation.
      *
      * @param observableType Observable type associated with the correction.
      * @param sunStateFunction State of the Sun as a function of time.
@@ -140,14 +142,12 @@ public:
      *      1 / ( 2 * electron_mass * vacuum_permittivity * (2 pi)^2 ) / electron_charge^2 )
      * @param sunRadius Radius of the Sun.
      */
-    InversePowerSeriesSolarCoronaCorrection(
-            const ObservableType observableType,
-            const std::function< Eigen::Vector6d( double time ) > sunStateFunction,
-            const std::vector< double >& coefficients = { 1.31 * 5.97e6 * std::pow( physical_constants::ASTRONOMICAL_UNIT, 2.0 ) /
-                                                          std::pow( 696e6, 2 ) },
-            const std::vector< double >& positiveExponents = { 2.0 },
-            const double criticalPlasmaDensityDelayCoefficient = 40.3,
-            const double sunRadius = 696e6 ):
+    InversePowerSeriesSolarCoronaCorrection( const ObservableType observableType,
+                                             const std::function< Eigen::Vector6d( double time ) > sunStateFunction,
+                                             const std::vector< double >& coefficients = { 0.12e14, 0.41e12 },
+                                             const std::vector< double >& positiveExponents = { 6.0, 2.0 },
+                                             const double criticalPlasmaDensityDelayCoefficient = 40.3,
+                                             const double sunRadius = 696e6 ):
         SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction ), coefficients_( coefficients ),
         positiveExponents_( positiveExponents ), criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),
         sunRadius_( sunRadius )
@@ -159,7 +159,6 @@ public:
                                       std::to_string( positiveExponents.size( ) ) + ") are incompatible." );
         }
 
-        exponentsAreIntegers_ = true;
         for( double exponent : positiveExponents )
         {
             // Check if all exponents are positive
@@ -169,12 +168,6 @@ public:
                         "Error when creating inverse power series solar corona correction: negative exponent was"
                         "provided (" +
                         std::to_string( exponent ) + "). All provided exponents should be positive." );
-            }
-
-            // Check if all exponents are integers
-            if( std::fmod( exponent, 1.0 ) != 0 )
-            {
-                exponentsAreIntegers_ = false;
             }
         }
     }
@@ -204,19 +197,20 @@ private:
     double computeElectronDensity( const Eigen::Vector3d& positionWrtSun, const double time ) override;
 
     /*!
-     * Computes the integral of a single r^{-k} electron density term over the line of sight. Does so analytically, which
-     * is only valid if k is an integer >= 0.
+     * Computes the integral of a single r^{-k} electron density term over the line of sight, as an integral over the
+     * angle between the position on the line of sight and its point closest to the Sun (Verma et al., 2013, eq. A.4).
+     * The angular integral is computed analytically if k is an integer >= 2, and numerically otherwise.
      *
      * @param receiverPositionWrtSun Position of the receiver with respect to the Sun.
      * @param sunReceiverTransmitterAngle Angle between Receiver-Sun and Receiver-Transmitter vectors.
      * @param receiverSunTransmitterAngle Angle between Sun-Receiver and Sun-Transmitter vectors.
-     * @param positiveExponent Value of the k exponent. Should be an integer.
+     * @param positiveExponent Value of the k exponent.
      * @return Integral value.
      */
-    double computeSingleTermIntegralAnalytically( const Eigen::Vector3d& receiverPositionWrtSun,
-                                                  const double sunReceiverTransmitterAngle,
-                                                  const double receiverSunTransmitterAngle,
-                                                  const unsigned int positiveExponent );
+    double computeSingleTermIntegral( const Eigen::Vector3d& receiverPositionWrtSun,
+                                      const double sunReceiverTransmitterAngle,
+                                      const double receiverSunTransmitterAngle,
+                                      const double positiveExponent );
 
     /*!
      * Computes the integral of (cos(x))^k analytically, for an integer k >= 0.
@@ -232,9 +226,6 @@ private:
 
     // Vector containing the k exponents of the electron density model (\sum c r^{-k}).
     const std::vector< double > positiveExponents_;
-
-    // Boolean indicating whether all exponents are integers. If so, correction can be calculated fully analytically
-    bool exponentsAreIntegers_;
 
     // Solar corona correction coefficient.
     const double criticalPlasmaDensityDelayCoefficient_;

@@ -734,9 +734,48 @@ Returns
     configured for VMF3o optical tropospheric corrections.
            )doc" );
 
+    py::enum_< tom::SolarCoronaModel >( m, "SolarCoronaModel", R"doc(
+
+         Enumeration of published solar-corona electron density models, see :func:`solar_corona_model_coefficients`.
+
+      )doc" )
+            .value( "morley_budnik_2007",
+                    tom::morley_budnik_2007_solar_corona,
+                    ":cite:t:`morley2007`, Rosetta 2006 solar conjunction: :math:`c` = [0.12e14, 0.41e12], :math:`k` = [6, 2]." )
+            .value( "de102_esoc",
+                    tom::de102_esoc_solar_corona,
+                    "DE102 :cite:p:`newhall1983` and the original ESOC model: :math:`c` = [1.3e14, 0.5e12], :math:`k` = [6, 2]." )
+            .value( "muhleman_1977",
+                    tom::muhleman_1977_solar_corona,
+                    ":cite:t:`muhleman1977`, Mariner 7: :math:`c` = [1.3e14, 0.66e12], :math:`k` = [6, 2.08]." )
+            .value( "aksim_pavlov_2022",
+                    tom::aksim_pavlov_2022_solar_corona,
+                    ":cite:t:`aksim2022`, EPM: :math:`c` = [:math:`C N_0` (1 AU / :math:`R_\\odot`)²], :math:`k` = [2], with "
+                    ":math:`N_0` = 5.97 cm⁻³ and :math:`C` = 1.31." );
+
+    m.def( "solar_corona_model_coefficients",
+           &tom::getSolarCoronaModelCoefficients,
+           py::arg( "model" ),
+           R"doc(
+
+         Coefficients and exponents of a published solar-corona electron density model.
+
+         Parameters
+         ----------
+         model : SolarCoronaModel
+             Published model.
+
+         Returns
+         -------
+         tuple[list[float], list[float]]
+             Coefficients :math:`c_i` [m⁻³] and positive exponents :math:`k_i`, as input for
+             :func:`inverse_power_series_solar_corona_light_time_correction`.
+
+      )doc" );
+
     m.def( "inverse_power_series_solar_corona_light_time_correction",
            &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
-           py::arg( "coefficients" ) = std::vector< double >{ 1.3e14, 0.5e12 },
+           py::arg( "coefficients" ) = std::vector< double >{ 0.12e14, 0.41e12 },
            py::arg( "positive_exponents" ) = std::vector< double >{ 6.0, 2.0 },
            py::arg( "delay_coefficient" ) = 40.3,
            py::arg( "sun_body_name" ) = "Sun",
@@ -744,20 +783,35 @@ Returns
 
          Create a dispersive solar-corona light-time correction from an inverse-power electron density model.
 
-         ``coefficients`` gives density amplitudes in inverse cubic metres and ``positive_exponents`` gives the
-         corresponding positive powers of distance normalized by the solar radius. ``delay_coefficient`` is the plasma
-         delay constant; ``sun_body_name`` identifies the central star.
+         The electron density is modelled as :math:`N_e(r)=\sum_i c_i (r/R_\odot)^{-k_i}`, with :math:`r` the distance
+         to the centre of the Sun and :math:`R_\odot` the (average) radius of its shape model, without dependence on
+         the heliographic latitude or time. The light-time correction of each leg of the link is
+         :math:`\pm 40.3 / (c f^2) \int N_e \, ds` (positive for group-delay observables such as range, negative for
+         phase observables such as Doppler), with :math:`f` the frequency of the leg [Hz] (eq. 1 of :cite:t:`verma2013`).
+         The integral is computed per term over the angle along the line of sight (analytically for integer exponents
+         of at least 2). The frequencies are obtained from the link (frequency bands and transmitted frequencies), so the
+         correction is only available for observables with frequency information (e.g. DSN data).
+
+         The default coefficients are those estimated by :cite:t:`morley2007`. Other published models are given by
+         :func:`solar_corona_model_coefficients`:
+
+         .. code-block:: python
+
+            coefficients, exponents = light_time_corrections.solar_corona_model_coefficients(
+                light_time_corrections.SolarCoronaModel.aksim_pavlov_2022 )
+            correction = light_time_corrections.inverse_power_series_solar_corona_light_time_correction(
+                coefficients, exponents )
 
          Parameters
          ----------
-         coefficients : list[float], default = [1.3e14, 0.5e12]
-             Coefficients of the inverse-power series defining solar-corona electron density.
+         coefficients : list[float], default = [0.12e14, 0.41e12]
+             Coefficients :math:`c_i` [m⁻³] of the inverse-power series defining the solar-corona electron density.
          positive_exponents : list[float], default = [6.0, 2.0]
-             Positive radial powers for the inverse-power density series, paired with the coefficients.
+             Positive powers :math:`k_i` of the distance normalized by the solar radius, paired with the coefficients.
          delay_coefficient : float, default = 40.3
-             Coefficient converting the electron-density integral into the light-time correction.
+             Coefficient [m³ s⁻²] converting the electron-density integral into the light-time correction.
          sun_body_name : str, default = "Sun"
-             Name of the Sun body in the system of bodies.
+             Name of the Sun body in the system of bodies (must have a shape model).
 
          Returns
          -------
