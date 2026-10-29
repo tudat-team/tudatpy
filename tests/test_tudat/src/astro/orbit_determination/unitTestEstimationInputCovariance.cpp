@@ -17,6 +17,7 @@
 #include "tudat/simulation/estimation_setup/executeEarthOrbiterParameterEstimationTestCase.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulatePseudoObservations.h"
 
 namespace tudat
 {
@@ -171,6 +172,98 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     BOOST_CHECK_CLOSE_FRACTION( ambiguousInverseAprioriCovariance( 0, 0 ), 1.0, 1.0E-15 );
     BOOST_CHECK_CLOSE_FRACTION( ambiguousInverseAprioriCovariance( 1, 1 ), 1.0, 1.0E-15 );
     BOOST_CHECK_EQUAL( ambiguousInverseAprioriCovariance( 2, 2 ), 0.0 );
+}
+
+//! Test single least-squares iteration with (and without) constraint on initial state correction
+BOOST_AUTO_TEST_CASE( test_InitialStateCorrectionConstraint )
+{
+    using namespace estimatable_parameters;
+    using namespace propagators;
+
+    // Create Earth (point mass) and vehicle
+    double earthGravitationalParameter = 3.986004418E14;
+    SystemOfBodies bodies( "Earth", "ECLIPJ2000" );
+    bodies.createEmptyBody( "Earth", false );
+    bodies.at( "Earth" )->setEphemeris(
+            std::make_shared< ephemerides::ConstantEphemeris >( [ = ]( ) { return Eigen::Vector6d::Zero( ); } ) );
+    bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >( earthGravitationalParameter ) );
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )
+            ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris<> >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
+
+    // Create Keplerian dynamics of vehicle
+    std::vector< std::string > bodiesToEstimate = { "Vehicle" };
+    std::vector< std::string > centralBodies = { "Earth" };
+    SelectedAccelerationMap accelerationSettings;
+    accelerationSettings[ "Vehicle" ][ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationSettings, bodiesToEstimate, centralBodies );
+
+    double initialTime = 0.0;
+    double finalTime = 4.0 * 3600.0;
+    Eigen::VectorXd trueInitialState = convertKeplerianToCartesianElements(
+            ( Eigen::Vector6d( ) << 7000.0E3, 0.01, 0.5, 1.0, 2.0, 0.0 ).finished( ), earthGravitationalParameter );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToEstimate,
+                    trueInitialState,
+                    initialTime,
+                    numerical_integrators::rungeKuttaFixedStepSettings( 30.0, numerical_integrators::rungeKuttaFehlberg78 ),
+                    std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
+
+    // Simulate relative position observations from true dynamics
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
+    std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
+               std::shared_ptr< observation_models::ObservationCollection< double > > >
+            observationCollectionAndModelSettings =
+                    simulatePseudoObservations( bodies, bodiesToEstimate, centralBodies, initialTime, finalTime, 60.0 );
+
+    // Create estimation objects, performing a single iteration
+    std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double, double >(
+            getInitialStateParameterSettings< double, double >( propagatorSettings, bodies ), bodies, propagatorSettings );
+    OrbitDeterminationManager< double > orbitDeterminationManager(
+            bodies, parametersToEstimate, observationCollectionAndModelSettings.first, propagatorSettings );
+    std::shared_ptr< EstimationInput< double > > estimationInput =
+            std::make_shared< EstimationInput< double > >( observationCollectionAndModelSettings.second );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 1 ) );
+    estimationInput->defineEstimationSettings( 1, 1, 0, 0, 1, 0 );
+
+    // Constrain initial state correction
+    Eigen::VectorXd initialStateError = ( Eigen::VectorXd( 6 ) << 10.0, -5.0, 2.0, 0.01, 0.005, -0.002 ).finished( );
+    Eigen::VectorXd constraintDirection = ( Eigen::VectorXd( 6 ) << 1.0, -2.0, 1.0, 1000.0, 1000.0, -1000.0 ).finished( );
+    setInitialStateCorrectionConstraint( parametersToEstimate, constraintDirection );
+    BOOST_CHECK_EQUAL( parametersToEstimate->getConstraintSize( ), 1 );
+
+    for( unsigned int i = 0; i < 2; i++ )
+    {
+        // Remove constraint for second run
+        if( i == 1 )
+        {
+            removeParameterCorrectionConstraints( parametersToEstimate );
+            BOOST_CHECK_EQUAL( parametersToEstimate->getConstraintSize( ), 0 );
+        }
+
+        // Perform single iteration from perturbed initial state
+        parametersToEstimate->resetParameterValues( Eigen::VectorXd( trueInitialState + initialStateError ) );
+        orbitDeterminationManager.estimateParameters( estimationInput );
+        Eigen::VectorXd stateCorrection =
+                parametersToEstimate->getFullParameterValues< double >( ) - ( trueInitialState + initialStateError );
+
+        if( i == 0 )
+        {
+            // Check that correction is non-zero, and orthogonal to constraint direction
+            BOOST_CHECK( stateCorrection.segment( 0, 3 ).norm( ) > 1.0 );
+            BOOST_CHECK_SMALL( constraintDirection.dot( stateCorrection ) / constraintDirection.dot( initialStateError ), 1.0E-6 );
+        }
+        else
+        {
+            // Check that correction removes initial state error
+            BOOST_CHECK_SMALL( ( stateCorrection + initialStateError ).segment( 0, 3 ).norm( ), 0.1 );
+            BOOST_CHECK_SMALL( ( stateCorrection + initialStateError ).segment( 3, 3 ).norm( ), 1.0E-4 );
+        }
+    }
 }
 
 //! Test whether the covariance is correctly computed as a function of time

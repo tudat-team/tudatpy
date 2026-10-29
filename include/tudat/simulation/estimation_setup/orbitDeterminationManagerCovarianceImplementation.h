@@ -81,6 +81,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
     normalizeLinearConstraints( constraintStateMultiplier, constraintRightHandSide, normalizationTerms );
 
+    // Constraint is defined for unnormalized parameters: rescale it consistently with the normalized design matrix
+    constraintStateMultiplier =
+            constraintStateMultiplier * normalizationTerms.head( constraintStateMultiplier.cols( ) ).cwiseInverse( ).asDiagonal( );
+
     // Compute inverse of updated covariance
     Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
             designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ ),

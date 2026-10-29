@@ -59,7 +59,7 @@ public:
                             ( std::vector< std::shared_ptr<
                                       EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ),
             const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr ):
-        considerParameters_( considerParameters ), totalConstraintSize_( 0 )
+        considerParameters_( considerParameters )
     {
         // Initialize total number of parameters to 0.
         estimatedParameterSetSize_ = 0;
@@ -99,7 +99,6 @@ public:
             initialStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters[ i ];
             parameterIndices_.push_back(
                     std::make_pair( estimatedParameterSetSize_, estimateInitialStateParametersOrdered[ i ]->getParameterSize( ) ) );
-            totalConstraintSize_ += estimateInitialStateParametersOrdered[ i ]->getConstraintSize( );
 
             initialDynamicalSingleArcStateParameterSize_ += estimateSingleArcInitialStateParameters[ i ]->getParameterSize( );
             initialSingleArcStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters[ i ];
@@ -125,7 +124,6 @@ public:
         for( unsigned int i = 0; i < estimatedDoubleParameters.size( ); i++ )
         {
             doubleParameters_[ estimatedParameterSetSize_ ] = estimatedDoubleParameters[ i ];
-            totalConstraintSize_ += estimatedDoubleParameters[ i ]->getConstraintSize( );
 
             parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_, 1 ) );
             estimatedParameterSetSize_++;
@@ -135,7 +133,6 @@ public:
         for( unsigned int i = 0; i < estimatedVectorParameters.size( ); i++ )
         {
             vectorParameters_[ estimatedParameterSetSize_ ] = estimatedVectorParameters[ i ];
-            totalConstraintSize_ += estimatedVectorParameters[ i ]->getConstraintSize( );
 
             parameterIndices_.push_back(
                     std::make_pair( estimatedParameterSetSize_, estimatedVectorParameters[ i ]->getParameterSize( ) ) );
@@ -705,8 +702,8 @@ public:
     void getConstraints( Eigen::MatrixXd& constraintStateMultiplier, Eigen::VectorXd& constraintRightHandSide )
     {
         // Resize constraint elements
-        constraintStateMultiplier.setZero( totalConstraintSize_, estimatedParameterSetSize_ );
-        constraintRightHandSide.setZero( totalConstraintSize_, 1 );
+        constraintStateMultiplier.setZero( getConstraintSize( ), estimatedParameterSetSize_ );
+        constraintRightHandSide.setZero( getConstraintSize( ), 1 );
 
         // Iterate over all state parameters
         int currentConstraintRow = 0;
@@ -776,7 +773,21 @@ public:
      */
     int getConstraintSize( )
     {
-        return totalConstraintSize_;
+        // Computed on request, since constraints may be set on parameters after creation of this object
+        int totalConstraintSize = 0;
+        for( auto parameterIterator : initialStateParameters_ )
+        {
+            totalConstraintSize += parameterIterator.second->getConstraintSize( );
+        }
+        for( auto parameterIterator : doubleParameters_ )
+        {
+            totalConstraintSize += parameterIterator.second->getConstraintSize( );
+        }
+        for( auto parameterIterator : vectorParameters_ )
+        {
+            totalConstraintSize += parameterIterator.second->getConstraintSize( );
+        }
+        return totalConstraintSize;
     }
 
     //! Function to return a map with the names of the arc-wise bodies to be estimated for each arc, and the arc starting times as keys.
@@ -868,9 +879,6 @@ protected:
     std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
             initialStateParameters_;
 
-    //! Size of linear constraint that is to be applied during estimation
-    int totalConstraintSize_;
-
     //! Map containing all single-arc initial state parameter objects, with map key start index of parameter in total vector.
     std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
             initialSingleArcStateParameters_;
@@ -917,6 +925,41 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarTyp
                 parametersToEstimate->getEstimatedDoubleParameters( ),
                 parametersToEstimate->getEstimatedVectorParameters( ),
                 parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ) );
+    }
+}
+
+//! Function to constrain the correction to the single-arc initial translational state in a parameter set (see
+//! setParameterCorrectionConstraint), requires the set to contain exactly one such parameter
+template< typename InitialStateParameterType >
+void setInitialStateCorrectionConstraint( const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > parameterSet,
+                                          const Eigen::VectorXd& constraintDirection )
+{
+    std::vector< std::shared_ptr< EstimatableParameterBase > > initialStateParameters =
+            parameterSet->getParametersForParameterIdentifier( std::make_pair( initial_body_state, std::make_pair( "", "" ) ) );
+    if( initialStateParameters.size( ) != 1 )
+    {
+        throw std::runtime_error( "Error when setting initial state correction constraint, found " +
+                                  std::to_string( initialStateParameters.size( ) ) +
+                                  " single-arc initial translational states in parameter set, expected 1" );
+    }
+    setParameterCorrectionConstraint( initialStateParameters.at( 0 ), constraintDirection );
+}
+
+//! Function to remove the constraints set by setParameterCorrectionConstraint from all parameters in a parameter set
+template< typename InitialStateParameterType >
+void removeParameterCorrectionConstraints( const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > parameterSet )
+{
+    for( auto parameter : parameterSet->getEstimatedInitialStateParameters( ) )
+    {
+        removeParameterCorrectionConstraint( parameter );
+    }
+    for( auto parameter : parameterSet->getEstimatedDoubleParameters( ) )
+    {
+        removeParameterCorrectionConstraint( parameter );
+    }
+    for( auto parameter : parameterSet->getEstimatedVectorParameters( ) )
+    {
+        removeParameterCorrectionConstraint( parameter );
     }
 }
 
