@@ -141,7 +141,7 @@ unsigned int getDopplerCompressionRatio(
         const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
         const double targetCountTime )
 {
-    const double countTimeTolerance = 0.01;
+    const double countTimeTolerance = 1.0e-4;
     double currentCountTime = originalDopplerData->getAncillarySettings( )->getAncillaryDoubleData(
             observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
 
