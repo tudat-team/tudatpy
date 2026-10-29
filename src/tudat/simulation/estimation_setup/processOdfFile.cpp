@@ -45,23 +45,23 @@ observation_models::ObservableType getObservableTypeForOdfId( const input_output
     return observableType;
 }
 
-observation_models::FrequencyBands getFrequencyBandForOdfId( const int odfId )
+basic_astrodynamics::FrequencyBands getFrequencyBandForOdfId( const int odfId )
 {
-    observation_models::FrequencyBands frequencyBand;
+    basic_astrodynamics::FrequencyBands frequencyBand;
 
     switch( odfId )
     {
         case 0:
-            frequencyBand = observation_models::ku_band;
+            frequencyBand = basic_astrodynamics::FrequencyBands::ku_band;
             break;
         case 1:
-            frequencyBand = observation_models::s_band;
+            frequencyBand = basic_astrodynamics::FrequencyBands::s_band;
             break;
         case 2:
-            frequencyBand = observation_models::x_band;
+            frequencyBand = basic_astrodynamics::FrequencyBands::x_band;
             break;
         case 3:
-            frequencyBand = observation_models::ka_band;
+            frequencyBand = basic_astrodynamics::FrequencyBands::ka_band;
             break;
         default:
             throw std::runtime_error( "Error when getting observable type for ODF ID, ID: " + std::to_string( odfId ) +

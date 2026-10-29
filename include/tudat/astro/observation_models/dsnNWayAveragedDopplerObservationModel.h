@@ -21,7 +21,7 @@
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/transmissionFrequencyInterface.h"
 
@@ -53,7 +53,8 @@ namespace observation_models
  */
 template< typename ObservationScalarType >
 inline double getDsnNWayAveragedDopplerScalingFactor(
-        const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > receivedFrequencyFunction,
+        const std::function< double( std::vector< basic_astrodynamics::FrequencyBands > frequencyBands, double time ) >
+                receivedFrequencyFunction,
         const bool subtractDopplerSignature,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
@@ -62,11 +63,12 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
         const bool isFirstPartial )
 {
     double integrationTime;
-    std::vector< FrequencyBands > frequencyBands;
+    std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
     try
     {
         integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
-        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+        frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -135,8 +137,8 @@ public:
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel,
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-            const std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >&
-                    turnaroundRatio,
+            const std::function< double( basic_astrodynamics::FrequencyBands uplinkBand,
+                                         basic_astrodynamics::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ),
@@ -209,15 +211,16 @@ public:
 
         TimeType integrationTime;
         ObservationScalarType referenceFrequency;
-        std::vector< FrequencyBands > frequencyBands;
-        FrequencyBands referenceUplinkBand;
+        std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
+        basic_astrodynamics::FrequencyBands referenceUplinkBand;
         try
         {
             integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
             referenceFrequency = ancillarySettings->getAncillaryDoubleData( doppler_reference_frequency );
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
-            referenceUplinkBand =
-                    convertDoubleToFrequencyBand( ancillarySettings->getAncillaryDoubleData( reception_reference_frequency_band ) );
+            frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                    ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+            referenceUplinkBand = basic_astrodynamics::convertDoubleToFrequencyBand(
+                    ancillarySettings->getAncillaryDoubleData( reception_reference_frequency_band ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -233,8 +236,8 @@ public:
                     std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
                     std::to_string( numberOfLinkEnds_ - 1 ) + ")." );
         }
-        FrequencyBands uplinkBand = frequencyBands.at( 0 );
-        FrequencyBands downlinkBand = frequencyBands.at( 1 );
+        basic_astrodynamics::FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        basic_astrodynamics::FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Set approximate up- and down-link frequencies.
         ObservationScalarType currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );

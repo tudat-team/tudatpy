@@ -22,7 +22,7 @@
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
@@ -451,25 +451,27 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getCustomPositi
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayRangeAncillarySettings(
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands = std::vector< basic_astrodynamics::FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayAveragedDopplerAncillarySettings(
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands = std::vector< basic_astrodynamics::FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancillarySettings;
 }
 
@@ -486,8 +488,8 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getTwoWayAverag
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands,
-        const FrequencyBands receptionReferenceFrequencyBand,
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands,
+        const basic_astrodynamics::FrequencyBands receptionReferenceFrequencyBand,
         const double referenceFrequency,
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
@@ -498,16 +500,17 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAvera
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, referenceFrequency );
     ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band,
-                                               convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
+                                               basic_astrodynamics::convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRangeAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands,
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands,
         const double lowestRangingComponent,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 
@@ -517,19 +520,21 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRange
 
     ancillarySettings->setAncillaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDopplerMeasuredFrequencyAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
 
     return ancillarySettings;
 }

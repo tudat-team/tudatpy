@@ -31,10 +31,12 @@ set(basic_astrodynamics_SOURCES
         "torqueModelTypes.cpp"
         "torqueModel.cpp"
         "neQuick2Model.cpp"
+        "frequencyBands.cpp"
         )
 
 # Set the header files.
 set(basic_astrodynamics_HEADERS
+        "frequencyBands.h"
         "accelerationModelTypes.h"
         "accelerationModel.h"
         "dateTime.h"

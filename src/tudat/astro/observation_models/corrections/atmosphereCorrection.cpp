@@ -1141,7 +1141,8 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
     //    double firstLegTransmissionTime = linkEndsTimes.front( );
 
     // Retrieve frequency bands
-    std::vector< FrequencyBands > frequencyBands = std::vector< FrequencyBands >( { x_band } );
+    std::vector< basic_astrodynamics::FrequencyBands > frequencyBands =
+            std::vector< basic_astrodynamics::FrequencyBands >( { basic_astrodynamics::FrequencyBands::x_band } );
 
     double elevation = elevationFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ), groundStationTime );
     double azimuth = azimuthFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ), groundStationTime );
