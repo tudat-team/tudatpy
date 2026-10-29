@@ -375,6 +375,85 @@ void expose_parameters( py::module& m )
 
 
      )doc" );
+
+    m.def( "set_parameter_correction_constraint",
+           &tep::setParameterCorrectionConstraint,
+           py::arg( "parameter" ),
+           py::arg( "constraint_direction" ),
+           R"doc(
+
+ Function to constrain the correction to an estimated parameter to be orthogonal to a given direction.
+
+ Function to constrain the correction :math:`\Delta\mathbf{x}` to an estimated parameter to be orthogonal to a given direction
+ :math:`\mathbf{g}`, by imposing :math:`\mathbf{g}^{T}\Delta\mathbf{x}=0` (using Lagrange multipliers) in each iteration of the
+ estimation. For instance, when :math:`\mathbf{g}` is the weak direction of the covariance of an initial state from an
+ unconstrained solution, this can be used to compute points along the line of variations (Milani et al., 2005).
+ Any constraint previously set on the parameter is replaced; it can be removed with
+ :func:`~tudatpy.dynamics.parameters.remove_parameter_correction_constraint`.
+
+ Parameters
+ ----------
+ parameter : :class:`~tudatpy.dynamics.parameters.EstimatableParameter`
+     Estimated parameter, as retrieved from the parameter set with
+     :meth:`~tudatpy.dynamics.parameters.EstimatableParameterSet.parameters_for_parameter_type`.
+ constraint_direction : numpy.ndarray[numpy.float64[n, 1]]
+     Direction (of the same size as the parameter) to which the parameter correction is to be orthogonal.
+
+     )doc" );
+
+    m.def( "set_initial_state_correction_constraint",
+           &tep::setInitialStateCorrectionConstraint< STATE_SCALAR_TYPE >,
+           py::arg( "parameter_set" ),
+           py::arg( "constraint_direction" ),
+           R"doc(
+
+ Function to constrain the correction to the initial state in a parameter set to be orthogonal to a given direction.
+
+ Function that applies :func:`~tudatpy.dynamics.parameters.set_parameter_correction_constraint` to the single-arc initial
+ translational state in the parameter set. The parameter set must contain exactly one such parameter.
+
+ Parameters
+ ----------
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Parameter set containing exactly one single-arc initial translational state.
+ constraint_direction : numpy.ndarray[numpy.float64[6, 1]]
+     Direction to which the correction to the initial state is to be orthogonal.
+
+     )doc" );
+
+    m.def( "remove_parameter_correction_constraint",
+           &tep::removeParameterCorrectionConstraint,
+           py::arg( "parameter" ),
+           R"doc(
+
+ Function to remove the constraint on the correction to an estimated parameter.
+
+ Function to remove the constraint set with :func:`~tudatpy.dynamics.parameters.set_parameter_correction_constraint`,
+ so that subsequent estimations and covariance analyses are unconstrained.
+
+ Parameters
+ ----------
+ parameter : :class:`~tudatpy.dynamics.parameters.EstimatableParameter`
+     Estimated parameter from which the constraint is removed.
+
+     )doc" );
+
+    m.def( "remove_parameter_correction_constraints",
+           &tep::removeParameterCorrectionConstraints< STATE_SCALAR_TYPE >,
+           py::arg( "parameter_set" ),
+           R"doc(
+
+ Function to remove the constraints on the corrections to all parameters in a parameter set.
+
+ Function that applies :func:`~tudatpy.dynamics.parameters.remove_parameter_correction_constraint` to all estimated
+ parameters in the parameter set.
+
+ Parameters
+ ----------
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Parameter set from which all constraints are removed.
+
+     )doc" );
 }
 
 }  // namespace parameters

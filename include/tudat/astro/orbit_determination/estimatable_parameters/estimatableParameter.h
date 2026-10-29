@@ -38,7 +38,6 @@ namespace estimatable_parameters
 enum EstimatebleParametersEnum {
     arc_wise_initial_body_state,
     initial_body_state,
-    constrained_initial_body_state,
     initial_rotational_body_state,
     initial_mass_state,
     gravitational_parameter,
@@ -344,7 +343,7 @@ public:
      */
     virtual int getConstraintSize( )
     {
-        return 0;
+        return constraintStateMultiplier_.rows( );
     }
 
     //! Function to retrieve multiplier for parameter linear constraint
@@ -354,7 +353,7 @@ public:
      */
     virtual Eigen::MatrixXd getConstraintStateMultipler( )
     {
-        return Eigen::MatrixXd::Zero( 0, 0 );
+        return constraintStateMultiplier_;
     }
 
     //! Function to retrieve right-hand side for parameter linear constraint
@@ -364,7 +363,13 @@ public:
      */
     virtual Eigen::VectorXd getConstraintRightHandSide( )
     {
-        return Eigen::VectorXd::Zero( 0 );
+        return Eigen::VectorXd::Zero( constraintStateMultiplier_.rows( ) );
+    }
+
+    //! Function to set multiplier G of linear constraint G * dx = 0 on parameter correction dx (one constraint per row)
+    void setConstraintStateMultiplier( const Eigen::MatrixXd& constraintStateMultiplier )
+    {
+        constraintStateMultiplier_ = constraintStateMultiplier;
     }
 
     virtual void throwExceptionIfNotFullyDefined( ) {}
@@ -408,6 +413,9 @@ protected:
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
 
+    //! Multiplier G of linear constraint G * dx = 0 on parameter correction dx (no constraint by default)
+    Eigen::MatrixXd constraintStateMultiplier_;
+
     void checkCustomPartialSettings( )
     {
         for( unsigned int i = 0; i < customPartialSettings_.size( ); i++ )
@@ -428,6 +436,32 @@ protected:
         }
     }
 };
+
+//! Function to constrain the correction to an estimated parameter to be orthogonal to a given direction
+/*!
+ * Function to constrain the correction to an estimated parameter to be orthogonal to a given direction, for instance the weak
+ * direction of the covariance of an initial state, to compute points along the line of variations (Milani et al., 2005).
+ * Any constraint previously set on the parameter is replaced.
+ * \param parameter Parameter to constrain
+ * \param constraintDirection Direction to which the parameter correction is to be orthogonal
+ */
+inline void setParameterCorrectionConstraint( const std::shared_ptr< EstimatableParameterBase > parameter,
+                                              const Eigen::VectorXd& constraintDirection )
+{
+    if( constraintDirection.rows( ) != parameter->getParameterSize( ) )
+    {
+        throw std::runtime_error( "Error when setting parameter correction constraint, direction size (" +
+                                  std::to_string( constraintDirection.rows( ) ) + ") is not equal to parameter size (" +
+                                  std::to_string( parameter->getParameterSize( ) ) + ")" );
+    }
+    parameter->setConstraintStateMultiplier( constraintDirection.transpose( ) );
+}
+
+//! Function to remove the constraint set by setParameterCorrectionConstraint
+inline void removeParameterCorrectionConstraint( const std::shared_ptr< EstimatableParameterBase > parameter )
+{
+    parameter->setConstraintStateMultiplier( Eigen::MatrixXd::Zero( 0, 0 ) );
+}
 
 template< typename ParameterType >
 Eigen::VectorXd convertEstimatableParameterToVector( const ParameterType& parameterValue )
@@ -741,10 +775,6 @@ bool isDynamicalParameterSingleArc(
             break;
         }
         case initial_body_state: {
-            flag = true;
-            break;
-        }
-        case constrained_initial_body_state: {
             flag = true;
             break;
         }
