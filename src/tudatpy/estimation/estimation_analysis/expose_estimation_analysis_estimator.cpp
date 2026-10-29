@@ -189,13 +189,11 @@ void expose_estimation_analysis_estimator( py::module& m )
          * The residual vector of the selected iteration, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
          * The parameter values of the selected iteration, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_parameters` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
 
-         After the estimation is finished, the residuals in the observation collection correspond to the best iteration (the
-         iteration with the lowest value of the cost function) of the estimation, while the environment (in the ``bodies``)
-         corresponds to the last propagation:
+         After the estimation is finished, the properties of both the environment (in the ``bodies``) and the estimated parameters
+         (in the ``parameters_to_estimate``) are modified as follows:
 
-         * If the ``reset_parameters_to_best_iteration`` input of the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` is ``True``, the values of the parameter values in the ``parameters_to_estimate`` object are those of the best iteration of the estimation (see :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_parameters`). If it is ``False`` (deprecated), they are those of the last iteration of the estimation. In that case, if the ``apply_final_parameter_correction`` parameter to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` is set to ``True``, the parameter correction computed at the end of the last iteration (for which the performance has *not* been computed) has been used to update the parameters vector
-         * The residuals in the observation collection are those of the best iteration of the estimation (see :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals`)
-         * The ephemerides of all propagated/estimated bodies will be set to the propagation results of the last iteration in the estimation. For instance, when estimating the state of body "Delfi-C3", the (tabulated) ephemeris of this body will be set to contain the numerical results of the last iteration of the estimation. These may differ from those of the best iteration
+         * The ephemerides of all propagated/estimated bodies will be set to the propagation results of the last iteration in the estimation. For instance, when estimating the state of body "Delfi-C3", the (tabulated) ephemeris of this body will be set to contain the numerical results of the last iteration of the estimation
+         * The values of the parameter values in the ``parameters_to_estimate`` object are those of the last iteration of the estimation. Note that, if the ``apply_final_parameter_correction`` parameter to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` is set to ``True``, the parameter correction computed at the end of the last iteration (for which the performance has *not* been computed) has been used to update the parameters vector. If the ``reset_parameters_to_best_iteration`` parameter to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` is set to ``True`` (recommended, the default ``False`` is deprecated), they are instead those of the best iteration (see :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_parameters`)
 
          Parameters
          ----------
