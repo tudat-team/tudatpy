@@ -44,7 +44,8 @@ double getPositionAngleReferenceEpoch( const double observationTime,
     return referenceEpoch;
 }
 
-PositionAngleReferenceFrame getPositionAngleReferenceFrame( const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+PositionAngleReferenceFrame getPositionAngleReferenceFrame(
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
 {
     if( ancillarySettings == nullptr || !ancillarySettings->hasAncillaryIntData( position_angle_reference_frame ) )
     {
@@ -71,7 +72,7 @@ Eigen::Matrix3d getPositionAngleReferenceFrameRotationFromJ2000(
         case j2000_position_angle_reference_frame:
             return Eigen::Matrix3d::Identity( );
         case b1950_position_angle_reference_frame:
-            // Transpose of NAIF's built-in B1950-to-J2000 frame rotation.
+            // Transpose of NAIF's FK4-to-J2000 frame rotation: B1950 with the FK4 equinox correction (same pole as NAIF's B1950).
             return ( Eigen::Matrix3d( ) << 9.9992567949568767e-1,
                      -1.1181483220466210e-2,
                      -4.8590038153592703e-3,

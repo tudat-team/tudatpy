@@ -437,12 +437,13 @@ void expose_ancillary_settings( py::module& m )
 
  The following reference frames can be used for the north pole: J2000/ICRF (default), B1950, the IAU 1976 or IAU 2006 mean-of-date
  frame, and the IAU 1976/1980 or IAU 2006/2000A true-of-date frame. The orientation of the mean- and true-of-date frames is
- computed using SOFA. Note that the B1950 option only rotates the pole, using the B1950 to J2000 rotation defined by NAIF, and
- is not a full FK4 to ICRF conversion of catalogue coordinates. To use a user-defined north pole, use
+ computed using SOFA. The B1950 option uses the FK4 to J2000 rotation defined by NAIF (which includes the FK4 equinox correction),
+ and is not a full FK4 to ICRF conversion of catalogue coordinates. To use a user-defined north pole, use
  :func:`custom_position_angle_ancillary_settings`.
 
  The reference frame only affects the position angle, while stellar aberration affects both the position angle and the
- separation.
+ separation. For angular position observables, the same settings define the frame (other than a custom pole) of the right
+ ascension and declination, and whether stellar aberration is included.
 
  Parameters
  ----------
