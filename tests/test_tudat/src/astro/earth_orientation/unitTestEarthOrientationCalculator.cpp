@@ -244,8 +244,7 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
                  basic_astrodynamics::DateTime( 1847, 1, 1, 0, 0, 0.0 ).epoch< double >( ) );
     const Eigen::Vector2d polarMotionBeforeStartC04 =
             polarMotionInterpolator->interpolate( dateTimeStartC04.epoch< double >( ) - physical_constants::JULIAN_DAY );
-    BOOST_CHECK_SMALL( ( polarMotionBeforeStartC04 - polarMotionPostC04 ).norm( ),
-                       unit_conversions::convertArcSecondsToRadians( 0.03 ) );
+    BOOST_CHECK_SMALL( ( polarMotionBeforeStartC04 - polarMotionPostC04 ).norm( ), unit_conversions::convertArcSecondsToRadians( 0.03 ) );
 
     BOOST_CHECK_EQUAL( polarMotionPostC04( 0 ) == 0, false );
     BOOST_CHECK_EQUAL( polarMotionPostC04( 1 ) == 0, false );

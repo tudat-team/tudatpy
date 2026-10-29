@@ -70,8 +70,8 @@ EOPReader::EOPReader( const std::string& eopFile, const std::string& format, con
         {
             if( modifiedJulianDate < firstModifiedJulianDate )
             {
-                cipInItrs[ modifiedJulianDate ] = unit_conversions::convertArcSecondsToRadians(
-                        Eigen::Vector2d( polarMotion.at( 0 ), polarMotion.at( 1 ) ) );
+                cipInItrs[ modifiedJulianDate ] =
+                        unit_conversions::convertArcSecondsToRadians( Eigen::Vector2d( polarMotion.at( 0 ), polarMotion.at( 1 ) ) );
             }
         }
     }
