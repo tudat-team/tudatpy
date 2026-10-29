@@ -23,7 +23,8 @@ namespace observation_partials
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate )
+        const std::string bodyToEstimate,
+        const std::vector< std::string >& bodiesWithEstimatedState )
 {
     // Declare data map to return.
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > partialMap;
@@ -31,13 +32,18 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     // Declare local variable to use in loop
     std::string currentBodyName;
 
+    // Retrieve bodies with an ephemeris defined w.r.t. a body with estimated state
+    std::map< std::string, std::string > ephemerisDependentBodies =
+            ephemerides::getEphemerisDependentBodies( simulation_setup::getEphemerisOrigins( bodies ), bodiesWithEstimatedState );
+
     // Iterate over all like ends.
     for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
-        // Check if current link end is on body that is requested.
+        // Check if current link end is on body that is requested, or on body with ephemeris defined w.r.t. requested body
         currentBodyName = linkEndIterator->second.bodyName_;
-        if( bodyToEstimate == currentBodyName )
+        if( bodyToEstimate == currentBodyName ||
+            ( ephemerisDependentBodies.count( currentBodyName ) > 0 && ephemerisDependentBodies.at( currentBodyName ) == bodyToEstimate ) )
         {
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );

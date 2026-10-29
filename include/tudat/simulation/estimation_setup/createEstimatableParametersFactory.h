@@ -285,8 +285,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
             else
             {
-                if( accelerationModelMap.at( parameterSettings->parameterType_.second.first )
-                            .count( parameterSettings->parameterType_.second.second ) != 0 )
+                // The body need not be propagated in this (e.g. single-arc part of a hybrid-arc) propagation
+                if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 &&
+                    accelerationModelMap.at( parameterSettings->parameterType_.second.first )
+                                    .count( parameterSettings->parameterType_.second.second ) != 0 )
 
                 {
                     // Retrieve acceleration model.

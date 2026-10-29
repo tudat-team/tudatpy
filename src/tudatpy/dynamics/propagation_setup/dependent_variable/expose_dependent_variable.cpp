@@ -339,68 +339,18 @@ void expose_dependent_variable_setup( py::module& m )
     )doc" ) TUDATPY_DEF_EQ_NE( tp::VariableSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::VariableSettings )
             TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::VariableSettings );
 
-    auto single_dependent_variable_save_settings = py::class_< tp::SingleDependentVariableSaveSettings,
-                                                               std::shared_ptr< tp::SingleDependentVariableSaveSettings >,
-                                                               tp::VariableSettings >( m,
-                                                                                       "SingleDependentVariableSaveSettings",
-                                                                                       R"doc(
+    py::class_< tp::SingleDependentVariableSaveSettings, std::shared_ptr< tp::SingleDependentVariableSaveSettings >, tp::VariableSettings >(
+            m,
+            "SingleDependentVariableSaveSettings",
+            R"doc(
 
-         Base settings for the factory functions in :mod:`~tudatpy.dynamics.propagation_setup.dependent_variable`.
+    `VariableSettings`-derived class to define settings for dependent variables that are to be saved during propagation.
 
-      )doc" );
+    Functional base class for defining settings for dependent variables that are to be computed and saved during propagation.
+    Any dependent variable that requires additional information in addition to what can be provided here, should be
+    defined by a dedicated derived class.
 
-    m.def( "local_wind_velocity",
-           &tp::localWindVelocityVariable,
-           py::arg( "body" ),
-           py::arg( "body_with_atmosphere" ),
-           py::arg( "target_frame" ) = trf::corotating_frame,
-           R"doc(
-
-Function to add the local wind velocity vector to the dependent variables to save.
-
-Function to add the local wind velocity vector to the dependent variables to save. The wind velocity represents the atmospheric wind removed from the groundspeed when deriving the airspeed. The calculation uses the wind model of the body with atmosphere, and the current state of the body for which the wind velocity is to be calculated. The wind velocity can be expressed in any aerodynamic reference frame.
-
-Parameters
-----------
-body : str
-    Body whose dependent variable should be saved.
-body_with_atmosphere : str
-    Body with atmosphere with respect to which the local wind velocity is computed.
-target_frame : AerodynamicsReferenceFrames, default=corotating_frame
-    Reference frame in which the wind velocity should be expressed. Available frames:
-    - corotating_frame: Body-fixed corotating frame (default)
-    - vertical_frame: Local vertical frame
-    - trajectory_frame: Velocity-aligned trajectory frame
-    - aerodynamic_frame: Aerodynamic frame
-    - body_frame: Vehicle body frame
-    - inertial_frame: Inertial frame
-Returns
--------
-SingleDependentVariableSaveSettings
-    Dependent variable settings object.
-Variable Size
--------------
-3
-
-
-
-
-    )doc" );
-
-    single_dependent_variable_save_settings.doc( ) = R"doc(
-
-         `VariableSettings`-derived class to define settings for dependent variables that are to be saved during propagation.
-
-         Functional base class for defining settings for dependent variables that are to be computed and saved during propagation.
-         Any dependent variable that requires additional information in addition to what can be provided here, should be
-         defined by a dedicated derived class.
-
-
-
-
-
-      )doc";
-    single_dependent_variable_save_settings
+      )doc" )
             .def_property_readonly( "dependent_variable_type",
                                     &tp::SingleDependentVariableSaveSettings::getDependentVariableType,
                                     R"doc(
@@ -445,15 +395,6 @@ Index of the component to be saved.
 
                                     )doc" ) TUDATPY_DEF_EQ_NE( tp::SingleDependentVariableSaveSettings )
                     TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings, tp::SingleDependentVariableSaveSettings );
-    //            .def(py::init<
-    //                 const tp::PropagationDependentVariables,
-    //                 const std::string &,
-    //                 const std::string &,
-    //                 const int>(),
-    //                 py::arg("dependent_variable_type"),
-    //                 py::arg("associated_body"),
-    //                 py::arg("secondary_body") = "",
-    //                 py::arg("component_idx") = -1);
 
     py::class_< tp::SingleAccelerationDependentVariableSaveSettings,
                 std::shared_ptr< tp::SingleAccelerationDependentVariableSaveSettings >,
@@ -479,17 +420,27 @@ The type of the acceleration that is to be saved.
 
 )doc" ) TUDATPY_DEF_EQ_NE( tp::SingleAccelerationDependentVariableSaveSettings )
                     TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings, tp::SingleAccelerationDependentVariableSaveSettings );
-    //                 const
-    //                 tudat::basic_astrodynamics::AvailableAcceleration,
-    //                 const std::string &,
-    //                 const std::string &,
-    //                 const bool,
-    //                 const int>(),
-    //                 py::arg("acceleration_model_type"),
-    //                 py::arg("body_undergoing_acceleration"),
-    //                 py::arg("body_exerting_acceleration"),
-    //                 py::arg("use_norm") = 0,
-    //                 py::arg("component_index") = -1);
+
+    py::class_< tp::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings,
+                std::shared_ptr< tp::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >,
+                tp::SingleDependentVariableSaveSettings >( m,
+                                                           "SphericalHarmonicAccelerationTermsDependentVariableSaveSettings",
+                                                           R"doc(
+
+`SingleDependentVariableSaveSettings`-derived class to save a spherical harmonic acceleration (norm or vector) during propagation.
+
+      )doc" )
+            .def_property_readonly( "degree_order_indices",
+                                    &tp::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings::getDegreeOrderIndices,
+                                    R"doc(
+                                    
+List of degree/order terms that are to be saved.
+
+:type: list[tuple[int, int]]
+
+                                    )doc" )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings,
+                                                            tp::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings );
 
     m.def( "get_dependent_variable_id",
            &tp::getDependentVariableId,
@@ -592,6 +543,44 @@ The type of the acceleration that is to be saved.
     /// FREE FUNCTIONS
     /// ///////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
+
+    m.def( "local_wind_velocity",
+           &tp::localWindVelocityVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           py::arg( "target_frame" ) = trf::corotating_frame,
+           R"doc(
+
+Function to add the local wind velocity vector to the dependent variables to save.
+
+Function to add the local wind velocity vector to the dependent variables to save. The wind velocity represents the atmospheric wind removed from the groundspeed when deriving the airspeed. The calculation uses the wind model of the body with atmosphere, and the current state of the body for which the wind velocity is to be calculated. The wind velocity can be expressed in any aerodynamic reference frame.
+
+Parameters
+----------
+body : str
+    Body whose dependent variable should be saved.
+body_with_atmosphere : str
+    Body with atmosphere with respect to which the local wind velocity is computed.
+target_frame : AerodynamicsReferenceFrames, default=corotating_frame
+    Reference frame in which the wind velocity should be expressed. Available frames:
+    - corotating_frame: Body-fixed corotating frame (default)
+    - vertical_frame: Local vertical frame
+    - trajectory_frame: Velocity-aligned trajectory frame
+    - aerodynamic_frame: Aerodynamic frame
+    - body_frame: Vehicle body frame
+    - inertial_frame: Inertial frame
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Dependent variable settings object.
+Variable Size
+-------------
+3
+
+
+
+
+    )doc" );
 
     m.def( "mach_number",
            &tp::machNumberDependentVariable,

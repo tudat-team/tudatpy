@@ -48,6 +48,7 @@ set(propagators_HEADERS
         "singleStateTypeDerivative.h"
         "relativisticTimeStateDerivative.h"
         "integrateEquations.h"
+        "singleArcPropagationController.h"
         "bodyMassStateDerivative.h"
         "variationalEquations.h"
         "stateTransitionMatrixInterface.h"

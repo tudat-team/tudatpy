@@ -1181,11 +1181,10 @@ private:
     }
 };
 
-// extern template class CovarianceAnalysisInput< double, double >;
-// extern template struct CovarianceAnalysisOutput< double >;
-//
-// extern template class EstimationInput< double, double >;
-// extern template struct EstimationOutput< double >;
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+extern template struct CovarianceAnalysisOutput< double, double >;
+extern template struct EstimationOutput< double, double >;
+#endif
 
 // Type aliases for CEREAL_REGISTER_TYPE registration
 using CovarianceAnalysisOutputDD = CovarianceAnalysisOutput< double, double >;

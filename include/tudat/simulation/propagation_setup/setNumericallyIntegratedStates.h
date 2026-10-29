@@ -1431,25 +1431,6 @@ void checkTranslationalStatesFeasibility( const std::vector< std::string >& bodi
                                           const bool isPartOfMultiArc = false )
 
 {
-    // Check feasibility of epheme ris origins.
-    for( auto bodyIterator : bodies.getMap( ) )
-    {
-        if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), bodyIterator.first ) == bodiesToIntegrate.end( ) )
-        {
-            if( bodyIterator.second->getEphemeris( ) != nullptr )
-            {
-                std::string ephemerisOrigin = bodyIterator.second->getEphemeris( )->getReferenceFrameOrigin( );
-
-                if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin ) != bodiesToIntegrate.end( ) )
-                {
-                    std::cerr << "Warning, found non-integrated body with an integrated body as ephemeris origin " +
-                                    bodyIterator.second->getEphemeris( )->getReferenceFrameOrigin( ) + " " + bodyIterator.first
-                              << std::endl;
-                }
-            }
-        }
-    }
-
     // Check whether each integrated body exists, and whether it has a TabulatedEphemeris
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {

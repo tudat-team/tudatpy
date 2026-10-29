@@ -265,6 +265,10 @@ if (NOT TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
 else ()
     add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=1)
 endif ()
+# Long double state scalar type in the tudatpy kernel (CMAKE_CXX_FLAGS is overwritten in cmake/tudat/compiler.cmake)
+if (TUDATPY_LONG_DOUBLE_STATE)
+    add_definitions(-DTUDATPY_LONG_DOUBLE_STATE)
+endif ()
 
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
