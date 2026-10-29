@@ -507,8 +507,8 @@ void expose_estimation_analysis( py::module& m )
          reset_parameters_to_best_iteration : bool, default = False
              Whether to set the estimated parameters (in the ``parameters_to_estimate``) to those of the best iteration of the
              estimation after the estimation is finished. If ``False``, they are set to those of the last iteration (see
-             :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`). Setting this to ``False`` is deprecated,
-             and prints a warning: the default will change to ``True``, after which this input will be removed.
+             :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`). Setting this to ``False`` is deprecated:
+             the default will change to ``True``, after which this input will be removed.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
