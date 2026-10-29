@@ -72,8 +72,7 @@ std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( con
                     0.5,
                     1.0,
                     interpolators::huntingAlgorithm,
-                    interpolators::use_default_value,
-                    0.0 );
+                    interpolators::use_boundary_value );
     return std::make_shared< TerrestrialTimeScaleConverter >( ut1MinusUtcInterpolator, shortPeriodUt1CorrectionCalculator );
 }
 

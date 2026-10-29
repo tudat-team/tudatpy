@@ -29,7 +29,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
                                                               gcrsToItrsRotationSettings->getEopFileFormat( ),
                                                               gcrsToItrsRotationSettings->getNutationTheory( ) );
 
-    // Load polar motion corrections (held at the first and last values outside the data, e.g. before 1962)
+    // Load polar motion corrections (held at the first and last values outside the data, i.e. before 1846 and after the data end)
     std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
                     eopReader->getCipInItrsMapInSecondsSinceJ2000( ),
@@ -81,8 +81,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
                     0.5,
                     1.0,
                     interpolators::huntingAlgorithm,
-                    interpolators::use_default_value,
-                    0.0 );
+                    interpolators::use_boundary_value );
 
     // Create default time scale converter
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =

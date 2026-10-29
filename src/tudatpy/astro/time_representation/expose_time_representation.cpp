@@ -1706,8 +1706,8 @@ datetime.datetime
 
  * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1b of IERS Conventions 2010
  * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.2a and 8.2b of the IERS Conventions 2010
- * For epoch 01-01-1962 and later: linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for UTC-UT1 from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
- * For epochs before 01-01-1962, where UTC-UT1 is not available from these files, we use the values if for :math:\Delta T = UT1-TT` from `here <https://webspace.science.uu.nl/~gent0113/deltat/deltat.htm>`_ (back to year 1620). In this period, we set the approximation UTC=UT1
+ * For epoch 01-01-1962 and later: linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for UTC-UT1 from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory. After the end of the file, the last value is used
+ * For epochs before 01-01-1962, where UTC-UT1 is not available from these files, we use cubic spline interpolation of tabulated values of :math:`\Delta T = TT-UT1`: from the IERS EOP C01 series (UT1-TAI) between 1956 and 1962, from the Astronomical Almanac between 1948 and 1956, and from the spline of Stephenson, Morrison & Hohenkerk (2016, updated 2021) before 1948 (back to 720 BC, and its long-term parabola before that). The value at 01-01-1962 is taken from the EOP file, so that UT1 is continuous. In this period, we set the approximation UTC=UT1
 
  See :class:`~TimeScaleConverter` for specific functionality and options for time-scale conversions.
 
