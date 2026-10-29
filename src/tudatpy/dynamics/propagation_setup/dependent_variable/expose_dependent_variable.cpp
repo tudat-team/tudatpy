@@ -438,7 +438,9 @@ List of degree/order terms that are to be saved.
 
 :type: list[tuple[int, int]]
 
-                                    )doc" );
+                                    )doc" )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings,
+                                                            tp::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings );
 
     m.def( "get_dependent_variable_id",
            &tp::getDependentVariableId,
