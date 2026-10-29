@@ -775,15 +775,15 @@ public:
     {
         // Computed on request, since constraints may be set on parameters after creation of this object
         int totalConstraintSize = 0;
-        for( auto parameterIterator: initialStateParameters_ )
+        for( auto parameterIterator : initialStateParameters_ )
         {
             totalConstraintSize += parameterIterator.second->getConstraintSize( );
         }
-        for( auto parameterIterator: doubleParameters_ )
+        for( auto parameterIterator : doubleParameters_ )
         {
             totalConstraintSize += parameterIterator.second->getConstraintSize( );
         }
-        for( auto parameterIterator: vectorParameters_ )
+        for( auto parameterIterator : vectorParameters_ )
         {
             totalConstraintSize += parameterIterator.second->getConstraintSize( );
         }
@@ -949,15 +949,15 @@ void setInitialStateCorrectionConstraint( const std::shared_ptr< EstimatablePara
 template< typename InitialStateParameterType >
 void removeParameterCorrectionConstraints( const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > parameterSet )
 {
-    for( auto parameter: parameterSet->getEstimatedInitialStateParameters( ) )
+    for( auto parameter : parameterSet->getEstimatedInitialStateParameters( ) )
     {
         removeParameterCorrectionConstraint( parameter );
     }
-    for( auto parameter: parameterSet->getEstimatedDoubleParameters( ) )
+    for( auto parameter : parameterSet->getEstimatedDoubleParameters( ) )
     {
         removeParameterCorrectionConstraint( parameter );
     }
-    for( auto parameter: parameterSet->getEstimatedVectorParameters( ) )
+    for( auto parameter : parameterSet->getEstimatedVectorParameters( ) )
     {
         removeParameterCorrectionConstraint( parameter );
     }
