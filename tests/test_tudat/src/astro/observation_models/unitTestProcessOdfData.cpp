@@ -17,6 +17,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 using namespace tudat::input_output;
@@ -254,6 +255,32 @@ BOOST_AUTO_TEST_CASE( testCompressDopplerDataUsesCadenceRuns )
             compressDopplerData( createSyntheticDopplerObservationSet( { 0.0, 10.0 }, 10.0 ), 3 );
     BOOST_CHECK_EQUAL( shortRunCompressedObservationSet->getObservationsReference( ).size( ), 0 );
     BOOST_CHECK_EQUAL( shortRunCompressedObservationSet->getObservationTimesReference( ).size( ), 0 );
+}
+
+BOOST_AUTO_TEST_CASE( testDopplerCompressionRatioFromCountTime )
+{
+    std::shared_ptr< SingleObservationSet< double, double > > observationSet =
+            createSyntheticDopplerObservationSet( { 0.0, 10.0, 20.0 }, 10.0 );
+
+    BOOST_CHECK_EQUAL( getDopplerCompressionRatio( observationSet, 60.0 ), 6 );
+    BOOST_CHECK_THROW( getDopplerCompressionRatio( observationSet, 25.0 ), std::runtime_error );
+
+    // Compress to a 30 s count time, using the ground station position from the bodies
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Earth" );
+    createGroundStation( bodies.at( "Earth" ),
+                         syntheticDopplerStationName,
+                         simulation_setup::getCombinedApproximateGroundStationPositions( ).at( syntheticDopplerStationName ) );
+    std::shared_ptr< ObservationCollection< double, double > > compressedCollection = createCountTimeCompressedDopplerCollection(
+            std::make_shared< ObservationCollection< double, double > >(
+                    std::vector< std::shared_ptr< SingleObservationSet< double, double > > >{ createSyntheticDopplerObservationSet(
+                            { 0.0, 10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0 }, 10.0 ) } ),
+            bodies,
+            30.0,
+            1 );
+    BOOST_REQUIRE_EQUAL( compressedCollection->getSingleObservationSets( ).size( ), 1 );
+    checkScalarObservations( compressedCollection->getSingleObservationSets( ).at( 0 ), { 10.0, 70.0, 100.0 } );
+    checkUtcOffsets( compressedCollection->getSingleObservationSets( ).at( 0 ), { 10.0, 70.0, 100.0 } );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
