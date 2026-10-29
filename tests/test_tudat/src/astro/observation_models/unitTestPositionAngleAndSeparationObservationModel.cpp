@@ -345,6 +345,88 @@ void validateReferenceDataset( const ReferenceDataset& dataset )
     }
 }
 
+// Historical geocentric right ascension/declination observations of the giant planets, in celestial frames other than J2000,
+// compared with angular position observables computed from INPOP19a (pre-fit residuals), using the same ResidualBounds
+// (for both components) and CorrectionBounds (on the angular distance between the predictions of two conventions) as above.
+struct AngularPositionDataset {
+    std::string name;
+    std::string observedBody;
+    // TDB [s since J2000], right ascension [deg], declination [deg], as published, in the frame of the observations
+    std::vector< Eigen::Vector3d > observations;
+    // Right ascensions of date referred to the FK4 catalogue, corrected to the FK5 equinox
+    bool correctFk4Equinox = false;
+    std::string primaryConvention;
+    std::shared_ptr< ObservationAncillarySimulationSettings > primarySettings;
+    std::string comparisonConvention;
+    std::shared_ptr< ObservationAncillarySimulationSettings > comparisonSettings;
+    ResidualBounds residualBounds;
+    CorrectionBounds correctionBounds;
+    bool requirePrimaryRmsBelowComparison = true;
+};
+
+void validateAngularPositionDataset( const AngularPositionDataset& dataset )
+{
+    spice_interface::clearSpiceKernels( );
+    spice_interface::loadStandardSpiceKernels( );
+    SystemOfBodies bodies = createJ2000SpiceBodies( { "Earth", dataset.observedBody }, false );
+
+    LinkDefinition linkEnds;
+    linkEnds[ receiver ] = std::make_pair( std::string( "Earth" ), std::string( "" ) );
+    linkEnds[ transmitter ] = std::make_pair( dataset.observedBody, std::string( "" ) );
+    const std::shared_ptr< ObservationModel< 2 > > model = ObservationModelCreator< 2, double, double >::createObservationModel(
+            std::make_shared< ObservationModelSettings >( angular_position, linkEnds ), bodies );
+
+    AngularStatistics primaryRightAscensionResiduals, primaryDeclinationResiduals;
+    AngularStatistics comparisonRightAscensionResiduals, comparisonDeclinationResiduals;
+    AngularStatistics corrections;
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+    for( const Eigen::Vector3d& observation : dataset.observations )
+    {
+        // FK4 to FK5 equinox correction of 0.035 s + 0.085 s per Julian century since B1950.0 (Fricke, 1982)
+        const double centuriesSinceB1950 = ( observation( 0 ) / physical_constants::JULIAN_DAY + 18262.5 ) / 36525.0;
+        const double rightAscension = unit_conversions::convertDegreesToRadians( observation( 1 ) ) +
+                ( dataset.correctFk4Equinox ? ( 0.035 + 0.085 * centuriesSinceB1950 ) * PI / 43200.0 : 0.0 );
+        const double declination = unit_conversions::convertDegreesToRadians( observation( 2 ) );
+
+        const Eigen::Vector2d primaryPrediction = model->computeObservationsWithLinkEndData(
+                observation( 0 ), receiver, linkEndTimes, linkEndStates, dataset.primarySettings );
+        const Eigen::Vector2d comparisonPrediction = model->computeObservationsWithLinkEndData(
+                observation( 0 ), receiver, linkEndTimes, linkEndStates, dataset.comparisonSettings );
+        primaryRightAscensionResiduals.addRadians( std::cos( declination ) *
+                                                   wrappedAngleDifferenceRadians( rightAscension, primaryPrediction( 0 ) ) );
+        primaryDeclinationResiduals.addRadians( declination - primaryPrediction( 1 ) );
+        comparisonRightAscensionResiduals.addRadians( std::cos( declination ) *
+                                                      wrappedAngleDifferenceRadians( rightAscension, comparisonPrediction( 0 ) ) );
+        comparisonDeclinationResiduals.addRadians( declination - comparisonPrediction( 1 ) );
+        corrections.addRadians(
+                std::hypot( std::cos( declination ) * wrappedAngleDifferenceRadians( primaryPrediction( 0 ), comparisonPrediction( 0 ) ),
+                            primaryPrediction( 1 ) - comparisonPrediction( 1 ) ) );
+    }
+
+    BOOST_TEST_MESSAGE( dataset.name << " " << dataset.primaryConvention
+                                     << " RA cos(Dec) / Dec mean/RMS [arcsec]: " << primaryRightAscensionResiduals.meanArcseconds( )
+                                     << " / " << primaryRightAscensionResiduals.rmsArcseconds( ) << ", "
+                                     << primaryDeclinationResiduals.meanArcseconds( ) << " / "
+                                     << primaryDeclinationResiduals.rmsArcseconds( ) );
+    BOOST_TEST_MESSAGE( dataset.name << " " << dataset.comparisonConvention
+                                     << " RA cos(Dec) / Dec mean/RMS [arcsec]: " << comparisonRightAscensionResiduals.meanArcseconds( )
+                                     << " / " << comparisonRightAscensionResiduals.rmsArcseconds( ) << ", "
+                                     << comparisonDeclinationResiduals.meanArcseconds( ) << " / "
+                                     << comparisonDeclinationResiduals.rmsArcseconds( ) );
+    BOOST_TEST_MESSAGE( dataset.name << " correction RMS/max [arcsec]: " << corrections.rmsArcseconds( ) << " / "
+                                     << corrections.maximumArcseconds( ) );
+
+    checkResidualBounds( primaryRightAscensionResiduals, dataset.residualBounds );
+    checkResidualBounds( primaryDeclinationResiduals, dataset.residualBounds );
+    checkCorrectionBounds( corrections, dataset.correctionBounds );
+    if( dataset.requirePrimaryRmsBelowComparison )
+    {
+        BOOST_CHECK_GT( comparisonRightAscensionResiduals.rmsArcseconds( ), primaryRightAscensionResiduals.rmsArcseconds( ) );
+        BOOST_CHECK_GT( comparisonDeclinationResiduals.rmsArcseconds( ), primaryDeclinationResiduals.rmsArcseconds( ) );
+    }
+}
+
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE( test_position_angle_and_separation_observation_model )
@@ -802,6 +884,154 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     dataset.separationCorrectionBounds = CorrectionBounds{ 0.002, 0.01, 0.005, 0.02 };
     dataset.transversePositionAngleCorrectionBounds = CorrectionBounds{ 0.0001, 0.001, 0.0001, 0.001 };
     validateReferenceDataset( dataset );
+}
+
+// The angular position tests below use 16 observations, evenly spread in time, of series in the IMCCE planetary observation
+// database (https://ftp.imcce.fr/pub/databases/PODB/, URSS files) and the JPL planetary optical observation files
+// (https://ssd.jpl.nasa.gov/dat/planets/, transit files). All observations are geocentric, of the planet centre; the planet
+// system barycentre of INPOP19a is used (offset < 0.1 arcsec). Epochs are converted from the published time scale (ET, UTC, or
+// UT1 with the Espenak and Meeus Delta T model) to TDB. The stated scatter is the RMS of the residuals of these observations
+// w.r.t. INPOP19a; the residual bounds allow a margin of a factor of about 2, and a mean offset up to about the scatter.
+
+//! Validate B1950 angular positions on Nikolaev photographic observations of Saturn, against J2000.
+BOOST_AUTO_TEST_CASE( testSaturnB1950AngularPositionPrefitResiduals )
+{
+    AngularPositionDataset dataset;
+    dataset.name = "Saturn Nikolaev 1961-1982";
+    dataset.observedBody = "Saturn_barycenter";
+    // IMCCE file URSS/SATU/PHOTO/nikol.pht.ftp (Nikolaev, MPC 089): astrometric, B1950 (FK4) photographic positions, in ET
+    dataset.observations = { { -1211901454.399, 297.034412500, -21.304166667 }, { -1143826525.311, 319.374250000, -17.077363889 },
+                             { -1110305819.520, 330.951766667, -13.693983333 }, { -1052310466.656, 358.868366667, -3.147594444 },
+                             { -1050326762.400, 357.320479167, -3.858602778 },  { -1041797257.632, 354.949579167, -4.627280556 },
+                             { -983975788.079, 20.367250000, 5.588330556 },     { -923826808.816, 50.265141667, 15.910541667 },
+                             { -859541788.622, 79.534483333, 21.454288889 },    { -826109869.027, 94.651400000, 22.283733333 },
+                             { -784831136.204, 103.160050000, 22.585344444 },   { -751053678.264, 117.869779167, 21.350788889 },
+                             { -693056615.968, 151.746475000, 13.166172222 },   { -651518896.398, 159.149183333, 10.891288889 },
+                             { -592409756.937, 186.720041667, -0.017141667 },   { -555785186.984, 195.427008333, -3.669505556 } };
+    dataset.primaryConvention = "astrometric B1950";
+    dataset.primarySettings = getPositionAngleAncillarySettings( b1950_position_angle_reference_frame );
+    dataset.comparisonConvention = "astrometric J2000 (default)";
+    dataset.comparisonSettings = nullptr;
+    // Scatter of these observations about 0.34 arcsec (RA) and 0.53 arcsec (Dec). The B1950 and J2000 frames differ by a rotation of
+    // 2515 arcsec (50 years of precession) about the ecliptic pole, which bounds the correction.
+    dataset.residualBounds = { 0.5, 0.1, 1.0 };
+    dataset.correctionBounds = CorrectionBounds{ 1000.0, 2520.0, 2000.0, 2520.0 };
+    validateAngularPositionDataset( dataset );
+}
+
+//! Validate the astrometric B1950 frame on Pulkovo observations of Uranus over 50 years, against aberrated B1950 directions.
+BOOST_AUTO_TEST_CASE( testUranusB1950AngularPositionPrefitResiduals )
+{
+    AngularPositionDataset dataset;
+    dataset.name = "Uranus Pulkovo 1919-1969";
+    dataset.observedBody = "Uranus_barycenter";
+    // IMCCE file URSS/URAN/PHOTO/pulk.pht.ftp (Pulkovo, MPC 084): astrometric, B1950 (FK4) photographic positions, in ET
+    dataset.observations = { { -2533391314.838, 331.459500000, -12.546722222 }, { -2086876662.942, 23.009208333, 8.976583333 },
+                             { -2059999513.977, 28.936291667, 11.246972222 },   { -2015349582.953, 30.429250000, 11.883972222 },
+                             { -1900415146.293, 48.961791667, 17.772083333 },   { -1859133693.404, 49.931041667, 18.101388889 },
+                             { -1605377899.187, 86.330791667, 23.614500000 },   { -1543333320.487, 96.535875000, 23.638722222 },
+                             { -1478967522.904, 106.149875000, 23.057388889 },  { -1412011531.153, 115.476750000, 21.919111111 },
+                             { -1321881740.758, 131.602625000, 18.667472222 },  { -1255019212.070, 139.844166667, 16.392333333 },
+                             { -1163426760.901, 155.460791667, 11.070666667 },  { -1102157707.312, 165.546666667, 7.052777778 },
+                             { -1037960654.028, 174.276750000, 3.348916667 },   { -972134061.179, 182.256916667, -0.132055556 } };
+    dataset.primaryConvention = "astrometric B1950";
+    dataset.primarySettings = getPositionAngleAncillarySettings( b1950_position_angle_reference_frame, TUDAT_NAN, false );
+    dataset.comparisonConvention = "aberrated B1950";
+    dataset.comparisonSettings = getPositionAngleAncillarySettings( b1950_position_angle_reference_frame, TUDAT_NAN, true );
+    // Scatter of these observations about 0.39 arcsec (RA) and 0.77 arcsec (Dec), with a declination offset of about -0.7 arcsec. The
+    // correction is the annual stellar aberration, of at most 20.8 arcsec.
+    dataset.residualBounds = { 1.0, 0.1, 1.5 };
+    dataset.correctionBounds = CorrectionBounds{ 10.0, 21.0, 15.0, 21.0 };
+    validateAngularPositionDataset( dataset );
+}
+
+//! Validate apparent true-of-date (IAU 1976/1980) angular positions on USNO transit observations of Neptune.
+BOOST_AUTO_TEST_CASE( testNeptuneTrueOfDateIau1976AngularPositionPrefitResiduals )
+{
+    AngularPositionDataset dataset;
+    dataset.name = "Neptune USNO 6-inch transit 1926-1976";
+    dataset.observedBody = "Neptune_barycenter";
+    // JPL file trnstswash6a.txt (USNO 6-inch transit circle, MPC 786): apparent places w.r.t. the true equator and equinox of date,
+    // with right ascensions on the FK4 equinox, in UT1 (UTC from 1972)
+    dataset.observations = { { -2333940291.851, 146.589616667, 13.844527778 },  { -2235884218.011, 152.180000000, 12.084552778 },
+                             { -2045372404.121, 164.765833333, 7.560694444 },   { -1947144055.575, 170.134375000, 5.493802778 },
+                             { -1820394720.984, 178.302204167, 2.203830556 },   { -1695454723.757, 186.923000000, -1.334416667 },
+                             { -1571893243.139, 196.003454167, -5.031447222 },  { -1470477042.826, 200.456958333, -6.761227778 },
+                             { -1343813840.306, 208.760154167, -9.871511111 },  { -1251788877.660, 215.911562500, -12.335652778 },
+                             { -1188026453.488, 220.071579167, -13.671427778 }, { -1092555115.130, 226.440833333, -15.554447222 },
+                             { -996222168.497, 232.671579167, -17.196297222 },  { -908591214.573, 241.328504167, -19.109608333 },
+                             { -776844388.407, 249.380379167, -20.466941667 },  { -738156584.209, 249.907091667, -20.608386111 } };
+    dataset.correctFk4Equinox = true;
+    dataset.primaryConvention = "aberrated true-of-date IAU 1976/1980";
+    dataset.primarySettings =
+            getPositionAngleAncillarySettings( true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, true );
+    dataset.comparisonConvention = "astrometric true-of-date IAU 1976/1980";
+    dataset.comparisonSettings =
+            getPositionAngleAncillarySettings( true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, false );
+    // Scatter of these observations about 0.38 arcsec (RA) and 0.36 arcsec (Dec). The correction is the annual stellar aberration.
+    dataset.residualBounds = { 0.5, 0.1, 1.0 };
+    dataset.correctionBounds = CorrectionBounds{ 10.0, 21.0, 15.0, 21.0 };
+    validateAngularPositionDataset( dataset );
+}
+
+//! Validate apparent true-of-date (IAU 2006/2000A) angular positions on Carlsberg Meridian Circle observations of Uranus.
+BOOST_AUTO_TEST_CASE( testUranusTrueOfDateIau2006AngularPositionPrefitResiduals )
+{
+    AngularPositionDataset dataset;
+    dataset.name = "Uranus Carlsberg Meridian Circle 1984-1997";
+    dataset.observedBody = "Uranus_barycenter";
+    // JPL file trnstslplma.txt (Carlsberg Automatic Meridian Circle, La Palma, MPC 950): apparent places w.r.t. the true equator
+    // and equinox of date, not on the FK4 equinox, in UTC
+    dataset.observations = { { -493464434.935, 250.891083333, -22.241825000 }, { -465115024.182, 256.843358333, -22.909416667 },
+                             { -454690148.743, 252.746854167, -22.533241667 }, { -425651486.051, 258.445591667, -23.112927778 },
+                             { -397301938.181, 264.971108333, -23.511983333 }, { -365161626.378, 269.587620833, -23.652047222 },
+                             { -332418247.896, 273.865675000, -23.664572222 }, { -301570260.723, 279.052395833, -23.504730556 },
+                             { -273220872.643, 284.903008333, -23.098722222 }, { -266673054.434, 282.175900000, -23.352236111 },
+                             { -239529741.543, 288.959562500, -22.721580556 }, { -203254060.703, 291.449245833, -22.462500000 },
+                             { -169304555.710, 295.005920833, -21.983888889 }, { -135613471.266, 298.865458333, -21.364558333 },
+                             { -103128596.867, 303.086050000, -20.577372222 }, { -68920443.365, 307.294970833, -19.671072222 } };
+    dataset.primaryConvention = "aberrated true-of-date IAU 2006/2000A";
+    dataset.primarySettings =
+            getPositionAngleAncillarySettings( true_of_date_iau_2006_2000a_position_angle_reference_frame, TUDAT_NAN, true );
+    dataset.comparisonConvention = "aberrated J2000";
+    dataset.comparisonSettings = getPositionAngleAncillarySettings( j2000_position_angle_reference_frame, TUDAT_NAN, true );
+    // Scatter of these observations about 0.20 arcsec (RA) and 0.18 arcsec (Dec). The correction is the precession since J2000 (50.3 arcsec
+    // per year, 2.2 to 15.6 years) and nutation (at most 19 arcsec).
+    dataset.residualBounds = { 0.2, 0.05, 0.5 };
+    dataset.correctionBounds = CorrectionBounds{ 300.0, 800.0, 600.0, 820.0 };
+    validateAngularPositionDataset( dataset );
+}
+
+//! Compare the IAU 2006/2000A and IAU 1976/1980 true-of-date frames on Tokyo transit observations of Jupiter.
+BOOST_AUTO_TEST_CASE( testJupiterTrueOfDateAngularPositionPrefitResiduals )
+{
+    AngularPositionDataset dataset;
+    dataset.name = "Jupiter Tokyo transit 1963-1974";
+    dataset.observedBody = "Jupiter_barycenter";
+    // IMCCE file URSS/JUPI/TRANSIT/tok.trn.ftp (Tokyo, MPC 388): apparent places w.r.t. the true equator and equinox of date,
+    // with right ascensions on the FK4 equinox, in UT1
+    dataset.observations = { { -1147629415.887, 18.367933333, 6.144411111 },   { -1139101305.781, 9.446308333, 2.461691667 },
+                             { -1108159143.168, 48.104729167, 16.627222222 },  { -1103679607.840, 43.937125000, 15.694888889 },
+                             { -1074890446.138, 87.197300000, 23.012586111 },  { -1041622161.822, 124.565637500, 20.142552778 },
+                             { -1033438447.544, 116.732433333, 21.772444444 }, { -1003617530.095, 150.745700000, 13.297125000 },
+                             { -1000429993.860, 148.508475000, 14.028550000 }, { -975174999.223, 185.756525000, -0.896938889 },
+                             { -939496662.623, 212.500791667, -11.549630556 }, { -905454487.707, 243.240225000, -20.129088889 },
+                             { -864434277.905, 268.727487500, -23.361833333 }, { -839694187.769, 314.663150000, -17.678372222 },
+                             { -830132229.041, 305.237745833, -20.308055556 }, { -824617006.884, 308.245458333, -19.576202778 } };
+    dataset.correctFk4Equinox = true;
+    dataset.primaryConvention = "aberrated true-of-date IAU 2006/2000A";
+    dataset.primarySettings =
+            getPositionAngleAncillarySettings( true_of_date_iau_2006_2000a_position_angle_reference_frame, TUDAT_NAN, true );
+    dataset.comparisonConvention = "aberrated true-of-date IAU 1976/1980";
+    dataset.comparisonSettings =
+            getPositionAngleAncillarySettings( true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, true );
+    // Scatter of these observations about 0.64 arcsec (RA) and 0.72 arcsec (Dec). The two frames differ by the IAU 2000 precession-rate
+    // correction (-0.30 arcsec per century in longitude, about 0.09 arcsec for these epochs) and the frame bias (about 0.02
+    // arcsec), much less than the scatter, so no RMS improvement is required.
+    dataset.residualBounds = { 0.5, 0.2, 1.5 };
+    dataset.correctionBounds = CorrectionBounds{ 0.05, 0.2, 0.08, 0.2 };
+    dataset.requirePrimaryRmsBelowComparison = false;
+    validateAngularPositionDataset( dataset );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
