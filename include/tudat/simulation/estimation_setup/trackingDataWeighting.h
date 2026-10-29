@@ -54,7 +54,8 @@ void setObservationWeightsFromTrackingDataScheme(
         return;
     }
 
-    if( trackingData->getWeighingScheme( ) != "VFCC17" )
+    const std::string weighingScheme = trackingData->getWeighingScheme( );
+    if( weighingScheme != "VFCC17" && weighingScheme != "ADES" && weighingScheme != "ADES_NIGHT" )
     {
         throw std::runtime_error( "Error when setting observation weights from TrackingData, weighing scheme '" +
                                   trackingData->getWeighingScheme( ) + "' is not recognized." );
@@ -73,7 +74,7 @@ void setObservationWeightsFromTrackingDataScheme(
     const std::map< std::string, std::vector< std::string > > ancillaryStringVectorSettings =
             trackingData->getAncillarySettingsStringVector( );
 
-    for( const std::string metadataKey : { "note2", "catalog" } )
+    for( const std::string metadataKey : { "note2", "catalog", "rmsRA", "rmsDec" } )
     {
         auto metadataIterator = ancillaryStringVectorSettings.find( metadataKey );
         if( metadataIterator == ancillaryStringVectorSettings.end( ) )
@@ -82,7 +83,7 @@ void setObservationWeightsFromTrackingDataScheme(
         }
         if( metadataIterator->second.size( ) != trackingData->getNumberOfObservations( ) )
         {
-            throw std::runtime_error( "Error when setting VFCC17 weights from TrackingData, metadata key '" + metadataKey +
+            throw std::runtime_error( "Error when setting " + weighingScheme + " weights from TrackingData, metadata key '" + metadataKey +
                                       "' has an inconsistent number of entries." );
         }
         for( unsigned int i = 0; i < trackingData->getNumberOfObservations( ); ++i )
@@ -91,7 +92,14 @@ void setObservationWeightsFromTrackingDataScheme(
         }
     }
 
-    data::setVFCC17Weights< ObservationScalarType, TimeType >( trackingData, stationPositions, stringMetadata );
+    if( weighingScheme == "VFCC17" )
+    {
+        data::setVFCC17Weights< ObservationScalarType, TimeType >( trackingData, stationPositions, stringMetadata );
+    }
+    else
+    {
+        data::setAdesWeights< ObservationScalarType, TimeType >( trackingData, stationPositions, stringMetadata, weighingScheme == "ADES_NIGHT" );
+    }
 }
 
 //! Function to compute the rates of right ascension and declination of an observed body

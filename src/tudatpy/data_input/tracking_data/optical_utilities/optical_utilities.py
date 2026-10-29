@@ -11,6 +11,7 @@ import astropy
 from astropy_healpix import HEALPix
 from astropy.units import Quantity
 import astropy.units as u
+import warnings
 import os
 import re
 from tudatpy.astro import time_representation
@@ -66,6 +67,12 @@ SPACECRAFT_POSITION_COLUMNS = [
     "spacecraft_position_y",
     "spacecraft_position_z",
 ]
+SPACECRAFT_VELOCITY_COLUMNS = [
+    "spacecraft_velocity_vx",
+    "spacecraft_velocity_vy",
+    "spacecraft_velocity_vz",
+]
+ROVING_POSITION_COLUMNS = ["roving_position_1", "roving_position_2", "roving_position_3"]
 ANCILLARY_STRING_COLUMNS = [
     "band",
     "phottype",
@@ -75,6 +82,181 @@ ANCILLARY_STRING_COLUMNS = [
     "mag",
     "discovery",
 ]
+
+NAIF_IDS = {
+    0: "SSB",
+    1: "Mercury Barycenter",
+    2: "Venus Barycenter",
+    3: "Earth Barycenter",
+    4: "Mars Barycenter",
+    5: "Jupiter Barycenter",
+    6: "Saturn Barycenter",
+    7: "Uranus Barycenter",
+    8: "Neptune Barycenter",
+    9: "Pluto Barycenter",
+    10: "Sun",
+    199: "Mercury",
+    299: "Venus",
+    399: "Earth",
+    301: "Moon",
+    499: "Mars",
+    401: "Phobos",
+    402: "Deimos",
+    599: "Jupiter",
+    501: "Io",
+    502: "Europa",
+    503: "Ganymede",
+    504: "Callisto",
+    505: "Amalthea",
+    506: "Himalia",
+    507: "Elara",
+    508: "Pasiphae",
+    509: "Sinope",
+    510: "Lysithea",
+    511: "Carme",
+    512: "Ananke",
+    513: "Leda",
+    514: "Thebe",
+    515: "Adrastea",
+    516: "Metis",
+    517: "Callirrhoe",
+    518: "Themisto",
+    519: "Megaclite",
+    520: "Taygete",
+    521: "Chaldene",
+    522: "Harpalyke",
+    523: "Kalyke",
+    524: "Iocaste",
+    525: "Erinome",
+    526: "Isonoe",
+    527: "Praxidike",
+    528: "Autonoe",
+    529: "Thyone",
+    530: "Hermippe",
+    531: "Aitne",
+    532: "Eurydome",
+    533: "Euanthe",
+    534: "Euporie",
+    535: "Orthosie",
+    536: "Sponde",
+    537: "Kale",
+    538: "Pasithee",
+    539: "Hegemone",
+    540: "Mneme",
+    541: "Aoede",
+    542: "Thelxinoe",
+    543: "Arche",
+    544: "Kallichore",
+    545: "Helike",
+    546: "Carpo",
+    547: "Eukelade",
+    548: "Cyllene",
+    549: "Kore",
+    550: "Herse",
+    553: "Dia",
+    699: "Saturn",
+    601: "Mimas",
+    602: "Enceladus",
+    603: "Tethys",
+    604: "Dione",
+    605: "Rhea",
+    606: "Titan",
+    607: "Hyperion",
+    608: "Iapetus",
+    609: "Phoebe",
+    610: "Janus",
+    611: "Epimetheus",
+    612: "Helene",
+    613: "Telesto",
+    614: "Calypso",
+    615: "Atlas",
+    616: "Prometheus",
+    617: "Pandora",
+    618: "Pan",
+    619: "Ymir",
+    620: "Paaliaq",
+    621: "Tarvos",
+    622: "Ijiraq",
+    623: "Suttungr",
+    624: "Kiviuq",
+    625: "Mundilfari",
+    626: "Albiorix",
+    627: "Skathi",
+    628: "Erriapus",
+    629: "Siarnaq",
+    630: "Thrymr",
+    631: "Narvi",
+    632: "Methone",
+    633: "Pallene",
+    634: "Polydeuces",
+    635: "Daphnis",
+    636: "Aegir",
+    637: "Bebhionn",
+    638: "Bergelmir",
+    639: "Bestla",
+    640: "Farbauti",
+    641: "Fenrir",
+    642: "Fornjot",
+    643: "Hati",
+    644: "Hyrrokkin",
+    645: "Kari",
+    646: "Loge",
+    647: "Skoll",
+    648: "Surtur",
+    649: "Anthe",
+    650: "Jarnsaxa",
+    651: "Greip",
+    652: "Tarqeq",
+    653: "Aegaeon",
+    799: "Uranus",
+    701: "Ariel",
+    702: "Umbriel",
+    703: "Titania",
+    704: "Oberon",
+    705: "Miranda",
+    706: "Cordelia",
+    707: "Ophelia",
+    708: "Bianca",
+    709: "Cressida",
+    710: "Desdemona",
+    711: "Juliet",
+    712: "Portia",
+    713: "Rosalind",
+    714: "Belinda",
+    715: "Puck",
+    716: "Caliban",
+    717: "Sycorax",
+    718: "Prospero",
+    719: "Setebos",
+    720: "Stephano",
+    721: "Trinculo",
+    722: "Francisco",
+    723: "Margaret",
+    724: "Ferdinand",
+    725: "Perdita",
+    726: "Mab",
+    727: "Cupid",
+    899: "Neptune",
+    801: "Triton",
+    802: "Nereid",
+    803: "Naiad",
+    804: "Thalassa",
+    805: "Despina",
+    806: "Galatea",
+    807: "Larissa",
+    808: "Proteus",
+    809: "Halimede",
+    810: "Psamathe",
+    811: "Sao",
+    812: "Laomedeia",
+    813: "Neso",
+    999: "Pluto",
+    901: "Charon",
+    902: "Nix",
+    903: "Hydra",
+    904: "Kerberos",
+    905: "Styx",
+}
 
 
 def standardize_optical_dataframe(df: pd.DataFrame) -> pd.DataFrame:
@@ -199,10 +381,12 @@ def create_augmented_optical_table(
         if column not in augmented_table.columns:
             augmented_table[column] = None
 
-    augmented_table["epoch_seconds_UTC"] = [
-        time_representation.julian_day_to_seconds_since_epoch(jd)
-        for jd in list(augmented_table["epoch"])
-    ]
+    if "epoch_seconds_UTC" not in augmented_table.columns:
+        # the entry is already computed in both the ADES and 80 columns parser
+        augmented_table["epoch_seconds_UTC"] = [
+            time_representation.julian_day_to_seconds_since_epoch(jd)
+            for jd in list(augmented_table["epoch"])
+        ]
 
     return augmented_table
 
@@ -214,25 +398,67 @@ def _spacecraft_observation_mask(table: pd.DataFrame) -> pd.Series:
     return table[SPACECRAFT_POSITION_COLUMNS].notna().all(axis=1)
 
 
+def _roving_observation_mask(table: pd.DataFrame) -> pd.Series:
+    """Identify optical rows that include a complete roving observatory position."""
+    if not set(ROVING_POSITION_COLUMNS).issubset(table.columns):
+        return pd.Series(False, index=table.index)
+    return table[ROVING_POSITION_COLUMNS].notna().all(axis=1)
+
+
 def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSupplementaryData]:
     """Receiver-state supplementary data for space-based observations.
 
-    MPC parallax records give geocentric J2000 positions at the UTC observation
+    In 80-columns, MPC parallax records give geocentric J2000 positions at the UTC observation
     epochs; Tudat derives velocities by finite differences.
+    In ADES often the velocity is also defined.
     """
     supplementary_data = []
+    # sort the observations per observatory
     for observatory, group in table.loc[_spacecraft_observation_mask(table)].groupby(
         "observatory", sort=False
     ):
-        positions = group.groupby("epoch_seconds_UTC")[SPACECRAFT_POSITION_COLUMNS].mean()
+        # if in ADES format check if the ctr value is present; if multiple ctr are
+        # defined for the same observatory raise and error. Standard practice is to have 399 as ctr,
+        # exceptions are only allowed with the approval of the MPC
+        # (this could be improved - allowing all spacecraft obs to be processed singularly without raising the error)
+        ctr_values = group["ctr"].dropna().unique() if "ctr" in group.columns else []
+        if len(ctr_values) > 1:
+            raise ValueError(f"Multiple ctr values for observatory {observatory}: {ctr_values}")
+
+        # define the frame origin of the spacecraft's state
+        if len(ctr_values) == 1:
+            if int(ctr_values[0]) not in NAIF_IDS:
+                raise ValueError(
+                    f"Unsupported ctr value {ctr_values[0]} for observatory {observatory}"
+                )
+            frame_origin = NAIF_IDS[int(ctr_values[0])]
+        else:
+            frame_origin = "Earth"
+
         receiver_data = TrackingSupplementaryData(str(observatory), "")
+
+        # check if info about velocity is available; if so use it to build the state history
+        velocities = group.reindex(columns=SPACECRAFT_VELOCITY_COLUMNS)
+        has_velocity_columns = velocities.notna().any(axis=None)
+        if has_velocity_columns:
+            if velocities.isna().any(axis=None):
+                raise ValueError(
+                    f"Spacecraft velocities for observatory {observatory} must be either "
+                    "entirely absent or complete for every observation"
+                )
+        columns_spacecraft = SPACECRAFT_POSITION_COLUMNS.copy()
+        if has_velocity_columns:
+            columns_spacecraft += SPACECRAFT_VELOCITY_COLUMNS
+        state_data = group.groupby("epoch_seconds_UTC")[columns_spacecraft].mean()
         receiver_data.translational_state_supplementary_data = TranslationalStateSupplementaryData(
             state_history={
-                float(epoch): np.concatenate((position, np.zeros(3)))
-                for epoch, position in zip(positions.index, positions.to_numpy())
+                float(epoch): (
+                    state if has_velocity_columns else np.concatenate((state, np.zeros(3)))
+                )
+                for epoch, state in zip(state_data.index, state_data.to_numpy())
             },
-            frame_origin="Earth",
-            is_velocity_defined=False,
+            frame_origin=frame_origin,
+            is_velocity_defined=bool(has_velocity_columns),
             time_scale="UTC",
             frame_orientation="J2000",
         )
@@ -339,6 +565,7 @@ def optical_table_to_tracking_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Convert an augmented optical table to TrackingData and supplementary data lists.
 
@@ -356,6 +583,14 @@ def optical_table_to_tracking_data(
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -363,15 +598,53 @@ def optical_table_to_tracking_data(
         Tracking data objects and supplementary data objects.
     """
     table = create_augmented_optical_table(table, in_degrees=False)
-    weighing_scheme = "VFCC17" if add_weights else ""
+
+    if add_weights:
+        if weighing_scheme:
+            raise ValueError(
+                "Both 'add_weights' and 'weighing_scheme' are specified; use only 'weighing_scheme'."
+            )
+        warnings.warn(
+            "'add_weights' is deprecated, use 'weighing_scheme' instead. "
+            "If 'add_weights' is True then weighting scheme 'VFCC17' will be applied."
+            "For different weighing schemes do not specify 'add_weights' and "
+            "indicate the appropriate string in 'weighing_scheme' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        weighing_scheme = "VFCC17"
+
+    roving_mask = _roving_observation_mask(table)
+    if roving_mask.any():
+        warnings.warn(
+            f"Skipping {int(roving_mask.sum())} observation(s) from roving observatories: "
+            "ADES positions in WGS84, ITRF or IAU are not supported by the tracking-data conversion"
+        )
+        table = table.loc[~roving_mask]
+
+    if weighing_scheme in ("ADES", "ADES_NIGHT"):
+        uncertainties = (
+            table.reindex(columns=["rmsRA", "rmsDec"])
+            .apply(pd.to_numeric, errors="coerce")
+            .to_numpy(dtype=float, na_value=np.nan)
+        )
+        if not (np.isfinite(uncertainties) & (uncertainties > 0)).all():
+            raise ValueError(
+                f"{weighing_scheme} weighing requires rmsRA and rmsDec to be "
+                "valid (positive, finite) for every observation"
+            )
 
     if add_star_catalog_corrections:
         RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)
         table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
 
     metadata_columns = set(ANCILLARY_STRING_COLUMNS) if add_ancillary_data else set()
-    if add_weights:
+    # add data required to adopt the VFCC17 weighing scheme
+    if weighing_scheme == "VFCC17":
         metadata_columns.update(["note2", "catalog"])
+    # add data required to adopt the ADES weighing schemes
+    if weighing_scheme in ("ADES", "ADES_NIGHT"):
+        metadata_columns.update(["rmsRA", "rmsDec"])
     metadata_columns.add("number")
 
     target_names = _resolve_optical_target_names(table)
@@ -433,6 +706,7 @@ def read_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Read optical astrometry from a table into TrackingData objects.
 
@@ -462,6 +736,14 @@ def read_optical_data(
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -477,6 +759,7 @@ def read_optical_data(
             add_weights,
             add_star_catalog_corrections,
             add_ancillary_data,
+            weighing_scheme,
         )
 
     if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
@@ -488,6 +771,7 @@ def read_optical_data(
             add_weights,
             add_star_catalog_corrections,
             add_ancillary_data,
+            weighing_scheme,
         )
 
     raise TypeError("read_optical_data expects a pandas DataFrame or astropy Table/QTable.")
@@ -501,6 +785,7 @@ def read_pandas_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Read optical astrometry from a pandas table into TrackingData objects.
 
@@ -523,6 +808,14 @@ def read_pandas_optical_data(
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -535,6 +828,7 @@ def read_pandas_optical_data(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
+        weighing_scheme,
     )
 
 
@@ -546,6 +840,7 @@ def read_astropy_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Read optical astrometry from an astropy table into TrackingData objects.
 
@@ -568,6 +863,14 @@ def read_astropy_optical_data(
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -580,6 +883,7 @@ def read_astropy_optical_data(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
+        weighing_scheme,
     )
 
 

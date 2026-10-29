@@ -44,6 +44,7 @@ For more information on the tracking data architecture, see the `user guide <htt
 
    tracking_data/atdf
    tracking_data/obs_80_cols
+   tracking_data/ades
    tracking_data/fdets
    tracking_data/generic_text_file
    tracking_data/gaia
