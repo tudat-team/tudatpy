@@ -69,7 +69,13 @@ void expose_tracking_data( py::module& m )
          time_scale : str, default "TDB"
              Time scale of the observation epochs.
          weighing_scheme : str, default ""
-             Name of the weighing scheme assigned to the observations.
+             Name of the weighing scheme assigned to the observations (``"VFCC17"``, ``"ADES"`` or
+             ``"ADES_NIGHT"``). The weights are computed when an observation collection is created
+             from this object, unless weights have been set manually. For ``"ADES"`` and
+             ``"ADES_NIGHT"``, the weights are computed from the rmsRA and rmsDec uncertainties
+             stored in the metadata. For ``"ADES_NIGHT"``, the weights are additionally divided by
+             the square root of the number of observations in the same local night (using the same
+             definition of a local night as for ``"VFCC17"``).
       )doc" )
             .def_property_readonly( "observable_type",
                                     &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,

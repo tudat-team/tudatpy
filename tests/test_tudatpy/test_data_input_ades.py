@@ -1,0 +1,678 @@
+import tudatpy.data_input.tracking_data.ades.parsers as parser
+from tudatpy.data_input.tracking_data.ades.parsers import MODE_DICT, CATALOG_DICT
+
+import pandas as pd
+import pytest
+from astropy.table import Table
+import numpy as np
+from numpy.testing import assert_equal
+from pathlib import Path
+
+current_dir = Path(__file__).resolve().parent
+
+
+# define the path of the file to be saved
+@pytest.fixture
+def file_path_xml():
+    return f"{current_dir}/obs_2.xml"
+
+
+@pytest.fixture
+def file_path_psv():
+    return f"{current_dir}/obs_1.psv"
+
+
+@pytest.fixture
+def file_path_xml_radar():
+    return f"{current_dir}/obs_radar.xml"
+
+
+# define a dataframe with observations equal to file obs_1.psv
+@pytest.fixture
+def observations():
+    return pd.DataFrame(
+        {
+            "permID": [1234456, 1234457, 1234458, 1234459],
+            "provID": ["provID"] * 4,
+            "trkSub": ["aa", "aa", "aa", "aa"],
+            "artSat": [None, None, None, None],
+            "mode": ["CCD", "CCD", "CCD", "CCD"],
+            "stn": ["F51", "F51", "F51", "F51"],
+            "obsTime": ["2016-08-29T12:32:34Z"] * 4,
+            "ra": [0, 0.1, 0.1, 0.1],
+            "dec": [100, 30.0, -30.0, 30.0],
+            "rmsRA": [0.15, 0.15, 0.15, 0.15],
+            "rmsDec": [0.13, 0.13, 0.13, 0.13],
+            "rmsCorr": [0.21, 0.21, 0.21, 0.21],
+            "astCat": ["2MASS", "2MASS", "2MASS", "2MASS"],
+            "mag": [21.9, 21.9, 21.9, 21.9],
+            "rmsMag": [0.25, 0.25, 0.25, 0.25],
+            "band": ["w", "w", "w", "w"],
+            "photCat": ["2MASS", "2MASS", "2MASS", "2MASS"],
+            "logSNR": [0.775, 0.775, 0.775, 0.775],
+            "notes": ["kmnt", "kmnt", "kmnt", "kmnt"],
+            "remarks": ["High winds affected tracking"] * 4,
+        }
+    )
+
+
+@pytest.fixture
+def observations_radar():
+    return pd.DataFrame(
+        {
+            "permID": [1234456, 1234457, 1234458, 1234459],
+            "provID": ["provID"] * 4,
+            "artSat": [None, None, None, None],
+            "trx": ["251", "251", "251", "251"],
+            "rcv": ["251", "251", "251", "251"],
+            "obsTime": ["2016-08-29T12:32:34Z"] * 4,
+            "doppler": [-80977.5254, 80977.5254, -60977.5254, 60977.5254],
+            "rmsDoppler": [0.250, 0.250, 0.250, 0.250],
+            "frq": [2380.0, 2380.0, 2380.0, 2380.0],
+        }
+    )
+
+
+@pytest.fixture
+def observations_occultation():
+    return pd.DataFrame(
+        {
+            "permID": [94, 94, 94, 94],
+            "provID": ["provID"] * 4,
+            "trkSub": ["aa", "aa", "aa", "aa"],
+            "artSat": [None, None, None, None],
+            "mode": ["OCC", "OCC", "OCC", "OCC"],
+            "stn": ["275", "275", "275", "275"],
+            "obsTime": ["2004-02-26T16:07:43.69Z"] * 4,
+            "raStar": [0, 0.1, 0.1, 0.1],
+            "decStar": [100, 30.0, -30.0, 30.0],
+            "deltaRA": [0.001, 0.001, 0.001, 0.001],
+            "deltaDec": [0.005, 0.005, 0.005, 0.005],
+            "rmsRA": [0.15, 0.15, 0.15, 0.15],
+            "rmsDec": [0.13, 0.13, 0.13, 0.13],
+            "rmsCorr": [0.21, 0.21, 0.21, 0.21],
+            "astCat": ["GAIA3E", "GAIA3E", "GAIA3E", "GAIA3E"],
+        }
+    )
+
+
+RADAR_TABLE_META_KEY = "tudatpy_radar_tracking_table"
+
+
+"""
+Test all internal functions used by the parser 
+"""
+
+
+# test _first_present_column
+def test_first_present_column(observations):
+    result = parser._first_present_column(observations, "permID", "provID", "notes")
+    # permID is the first present columns so should be returned
+    pd.testing.assert_series_equal(result, observations["permID"])
+
+
+def test_returns_none_when_no_names_are_present(observations):
+    result = parser._first_present_column(observations, "missing1", "missing2")
+    assert result is None
+
+
+def test_error_if_no_names(observations):
+    with pytest.raises(ValueError, match="At least one column name must be provided"):
+        result = parser._first_present_column(observations)
+
+
+# test _check_possible_failures
+# common checks between radar, optical and offset
+def test_rejects_missing_required_column_optical(observations):
+    invalid = observations.drop(columns=["mode"])
+    with pytest.raises(ValueError, match="Missing required column: mode"):
+        parser._check_possible_failures(invalid, "optical")
+
+
+def test_rejects_missing_required_column_radar(observations_radar):
+    invalid = observations_radar.drop(columns=["frq"])
+    with pytest.raises(ValueError, match="Missing required column: frq"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_missing_required_column_occultation(observations_occultation):
+    invalid = observations_occultation.drop(columns=["raStar"])
+    with pytest.raises(ValueError, match="Missing required column: raStar"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_rejects_missing_value_in_required_column_optical(observations):
+    invalid = observations.copy()
+    invalid.loc[0, "ra"] = None
+    with pytest.raises(ValueError, match="Column 'ra' contains missing values"):
+        parser._check_possible_failures(invalid, "optical")
+
+
+def test_rejects_missing_value_in_required_column_radar(observations_radar):
+    invalid = observations_radar.copy()
+    invalid.loc[0, "frq"] = None
+    with pytest.raises(ValueError, match="Column 'frq' contains missing values"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_missing_value_in_required_column_occultation(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid.loc[0, "raStar"] = None
+    with pytest.raises(ValueError, match="Column 'raStar' contains missing values"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_rejects_row_without_identifier_optical(observations):
+    invalid = observations.copy()
+    invalid.loc[0, ["permID", "provID", "artSat", "trkSub"]] = None
+    with pytest.raises(ValueError, match="Each row must have at least one non-missing identifier"):
+        parser._check_possible_failures(invalid, "optical")
+
+
+def test_rejects_row_without_identifier_radar(observations_radar):
+    invalid = observations_radar.copy()
+    invalid.loc[0, ["permID", "provID", "artSat"]] = None
+    with pytest.raises(ValueError, match="Each row must have at least one non-missing identifier"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_row_without_identifier_occultation(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid.loc[0, ["permID", "provID", "artSat", "trkSub"]] = None
+    with pytest.raises(ValueError, match="Each row must have at least one non-missing identifier"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+# in this case the same snippet of code is used for all observation kinds - only test it once
+def test_rejects_invalid_observation_time(observations):
+    invalid = observations.copy()
+    invalid["obsTime"] = invalid["obsTime"].astype("object")
+    invalid.loc[0, "obsTime"] = "not-a-time"
+    with pytest.raises(ValueError, match="Column 'obsTime' must match yyyy-mm-ddThh:mm:ss"):
+        parser._check_possible_failures(invalid, "optical")
+
+
+def test_rejects_invalid_observation_kind(observations):
+    with pytest.raises(ValueError, match="The input observation kind is invalid"):
+        parser._check_possible_failures(observations.copy(), "unknown")
+
+
+# optical observations specific tests
+def test_rejects_incomplete_location_group_optical(observations):
+    invalid = observations.copy()
+    invalid["sys"] = ["ICRF"] * 4
+    invalid["ctr"] = ["500"] * 4
+    invalid["pos1"] = [1.0] * 4
+    invalid["pos2"] = [2.0] * 4
+    # pos3 is omitted, so the location group is incomplete
+    with pytest.raises(
+        ValueError, match="If any of sys, ctr, pos1, pos2, pos3 is provided, all must be provided"
+    ):
+        parser._check_possible_failures(invalid, "optical")
+
+
+def test_rejects_position_that_is_not_numeric_optical(observations):
+    invalid = observations.copy()
+    invalid["sys"] = ["ICRF"] * 4
+    invalid["ctr"] = ["500"] * 4
+    invalid["pos1"] = ["not-a-number"] * 4
+    invalid["pos2"] = [2.0] * 4
+    invalid["pos3"] = [3.0] * 4
+    with pytest.raises(ValueError, match="pos1, pos2, and pos3 must be convertible to floats"):
+        parser._check_possible_failures(invalid, "optical")
+
+
+def test_rejects_ra_that_is_not_numeric(observations):
+    invalid = observations.copy()
+    invalid["ra"] = invalid["ra"].astype("object")
+    invalid.loc[0, "ra"] = "not-a-number"
+    with pytest.raises(ValueError, match="Column 'ra' must contain values convertible to floats"):
+        parser._check_possible_failures(invalid, "optical")
+
+
+def test_rejects_rms_value_that_is_not_numeric(observations):
+    invalid = observations.copy()
+    invalid["rmsRA"] = invalid["rmsRA"].astype("object")
+    invalid.loc[0, "rmsRA"] = "not-a-number"
+    with pytest.raises(ValueError, match="Column 'rmsRA' must be convertible to floats"):
+        parser._check_possible_failures(invalid, "optical")
+
+
+# radar observations specific tests
+def test_missing_delay_or_doppler(observations_radar):
+    df = observations_radar.drop(columns=["doppler", "rmsDoppler"])
+    with pytest.raises(
+        ValueError, match="Each row must have at least one between doppler and delay"
+    ):
+        parser._check_possible_failures(df, "radar")
+
+
+def test_row_missing_delay_and_doppler_raises(observations_radar):
+    df = observations_radar.copy()
+    df.loc[1, ["doppler", "rmsDoppler"]] = np.nan
+    with pytest.raises(
+        ValueError, match="Each row must have at least one between doppler and delay"
+    ):
+        parser._check_possible_failures(df, "radar")
+
+
+def test_doppler_without_rms_doppler(observations_radar):
+    df = observations_radar.drop(columns=["rmsDoppler"])
+    with pytest.raises(ValueError, match="doppler must also have rmsDoppler"):
+        parser._check_possible_failures(df, "radar")
+
+
+def test_doppler_row_without_rms_doppler(observations_radar):
+    df = observations_radar.copy()
+    df.loc[2, "rmsDoppler"] = np.nan
+    with pytest.raises(ValueError, match="doppler must also have rmsDoppler"):
+        parser._check_possible_failures(df, "radar")
+
+
+def test_delay_row_without_rms_delay(observations_radar):
+    df = observations_radar.copy()
+    df["delay"] = [1.0, 2.0, 3.0, 4.0]
+    df["rmsDelay"] = [0.1, np.nan, 0.1, 0.1]
+    with pytest.raises(ValueError, match="delay must also have rmsDelay"):
+        parser._check_possible_failures(df, "radar")
+
+
+def test_rejects_frq_that_is_not_numeric(observations_radar):
+    invalid = observations_radar.copy()
+    invalid["frq"] = invalid["frq"].astype("object")
+    invalid.loc[0, "frq"] = "not-a-number"
+    with pytest.raises(ValueError, match="Column 'frq' must be convertible to floats"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+def test_rejects_rmsDoppler_value_that_is_not_numeric(observations_radar):
+    invalid = observations_radar.copy()
+    invalid["rmsDoppler"] = invalid["rmsDoppler"].astype("object")
+    invalid.loc[0, "rmsDoppler"] = "not-a-number"
+    with pytest.raises(ValueError, match="Column 'rmsDoppler' must be convertible to floats"):
+        parser._check_possible_failures(invalid, "radar")
+
+
+# occultation observations specific tests
+def test_rejects_incomplete_location_group_occultation(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid["sys"] = ["ICRF"] * 4
+    invalid["ctr"] = ["500"] * 4
+    invalid["pos1"] = [1.0] * 4
+    invalid["pos2"] = [2.0] * 4
+    # pos3 is omitted, so the location group is incomplete
+    with pytest.raises(
+        ValueError, match="If any of sys, ctr, pos1, pos2, pos3 is provided, all must be provided"
+    ):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_rejects_position_that_is_not_numeric_occultation(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid["sys"] = ["ICRF"] * 4
+    invalid["ctr"] = ["500"] * 4
+    invalid["pos1"] = ["not-a-number"] * 4
+    invalid["pos2"] = [2.0] * 4
+    invalid["pos3"] = [3.0] * 4
+    with pytest.raises(ValueError, match="pos1, pos2, and pos3 must be convertible to floats"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_rejects_raStar_that_is_not_numeric(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid["raStar"] = invalid["raStar"].astype("object")
+    invalid.loc[0, "raStar"] = "not-a-number"
+    with pytest.raises(
+        ValueError, match="Column 'raStar' must contain values convertible to floats"
+    ):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_rejects_rmsRA_value_that_is_not_numeric(observations_occultation):
+    invalid = observations_occultation.copy()
+    invalid["rmsRA"] = invalid["rmsRA"].astype("object")
+    invalid.loc[0, "rmsRA"] = "not-a-number"
+    with pytest.raises(ValueError, match="Column 'rmsRA' must be convertible to floats"):
+        parser._check_possible_failures(invalid, "occultation")
+
+
+def test_missing_deltaRA_and_deltaDec(observations_occultation):
+    df = observations_occultation.drop(columns=["deltaRA", "deltaDec"])
+    with pytest.raises(
+        ValueError,
+        match="Each row must have at least one between the combinations deltaRa/deltaDec or dist/pa",
+    ):
+        parser._check_possible_failures(df, "occultation")
+
+
+def test_missing_deltaRA(observations_occultation):
+    df = observations_occultation.drop(columns=["deltaRA"])
+    with pytest.raises(
+        ValueError,
+        match="Each row must have at least one between the combinations deltaRa/deltaDec or dist/pa",
+    ):
+        parser._check_possible_failures(df, "occultation")
+
+
+# check _epochs_UTC_to_seconds_UTC
+def test_converts_observation_times_to_seconds_since_j2000(observations):
+    result = parser._epochs_UTC_to_seconds_UTC(observations.copy())
+    expected = (
+        pd.to_datetime(observations["obsTime"], format="ISO8601", utc=True)
+        - pd.Timestamp("2000-01-01T12:00:00Z")
+    ).dt.total_seconds()
+    pd.testing.assert_series_equal(
+        result["epoch_seconds_UTC"],
+        expected.rename("epoch_seconds_UTC"),
+    )
+
+
+def test_returns_dataframe_with_epoch_seconds_column(observations):
+    result = parser._epochs_UTC_to_seconds_UTC(observations.copy())
+    assert isinstance(result, pd.DataFrame)
+    assert "epoch_seconds_UTC" in result.columns
+    assert len(result) == len(observations)
+
+
+# test _mode_to_note2
+def test_maps_mode_to_note2(observations):
+    result = parser._mode_to_note2(observations.copy())
+    assert result["note2"].tolist() == ["C", "C", "C", "C"]
+
+
+def test_returns_dataframe_with_note2_column(observations):
+    result = parser._mode_to_note2(observations.copy())
+    assert isinstance(result, pd.DataFrame)
+    assert "note2" in result.columns
+    assert len(result) == len(observations)
+
+
+# test _astCat_to_catalog
+def test_astCat_to_catalog(observations):
+    result = parser._astCat_to_catalog(observations.copy())
+    assert result["catalog"].tolist() == ["L", "L", "L", "L"]
+
+
+def test_returns_dataframe_with_catalog_column(observations):
+    result = parser._astCat_to_catalog(observations.copy())
+    assert isinstance(result, pd.DataFrame)
+    assert "catalog" in result.columns
+    assert len(result) == len(observations)
+
+
+# test _roving_obs_columns
+def test_adds_earth_roving_columns(observations):
+    df = observations.copy()
+    df["sys"] = ["WGS84"] * len(df)
+    df["ctr"] = ["Earth"] * len(df)
+    df["pos1"] = [1.0, 2.0, 3.0, 4.0]
+    df["pos2"] = [5.0, 6.0, 7.0, 8.0]
+    df["pos3"] = [9.0, 10.0, 11.0, 12.0]
+
+    result_data = pd.DataFrame(index=range(len(df)))
+
+    result = parser._roving_obs_columns(df, result_data)
+
+    assert result["observatoryType"].tolist() == ["Earth Roving"] * len(df)
+    assert result["roving_position_1"].tolist() == [1.0, 2.0, 3.0, 4.0]
+    assert result["roving_position_2"].tolist() == [5.0, 6.0, 7.0, 8.0]
+    assert result["roving_position_3"].tolist() == [9.0, 10.0, 11.0, 12.0]
+    assert result["ctr"].tolist() == ["Earth"] * len(df)
+    assert result["sys"].tolist() == ["WGS84"] * len(df)
+
+
+def test_adds_spacecraft_roving_columns(observations):
+    df = observations.copy()
+    df["sys"] = ["ICRF_KM"] * len(df)
+    df["pos1"] = [1.0] * len(df)
+    df["pos2"] = [2.0] * len(df)
+    df["pos3"] = [3.0] * len(df)
+    df["vel1"] = [4.0] * len(df)
+    df["vel2"] = [5.0] * len(df)
+    df["vel3"] = [6.0] * len(df)
+
+    result_data = pd.DataFrame(index=range(len(df)))
+
+    result = parser._roving_obs_columns(df, result_data)
+
+    assert result["observatoryType"].tolist() == ["Spacecraft"] * len(df)
+    assert result["spacecraft_position_x"].tolist() == [1000.0] * len(df)
+    assert result["spacecraft_position_y"].tolist() == [2000.0] * len(df)
+    assert result["spacecraft_position_z"].tolist() == [3000.0] * len(df)
+    assert result["spacecraft_velocity_vx"].tolist() == [4000.0] * len(df)
+    assert result["spacecraft_velocity_vy"].tolist() == [5000.0] * len(df)
+    assert result["spacecraft_velocity_vz"].tolist() == [6000.0] * len(df)
+
+
+def test_rejects_none_result_data(observations):
+    with pytest.raises(ValueError, match="The input result table is empty"):
+        parser._roving_obs_columns(observations.copy(), None)
+
+
+def test_rejects_different_number_of_rows(observations):
+    result_data = pd.DataFrame(index=range(len(observations) - 1))
+    with pytest.raises(ValueError, match="df and result_data must have the same number of rows"):
+        parser._roving_obs_columns(observations.copy(), result_data)
+
+
+# test _numeric
+def test_numeric_default_scale(observations_radar):
+    result = parser._numeric(observations_radar, "doppler")
+    expected = pd.Series(
+        [-80977.5254, 80977.5254, -60977.5254, 60977.5254],
+        index=observations_radar.index,
+    )
+    pd.testing.assert_series_equal(result, expected, check_names=False)
+
+
+def test_numeric_applies_scale(observations_radar):
+    result = parser._numeric(observations_radar, "frq", 1e6)
+    expected = pd.Series([2380e6] * 4, index=observations_radar.index)
+    pd.testing.assert_series_equal(result, expected, check_names=False)
+
+
+# test _transform_delta_to_radec
+def test_transform_delta_to_radec(observations_occultation):
+    df_out = parser._transform_delta_to_radec(observations_occultation)
+    assert "ra" in df_out.columns
+    assert "dec" in df_out.columns
+    assert len(df_out) == len(observations_occultation)
+
+    arcsec = 1.0 / 3600.0
+    ra_star = observations_occultation["raStar"].to_numpy(dtype=float)
+    dec_star = observations_occultation["decStar"].to_numpy(dtype=float)
+    d_ra = observations_occultation["deltaRA"].to_numpy(dtype=float)
+    d_dec = observations_occultation["deltaDec"].to_numpy(dtype=float)
+    expected_ra = ra_star + d_ra * arcsec / np.cos(np.deg2rad(dec_star))
+    expected_dec = dec_star + d_dec * arcsec
+
+    np.testing.assert_allclose(df_out["ra"].to_numpy(), expected_ra, rtol=1e-12)
+    np.testing.assert_allclose(df_out["dec"].to_numpy(), expected_dec, rtol=1e-12)
+
+
+# test _transform_distpa_to_radec
+def test_transform_distpa_to_radec(observations_occultation):
+    df_in = observations_occultation.copy()
+    df_in["dist"] = [1.0, 2.0, 3.0, 0.5]  # arcsec
+    df_in["pa"] = [0.0, 90.0, 225.0, 45.0]  # deg
+    df_in["rmsDist"] = [0.1, 0.2, 0.3, 0.05]  # arcsec
+    df_in["rmsPA"] = [1.0, 2.0, 1.5, 0.5]  # deg
+
+    df_out = parser._transform_distpa_to_radec(df_in)
+    assert "ra" in df_out.columns
+    assert "dec" in df_out.columns
+    assert len(df_out) == len(df_in)
+
+    arcsec = 1.0 / 3600.0
+    ra_star = df_in["raStar"].to_numpy(dtype=float)
+    dec_star = df_in["decStar"].to_numpy(dtype=float)
+    dist = df_in["dist"].to_numpy(dtype=float)
+    pa = np.deg2rad(df_in["pa"].to_numpy(dtype=float))
+    expected_ra = ra_star + dist * arcsec * np.sin(pa) / np.cos(np.deg2rad(dec_star))
+    expected_dec = dec_star + dist * arcsec * np.cos(pa)
+
+    np.testing.assert_allclose(df_out["ra"].to_numpy(), expected_ra, rtol=1e-12)
+    np.testing.assert_allclose(df_out["dec"].to_numpy(), expected_dec, rtol=1e-12)
+
+
+def test_transform_distpa_to_radec_uncertainties(observations_occultation):
+    df_in = observations_occultation.copy()
+    df_in["dist"] = [1.0, 2.0, 3.0, 0.5]
+    df_in["pa"] = [0.0, 90.0, 225.0, 45.0]
+    df_in["rmsDist"] = [0.1, 0.2, 0.3, 0.05]
+    df_in["rmsPA"] = [1.0, 2.0, 1.5, 0.5]
+    df_in["rmsCorr"] = [0, 0, 0, 0]
+    df_out = parser._transform_distpa_to_radec(df_in)
+
+    d = np.array([1.0, 2.0, 3.0, 0.5])
+    sd = np.array([0.1, 0.2, 0.3, 0.05])
+    pa = np.deg2rad(np.array([0.0, 90.0, 225.0, 45.0]))
+    spa = np.deg2rad(np.array([1.0, 2.0, 1.5, 0.5]))
+    rho = np.array([0, 0, 0, 0])
+    s = np.sin(pa)
+    c = np.cos(pa)
+
+    var_ra = ((s**2) * (sd**2)) + ((d**2) * (c**2) * (spa**2)) + rho * sd * spa * d * np.sin(2 * pa)
+    var_dec = (
+        ((c**2) * (sd**2)) + ((d**2) * (s**2) * (spa**2)) - rho * sd * spa * d * np.sin(2 * pa)
+    )
+    cov = (s * c * sd**2) - (d**2 * s * c * spa**2) + rho * sd * spa * d * (c**2 - s**2)
+    expected_corr = cov / np.sqrt(var_ra * var_dec)
+
+    np.testing.assert_allclose(df_out["rmsRA"].to_numpy(), np.sqrt(var_ra), rtol=1e-10)
+    np.testing.assert_allclose(df_out["rmsDec"].to_numpy(), np.sqrt(var_dec), rtol=1e-10)
+    np.testing.assert_allclose(df_out["rmsCorr"].to_numpy(), expected_corr, rtol=1e-10)
+
+    # correlation must stay within [-1, 1]
+    assert np.all(np.abs(df_out["rmsCorr"].to_numpy()) <= 1.0)
+
+
+# Final test on parse_ades_file
+# as all used functions have been previously tested, use them in the file
+@pytest.mark.remote_data
+def test_parses_optical_xml(file_path_xml):
+    result = parser.parse_ades_file(file_path_xml)
+
+    # check that it is an astropy table
+    assert isinstance(result, Table)
+    # check that there are 4 observations
+    assert len(result) == 4
+
+    assert result["number"][0] == "1234456"
+    assert result["provisional_designation"].mask[0]
+    assert result["epoch"][0] == "2016-08-29T12:32:34Z"
+    assert result["observatory"][0] == "F51"
+    assert result["mode"][0] == "CCD"
+    assert result["note2"][0] == "C"
+
+    # RA and DEC are converted from degrees to radians.
+    assert result["RA"][1] == pytest.approx(np.deg2rad(0.1))
+    assert result["DEC"][1] == pytest.approx(np.deg2rad(30.0))
+
+    assert result["magnitude"][0] == pytest.approx(21.9)
+    assert result["band"][0] == "w"
+    assert result["rmsRA"][0] == pytest.approx(0.15)
+    assert result["rmsDec"][0] == pytest.approx(0.13)
+    assert result["rmsCorr"][0] == pytest.approx(0.21)
+
+    # The epoch helper computes seconds from the J2000 UTC epoch.
+    assert result["epoch_seconds_UTC"][0] == pytest.approx(
+        (
+            parser.pd.Timestamp("2016-08-29T12:32:34Z")
+            - parser.pd.Timestamp("2000-01-01T12:00:00Z")
+        ).total_seconds()
+    )
+
+
+# repeat the test giving a .psv file as input
+@pytest.mark.remote_data
+def test_parses_optical_psv(file_path_psv):
+    result = parser.parse_ades_file(file_path_psv)
+
+    # check that it is an astropy table
+    assert isinstance(result, Table)
+    # check that there are 4 observations
+    assert len(result) == 4
+
+    assert result["number"][0] == "1234456"
+    assert result["provisional_designation"].mask[0]
+    assert result["epoch"][0] == "2016-08-29T12:32:34Z"
+    assert result["observatory"][0] == "F51"
+    assert result["mode"][0] == "CCD"
+    assert result["note2"][0] == "C"
+
+    # RA and DEC are converted from degrees to radians.
+    assert result["RA"][1] == pytest.approx(np.deg2rad(0.1))
+    assert result["DEC"][1] == pytest.approx(np.deg2rad(30.0))
+
+    assert result["magnitude"][0] == pytest.approx(21.9)
+    assert result["band"][0] == "w"
+    assert result["rmsRA"][0] == pytest.approx(0.15)
+    assert result["rmsDec"][0] == pytest.approx(0.13)
+    assert result["rmsCorr"][0] == pytest.approx(0.21)
+
+    # The epoch helper computes seconds from the J2000 UTC epoch.
+    assert result["epoch_seconds_UTC"][0] == pytest.approx(
+        (
+            parser.pd.Timestamp("2016-08-29T12:32:34Z")
+            - parser.pd.Timestamp("2000-01-01T12:00:00Z")
+        ).total_seconds()
+    )
+
+
+@pytest.mark.remote_data
+def test_parses_radar_xml(file_path_xml_radar):
+    result = parser.parse_ades_file(file_path_xml_radar)
+
+    # check that it is an astropy table
+    assert isinstance(result, Table)
+    # check that the radar data is stored in the metadata of the astropy table
+    assert RADAR_TABLE_META_KEY in result.meta
+
+    # extract the radar table
+    result = result.meta[RADAR_TABLE_META_KEY]
+    print(result)
+
+    # check that there are 4 observations
+    assert len(result) == 2
+    assert result["target_body"][0] == "99942"
+    assert result["epoch_seconds_UTC"][0] == 668025600
+    assert result["transmitter"][0] == "253"
+    assert result["receiver"][0] == "253"
+
+    # doppler and rmsDoppler are in Hz - not converted
+    assert result["value"][0] == pytest.approx(8560029329.8)
+    assert result["sigma"][0] == pytest.approx(0.400)
+    # frequency gets transformed to Hz
+    assert result["transmitter_frequency_hz"][0] == pytest.approx(8560 * 1e6)
+
+    # The epoch helper computes seconds from the J2000 UTC epoch.
+    assert result["epoch_seconds_UTC"][0] == pytest.approx(
+        (
+            parser.pd.Timestamp("2021-03-03T06:40:00Z")
+            - parser.pd.Timestamp("2000-01-01T12:00:00Z")
+        ).total_seconds()
+    )
+
+
+def test_rejects_empty_file_path():
+    with pytest.raises(ValueError, match="There is no input file"):
+        parser.parse_ades_file("")
+
+
+def test_returns_empty_table_without_known_observations(tmp_path):
+    path = tmp_path / "unsupported.xml"
+    path.write_text(
+        """\
+<ades>
+  <obsData>
+    <unknownObservation><field>value</field></unknownObservation>
+  </obsData>
+</ades>
+""",
+        encoding="utf-8",
+    )
+
+    result = parser.parse_ades_file(str(path))
+    assert isinstance(result, Table)
+    assert len(result) == 0

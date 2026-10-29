@@ -20,6 +20,7 @@ def read_80_column_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
+    weighing_scheme: str | None = "",
 ):
     """Read MPC 80-column files into TrackingData objects.
 
@@ -54,6 +55,14 @@ def read_80_column_data(
         Whether to attach available optical ancillary metadata. To be used only
         in special cases where additional metadata is to be associated with the
         observations.
+    weighing_scheme : str, default ""
+        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
+        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
+        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        weights divided by the square root of the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        weights are computed when the observation collection is created. If empty, no weights
+        are assigned.
 
     Returns
     -------
@@ -76,6 +85,7 @@ def read_80_column_data(
             add_weights=add_weights,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
+            weighing_scheme=weighing_scheme,
         )
     radar_data = radar_data_from_table(parsed_table)
     if custom_name is not None:
