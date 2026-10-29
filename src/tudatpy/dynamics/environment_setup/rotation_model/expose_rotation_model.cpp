@@ -474,7 +474,7 @@ void expose_rotation_model_setup( py::module& m )
 
  * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1a (with :math:`n=2`) of IERS Conventions 2010
  * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
- * Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory for epoch 01-01-1962 and later, and from the IERS EOP C01 series (sampled at 0.05 to 0.1 year) between 1846 and 1962. Before 1846 and after the end of the file, the first and last values are used, respectively
+ * Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory for epoch 01-01-1962 and later, and from the IERS EOP C01 series (sampled at 0.05 to 0.1 year, from the eopc01_polar_motion_1846-1961.txt file in the tudat-resources directory) between 1846 and 1962. Before 1846 and after the end of the file, the first and last values are used, respectively
 
  Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
  The target frame (e.g. body-fixed frame) name is ITRS.
