@@ -119,7 +119,7 @@ public:
 
         // Read historical Delta T values
         std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
-                paths::getEarthOrientationDataFilesPath( ) + "/historicalDeltaT.txt", ",", "#" );
+                std::string( TUDAT_TEMPORARY_EARTH_ORIENTATION_DATA_PATH ) + "/historicalDeltaT.txt", ",", "#" );
 
         historicalDeltaTInterpolator_ =
                 interpolators::createOneDimensionalInterpolator( historicalDeltaTMap, interpolators::cubicSplineInterpolation( ) );
