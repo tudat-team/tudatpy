@@ -265,7 +265,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     return partialMap;
 }
 
-//! Function to create partial object(s) of rotation matrix wrt translational state
+//! Function to create partial object of rotation matrix wrt the rotational state of a body, for use in observation partials
 std::shared_ptr< RotationMatrixPartial > createObservationRotationMatrixPartialWrtRotationalState(
         const std::shared_ptr< simulation_setup::Body > currentBody )
 {
@@ -273,6 +273,7 @@ std::shared_ptr< RotationMatrixPartial > createObservationRotationMatrixPartialW
             &ephemerides::RotationalEphemeris::getRotationToBaseFrame, currentBody->getRotationalEphemeris( ), std::placeholders::_1 ) );
 }
 
+//! Function to create partial object(s) of rotation matrix wrt translational state
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslationalState(
         const std::shared_ptr< simulation_setup::Body > currentBody )
 {

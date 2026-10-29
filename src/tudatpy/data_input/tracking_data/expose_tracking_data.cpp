@@ -14,7 +14,7 @@
 #include "odf/expose_odf.h"
 #include "psf/expose_psf.h"
 #include "slr/expose_slr.h"
-#include "sum_lmk/expose_sum_lmk.h"
+#include "landmarks/expose_landmarks.h"
 #include "scalarTypes.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingSupplementaryData.h"
@@ -552,6 +552,15 @@ void expose_tracking_data( py::module& m )
          :type: str
       )doc" );
 
+    py::class_< tdat::CameraCalibration >( m, "CameraCalibration", R"doc(
+         Calibration of a camera, at a given time (see
+         :meth:`CameraInstrumentSupplementaryData.get_calibration`).
+      )doc" )
+            .def_readonly( "focal_length", &tdat::CameraCalibration::focalLength_, R"doc(Camera focal length.)doc" )
+            .def_readonly( "principal_point", &tdat::CameraCalibration::principalPoint_, R"doc(Camera principal point.)doc" )
+            .def_readonly( "field_of_view_bounds", &tdat::CameraCalibration::fieldOfViewBounds_, R"doc(Field-of-view bounds.)doc" )
+            .def_readonly( "k_matrix", &tdat::CameraCalibration::kMatrix_, R"doc(Camera K matrix.)doc" );
+
     py::class_< tdat::CameraInstrumentSupplementaryData,
                 std::shared_ptr< tdat::CameraInstrumentSupplementaryData >,
                 tdat::InstrumentSupplementaryData >( m, "CameraInstrumentSupplementaryData", R"doc(
@@ -589,35 +598,27 @@ void expose_tracking_data( py::module& m )
 
          :type: str
       )doc" )
-            .def_property_readonly( "focal_length", &tdat::CameraInstrumentSupplementaryData::getFocalLength, R"doc(
-         **read-only**
+            .def( "get_calibration",
+                  &tdat::CameraInstrumentSupplementaryData::getCalibration,
+                  py::arg( "time" ) = TUDAT_NAN,
+                  R"doc(
+         Function to get the calibration of the camera at a given time.
 
-         Camera focal length.
+         Returns the constant calibration of the camera, or, for a camera
+         whose calibration changes between pictures (such as one created
+         from SUM files), that of the picture closest in time.
 
-         :type: float
-      )doc" )
-            .def_property_readonly( "principal_point", &tdat::CameraInstrumentSupplementaryData::getPrincipalPoint, R"doc(
-         **read-only**
+         Parameters
+         ----------
+         time : float, default=nan
+             Time, in UTC seconds since J2000 (the time scale of
+             :attr:`rotation_from_inertial_to_camera_frame_history`). Only
+             required when the calibration changes between pictures.
 
-         Camera principal point.
-
-         :type: numpy.ndarray
-      )doc" )
-            .def_property_readonly( "field_of_view_bounds",
-                                    &tdat::CameraInstrumentSupplementaryData::getFieldOfViewBounds,
-                                    R"doc(
-         **read-only**
-
-         Field-of-view bounds.
-
-         :type: numpy.ndarray
-      )doc" )
-            .def_property_readonly( "k_matrix", &tdat::CameraInstrumentSupplementaryData::getKMatrix, R"doc(
-         **read-only**
-
-         Camera K matrix.
-
-         :type: numpy.ndarray
+         Returns
+         -------
+         CameraCalibration
+             Calibration of the camera at the given time.
       )doc" )
             .def_property_readonly( "distortion_coefficients",
                                     &tdat::CameraInstrumentSupplementaryData::getDistortionCoefficients,
@@ -640,9 +641,11 @@ void expose_tracking_data( py::module& m )
                                     R"doc(
          **read-only**
 
-         Camera-frame rotation history indexed by time. The rotations start
-         from the inertial frame, or from the body-fixed frame of
-         :attr:`pointing_reference_body_name` when that is set.
+         Camera-frame rotation history indexed by picture time, in UTC seconds
+         since J2000 (as in the source files; the cameras created from this
+         data use TDB instead). The rotations start from the inertial frame,
+         or from the body-fixed frame of :attr:`pointing_reference_body_name`
+         when that is set.
 
          :type: dict[float, object]
       )doc" )
@@ -670,8 +673,8 @@ void expose_tracking_data( py::module& m )
                            &tdat::CameraInstrumentSupplementaryData::setPointingUncertaintyHistory,
                            R"doc(
          A-priori uncertainty of the camera pointing about the three camera
-         axes [rad], indexed by the picture times of the rotation history.
-         Empty when the source gives no value.
+         axes [rad], indexed by the picture times of the rotation history (in
+         UTC seconds since J2000). Empty when the source gives no value.
 
          :type: dict[float, numpy.ndarray[numpy.float64[3, 1]]]
       )doc" );
@@ -957,8 +960,8 @@ void expose_tracking_data( py::module& m )
     auto slrModule = m.def_submodule( "slr" );
     slr::expose_slr( slrModule );
 
-    auto sumLmkModule = m.def_submodule( "sum_lmk" );
-    sum_lmk::expose_sum_lmk( sumLmkModule );
+    auto landmarksModule = m.def_submodule( "landmarks" );
+    landmarks::expose_landmarks( landmarksModule );
 }
 
 }  // namespace tracking_data

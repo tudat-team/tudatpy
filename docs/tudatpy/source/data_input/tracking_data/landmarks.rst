@@ -1,9 +1,9 @@
-.. _tracking_data_sum_lmk:
+.. _tracking_data_landmarks:
 
-``sum_lmk``
-===========
+``landmarks``
+=============
 
-.. automodule:: tudatpy.data_input.tracking_data.sum_lmk
+.. automodule:: tudatpy.data_input.tracking_data.landmarks
 
 This submodule contains functionality to load optical landmark observations
 from SUM and LMK files, as written by the stereophotoclinometry (SPC) software.
@@ -19,7 +19,7 @@ Tudat-compatible objects.
 Each image and each landmark may be provided only once; a repeated image or
 landmark ID raises an error.
 
-.. currentmodule:: tudatpy.data_input.tracking_data.sum_lmk
+.. currentmodule:: tudatpy.data_input.tracking_data.landmarks
 
 .. autofunction:: read_sum_lmk_data
 

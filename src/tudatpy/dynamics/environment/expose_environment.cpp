@@ -3475,46 +3475,146 @@ bool
 
          :type: str
          )doc" )
-            .def_property_readonly( "optical_center", &tsm::Camera::getOpticalCenter, R"doc(
-
-         **read-only**
-
-         Optical center of the camera, typically expressed in pixel coordinates.
-
-         :type: numpy.ndarray[numpy.float64[2, 1]]
-         )doc" )
-            .def_property_readonly( "focal_lengths", &tsm::Camera::getFocalLengthsMatrix, R"doc(
-
-            **read-only**
-
-            Diagonal Matrix representing the camera's focal lengths on the x and y axis.
-
-            :type:: numpy.ndarray[numpy.float64[2, 2]]
-            )doc" )
-            .def( "calculateObservableBodyFixedPosition",
-                  &tsm::Camera::calculateObservableFromBodyFixed,
-                  py::arg( "body_fixed_observable_position" ),
+            .def( "get_optical_center",
+                  &tsm::Camera::getOpticalCenter,
+                  py::arg( "time" ) = TUDAT_NAN,
                   R"doc(
 
-         Function to compute the observable position of a point in the camera frame.
-
-         Function to compute the observable position of a point in the camera frame, given its position in the body-fixed frame. The observable position is defined as the projection of the point onto the camera's sensor plane, and is typically expressed in pixel coordinates. The calculation takes into account the camera's orientation (given by :attr:`~Camera.quat`) and any other relevant properties of the camera.
+         Function to get the optical center of the camera at a given time, typically expressed in pixel coordinates.
 
          Parameters
          ----------
-         body_fixed_observable_position : numpy.ndarray[numpy.float64[3, 1]]
-             Cartesian position of the point to be observed, expressed in the body-fixed frame.
+         time : float, default=nan
+             Time at which the optical center is retrieved. Only required when the calibration changes between pictures.
 
          Returns
          -------
          numpy.ndarray[numpy.float64[2, 1]]
-             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
+             Optical center of the camera.
+         )doc" )
+            .def( "get_focal_lengths",
+                  &tsm::Camera::getFocalLengthsMatrix,
+                  py::arg( "time" ) = TUDAT_NAN,
+                  R"doc(
+
+         Function to get the focal lengths of the camera on the x and y axis at a given time.
+
+         Parameters
+         ----------
+         time : float, default=nan
+             Time at which the focal lengths are retrieved. Only required when the calibration changes between pictures.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 2]]
+             Diagonal matrix of the focal lengths of the camera.
+         )doc" )
+            .def_property_readonly(
+                    "optical_center",
+                    []( const tsm::Camera& self ) {
+                        tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.environment.Camera.optical_center",
+                                                                   "tudatpy.dynamics.environment.Camera.get_optical_center" );
+                        return self.getOpticalCenter( );
+                    },
+                    R"doc(Deprecated. Use :meth:`~Camera.get_optical_center` instead.)doc" )
+            .def_property_readonly(
+                    "focal_lengths",
+                    []( const tsm::Camera& self ) {
+                        tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.environment.Camera.focal_lengths",
+                                                                   "tudatpy.dynamics.environment.Camera.get_focal_lengths" );
+                        return self.getFocalLengthsMatrix( );
+                    },
+                    R"doc(Deprecated. Use :meth:`~Camera.get_focal_lengths` instead.)doc" )
+            .def( "calculate_observable_body_fixed_position",
+                  &tsm::Camera::calculateObservableFromBodyFixed,
+                  py::arg( "body_fixed_observable_position" ),
+                  py::arg( "time" ) = TUDAT_NAN,
+                  R"doc(
+
+         Function to compute the pixel coordinates of a point, for a camera fixed to its host body.
+
+         Function to compute the pixel coordinates of a point, given its position relative to the camera in the body-fixed frame of
+         the camera's host body. The position is rotated to the camera frame using the camera orientation w.r.t. its host body (given
+         by :attr:`~Camera.quaternion`) and the pointing correction at the given time (see :attr:`~Camera.pointing_correction`), and
+         projected with the calibration of the camera at that time. Not available for a camera whose orientation is given directly
+         w.r.t. the inertial frame (such as a camera created from SUM or PSF data); use
+         :meth:`~Camera.calculate_observable_inertial_position` instead.
+
+         Parameters
+         ----------
+         body_fixed_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed relative to the camera, expressed in the body-fixed frame of the camera's
+             host body.
+         time : float, default=nan
+             Time at which the pixel coordinates are computed. Only required for a camera with several pictures.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Pixel coordinates of the point.
         )doc" )
+            .def(
+                    "calculate_observable_inertial_position",
+                    []( const tsm::Camera& self,
+                        const Eigen::Vector3d& inertialObservablePosition,
+                        const Eigen::Vector4d& rotationFromInertialToBodyFixed,
+                        const double time ) {
+                        return self.calculateObservableFromInertial( inertialObservablePosition,
+                                                                     Eigen::Quaterniond( rotationFromInertialToBodyFixed( 0 ),
+                                                                                         rotationFromInertialToBodyFixed( 1 ),
+                                                                                         rotationFromInertialToBodyFixed( 2 ),
+                                                                                         rotationFromInertialToBodyFixed( 3 ) ),
+                                                                     time );
+                    },
+                    py::arg( "inertial_observable_position" ),
+                    py::arg( "rotation_from_inertial_to_body_fixed" ),
+                    py::arg( "time" ) = TUDAT_NAN,
+                    R"doc(
+
+         Function to compute the pixel coordinates of a point, given its position relative to the camera in the inertial frame.
+
+         Function to compute the pixel coordinates of a point, given its position relative to the camera in the inertial frame. The
+         position is rotated to the camera frame using the camera orientation and the pointing correction at the given time (see
+         :attr:`~Camera.pointing_correction`), and projected with the calibration of the camera at that time. For a camera fixed to
+         its host body, the orientation is composed from the given inertial-to-body-fixed rotation and the camera orientation w.r.t.
+         its host body (given by :attr:`~Camera.quaternion`). For a camera whose orientation is given directly w.r.t. the inertial
+         frame (such as a camera created from SUM or PSF data), the given rotation is not used.
+
+         Parameters
+         ----------
+         inertial_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed relative to the camera, expressed in the inertial frame.
+
+         rotation_from_inertial_to_body_fixed : numpy.ndarray[numpy.float64[4, 1]]
+             Quaternion [w, x, y, z] rotating vectors from the inertial frame to the camera host body's body-fixed frame.
+
+         time : float, default=nan
+             Time at which the pixel coordinates are computed. Only required for a camera with several pictures, or whose
+             orientation is given directly w.r.t. the inertial frame.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Pixel coordinates of the point.
+        )doc" )
+            .def(
+                    "calculateObservableBodyFixedPosition",
+                    []( const tsm::Camera& self, const Eigen::Vector3d& bodyFixedObservablePosition ) {
+                        tudat::utilities::printDeprecationWarning(
+                                "tudatpy.dynamics.environment.Camera.calculateObservableBodyFixedPosition",
+                                "tudatpy.dynamics.environment.Camera.calculate_observable_body_fixed_position" );
+                        return self.calculateObservableFromBodyFixed( bodyFixedObservablePosition );
+                    },
+                    py::arg( "body_fixed_observable_position" ),
+                    R"doc(Deprecated. Use :meth:`~Camera.calculate_observable_body_fixed_position` instead.)doc" )
             .def(
                     "calculateObservableInertialPosition",
                     []( const tsm::Camera& self,
                         const Eigen::Vector3d& inertialObservablePosition,
                         const Eigen::Vector4d& rotationFromInertialToBodyFixed ) {
+                        tudat::utilities::printDeprecationWarning(
+                                "tudatpy.dynamics.environment.Camera.calculateObservableInertialPosition",
+                                "tudatpy.dynamics.environment.Camera.calculate_observable_inertial_position" );
                         return self.calculateObservableFromInertial( inertialObservablePosition,
                                                                      Eigen::Quaterniond( rotationFromInertialToBodyFixed( 0 ),
                                                                                          rotationFromInertialToBodyFixed( 1 ),
@@ -3523,25 +3623,7 @@ bool
                     },
                     py::arg( "inertial_observable_position" ),
                     py::arg( "rotation_from_inertial_to_body_fixed" ),
-                    R"doc(
-
-         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame.
-
-         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame. This function first converts the inertial position to body-fixed frame using the provided inertial-to-body-fixed rotation quaternion, and then computes the observable position as in :func:`~Camera.calculateObservableFromBodyFixed`.
-
-         Parameters
-         ----------
-         inertial_observable_position : numpy.ndarray[numpy.float64[3, 1]]
-             Cartesian position of the point to be observed, expressed in the inertial frame.
-
-         rotation_from_inertial_to_body_fixed : numpy.ndarray[numpy.float64[4, 1]]
-             Quaternion [w, x, y, z] rotating vectors from the inertial frame to the camera host body's body-fixed frame.
-
-         Returns
-         -------
-         numpy.ndarray[numpy.float64[2, 1]]
-             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
-        )doc" )
+                    R"doc(Deprecated. Use :meth:`~Camera.calculate_observable_inertial_position` instead.)doc" )
             .def_property_readonly(
                     "quaternion",
                     []( const tsm::Camera& self ) -> Eigen::Vector4d {

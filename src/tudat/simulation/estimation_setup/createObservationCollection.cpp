@@ -6,6 +6,7 @@
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/math/basic/nearestNeighbourSearch.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iterator>
 
@@ -665,31 +666,6 @@ void setFrequencySupplementaryDataInBodies(
     }
 }
 
-//! Get one value per picture of a camera, in time order, from a history keyed by the picture epochs of its pointing history.
-//! The result is empty when the history is empty. Otherwise, every picture must have a value.
-template< typename ValueType >
-std::vector< ValueType > getPerPictureValues( const data::CameraInstrumentSupplementaryData& cameraSupplementaryData,
-                                              const std::map< double, ValueType >& valueHistory,
-                                              const std::string& valueName )
-{
-    std::vector< ValueType > values;
-    if( valueHistory.empty( ) )
-    {
-        return values;
-    }
-    for( const auto& rotationEntry : cameraSupplementaryData.getRotationFromInertialToCameraFrameHistory( ) )
-    {
-        const auto valueIterator = valueHistory.find( rotationEntry.first );
-        if( valueIterator == valueHistory.end( ) )
-        {
-            throw std::runtime_error( "Error when setting camera supplementary data for camera " + cameraSupplementaryData.getCameraId( ) +
-                                      ": " + valueName + " must be given for all pictures or none." );
-        }
-        values.push_back( valueIterator->second );
-    }
-    return values;
-}
-
 void setInstrumentSupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >&
@@ -738,20 +714,42 @@ void setInstrumentSupplementaryDataInBodies(
                                               " already exists. Overriding camera settings is not allowed." );
                 }
 
-                std::shared_ptr< system_models::PsfCameraProjectionModel > projectionModel =
-                        std::make_shared< system_models::PsfCameraProjectionModel >( cameraSupplementaryData->getFocalLength( ),
-                                                                                     cameraSupplementaryData->getPrincipalPoint( ),
-                                                                                     cameraSupplementaryData->getKMatrix( ),
-                                                                                     cameraSupplementaryData->getDistortionCoefficients( ),
-                                                                                     cameraSupplementaryData->getMountingOffsets( ),
-                                                                                     cameraSupplementaryData->getFieldOfViewBounds( ) );
+                // One projection model per picture, or a single one if the calibration is the same for all pictures.
+                std::vector< data::CameraCalibration > calibrations;
+                for( const auto& rotationEntry : cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) )
+                {
+                    calibrations.push_back( cameraSupplementaryData->getCalibration( rotationEntry.first ) );
+                }
+                if( calibrations.empty( ) )
+                {
+                    calibrations.push_back( cameraSupplementaryData->getCalibration( ) );
+                }
+                else if( std::all_of( calibrations.begin( ), calibrations.end( ), [ & ]( const data::CameraCalibration& calibration ) {
+                             return calibration.isApprox( calibrations.front( ) );
+                         } ) )
+                {
+                    calibrations.resize( 1 );
+                }
+                std::vector< std::shared_ptr< system_models::CameraProjectionModel > > projectionModels;
+                for( const data::CameraCalibration& calibration : calibrations )
+                {
+                    projectionModels.push_back( std::make_shared< system_models::PsfCameraProjectionModel >(
+                            calibration.focalLength_,
+                            calibration.principalPoint_,
+                            calibration.kMatrix_,
+                            cameraSupplementaryData->getDistortionCoefficients( ),
+                            cameraSupplementaryData->getMountingOffsets( ),
+                            calibration.fieldOfViewBounds_ ) );
+                }
 
+                // For a calibration that changes between pictures, the projection model of the first picture is replaced by those of
+                // all pictures in setPictures below.
                 const std::vector< double > tdbPictureEpochs =
                         getTdbPictureEpochs( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) );
                 std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
                         cameraSupplementaryData->getCameraId( ),
                         Eigen::Vector3d::Zero( ),
-                        projectionModel,
+                        projectionModels.at( 0 ),
                         cameraSupplementaryData->getBodyFixedPosition( ),
                         createCameraPointingFunction( bodies, *cameraSupplementaryData, tdbPictureEpochs ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
@@ -760,28 +758,10 @@ void setInstrumentSupplementaryDataInBodies(
                 camera->setPointingReferenceBodyName( cameraSupplementaryData->getPointingReferenceBodyName( ) );
 
                 // One pointing correction per picture, with the picture identifiers in time order.
-                camera->setPictures(
-                        tdbPictureEpochs,
-                        getPerPictureValues(
-                                *cameraSupplementaryData, cameraSupplementaryData->getPictureIdHistory( ), "picture identifiers" ) );
-
-                // A camera whose calibration changes between pictures gets one projection model per picture.
-                std::vector< std::shared_ptr< system_models::CameraProjectionModel > > pictureProjectionModels;
-                for( const data::CameraPictureCalibration& calibration : getPerPictureValues(
-                             *cameraSupplementaryData, cameraSupplementaryData->getPictureCalibrationHistory( ), "picture calibrations" ) )
-                {
-                    pictureProjectionModels.push_back( std::make_shared< system_models::PsfCameraProjectionModel >(
-                            calibration.focalLength_,
-                            calibration.principalPoint_,
-                            calibration.kMatrix_,
-                            cameraSupplementaryData->getDistortionCoefficients( ),
-                            cameraSupplementaryData->getMountingOffsets( ),
-                            calibration.fieldOfViewBounds_ ) );
-                }
-                if( !pictureProjectionModels.empty( ) )
-                {
-                    camera->setPictureProjectionModels( pictureProjectionModels );
-                }
+                camera->setPictures( tdbPictureEpochs,
+                                     cameraSupplementaryData->getPerPictureValues( cameraSupplementaryData->getPictureIdHistory( ),
+                                                                                   "picture identifiers" ),
+                                     projectionModels.size( ) > 1 ? projectionModels : decltype( projectionModels )( ) );
             }
             else
             {

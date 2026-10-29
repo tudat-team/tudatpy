@@ -2,7 +2,7 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 
-#include "expose_sum_lmk.h"
+#include "expose_landmarks.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
@@ -23,10 +23,10 @@ namespace data_input
 namespace tracking_data
 {
 
-namespace sum_lmk
+namespace landmarks
 {
 
-void expose_sum_lmk( py::module& m )
+void expose_landmarks( py::module& m )
 {
     py::class_< tio::sum_lmk::SumLandmarkObservation >( m, "SumLandmarkObservation", R"doc(One landmark measurement in a SUM file.)doc" )
             .def_readonly( "landmark_id", &tio::sum_lmk::SumLandmarkObservation::landmarkId_ )
@@ -190,7 +190,7 @@ void expose_sum_lmk( py::module& m )
       )doc" );
 }
 
-}  // namespace sum_lmk
+}  // namespace landmarks
 
 }  // namespace tracking_data
 

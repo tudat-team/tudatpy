@@ -279,46 +279,43 @@ SumImageData readSumFile( const std::string& sumFile )
         }
 
         std::vector< std::string > values;
-        auto isRecord = [ & ]( const std::string& label, const unsigned int minimumSize, const unsigned int maximumSize ) {
-            return getRecordValues( trimmedLine, label, context, minimumSize, maximumSize, values );
-        };
-        if( isRecord( "NPX, NLN, THRSH", 4, 4 ) )
+        if( getRecordValues( trimmedLine, "NPX, NLN, THRSH", context, 4, 4, values ) )
         {
             image.imageSize_ = Eigen::Vector2i( parseInt( values.at( 0 ), context ), parseInt( values.at( 1 ), context ) );
             image.threshold_ = parseInt( values.at( 2 ), context );
             image.maxDn_ = parseInt( values.at( 3 ), context );
             hasImageSize = true;
         }
-        else if( isRecord( "MMFL, CTR", 3, 3 ) )
+        else if( getRecordValues( trimmedLine, "MMFL, CTR", context, 3, 3, values ) )
         {
             image.focalLengthMm_ = parseDouble( values.at( 0 ), context );
             image.opticalCenter_ = Eigen::Vector2d( parseDouble( values.at( 1 ), context ), parseDouble( values.at( 2 ), context ) );
             hasCalibration = true;
         }
-        else if( isRecord( "SCOBJ", 3, 3 ) )
+        else if( getRecordValues( trimmedLine, "SCOBJ", context, 3, 3, values ) )
         {
             image.spacecraftObjectVector_ = parseVector3( values, context, kilometersToMeters );
         }
-        else if( isRecord( "CX", 3, 3 ) )
+        else if( getRecordValues( trimmedLine, "CX", context, 3, 3, values ) )
         {
             image.cameraAxes_.row( 0 ) = parseVector3( values, context ).transpose( );
             hasCx = true;
         }
-        else if( isRecord( "CY", 3, 3 ) )
+        else if( getRecordValues( trimmedLine, "CY", context, 3, 3, values ) )
         {
             image.cameraAxes_.row( 1 ) = parseVector3( values, context ).transpose( );
             hasCy = true;
         }
-        else if( isRecord( "CZ", 3, 3 ) )
+        else if( getRecordValues( trimmedLine, "CZ", context, 3, 3, values ) )
         {
             image.cameraAxes_.row( 2 ) = parseVector3( values, context ).transpose( );
             hasCz = true;
         }
-        else if( isRecord( "SZ", 3, 3 ) )
+        else if( getRecordValues( trimmedLine, "SZ", context, 3, 3, values ) )
         {
             image.sunDirectionBodyFixed_ = parseVector3( values, context );
         }
-        else if( isRecord( "K-MATRIX", 6, 6 ) )
+        else if( getRecordValues( trimmedLine, "K-MATRIX", context, 6, 6, values ) )
         {
             for( int i = 0; i < 6; ++i )
             {
@@ -326,15 +323,17 @@ SumImageData readSumFile( const std::string& sumFile )
             }
             hasKMatrix = true;
         }
-        else if( isRecord( "SIGMA_PTG", 1, 3 ) )
+        else if( getRecordValues( trimmedLine, "SIGMA_PTG", context, 1, 3, values ) )
         {
             image.pointingSigma_ = parseUncertainty( values, context );
         }
-        else if( isRecord( "SIGMA_VSO", 1, 3 ) )
+        else if( getRecordValues( trimmedLine, "SIGMA_VSO", context, 1, 3, values ) )
         {
             image.spacecraftObjectSigma_ = parseUncertainty( values, context, kilometersToMeters );
         }
-        else if( isRecord( "DISTORTION", 4, 4 ) || isRecord( "DISTORTION COEFFICIENTS", 4, 4 ) || isRecord( "DCOEF", 4, 4 ) )
+        else if( getRecordValues( trimmedLine, "DISTORTION", context, 4, 4, values ) ||
+                 getRecordValues( trimmedLine, "DISTORTION COEFFICIENTS", context, 4, 4, values ) ||
+                 getRecordValues( trimmedLine, "DCOEF", context, 4, 4, values ) )
         {
             for( int i = 0; i < 4; ++i )
             {
@@ -439,56 +438,53 @@ LmkLandmarkData readLmkFile( const std::string& lmkFile )
         }
 
         std::vector< std::string > values;
-        auto isRecord = [ & ]( const std::string& label, const unsigned int numberOfValues ) {
-            return getRecordValues( trimmedLine, label, context, numberOfValues, numberOfValues, values );
-        };
         // Combined labels must be matched before the single ones, since e.g. "... SIGKM, RMSLMK" also ends with "RMSLMK".
-        if( isRecord( "SIZE, SCALE(KM)", 2 ) )
+        if( getRecordValues( trimmedLine, "SIZE, SCALE(KM)", context, 2, 2, values ) )
         {
             landmark.patchSize_ = parseInt( values.at( 0 ), context );
             landmark.patchScaleKm_ = parseDouble( values.at( 1 ), context );
         }
-        else if( isRecord( "SIGKM, RMSLMK", 2 ) )
+        else if( getRecordValues( trimmedLine, "SIGKM, RMSLMK", context, 2, 2, values ) )
         {
             landmark.sigKm_ = parseDouble( values.at( 0 ), context );
             landmark.rmsLmk_ = parseDouble( values.at( 1 ), context );
         }
-        else if( isRecord( "SIZE", 1 ) )
+        else if( getRecordValues( trimmedLine, "SIZE", context, 1, 1, values ) )
         {
             landmark.patchSize_ = parseInt( values.at( 0 ), context );
         }
-        else if( isRecord( "SCALE", 1 ) )
+        else if( getRecordValues( trimmedLine, "SCALE", context, 1, 1, values ) )
         {
             landmark.patchScaleKm_ = parseDouble( values.at( 0 ), context );
         }
-        else if( isRecord( "HORIZON", 4 ) )
+        else if( getRecordValues( trimmedLine, "HORIZON", context, 4, 4, values ) )
         {
             for( int i = 0; i < 4; ++i )
             {
                 landmark.horizonFlags_( i ) = parseInt( values.at( i ), context );
             }
         }
-        else if( isRecord( "SIGKM", 1 ) )
+        else if( getRecordValues( trimmedLine, "SIGKM", context, 1, 1, values ) )
         {
             landmark.sigKm_ = parseDouble( values.at( 0 ), context );
         }
-        else if( isRecord( "RMSLMK", 1 ) )
+        else if( getRecordValues( trimmedLine, "RMSLMK", context, 1, 1, values ) )
         {
             landmark.rmsLmk_ = parseDouble( values.at( 0 ), context );
         }
-        else if( isRecord( "VLM", 3 ) )
+        else if( getRecordValues( trimmedLine, "VLM", context, 3, 3, values ) )
         {
             landmark.bodyFixedPosition_ = parseVector3( values, context, kilometersToMeters );
         }
-        else if( isRecord( "UX", 3 ) )
+        else if( getRecordValues( trimmedLine, "UX", context, 3, 3, values ) )
         {
             landmark.localXAxis_ = parseVector3( values, context );
         }
-        else if( isRecord( "UY", 3 ) )
+        else if( getRecordValues( trimmedLine, "UY", context, 3, 3, values ) )
         {
             landmark.localYAxis_ = parseVector3( values, context );
         }
-        else if( isRecord( "UZ", 3 ) )
+        else if( getRecordValues( trimmedLine, "UZ", context, 3, 3, values ) )
         {
             landmark.localZAxis_ = parseVector3( values, context );
         }
@@ -529,9 +525,9 @@ Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImage
     return Eigen::Quaterniond( image.cameraAxes_ ).normalized( );
 }
 
-data::CameraPictureCalibration getSumImageCalibration( const SumImageData& image )
+data::CameraCalibration getSumImageCalibration( const SumImageData& image )
 {
-    data::CameraPictureCalibration calibration;
+    data::CameraCalibration calibration;
     calibration.focalLength_ = image.focalLengthMm_;
     calibration.principalPoint_ = image.opticalCenter_;
     calibration.fieldOfViewBounds_ =
@@ -627,7 +623,7 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
     for( const auto& cameraEntry : sumImagesPerCamera )
     {
         std::map< double, Eigen::Quaterniond > pointingHistory;
-        std::map< double, data::CameraPictureCalibration > pictureCalibrationHistory;
+        std::map< double, data::CameraCalibration > pictureCalibrationHistory;
         std::map< double, std::string > pictureIdHistory;
         std::map< double, Eigen::Vector3d > pointingUncertaintyHistory;
         for( const SumImageData& image : cameraEntry.second )
@@ -641,17 +637,12 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
             }
         }
 
-        // Each image has its own calibration. The camera-level calibration is that of the first image.
-        const data::CameraPictureCalibration& firstCalibration = pictureCalibrationHistory.begin( )->second;
+        // Each image has its own calibration.
         auto camera = std::make_shared< data::CameraInstrumentSupplementaryData >( cameraEntry.first,
-                                                                                   firstCalibration.focalLength_,
-                                                                                   firstCalibration.principalPoint_,
-                                                                                   firstCalibration.fieldOfViewBounds_,
-                                                                                   firstCalibration.kMatrix_,
+                                                                                   pictureCalibrationHistory,
                                                                                    Eigen::Matrix< double, 6, 1 >::Zero( ),
                                                                                    Eigen::Vector3d::Zero( ),
                                                                                    pointingHistory );
-        camera->setPictureCalibrationHistory( pictureCalibrationHistory );
         camera->setPointingReferenceBodyName( targetBodyName );
         camera->setPictureIdHistory( pictureIdHistory );
         camera->setPointingUncertaintyHistory( pointingUncertaintyHistory );

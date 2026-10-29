@@ -15,12 +15,12 @@ from . import (
     generic_text_file,
     ifms,
     jpl_radar,
+    landmarks,
     mpc,
     odf,
     optical_utilities,
     psf,
     radar_utilities,
     slr,
-    sum_lmk,
     tnf,
 )

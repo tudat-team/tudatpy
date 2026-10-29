@@ -9,8 +9,9 @@
  */
 
 // Estimation tests for the SUM/LMK pixel-landmark observable, through the OrbitDeterminationManager: recovery of per-image camera
-// pointing corrections with the trajectory fixed, of the spacecraft initial state, and of both together, on synthetic data; and
-// state and joint state/pointing estimation on real Rosetta SUM/LMK data of comet 67P.
+// pointing corrections with the trajectory fixed, and of the spacecraft initial state together with the pointing corrections
+// (without and with the SIGMA_PTG a-priori), on synthetic data; and state and joint state/pointing estimation on real Rosetta
+// SUM/LMK data of comet 67P.
 
 #define BOOST_TEST_MAIN
 
@@ -179,8 +180,7 @@ std::shared_ptr< RotationalEphemeris > loadCometAttitude( const std::string& att
 }
 
 //! A synthetic Keplerian orbit arc imaged over roughly one period, with one SUM image per epoch and a
-//! boresight pointed at the target centre. This is the shared setup for the joint state + pointing tests.
-//! pointingSigmaRadians controls SIGMA_PTG: pass NaN for no pointing a-priori.
+//! boresight pointed at the target centre, and SIGMA_PTG pointingSigmaRadians for each image.
 struct SyntheticOrbitScenario {
     SystemOfBodies bodies_;
     std::map< std::string, input_output::sum_lmk::LmkLandmarkData > landmarks_;
@@ -190,8 +190,9 @@ struct SyntheticOrbitScenario {
     std::vector< std::string > imageIds_;
 };
 
-SyntheticOrbitScenario buildSyntheticOrbitScenario( const double pointingSigmaRadians, const int numberOfImages = 24 )
+SyntheticOrbitScenario buildSyntheticOrbitScenario( const double pointingSigmaRadians )
 {
+    const int numberOfImages = 24;
     SyntheticOrbitScenario scenario;
 
     SystemOfBodies bodies( "SSB", "J2000" );
@@ -418,8 +419,8 @@ RealRosettaScenario buildRealRosettaScenario( )
 
 BOOST_AUTO_TEST_SUITE( test_pixel_landmark_estimation )
 
-//! Recover a distinct injected pointing correction for several images at once, with the trajectory held fixed, through the
-//! OrbitDeterminationManager in observation-only mode. Each image's pointing is then determined by its own landmarks alone,
+//! Recover a distinct injected pointing correction for several images at once (given without SIGMA_PTG), with the trajectory held
+//! fixed, through the OrbitDeterminationManager in observation-only mode. Each image's pointing is then determined by its own landmarks alone,
 //! so the normal matrix must be block diagonal, with one 3x3 block per image.
 BOOST_AUTO_TEST_CASE( testPointingRecovery )
 {
@@ -433,8 +434,12 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
     {
         images.push_back( makeSyntheticSumImage( imageIds.at( imageIndex ), landmarkIds ) );
         images.back( ).utcEpochString_ = "2015 JUN 05 07:2" + std::to_string( imageIndex ) + ":42.053";
+        images.back( ).pointingSigma_ = Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
     }
     LoadedPixelTestData conversionResult = loadPixelTestData( images, makeLandmarks( ), bodies );
+
+    // Without SIGMA_PTG, no pointing a-priori is created.
+    BOOST_CHECK( conversionResult.inverseAprioriCovarianceDiagonalEntries_.empty( ) );
 
     const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( pointingSettingsForTest( conversionResult ), bodies );
@@ -481,56 +486,19 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
     }
 }
 
-BOOST_AUTO_TEST_SUITE_END( )
 
-BOOST_AUTO_TEST_SUITE( test_pixel_landmark_state_estimation )
-
-//! Recover a perturbed spacecraft initial state from simulated pixel-landmark observations through the full
-//! OrbitDeterminationManager (propagation, variational equations and pixel partials).
-BOOST_AUTO_TEST_CASE( testInitialStateRecovery )
-{
-    spice_interface::loadStandardSpiceKernels( );
-    SyntheticOrbitScenario scenario = buildSyntheticOrbitScenario( std::numeric_limits< double >::quiet_NaN( ) );
-
-    const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double, double >(
-            { std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                    "Spacecraft", scenario.truthInitialState_, "Target" ) },
-            scenario.bodies_,
-            scenario.propagatorSettings_ );
-    OrbitDeterminationManager< double, double > orbitDeterminationManager(
-            scenario.bodies_, parametersToEstimate, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
-            simulatePixelObservations( scenario.conversionResult_, orbitDeterminationManager, scenario.bodies_ );
-
-    const Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
-    Eigen::VectorXd perturbedParameters = truthParameters;
-    perturbedParameters.segment( 0, 3 ) += Eigen::Vector3d::Constant( 10.0 );
-    perturbedParameters.segment( 3, 3 ) += Eigen::Vector3d::Constant( 0.01 );
-    parametersToEstimate->resetParameterValues( perturbedParameters );
-
-    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
-            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
-    estimationInput->defineEstimationSettings( true, true, true, true, true, true );
-    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 6 ) );
-    const std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
-
-    const Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
-    for( unsigned int i = 0; i < 3; ++i )
-    {
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-3 );
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-6 );
-    }
-}
-
-//! Estimate the spacecraft initial state and a per-image camera pointing correction together.
+//! Estimate the spacecraft initial state and a per-image camera pointing correction together, through the full
+//! OrbitDeterminationManager (propagation, variational equations and pixel partials), without and with the SIGMA_PTG a-priori.
 //!
 //! A camera rotation and a spacecraft translation perpendicular to the line of sight both shift the image; they are separated
-//! only by the parallax across the landmarks in one image. Recovering both from noise-free data therefore checks that the
-//! pointing partials and the state partials are mutually consistent.
-BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
+//! only by the parallax across the landmarks in one image. Recovering both from noise-free data without a-priori therefore checks
+//! that the pointing partials and the state partials are mutually consistent. The a-priori must then reach the normal equations
+//! at the pointing parameters: it pulls the corrections towards zero and reduces their formal errors.
+BOOST_AUTO_TEST_CASE( testJointStateAndPointingEstimation )
 {
     spice_interface::loadStandardSpiceKernels( );
-    SyntheticOrbitScenario scenario = buildSyntheticOrbitScenario( std::numeric_limits< double >::quiet_NaN( ) );
+    const double pointingSigma = 1.0E-3;
+    SyntheticOrbitScenario scenario = buildSyntheticOrbitScenario( pointingSigma );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = pointingSettingsForTest( scenario.conversionResult_ );
     parameterNames.insert( parameterNames.begin( ),
@@ -552,60 +520,6 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingRecovery )
     const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
             simulatePixelObservations( scenario.conversionResult_, orbitDeterminationManager, scenario.bodies_ );
 
-    // Perturb the state and zero all pointing corrections, then recover both.
-    Eigen::VectorXd perturbedParameters = Eigen::VectorXd::Zero( truthParameters.rows( ) );
-    perturbedParameters.segment( 0, 6 ) = truthParameters.segment( 0, 6 );
-    perturbedParameters.segment( 0, 3 ) += Eigen::Vector3d::Constant( 10.0 );
-    perturbedParameters.segment( 3, 3 ) += Eigen::Vector3d::Constant( 0.01 );
-    parametersToEstimate->resetParameterValues( perturbedParameters );
-
-    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
-            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
-    estimationInput->defineEstimationSettings( true, true, true, true, true, true );
-    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 10 ) );
-    const std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
-
-    const Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
-    BOOST_CHECK_SMALL( residualRms( estimationOutput->residuals_ ), 1.0E-6 );
-    for( unsigned int i = 0; i < 3; ++i )
-    {
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-5 );
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-8 );
-    }
-    for( const int startIndex : pointingStartIndices )
-    {
-        BOOST_CHECK_SMALL( estimationError.segment( startIndex, 3 ).norm( ), 1.0E-10 );
-    }
-}
-
-//! The SIGMA_PTG a-priori must reach the normal equations at the pointing parameters: compared to the solution without
-//! a-priori (which recovers the truth exactly from noise-free data), it pulls the corrections towards zero and reduces their
-//! formal errors, while not constraining the state.
-BOOST_AUTO_TEST_CASE( testPointingApriori )
-{
-    spice_interface::loadStandardSpiceKernels( );
-    const double pointingSigma = 1.0E-3;
-    SyntheticOrbitScenario scenario = buildSyntheticOrbitScenario( pointingSigma, 8 );
-
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = pointingSettingsForTest( scenario.conversionResult_ );
-    parameterNames.insert( parameterNames.begin( ),
-                           std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                   "Spacecraft", scenario.truthInitialState_, "Target" ) );
-    const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate< double, double >( parameterNames, scenario.bodies_, scenario.propagatorSettings_ );
-    OrbitDeterminationManager< double, double > orbitDeterminationManager(
-            scenario.bodies_, parametersToEstimate, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
-    const std::vector< int > pointingStartIndices = getPointingStartIndices( parametersToEstimate, scenario.imageIds_.size( ) );
-
-    Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
-    for( unsigned int imageIndex = 0; imageIndex < pointingStartIndices.size( ); ++imageIndex )
-    {
-        truthParameters.segment( pointingStartIndices.at( imageIndex ), 3 ) = syntheticPointingOffset( imageIndex, 1.0E-3 );
-    }
-    parametersToEstimate->resetParameterValues( truthParameters );
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
-            simulatePixelObservations( scenario.conversionResult_, orbitDeterminationManager, scenario.bodies_ );
-
     // The a-priori created from the SUM SIGMA_PTG values: 1/sigma^2 on the pointing parameters only.
     const Eigen::MatrixXd inverseAprioriCovariance = createCovarianceFromDiagonalEntries(
             parametersToEstimate, scenario.conversionResult_.inverseAprioriCovarianceDiagonalEntries_, false );
@@ -617,32 +531,49 @@ BOOST_AUTO_TEST_CASE( testPointingApriori )
     BOOST_CHECK_SMALL( ( inverseAprioriCovariance - Eigen::MatrixXd( expectedDiagonal.asDiagonal( ) ) ).norm( ) / expectedDiagonal.norm( ),
                        1.0E-12 );
 
-    Eigen::VectorXd startParameters = Eigen::VectorXd::Zero( truthParameters.rows( ) );
-    startParameters.segment( 0, 6 ) = truthParameters.segment( 0, 6 );
-    auto estimate = [ & ]( const Eigen::MatrixXd& aprioriMatrix ) {
-        parametersToEstimate->resetParameterValues( startParameters );
+    // Perturb the state and zero all pointing corrections, then estimate without and with the a-priori.
+    Eigen::VectorXd perturbedParameters = Eigen::VectorXd::Zero( truthParameters.rows( ) );
+    perturbedParameters.segment( 0, 6 ) = truthParameters.segment( 0, 6 );
+    perturbedParameters.segment( 0, 3 ) += Eigen::Vector3d::Constant( 10.0 );
+    perturbedParameters.segment( 3, 3 ) += Eigen::Vector3d::Constant( 0.01 );
+    std::vector< std::shared_ptr< EstimationOutput< double > > > estimationOutputs;
+    for( const Eigen::MatrixXd& aprioriMatrix : { Eigen::MatrixXd( Eigen::MatrixXd::Zero( 0, 0 ) ), inverseAprioriCovariance } )
+    {
+        parametersToEstimate->resetParameterValues( perturbedParameters );
         const std::shared_ptr< EstimationInput< double, double > > estimationInput =
                 std::make_shared< EstimationInput< double, double > >( simulatedObservations, aprioriMatrix );
         estimationInput->defineEstimationSettings( true, true, true, true, true, true );
-        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 8 ) );
-        return orbitDeterminationManager.estimateParameters( estimationInput );
-    };
-    const std::shared_ptr< EstimationOutput< double > > unconstrainedOutput = estimate( Eigen::MatrixXd::Zero( 0, 0 ) );
-    const std::shared_ptr< EstimationOutput< double > > constrainedOutput = estimate( inverseAprioriCovariance );
+        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 10 ) );
+        estimationOutputs.push_back( orbitDeterminationManager.estimateParameters( estimationInput ) );
+    }
+    const std::shared_ptr< EstimationOutput< double > > unconstrainedOutput = estimationOutputs.at( 0 );
+    const std::shared_ptr< EstimationOutput< double > > constrainedOutput = estimationOutputs.at( 1 );
 
-    double unconstrainedDeviation = 0.0, constrainedDeviation = 0.0;
+    // Without a-priori, the truth is recovered.
+    const Eigen::VectorXd estimationError = unconstrainedOutput->parameterEstimate_ - truthParameters;
+    BOOST_CHECK_SMALL( residualRms( unconstrainedOutput->residuals_ ), 1.0E-6 );
+    for( unsigned int i = 0; i < 3; ++i )
+    {
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-5 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-8 );
+    }
     for( const int startIndex : pointingStartIndices )
     {
-        const Eigen::Vector3d truthCorrection = truthParameters.segment( startIndex, 3 );
-        unconstrainedDeviation += ( unconstrainedOutput->parameterEstimate_.segment( startIndex, 3 ) - truthCorrection ).squaredNorm( );
-        constrainedDeviation += ( constrainedOutput->parameterEstimate_.segment( startIndex, 3 ) - truthCorrection ).squaredNorm( );
+        BOOST_CHECK_SMALL( estimationError.segment( startIndex, 3 ).norm( ), 1.0E-10 );
+    }
+
+    // With a-priori, the corrections are pulled away from the truth, with smaller formal errors and larger residuals.
+    double constrainedDeviation = 0.0;
+    for( const int startIndex : pointingStartIndices )
+    {
+        constrainedDeviation +=
+                ( constrainedOutput->parameterEstimate_.segment( startIndex, 3 ) - truthParameters.segment( startIndex, 3 ) ).squaredNorm( );
         for( int component = 0; component < 3; ++component )
         {
             BOOST_CHECK_LT( constrainedOutput->getFormalErrorVector( )( startIndex + component ),
                             unconstrainedOutput->getFormalErrorVector( )( startIndex + component ) );
         }
     }
-    BOOST_CHECK_SMALL( std::sqrt( unconstrainedDeviation ), 1.0E-10 );
     BOOST_CHECK_GT( std::sqrt( constrainedDeviation ), 1.0E-6 );
     BOOST_CHECK_GT( residualRms( constrainedOutput->residuals_ ), residualRms( unconstrainedOutput->residuals_ ) );
 }
@@ -659,7 +590,13 @@ BOOST_AUTO_TEST_CASE( testRealRosettaEstimation )
 {
     spice_interface::loadStandardSpiceKernels( );
 
-    auto estimate = []( RealRosettaScenario& scenario, const bool estimatePointing ) {
+    // Estimate the state alone, and the state with the pointing corrections, each from its own (unmodified) scenario.
+    Eigen::Vector3d aprioriPosition;
+    std::vector< std::shared_ptr< EstimationOutput< double > > > estimationOutputs;
+    for( const bool estimatePointing : { false, true } )
+    {
+        RealRosettaScenario scenario = buildRealRosettaScenario( );
+        aprioriPosition = scenario.initialStateGuess_.segment( 0, 3 );
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
         if( estimatePointing )
         {
@@ -689,16 +626,14 @@ BOOST_AUTO_TEST_CASE( testRealRosettaEstimation )
                 scenario.conversionResult_.observationCollection_, inverseAprioriCovariance );
         estimationInput->defineEstimationSettings( true, true, true, true, true, true );
         estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 8 ) );
-        return orbitDeterminationManager.estimateParameters( estimationInput );
-    };
+        estimationOutputs.push_back( orbitDeterminationManager.estimateParameters( estimationInput ) );
+    }
 
-    RealRosettaScenario stateOnlyScenario = buildRealRosettaScenario( );
-    const std::shared_ptr< EstimationOutput< double > > stateOnlyOutput = estimate( stateOnlyScenario, false );
+    const std::shared_ptr< EstimationOutput< double > > stateOnlyOutput = estimationOutputs.at( 0 );
     const double initialRms = residualRms( stateOnlyOutput->getResidualHistoryMatrix( ).col( 0 ) );
     const double stateOnlyRms = residualRms( stateOnlyOutput->residuals_ );
 
-    RealRosettaScenario jointScenario = buildRealRosettaScenario( );
-    const std::shared_ptr< EstimationOutput< double > > jointOutput = estimate( jointScenario, true );
+    const std::shared_ptr< EstimationOutput< double > > jointOutput = estimationOutputs.at( 1 );
     const double jointRms = residualRms( jointOutput->residuals_ );
     double largestCorrection = 0.0;
     for( unsigned int i = 6; i < jointOutput->parameterEstimate_.rows( ); i += 3 )
@@ -713,7 +648,6 @@ BOOST_AUTO_TEST_CASE( testRealRosettaEstimation )
     BOOST_CHECK_LT( stateOnlyRms, 0.1 * initialRms );
     BOOST_CHECK_LT( jointRms, stateOnlyRms );
     BOOST_CHECK_LT( largestCorrection, 5.0E-3 );
-    const Eigen::Vector3d aprioriPosition = stateOnlyScenario.initialStateGuess_.segment( 0, 3 );
     BOOST_CHECK_LT( ( stateOnlyOutput->parameterEstimate_.segment( 0, 3 ) - aprioriPosition ).norm( ), 5.0E3 );
     BOOST_CHECK_LT( ( jointOutput->parameterEstimate_.segment( 0, 3 ) - aprioriPosition ).norm( ), 5.0E3 );
 }

@@ -1,6 +1,6 @@
 """SUM/LMK tracking-data loading for SPC optical landmark observations."""
 
-from tudatpy.kernel.data_input.tracking_data.sum_lmk import (
+from tudatpy.kernel.data_input.tracking_data.landmarks import (
     LmkLandmarkData,
     SumImageData,
     SumLandmarkObservation,

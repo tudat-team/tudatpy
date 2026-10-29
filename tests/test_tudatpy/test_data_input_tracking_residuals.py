@@ -22,7 +22,7 @@ from tudatpy.data_input.tracking_data.obs_80_cols.parsers import parse_80cols_da
 from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
 from tudatpy.data_input.tracking_data.odf import read_odf_data
 from tudatpy.data_input.tracking_data.psf import read_psf_data
-from tudatpy.data_input.tracking_data.sum_lmk import read_sum_lmk_data
+from tudatpy.data_input.tracking_data.landmarks import read_sum_lmk_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
     DOPPLER_OBSERVABLE,
     RANGE_OBSERVABLE,
