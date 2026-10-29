@@ -1,0 +1,14 @@
+{
+  "Earth": {
+    "useDefaultSettings": true
+  },
+  "Moon": {
+    "useDefaultSettings": true
+  },
+  "Sun": {
+    "useDefaultSettings": true
+  },
+  "sat": {
+    "mass": 500
+  }
+}

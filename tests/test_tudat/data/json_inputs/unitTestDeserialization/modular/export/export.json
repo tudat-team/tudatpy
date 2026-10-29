@@ -1,0 +1,10 @@
+[
+  {
+    "file": "@path(../outputs/epochs.txt)",
+    "variables": "$(../variables){time,}"
+  },
+  {
+    "file": "@path(../states.txt)",
+    "variables": "$(../variables/main.json){position,velocity}"
+  }
+]

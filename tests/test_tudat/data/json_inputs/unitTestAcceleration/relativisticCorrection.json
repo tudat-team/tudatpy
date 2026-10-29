@@ -1,0 +1,12 @@
+{
+  "calculateSchwarzschildCorrection": true,
+  "calculateLenseThirringCorrection": false,
+  "calculateDeSitterCorrection": true,
+  "primaryBody": "Mars",
+  "centralBodyAngularMomentum": [
+    7E-9,
+    8E-10,
+    5E-5
+  ],
+  "type": "relativisticCorrection"
+}

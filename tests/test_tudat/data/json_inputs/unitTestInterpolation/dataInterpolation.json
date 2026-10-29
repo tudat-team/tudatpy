@@ -1,0 +1,9 @@
+{
+  "data": {
+    "file": "@path(thrustValues.txt)"
+  },
+  "interpolator": {
+    "order": 4,
+    "type": "lagrange"
+  }
+}

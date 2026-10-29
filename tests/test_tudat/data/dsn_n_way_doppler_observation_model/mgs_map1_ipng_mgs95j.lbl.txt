@@ -1,0 +1,31 @@
+PDS_VERSION_ID               = PDS3
+RECORD_TYPE                  = FIXED_LENGTH
+RECORD_BYTES                 = 1024
+^SPICE_KERNEL                = "mgs_map1_ipng_mgs95j.bsp"
+MISSION_NAME                 = "MARS GLOBAL SURVEYOR"
+SPACECRAFT_NAME              = "MARS GLOBAL SURVEYOR"
+DATA_SET_ID                  = "MGS-M-SPICE-6-V1.0"
+KERNEL_TYPE_ID               = SPK
+PRODUCT_ID                   = "mgs_map1_ipng_mgs95j.bsp"
+PRODUCT_CREATION_TIME        = 2007-02-21T14:10:39
+PRODUCER_ID                  = "IPNG/JPL"
+MISSION_PHASE_NAME           = MAPPING
+PRODUCT_VERSION_TYPE         = ACTUAL
+PLATFORM_OR_MOUNTING_NAME    = "N/A"
+START_TIME                   = 1999-03-08T23:58:56
+STOP_TIME                    = 1999-06-02T00:58:56
+SPACECRAFT_CLOCK_START_COUNT = "N/A"
+SPACECRAFT_CLOCK_STOP_COUNT  = "N/A"
+TARGET_NAME                  = MARS
+INSTRUMENT_NAME              = "N/A"
+NAIF_INSTRUMENT_ID           = "N/A"
+SOURCE_PRODUCT_ID            = "N/A"
+NOTE                         = "See comments in the file for details"
+OBJECT                       = SPICE_KERNEL
+  INTERCHANGE_FORMAT         = BINARY
+  KERNEL_TYPE                = EPHEMERIS
+  DESCRIPTION                = "MGS Spacecraft Trajectory SPICE SP-Kernel
+File created by IPNG group, JPL using Mars Gravity Model MGS96J for a
+portion of the Mapping Phase of the Mission. "
+END_OBJECT                   = SPICE_KERNEL
+END
