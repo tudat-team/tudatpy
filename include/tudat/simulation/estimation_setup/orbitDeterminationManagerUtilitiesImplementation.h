@@ -11,9 +11,13 @@
 #ifndef TUDAT_ORBITDETERMINATIONMANAGERUTILITIESIMPLEMENTATION_H
 #define TUDAT_ORBITDETERMINATIONMANAGERUTILITIESIMPLEMENTATION_H
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <string>
+
+#include <Eigen/Sparse>
 
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
@@ -122,6 +126,49 @@ Eigen::VectorXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dumm
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+Eigen::VectorXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::normalizeDesignMatrix(
+        Eigen::SparseMatrix< double >& observationMatrix )
+{
+    Eigen::VectorXd normalizationTerms = Eigen::VectorXd( observationMatrix.cols( ) );
+
+    for( int i = 0; i < observationMatrix.cols( ); i++ )
+    {
+        // Get the extreme values of the column; as in the dense version, these include the (implicit) zero entries
+        bool columnHasZeros =
+                observationMatrix.col( i ).nonZeros( ) < observationMatrix.rows( ) || observationMatrix.col( i ).nonZeros( ) == 0;
+        double minimum = columnHasZeros ? 0.0 : std::numeric_limits< double >::infinity( );
+        double maximum = columnHasZeros ? 0.0 : -std::numeric_limits< double >::infinity( );
+        for( Eigen::SparseMatrix< double >::InnerIterator it( observationMatrix, i ); it; ++it )
+        {
+            minimum = std::min( minimum, it.value( ) );
+            maximum = std::max( maximum, it.value( ) );
+        }
+
+        if( std::fabs( minimum ) > maximum )
+        {
+            normalizationTerms( i ) = minimum;
+        }
+        else
+        {
+            normalizationTerms( i ) = maximum;
+        }
+        if( normalizationTerms( i ) == 0.0 )
+        {
+            normalizationTerms( i ) = 1.0;
+        }
+
+        for( Eigen::SparseMatrix< double >::InnerIterator it( observationMatrix, i ); it; ++it )
+        {
+            it.valueRef( ) = it.value( ) / normalizationTerms( i );
+        }
+    }
+
+    return normalizationTerms;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::getNormalizedConsiderCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
         const Eigen::VectorXd& considerNormalizationTerms,
@@ -173,6 +220,24 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::separateEst
             designMatrix.block( 0, numberEstimatedParameters_, numberObservations, numberConsiderParameters_ );
 
     return std::make_pair( designMatrixEstimatedParameters, designMatrixConsiderParameters );
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::pair< Eigen::SparseMatrix< double >, Eigen::MatrixXd >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::separateEstimatedAndConsiderDesignMatrices(
+        const Eigen::SparseMatrix< double >& designMatrix,
+        const int numberObservations )
+{
+    Eigen::SparseMatrix< double > designMatrixEstimatedParameters =
+            designMatrix.block( 0, 0, numberObservations, numberEstimatedParameters_ );
+
+    // Partials w.r.t. consider parameters are kept dense
+    Eigen::MatrixXd designMatrixConsiderParameters =
+            Eigen::MatrixXd( designMatrix.block( 0, numberEstimatedParameters_, numberObservations, numberConsiderParameters_ ) );
+
+    return std::make_pair( std::move( designMatrixEstimatedParameters ), std::move( designMatrixConsiderParameters ) );
 }
 
 }  // namespace simulation_setup

@@ -11,6 +11,11 @@
 #ifndef TUDAT_OBSERVATIONMANAGER_H
 #define TUDAT_OBSERVATIONMANAGER_H
 
+#include <type_traits>
+#include <vector>
+
+#include <Eigen/Sparse>
+
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -92,6 +97,37 @@ public:
             Eigen::MatrixXd& partialsMatrix,
             const bool calculateObservations = true,
             const bool calculatePartials = true ) = 0;
+
+    //! Function to simulate observations between specified link ends and associated partials, with sparse partials.
+    /*!
+     *  Same as the dense version, with the partials returned as a sparse matrix. This default implementation computes the
+     *  dense partials and converts them; derived classes override it to avoid forming the dense matrix.
+     */
+    virtual void computeObservationsWithPartials(
+            const std::vector< TimeType >& times,
+            const LinkEnds linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+            Eigen::SparseMatrix< double >& partialsMatrix,
+            const bool calculateObservations = true,
+            const bool calculatePartials = true )
+    {
+        Eigen::MatrixXd densePartialsMatrix;
+        computeObservationsWithPartials( times,
+                                         linkEnds,
+                                         linkEndAssociatedWithTime,
+                                         ancillarySettings,
+                                         observationsVector,
+                                         densePartialsMatrix,
+                                         calculateObservations,
+                                         calculatePartials );
+        if( calculatePartials )
+        {
+            partialsMatrix = densePartialsMatrix.sparseView( );
+        }
+    }
+
     //! Function (ṕure virtual) to return the object used to simulate noise-free observations
     /*!
      * Function (ṕure virtual) to return the object used to simulate noise-free observations
@@ -233,9 +269,87 @@ public:
             const bool calculateObservations = true,
             const bool calculatePartials = true )
     {
+        computeObservationsWithPartialsImplementation( times,
+                                                       linkEnds,
+                                                       linkEndAssociatedWithTime,
+                                                       ancillarySettings,
+                                                       observationsVector,
+                                                       partialsMatrix,
+                                                       calculateObservations,
+                                                       calculatePartials );
+    }
+
+    //! Function to simulate observations between specified link ends and associated partials, with sparse partials.
+    /*!
+     *  Same as the dense version, with the partials returned as a sparse matrix. The partials of each single observation are
+     *  stored sparse as soon as they are computed, so that the dense partials matrix is never formed.
+     */
+    void computeObservationsWithPartials(
+            const std::vector< TimeType >& times,
+            const LinkEnds linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+            Eigen::SparseMatrix< double >& partialsMatrix,
+            const bool calculateObservations = true,
+            const bool calculatePartials = true )
+    {
+        computeObservationsWithPartialsImplementation( times,
+                                                       linkEnds,
+                                                       linkEndAssociatedWithTime,
+                                                       ancillarySettings,
+                                                       observationsVector,
+                                                       partialsMatrix,
+                                                       calculateObservations,
+                                                       calculatePartials );
+    }
+
+    //! Function to return the full list of observation partial objects
+    /*!
+     * Function to return the full list of observation partial objects
+     * \return Full list of observation partial objects
+     */
+    std::map< LinkEnds, std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >
+    getObservationPartials( )
+    {
+        return observationPartials_;
+    }
+
+    //! Function to return the observation partial objects for a single set of link ends
+    /*!
+     * Function to return the observation partial objects for a single set of link ends
+     * \return Observation partial objects for a single set of link ends
+     */
+    std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
+    getObservationPartials( const LinkEnds& linkEnds )
+    {
+        return observationPartials_.at( linkEnds );
+    }
+
+protected:
+    //! Implementation of computeObservationsWithPartials, for a dense (Eigen::MatrixXd) or sparse (Eigen::SparseMatrix) partials
+    //! matrix
+    template< typename PartialsMatrixType >
+    void computeObservationsWithPartialsImplementation(
+            const std::vector< TimeType >& times,
+            const LinkEnds linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+            PartialsMatrixType& partialsMatrix,
+            const bool calculateObservations,
+            const bool calculatePartials )
+    {
+        constexpr bool sparsePartials = std::is_same_v< PartialsMatrixType, Eigen::SparseMatrix< double > >;
+
+        // Partials of a single observation; stored row-major in the sparse case, since they are concatenated by rows
+        using SingleObservationPartialsType = std::conditional_t< sparsePartials,
+                                                                  Eigen::SparseMatrix< double, Eigen::RowMajor >,
+                                                                  Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > >;
+
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
-        std::map< TimeType, Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > > partialsMatrices;
+        std::map< TimeType, SingleObservationPartialsType > partialsMatrices;
 
         // Get observation model.
         std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
@@ -288,13 +402,23 @@ public:
             {
                 try
                 {
-                    partialsMatrices[ saveTime ] = determineObservationPartialMatrix( currentObservationSize,
-                                                                                      vectorOfStates,
-                                                                                      vectorOfTimes,
-                                                                                      linkEnds,
-                                                                                      idealObservation,
-                                                                                      linkEndAssociatedWithTime,
-                                                                                      ancillarySettings );
+                    Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > currentPartials =
+                            determineObservationPartialMatrix( currentObservationSize,
+                                                               vectorOfStates,
+                                                               vectorOfTimes,
+                                                               linkEnds,
+                                                               idealObservation,
+                                                               linkEndAssociatedWithTime,
+                                                               ancillarySettings );
+                    if constexpr( sparsePartials )
+                    {
+                        // Only exact zeros are dropped
+                        partialsMatrices[ saveTime ] = currentPartials.sparseView( );
+                    }
+                    else
+                    {
+                        partialsMatrices[ saveTime ] = std::move( currentPartials );
+                    }
                 }
                 catch( std::runtime_error& caughtException )
                 {
@@ -316,34 +440,34 @@ public:
 
         if( calculatePartials )
         {
-            partialsMatrix = utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, double, ObservationSize, Eigen::Dynamic >(
-                    partialsMatrices );
+            if constexpr( sparsePartials )
+            {
+                // Concatenate the partials of the single observations by rows, in the same (time) order as the dense version
+                std::vector< Eigen::Triplet< double > > triplets;
+                int currentRow = 0;
+                for( const auto& timeAndPartials : partialsMatrices )
+                {
+                    const SingleObservationPartialsType& currentPartials = timeAndPartials.second;
+                    for( int k = 0; k < currentPartials.outerSize( ); k++ )
+                    {
+                        for( typename SingleObservationPartialsType::InnerIterator it( currentPartials, k ); it; ++it )
+                        {
+                            triplets.emplace_back( currentRow + it.row( ), it.col( ), it.value( ) );
+                        }
+                    }
+                    currentRow += currentPartials.rows( );
+                }
+                partialsMatrix.resize( currentRow, stateTransitionMatrixInterface_->getFullParameterVectorSize( ) );
+                partialsMatrix.setFromTriplets( triplets.begin( ), triplets.end( ) );
+            }
+            else
+            {
+                partialsMatrix = utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, double, ObservationSize, Eigen::Dynamic >(
+                        partialsMatrices );
+            }
         }
     }
 
-    //! Function to return the full list of observation partial objects
-    /*!
-     * Function to return the full list of observation partial objects
-     * \return Full list of observation partial objects
-     */
-    std::map< LinkEnds, std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >
-    getObservationPartials( )
-    {
-        return observationPartials_;
-    }
-
-    //! Function to return the observation partial objects for a single set of link ends
-    /*!
-     * Function to return the observation partial objects for a single set of link ends
-     * \return Observation partial objects for a single set of link ends
-     */
-    std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
-    getObservationPartials( const LinkEnds& linkEnds )
-    {
-        return observationPartials_.at( linkEnds );
-    }
-
-protected:
     //! Function to perform updates of dependent variables used by (subset of) observation partials.
     /*!
      *  Function to perform updates of dependent variables used by (subset of) observation partials, in order

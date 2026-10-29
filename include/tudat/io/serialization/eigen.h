@@ -15,7 +15,11 @@
 #include <stdexcept>
 #include <string>
 
+#include <cstddef>
+#include <vector>
+
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 
 #include "tudat/io/serialization/core.h"
 
@@ -96,6 +100,82 @@ void load( Archive& ar, Eigen::Matrix< Scalar, Rows, Cols, Options, MaxRows, Max
             ar( make_nvp( "element", matrix( i, j ) ) );
         }
     }
+}
+
+//! Save a sparse matrix as its dimensions and the (row, column, value) triplets of its stored entries
+template< class Archive, typename Scalar, int Options, typename StorageIndex >
+void save( Archive& ar, const Eigen::SparseMatrix< Scalar, Options, StorageIndex >& matrix )
+{
+    Eigen::Index rows = matrix.rows( );
+    Eigen::Index cols = matrix.cols( );
+    Eigen::Index nonZeros = matrix.nonZeros( );
+
+    ar( make_nvp( "rows", rows ) );
+    ar( make_nvp( "cols", cols ) );
+    ar( make_nvp( "nonZeros", nonZeros ) );
+
+    for( Eigen::Index k = 0; k < matrix.outerSize( ); ++k )
+    {
+        for( typename Eigen::SparseMatrix< Scalar, Options, StorageIndex >::InnerIterator it( matrix, k ); it; ++it )
+        {
+            Eigen::Index row = it.row( );
+            Eigen::Index col = it.col( );
+            ar( make_nvp( "row", row ) );
+            ar( make_nvp( "col", col ) );
+            ar( make_nvp( "value", it.value( ) ) );
+        }
+    }
+}
+
+template< class Archive, typename Scalar, int Options, typename StorageIndex >
+void load( Archive& ar, Eigen::SparseMatrix< Scalar, Options, StorageIndex >& matrix )
+{
+    Eigen::Index rows, cols, nonZeros;
+
+    ar( make_nvp( "rows", rows ) );
+    ar( make_nvp( "cols", cols ) );
+    ar( make_nvp( "nonZeros", nonZeros ) );
+
+    if( rows < 0 || cols < 0 || nonZeros < 0 )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen sparse matrix: archived dimensions must be non-negative." );
+    }
+    if( static_cast< std::uintmax_t >( rows ) > static_cast< std::uintmax_t >( std::numeric_limits< StorageIndex >::max( ) ) ||
+        static_cast< std::uintmax_t >( cols ) > static_cast< std::uintmax_t >( std::numeric_limits< StorageIndex >::max( ) ) )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen sparse matrix: an archived dimension exceeds the index type range." );
+    }
+    if( static_cast< std::uintmax_t >( nonZeros ) > kMaximumSerializedEigenCoefficients )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen sparse matrix: archived number of entries exceeds the supported maximum of " +
+                                  std::to_string( kMaximumSerializedEigenCoefficients ) + "." );
+    }
+    // Check nonZeros <= rows * cols without forming the (possibly overflowing) product
+    if( nonZeros > 0 &&
+        ( rows == 0 || cols == 0 ||
+          static_cast< std::uintmax_t >( nonZeros - 1 ) / static_cast< std::uintmax_t >( rows ) >= static_cast< std::uintmax_t >( cols ) ) )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen sparse matrix: archived number of entries exceeds the matrix size." );
+    }
+
+    std::vector< Eigen::Triplet< Scalar, StorageIndex > > triplets;
+    triplets.reserve( static_cast< std::size_t >( nonZeros ) );
+    for( Eigen::Index k = 0; k < nonZeros; ++k )
+    {
+        Eigen::Index row, col;
+        Scalar value;
+        ar( make_nvp( "row", row ) );
+        ar( make_nvp( "col", col ) );
+        ar( make_nvp( "value", value ) );
+        if( row < 0 || row >= rows || col < 0 || col >= cols )
+        {
+            throw std::runtime_error( "Cannot deserialize Eigen sparse matrix: archived entry index is out of range." );
+        }
+        triplets.emplace_back( static_cast< StorageIndex >( row ), static_cast< StorageIndex >( col ), value );
+    }
+
+    matrix.resize( rows, cols );
+    matrix.setFromTriplets( triplets.begin( ), triplets.end( ) );
 }
 
 }  // namespace cereal

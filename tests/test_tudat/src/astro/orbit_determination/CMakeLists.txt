@@ -79,6 +79,11 @@ set(ORBIT_DETERMINATION_TEST_PRIVATE_LINKS
     tudat_estimation_test_case_support
 )
 
+TUDAT_ADD_EXECUTABLE(design_matrix_sparsity_test
+    ${CMAKE_CURRENT_SOURCE_DIR}/designMatrixSparsityTest.cpp
+    ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
+    )
+
 TUDAT_ADD_TEST_CASE(EstimationInput
     SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/unitTestEstimationInputCovariance.cpp
