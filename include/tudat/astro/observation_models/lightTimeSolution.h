@@ -266,6 +266,70 @@ public:
     virtual std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const = 0;
 };
 
+//! Function to determine whether any of the light-time corrections of a set of light-time calculators has a fallback model
+template< typename LightTimeCalculatorType >
+bool doLightTimeCorrectionsHaveFallback( const std::vector< std::shared_ptr< LightTimeCalculatorType > >& legCalculators )
+{
+    for( const std::shared_ptr< LightTimeCalculatorType >& legCalculator : legCalculators )
+    {
+        for( const std::shared_ptr< LightTimeCorrection >& correction : legCalculator->getLightTimeCorrectionList( ) )
+        {
+            if( correction->hasFallback( ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//! Function to force the fallback model of each light-time correction that used it at only one of the start and end of an integrated
+//! observable (e.g. averaged Doppler)
+/*!
+ * Function to force the fallback model of each light-time correction that used it at only one of the start and end of an integrated
+ * observable (e.g. averaged Doppler), at both the start and the end. This is done per leg, so that each leg uses the same model at
+ * the start and the end.
+ * \param arcStartLegCalculators Light-time calculators (per leg) at the start of the integrated observable
+ * \param arcEndLegCalculators Light-time calculators (per leg) at the end of the integrated observable
+ * \return True if the fallback model was forced for any light-time correction (in which case the observable is to be recomputed)
+ */
+template< typename LightTimeCalculatorType >
+bool forceConsistentLightTimeCorrectionFallbacks( const std::vector< std::shared_ptr< LightTimeCalculatorType > >& arcStartLegCalculators,
+                                                  const std::vector< std::shared_ptr< LightTimeCalculatorType > >& arcEndLegCalculators )
+{
+    bool isFallbackForced = false;
+    for( unsigned int i = 0; i < arcStartLegCalculators.size( ); i++ )
+    {
+        const std::vector< std::shared_ptr< LightTimeCorrection > > arcStartCorrections =
+                arcStartLegCalculators.at( i )->getLightTimeCorrectionList( );
+        const std::vector< std::shared_ptr< LightTimeCorrection > > arcEndCorrections =
+                arcEndLegCalculators.at( i )->getLightTimeCorrectionList( );
+        for( unsigned int j = 0; j < arcStartCorrections.size( ); j++ )
+        {
+            if( arcStartCorrections.at( j )->isFallbackUsed( ) != arcEndCorrections.at( j )->isFallbackUsed( ) )
+            {
+                arcStartCorrections.at( j )->setForceFallback( true );
+                arcEndCorrections.at( j )->setForceFallback( true );
+                isFallbackForced = true;
+            }
+        }
+    }
+    return isFallbackForced;
+}
+
+//! Function to remove the forcing of the fallback model of all light-time corrections (see forceConsistentLightTimeCorrectionFallbacks)
+template< typename LightTimeCalculatorType >
+void resetLightTimeCorrectionFallbacks( const std::vector< std::shared_ptr< LightTimeCalculatorType > >& legCalculators )
+{
+    for( const std::shared_ptr< LightTimeCalculatorType >& legCalculator : legCalculators )
+    {
+        for( const std::shared_ptr< LightTimeCorrection >& correction : legCalculator->getLightTimeCorrectionList( ) )
+        {
+            correction->setForceFallback( false );
+        }
+    }
+}
+
 //! Class to calculate the light time between two points.
 /*!
  *  This class calculates the light time between two points, of which the state functions

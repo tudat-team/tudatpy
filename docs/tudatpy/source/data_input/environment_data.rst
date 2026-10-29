@@ -24,3 +24,28 @@ functions in :ref:`environment_setup`.
    environment_data/space_weather
    environment_data/spacetrack
    environment_data/spice
+
+Functions
+---------
+.. currentmodule:: tudatpy.data_input.environment_data
+
+.. autosummary::
+
+   read_dsn_amc_file
+
+   get_valid_dsn_amc_zenith_delays
+
+.. autofunction:: tudatpy.data_input.environment_data.read_dsn_amc_file
+
+.. autofunction:: tudatpy.data_input.environment_data.get_valid_dsn_amc_zenith_delays
+
+Classes
+-------
+.. currentmodule:: tudatpy.data_input.environment_data
+
+.. autosummary::
+
+   DsnAmcRecord
+
+.. autoclass:: tudatpy.data_input.environment_data.DsnAmcRecord
+   :members:

@@ -35,6 +35,8 @@ Functions
 
    dsn_tabulated_tropospheric_light_time_correction
 
+   measured_tropospheric_light_time_correction
+
    saastamoinen_tropospheric_light_time_correction
 
    dsn_tabulated_ionospheric_light_time_correction
@@ -62,6 +64,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.approximated_second_order_relativistic_light_time_correction
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.dsn_tabulated_tropospheric_light_time_correction
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.measured_tropospheric_light_time_correction
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.saastamoinen_tropospheric_light_time_correction
 
