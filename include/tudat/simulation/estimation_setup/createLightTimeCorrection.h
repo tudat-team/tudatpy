@@ -16,6 +16,7 @@
 #include <memory>
 #include <functional>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
@@ -652,6 +653,37 @@ inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCor
 {
     return std::make_shared< InversePowerSeriesSolarCoronaCorrectionSettings >(
             coefficients, positiveExponents, criticalPlasmaDensityDelayCoefficient, sunBodyName );
+}
+
+//! Published inverse power series models of the solar-corona electron density
+enum SolarCoronaModel {
+    morley_budnik_2007_solar_corona,
+    de102_esoc_solar_corona,
+    muhleman_1977_solar_corona,
+    aksim_pavlov_2022_solar_corona
+};
+
+//! Coefficients [m^-3] and positive exponents (of the distance in solar radii) of a published solar-corona electron density
+//! model, as input for inversePowerSeriesSolarCoronaCorrectionSettings
+inline std::pair< std::vector< double >, std::vector< double > > getSolarCoronaModelCoefficients( const SolarCoronaModel model )
+{
+    switch( model )
+    {
+        // Rosetta 2006 solar conjunction (8.9 cm^-3 at 1 AU)
+        case morley_budnik_2007_solar_corona:
+            return { { 0.12e14, 0.41e12 }, { 6.0, 2.0 } };
+        // 10.8 cm^-3 at 1 AU
+        case de102_esoc_solar_corona:
+            return { { 1.3e14, 0.5e12 }, { 6.0, 2.0 } };
+        // Mariner 7
+        case muhleman_1977_solar_corona:
+            return { { 1.3e14, 0.66e12 }, { 6.0, 2.08 } };
+        // C N_0 (1 AU / R_sun)^2 with N_0 = 5.97 cm^-3 and C = 1.31 (7.8 cm^-3 at 1 AU)
+        case aksim_pavlov_2022_solar_corona:
+            return { { 1.31 * 5.97e6 * std::pow( physical_constants::ASTRONOMICAL_UNIT / 696.0e6, 2.0 ) }, { 2.0 } };
+        default:
+            throw std::runtime_error( "Error, solar corona model " + std::to_string( model ) + " not recognized." );
+    }
 }
 
 //! Function to create object that computes a single (type of) correction to the light-time
