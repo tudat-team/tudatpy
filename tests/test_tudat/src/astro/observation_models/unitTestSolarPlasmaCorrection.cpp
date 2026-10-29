@@ -176,7 +176,8 @@ BOOST_AUTO_TEST_CASE( testNonIntegerExponentsCloseToSun )
     InversePowerSeriesSolarCoronaCorrection numericalCorrection(
             n_way_range, sunStateFunction, coefficients, { 6.0 + 1.0e-12, 3.0 + 1.0e-12, 2.0 + 1.0e-12 } );
 
-    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, 7.2e9 );
 
     // Earth at 1 AU, spacecraft at 1.5 AU behind the Sun, with the line of sight passing 2 to 20 solar radii from the Sun

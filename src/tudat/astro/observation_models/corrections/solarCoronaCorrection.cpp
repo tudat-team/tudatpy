@@ -97,7 +97,8 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
         cosinePowersIntegralsCache_.clear( );
         for( unsigned int i = 0; i < coefficients_.size( ); ++i )
         {
-            electronDensityIntegral += coefficients_.at( i ) *
+            electronDensityIntegral +=
+                    coefficients_.at( i ) *
                     computeSingleTermIntegral(
                             receiverPositionWrtSun, sunReceiverTransmitterAngle, receiverSunTransmitterAngle, positiveExponents_.at( i ) );
         }

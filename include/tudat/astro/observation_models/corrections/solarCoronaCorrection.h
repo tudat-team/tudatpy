@@ -142,13 +142,12 @@ public:
      *      1 / ( 2 * electron_mass * vacuum_permittivity * (2 pi)^2 ) / electron_charge^2 )
      * @param sunRadius Radius of the Sun.
      */
-    InversePowerSeriesSolarCoronaCorrection(
-            const ObservableType observableType,
-            const std::function< Eigen::Vector6d( double time ) > sunStateFunction,
-            const std::vector< double >& coefficients = { 0.12e14, 0.41e12 },
-            const std::vector< double >& positiveExponents = { 6.0, 2.0 },
-            const double criticalPlasmaDensityDelayCoefficient = 40.3,
-            const double sunRadius = 696e6 ):
+    InversePowerSeriesSolarCoronaCorrection( const ObservableType observableType,
+                                             const std::function< Eigen::Vector6d( double time ) > sunStateFunction,
+                                             const std::vector< double >& coefficients = { 0.12e14, 0.41e12 },
+                                             const std::vector< double >& positiveExponents = { 6.0, 2.0 },
+                                             const double criticalPlasmaDensityDelayCoefficient = 40.3,
+                                             const double sunRadius = 696e6 ):
         SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction ), coefficients_( coefficients ),
         positiveExponents_( positiveExponents ), criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),
         sunRadius_( sunRadius )
