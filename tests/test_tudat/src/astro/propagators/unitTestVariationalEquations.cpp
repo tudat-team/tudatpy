@@ -516,12 +516,10 @@ executeOrbiterSimulation(
             if( interpolateVariationalEquations )
             {
                 BOOST_CHECK_EQUAL( singleArcInterface->getStateTransitionMatrixInterpolator( ) != nullptr, true );
-                BOOST_CHECK_EQUAL( singleArcInterface->getSensitivityMatrixInterpolator( ) != nullptr, true );
             }
             else
             {
                 BOOST_CHECK_EQUAL( singleArcInterface->getStateTransitionMatrixInterpolator( ) == nullptr, true );
-                BOOST_CHECK_EQUAL( singleArcInterface->getSensitivityMatrixInterpolator( ) == nullptr, true );
             }
         }
         else if( propagateVariationalEquations )

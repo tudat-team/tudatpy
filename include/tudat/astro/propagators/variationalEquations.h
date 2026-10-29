@@ -10,7 +10,12 @@
 #ifndef TUDAT_VARIATIONALEQUATIONS_H
 #define TUDAT_VARIATIONALEQUATIONS_H
 
+#include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <limits>
 #include <map>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -32,6 +37,133 @@ namespace tudat
 
 namespace propagators
 {
+
+//! Function to determine which entries of a parameter can influence the dynamics in a given propagation time interval
+/*!
+ * Function to determine which entries of a parameter can influence the dynamics in a given propagation time interval,
+ * based on the time intervals of influence of the parameter entries (see
+ * EstimatableParameter::getTimeIntervalsOfInfluencePerEntry). An entry that is active in the interval [t_s, t_e) is
+ * considered to influence the dynamics if t_s <= t_max and t_e > t_min. Note that an entry that becomes active at the final
+ * time of the propagation does influence the propagated state at that time (through the final integrator stage).
+ * \param parameter Parameter for which the active entries are to be determined
+ * \param propagationTimeInterval Minimum and maximum time of the propagation. If either is NaN, all entries are active.
+ * \return Boolean for each parameter entry, denoting whether it can influence the dynamics in the propagation interval
+ */
+template< typename ParameterValueType >
+std::vector< bool > getParameterEntriesActiveInTimeInterval(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterValueType > > parameter,
+        const std::pair< double, double >& propagationTimeInterval )
+{
+    std::vector< bool > isEntryActive( parameter->getParameterSize( ), true );
+
+    std::vector< std::pair< double, double > > timeIntervals = parameter->getTimeIntervalsOfInfluencePerEntry( );
+    if( timeIntervals.size( ) > 0 && !std::isnan( propagationTimeInterval.first ) && !std::isnan( propagationTimeInterval.second ) )
+    {
+        if( timeIntervals.size( ) != isEntryActive.size( ) )
+        {
+            throw std::runtime_error( "Error when determining active parameter entries for " + parameter->getParameterDescription( ) +
+                                      ", number of time intervals is inconsistent with parameter size." );
+        }
+
+        for( unsigned int i = 0; i < timeIntervals.size( ); i++ )
+        {
+            isEntryActive[ i ] = ( timeIntervals.at( i ).first <= propagationTimeInterval.second ) &&
+                    ( timeIntervals.at( i ).second > propagationTimeInterval.first );
+        }
+    }
+    return isEntryActive;
+}
+
+//! Function to add the sensitivity matrix columns of a parameter that can be non-zero in a propagation arc
+/*!
+ * Function to add the sensitivity matrix columns of a parameter that can be non-zero in a propagation arc. This is the case
+ * if any of the state derivative partials depends on the parameter, and the parameter entry is active in the propagation
+ * time interval (see getParameterEntriesActiveInTimeInterval). To check the dependency, the parameter partial update
+ * function is set in each state derivative partial (see StateDerivativePartial::setParameterPartialUpdateFunction), as is
+ * also done when setting up the variational equations (repeated calls have no effect).
+ * \param stateDerivativePartials List of state derivative partials of the propagation arc, per propagated state type
+ * \param parameter Parameter for which the columns are to be added
+ * \param parameterStartColumn Sensitivity matrix column of the first entry of the parameter
+ * \param propagationTimeInterval Minimum and maximum time of the propagation arc. If either is NaN, the time-dependence of
+ * the parameter influence is not used.
+ * \param nonZeroColumns Sensitivity matrix columns that can be non-zero, to which the columns of the parameter are added
+ */
+template< typename ParameterValueType >
+void addNonZeroSensitivityMatrixColumns(
+        const std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterValueType > > parameter,
+        const int parameterStartColumn,
+        const std::pair< double, double >& propagationTimeInterval,
+        std::vector< int >& nonZeroColumns )
+{
+    bool isDependent = false;
+    for( auto stateTypeIterator : stateDerivativePartials )
+    {
+        for( unsigned int i = 0; i < stateTypeIterator.second.size( ); i++ )
+        {
+            for( unsigned int j = 0; j < stateTypeIterator.second.at( i ).size( ); j++ )
+            {
+                if( stateTypeIterator.second.at( i ).at( j )->setParameterPartialUpdateFunction( parameter ) > 0 )
+                {
+                    isDependent = true;
+                }
+            }
+        }
+    }
+
+    if( isDependent )
+    {
+        std::vector< bool > isEntryActive = getParameterEntriesActiveInTimeInterval( parameter, propagationTimeInterval );
+        for( unsigned int i = 0; i < isEntryActive.size( ); i++ )
+        {
+            if( isEntryActive.at( i ) )
+            {
+                nonZeroColumns.push_back( parameterStartColumn + i );
+            }
+        }
+    }
+}
+
+//! Function to determine which sensitivity matrix columns can be non-zero in a propagation arc
+/*!
+ * Function to determine which sensitivity matrix columns can be non-zero in a propagation arc, by checking each double and
+ * vector parameter with the addNonZeroSensitivityMatrixColumns function.
+ * \param stateDerivativePartials List of state derivative partials of the propagation arc, per propagated state type
+ * \param parametersToEstimate Set of estimated parameters for the propagation arc
+ * \param propagationTimeInterval Minimum and maximum time of the propagation arc. If either is NaN, the time-dependence of
+ * the parameter influence is not used.
+ * \return Indices of the sensitivity matrix columns (where column 0 is the first parameter after the initial states) that
+ * can be non-zero, in ascending order
+ */
+template< typename ParameterType >
+std::vector< int > getNonZeroSensitivityMatrixColumns(
+        const std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::pair< double, double >& propagationTimeInterval )
+{
+    int initialStateSize = parametersToEstimate->getInitialDynamicalStateParameterSize( );
+    std::vector< int > nonZeroColumns;
+    for( auto parameterIterator : parametersToEstimate->getDoubleParameters( ) )
+    {
+        addNonZeroSensitivityMatrixColumns( stateDerivativePartials,
+                                            parameterIterator.second,
+                                            parameterIterator.first - initialStateSize,
+                                            propagationTimeInterval,
+                                            nonZeroColumns );
+    }
+    for( auto parameterIterator : parametersToEstimate->getVectorParameters( ) )
+    {
+        addNonZeroSensitivityMatrixColumns( stateDerivativePartials,
+                                            parameterIterator.second,
+                                            parameterIterator.first - initialStateSize,
+                                            propagationTimeInterval,
+                                            nonZeroColumns );
+    }
+
+    // Sort columns, since double parameters are not necessarily stored before vector parameters (e.g. consider parameters)
+    std::sort( nonZeroColumns.begin( ), nonZeroColumns.end( ) );
+    return nonZeroColumns;
+}
 
 //! Class from which the variational equations can be evaluated.
 /*!
@@ -55,14 +187,22 @@ public:
      * values.
      * \param stateTypeStartIndices Start index (value) in vector of propagated state for each type of state (key)
      * \param currentArcIndex Index of current arc (-1 if not multi-arc)
+     * \param arcIndicesPerBody Arc index for each propagated body (empty if not multi-arc)
+     * \param propagationTimeInterval Minimum and maximum time of the propagation (NaN if not known before propagation). Used
+     * to omit sensitivity matrix columns that are zero in the propagation arc, if requested by parametersToEstimate (see
+     * EstimatableParameterSet::setReduceSensitivityMatrixColumns)
      */
     template< typename ParameterType >
-    VariationalEquations( const std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartialList,
-                          const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-                          const std::map< IntegratedStateType, int >& stateTypeStartIndices,
-                          const int currentArcIndex = -1,
-                          const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ) ):
-        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
+    VariationalEquations(
+            const std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartialList,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+            const std::map< IntegratedStateType, int >& stateTypeStartIndices,
+            const int currentArcIndex = -1,
+            const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ),
+            const std::pair< double, double > propagationTimeInterval = std::make_pair( std::numeric_limits< double >::quiet_NaN( ),
+                                                                                        std::numeric_limits< double >::quiet_NaN( ) ) ):
+        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
+        reduceSensitivityMatrixColumns_( parametersToEstimate->getReduceSensitivityMatrixColumns( ) )
     {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >( parametersToEstimate );
@@ -91,10 +231,8 @@ public:
             totalDynamicalStateSize_ += getSingleIntegrationSize( partialTypeIterator->first ) * partialTypeIterator->second.size( );
         }
 
-        // Initialize matrices.
+        // Initialize matrix of state partials.
         variationalMatrix_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, totalDynamicalStateSize_ );
-        variationalParameterMatrix_ =
-                Eigen::MatrixXd::Zero( totalDynamicalStateSize_, numberOfParameterValues_ - totalDynamicalStateSize_ );
 
         // Set parameter partial functions.
         setStatePartialFunctionList( );
@@ -107,6 +245,28 @@ public:
             setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate, currentArcIndex );
         }
         setRotationalStatePartialScalingFunctions( parametersToEstimate );
+
+        // Set propagated sensitivity matrix columns: all columns, or (if requested) only those that can be non-zero in the propagation
+        // interval
+        if( reduceSensitivityMatrixColumns_ )
+        {
+            if( numberOfParameterValues_ - totalDynamicalStateSize_ != parametersToEstimate->getNonDynamicalStateParameterSize( ) )
+            {
+                throw std::runtime_error( "Error when reducing sensitivity matrix columns, parameter sizes are inconsistent." );
+            }
+            reducedSensitivityMatrixColumns_ =
+                    getNonZeroSensitivityMatrixColumns( stateDerivativePartialList_, parametersToEstimate, propagationTimeInterval );
+            numberOfParameterValues_ = totalDynamicalStateSize_ + reducedSensitivityMatrixColumns_.size( );
+        }
+        else
+        {
+            reducedSensitivityMatrixColumns_.resize( numberOfParameterValues_ - totalDynamicalStateSize_ );
+            std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
+        }
+
+        // Initialize matrix of parameter partials (for propagated sensitivity matrix columns only).
+        variationalParameterMatrix_ =
+                Eigen::MatrixXd::Zero( totalDynamicalStateSize_, numberOfParameterValues_ - totalDynamicalStateSize_ );
         setParameterPartialFunctionList( parametersToEstimate );
     }
 
@@ -278,10 +438,12 @@ public:
 
     //! Returns the number of parameter values.
     /*!
-     *  Returns the number of parameter values (i.e. number of columns in state transition matrix).
+     *  Returns the number of parameter values (i.e. number of columns in propagated state transition and sensitivity matrix).
+     *  If sensitivity matrix columns are omitted (see EstimatableParameterSet::setReduceSensitivityMatrixColumns), only the
+     *  propagated columns are counted.
      *  \return Number of parameter values.
      */
-    double getNumberOfParameterValues( )
+    int getNumberOfParameterValues( )
     {
         return numberOfParameterValues_;
     }
@@ -297,8 +459,42 @@ public:
         return stateDerivativePartialList_;
     }
 
+    //! Function to retrieve the indices in the full sensitivity matrix of the propagated sensitivity matrix columns
+    /*!
+     * Function to retrieve the indices in the full sensitivity matrix of the propagated sensitivity matrix columns (all
+     * columns if sensitivity matrix columns are not reduced).
+     * \return Index in the full sensitivity matrix of each propagated sensitivity matrix column
+     */
+    std::vector< int > getReducedSensitivityMatrixColumns( )
+    {
+        return reducedSensitivityMatrixColumns_;
+    }
+
 protected:
 private:
+    //! Function to retrieve the propagated sensitivity matrix columns of a parameter (if reduceSensitivityMatrixColumns_)
+    /*!
+     *  Function to retrieve the propagated sensitivity matrix columns of a parameter (if reduceSensitivityMatrixColumns_)
+     *  \param parameterStartColumn Start column of the parameter in the full sensitivity matrix
+     *  \param parameterSize Size of the parameter
+     *  \param parameterColumns Entries of the parameter for which the sensitivity matrix column is propagated (returned by
+     *  reference)
+     *  \return Column of the first propagated parameter entry in the propagated sensitivity matrix
+     */
+    int getPropagatedParameterColumns( const int parameterStartColumn, const int parameterSize, std::vector< int >& parameterColumns )
+    {
+        std::vector< int >::const_iterator firstColumn = std::lower_bound(
+                reducedSensitivityMatrixColumns_.cbegin( ), reducedSensitivityMatrixColumns_.cend( ), parameterStartColumn );
+        parameterColumns.clear( );
+        for( std::vector< int >::const_iterator columnIterator = firstColumn;
+             columnIterator != reducedSensitivityMatrixColumns_.cend( ) && *columnIterator < parameterStartColumn + parameterSize;
+             columnIterator++ )
+        {
+            parameterColumns.push_back( *columnIterator - parameterStartColumn );
+        }
+        return static_cast< int >( std::distance( reducedSensitivityMatrixColumns_.cbegin( ), firstColumn ) );
+    }
+
     //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
     /*!
      * Function (called by constructor) to set up the functions to evaluate the partial derivatives of the state derivatives
@@ -345,17 +541,49 @@ private:
                 // first is start column in matrix, second is number of entries (1 for double parameter)
                 std::pair< int, int > indexPair =
                         std::make_pair( parameterIterator->first - totalParameterVectorIndicesToSubtract, functionToEvaluate );
-
-                // Add to list.
-                functionListOfBody.insert( std::pair< std::pair< int, int >, std::function< void( Eigen::Block< Eigen::MatrixXd > ) > >(
-                        indexPair,
+                std::function< void( Eigen::Block< Eigen::MatrixXd > ) > partialFunction =
                         std::bind( static_cast< void ( orbit_determination::StateDerivativePartial::* )(
                                            const std::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > >,
                                            Eigen::Block< Eigen::MatrixXd > ) >(
                                            &orbit_determination::StateDerivativePartial::getCurrentParameterPartial ),
                                    partialObject,
                                    parameterIterator->second,
-                                   std::placeholders::_1 ) ) );
+                                   std::placeholders::_1 );
+
+                // If sensitivity matrix is reduced, only add the partial for the propagated entries of the current parameter
+                if( reduceSensitivityMatrixColumns_ )
+                {
+                    std::vector< int > parameterColumns;
+                    int propagatedStartColumn = getPropagatedParameterColumns(
+                            indexPair.first - totalDynamicalStateSize_, functionToEvaluate, parameterColumns );
+                    if( parameterColumns.size( ) == 0 )
+                    {
+                        continue;
+                    }
+
+                    indexPair = std::make_pair( totalDynamicalStateSize_ + propagatedStartColumn,
+                                                static_cast< int >( parameterColumns.size( ) ) );
+                    if( indexPair.second != functionToEvaluate )
+                    {
+                        if constexpr( std::is_same_v< CurrentParameterType, Eigen::VectorXd > )
+                        {
+                            partialFunction = std::bind( &orbit_determination::StateDerivativePartial::getCurrentParameterPartialColumns,
+                                                         partialObject,
+                                                         parameterIterator->second,
+                                                         parameterColumns,
+                                                         std::placeholders::_1 );
+                        }
+                        else
+                        {
+                            throw std::runtime_error( "Error, cannot propagate subset of sensitivity matrix columns of double parameter " +
+                                                      parameterIterator->second->getParameterDescription( ) );
+                        }
+                    }
+                }
+
+                // Add to list.
+                functionListOfBody.insert( std::pair< std::pair< int, int >, std::function< void( Eigen::Block< Eigen::MatrixXd > ) > >(
+                        indexPair, partialFunction ) );
             }
         }
     }
@@ -591,6 +819,12 @@ private:
 
     //! Total size of (single-arc) state vector of dynamics that is to be estimated.
     int totalDynamicalStateSize_;
+
+    //! Boolean denoting whether sensitivity matrix columns that are zero in the propagation arc are omitted
+    bool reduceSensitivityMatrixColumns_;
+
+    //! Index in the full sensitivity matrix of each propagated sensitivity matrix column
+    std::vector< int > reducedSensitivityMatrixColumns_;
 
     //! Total matrix of partial derivatives of state derivatives w.r.t. current states.
     Eigen::MatrixXd variationalMatrix_;

@@ -178,17 +178,6 @@ public:
      */
     void update( const double currentTime = TUDAT_NAN );
 
-    //! Function to compute the partial w.r.t. arcwise empirical acceleration components
-    /*!
-     * Function to compute the partial w.r.t. arcwise empirical acceleration components
-     * \param parameter Object defining the properties of the arcwise components that are to be estimated.
-     * \param partialDerivativeMatrix Matrix of partial derivatives of accelerations w.r.t. empirical accelerations (returned
-     * by reference)
-     */
-    void wrtArcWiseEmpiricalAccelerationCoefficient(
-            std::shared_ptr< estimatable_parameters::ArcWiseEmpiricalAccelerationCoefficientsParameter > parameter,
-            Eigen::MatrixXd& partialDerivativeMatrix );
-
     //! Function to compute the partial w.r.t. time-independent empirical acceleration components
     /*!
      * Function to compute the partial w.r.t. time-independent empirical acceleration components

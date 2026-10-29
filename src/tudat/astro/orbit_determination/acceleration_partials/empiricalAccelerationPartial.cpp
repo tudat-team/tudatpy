@@ -104,11 +104,21 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAcceleratio
             case arc_wise_empirical_acceleration_coefficients: {
                 if( parameter->getParameterName( ).second.second == acceleratingBody_ )
                 {
-                    partialFunction =
-                            std::bind( &EmpiricalAccelerationPartial::wrtArcWiseEmpiricalAccelerationCoefficient,
+                    std::shared_ptr< ArcWiseEmpiricalAccelerationCoefficientsParameter > arcWiseParameter =
+                            std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationCoefficientsParameter >( parameter );
+                    if( arcWiseParameter == nullptr )
+                    {
+                        throw std::runtime_error( "Error when making empirical acceleration partial, arcwise parameter not consistent" );
+                    }
+                    partialFunction = createArcWiseParameterPartialFunction(
+                            std::bind( &EmpiricalAccelerationPartial::wrtEmpiricalAccelerationCoefficientFromIndices,
                                        this,
-                                       std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationCoefficientsParameter >( parameter ),
-                                       std::placeholders::_1 );
+                                       arcWiseParameter->getSingleArcParameterSize( ),
+                                       arcWiseParameter->getIndices( ),
+                                       std::placeholders::_1 ),
+                            arcWiseParameter->getArcTimeLookupScheme( ),
+                            arcWiseParameter->getParameterSize( ),
+                            arcWiseParameter->getSingleArcParameterSize( ) );
                     numberOfRows = parameter->getParameterSize( );
                 }
                 break;
@@ -189,30 +199,6 @@ void EmpiricalAccelerationPartial::update( const double currentTime )
         {
             throw std::runtime_error( "Error, empirical acceleration velocity partials are NaN" );
         }
-    }
-}
-
-//! Function to compute the partial w.r.t. arcwise empirical acceleration components
-void EmpiricalAccelerationPartial::wrtArcWiseEmpiricalAccelerationCoefficient(
-        std::shared_ptr< estimatable_parameters::ArcWiseEmpiricalAccelerationCoefficientsParameter > parameter,
-        Eigen::MatrixXd& partialDerivativeMatrix )
-{
-    // Compute partial derivatives for current arc
-    int singleArcParameterSize = parameter->getSingleArcParameterSize( );
-    Eigen::MatrixXd partialWrtCurrentArcAccelerations;
-    wrtEmpiricalAccelerationCoefficientFromIndices( singleArcParameterSize, parameter->getIndices( ), partialWrtCurrentArcAccelerations );
-
-    partialDerivativeMatrix = Eigen::MatrixXd::Zero( 3, parameter->getParameterSize( ) );
-
-    // Retrieve arc of current time.
-    std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
-    if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
-    {
-        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
-
-        // Set current partial matrix
-        partialDerivativeMatrix.block( 0, currentArc * singleArcParameterSize, 3, singleArcParameterSize ) =
-                partialWrtCurrentArcAccelerations;
     }
 }
 

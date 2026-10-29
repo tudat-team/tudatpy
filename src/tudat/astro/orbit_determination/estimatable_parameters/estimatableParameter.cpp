@@ -685,6 +685,135 @@ bool isParameterClockProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
+//! Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics
+bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parameterType )
+{
+    // No default case is used, so that a compiler warning is given if a (new) parameter type is not included here
+    switch( parameterType )
+    {
+        case arc_wise_radiation_pressure_coefficient:
+        case arc_wise_empirical_acceleration_coefficients:
+        case arc_wise_constant_drag_coefficient:
+        case desaturation_delta_v_values:
+        case arc_wise_drag_component_scaling_factor:
+        case arc_wise_side_component_scaling_factor:
+        case arc_wise_lift_component_scaling_factor:
+        case arc_wise_exponential_atmosphere_base_density:
+        case arc_wise_exponential_atmosphere_scale_height:
+            return true;
+        case arc_wise_initial_body_state:
+        case initial_body_state:
+        case initial_rotational_body_state:
+        case initial_mass_state:
+        case gravitational_parameter:
+        case constant_drag_coefficient:
+        case radiation_pressure_coefficient:
+        case spherical_harmonics_cosine_coefficient_block:
+        case spherical_harmonics_sine_coefficient_block:
+        case constant_rotation_rate:
+        case rotation_pole_position:
+        case constant_additive_observation_bias:
+        case arcwise_constant_additive_observation_bias:
+        case constant_relative_observation_bias:
+        case arcwise_constant_relative_observation_bias:
+        case ppn_parameter_gamma:
+        case ppn_parameter_beta:
+        case ground_station_position:
+        case equivalence_principle_lpi_violation_parameter:
+        case empirical_acceleration_coefficients:
+        case full_degree_tidal_love_number:
+        case single_degree_variable_tidal_love_number:
+        case direct_dissipation_tidal_time_lag:
+        case mean_moment_of_inertia:
+        case periodic_spin_variation:
+        case polar_motion_amplitude:
+        case core_factor:
+        case free_core_nutation_rate:
+        case scaled_longitude_libration_amplitude:
+        case constant_thrust_magnitude_parameter:
+        case constant_specific_impulse:
+        case constant_time_drift_observation_bias:
+        case arc_wise_time_drift_observation_bias:
+        case constant_time_observation_bias:
+        case arc_wise_time_observation_bias:
+        case global_polynomial_clock_corrections:
+        case arc_wise_polynomial_clock_corrections:
+        case inverse_tidal_quality_factor:
+        case yarkovsky_parameter:
+        case custom_estimated_parameter:
+        case reference_point_position:
+        case polynomial_gravity_field_variation_amplitudes:
+        case periodic_gravity_field_variation_amplitudes:
+        case source_direction_radiation_pressure_scaling_factor:
+        case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        case specular_reflectivity:
+        case diffuse_reflectivity:
+        case mode_coupled_tidal_love_numbers:
+        case nominal_rotation_pole_position:
+        case rotation_pole_position_rate:
+        case rotation_longitudinal_libration_terms:
+        case rotation_pole_libration_terms:
+        case drag_component_scaling_factor:
+        case side_component_scaling_factor:
+        case lift_component_scaling_factor:
+        case rtg_force_vector:
+        case rtg_force_vector_magnitude:
+        case area_to_mass_scaling_factor:
+        case full_acceleration_scaling_factor:
+        case exponential_atmosphere_base_density:
+        case exponential_atmosphere_scale_height:
+        case energy_accommodation_coefficient:
+        case normal_accommodation_coefficient:
+        case tangential_accommodation_coefficient:
+        case normal_velocity_at_wall_ratio:
+        case three_coefficient_radiation_pressure_coefficients:
+        case shared_observation_bias:
+            return false;
+    }
+    throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
+                              " not recognized when checking whether parameter is arc-wise" );
+}
+//! Function to check whether the time intervals of influence of a parameter are consistent with its type
+void checkParameterTimeIntervalsOfInfluence( const std::shared_ptr< EstimatableParameterBase > parameter )
+{
+    int numberOfTimeIntervals = static_cast< int >( parameter->getTimeIntervalsOfInfluencePerEntry( ).size( ) );
+    if( isParameterArcWiseDynamicalProperty( parameter->getParameterName( ).first ) )
+    {
+        if( numberOfTimeIntervals != parameter->getParameterSize( ) )
+        {
+            throw std::runtime_error( "Error, arc-wise parameter " + parameter->getParameterDescription( ) +
+                                      " does not provide a time interval of influence for each entry" );
+        }
+    }
+    else if( numberOfTimeIntervals > 0 )
+    {
+        throw std::runtime_error( "Error, parameter " + parameter->getParameterDescription( ) +
+                                  " provides time intervals of influence, but is not defined as arc-wise parameter "
+                                  "(see isParameterArcWiseDynamicalProperty)" );
+    }
+}
+
+//! Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active
+std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInfluence( const std::vector< double >& arcStartTimes,
+                                                                                        const int numberOfArcs,
+                                                                                        const int entriesPerArc )
+{
+    if( static_cast< int >( arcStartTimes.size( ) ) <= numberOfArcs )
+    {
+        throw std::runtime_error( "Error when getting arc-wise parameter time intervals, number of arc start times is inconsistent" );
+    }
+
+    std::vector< std::pair< double, double > > timeIntervals;
+    for( int i = 0; i < numberOfArcs; i++ )
+    {
+        for( int j = 0; j < entriesPerArc; j++ )
+        {
+            timeIntervals.push_back( std::make_pair( arcStartTimes.at( i ), arcStartTimes.at( i + 1 ) ) );
+        }
+    }
+    return timeIntervals;
+}
+
 }  // namespace estimatable_parameters
 
 }  // namespace tudat

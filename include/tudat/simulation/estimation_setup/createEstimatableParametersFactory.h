@@ -3320,6 +3320,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             doubleParametersToEstimate.push_back( createDoubleParameterToEstimate< InitialStateParameterType, TimeType >(
                     parameterNames[ i ], bodies, propagatorSettings ) );
+            checkParameterTimeIntervalsOfInfluence( doubleParametersToEstimate.back( ) );
             if( vectorParameterIsFound == true && parameterOrderWarningPrinted == false )
             {
                 if( printParameterOrderWarning == true )
@@ -3341,6 +3342,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             vectorParametersToEstimate.push_back( createVectorParameterToEstimate< InitialStateParameterType, TimeType >(
                     parameterNames[ i ], bodies, propagatorSettings ) );
+            checkParameterTimeIntervalsOfInfluence( vectorParametersToEstimate.back( ) );
             vectorParameterIsFound = true;
         }
         else
