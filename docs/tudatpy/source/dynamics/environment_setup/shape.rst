@@ -65,6 +65,10 @@ Functions
 
    hybrid
 
+   damit_wrapper.damit_polyhedron
+
+   damit_wrapper.damit_best_fitting_ellipsoid
+
 
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.spherical
@@ -80,6 +84,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.polyhedron
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.hybrid
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape.damit_wrapper.damit_polyhedron
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape.damit_wrapper.damit_best_fitting_ellipsoid
 
 
 
