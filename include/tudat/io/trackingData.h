@@ -279,35 +279,6 @@ public:
         return numericalObservationMetadata_.at( key );
     }
 
-    //! Set the (1-sigma) uncertainty of the epochs of angular position observations (in seconds), equal for all observations.
-    //! When creating an observation dataset, its contribution is added to the observation covariance, using the right
-    //! ascension and declination rates computed from the environment.
-    void setAstrometryTimeUncertainty( const double timeUncertainty )
-    {
-        setAstrometryTimeUncertainties( std::vector< double >( numberOfObservations_, timeUncertainty ) );
-    }
-
-    //! Set the (1-sigma) uncertainty of the epochs of angular position observations (in seconds), one value per observation.
-    void setAstrometryTimeUncertainties( const std::vector< double >& timeUncertainties )
-    {
-        addNumericalObservationMetadata( astrometryTimeUncertaintyKey, timeUncertainties );
-    }
-
-    //! Return whether the uncertainties of the angular position observation epochs have been defined.
-    bool hasAstrometryTimeUncertainties( ) const
-    {
-        return numericalObservationMetadata_.count( astrometryTimeUncertaintyKey ) > 0;
-    }
-
-    //! Return the uncertainties of the angular position observation epochs (in seconds), one value per observation.
-    const std::vector< double >& getAstrometryTimeUncertainties( ) const
-    {
-        return getNumericalObservationMetadata( astrometryTimeUncertaintyKey );
-    }
-
-    //! Key of the numerical observation metadata in which the observation epoch uncertainties are stored.
-    static constexpr const char* astrometryTimeUncertaintyKey = "astrometry_time_uncertainty";
-
     bool isObservationMetadata( const std::string& key ) const
     {
         return observationMetadataKeys_.count( key ) != 0;
@@ -406,6 +377,41 @@ public:
     void clearObservationWeightSettings( )
     {
         observationWeightSettings_.reset( );
+    }
+
+    //! Set the (1-sigma) uncertainties of the observation epochs (in seconds), one per observation (angular position only). When
+    //! creating an observation dataset, their contribution is added to the covariance of the observations.
+    void setObservationTimeUncertainties( const std::vector< double >& timeUncertainties )
+    {
+        if( timeUncertainties.size( ) != numberOfObservations_ )
+        {
+            throw std::runtime_error( "Error when setting observation time uncertainties, one entry per observation is required." );
+        }
+        observationTimeUncertainties_ = timeUncertainties;
+    }
+
+    //! Return the uncertainties of the observation epochs (empty if not provided)
+    const std::vector< double >& getObservationTimeUncertainties( ) const
+    {
+        return observationTimeUncertainties_;
+    }
+
+    //! Set the biases of the observation epochs (in seconds), one per observation (angular position only). An observation with
+    //! time bias c is taken to be h(t+c), with t its epoch. When creating an observation dataset, each observation is corrected
+    //! to h(t) using its time derivative.
+    void setObservationTimeBiases( const std::vector< double >& timeBiases )
+    {
+        if( timeBiases.size( ) != numberOfObservations_ )
+        {
+            throw std::runtime_error( "Error when setting observation time biases, one entry per observation is required." );
+        }
+        observationTimeBiases_ = timeBiases;
+    }
+
+    //! Return the biases of the observation epochs (empty if not provided)
+    const std::vector< double >& getObservationTimeBiases( ) const
+    {
+        return observationTimeBiases_;
     }
 
     //! Backwards-compatible interface for resetting one diagonal weight vector set through setObservationWeights.
@@ -640,10 +646,18 @@ public:
             }
         }
 
-        // Remove associated correction (if it exists)
+        // Remove associated correction, time uncertainty and time bias (if they exist)
         if( !observationCorrections_.empty( ) )
         {
             observationCorrections_.erase( observationCorrections_.begin( ) + index );
+        }
+        if( !observationTimeUncertainties_.empty( ) )
+        {
+            observationTimeUncertainties_.erase( observationTimeUncertainties_.begin( ) + index );
+        }
+        if( !observationTimeBiases_.empty( ) )
+        {
+            observationTimeBiases_.erase( observationTimeBiases_.begin( ) + index );
         }
 
         // Update total number of observations contained in TrackingData object
@@ -670,6 +684,10 @@ private:
     const unsigned int singleObservationSize_;
 
     std::optional< observation_models::ObservationWeightSettings > observationWeightSettings_;
+
+    std::vector< double > observationTimeUncertainties_;
+
+    std::vector< double > observationTimeBiases_;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationCorrections_;
 
