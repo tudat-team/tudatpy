@@ -651,8 +651,9 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationFromEstimationOutput )
                     referenceArea,
                     aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ),
                     negative_aerodynamic_frame_coefficients );
-    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-            createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
+    bodies.at( "Vehicle" )
+            ->setAerodynamicCoefficientInterface(
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
     double referenceAreaRadiation = 4.0;
     double radiationPressureCoefficient = 1.2;
@@ -712,8 +713,8 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationFromEstimationOutput )
     linkEndsPerObservable[ position_observable ].push_back( linkEnds );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-            "Vehicle", systemInitialState, "Earth" ) );
+    parameterNames.push_back(
+            std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle", systemInitialState, "Earth" ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
 
@@ -759,10 +760,8 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationFromEstimationOutput )
         evaluationTimes.push_back( currentTime );
     }
 
-    std::map< double, Eigen::MatrixXd > referenceCovariance =
-            propagateCovarianceFromObjects< double, double >( estimationOutput,
-                                                              orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( ),
-                                                              evaluationTimes );
+    std::map< double, Eigen::MatrixXd > referenceCovariance = propagateCovarianceFromObjects< double, double >(
+            estimationOutput, orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( ), evaluationTimes );
 
     // Round-trip the output through serialization, then rebuild the interface from the loaded output only.
     std::stringstream serializationStream;
@@ -779,8 +778,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationFromEstimationOutput )
 
     BOOST_REQUIRE( loadedOutput->hasCovariancePropagationData( ) );
 
-    std::map< double, Eigen::MatrixXd > rebuiltCovariance =
-            propagateCovarianceFromEstimationOutput( loadedOutput, evaluationTimes );
+    std::map< double, Eigen::MatrixXd > rebuiltCovariance = propagateCovarianceFromEstimationOutput( loadedOutput, evaluationTimes );
 
     BOOST_CHECK_EQUAL( referenceCovariance.size( ), rebuiltCovariance.size( ) );
 

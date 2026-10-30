@@ -1120,8 +1120,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     }
 
     //! Function to retrieve the variational results stored for covariance propagation (nullptr if not stored).
-    std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getCovariancePropagationVariationalResults( )
-            const
+    std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getCovariancePropagationVariationalResults( ) const
     {
         return covariancePropagationVariationalResults_;
     }
