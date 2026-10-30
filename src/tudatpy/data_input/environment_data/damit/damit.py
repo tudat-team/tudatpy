@@ -2,15 +2,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-from tudatpy.dynamics.environment_setup.rotation_model import RotationModelSettings
 from tudatpy.astro.time_representation import julian_day_to_seconds_since_epoch
-from tudatpy.dynamics.environment_setup.shape import (
-    polyhedron,
-    triaxial_ellipsoid,
-    PolyhedronBodyShapeSettings,
-    TriAxialEllipsoidBodyShapeSettings,
-)
-from tudatpy.dynamics.environment_setup import rotation_model
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000
 from tudatpy.resource_installer import download_extra_file, DEFAULT_DEST, DEFAULT_CACHE
 import matplotlib.pyplot as plt
@@ -146,10 +138,14 @@ class DamitModel:
     Normally, use either :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.query`
     or :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.from_file` to initialize a model.
 
+    To create shape and rotation model settings from a DamitModel, use
+    :func:`~tudatpy.dynamics.environment_setup.shape.damit_wrapper.damit_polyhedron`,
+    :func:`~tudatpy.dynamics.environment_setup.shape.damit_wrapper.damit_best_fitting_ellipsoid`,
+    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_wrapper.damit_polyhedron` and
+    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_wrapper.damit_best_fitting_ellipsoid`.
+
     Parameters
     ----------
-    name : str
-        Name of the model, used for the reference frame name
     vertices : np.ndarray
         Vertex coordinates in meters
     facets : np.ndarray
@@ -168,7 +164,6 @@ class DamitModel:
 
     def __init__(
         self,
-        name: str,
         vertices: np.ndarray,
         facets: np.ndarray,
         pole_longitude: float,
@@ -187,7 +182,6 @@ class DamitModel:
             raise ValueError("Period must be positive")
 
         # DamitModel attributes
-        self._name = name
         self._vertices = vertices
         self._facets = facets
         self._pole_longitude = pole_longitude
@@ -197,9 +191,60 @@ class DamitModel:
         self._reference_epoch = reference_epoch
 
     @property
-    def vertices_and_facets(self) -> tuple[np.ndarray, np.ndarray]:
-        """Returns a copy of the vertices and facets of this model"""
-        return self._vertices.copy(), self._facets.copy()
+    def vertices(self) -> np.ndarray:
+        """**read-only**
+
+        Copy of the vertex coordinates (m)
+        """
+        return self._vertices.copy()
+
+    @property
+    def facets(self) -> np.ndarray:
+        """**read-only**
+
+        Copy of the facet vertex indices, zero-indexed
+        """
+        return self._facets.copy()
+
+    @property
+    def pole_longitude(self) -> float:
+        """**read-only**
+
+        Pole longitude in ecliptic J2000 coordinates (rad)
+        """
+        return self._pole_longitude
+
+    @property
+    def pole_latitude(self) -> float:
+        """**read-only**
+
+        Pole latitude in ecliptic J2000 coordinates (rad)
+        """
+        return self._pole_latitude
+
+    @property
+    def period(self) -> float:
+        """**read-only**
+
+        Rotation period (s)
+        """
+        return self._period
+
+    @property
+    def initial_rotation_angle(self) -> float:
+        """**read-only**
+
+        Rotation angle at the reference epoch (rad)
+        """
+        return self._initial_rotation_angle
+
+    @property
+    def reference_epoch(self) -> float:
+        """**read-only**
+
+        Rotation reference epoch in seconds since J2000
+        """
+        return self._reference_epoch
 
     @classmethod
     def query(
@@ -270,14 +315,13 @@ class DamitModel:
         model_id = model_metadata["id"]
         shape_file, spin_file = _download_model(model_id, force_refresh)
 
-        return cls.from_file(spin_file, shape_file, str(model_id), diameter)
+        return cls.from_file(spin_file, shape_file, diameter)
 
     @classmethod
     def from_file(
         cls,
         spin_file: str | Path,
         shape_file: str | Path,
-        model_name: str,
         diameter: float | None = None,
     ):
         """
@@ -293,8 +337,6 @@ class DamitModel:
             Path to spin.txt file
         shape_file : str | Path
             Path to shape.obj(/obj.txt) file
-        model_name : str
-            Name of the model, used for the reference frame name
         diameter : float | None
             Diameter in meter. If given, scales the model to this size.
 
@@ -311,7 +353,6 @@ class DamitModel:
         vertices, facets = cls._load_shape_model(shape_file, diameter)
 
         return cls(
-            name=model_name,
             vertices=vertices,
             facets=facets,
             pole_longitude=np.deg2rad(pole_longitude),
@@ -359,8 +400,42 @@ class DamitModel:
 
         return vertices, facets
 
-    def _approximate_best_fitting_ellipsoid(self) -> tuple[list, float]:
-        """Approximate the best fitting ellipsoid from the moment of inertia"""
+    def best_fitting_ellipsoid(self) -> tuple[list, float]:
+        r"""
+        Approximate the best fitting (in the sense of inertia) triaxial ellipsoid of the polyhedron shape model.
+
+        The ellipsoid is solved for by solving the Eigenvalue problem:
+
+        .. math::
+
+            I\omega = \lambda\omega
+
+        where :math:`I` is the inertia tensor of the polyhedron, :math:`\lambda` is an eigenvalue and :math:`\omega` is
+        an eigenvector. The eigenvectors and eigenvalues represent principal axes of the ellipsoid and the moments of
+        inertia about those axes, respectively. Rotation is assumed to be about the same axis as for the polyhedron
+        (usually the axis of lowest inertia). The x/y-axes of the ellipsoid may not necessarily align axes in which the
+        polyhedron is defined, in which case an extra rotation about the z-axis is required (the principal axis offset).
+
+        From the computed moments of inertia, the ellipsoid semi-axes are computed as:
+
+        .. math::
+
+            a = \sqrt{\frac{5}{2M}\left(I_B + I_C - I_A\right)}, \quad
+            b = \sqrt{\frac{5}{2M}\left(I_A + I_C - I_B\right)}, \quad
+            c = \sqrt{\frac{5}{2M}\left(I_A + I_B - I_C\right)}
+
+        The principal axis offset :math:`\psi` is computed as follows, where :math:`v_A` is the eigenvector
+        corresponding to eigenvalue :math:`I_A`
+
+        .. math::
+
+            \psi = \operatorname{atan2}\left(v_{A,y}, v_{A,x}\right)
+
+        Returns
+        -------
+        tuple[list, float]
+            Semi-axes [a, b, c] of the ellipsoid (m), and the principal axis offset around the z-axis (rad)
+        """
         # Principal axes of the equatorial block only
         # -> it is assumed that the shape model z-axis is a principal axis itself to preserve the correct
         # axis of rotation.
@@ -382,10 +457,22 @@ class DamitModel:
 
         return [a, b, c], principal_axis_offset
 
-    def _get_rotational_ephemeris_settings(
-        self, base_frame: str, extra_rotation: float = 0.0
-    ) -> RotationModelSettings:
-        """Get the Simple rotation model settings, with an optional extra offset around the z-axis"""
+    def initial_orientation(self, base_frame: str, extra_rotation: float = 0.0) -> np.ndarray:
+        """
+        Rotation matrix from the base frame to the body-fixed frame at the reference epoch.
+
+        Parameters
+        ----------
+        base_frame : str
+            Base frame used in the environment. Options: "J2000", "ECLIPJ2000"
+        extra_rotation : float, optional
+            Extra rotation angle around the body z-axis (rad), e.g. from the ellipsoid principal axis offset
+
+        Returns
+        -------
+        np.ndarray
+            3x3 rotation matrix from the base frame to the body-fixed frame
+        """
         if base_frame not in ("J2000", "ECLIPJ2000"):
             raise ValueError("`base_frame` must be J2000 or ECLIPJ2000")
 
@@ -406,51 +493,7 @@ class DamitModel:
         if base_frame == "J2000":
             rotation_to_body_fixed = rotation_to_body_fixed @ j2000_to_eclipj2000()
 
-        return rotation_model.simple(
-            base_frame=base_frame,
-            target_frame=f"shape_model_{self._name}",
-            initial_orientation=rotation_to_body_fixed,
-            initial_time=self._reference_epoch,
-            rotation_rate=2 * np.pi / self._period,
-        )
-
-    def polyhedron_rotational_ephemeris_settings(self, base_frame: str) -> RotationModelSettings:
-        """
-        Create rotational ephemeris settings of the polyhedron shape model. Rotation is assumed to be around a fixed
-        axis in inertial space with a fixed rate of rotation
-
-        Parameters
-        ----------
-        base_frame : str
-            Base frame used in the environment. Options: "J2000", "ECLIPJ2000"
-
-        Returns
-        -------
-        RotationModelSettings
-            Simple rotation model settings for this DAMIT shape model
-        """
-        return self._get_rotational_ephemeris_settings(base_frame)
-
-    def polyhedron_shape_model(self, *args, **kwargs) -> PolyhedronBodyShapeSettings:
-        """
-        Convert the shape model into Tudat polyhedron shape model settings
-
-        Parameters
-        ----------
-        args, kwargs
-            Remaining inputs are passed to :func:`~tudatpy.dynamics.environment_setup.shape.polyhedron`
-
-        Returns
-        -------
-        PolyhedronBodyShapeSettings
-            Shape settings objects for the DAMIT model
-        """
-        return polyhedron(
-            self._vertices,
-            self._facets,
-            *args,
-            **kwargs,
-        )
+        return rotation_to_body_fixed
 
     def plot_shape_model(
         self,
@@ -492,45 +535,3 @@ class DamitModel:
             plt.show()
 
         return ax
-
-    def best_fitting_ellipsoid_shape_model(self) -> TriAxialEllipsoidBodyShapeSettings:
-        """
-        Create the best fitting triaxial ellipsoid shape model based on the polyhedron DAMIT shape model.
-
-        Creates a triaxial ellipsoid shape model for an ellipsoid with equivalent moment of inertia to the DAMIT
-        polyhedron shape model.
-
-        Returns
-        -------
-        TriaxialEllipsoidBodyShapeSettings
-            Shape settings for the best-fitting triaxial ellipsoid shape model
-        """
-        semi_axes, _ = self._approximate_best_fitting_ellipsoid()
-        return triaxial_ellipsoid(*semi_axes)
-
-    def best_fitting_ellipsoid_rotational_ephemeris_settings(
-        self, base_frame: str
-    ) -> RotationModelSettings:
-        """
-        Create rotational ephemeris settings of the best fitting ellipsoid shape model.
-
-        Creates the rotational ephemeris settings of the best fitting ellipsoid with equivalent moment of inertia
-        to the DAMIT polyhedron shape model. Rotation is assumed to be around a fixed axis in inertial space with a
-        fixed rate of rotation
-
-        NOTE: this rotational model is **not** the same as computed by:
-        :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.polyhedron_rotational_ephemeris_settings`,
-        because an extra offset to the initial phase of rotation is necessary for the ellipsoid model.
-
-        Parameters
-        ----------
-        base_frame : str
-            Base frame used in the environment. Options: "J2000", "ECLIPJ2000
-
-        Returns
-        -------
-        RotationModelSettings
-            Simple rotation model settings for the best fitting ellipsoid
-        """
-        _, principal_axis_offset = self._approximate_best_fitting_ellipsoid()
-        return self._get_rotational_ephemeris_settings(base_frame, principal_axis_offset)

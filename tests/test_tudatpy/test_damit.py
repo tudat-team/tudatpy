@@ -4,10 +4,10 @@ import numpy as np
 import pytest
 
 import tudatpy.data_input.environment_data.damit.damit as damit_module
-from tudatpy.astro.element_conversion import j2000_to_eclipj2000
+from tudatpy.astro.polyhedron_utilities import volume
 from tudatpy.data_input.environment_data.damit import DamitModel
 from tudatpy.dynamics import environment_setup
-from tudatpy.dynamics.environment_setup.shape import TriAxialEllipsoidBodyShapeSettings
+import matplotlib.pyplot as plt
 
 DATA_DIR = Path(__file__).parent
 EROS_SPIN = DATA_DIR / "eros_spin.txt"
@@ -19,6 +19,10 @@ TEST_ASTEROID_MODEL = 3083
 
 def _sphere_volume(diameter):
     return 4 / 3 * np.pi * (diameter / 2) ** 3
+
+
+def _model_volume(model):
+    return volume(model.vertices, model.facets)
 
 
 def _box_model(x, y, z, angle=0.0):
@@ -57,7 +61,6 @@ def _box_model(x, y, z, angle=0.0):
         [[np.cos(angle), -np.sin(angle), 0], [np.sin(angle), np.cos(angle), 0], [0, 0, 1]]
     )
     return DamitModel(
-        name="box",
         vertices=vertices @ rotation_z.T,
         facets=facets,
         pole_longitude=0.0,
@@ -70,11 +73,12 @@ def _box_model(x, y, z, angle=0.0):
 
 @pytest.fixture(scope="module")
 def eros():
-    return DamitModel.from_file(EROS_SPIN, EROS_SHAPE, "Eros")
+    """Shape model of (433) Eros with DAMIT Model ID 3083"""
+    return DamitModel.from_file(EROS_SPIN, EROS_SHAPE)
 
 
 def test_from_file_parses_spin_and_shape(eros):
-    """Shape and spin files are read correctly and converted to SI units / radians"""
+    """Test parsing of shape and spin files and conversion to correct units"""
     assert eros._vertices.shape == (856, 3)
     assert eros._facets.shape == (1708, 3)
     assert eros._facets.min() == 0
@@ -88,12 +92,12 @@ def test_from_file_parses_spin_and_shape(eros):
 
 
 def test_volume_scaling(eros):
-    """Without diameter the shape is converted from km to m, with diameter it is scaled to that size"""
-    assert eros.volume == pytest.approx(2.4916158e12, rel=1e-6)
+    """Test that shape model is correctly scaled and that diameter input scales volume to that diameter"""
+    assert _model_volume(eros) == pytest.approx(2.4916158e12, rel=1e-6)
 
     diameter = 16_840.0
-    scaled = DamitModel.from_file(EROS_SPIN, EROS_SHAPE, "Eros", diameter=diameter)
-    assert scaled.volume == pytest.approx(_sphere_volume(diameter))
+    scaled = DamitModel.from_file(EROS_SPIN, EROS_SHAPE, diameter=diameter)
+    assert _model_volume(scaled) == pytest.approx(_sphere_volume(diameter))
 
 
 def test_non_obj_shape_file_raises(tmp_path):
@@ -101,7 +105,7 @@ def test_non_obj_shape_file_raises(tmp_path):
     shape_file = tmp_path / "shape.txt"
     shape_file.write_text("4 4\n0 0 0\n")
     with pytest.raises(ValueError):
-        DamitModel.from_file(EROS_SPIN, shape_file, "test")
+        DamitModel.from_file(EROS_SPIN, shape_file)
 
 
 def test_ellipsoid_semi_axes_box():
@@ -109,12 +113,22 @@ def test_ellipsoid_semi_axes_box():
     half_sides = np.array([3.0, 2.0, 1.0])
     model = _box_model(*half_sides)
 
-    semi_axes, offset = model._approximate_best_fitting_ellipsoid()
+    semi_axes, offset = model.best_fitting_ellipsoid()
 
     np.testing.assert_allclose(semi_axes, np.sqrt(5 / 3) * half_sides, rtol=1e-10)
     assert offset == pytest.approx(0.0, abs=1e-10)
-    assert isinstance(
-        model.best_fitting_ellipsoid_shape_model(), TriAxialEllipsoidBodyShapeSettings
+
+
+def test_shape_settings(eros):
+    """Check wiring of DamitModel to shape settings creation"""
+    polyhedron = environment_setup.shape.damit_polyhedron(eros)
+    np.testing.assert_array_equal(polyhedron.vertices_coordinates, eros.vertices)
+    np.testing.assert_array_equal(polyhedron.vertices_defining_each_facet, eros.facets)
+
+    ellipsoid = environment_setup.shape.damit_best_fitting_ellipsoid(eros)
+    semi_axes, _ = eros.best_fitting_ellipsoid()
+    np.testing.assert_allclose(
+        [ellipsoid.semi_axis_a, ellipsoid.semi_axis_b, ellipsoid.semi_axis_c], semi_axes
     )
 
 
@@ -124,45 +138,72 @@ def test_ellipsoid_offset_rotated_box(angle):
     half_sides = np.array([3.0, 2.0, 1.0])
     model = _box_model(*half_sides, angle=angle)
 
-    semi_axes, offset = model._approximate_best_fitting_ellipsoid()
+    semi_axes, offset = model.best_fitting_ellipsoid()
 
     np.testing.assert_allclose(semi_axes, np.sqrt(5 / 3) * half_sides, rtol=1e-10)
     assert offset == pytest.approx(angle, abs=1e-10)
 
 
-@pytest.mark.parametrize("base_frame", ["ECLIPJ2000", "J2000"])
-def test_rotation_model_pole_and_period(eros, base_frame):
-    """The body z-axis points along the pole, and the orientation repeats after one period"""
-    body_settings = environment_setup.BodyListSettings("SSB", base_frame)
-    body_settings.add_empty_settings("Eros")
-    body_settings.get("Eros").rotation_model_settings = (
-        eros.polyhedron_rotational_ephemeris_settings(base_frame)
+def _passive_rotation_z(angle):
+    """Rotate about z-axis"""
+    return np.array(
+        [[np.cos(angle), np.sin(angle), 0], [-np.sin(angle), np.cos(angle), 0], [0, 0, 1]]
     )
-    rotation = environment_setup.create_system_of_bodies(body_settings).get("Eros").rotation_model
 
-    longitude, latitude = eros._pole_longitude, eros._pole_latitude
-    pole = np.array(
-        [
-            np.cos(latitude) * np.cos(longitude),
-            np.cos(latitude) * np.sin(longitude),
-            np.sin(latitude),
-        ]
-    )
-    if base_frame == "J2000":
-        pole = j2000_to_eclipj2000().T @ pole
 
-    epoch = eros._reference_epoch
-    rotation_at_epoch = rotation.body_fixed_to_inertial_rotation(epoch)
-    np.testing.assert_allclose(rotation_at_epoch[:, 2], pole, atol=1e-12)
+def test_initial_orientation(eros):
+    """Tests that initial orientation has the correct pole and that extra rotation rotates the initial orientation"""
+    orientation = eros.initial_orientation("ECLIPJ2000")
+
+    longitude, latitude = eros.pole_longitude, eros.pole_latitude
+    pole = [
+        np.cos(latitude) * np.cos(longitude),
+        np.cos(latitude) * np.sin(longitude),
+        np.sin(latitude),
+    ]
+    np.testing.assert_allclose(orientation[2], pole, atol=1e-12)
+
     np.testing.assert_allclose(
-        rotation.body_fixed_to_inertial_rotation(epoch + eros._period), rotation_at_epoch, atol=1e-9
+        eros.initial_orientation("ECLIPJ2000", extra_rotation=0.3),
+        _passive_rotation_z(0.3) @ orientation,
+        atol=1e-12,
+    )
+
+
+@pytest.mark.parametrize("ellipsoid", [False, True], ids=["polyhedron", "ellipsoid"])
+def test_rotation_model_settings(ellipsoid):
+    """Tests wiring of DamitModel rotation parameters to rotation model settings for the polyhedron and ellipsoid"""
+    angle = 0.3
+    model = _box_model(3.0, 2.0, 1.0, angle=angle)
+    if ellipsoid:
+        create_rotation_settings = environment_setup.rotation_model.damit_best_fitting_ellipsoid
+        extra_rotation = angle
+    else:
+        create_rotation_settings = environment_setup.rotation_model.damit_polyhedron
+        extra_rotation = 0.0
+
+    body_settings = environment_setup.BodyListSettings("SSB", "ECLIPJ2000")
+    body_settings.add_empty_settings("Box")
+    body_settings.get("Box").rotation_model_settings = create_rotation_settings(
+        model, "ECLIPJ2000", "Box_fixed"
+    )
+    rotation = environment_setup.create_system_of_bodies(body_settings).get("Box").rotation_model
+
+    initial = model.initial_orientation("ECLIPJ2000", extra_rotation)
+    epoch = model.reference_epoch
+    np.testing.assert_allclose(rotation.inertial_to_body_fixed_rotation(epoch), initial, atol=1e-12)
+
+    dt = 600.0
+    turned = _passive_rotation_z(2 * np.pi * dt / model.period) @ initial
+    np.testing.assert_allclose(
+        rotation.inertial_to_body_fixed_rotation(epoch + dt), turned, atol=1e-9
     )
 
 
 def test_rotation_invalid_base_frame(eros):
     """Only J2000 and ECLIPJ2000 are supported base frames"""
     with pytest.raises(ValueError):
-        eros.polyhedron_rotational_ephemeris_settings("IAU_EARTH")
+        environment_setup.rotation_model.damit_polyhedron(eros, "IAU_EARTH", "Eros_fixed")
 
 
 @pytest.mark.parametrize(
@@ -178,42 +219,51 @@ def test_query_argument_validation(kwargs):
 
 @pytest.fixture
 def offline_damit(tmp_path, monkeypatch):
-    """Replace the DAMIT tables by small local tables, and model downloads by the local Eros files"""
+    """Replace the DAMIT tables by small local tables with several models of Eros, and model downloads by the local
+    Eros files. All models load the same Eros files; only the table data (quality flag, size) differs between them.
+
+    Returns the list of model IDs that were downloaded."""
     asteroids = tmp_path / "asteroids.csv"
-    asteroids.write_text("id,number,name\n1,433,Eros\n2,1000,Piazzia\n")
+    asteroids.write_text("id,number,name\n1,433,Eros\n")
     asteroid_models = tmp_path / "asteroid_models.csv"
     asteroid_models.write_text(
         "id,asteroid_id,lsm,calibrated_size,equiv_diameter,quality_flag\n"
         "10,1,LS,0,16.84,2\n"  # low quality
-        "11,1,LS,0,20.0,4\n"  # best quality for 433
+        "11,1,LS,0,20.0,4\n"  # best quality
         "12,1,LS,1,,1\n"  # calibrated size
-        "20,2,LS,0,,3\n"  # no size information
+        "13,1,LS,0,,3\n"  # no size information
     )  # Text column as in the real table, otherwise pandas turns the selected model ID into a float
     monkeypatch.setattr(damit_module, "_DAMIT_ASTEROIDS", asteroids)
     monkeypatch.setattr(damit_module, "_DAMIT_ASTEROID_MODELS", asteroid_models)
-    monkeypatch.setattr(
-        damit_module, "_download_model", lambda model_id, force=False: (EROS_SHAPE, EROS_SPIN)
-    )
+
+    downloaded = []
+
+    def download_model(model_id, force=False):
+        downloaded.append(model_id)
+        return EROS_SHAPE, EROS_SPIN
+
+    monkeypatch.setattr(damit_module, "_download_model", download_model)
+    return downloaded
 
 
 def test_query_selection_offline(offline_damit, eros):
     """Model selection and sizing from the DAMIT tables"""
-    # Highest quality flag is selected, and scaled to the catalog diameter (km -> m)
+    # Highest quality flag is selected, and scaled to its catalog diameter (km -> m)
     best = DamitModel.query(mpc_number=433)
-    assert best._name == "11"
-    assert best.volume == pytest.approx(_sphere_volume(20_000.0))
+    assert offline_damit == [11]
+    assert _model_volume(best) == pytest.approx(_sphere_volume(20_000.0))
 
     # Given diameter overrides the catalog diameter
-    assert DamitModel.query(damit_model_id=10, diameter=1_000.0).volume == pytest.approx(
+    assert _model_volume(DamitModel.query(damit_model_id=10, diameter=1_000.0)) == pytest.approx(
         _sphere_volume(1_000.0)
     )
 
     # Calibrated model is not rescaled
-    assert DamitModel.query(damit_model_id=12).volume == pytest.approx(eros.volume)
+    assert _model_volume(DamitModel.query(damit_model_id=12)) == pytest.approx(_model_volume(eros))
 
     # No size information available
     with pytest.warns(UserWarning):
-        DamitModel.query(mpc_number=1000)
+        DamitModel.query(damit_model_id=13)
 
     # Unknown asteroid or model
     with pytest.raises(LookupError):
@@ -228,5 +278,12 @@ def test_query_remote():
     model_by_mpc = DamitModel.query(mpc_number=TEST_ASTEROID, force_refresh=True)
     model_by_id = DamitModel.query(damit_model_id=TEST_ASTEROID_MODEL)
 
-    assert model_by_mpc._name == str(TEST_ASTEROID_MODEL)
-    assert model_by_mpc.volume == pytest.approx(model_by_id.volume)
+    assert _model_volume(model_by_mpc) == pytest.approx(_model_volume(model_by_id))
+    assert model_by_mpc.pole_longitude == pytest.approx(model_by_id.pole_longitude)
+    assert model_by_mpc.pole_latitude == pytest.approx(model_by_id.pole_latitude)
+    assert model_by_mpc.period == pytest.approx(model_by_id.period)
+
+
+def test_model_plotting(eros):
+    """Tests that plotting the model does not raise and returns Axes"""
+    assert isinstance(eros.plot_shape_model(show=False), plt.Axes)
