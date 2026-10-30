@@ -13,6 +13,7 @@
 #define TUDAT_GRAVITY_FIELD_MODEL_H
 
 #include <memory>
+#include <stdexcept>
 #include <Eigen/Core>
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -20,6 +21,7 @@
 
 namespace tudat
 {
+
 namespace gravitation
 {
 
@@ -34,12 +36,8 @@ public:
     /*!
      * Default constructor.
      * \param gravitationalParameter Gravitational parameter associated with gravity field
-     * \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default none)
      */
-    GravityFieldModel( const double gravitationalParameter,
-                       const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) ):
-        gravitationalParameter_( gravitationalParameter ), updateInertiaTensor_( updateInertiaTensor )
-    {}
+    GravityFieldModel( const double gravitationalParameter );
 
     //! Default destructor.
     /*!
@@ -52,14 +50,7 @@ public:
      * Define the gravitational parameter in meter^3 per second^2.
      * \param gravitationalParameter New gravitational parameter associated with gravity field.
      */
-    void resetGravitationalParameter( const double gravitationalParameter )
-    {
-        gravitationalParameter_ = gravitationalParameter;
-        if( !( updateInertiaTensor_ == nullptr ) )
-        {
-            updateInertiaTensor_( );
-        }
-    }
+    void resetGravitationalParameter( const double gravitationalParameter );
 
     //! Get the gravitational parameter.
     /*!
@@ -104,27 +95,12 @@ public:
         throw std::runtime_error( "Computation of Laplacian of gravity potential not implemented for selected gravity field model." );
     }
 
-    virtual Eigen::Vector3d getCenterOfMass( )
-    {
-        return Eigen::Vector3d::Zero( );
-    }
-
-    virtual Eigen::Matrix3d getInertiaTensor( )
-    {
-        return Eigen::Matrix3d::Zero( );
-    }
-
 protected:
     //! Gravitational parameter.
     /*!
      * The gravitational parameter in meter^3 per second^2.
      */
     double gravitationalParameter_;
-
-    //!  Function that is to be called to update the inertia tensor (typicaly in Body class)
-    std::function< void( ) > updateInertiaTensor_;
-
-private:
 };
 
 //! List of bodies for which predefined central gravity fields may be created through the
