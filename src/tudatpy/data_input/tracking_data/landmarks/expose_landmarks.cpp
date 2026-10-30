@@ -101,6 +101,11 @@ void expose_landmarks( py::module& m )
            R"doc(
          Read LMK files without converting them to tracking data.
 
+         This is a supporting reader for inspecting raw LMK contents, or for
+         converting the same files several times with
+         :func:`convert_raw_sum_lmk_data`. In the typical Tudat workflow, call
+         :func:`read_sum_lmk_data` instead.
+
          Parameters
          ----------
          lmk_files : list[str]
@@ -168,14 +173,15 @@ void expose_landmarks( py::module& m )
 
          Every (image, landmark) pair becomes one pixel-coordinate observation,
          sent by the landmark and received by the camera that took the image.
-         The images of one camera must have distinct epochs. The supplementary
-         data adds each landmark as a ground station on the target body, and
-         each camera on the receiver body, with the ID, calibration and
-         pointing of each of its images. The pointing of each image can be
+         Each image and each landmark may be provided only once; a repeated
+         image or landmark ID raises an error. The images of one camera must
+         have distinct epochs. The supplementary data adds each landmark as a
+         ground station on the target body, and each camera on the receiver
+         body, with the ID, calibration and pointing of each of its images. The pointing of each image can be
          estimated with
          :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction`.
          The SUM ``SIGMA_PTG`` values are stored as the camera's
-         ``pointing_uncertainty_history``.
+         :attr:`~tudatpy.data_input.tracking_data.CameraInstrumentSupplementaryData.pointing_uncertainty_history`.
 
          The SUM pixel coordinates are used as they are. Correct them for lens
          distortion before estimation, since the pixel-coordinate observable
