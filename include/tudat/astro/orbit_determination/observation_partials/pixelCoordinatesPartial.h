@@ -42,25 +42,13 @@ class PixelCoordinatesScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
     PixelCoordinatesScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
-                             std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
-                                     pixelLinePartialWrtCameraFramePositionFunction ):
+                             std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition, const double time ) >
+                                     pixelLinePartialWrtCameraFramePositionFunction,
+                             const bool correctForStellarAberration = false ):
         DirectPositionPartialScaling< 2 >( observation_models::pixel_coordinates ),
         rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
-        pixelLinePartialWrtCameraFramePositionFunction_( pixelLinePartialWrtCameraFramePositionFunction )
-    {
-        observerIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
-                                 .at( observation_models::receiver );
-        observedBodyIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
-                                     .at( observation_models::transmitter );
-    }
-
-    PixelCoordinatesScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
-                             Eigen::DiagonalMatrix< double, 2 > focalLengthsMatrix ):
-        DirectPositionPartialScaling< 2 >( observation_models::pixel_coordinates ),
-        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
-        pixelLinePartialWrtCameraFramePositionFunction_( [ focalLengthsMatrix ]( const Eigen::Vector3d& cameraFramePosition ) {
-            return calculatePartialOfPixelsWrtLinkEndPositionCameraFrame( cameraFramePosition, focalLengthsMatrix, false );
-        } )
+        pixelLinePartialWrtCameraFramePositionFunction_( pixelLinePartialWrtCameraFramePositionFunction ),
+        correctForStellarAberration_( correctForStellarAberration )
     {
         observerIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
                                  .at( observation_models::receiver );
@@ -86,7 +74,7 @@ public:
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation,
-                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr );
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
     //! Get the position scaling factor (accounting for light-time correction) for a given link end type
     /*!
@@ -97,7 +85,7 @@ public:
      *  \param linkEndType Link end type for which scaling factor is to be retrieved.
      *  \return Position scaling factor for given link end type.
      */
-    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return realPositionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
     }
@@ -109,16 +97,62 @@ public:
      *  \param linkEndType Link end type for which scaling factor is to be retrieved.
      *  \return Position scaling factor for given link end type.
      */
-    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return positionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
     }
+
+    //! Only the receiver velocity contributes, through stellar aberration.
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType ) override
+    {
+        return correctForStellarAberration_ && linkEndType == observation_models::receiver;
+    }
+
+    Eigen::Matrix< double, 2, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
+    {
+        if( linkEndType == observation_models::receiver )
+        {
+            return velocityScalingFactor_;
+        }
+        return Eigen::Matrix< double, 2, 3 >::Zero( );
+    }
+
+    Eigen::Matrix< double, 2, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
+    {
+        return getVelocityScalingFactor( linkEndType );
+    }
+
+    //! Supply the reference-body rotation partials contributing directly to the camera orientation.
+    void setRotationMatrixPartials( const std::string& referenceBodyName,
+                                    const std::function< Eigen::Quaterniond( const double ) >& rotationFromReferenceFrameToInertialFunction,
+                                    const RotationMatrixPartialNamedList& rotationMatrixPartials )
+    {
+        pointingReferenceBodyName_ = referenceBodyName;
+        rotationFromReferenceFrameToInertialFunction_ = rotationFromReferenceFrameToInertialFunction;
+        rotationMatrixPartials_ = rotationMatrixPartials;
+    }
+
+    //! Whether the camera orientation depends on the given parameter (pointing correction, or reference-body rotation).
+    bool useLinkIndependentPartialsForParameter(
+            const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier ) override;
+
+    //! Identify the receiver camera, whose pointing corrections are used for the pointing correction partials.
+    void setPointingCamera( const observation_models::LinkEndId& cameraLinkEnd, const std::shared_ptr< system_models::Camera >& camera )
+    {
+        pointingCorrectionParameterIdentifier_ =
+                std::make_pair( estimatable_parameters::camera_pointing_correction,
+                                std::make_pair( cameraLinkEnd.bodyName_, cameraLinkEnd.getReferencePointName( ) ) );
+        pointingCamera_ = camera;
+    }
+
+    std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > getLinkIndependentPartials(
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ) override;
 
     //! Get the factor by which the light-time partials should be scaled in one-way observation partial.
     /*!  Get the factor by which the light-time partials should be scaled in one-way observation partial.
      *  \return Factor by which the light-time partials should be scaled in one-way observation partial.
      */
-    Eigen::Vector2d getLightTimePartialScalingFactor( )
+    Eigen::Vector2d getLightTimePartialScalingFactor( ) override
     {
         return lightTimeCorrectionScalingFactor_;
     }
@@ -128,7 +162,7 @@ public:
      * Fixed link end for last computation of update() function.
      * \return Function to get the fixed link end for last computation of update() function.
      */
-    observation_models::LinkEndType getCurrentLinkEndType( )
+    observation_models::LinkEndType getCurrentLinkEndType( ) override
     {
         return currentLinkEndType_;
     }
@@ -136,13 +170,27 @@ public:
 private:
     Eigen::Matrix< double, 2, 3 > positionScalingFactor_;
     Eigen::Matrix< double, 2, 3 > realPositionScalingFactor_;
+    Eigen::Matrix< double, 2, 3 > velocityScalingFactor_ = Eigen::Matrix< double, 2, 3 >::Zero( );
     Eigen::Vector2d lightTimeCorrectionScalingFactor_;
+    //! Apparent unit direction when aberration is enabled; otherwise the geometric range vector.
+    Eigen::Vector3d currentRelativeRangeVectorCameraFrame_;
+    Eigen::Matrix< double, 2, 3 > currentPixelLinePartialWrtCameraFramePosition_;
+    Eigen::Vector3d currentInertialDirectionToProject_;
+    Eigen::Matrix3d currentRotationFromInertialToCameraFrame_;
+    double currentReceiverTime_ = TUDAT_NAN;
     std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction_;
-    std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
+    std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition, const double time ) >
             pixelLinePartialWrtCameraFramePositionFunction_;
+    std::string pointingReferenceBodyName_;
+    std::function< Eigen::Quaterniond( const double ) > rotationFromReferenceFrameToInertialFunction_;
+    RotationMatrixPartialNamedList rotationMatrixPartials_;
+    estimatable_parameters::EstimatebleParameterIdentifier pointingCorrectionParameterIdentifier_;
+    std::shared_ptr< system_models::Camera > pointingCamera_;
     observation_models::LinkEndType currentLinkEndType_;
     int observerIndex_;
     int observedBodyIndex_;
+    bool hasCurrentCameraFrameQuantities_ = false;
+    bool correctForStellarAberration_;
 };
 }  // namespace observation_partials
 }  // namespace tudat

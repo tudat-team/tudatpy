@@ -18,6 +18,47 @@ namespace tudat
 namespace simulation_setup
 {
 
+std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
+getCameraPointingInverseAprioriCovarianceEntries(
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
+{
+    std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > > entries;
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentData : supplementaryData )
+    {
+        for( const std::shared_ptr< data::InstrumentSupplementaryData >& instrument : currentData->getInstrumentSupplementaryData( ) )
+        {
+            const auto camera = std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrument );
+            if( camera == nullptr )
+            {
+                continue;
+            }
+
+            // One entry per picture of the pointing history, in time order, which is the order of the pointing correction arcs.
+            const std::vector< Eigen::Vector3d > uncertainties =
+                    camera->getPerPictureValues( camera->getPointingUncertaintyHistory( ), "pointing uncertainties" );
+            if( uncertainties.empty( ) )
+            {
+                continue;
+            }
+            Eigen::VectorXd inverseVariances( 3 * uncertainties.size( ) );
+            for( unsigned int pictureIndex = 0; pictureIndex < uncertainties.size( ); ++pictureIndex )
+            {
+                if( !uncertainties.at( pictureIndex ).allFinite( ) || ( uncertainties.at( pictureIndex ).array( ) <= 0.0 ).any( ) )
+                {
+                    throw std::runtime_error( "Error when creating pointing a-priori for camera " + camera->getCameraId( ) +
+                                              ": uncertainties must be finite and positive." );
+                }
+                inverseVariances.segment< 3 >( 3 * pictureIndex ) = uncertainties.at( pictureIndex ).array( ).square( ).inverse( );
+            }
+            entries.push_back( std::make_pair( estimatable_parameters::EstimatebleParameterIdentifier(
+                                                       estimatable_parameters::camera_pointing_correction,
+                                                       std::make_pair( currentData->getBodyName( ), camera->getCameraId( ) ) ),
+                                               inverseVariances ) );
+        }
+    }
+    return entries;
+}
+
 //! Validate matrix dimensions or create a correctly sized zero matrix from a 0x0 input.
 Eigen::MatrixXd getValidatedCovarianceInput( const Eigen::MatrixXd& covarianceMatrix, const int numberOfEstimatedParameters )
 {

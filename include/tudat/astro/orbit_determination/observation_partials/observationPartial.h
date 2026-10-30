@@ -118,7 +118,8 @@ public:
         return observableType_;
     }
 
-    virtual bool isVelocityScalingNonZero( )
+    //! Whether the velocity of the given link end contributes to the observable.
+    virtual bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType )
     {
         return false;
     }

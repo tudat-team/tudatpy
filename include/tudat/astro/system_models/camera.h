@@ -10,6 +10,7 @@
 #ifndef TUDAT_CAMERA_H
 #define TUDAT_CAMERA_H
 
+#include <algorithm>
 #include <cmath>
 #include <functional>
 #include <limits>
@@ -17,9 +18,14 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU>
+
+#include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/math/basic/nearestNeighbourSearch.h"
+#include "tudat/math/basic/rotationRepresentations.h"
 
 namespace tudat
 {
@@ -143,7 +149,9 @@ public:
         focalLength_( focalLength ), principalPoint_( principalPoint ), kMatrix_( kMatrix ),
         distortionCoefficients_( distortionCoefficients ), mountingOffsetsDegrees_( mountingOffsetsDegrees ),
         fieldOfViewBounds_( fieldOfViewBounds )
-    {}
+    {
+        validateCalibration( );
+    }
 
     Eigen::Vector2d projectUnitVectorToPixelLine( const Eigen::Vector3d& cameraFrameUnitVector ) const override
     {
@@ -213,12 +221,18 @@ public:
     }
 
 private:
+    void validateCalibration( ) const
+    {
+        if( !( focalLength_ > 0.0 ) || !principalPoint_.allFinite( ) || !kMatrix_.allFinite( ) )
+        {
+            throw std::runtime_error(
+                    "Error when creating PSF camera model: focal length must be positive, and principal point and "
+                    "K-MATRIX must be finite." );
+        }
+    }
+
     void validateProjectionDirection( const Eigen::Vector3d& cameraFrameVector ) const
     {
-        if( std::fabs( focalLength_ ) <= std::numeric_limits< double >::epsilon( ) )
-        {
-            throw std::runtime_error( "Error when projecting with PSF camera model: focal length is zero." );
-        }
         if( cameraFrameVector.z( ) <= std::numeric_limits< double >::epsilon( ) )
         {
             throw std::runtime_error(
@@ -283,7 +297,7 @@ public:
             std::pair< double, double > optical_center = std::make_pair( 0.0, 0.0 ),
             std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
-        projectionModel_( std::make_shared< PinholeCameraProjectionModel >( focal_lengths, optical_center ) ),
+        projectionModels_( { std::make_shared< PinholeCameraProjectionModel >( focal_lengths, optical_center ) } ),
         rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
     {}
 
@@ -292,9 +306,9 @@ public:
             const std::shared_ptr< CameraProjectionModel > projectionModel,
             std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
-        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
+        projectionModels_( { projectionModel } ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
     {
-        if( projectionModel_ == nullptr )
+        if( projectionModel == nullptr )
         {
             throw std::runtime_error( "Error when creating camera: projection model is nullptr." );
         }
@@ -308,24 +322,37 @@ public:
         return cameraId_;
     }
 
-    Eigen::DiagonalMatrix< double, 2 > getFocalLengthsMatrix( ) const
+    Eigen::DiagonalMatrix< double, 2 > getFocalLengthsMatrix( const double secondsSinceEpoch = TUDAT_NAN ) const
     {
-        return projectionModel_->getFocalLengthsMatrix( );
+        return getProjectionModel( secondsSinceEpoch )->getFocalLengthsMatrix( );
     }
 
-    Eigen::Vector2d getOpticalCenter( ) const
+    Eigen::Vector2d getOpticalCenter( const double secondsSinceEpoch = TUDAT_NAN ) const
     {
-        return projectionModel_->getOpticalCenter( );
+        return getProjectionModel( secondsSinceEpoch )->getOpticalCenter( );
     }
 
-    std::shared_ptr< CameraProjectionModel > getProjectionModel( ) const
+    //! Function to get the projection model at the given time: the constant one, or that of the picture closest in time. A time is
+    //! only required when the calibration changes between pictures.
+    std::shared_ptr< CameraProjectionModel > getProjectionModel( const double secondsSinceEpoch = TUDAT_NAN ) const
     {
-        return projectionModel_;
+        return projectionModels_.size( ) == 1 ? projectionModels_.at( 0 ) : projectionModels_.at( getPictureIndex( secondsSinceEpoch ) );
     }
 
     bool hasRotationFromInertialToCameraFrameFunction( ) const
     {
         return static_cast< bool >( rotationFromInertialToCameraFrameFunction_ );
+    }
+
+    //! Body whose rotation is composed into the direct pointing function; empty for inertial pointing.
+    const std::string& getPointingReferenceBodyName( ) const
+    {
+        return pointingReferenceBodyName_;
+    }
+
+    void setPointingReferenceBodyName( const std::string& pointingReferenceBodyName )
+    {
+        pointingReferenceBodyName_ = pointingReferenceBodyName;
     }
 
     /*! \brief Get quaternion representing active rotation from body-fixed to camera frame.
@@ -336,9 +363,17 @@ public:
         return rotationFromBodyFixedToCameraFrame_;
     }
 
-    Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
+    //! Function to get the rotation from inertial to camera frame of a camera fixed to its host body, including the pointing
+    //! correction of the picture closest to the given time.
+    /*!
+     *  \param rotationFromInertialToBodyFixedFrame Rotation from inertial frame to the body-fixed frame of the camera host body.
+     *  \param secondsSinceEpoch Time at which the rotation is evaluated.
+     *  \return The rotation from inertial to camera frame.
+     */
+    Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame,
+                                                             const double secondsSinceEpoch ) const
     {
-        return rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame;
+        return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame, secondsSinceEpoch );
     }
 
     Eigen::Quaterniond getRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
@@ -349,61 +384,174 @@ public:
                     "Error when calculating rotation from inertial to camera frame: no direct inertial-to-camera rotation function was "
                     "provided for the camera." );
         }
-        return rotationFromInertialToCameraFrameFunction_( secondsSinceEpoch );
+        if( std::isnan( secondsSinceEpoch ) )
+        {
+            throw std::runtime_error( "Error when calculating rotation from inertial to camera frame of camera " + cameraId_ +
+                                      ": a time is required, since the camera pointing is time-dependent." );
+        }
+        return applyPointingCorrection_( rotationFromInertialToCameraFrameFunction_( secondsSinceEpoch ), secondsSinceEpoch );
     }
 
-    /*! \brief Calculate the observable position of a body in the camera frame.
-     *  Calculates the pixel coordinates of the observed body. Uses gnomonic projection, i.e the camera boresight points along the z-axis of
-     * its own frame, and the focal plane is located at the camera frame x-y plane. The optical center and focal lengths are then used to
-     * calculate the pixel coordinates from the position in the camera frame.
-     * \param positionOfObservedBodyInBodyFrame Position of the
-     * observed body in the body-fixed frame.
-     * \return The observable position in the camera frame.
+    /*! \brief Calculate the pixel coordinates of a point, for a camera fixed to its host body.
+     *  The position is rotated to the camera frame with the camera orientation w.r.t. its host body and the pointing correction at
+     *  the given time, and projected with the calibration at that time. A time is only required for a camera with several
+     *  pictures. Not available for a camera whose orientation is given directly w.r.t. the inertial frame.
+     * \param positionOfObservedBodyInBodyFrame Position of the observed point relative to the camera, in the body-fixed frame of
+     * the camera host body.
+     * \param secondsSinceEpoch Time at which the pixel coordinates are computed.
+     * \return The pixel coordinates of the observed point.
      */
-    Eigen::Vector2d calculateObservableFromBodyFixed( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
+    Eigen::Vector2d calculateObservableFromBodyFixed( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame,
+                                                      const double secondsSinceEpoch = TUDAT_NAN ) const
     {
-        Eigen::Vector3d positionInCameraFrame = bodyFixedToCameraFrame_( positionOfObservedBodyInBodyFrame );
-        return projectionModel_->projectUnitVectorToPixelLine( positionInCameraFrame );
+        if( hasRotationFromInertialToCameraFrameFunction( ) )
+        {
+            throw std::runtime_error( "Error when calculating pixel coordinates of camera " + cameraId_ +
+                                      " from a body-fixed position: the camera orientation is given w.r.t. the inertial frame." );
+        }
+        return calculateObservableFromInertial( positionOfObservedBodyInBodyFrame, Eigen::Quaterniond::Identity( ), secondsSinceEpoch );
     }
 
-    Eigen::Vector3d pixelLineToCameraFrameUnitVector( const Eigen::Vector2d& pixelLine ) const
+    Eigen::Vector3d pixelLineToCameraFrameUnitVector( const Eigen::Vector2d& pixelLine, const double secondsSinceEpoch = TUDAT_NAN ) const
     {
-        return projectionModel_->pixelLineToUnitVector( pixelLine );
+        return getProjectionModel( secondsSinceEpoch )->pixelLineToUnitVector( pixelLine );
     }
 
-    Eigen::Matrix< double, 2, 3 > getPixelLinePartialWrtCameraFramePosition(
-            const Eigen::Vector3d& positionOfObservedBodyInCameraFrame ) const
+    Eigen::Matrix< double, 2, 3 > getPixelLinePartialWrtCameraFramePosition( const Eigen::Vector3d& positionOfObservedBodyInCameraFrame,
+                                                                             const double secondsSinceEpoch = TUDAT_NAN ) const
     {
-        return projectionModel_->getPixelLinePartialWrtCameraFramePosition( positionOfObservedBodyInCameraFrame );
+        return getProjectionModel( secondsSinceEpoch )->getPixelLinePartialWrtCameraFramePosition( positionOfObservedBodyInCameraFrame );
     }
 
-    /*! \brief Calculate the observable position of a body in the camera frame, given its position in the observer centered inertial frame and the inertial-to-body-fixed rotation.
-     *  \param positionOfObservedBodyInInertialFrame Position of the observed body in the observer centered inertial frame.
+    /*! \brief Calculate the pixel coordinates of a point, given its position relative to the camera in the inertial frame.
+     *  The position is rotated to the camera frame with the camera orientation and pointing correction at the given time, and
+     *  projected with the calibration at that time. For a camera fixed to its host body, the orientation is composed from the
+     *  given inertial-to-body-fixed rotation; for a camera whose orientation is given directly w.r.t. the inertial frame, that
+     *  rotation is not used. A time is only required for a camera with several pictures, or with a direct orientation.
+     *  \param positionOfObservedBodyInInertialFrame Position of the observed point relative to the camera, in the inertial frame.
      *  \param rotationFromInertialToBodyFixedFrame Rotation from inertial frame to the body-fixed frame of the camera host body.
-     *  \return The observable position in the camera frame.
+     *  \param secondsSinceEpoch Time at which the pixel coordinates are computed.
+     *  \return The pixel coordinates of the observed point.
      */
     Eigen::Vector2d calculateObservableFromInertial( const Eigen::Vector3d& positionOfObservedBodyInInertialFrame,
-                                                     const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
+                                                     const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame,
+                                                     const double secondsSinceEpoch = TUDAT_NAN ) const
     {
-        Eigen::Vector3d positionOfObservedBodyInBodyFrame = rotationFromInertialToBodyFixedFrame * positionOfObservedBodyInInertialFrame;
-        return calculateObservableFromBodyFixed( positionOfObservedBodyInBodyFrame );
+        const Eigen::Quaterniond rotationFromInertialToCameraFrame = hasRotationFromInertialToCameraFrameFunction( )
+                ? getRotationFromInertialToCameraFrame( secondsSinceEpoch )
+                : getRotationFromInertialToCameraFrame( rotationFromInertialToBodyFixedFrame, secondsSinceEpoch );
+        return getProjectionModel( secondsSinceEpoch )
+                ->projectUnitVectorToPixelLine( rotationFromInertialToCameraFrame * positionOfObservedBodyInInertialFrame );
     }
 
     Eigen::Vector2d calculateObservableFromInertial( const Eigen::Vector3d& positionOfObservedBodyInInertialFrame,
                                                      const double secondsSinceEpoch ) const
     {
-        return projectionModel_->projectUnitVectorToPixelLine( getRotationFromInertialToCameraFrame( secondsSinceEpoch ) *
-                                                               positionOfObservedBodyInInertialFrame );
+        return getProjectionModel( secondsSinceEpoch )
+                ->projectUnitVectorToPixelLine( getRotationFromInertialToCameraFrame( secondsSinceEpoch ) *
+                                                positionOfObservedBodyInInertialFrame );
+    }
+
+    //! Function to set the pictures taken by the camera, and reset all pointing corrections to zero.
+    /*!
+     *  The camera has one pointing correction per picture. Without pictures, a single correction applies at all times.
+     *  \param pictureEpochs Epoch of each picture, in increasing order.
+     *  \param pictureIds Identifier of each picture, or empty if the pictures have no identifier.
+     *  \param pictureProjectionModels Projection model of each picture, for a camera whose calibration changes between pictures
+     *  (for instance by pixel binning). If empty, the constant projection model of the camera is kept.
+     */
+    void setPictures( const std::vector< double >& pictureEpochs,
+                      const std::vector< std::string >& pictureIds,
+                      const std::vector< std::shared_ptr< CameraProjectionModel > >& pictureProjectionModels = {} )
+    {
+        if( ( !pictureIds.empty( ) && pictureIds.size( ) != pictureEpochs.size( ) ) ||
+            ( !pictureProjectionModels.empty( ) && pictureProjectionModels.size( ) != pictureEpochs.size( ) ) )
+        {
+            throw std::runtime_error( "Error when setting pictures of camera " + cameraId_ +
+                                      ": the number of picture identifiers and projection models must match the number of picture "
+                                      "epochs." );
+        }
+        if( !pictureProjectionModels.empty( ) )
+        {
+            projectionModels_ = pictureProjectionModels;
+        }
+        pictureEpochs_ = Eigen::Map< const Eigen::VectorXd >( pictureEpochs.data( ), pictureEpochs.size( ) );
+        pictureIds_ = pictureIds;
+        pointingCorrection_ = Eigen::VectorXd::Zero( 3 * getNumberOfPointingCorrections( ) );
+    }
+
+    const Eigen::VectorXd& getPictureEpochs( ) const
+    {
+        return pictureEpochs_;
+    }
+
+    const std::vector< std::string >& getPictureIds( ) const
+    {
+        return pictureIds_;
+    }
+
+    int getNumberOfPointingCorrections( ) const
+    {
+        return std::max( 1, static_cast< int >( pictureEpochs_.size( ) ) );
+    }
+
+    //! Function to get the index of the picture closest in time to the given time (0 if the camera has at most one picture, in which
+    //! case the time is not used).
+    int getPictureIndex( const double secondsSinceEpoch ) const
+    {
+        if( pictureEpochs_.size( ) <= 1 )
+        {
+            return 0;
+        }
+        if( std::isnan( secondsSinceEpoch ) )
+        {
+            throw std::runtime_error( "Error when getting picture of camera " + cameraId_ +
+                                      ": a time is required, since the camera has several pictures." );
+        }
+        return basic_mathematics::computeNearestNeighborUsingBinarySearch( pictureEpochs_, secondsSinceEpoch );
+    }
+
+    //! Function to get the pointing corrections of all pictures, as consecutive rotation vectors (axis times angle, in radians).
+    Eigen::VectorXd getPointingCorrection( ) const
+    {
+        return pointingCorrection_;
+    }
+
+    void setPointingCorrection( const Eigen::VectorXd& pointingCorrection )
+    {
+        if( pointingCorrection.size( ) != 3 * getNumberOfPointingCorrections( ) )
+        {
+            throw std::runtime_error( "Error when setting pointing correction of camera " + cameraId_ + ": size must be " +
+                                      std::to_string( 3 * getNumberOfPointingCorrections( ) ) + "." );
+        }
+        pointingCorrection_ = pointingCorrection;
+    }
+
+    //! Function to get the pointing correction of the picture closest in time to the given time.
+    Eigen::Vector3d getPointingCorrection( const double secondsSinceEpoch ) const
+    {
+        return pointingCorrection_.segment< 3 >( 3 * getPictureIndex( secondsSinceEpoch ) );
     }
 
 private:
-    /*! \brief Calculate the position of a body in the camera frame from its position in the body-fixed frame.
-     *  \param positionOfObservedBodyInBodyFrame Position of the observed body in the body-fixed frame.
-     *  \return The position in the camera frame.
+    /*! \brief Apply the pointing correction of the picture closest to the given time to a nominal rotation to the camera frame.
+     *  The correction is a small rotation expressed in the camera frame, and is therefore applied on the left:
+     *  a direction that nominally maps to r_cam maps to Exp(theta) * r_cam once the correction is applied. This
+     *  convention is the one differentiated by PixelCoordinatesScaling, and must be kept consistent with it.
+     *  \param nominalRotationToCameraFrame Rotation to the camera frame without pointing correction.
+     *  \param secondsSinceEpoch Time at which the rotation is evaluated.
+     *  \return The rotation to the camera frame including the pointing correction.
      */
-    Eigen::Vector3d bodyFixedToCameraFrame_( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
+    Eigen::Quaterniond applyPointingCorrection_( const Eigen::Quaterniond& nominalRotationToCameraFrame,
+                                                 const double secondsSinceEpoch ) const
     {
-        return rotationFromBodyFixedToCameraFrame_ * positionOfObservedBodyInBodyFrame;
+        const Eigen::Vector3d pointingCorrection = getPointingCorrection( secondsSinceEpoch );
+        if( pointingCorrection.isZero( 0.0 ) )
+        {
+            return nominalRotationToCameraFrame;
+        }
+        return Eigen::Quaterniond( basic_mathematics::getQuaternionFromRotationVector( pointingCorrection ) * nominalRotationToCameraFrame )
+                .normalized( );
     }
 
     //! Name of the camera
@@ -412,11 +560,24 @@ private:
     //! Rotation from body-fixed frame to camera frame
     Eigen::Quaterniond rotationFromBodyFixedToCameraFrame_;
 
-    //! Projection model mapping camera-frame directions to pixel/line coordinates.
-    std::shared_ptr< CameraProjectionModel > projectionModel_;
+    //! Projection model(s) mapping camera-frame directions to pixel/line coordinates: a single one for a constant calibration,
+    //! or one per picture for a calibration that changes between pictures.
+    std::vector< std::shared_ptr< CameraProjectionModel > > projectionModels_;
 
     //! Optional direct rotation from inertial to camera frame, used for picture-specific camera pointing data.
     std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction_;
+
+    //! Reference body used by a body-relative direct pointing function.
+    std::string pointingReferenceBodyName_;
+
+    //! Epoch of each picture taken by the camera, in increasing order. Empty for a camera without pictures.
+    Eigen::VectorXd pictureEpochs_;
+
+    //! Identifier of each picture, or empty if the pictures have no identifier.
+    std::vector< std::string > pictureIds_;
+
+    //! Small rotation-vector correction of each picture, applied by camera pointing estimation.
+    Eigen::VectorXd pointingCorrection_ = Eigen::VectorXd::Zero( 3 );
 };
 }  // namespace system_models
 }  // namespace tudat

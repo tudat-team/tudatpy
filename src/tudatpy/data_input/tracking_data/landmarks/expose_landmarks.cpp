@@ -1,0 +1,226 @@
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
+#define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
+
+#include "expose_landmarks.h"
+
+#include <pybind11/eigen.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include "scalarTypes.h"
+#include "tudat/io/readSumLmkFiles.h"
+
+namespace py = pybind11;
+namespace tio = tudat::input_output;
+
+namespace tudatpy
+{
+
+namespace data_input
+{
+
+namespace tracking_data
+{
+
+namespace landmarks
+{
+
+void expose_landmarks( py::module& m )
+{
+    py::class_< tio::sum_lmk::SumLandmarkObservation >( m, "SumLandmarkObservation", R"doc(One landmark measurement in a SUM file.)doc" )
+            .def_readonly( "landmark_id", &tio::sum_lmk::SumLandmarkObservation::landmarkId_, R"doc(Identifier of the landmark.)doc" )
+            .def_readonly( "pixel_coordinates",
+                           &tio::sum_lmk::SumLandmarkObservation::pixelCoordinates_,
+                           R"doc(Measured (pixel, line) coordinates of the landmark in the image.)doc" );
+
+    py::class_< tio::sum_lmk::SumImageData >( m, "SumImageData", R"doc(Raw contents of one SUM file, which describes one image.)doc" )
+            .def_readonly( "image_id", &tio::sum_lmk::SumImageData::imageId_, R"doc(Identifier of the image.)doc" )
+            .def_readonly( "utc_epoch_string",
+                           &tio::sum_lmk::SumImageData::utcEpochString_,
+                           R"doc(Epoch of the image (UTC), as given in the file.)doc" )
+            .def_readonly(
+                    "image_size", &tio::sum_lmk::SumImageData::imageSize_, R"doc(Number of pixels and lines of the image (NPX, NLN).)doc" )
+            .def_readonly( "focal_length_mm", &tio::sum_lmk::SumImageData::focalLengthMm_, R"doc(Focal length (MMFL), in mm.)doc" )
+            .def_readonly(
+                    "optical_center", &tio::sum_lmk::SumImageData::opticalCenter_, R"doc(Optical centre (CTR), in (pixel, line).)doc" )
+            .def_readonly( "spacecraft_object_vector",
+                           &tio::sum_lmk::SumImageData::spacecraftObjectVector_,
+                           R"doc(Vector from the spacecraft to the target centre (SCOBJ), in the target body-fixed frame, in m.)doc" )
+            .def_readonly( "camera_axes",
+                           &tio::sum_lmk::SumImageData::cameraAxes_,
+                           R"doc(Camera axes CX, CY, CZ (rows), in the target body-fixed frame; this is the rotation matrix from the
+                           target body-fixed frame to the camera frame.)doc" )
+            .def_readonly( "k_matrix",
+                           &tio::sum_lmk::SumImageData::kMatrix_,
+                           R"doc(K matrix (K-MATRIX), converting focal-plane coordinates in mm to (pixel, line).)doc" )
+            .def_readonly( "pointing_sigma",
+                           &tio::sum_lmk::SumImageData::pointingSigma_,
+                           R"doc(Pointing uncertainty (SIGMA_PTG) about the camera axes, in rad; NaN if absent.)doc" )
+            .def_readonly( "landmark_observations",
+                           &tio::sum_lmk::SumImageData::landmarkObservations_,
+                           R"doc(Landmark measurements in the image.)doc" )
+            .def_readonly( "source_file", &tio::sum_lmk::SumImageData::sourceFile_, R"doc(Path of the SUM file.)doc" );
+
+    py::class_< tio::sum_lmk::LmkLandmarkData >(
+            m, "LmkLandmarkData", R"doc(Raw contents of one LMK file, which describes one landmark.)doc" )
+            .def_readonly( "landmark_id", &tio::sum_lmk::LmkLandmarkData::landmarkId_, R"doc(Identifier of the landmark.)doc" )
+            .def_readonly( "body_fixed_position",
+                           &tio::sum_lmk::LmkLandmarkData::bodyFixedPosition_,
+                           R"doc(Position of the landmark in the target body-fixed frame, in m.)doc" )
+            .def_readonly( "landmark_position_sigma",
+                           &tio::sum_lmk::LmkLandmarkData::landmarkPositionSigma_,
+                           R"doc(Position uncertainty of the landmark (SIGMA_LMK), in m.)doc" )
+            .def_readonly( "source_file", &tio::sum_lmk::LmkLandmarkData::sourceFile_, R"doc(Path of the LMK file.)doc" );
+
+    m.def( "read_raw_sum_files",
+           &tio::sum_lmk::readSumFiles,
+           py::arg( "sum_files" ),
+           R"doc(
+         Read SUM files without converting them to tracking data.
+
+         This is a supporting reader for inspecting raw SUM contents, or for
+         converting the same files several times with
+         :func:`convert_raw_sum_lmk_data`. In the typical Tudat workflow, call
+         :func:`read_sum_lmk_data` instead.
+
+         Parameters
+         ----------
+         sum_files : list[str]
+             Paths to the SUM files.
+
+         Returns
+         -------
+         list[SumImageData]
+             Raw contents of each image.
+      )doc" );
+
+    m.def( "read_raw_lmk_files",
+           &tio::sum_lmk::readLmkFiles,
+           py::arg( "lmk_files" ),
+           R"doc(
+         Read LMK files without converting them to tracking data.
+
+         This is a supporting reader for inspecting raw LMK contents, or for
+         converting the same files several times with
+         :func:`convert_raw_sum_lmk_data`. In the typical Tudat workflow, call
+         :func:`read_sum_lmk_data` instead.
+
+         Parameters
+         ----------
+         lmk_files : list[str]
+             Paths to the LMK files.
+
+         Returns
+         -------
+         dict[str, LmkLandmarkData]
+             Raw contents of each landmark, by landmark ID.
+      )doc" );
+
+    m.def( "convert_raw_sum_lmk_data",
+           &tio::sum_lmk::convertSumLmkData< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "sum_images_per_camera" ),
+           py::arg( "landmarks" ),
+           py::arg( "target_body_name" ),
+           py::arg( "receiver_body_name" ),
+           py::arg( "skip_observations_with_missing_landmarks" ) = false,
+           py::arg( "validate_spacecraft_object_geometry" ) = true,
+           R"doc(
+         Convert raw SUM/LMK contents to tracking-data containers.
+
+         Same as :func:`read_sum_lmk_data`, but starts from contents read with
+         :func:`read_raw_sum_files` and :func:`read_raw_lmk_files`.
+
+         Parameters
+         ----------
+         sum_images_per_camera : dict[str, list[SumImageData]]
+             Raw image contents, by the name of the camera that took them.
+         landmarks : dict[str, LmkLandmarkData]
+             Raw landmark contents, by landmark ID.
+         target_body_name : str
+             Name of the body the landmarks are on.
+         receiver_body_name : str
+             Name of the body that carries the cameras.
+         skip_observations_with_missing_landmarks : bool, default=False
+             If True, measurements of landmarks without an LMK file are skipped.
+             If False, they raise an error.
+         validate_spacecraft_object_geometry : bool, default=True
+             If True, check that every measured landmark lies in front of the
+             camera, using the spacecraft position stored in the SUM file.
+
+         Returns
+         -------
+         tuple[list[TrackingData], list[TrackingSupplementaryData]]
+             Tracking data objects and supplementary data objects.
+      )doc" );
+
+    m.def( "read_sum_lmk_data",
+           &tio::sum_lmk::readSumLmkData< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "sum_files_per_camera" ),
+           py::arg( "lmk_files" ),
+           py::arg( "target_body_name" ),
+           py::arg( "receiver_body_name" ),
+           py::arg( "skip_observations_with_missing_landmarks" ) = false,
+           py::arg( "validate_spacecraft_object_geometry" ) = true,
+           R"doc(
+         Read SUM and LMK files and convert them to tracking-data containers.
+
+         SUM and LMK files are written by the stereophotoclinometry (SPC)
+         software. Each SUM file describes one image: its epoch, camera
+         calibration and pointing, and the pixel coordinates of the landmarks
+         seen in it. Each LMK file describes one landmark: its position on the
+         target body.
+
+         Every (image, landmark) pair becomes one pixel-coordinate observation,
+         sent by the landmark and received by the camera that took the image.
+         Each image and each landmark may be provided only once; a repeated
+         image or landmark ID raises an error. The images of one camera must
+         have distinct epochs. The supplementary data adds each landmark as a
+         ground station on the target body, and each camera on the receiver
+         body, with the ID, calibration and pointing of each of its images. The pointing of each image can be
+         estimated with
+         :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction`.
+         The SUM ``SIGMA_PTG`` values are stored as the camera's
+         :attr:`~tudatpy.data_input.tracking_data.CameraInstrumentSupplementaryData.pointing_uncertainty_history`.
+
+         The SUM pixel coordinates are used as they are. Correct them for lens
+         distortion before estimation, since the pixel-coordinate observable
+         does not model it.
+
+         Apply the supplementary data with
+         :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`
+         before creating observations with
+         :func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data`.
+
+         Parameters
+         ----------
+         sum_files_per_camera : dict[str, list[str]]
+             Paths to the SUM files, by the name of the camera that took the
+             images.
+         lmk_files : list[str]
+             Paths to the LMK files.
+         target_body_name : str
+             Name of the body the landmarks are on.
+         receiver_body_name : str
+             Name of the body that carries the cameras.
+         skip_observations_with_missing_landmarks : bool, default=False
+             If True, measurements of landmarks without an LMK file are skipped.
+             If False, they raise an error.
+         validate_spacecraft_object_geometry : bool, default=True
+             If True, check that every measured landmark lies in front of the
+             camera, using the spacecraft position stored in the SUM file.
+
+         Returns
+         -------
+         tuple[list[TrackingData], list[TrackingSupplementaryData]]
+             Tracking data objects and supplementary data objects.
+      )doc" );
+}
+
+}  // namespace landmarks
+
+}  // namespace tracking_data
+
+}  // namespace data_input
+
+}  // namespace tudatpy

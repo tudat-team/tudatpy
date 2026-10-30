@@ -2,7 +2,7 @@
 
 This module exposes Tudat tracking-data containers together with readers and
 helpers for radiometric, optical (including space-based), radar (MPC and JPL),
-SLR, TNF/TRK-2-34, ODF, ATDF/TRK-2-25, IFMS, Fdets, PSF, and generic tracking
+SLR, TNF/TRK-2-34, ODF, ATDF/TRK-2-25, IFMS, Fdets, PSF, SUM/LMK, and generic tracking
 text-file inputs.
 """
 
@@ -15,6 +15,7 @@ from . import (
     generic_text_file,
     ifms,
     jpl_radar,
+    landmarks,
     mpc,
     odf,
     optical_utilities,
