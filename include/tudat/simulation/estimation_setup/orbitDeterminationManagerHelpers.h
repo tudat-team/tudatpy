@@ -21,6 +21,7 @@
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
 
 namespace tudat
 {
@@ -380,6 +381,88 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceFromObjects(
                 considerCovariance;
     }
     return propagators::propagateCovariance( initialCovariance, stateTransitionInterface, evaluationTimes );
+}
+
+//! Function to rebuild the state transition and sensitivity matrix interface from a stored estimation output.
+/*!
+ * Rebuilds the covariance-propagation operator from the variational results and metadata stored in an
+ * EstimationOutput (see EstimationOutput::setCovariancePropagationData). This allows covariance propagation in a
+ * fresh runtime, without access to the OrbitDeterminationManager that produced the output. Only single-arc
+ * estimation is supported.
+ * \param estimationOutput Estimation output containing the stored covariance-propagation payload.
+ * \return Interface object that can be used to propagate the covariance through time.
+ */
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+createStateTransitionAndSensitivityMatrixInterfaceFromEstimationOutput(
+        const std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput )
+{
+    if( estimationOutput == nullptr || !estimationOutput->hasCovariancePropagationData( ) )
+    {
+        throw std::runtime_error(
+                "Error when rebuilding state transition and sensitivity matrix interface from estimation output: no "
+                "covariance-propagation data is stored. Run the estimation with save_state_history_per_iteration=True." );
+    }
+
+    std::shared_ptr< propagators::SingleArcVariationalSimulationResults< ObservationScalarType, TimeType > > variationalResults =
+            std::dynamic_pointer_cast< propagators::SingleArcVariationalSimulationResults< ObservationScalarType, TimeType > >(
+                    estimationOutput->getCovariancePropagationVariationalResults( ) );
+    if( variationalResults == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when rebuilding state transition and sensitivity matrix interface from estimation output: stored "
+                "variational results are not single-arc. Only single-arc estimation is supported." );
+    }
+
+    // Copy the raw solutions: the interpolator factory clears the maps it is given.
+    std::map< double, Eigen::MatrixXd > stateTransitionSolution = variationalResults->getStateTransitionSolution( );
+    std::map< double, Eigen::MatrixXd > sensitivitySolution = variationalResults->getSensitivitySolution( );
+
+    if( stateTransitionSolution.empty( ) )
+    {
+        throw std::runtime_error(
+                "Error when rebuilding state transition and sensitivity matrix interface from estimation output: the stored "
+                "variational solution is empty. This happens when the numerical solution is cleared after propagation "
+                "(clear_numerical_solutions=True)." );
+    }
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > stateTransitionMatrixInterpolator;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > sensitivityMatrixInterpolator;
+    propagators::createStateTransitionAndSensitivityMatrixInterpolator(
+            stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, stateTransitionSolution, sensitivitySolution );
+
+    const int stateTransitionMatrixSize = estimationOutput->getCovariancePropagationStateTransitionMatrixSize( );
+    const int numberOfParameters = estimationOutput->getCovariancePropagationNumberOfEstimatedParameters( ) +
+            estimationOutput->getCovariancePropagationNumberOfConsiderParameters( );
+
+    return std::make_shared< propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+            stateTransitionMatrixInterpolator,
+            sensitivityMatrixInterpolator,
+            stateTransitionMatrixSize,
+            numberOfParameters,
+            estimationOutput->getCovariancePropagationStatePartialAdditionIndices( ) );
+}
+
+//! Function to propagate the covariance stored in an estimation output through time, in a fresh runtime.
+/*!
+ * Rebuilds the covariance-propagation operator from the payload stored in the estimation output and propagates the
+ * covariance from the output. Only single-arc estimation is supported.
+ * \param estimationOutput Estimation output containing the stored covariance-propagation payload.
+ * \param evaluationTimes Times at which the propagated covariance is to be reported.
+ * \return Propagated covariance matrices at each evaluation time.
+ */
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::map< double, Eigen::MatrixXd > propagateCovarianceFromEstimationOutput(
+        const std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput,
+        const std::vector< double > evaluationTimes )
+{
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface =
+            createStateTransitionAndSensitivityMatrixInterfaceFromEstimationOutput( estimationOutput );
+    return propagateCovarianceFromObjects< ObservationScalarType, TimeType >( estimationOutput, stateTransitionInterface, evaluationTimes );
 }
 
 }  // namespace simulation_setup

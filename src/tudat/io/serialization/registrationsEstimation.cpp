@@ -26,6 +26,10 @@
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 
+// EstimationOutput stores polymorphic SimulationResults objects (for covariance propagation), so the propagation
+// registrations must be retained whenever the estimation registrations are used.
+#include "tudat/io/serialization/registrations_propagation.h"
+
 // =====================================================================
 // ObservationDependentVariableSettings hierarchy  (observationOutputSettings.h)
 // =====================================================================

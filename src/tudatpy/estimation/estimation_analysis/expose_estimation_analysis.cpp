@@ -988,6 +988,83 @@ void expose_estimation_analysis( py::module& m )
          discrepancy has six entries.
 
          :type: list[list[numpy.ndarray[numpy.float64[6, 1]]]]
+      )doc" )
+            .def_property_readonly( "has_covariance_propagation_data",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::hasCovariancePropagationData,
+                                    R"doc(
+
+         **read-only**
+
+         Whether the data required to propagate the covariance in a fresh runtime is stored in this output. This is
+         only the case for single-arc estimation runs performed with ``save_state_history_per_iteration=True``.
+
+         :type: bool
+      )doc" )
+            .def_property_readonly( "covariance_propagation_variational_results",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getCovariancePropagationVariationalResults,
+                                    R"doc(
+
+         **read-only**
+
+         Variational propagation results of the best iteration, stored for covariance propagation. ``None`` if
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.has_covariance_propagation_data` is ``False``.
+
+         :type: SingleArcVariationalSimulationResults | None
+      )doc" )
+            .def_property_readonly(
+                    "covariance_propagation_state_partial_addition_indices",
+                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getCovariancePropagationStatePartialAdditionIndices,
+                    R"doc(
+
+         **read-only**
+
+         State partial addition indices stored for covariance propagation.
+
+         :type: list[tuple[int, int]]
+      )doc" )
+            .def_property_readonly(
+                    "covariance_propagation_state_transition_matrix_size",
+                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getCovariancePropagationStateTransitionMatrixSize,
+                    R"doc(
+
+         **read-only**
+
+         Size of the state transition matrix (conventional state size) stored for covariance propagation.
+
+         :type: int
+      )doc" )
+            .def_property_readonly(
+                    "covariance_propagation_number_of_estimated_parameters",
+                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getCovariancePropagationNumberOfEstimatedParameters,
+                    R"doc(
+
+         **read-only**
+
+         Number of estimated parameters stored for covariance propagation.
+
+         :type: int
+      )doc" )
+            .def_property_readonly(
+                    "covariance_propagation_number_of_consider_parameters",
+                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getCovariancePropagationNumberOfConsiderParameters,
+                    R"doc(
+
+         **read-only**
+
+         Number of consider parameters stored for covariance propagation.
+
+         :type: int
+      )doc" )
+            .def_property_readonly(
+                    "covariance_propagation_consider_parameters_values",
+                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getCovariancePropagationConsiderParametersValues,
+                    R"doc(
+
+         **read-only**
+
+         Values of the consider parameters stored for covariance propagation.
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" ) TUDATPY_DEF_BINARY_IO( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
                     TUDATPY_DEF_PICKLE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_EQ_NE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
@@ -1128,6 +1205,63 @@ void expose_estimation_analysis( py::module& m )
 
 
 
+
+     )doc" );
+
+    m.def( "create_state_transition_interface_from_estimation_output",
+           &tss::createStateTransitionAndSensitivityMatrixInterfaceFromEstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "estimation_output" ),
+           R"doc(
+
+ Rebuild the covariance-propagation operator from a stored estimation output.
+
+ Reconstructs the state transition and sensitivity matrix interface from the variational results and metadata stored
+ in an :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`. This allows covariance propagation in a fresh
+ runtime, without access to the :class:`~tudatpy.estimation.estimation_analysis.Estimator` that produced the output.
+
+ The required payload is only stored for single-arc estimation runs performed with
+ ``save_state_history_per_iteration=True``. Use :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.has_covariance_propagation_data`
+ to check availability.
+
+ Parameters
+ ----------
+ estimation_output : :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`
+     Estimation output containing the stored covariance-propagation payload.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
+     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
+
+     )doc" );
+
+    m.def( "propagate_covariance_from_estimation_output",
+           &tss::propagateCovarianceFromEstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "estimation_output" ),
+           py::arg( "output_times" ),
+           R"doc(
+
+ Propagate the covariance stored in an estimation output through time, in a fresh runtime.
+
+ Rebuilds the covariance-propagation operator from the payload stored in the estimation output (see
+ :func:`~tudatpy.estimation.estimation_analysis.create_state_transition_interface_from_estimation_output`) and
+ propagates the covariance from the output, including the consider-parameter contribution if present.
+
+ The required payload is only stored for single-arc estimation runs performed with
+ ``save_state_history_per_iteration=True``.
+
+ Parameters
+ ----------
+ estimation_output : :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`
+     Estimation output containing the stored covariance-propagation payload.
+
+ output_times : list[float]
+     Times at which the propagated covariance matrix shall be reported.
+
+ Returns
+ -------
+ dict[float, numpy.ndarray[numpy.float64[m, n]]]
+     Dictionary reporting the propagated covariances at each output time.
 
      )doc" );
 }
