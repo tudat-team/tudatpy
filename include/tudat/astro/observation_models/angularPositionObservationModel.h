@@ -17,25 +17,14 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
-#include "tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h"
+#include "tudat/astro/observation_models/celestialReferenceFrames.h"
+#include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 
 namespace tudat
 {
 
 namespace observation_models
 {
-
-//! Whether ancillary settings select a celestial frame and/or stellar aberration for angular position observables.
-/*!
- * The settings are those of the position angle observable (position_angle_reference_frame, position_angle_reference_epoch and
- * position_angle_use_stellar_aberration). If none is set, right ascension and declination are given in the global frame.
- */
-inline bool useAngularPositionFrameSettings( const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
-{
-    return ancillarySettings != nullptr &&
-            ( ancillarySettings->hasAncillaryIntData( position_angle_reference_frame ) ||
-              ancillarySettings->hasAncillaryIntData( position_angle_use_stellar_aberration ) );
-}
 
 //! Direction from receiver to transmitter, optionally aberrated, rotated from the global frame to the frame selected by ancillary settings
 inline Eigen::Vector3d getAngularPositionDirectionInSelectedFrame(
@@ -128,7 +117,10 @@ public:
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
                 linkEndStates.at( 0 ).template cast< ObservationScalarType >( ).segment( 0, 3 ) -
                 linkEndStates.at( 1 ).template cast< ObservationScalarType >( ).segment( 0, 3 );
-        if( useAngularPositionFrameSettings( ancillarySetingsInput ) )
+        // Rotate to the celestial frame (and apply stellar aberration) selected by the position-angle ancillary settings, if any
+        if( ancillarySetingsInput != nullptr &&
+            ( ancillarySetingsInput->hasAncillaryIntData( position_angle_reference_frame ) ||
+              ancillarySetingsInput->hasAncillaryIntData( position_angle_use_stellar_aberration ) ) )
         {
             relativePosition = getAngularPositionDirectionInSelectedFrame( relativePosition.template cast< double >( ),
                                                                            linkEndStates.at( 1 ).segment( 3, 3 ),

@@ -93,12 +93,9 @@ void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkE
 
     // Compute common scaling factor
     velocityScalingFactor_.setZero( );
-    if( !observation_models::useAngularPositionFrameSettings( ancillarySettings ) )
-    {
-        scalingFactor_ = calculatePartialOfAngularPositionWrtLinkEndPosition(
-                relativeRangeVector, true, normalizeRightAscension_, currentObservation );
-    }
-    else
+    if( ancillarySettings != nullptr &&
+        ( ancillarySettings->hasAncillaryIntData( observation_models::position_angle_reference_frame ) ||
+          ancillarySettings->hasAncillaryIntData( observation_models::position_angle_use_stellar_aberration ) ) )
     {
         // Chain rule through the (aberrated) direction, rotated to the selected celestial frame
         const Eigen::Vector3d relativePosition = -relativeRangeVector;
@@ -119,6 +116,11 @@ void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkE
                 calculatePartialOfAngularPositionWrtLinkEndPosition( -direction, true, normalizeRightAscension_, currentObservation );
         scalingFactor_ = partialWrtReceiverToDirection * rotation * directionPartialWrtPosition;
         velocityScalingFactor_ = -partialWrtReceiverToDirection * rotation * directionPartialWrtVelocity;
+    }
+    else
+    {
+        scalingFactor_ = calculatePartialOfAngularPositionWrtLinkEndPosition(
+                relativeRangeVector, true, normalizeRightAscension_, currentObservation );
     }
 
     // Compute scaling for receiver reference

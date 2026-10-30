@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h"
+#include "tudat/astro/observation_models/celestialReferenceFrames.h"
 
 #include <cmath>
 #include <limits>

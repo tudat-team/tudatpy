@@ -126,6 +126,24 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
     }
 }
 
+//! Compare analytical and numerical partials of angular positions in a celestial frame, with stellar aberration
+BOOST_AUTO_TEST_CASE( testAberratedAngularPositionPartials )
+{
+    LinkDefinition linkEnds;
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "Graz" );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MSL" );
+
+    const std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettingsList = {
+        getPositionAngleAncillarySettings( j2000_position_angle_reference_frame, TUDAT_NAN, true ),
+        getPositionAngleAncillarySettings( true_of_date_iau_2006_2000a_position_angle_reference_frame, TUDAT_NAN, true )
+    };
+    for( const auto& ancillarySettings : ancillarySettingsList )
+    {
+        testAberratedObservationPartials< 2 >( std::make_shared< ObservationModelSettings >( angular_position, linkEnds ),
+                                               ancillarySettings );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
