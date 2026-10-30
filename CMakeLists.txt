@@ -269,6 +269,9 @@ endif ()
 if (TUDATPY_LONG_DOUBLE_STATE)
     add_definitions(-DTUDATPY_LONG_DOUBLE_STATE)
 endif ()
+# Temporary: read the updated pre-1962 Earth orientation data (historicalDeltaT.txt, eopc01_polar_motion_1846-1961.txt) from
+# this repository until they are added to tudat-resources
+add_compile_definitions(TUDAT_TEMPORARY_EARTH_ORIENTATION_DATA_PATH="${CMAKE_CURRENT_SOURCE_DIR}/temporary_resources/earth_orientation")
 
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
