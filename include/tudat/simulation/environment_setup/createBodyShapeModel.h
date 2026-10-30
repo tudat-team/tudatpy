@@ -23,7 +23,7 @@ namespace simulation_setup
 {
 
 //  Types of body shape models that can be used.
-enum BodyShapeTypes { spherical, spherical_spice, oblate_spheroid, oblate_spice, polyhedron_shape, hybrid_shape };
+enum BodyShapeTypes { spherical, spherical_spice, oblate_spheroid, oblate_spice, polyhedron_shape, hybrid_shape, triaxial_ellipsoid };
 
 //  Class for providing settings for body shape model.
 /*
@@ -145,6 +145,66 @@ private:
 
     //  Flattening of spheroid shape model.
     double flattening_;
+};
+
+//  BodyShapeSettings derived class for defining settings of a tri-axial ellipsoid shape model, with semi-axes a, b
+//  and c along the body-fixed x-, y- and z-axes, respectively.
+class TriAxialEllipsoidBodyShapeSettings : public BodyShapeSettings
+{
+public:
+    //  Constructor
+    /*
+     * Constructor
+     * \param semiAxisA Semi-axis of the ellipsoid along the body-fixed x-axis.
+     * \param semiAxisB Semi-axis of the ellipsoid along the body-fixed y-axis.
+     * \param semiAxisC Semi-axis of the ellipsoid along the body-fixed z-axis.
+     */
+    TriAxialEllipsoidBodyShapeSettings( const double semiAxisA, const double semiAxisB, const double semiAxisC ):
+        BodyShapeSettings( triaxial_ellipsoid ), semiAxisA_( semiAxisA ), semiAxisB_( semiAxisB ), semiAxisC_( semiAxisC )
+    {}
+
+    //  Function to return the semi-axis along the body-fixed x-axis.
+    double getSemiAxisA( )
+    {
+        return semiAxisA_;
+    }
+
+    void resetSemiAxisA( const double semiAxisA )
+    {
+        semiAxisA_ = semiAxisA;
+    }
+
+    //  Function to return the semi-axis along the body-fixed y-axis.
+    double getSemiAxisB( )
+    {
+        return semiAxisB_;
+    }
+
+    void resetSemiAxisB( const double semiAxisB )
+    {
+        semiAxisB_ = semiAxisB;
+    }
+
+    //  Function to return the semi-axis along the body-fixed z-axis.
+    double getSemiAxisC( )
+    {
+        return semiAxisC_;
+    }
+
+    void resetSemiAxisC( const double semiAxisC )
+    {
+        semiAxisC_ = semiAxisC;
+    }
+
+private:
+    //  Semi-axis along the body-fixed x-axis.
+    double semiAxisA_;
+
+    //  Semi-axis along the body-fixed y-axis.
+    double semiAxisB_;
+
+    //  Semi-axis along the body-fixed z-axis.
+    double semiAxisC_;
 };
 
 //  BodyShapeSettings derived class for defining settings of a polyhedron shape model
@@ -353,6 +413,13 @@ inline std::shared_ptr< BodyShapeSettings > oblateSphericalBodyShapeSettings( co
 inline std::shared_ptr< BodyShapeSettings > fromSpiceOblateSphericalBodyShapeSettings( )
 {
     return std::make_shared< BodyShapeSettings >( oblate_spice );
+}
+
+inline std::shared_ptr< BodyShapeSettings > triAxialEllipsoidBodyShapeSettings( const double semiAxisA,
+                                                                                const double semiAxisB,
+                                                                                const double semiAxisC )
+{
+    return std::make_shared< TriAxialEllipsoidBodyShapeSettings >( semiAxisA, semiAxisB, semiAxisC );
 }
 
 inline std::shared_ptr< BodyShapeSettings > polyhedronBodyShapeSettings( const Eigen::MatrixXd& verticesCoordinates,

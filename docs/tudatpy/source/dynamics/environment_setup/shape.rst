@@ -59,9 +59,15 @@ Functions
 
    oblate_spherical_spice
 
+   triaxial_ellipsoid
+
    polyhedron
 
    hybrid
+
+   damit_wrapper.damit_polyhedron
+
+   damit_wrapper.damit_best_fitting_ellipsoid
 
 
 
@@ -73,9 +79,15 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.oblate_spherical_spice
 
+.. autofunction:: tudatpy.dynamics.environment_setup.shape.triaxial_ellipsoid
+
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.polyhedron
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.hybrid
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape.damit_wrapper.damit_polyhedron
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape.damit_wrapper.damit_best_fitting_ellipsoid
 
 
 
@@ -94,6 +106,8 @@ Classes
 
    OblateSphericalBodyShapeSettings
 
+   TriAxialEllipsoidBodyShapeSettings
+
    PolyhedronBodyShapeSettings
 
    HybridBodyShapeSettings
@@ -107,6 +121,9 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape.OblateSphericalBodyShapeSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.shape.TriAxialEllipsoidBodyShapeSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape.PolyhedronBodyShapeSettings

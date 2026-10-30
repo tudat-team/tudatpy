@@ -22,6 +22,7 @@
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/polyhedronBodyShapeModel.h"
 #include "tudat/astro/basic_astro/hybridBodyShapeModel.h"
+#include "tudat/astro/basic_astro/triAxialEllipsoidBodyShapeModel.h"
 
 namespace tudat
 {
@@ -291,6 +292,66 @@ BOOST_AUTO_TEST_CASE( testHybridShapeModel )
     // Point below switchover altitude: altitude computed wrt high-resolution shape model
     testCartesianPosition << 5.0, 2.5, 12.0;
     BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( testCartesianPosition ), 7.0, tolerance );
+}
+
+BOOST_AUTO_TEST_CASE( testTriAxialEllipsoidShapeModel )
+{
+    using namespace tudat::basic_astrodynamics;
+
+    // Define tolerance
+    const double tolerance = 1.0E-14;
+
+    // Define elongated ellipsoid
+    const double a = 3.0E3;
+    const double b = 2.0E3;
+    const double c = 1.0E3;
+    TriAxialEllipsoidBodyShapeModel shapeModel = TriAxialEllipsoidBodyShapeModel( a, b, c );
+
+    // Test points on each axis, above the surface
+    const double altitude = 250.0;
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d( a + altitude, 0.0, 0.0 ) ), altitude, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d( 0.0, -( b + altitude ), 0.0 ) ), altitude, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d( 0.0, 0.0, c + altitude ) ), altitude, tolerance );
+
+    // Test point on axis, inside the ellipsoid
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d( a / 2.0, 0.0, 0.0 ) ), -a / 2.0, tolerance );
+
+    // Test center of body
+    BOOST_CHECK_EQUAL( shapeModel.getAltitude( Eigen::Vector3d::Zero( ) ), -c );
+
+    // Test general point: surface point in the same direction should lie on the ellipsoid
+    {
+        const Eigen::Vector3d testCartesianPosition( 2.1E3, -1.7E3, 0.9E3 );
+        const double surfaceRadius = shapeModel.getSurfaceRadius( testCartesianPosition );
+        const Eigen::Vector3d surfacePoint = testCartesianPosition.normalized( ) * surfaceRadius;
+
+        BOOST_CHECK_CLOSE_FRACTION(
+                std::pow( surfacePoint.x( ) / a, 2 ) + std::pow( surfacePoint.y( ) / b, 2 ) + std::pow( surfacePoint.z( ) / c, 2 ),
+                1.0,
+                tolerance );
+        BOOST_CHECK_CLOSE_FRACTION(
+                shapeModel.getAltitude( testCartesianPosition ), testCartesianPosition.norm( ) - surfaceRadius, tolerance );
+        BOOST_CHECK_SMALL( shapeModel.getAltitude( surfacePoint ), 1.0E-9 );
+    }
+
+    // Test average radius
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAverageRadius( ), std::cbrt( a * b * c ), tolerance );
+
+    // Test that an ellipsoid with equal semi-axes reduces to a sphere
+    {
+        const double radius = 6378137.0;
+        TriAxialEllipsoidBodyShapeModel sphericalShapeModel = TriAxialEllipsoidBodyShapeModel( radius, radius, radius );
+        const Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
+
+        BOOST_CHECK_CLOSE_FRACTION( sphericalShapeModel.getAltitude( testCartesianPosition ),
+                                    SphericalBodyShapeModel( radius ).getAltitude( testCartesianPosition ),
+                                    1.0E-10 );
+        BOOST_CHECK_CLOSE_FRACTION( sphericalShapeModel.getAverageRadius( ), radius, tolerance );
+    }
+
+    // Test that non-positive semi-axes are rejected
+    BOOST_CHECK_THROW( TriAxialEllipsoidBodyShapeModel( a, 0.0, c ), std::runtime_error );
+    BOOST_CHECK_THROW( TriAxialEllipsoidBodyShapeModel( a, b, -c ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
