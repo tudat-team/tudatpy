@@ -570,6 +570,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  - The first line should be a series of text blocks (typically numerical data). Two of these blocks (by default the first and second one) should be the gravitational parameter and reference radius, respectively. The text block should be separated by spaces, tabs and/or commas
  - Each subsequent line should contain a set of spherical harmonic coefficients (first ordered in ascending order by degree, then in ascending order by order), where the first, second, third and fourth value of the line should be: degree :math:`l`, order :math:`m`, normalized cosine coefficient :math:`\bar{C}_{lm}`, normalized sine coefficient :math:`\bar{S}_{lm}`. Additional entries (for instance with coefficient uncertainties) are ignored.
 
+ For files in the PDS SHADR format, use :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_shadr_file`, which reads the
+ header in its units, and also supports unordered and unnormalized coefficients.
+
  .. warning::
 
     The function expects exponents to be indicated by either "e" or "E". If the exponent is indicated by "d" or "D", the exponent will not be parsed and the function will read wrong coefficients!
@@ -621,6 +624,42 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
    body_settings.get("Moon").gravity_field_settings = environment_setup.gravity_field.from_file_spherical_harmonic(
        r"...\.tudat\resource\gravity_models\Moon\gggrx_1200l_sha.tab", 300, 300)
 
+
+     )doc" );
+
+    m.def( "from_shadr_file",
+           &tss::shadrSphericalHarmonicsGravityFieldSettings,
+           py::arg( "file" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "associated_reference_frame" ) = "",
+           R"doc(
+
+ Function to load spherical harmonics gravity field settings from a SHADR file.
+
+ Function to load spherical harmonics gravity field settings from a file in the Planetary Data System (PDS) spherical harmonics
+ ASCII data record (SHADR) format, as described `here <https://atmos.nmsu.edu/PDS/data/jnogrv_0002/DOCUMENT/SHADR.ASC>`__.
+ The coefficients are read as in :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic`, with
+ the following differences: the reference radius and gravitational parameter are read from the SHADR header (in km and km^3/s^2),
+ the coefficients may be listed in any order (and covariance records are skipped), and unnormalized coefficients (normalization
+ state 0 in the header) are converted to fully normalized coefficients
+ (see :func:`~tudatpy.astro.gravitation.normalize_spherical_harmonic_coefficients`).
+
+ Parameters
+ ----------
+ file : str
+     Full file path and name where the SHADR gravity field file is located
+ maximum_degree : int
+     Maximum degree of the coefficients that are to be loaded (may not exceed that of the file)
+ maximum_order : int
+     Maximum order of the coefficients that are to be loaded (may not exceed that of the file)
+ associated_reference_frame : str, default = ""
+     Name of the body-fixed reference frame to which the gravity field is to be fixed. If left empty, this reference frame will automatically be set to the body-fixed frame defined by this body's rotation (see :ref:`rotation_model` for specifying rotation models).
+
+ Returns
+ -------
+ SphericalHarmonicsGravityFieldSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
 
      )doc" );
 
