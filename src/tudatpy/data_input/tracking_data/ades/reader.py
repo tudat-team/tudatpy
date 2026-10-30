@@ -2,6 +2,8 @@
 MPC ADES tracking-data loading.
 """
 
+import numpy as np
+
 from .parsers import parse_ades_file
 from tudatpy.data_input.tracking_data.optical_utilities import read_astropy_optical_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
@@ -18,6 +20,7 @@ def read_ades_data(
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
     weighing_scheme: str | None = "",
+    minimum_ades_uncertainty: float | None = None,
 ):
     """Function to read an MPC ADES file into TrackingData objects.
 
@@ -51,9 +54,15 @@ def read_ades_data(
         :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
         uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
         weights divided by the square root of the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). In
+        both ADES schemes, observations without rmsRA and rmsDec get ``"VFCC17"`` weights. The
         weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+        are assigned. If weights are assigned, any rmsTime timing uncertainties are added to
+        the observation covariance (see ``TrackingData.set_observation_time_uncertainties``).
+    minimum_ades_uncertainty : float | None, default None
+        Minimum rmsRA and rmsDec (in arcseconds) for which the ADES uncertainties of an
+        observation are used. For observations with a smaller rmsRA or rmsDec, these are
+        removed, so that the ADES weighing schemes assign ``"VFCC17"`` weights instead.
 
     Returns
     -------
@@ -67,6 +76,14 @@ def read_ades_data(
     ITRF or IAU) are not yet supported, and are skipped (with a warning).
     """
     parsed_table = parse_ades_file(file_path)
+    if minimum_ades_uncertainty is not None and {"rmsRA", "rmsDec"} <= set(parsed_table.colnames):
+        rejected = np.ma.filled(
+            (parsed_table["rmsRA"] < minimum_ades_uncertainty)
+            | (parsed_table["rmsDec"] < minimum_ades_uncertainty),
+            False,
+        )
+        for column in ("rmsRA", "rmsDec"):
+            parsed_table[column][rejected] = np.nan
     optical_tracking_data, supplementary_data = [], []
     if len(parsed_table) > 0:
         optical_tracking_data, supplementary_data = read_astropy_optical_data(

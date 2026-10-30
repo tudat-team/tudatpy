@@ -246,6 +246,26 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
         epochsTdb = epochsInput;
     }
 
+    // Correct angular position observations for time biases, using the rates of right ascension and declination, which are also
+    // used to add the contribution of time uncertainties to the weights
+    const std::vector< double >& timeBiases = trackingData->getObservationTimeBiases( );
+    const std::vector< double >& timeUncertainties = trackingData->getObservationTimeUncertainties( );
+    std::vector< Eigen::Vector2d > angularRates;
+    if( !timeBiases.empty( ) || !timeUncertainties.empty( ) )
+    {
+        if( observableType != observation_models::angular_position )
+        {
+            throw std::runtime_error(
+                    "Error when adding tracking data to an observation dataset, observation time biases and uncertainties are only "
+                    "supported for angular position observations." );
+        }
+        angularRates = getRightAscensionAndDeclinationRates< TimeType >( bodies, rawLinkEnds, epochsTdb );
+    }
+    for( unsigned int i = 0; i < timeBiases.size( ); ++i )
+    {
+        observations[ i ] -= ( timeBiases.at( i ) * angularRates.at( i ) ).template cast< ObservationScalarType >( );
+    }
+
     // Evaluate environment-dependent corrections at TDB reception times using the original observations.
     if( applyCorrections && trackingData->hasObservationCorrectionSettings( ) )
     {
@@ -282,17 +302,12 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     int setId;
     if( trackingData->hasObservationWeightSettings( ) )
     {
-        // Add contribution of observation epoch uncertainties to weights of angular position observations
+        // Add contribution of observation time uncertainties to weights
         ObservationWeightSettings observationWeightSettings = trackingData->getObservationWeightSettings( );
-        if( trackingData->hasAstrometryTimeUncertainties( ) )
+        if( !timeUncertainties.empty( ) )
         {
-            if( observableType != observation_models::angular_position )
-            {
-                throw std::runtime_error(
-                        "Error when adding tracking data to an observation dataset, observation epoch uncertainties are only supported "
-                        "for angular position observations." );
-            }
-            observationWeightSettings = getAngularPositionWeightsWithTimeUncertainty( trackingData, bodies, rawLinkEnds, epochsTdb );
+            observationWeightSettings =
+                    getAngularPositionWeightsWithTimeUncertainty( observationWeightSettings, timeUncertainties, angularRates );
         }
 
         setId = observationDataset.addObservationSetWithWeights(
@@ -311,10 +326,10 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
 
     else
     {
-        if( trackingData->hasAstrometryTimeUncertainties( ) )
+        if( !timeUncertainties.empty( ) )
         {
             throw std::runtime_error(
-                    "Error when adding tracking data to an observation dataset, observation epoch uncertainties are defined, but no "
+                    "Error when adding tracking data to an observation dataset, observation time uncertainties are defined, but no "
                     "positional weights." );
         }
         setId = observationDataset.addObservationSet( observableType,

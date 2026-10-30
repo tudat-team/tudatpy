@@ -158,13 +158,13 @@ def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, t
 def test_ades_weights_from_uncertainties_and_local_night(
     optical_table, scheme, observations_per_night
 ):
-    """Weight three positions by their uncertainties; for ADES_NIGHT the first two share a night."""
+    """Weight positions by their uncertainties, or by VFCC17 without; for ADES_NIGHT the first two share a night."""
     table = pd.concat([optical_table] * 3, ignore_index=True)
     # Station 500 is at zero longitude, so the local night is the integer part of the Julian date.
     table["epoch"] = [2460310.55, 2460310.65, 2460311.65]
     table["DEC"] = [0.0, 30.0, 60.0]
-    table["rmsRA"] = [0.15, 0.2, 0.3]
-    table["rmsDec"] = [0.13, 0.1, 0.2]
+    table["rmsRA"] = [0.15, 0.2, np.nan]
+    table["rmsDec"] = [0.13, 0.1, np.nan]
     data, _ = read_optical_data(table, weighing_scheme=scheme)
     collection = create_observation_collection_from_tracking_data(data, weighting_bodies())
 
@@ -176,6 +176,8 @@ def test_ades_weights_from_uncertainties_and_local_night(
             1.0 / (table["rmsDec"] * arcsec) ** 2,
         ]
     ) / np.sqrt(observations_per_night)[:, None]
+    # The last observation has no uncertainties, and gets the VFCC17 weight of CCD data with catalogue U.
+    expected[2] = 1.0 / arcsec**2
     np.testing.assert_allclose(
         collection.concatenated_weights, expected.reshape(-1), rtol=1.0e-12
     )

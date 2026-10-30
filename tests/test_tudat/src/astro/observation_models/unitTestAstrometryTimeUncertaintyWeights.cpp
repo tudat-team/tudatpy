@@ -16,10 +16,11 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include "tudat/basics/testMacros.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
-#include "tudat/simulation/estimation_setup/trackingDataWeighting.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 
 namespace tudat
 {
@@ -29,7 +30,7 @@ namespace unit_tests
 using namespace observation_models;
 using namespace simulation_setup;
 
-BOOST_AUTO_TEST_SUITE( test_astrometry_time_uncertainty_weights )
+BOOST_AUTO_TEST_SUITE( test_astrometry_time_biases_and_uncertainties )
 
 //! Compute right ascension and declination of a relative position
 Eigen::Vector2d computeRightAscensionAndDeclination( const Eigen::Vector3d& relativePosition )
@@ -57,8 +58,8 @@ BOOST_AUTO_TEST_CASE( testRightAscensionAndDeclinationRates )
     }
 }
 
-//! Check that the observation epoch uncertainty is added to the covariance of the angular position observations
-BOOST_AUTO_TEST_CASE( testAngularPositionWeightsWithTimeUncertainty )
+//! Check that observation time biases and uncertainties are applied to angular position observations and weights
+BOOST_AUTO_TEST_CASE( testAngularPositionTimeBiasesAndUncertainties )
 {
     Eigen::Vector6d observerState, observedBodyState;
     observerState << 1.4E11, 0.3E11, -0.1E11, -5.0E3, 2.9E4, 1.0E3;
@@ -71,31 +72,33 @@ BOOST_AUTO_TEST_CASE( testAngularPositionWeightsWithTimeUncertainty )
     bodySettings.at( "Asteroid" )->ephemerisSettings = constantEphemerisSettings( observedBodyState, "SSB", "J2000" );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    LinkEnds linkEnds;
-    linkEnds[ receiver ] = LinkEndId( "Observer", "" );
-    linkEnds[ transmitter ] = LinkEndId( "Asteroid", "" );
-
-    const std::vector< double > epochs = { 0.0, 100.0 };
-    std::vector< Eigen::VectorXd > observations( 2, Eigen::Vector2d::Zero( ) );
+    const data::PlainLinkDefinition linkEnds = { { { "Asteroid", "" }, "transmitter" }, { { "Observer", "" }, "receiver" } };
     std::shared_ptr< data::TrackingData< double, double > > trackingData = std::make_shared< data::TrackingData< double, double > >(
-            "angular_position", data::PlainLinkDefinition( ), observations, epochs, "receiver" );
+            "AngularPosition", linkEnds, std::vector< Eigen::VectorXd >( 2, Eigen::Vector2d::Zero( ) ), std::vector< double >{ 0.0, 100.0 },
+            "receiver" );
 
     const double positionalUncertainty = 1.0E-6;
     trackingData->setObservationWeightSettings( ObservationWeightSettings::diagonalPerObservation(
             std::vector< Eigen::VectorXd >( 2, Eigen::Vector2d::Constant( 1.0 / ( positionalUncertainty * positionalUncertainty ) ) ) ) );
-    trackingData->setAstrometryTimeUncertainties( { 2.0, 0.5 } );
+    const std::vector< double > timeUncertainties = { 2.0, 0.5 };
+    const std::vector< double > timeBiases = { 3.0, -1.5 };
+    trackingData->setObservationTimeUncertainties( timeUncertainties );
+    trackingData->setObservationTimeBiases( timeBiases );
 
-    const ObservationWeightSettings weightSettings =
-            getAngularPositionWeightsWithTimeUncertainty< double, double >( trackingData, bodies, linkEnds, epochs );
-    BOOST_REQUIRE( weightSettings.type_ == ObservationWeightSettings::WeightsBlockType::block_per_observation );
+    const ObservationVectorData< double, double > vectorData =
+            createObservationDatasetFromTrackingData< double, double >( { trackingData }, bodies )->createObservationVectorData( );
+    const Eigen::MatrixXd weightMatrix = vectorData.getSparseWeightMatrix( ).toDense( );
 
+    // Rates are constant, since the states of both bodies are constant
     const Eigen::Vector2d angularRates = computeRightAscensionAndDeclinationRates( observedBodyState - observerState );
     for( unsigned int i = 0; i < 2; i++ )
     {
-        const double timeUncertainty = trackingData->getAstrometryTimeUncertainties( ).at( i );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                vectorData.getObservationVector( ).segment( 2 * i, 2 ), Eigen::Vector2d( -timeBiases.at( i ) * angularRates ), 1.0E-14 );
+
         const Eigen::Matrix2d expectedCovariance = positionalUncertainty * positionalUncertainty * Eigen::Matrix2d::Identity( ) +
-                timeUncertainty * timeUncertainty * angularRates * angularRates.transpose( );
-        const Eigen::Matrix2d computedCovariance = weightSettings.weightBlocks_.at( i ).inverse( );
+                timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates * angularRates.transpose( );
+        const Eigen::Matrix2d computedCovariance = weightMatrix.block( 2 * i, 2 * i, 2, 2 ).inverse( );
         BOOST_CHECK_SMALL( ( computedCovariance - expectedCovariance ).norm( ) / expectedCovariance.norm( ), 1.0E-12 );
     }
 }

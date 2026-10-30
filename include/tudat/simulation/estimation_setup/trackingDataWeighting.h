@@ -121,48 +121,47 @@ inline Eigen::Vector2d computeRightAscensionAndDeclinationRates( const Eigen::Ve
             ( vz * squaredEquatorialDistance - z * ( x * vx + y * vy ) ) / ( squaredDistance * std::sqrt( squaredEquatorialDistance ) ) );
 }
 
-//! Function to add the contribution of observation epoch uncertainties to the weights of angular position observations
-/*!
- * Function to add the contribution of observation epoch uncertainties to the weights of angular position observations, following
- * Farnocchia et al. (2022). For each observation, the covariance C_P (inverse of the positional weights) is augmented to
- * C = C_P + sigma_T^2 r r^T, where sigma_T is the epoch uncertainty and r the vector of right ascension and declination rates,
- * computed from the (geometric) state of the observed body w.r.t. the observer, as obtained from the environment. The returned
- * weights are the inverse of C, for each observation.
- * \param trackingData Tracking data containing angular position observations, positional weights and epoch uncertainties
- * \param bodies System of bodies used to compute the right ascension and declination rates
- * \param rawLinkEnds Link ends of the observations (receiver is observer, transmitter is observed body)
- * \param observationTimes Observation times (in TDB)
- * \return Weights of the angular position observations, including the contribution of the epoch uncertainties
- */
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-ObservationWeightSettings getAngularPositionWeightsWithTimeUncertainty(
-        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
-        const simulation_setup::SystemOfBodies& bodies,
-        const observation_models::LinkEnds& rawLinkEnds,
-        const std::vector< TimeType >& observationTimes )
+//! Function to compute the rates of right ascension and declination of the observed body (transmitter), as seen by the observer
+//! (receiver), at a list of times, from the geometric states of both link ends in the environment
+template< typename TimeType = double >
+std::vector< Eigen::Vector2d > getRightAscensionAndDeclinationRates( const simulation_setup::SystemOfBodies& bodies,
+                                                                     const observation_models::LinkEnds& rawLinkEnds,
+                                                                     const std::vector< TimeType >& observationTimes )
 {
-    if( !trackingData->hasObservationWeightSettings( ) )
-    {
-        throw std::runtime_error(
-                "Error when adding observation epoch uncertainty to angular position weights, no positional weights have been defined." );
-    }
-
     const std::function< Eigen::Vector6d( const TimeType ) > observerStateFunction =
             simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, double >( rawLinkEnds.at( receiver ), bodies );
     const std::function< Eigen::Vector6d( const TimeType ) > observedBodyStateFunction =
             simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, double >( rawLinkEnds.at( transmitter ), bodies );
 
-    const ObservationWeightSettings& positionalWeightSettings = trackingData->getObservationWeightSettings( );
-    const std::vector< double >& timeUncertainties = trackingData->getAstrometryTimeUncertainties( );
-    std::vector< Eigen::MatrixXd > weightBlocks;
-    for( unsigned int i = 0; i < observationTimes.size( ); ++i )
+    std::vector< Eigen::Vector2d > angularRates;
+    for( const TimeType& observationTime : observationTimes )
     {
-        const Eigen::Vector2d angularRates = computeRightAscensionAndDeclinationRates(
-                observedBodyStateFunction( observationTimes.at( i ) ) - observerStateFunction( observationTimes.at( i ) ) );
+        angularRates.push_back( computeRightAscensionAndDeclinationRates( observedBodyStateFunction( observationTime ) -
+                                                                          observerStateFunction( observationTime ) ) );
+    }
+    return angularRates;
+}
+
+//! Function to add the contribution of observation epoch uncertainties to the weights of angular position observations
+/*!
+ * Function to add the contribution of observation epoch uncertainties to the weights of angular position observations, following
+ * Farnocchia et al. (2022). For each observation, the covariance C_P (inverse of the positional weights) is augmented to
+ * C = C_P + sigma_T^2 r r^T, where sigma_T is the epoch uncertainty and r the vector of right ascension and declination rates.
+ * The returned weights are the inverse of C, for each observation.
+ * \param positionalWeightSettings Weights of the angular position observations, without contribution of the epoch uncertainties
+ * \param timeUncertainties Uncertainties of the observation epochs (in s)
+ * \param angularRates Rates of right ascension and declination (in rad/s), at each observation epoch
+ * \return Weights of the angular position observations, including the contribution of the epoch uncertainties
+ */
+inline ObservationWeightSettings getAngularPositionWeightsWithTimeUncertainty( const ObservationWeightSettings& positionalWeightSettings,
+                                                                                const std::vector< double >& timeUncertainties,
+                                                                                const std::vector< Eigen::Vector2d >& angularRates )
+{
+    std::vector< Eigen::MatrixXd > weightBlocks;
+    for( unsigned int i = 0; i < angularRates.size( ); ++i )
+    {
         const Eigen::Matrix2d covariance = positionalWeightSettings.getObservationWeightBlock( i, 2 ).inverse( ) +
-                timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates * angularRates.transpose( );
+                timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates.at( i ) * angularRates.at( i ).transpose( );
         weightBlocks.push_back( covariance.inverse( ) );
     }
     return ObservationWeightSettings::blockPerObservation( weightBlocks );

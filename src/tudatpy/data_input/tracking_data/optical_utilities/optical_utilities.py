@@ -588,9 +588,11 @@ def optical_table_to_tracking_data(
         :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
         uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
         weights divided by the square root of the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). In
+        both ADES schemes, observations without rmsRA and rmsDec get ``"VFCC17"`` weights. The
         weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+        are assigned. If weights are assigned, any rmsTime timing uncertainties are added to
+        the observation covariance (see ``TrackingData.set_observation_time_uncertainties``).
 
     Returns
     -------
@@ -622,25 +624,17 @@ def optical_table_to_tracking_data(
         )
         table = table.loc[~roving_mask]
 
+    # observations without rmsRA and rmsDec get VFCC17 weights in the ADES weighing schemes
     if weighing_scheme in ("ADES", "ADES_NIGHT"):
-        uncertainties = (
-            table.reindex(columns=["rmsRA", "rmsDec"])
-            .apply(pd.to_numeric, errors="coerce")
-            .to_numpy(dtype=float, na_value=np.nan)
-        )
-        if not (np.isfinite(uncertainties) & (uncertainties > 0)).all():
-            raise ValueError(
-                f"{weighing_scheme} weighing requires rmsRA and rmsDec to be "
-                "valid (positive, finite) for every observation"
-            )
+        table = table.reindex(columns=table.columns.union(["rmsRA", "rmsDec"], sort=False))
 
     if add_star_catalog_corrections:
         RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)
         table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
 
     metadata_columns = set(ANCILLARY_STRING_COLUMNS) if add_ancillary_data else set()
-    # add data required to adopt the VFCC17 weighing scheme
-    if weighing_scheme == "VFCC17":
+    # add data required to adopt the VFCC17 weighing scheme (also used by the ADES schemes)
+    if weighing_scheme in ("VFCC17", "ADES", "ADES_NIGHT"):
         metadata_columns.update(["note2", "catalog"])
     # add data required to adopt the ADES weighing schemes
     if weighing_scheme in ("ADES", "ADES_NIGHT"):
@@ -693,6 +687,12 @@ def optical_table_to_tracking_data(
                 column, group[column].fillna("").astype(str).tolist()
             )
 
+        # the ADES timing uncertainties (in s) are added to the covariance of the weighted observations
+        if weighing_scheme and "rmsTime" in group.columns and group["rmsTime"].notna().any():
+            tracking_data_object.set_observation_time_uncertainties(
+                pd.to_numeric(group["rmsTime"]).fillna(0.0).tolist()
+            )
+
         tracking_data_objects.append(tracking_data_object)
 
     return tracking_data_objects, supplementary_data
@@ -741,9 +741,11 @@ def read_optical_data(
         :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
         uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
         weights divided by the square root of the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). In
+        both ADES schemes, observations without rmsRA and rmsDec get ``"VFCC17"`` weights. The
         weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+        are assigned. If weights are assigned, any rmsTime timing uncertainties are added to
+        the observation covariance (see ``TrackingData.set_observation_time_uncertainties``).
 
     Returns
     -------
@@ -813,9 +815,11 @@ def read_pandas_optical_data(
         :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
         uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
         weights divided by the square root of the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). In
+        both ADES schemes, observations without rmsRA and rmsDec get ``"VFCC17"`` weights. The
         weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+        are assigned. If weights are assigned, any rmsTime timing uncertainties are added to
+        the observation covariance (see ``TrackingData.set_observation_time_uncertainties``).
 
     Returns
     -------
@@ -868,9 +872,11 @@ def read_astropy_optical_data(
         :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
         uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
         weights divided by the square root of the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). In
+        both ADES schemes, observations without rmsRA and rmsDec get ``"VFCC17"`` weights. The
         weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+        are assigned. If weights are assigned, any rmsTime timing uncertainties are added to
+        the observation covariance (see ``TrackingData.set_observation_time_uncertainties``).
 
     Returns
     -------
