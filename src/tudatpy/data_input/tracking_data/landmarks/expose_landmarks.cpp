@@ -29,28 +29,51 @@ namespace landmarks
 void expose_landmarks( py::module& m )
 {
     py::class_< tio::sum_lmk::SumLandmarkObservation >( m, "SumLandmarkObservation", R"doc(One landmark measurement in a SUM file.)doc" )
-            .def_readonly( "landmark_id", &tio::sum_lmk::SumLandmarkObservation::landmarkId_ )
-            .def_readonly( "pixel_coordinates", &tio::sum_lmk::SumLandmarkObservation::pixelCoordinates_ );
+            .def_readonly( "landmark_id", &tio::sum_lmk::SumLandmarkObservation::landmarkId_, R"doc(Identifier of the landmark.)doc" )
+            .def_readonly( "pixel_coordinates",
+                           &tio::sum_lmk::SumLandmarkObservation::pixelCoordinates_,
+                           R"doc(Measured (pixel, line) coordinates of the landmark in the image.)doc" );
 
     py::class_< tio::sum_lmk::SumImageData >( m, "SumImageData", R"doc(Raw contents of one SUM file, which describes one image.)doc" )
-            .def_readonly( "image_id", &tio::sum_lmk::SumImageData::imageId_ )
-            .def_readonly( "utc_epoch_string", &tio::sum_lmk::SumImageData::utcEpochString_ )
-            .def_readonly( "image_size", &tio::sum_lmk::SumImageData::imageSize_ )
-            .def_readonly( "focal_length_mm", &tio::sum_lmk::SumImageData::focalLengthMm_ )
-            .def_readonly( "optical_center", &tio::sum_lmk::SumImageData::opticalCenter_ )
-            .def_readonly( "spacecraft_object_vector", &tio::sum_lmk::SumImageData::spacecraftObjectVector_ )
-            .def_readonly( "camera_axes", &tio::sum_lmk::SumImageData::cameraAxes_ )
-            .def_readonly( "k_matrix", &tio::sum_lmk::SumImageData::kMatrix_ )
-            .def_readonly( "pointing_sigma", &tio::sum_lmk::SumImageData::pointingSigma_ )
-            .def_readonly( "landmark_observations", &tio::sum_lmk::SumImageData::landmarkObservations_ )
-            .def_readonly( "source_file", &tio::sum_lmk::SumImageData::sourceFile_ );
+            .def_readonly( "image_id", &tio::sum_lmk::SumImageData::imageId_, R"doc(Identifier of the image.)doc" )
+            .def_readonly( "utc_epoch_string",
+                           &tio::sum_lmk::SumImageData::utcEpochString_,
+                           R"doc(Epoch of the image (UTC), as given in the file.)doc" )
+            .def_readonly( "image_size",
+                           &tio::sum_lmk::SumImageData::imageSize_,
+                           R"doc(Number of pixels and lines of the image (NPX, NLN).)doc" )
+            .def_readonly( "focal_length_mm", &tio::sum_lmk::SumImageData::focalLengthMm_, R"doc(Focal length (MMFL), in mm.)doc" )
+            .def_readonly( "optical_center",
+                           &tio::sum_lmk::SumImageData::opticalCenter_,
+                           R"doc(Optical centre (CTR), in (pixel, line).)doc" )
+            .def_readonly( "spacecraft_object_vector",
+                           &tio::sum_lmk::SumImageData::spacecraftObjectVector_,
+                           R"doc(Vector from the spacecraft to the target centre (SCOBJ), in the target body-fixed frame, in m.)doc" )
+            .def_readonly( "camera_axes",
+                           &tio::sum_lmk::SumImageData::cameraAxes_,
+                           R"doc(Camera axes CX, CY, CZ (rows), in the target body-fixed frame; this is the rotation matrix from the
+                           target body-fixed frame to the camera frame.)doc" )
+            .def_readonly( "k_matrix",
+                           &tio::sum_lmk::SumImageData::kMatrix_,
+                           R"doc(K matrix (K-MATRIX), converting focal-plane coordinates in mm to (pixel, line).)doc" )
+            .def_readonly( "pointing_sigma",
+                           &tio::sum_lmk::SumImageData::pointingSigma_,
+                           R"doc(Pointing uncertainty (SIGMA_PTG) about the camera axes, in rad; NaN if absent.)doc" )
+            .def_readonly( "landmark_observations",
+                           &tio::sum_lmk::SumImageData::landmarkObservations_,
+                           R"doc(Landmark measurements in the image.)doc" )
+            .def_readonly( "source_file", &tio::sum_lmk::SumImageData::sourceFile_, R"doc(Path of the SUM file.)doc" );
 
     py::class_< tio::sum_lmk::LmkLandmarkData >(
             m, "LmkLandmarkData", R"doc(Raw contents of one LMK file, which describes one landmark.)doc" )
-            .def_readonly( "landmark_id", &tio::sum_lmk::LmkLandmarkData::landmarkId_ )
-            .def_readonly( "body_fixed_position", &tio::sum_lmk::LmkLandmarkData::bodyFixedPosition_ )
-            .def_readonly( "landmark_position_sigma", &tio::sum_lmk::LmkLandmarkData::landmarkPositionSigma_ )
-            .def_readonly( "source_file", &tio::sum_lmk::LmkLandmarkData::sourceFile_ );
+            .def_readonly( "landmark_id", &tio::sum_lmk::LmkLandmarkData::landmarkId_, R"doc(Identifier of the landmark.)doc" )
+            .def_readonly( "body_fixed_position",
+                           &tio::sum_lmk::LmkLandmarkData::bodyFixedPosition_,
+                           R"doc(Position of the landmark in the target body-fixed frame, in m.)doc" )
+            .def_readonly( "landmark_position_sigma",
+                           &tio::sum_lmk::LmkLandmarkData::landmarkPositionSigma_,
+                           R"doc(Position uncertainty of the landmark (SIGMA_LMK), in m.)doc" )
+            .def_readonly( "source_file", &tio::sum_lmk::LmkLandmarkData::sourceFile_, R"doc(Path of the LMK file.)doc" );
 
     m.def( "read_raw_sum_files",
            &tio::sum_lmk::readSumFiles,

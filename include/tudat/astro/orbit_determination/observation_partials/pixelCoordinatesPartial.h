@@ -56,17 +56,6 @@ public:
                                      .at( observation_models::transmitter );
     }
 
-    PixelCoordinatesScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
-                             Eigen::DiagonalMatrix< double, 2 > focalLengthsMatrix,
-                             const bool correctForStellarAberration = false ):
-        PixelCoordinatesScaling(
-                rotationFromInertialToCameraFrameFunction,
-                [ focalLengthsMatrix ]( const Eigen::Vector3d& cameraFramePosition, const double ) {
-                    return calculatePartialOfPixelsWrtLinkEndPositionCameraFrame( cameraFramePosition, focalLengthsMatrix, false );
-                },
-                correctForStellarAberration )
-    {}
-
     ~PixelCoordinatesScaling( ) {}
 
     //! Update the scaling object to the current times and states

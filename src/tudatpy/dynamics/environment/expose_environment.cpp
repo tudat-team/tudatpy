@@ -3659,7 +3659,7 @@ bool
 
             **read-only**
 
-            Epoch of each picture taken by the camera, in time order. Empty for a camera without pictures.
+            Epoch (TDB) of each picture taken by the camera, in time order. Empty for a camera without pictures.
 
             :type: numpy.ndarray[numpy.float64[m, 1]]
             )doc" )

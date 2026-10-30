@@ -119,6 +119,8 @@ Classes
    
    VehicleSystems
 
+   Camera
+
    EngineModel
 
    Body
@@ -213,6 +215,10 @@ Classes
    
 .. autoclass:: tudatpy.dynamics.environment.VehicleSystems
    :members:
+
+.. autoclass:: tudatpy.dynamics.environment.Camera
+   :members:
+   :exclude-members: optical_center, focal_lengths, calculateObservableBodyFixedPosition, calculateObservableInertialPosition
    
 .. autoclass:: tudatpy.dynamics.environment.EngineModel
    :members:

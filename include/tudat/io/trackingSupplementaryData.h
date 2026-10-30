@@ -319,42 +319,24 @@ public:
         {
             throw std::runtime_error( "Inconsistent calibration for PSF camera " + cameraId_ );
         }
-        auto mergedHistory = rotationFromInertialToCameraFrameHistory_;
-        for( const auto& entry : other.rotationFromInertialToCameraFrameHistory_ )
-        {
-            const auto inserted = mergedHistory.emplace( entry );
-            if( !inserted.second && !inserted.first->second.toRotationMatrix( ).isApprox( entry.second.toRotationMatrix( ) ) )
-            {
-                throw std::runtime_error( "Conflicting pointing epochs for PSF camera " + cameraId_ );
-            }
-        }
-        auto mergedPictureCalibrationHistory = pictureCalibrationHistory_;
-        for( const auto& entry : other.pictureCalibrationHistory_ )
-        {
-            const auto inserted = mergedPictureCalibrationHistory.emplace( entry );
-            if( !inserted.second && !inserted.first->second.isApprox( entry.second ) )
-            {
-                throw std::runtime_error( "Conflicting picture calibrations for PSF camera " + cameraId_ );
-            }
-        }
-        auto mergedPictureIdHistory = pictureIdHistory_;
-        for( const auto& entry : other.pictureIdHistory_ )
-        {
-            const auto inserted = mergedPictureIdHistory.emplace( entry );
-            if( !inserted.second && inserted.first->second != entry.second )
-            {
-                throw std::runtime_error( "Conflicting picture identifiers for PSF camera " + cameraId_ );
-            }
-        }
-        auto mergedUncertaintyHistory = pointingUncertaintyHistory_;
-        for( const auto& entry : other.pointingUncertaintyHistory_ )
-        {
-            const auto inserted = mergedUncertaintyHistory.emplace( entry );
-            if( !inserted.second && inserted.first->second != entry.second )
-            {
-                throw std::runtime_error( "Conflicting pointing uncertainties for PSF camera " + cameraId_ );
-            }
-        }
+        auto mergedHistory = getMergedHistory(
+                rotationFromInertialToCameraFrameHistory_,
+                other.rotationFromInertialToCameraFrameHistory_,
+                []( const Eigen::Quaterniond& first, const Eigen::Quaterniond& second ) {
+                    return first.toRotationMatrix( ).isApprox( second.toRotationMatrix( ) );
+                },
+                "pointing epochs" );
+        auto mergedPictureCalibrationHistory = getMergedHistory(
+                pictureCalibrationHistory_,
+                other.pictureCalibrationHistory_,
+                []( const CameraCalibration& first, const CameraCalibration& second ) { return first.isApprox( second ); },
+                "picture calibrations" );
+        auto mergedPictureIdHistory =
+                getMergedHistory( pictureIdHistory_, other.pictureIdHistory_, std::equal_to< std::string >( ), "picture identifiers" );
+        auto mergedUncertaintyHistory = getMergedHistory( pointingUncertaintyHistory_,
+                                                          other.pointingUncertaintyHistory_,
+                                                          std::equal_to< Eigen::Vector3d >( ),
+                                                          "pointing uncertainties" );
         rotationFromInertialToCameraFrameHistory_.swap( mergedHistory );
         pictureCalibrationHistory_.swap( mergedPictureCalibrationHistory );
         pictureIdHistory_.swap( mergedPictureIdHistory );
@@ -362,6 +344,25 @@ public:
     }
 
 private:
+    //! Merge two histories; an epoch present in both must have equal values (according to isEqual).
+    template< typename ValueType, typename EqualityFunction >
+    std::map< double, ValueType > getMergedHistory( const std::map< double, ValueType >& history,
+                                                    const std::map< double, ValueType >& otherHistory,
+                                                    const EqualityFunction& isEqual,
+                                                    const std::string& valueName ) const
+    {
+        std::map< double, ValueType > mergedHistory = history;
+        for( const auto& entry : otherHistory )
+        {
+            const auto inserted = mergedHistory.emplace( entry );
+            if( !inserted.second && !isEqual( inserted.first->second, entry.second ) )
+            {
+                throw std::runtime_error( "Conflicting " + valueName + " for PSF camera " + cameraId_ );
+            }
+        }
+        return mergedHistory;
+    }
+
     std::string cameraId_;
 
     //! Constant calibration; unused when the calibration is given per picture.
