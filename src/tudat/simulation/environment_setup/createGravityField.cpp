@@ -324,15 +324,39 @@ std::pair< double, double > readShadrGravityFieldFile( const std::string& fileNa
                                   "coefficients are supported." );
     }
 
-    // Read coefficients, with the gravitational parameter and reference radius from the header
-    std::pair< double, double > referenceData = readGravityFieldFile( fileName, maximumDegree, maximumOrder, coefficients, 1, 0 );
+    // Read coefficient records (degree, order, C, S, C uncertainty, S uncertainty), which may be in any order. Covariance
+    // records (with 8 fields) are skipped.
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
+    std::vector< std::string > fields;
+    while( std::getline( stream, line ) )
+    {
+        boost::algorithm::split(
+                fields, boost::algorithm::trim_copy( line ), boost::algorithm::is_any_of( ", \t" ), boost::algorithm::token_compress_on );
+        if( fields.back( ).empty( ) )
+        {
+            fields.pop_back( );
+        }
+        if( fields.size( ) == 6 )
+        {
+            const int degree = std::stoi( fields.at( 0 ) );
+            const int order = std::stoi( fields.at( 1 ) );
+            if( degree <= maximumDegree && order <= maximumOrder )
+            {
+                cosineCoefficients( degree, order ) = std::stod( fields.at( 2 ) );
+                sineCoefficients( degree, order ) = std::stod( fields.at( 3 ) );
+            }
+        }
+    }
+    cosineCoefficients( 0, 0 ) = 1.0;
+    coefficients = std::make_pair( cosineCoefficients, sineCoefficients );
     if( normalizationState == 0 )
     {
         coefficients = basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients( coefficients.first, coefficients.second );
     }
 
-    // Convert from km^3/s^2 and km to SI units
-    return std::make_pair( referenceData.first * 1.0E9, referenceData.second * 1.0E3 );
+    // Convert gravitational parameter and reference radius from km^3/s^2 and km to SI units
+    return std::make_pair( std::stod( header.at( 1 ) ) * 1.0E9, std::stod( header.at( 0 ) ) * 1.0E3 );
 }
 
 //! Function to create a gravity field model.

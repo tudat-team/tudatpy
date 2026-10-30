@@ -571,7 +571,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  - Each subsequent line should contain a set of spherical harmonic coefficients (first ordered in ascending order by degree, then in ascending order by order), where the first, second, third and fourth value of the line should be: degree :math:`l`, order :math:`m`, normalized cosine coefficient :math:`\bar{C}_{lm}`, normalized sine coefficient :math:`\bar{S}_{lm}`. Additional entries (for instance with coefficient uncertainties) are ignored.
 
  For files in the PDS SHADR format, use :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_shadr_file`, which reads the
- header in its units, and also supports unnormalized coefficients.
+ header in its units, and also supports unordered and unnormalized coefficients.
 
  .. warning::
 
@@ -641,7 +641,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  ASCII data record (SHADR) format, as described `here <https://atmos.nmsu.edu/PDS/data/jnogrv_0002/DOCUMENT/SHADR.ASC>`__.
  The coefficients are read as in :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic`, with
  the following differences: the reference radius and gravitational parameter are read from the SHADR header (in km and km^3/s^2),
- and unnormalized coefficients (normalization state 0 in the header) are converted to fully normalized coefficients
+ the coefficients may be listed in any order (and covariance records are skipped), and unnormalized coefficients (normalization
+ state 0 in the header) are converted to fully normalized coefficients
  (see :func:`~tudatpy.astro.gravitation.normalize_spherical_harmonic_coefficients`).
 
  Parameters
