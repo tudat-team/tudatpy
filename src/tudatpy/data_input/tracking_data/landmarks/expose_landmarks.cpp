@@ -39,13 +39,11 @@ void expose_landmarks( py::module& m )
             .def_readonly( "utc_epoch_string",
                            &tio::sum_lmk::SumImageData::utcEpochString_,
                            R"doc(Epoch of the image (UTC), as given in the file.)doc" )
-            .def_readonly( "image_size",
-                           &tio::sum_lmk::SumImageData::imageSize_,
-                           R"doc(Number of pixels and lines of the image (NPX, NLN).)doc" )
+            .def_readonly(
+                    "image_size", &tio::sum_lmk::SumImageData::imageSize_, R"doc(Number of pixels and lines of the image (NPX, NLN).)doc" )
             .def_readonly( "focal_length_mm", &tio::sum_lmk::SumImageData::focalLengthMm_, R"doc(Focal length (MMFL), in mm.)doc" )
-            .def_readonly( "optical_center",
-                           &tio::sum_lmk::SumImageData::opticalCenter_,
-                           R"doc(Optical centre (CTR), in (pixel, line).)doc" )
+            .def_readonly(
+                    "optical_center", &tio::sum_lmk::SumImageData::opticalCenter_, R"doc(Optical centre (CTR), in (pixel, line).)doc" )
             .def_readonly( "spacecraft_object_vector",
                            &tio::sum_lmk::SumImageData::spacecraftObjectVector_,
                            R"doc(Vector from the spacecraft to the target centre (SCOBJ), in the target body-fixed frame, in m.)doc" )

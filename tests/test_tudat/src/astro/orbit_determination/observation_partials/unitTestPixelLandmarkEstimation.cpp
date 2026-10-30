@@ -486,7 +486,6 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
     }
 }
 
-
 //! Estimate the spacecraft initial state and a per-image camera pointing correction together, through the full
 //! OrbitDeterminationManager (propagation, variational equations and pixel partials), without and with the SIGMA_PTG a-priori.
 //!
@@ -567,7 +566,8 @@ BOOST_AUTO_TEST_CASE( testJointStateAndPointingEstimation )
     for( const int startIndex : pointingStartIndices )
     {
         constrainedDeviation +=
-                ( constrainedOutput->parameterEstimate_.segment( startIndex, 3 ) - truthParameters.segment( startIndex, 3 ) ).squaredNorm( );
+                ( constrainedOutput->parameterEstimate_.segment( startIndex, 3 ) - truthParameters.segment( startIndex, 3 ) )
+                        .squaredNorm( );
         for( int component = 0; component < 3; ++component )
         {
             BOOST_CHECK_LT( constrainedOutput->getFormalErrorVector( )( startIndex + component ),

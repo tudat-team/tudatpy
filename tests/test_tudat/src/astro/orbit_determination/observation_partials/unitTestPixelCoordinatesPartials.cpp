@@ -440,15 +440,15 @@ BOOST_AUTO_TEST_CASE( testPixelReferenceBodyRotationPartials )
                                                                "J2000",
                                                                "Target_Fixed" );
         const auto parameter = std::make_shared< RotationRate >( rotation, "Target" );
-        const auto modelAndPartial = createModelAndRotationPartial(
-                bodies,
-                image,
-                landmarks,
-                rotation,
-                std::make_shared< EstimatableParameterSet< double > >(
-                        std::vector< std::shared_ptr< EstimatableParameter< double > > >{ parameter },
-                        std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ) ),
-                aberration );
+        const auto modelAndPartial =
+                createModelAndRotationPartial( bodies,
+                                               image,
+                                               landmarks,
+                                               rotation,
+                                               std::make_shared< EstimatableParameterSet< double > >(
+                                                       std::vector< std::shared_ptr< EstimatableParameter< double > > >{ parameter },
+                                                       std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ) ),
+                                               aberration );
         const std::function< Eigen::VectorXd( const double ) > observable = [ & ]( const double time ) {
             return Eigen::VectorXd( modelAndPartial.first->computeObservations( time, receiver ) );
         };

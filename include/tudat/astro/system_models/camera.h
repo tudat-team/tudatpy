@@ -418,7 +418,7 @@ public:
     }
 
     Eigen::Matrix< double, 2, 3 > getPixelLinePartialWrtCameraFramePosition( const Eigen::Vector3d& positionOfObservedBodyInCameraFrame,
-                                                                           const double secondsSinceEpoch = TUDAT_NAN ) const
+                                                                             const double secondsSinceEpoch = TUDAT_NAN ) const
     {
         return getProjectionModel( secondsSinceEpoch )->getPixelLinePartialWrtCameraFramePosition( positionOfObservedBodyInCameraFrame );
     }
