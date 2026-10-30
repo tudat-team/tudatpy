@@ -128,6 +128,18 @@ public:
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getVariationalPropagationResults( ) = 0;
 
+    //! Function to get the state partial addition indices of the variational equations.
+    /*!
+     * Returns the indices of column blocks of the variational equations that are to be added to other column blocks
+     * (e.g. to add central-body dependency columns). These are the raw indices as passed to the state transition and
+     * sensitivity matrix interface constructor. Empty by default; only implemented for single-arc.
+     * \return State partial addition indices.
+     */
+    virtual std::vector< std::pair< int, int > > getStatePartialAdditionIndices( )
+    {
+        return std::vector< std::pair< int, int > >( );
+    }
+
 protected:
     //! Create initial matrix of numerical soluation to variational + dynamical equations.
     /*!

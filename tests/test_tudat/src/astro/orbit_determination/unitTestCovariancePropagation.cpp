@@ -24,6 +24,11 @@
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
+#include "tudat/io/serialization/registrations_estimation.h"
+
+#include <cereal/archives/binary.hpp>
+#include <sstream>
 
 using namespace tudat;
 namespace tudat
@@ -595,6 +600,198 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
             ++itStart;
             ++itMiddle;
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( test_CovariancePropagationFromEstimationOutput )
+{
+    using namespace tudat::observation_models;
+    using namespace tudat::orbit_determination;
+    using namespace tudat::estimatable_parameters;
+    using namespace tudat::interpolators;
+    using namespace tudat::numerical_integrators;
+    using namespace tudat::spice_interface;
+    using namespace tudat::simulation_setup;
+    using namespace tudat::orbital_element_conversions;
+    using namespace tudat::ephemerides;
+    using namespace tudat::propagators;
+    using namespace tudat::basic_astrodynamics;
+    using namespace tudat::coordinate_conversions;
+
+    const double startTime = 1.0E7;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define bodies in simulation
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Earth" );
+    bodyNames.push_back( "Sun" );
+    bodyNames.push_back( "Moon" );
+    bodyNames.push_back( "Mars" );
+
+    double initialEphemerisTime = startTime;
+    double finalEphemerisTime = initialEphemerisTime + 4.0 * 3600.0;
+
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+            "ECLIPJ2000",
+            "IAU_Earth",
+            spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+            initialEphemerisTime,
+            2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY ) );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+
+    double referenceArea = 4.0;
+    double aerodynamicCoefficient = 1.2;
+    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                    referenceArea,
+                    aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ),
+                    negative_aerodynamic_frame_coefficients );
+    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
+            createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
+
+    double referenceAreaRadiation = 4.0;
+    double radiationPressureCoefficient = 1.2;
+    std::vector< std::string > occultingBodies;
+    occultingBodies.push_back( "Earth" );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Vehicle",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
+
+    SelectedAccelerationMap accelerationMap;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
+    accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+    std::vector< std::string > bodiesToIntegrate;
+    std::vector< std::string > centralBodies;
+    bodiesToIntegrate.push_back( "Vehicle" );
+    centralBodies.push_back( "Earth" );
+
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 1.0E-5;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    Eigen::Matrix< double, 6, 1 > systemInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            rungeKuttaFixedStepSettings( 400.0, CoefficientSets::rungeKuttaFehlberg78 );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    propagationTimeTerminationSettings( finalEphemerisTime ),
+                    cowell );
+
+    LinkEnds linkEnds;
+    linkEnds[ observed_body ] = LinkEndId( "Vehicle", "" );
+
+    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+    linkEndsPerObservable[ position_observable ].push_back( linkEnds );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+            "Vehicle", systemInitialState, "Earth" ) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double, double >( parameterNames, bodies );
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
+
+    std::vector< double > baseTimeList;
+    double observationTimeStart = initialEphemerisTime + 100.0;
+    double observationInterval = 20.0;
+    double currentObservationTime = observationTimeStart;
+    while( currentObservationTime < finalEphemerisTime - 100.0 )
+    {
+        baseTimeList.push_back( currentObservationTime );
+        currentObservationTime += observationInterval;
+    }
+
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput =
+            getObservationSimulationSettings< double >( linkEndsPerObservable, baseTimeList, observed_body );
+
+    std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+    std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+    estimationInput->defineEstimationSettings( true, true, true, false, true, true );
+    simulatedObservations->setConstantWeight( 1.0, observationParser( position_observable ) );
+
+    std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+
+    BOOST_REQUIRE( estimationOutput->hasCovariancePropagationData( ) );
+
+    // Reference: propagate with the live interface.
+    std::vector< double > evaluationTimes;
+    for( double currentTime = initialEphemerisTime; currentTime <= finalEphemerisTime; currentTime += 600.0 )
+    {
+        evaluationTimes.push_back( currentTime );
+    }
+
+    std::map< double, Eigen::MatrixXd > referenceCovariance =
+            propagateCovarianceFromObjects< double, double >( estimationOutput,
+                                                              orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( ),
+                                                              evaluationTimes );
+
+    // Round-trip the output through serialization, then rebuild the interface from the loaded output only.
+    std::stringstream serializationStream;
+    {
+        cereal::BinaryOutputArchive outputArchive( serializationStream );
+        outputArchive( estimationOutput );
+    }
+
+    std::shared_ptr< EstimationOutput< double, double > > loadedOutput;
+    {
+        cereal::BinaryInputArchive inputArchive( serializationStream );
+        inputArchive( loadedOutput );
+    }
+
+    BOOST_REQUIRE( loadedOutput->hasCovariancePropagationData( ) );
+
+    std::map< double, Eigen::MatrixXd > rebuiltCovariance =
+            propagateCovarianceFromEstimationOutput( loadedOutput, evaluationTimes );
+
+    BOOST_CHECK_EQUAL( referenceCovariance.size( ), rebuiltCovariance.size( ) );
+
+    auto referenceIterator = referenceCovariance.begin( );
+    auto rebuiltIterator = rebuiltCovariance.begin( );
+    while( referenceIterator != referenceCovariance.end( ) )
+    {
+        BOOST_CHECK_EQUAL( referenceIterator->first, rebuiltIterator->first );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( referenceIterator->second, rebuiltIterator->second, 1.0E-12 );
+        ++referenceIterator;
+        ++rebuiltIterator;
     }
 }
 

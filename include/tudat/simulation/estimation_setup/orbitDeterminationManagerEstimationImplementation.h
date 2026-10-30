@@ -405,6 +405,27 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {
         estimationOutput->setSimulationResults( simulationResultsPerIteration );
+
+        // Store the payload required to rebuild the covariance-propagation operator in a fresh runtime. Only
+        // single-arc estimation is supported; multi-arc/hybrid-arc results are skipped.
+        if( variationalEquationsSolver_ != nullptr && bestIteration >= 0 &&
+            bestIteration < static_cast< int >( simulationResultsPerIteration.size( ) ) )
+        {
+            std::shared_ptr< propagators::SingleArcVariationalSimulationResults< ObservationScalarType, TimeType > >
+                    bestVariationalResults = std::dynamic_pointer_cast<
+                            propagators::SingleArcVariationalSimulationResults< ObservationScalarType, TimeType > >(
+                            simulationResultsPerIteration.at( bestIteration ) );
+            if( bestVariationalResults != nullptr && stateTransitionAndSensitivityMatrixInterface_ != nullptr )
+            {
+                estimationOutput->setCovariancePropagationData(
+                        bestVariationalResults,
+                        variationalEquationsSolver_->getStatePartialAdditionIndices( ),
+                        stateTransitionAndSensitivityMatrixInterface_->getStateTransitionMatrixSize( ),
+                        static_cast< int >( numberEstimatedParameters_ ),
+                        static_cast< int >( numberConsiderParameters_ ),
+                        considerParametersValues_ );
+            }
+        }
     }
     if( !interArcConstraints.empty( ) )
     {

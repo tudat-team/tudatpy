@@ -275,6 +275,17 @@ public:
         return getSingleArcVariationalPropagationResults( );
     }
 
+    //! Function to get the state partial addition indices of the variational equations.
+    /*!
+     * Returns the raw (non-inverted) state partial addition indices as passed to the state transition and sensitivity
+     * matrix interface constructor.
+     * \return State partial addition indices.
+     */
+    std::vector< std::pair< int, int > > getStatePartialAdditionIndices( ) override
+    {
+        return variationalEquationsObject_->getStatePartialAdditionIndices( );
+    }
+
 protected:
 private:
     //! Reset solutions of variational equations.

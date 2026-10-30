@@ -23,6 +23,7 @@
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/types/memory.hpp>
+#include <cereal/types/utility.hpp>
 #include <cereal/types/vector.hpp>
 
 #include "tudat/basics/timeType.h"
@@ -1090,6 +1091,77 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return simulationResultsPerIteration_.at( bestIteration_ );
     }
 
+    //! Function to store the data required to rebuild the covariance-propagation operator in a fresh runtime.
+    /*!
+     * Stores the variational results of the best iteration together with the metadata needed to reconstruct the
+     * state transition and sensitivity matrix interface from them. Only single-arc estimation is supported.
+     * \param variationalResults Variational propagation results of the best iteration.
+     * \param statePartialAdditionIndices Indices of column blocks of the variational equations to add to other column
+     * blocks (as passed to the state transition and sensitivity matrix interface constructor).
+     * \param stateTransitionMatrixSize Size of the state transition matrix (conventional state size).
+     * \param numberOfEstimatedParameters Number of estimated parameters.
+     * \param numberOfConsiderParameters Number of consider parameters.
+     * \param considerParametersValues Values of the consider parameters at the best iteration.
+     */
+    void setCovariancePropagationData(
+            const std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > variationalResults,
+            const std::vector< std::pair< int, int > >& statePartialAdditionIndices,
+            const int stateTransitionMatrixSize,
+            const int numberOfEstimatedParameters,
+            const int numberOfConsiderParameters,
+            const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& considerParametersValues )
+    {
+        covariancePropagationVariationalResults_ = variationalResults;
+        covariancePropagationStatePartialAdditionIndices_ = statePartialAdditionIndices;
+        covariancePropagationStateTransitionMatrixSize_ = stateTransitionMatrixSize;
+        covariancePropagationNumberOfEstimatedParameters_ = numberOfEstimatedParameters;
+        covariancePropagationNumberOfConsiderParameters_ = numberOfConsiderParameters;
+        covariancePropagationConsiderParametersValues_ = considerParametersValues;
+    }
+
+    //! Function to retrieve the variational results stored for covariance propagation (nullptr if not stored).
+    std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getCovariancePropagationVariationalResults( )
+            const
+    {
+        return covariancePropagationVariationalResults_;
+    }
+
+    //! Function to retrieve the state partial addition indices stored for covariance propagation.
+    const std::vector< std::pair< int, int > >& getCovariancePropagationStatePartialAdditionIndices( ) const
+    {
+        return covariancePropagationStatePartialAdditionIndices_;
+    }
+
+    //! Function to retrieve the state transition matrix size stored for covariance propagation.
+    int getCovariancePropagationStateTransitionMatrixSize( ) const
+    {
+        return covariancePropagationStateTransitionMatrixSize_;
+    }
+
+    //! Function to retrieve the number of estimated parameters stored for covariance propagation.
+    int getCovariancePropagationNumberOfEstimatedParameters( ) const
+    {
+        return covariancePropagationNumberOfEstimatedParameters_;
+    }
+
+    //! Function to retrieve the number of consider parameters stored for covariance propagation.
+    int getCovariancePropagationNumberOfConsiderParameters( ) const
+    {
+        return covariancePropagationNumberOfConsiderParameters_;
+    }
+
+    //! Function to retrieve the consider parameter values stored for covariance propagation.
+    const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& getCovariancePropagationConsiderParametersValues( ) const
+    {
+        return covariancePropagationConsiderParametersValues_;
+    }
+
+    //! Function to check whether the data required for covariance propagation is available.
+    bool hasCovariancePropagationData( ) const
+    {
+        return covariancePropagationVariationalResults_ != nullptr;
+    }
+
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 
@@ -1128,6 +1200,25 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     //! Populated via setInterArcContinuityDiscrepancyHistory; see comment above for rationale.
     std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory_;
 
+    //! Variational propagation results of the best iteration, stored to allow covariance propagation in a fresh runtime.
+    //! Null if not stored (e.g. observation-only estimation, or state history saving disabled).
+    std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > covariancePropagationVariationalResults_;
+
+    //! State partial addition indices required to rebuild the state transition and sensitivity matrix interface.
+    std::vector< std::pair< int, int > > covariancePropagationStatePartialAdditionIndices_;
+
+    //! Size of the state transition matrix (conventional state size) of the stored variational results.
+    int covariancePropagationStateTransitionMatrixSize_ = 0;
+
+    //! Number of estimated parameters at the best iteration.
+    int covariancePropagationNumberOfEstimatedParameters_ = 0;
+
+    //! Number of consider parameters at the best iteration.
+    int covariancePropagationNumberOfConsiderParameters_ = 0;
+
+    //! Values of the consider parameters at the best iteration.
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > covariancePropagationConsiderParametersValues_;
+
     //    //! List of numerical solutions of dynamics (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >
     //    dynamicsHistoryPerIteration_;
@@ -1157,7 +1248,15 @@ protected:
                 ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
                 ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
                 ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
-                ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ );
+                ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ ) &&
+                ( covariancePropagationStatePartialAdditionIndices_ == rhs.covariancePropagationStatePartialAdditionIndices_ ) &&
+                ( covariancePropagationStateTransitionMatrixSize_ == rhs.covariancePropagationStateTransitionMatrixSize_ ) &&
+                ( covariancePropagationNumberOfEstimatedParameters_ == rhs.covariancePropagationNumberOfEstimatedParameters_ ) &&
+                ( covariancePropagationNumberOfConsiderParameters_ == rhs.covariancePropagationNumberOfConsiderParameters_ ) &&
+                ( covariancePropagationConsiderParametersValues_ == rhs.covariancePropagationConsiderParametersValues_ ) &&
+                ( ( covariancePropagationVariationalResults_ == nullptr && rhs.covariancePropagationVariationalResults_ == nullptr ) ||
+                  ( covariancePropagationVariationalResults_ != nullptr && rhs.covariancePropagationVariationalResults_ != nullptr &&
+                    *covariancePropagationVariationalResults_ == *rhs.covariancePropagationVariationalResults_ ) );
     }
 
 private:
@@ -1179,6 +1278,12 @@ private:
         ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+        ar( CEREAL_NVP( covariancePropagationVariationalResults_ ) );
+        ar( CEREAL_NVP( covariancePropagationStatePartialAdditionIndices_ ) );
+        ar( CEREAL_NVP( covariancePropagationStateTransitionMatrixSize_ ) );
+        ar( CEREAL_NVP( covariancePropagationNumberOfEstimatedParameters_ ) );
+        ar( CEREAL_NVP( covariancePropagationNumberOfConsiderParameters_ ) );
+        ar( CEREAL_NVP( covariancePropagationConsiderParametersValues_ ) );
     }
 
     template< class Archive >
@@ -1197,6 +1302,12 @@ private:
         ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+        ar( CEREAL_NVP( covariancePropagationVariationalResults_ ) );
+        ar( CEREAL_NVP( covariancePropagationStatePartialAdditionIndices_ ) );
+        ar( CEREAL_NVP( covariancePropagationStateTransitionMatrixSize_ ) );
+        ar( CEREAL_NVP( covariancePropagationNumberOfEstimatedParameters_ ) );
+        ar( CEREAL_NVP( covariancePropagationNumberOfConsiderParameters_ ) );
+        ar( CEREAL_NVP( covariancePropagationConsiderParametersValues_ ) );
     }
 };
 
