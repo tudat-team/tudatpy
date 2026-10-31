@@ -31,7 +31,7 @@ def aip_response(table, status="OK"):
 
 
 def test_local_loading_utc_dates_matches_existing_filters():
-    raw = GaiaAstrometry.load_from_parquet(673, ARCHIVE)
+    raw = GaiaAstrometry.from_parquet(673, ARCHIVE)
     start = datetime(2015, 1, 1)
     end = datetime(2016, 1, 1)
     converter = time.default_time_scale_converter()
@@ -96,7 +96,7 @@ def test_missing_target_is_allowed():
 
 @pytest.mark.parametrize("message", ["Archive query failed", "No observations found for [673]"])
 def test_query_failure_is_distinct_from_empty_data(message):
-    with patch.object(GaiaAstrometry, "load_from_aip", side_effect=RuntimeError(message)):
+    with patch.object(GaiaAstrometry, "from_aip", side_effect=RuntimeError(message)):
         if message.startswith("No observations found"):
             assert load_gaia_astrometry(673) is None
         else:
@@ -105,15 +105,13 @@ def test_query_failure_is_distinct_from_empty_data(message):
 
 
 def test_unreadable_archive_is_not_treated_as_empty():
-    with patch.object(
-        GaiaAstrometry, "load_from_parquet", side_effect=OSError("archive unreadable")
-    ):
+    with patch.object(GaiaAstrometry, "from_parquet", side_effect=OSError("archive unreadable")):
         with pytest.raises(OSError, match="archive unreadable"):
             load_gaia_astrometry(673, parquet_path=ARCHIVE)
 
 
 def test_reversed_interval_fails_before_query():
-    with patch.object(GaiaAstrometry, "load_from_aip") as query:
+    with patch.object(GaiaAstrometry, "from_aip") as query:
         with pytest.raises(ValueError, match="start"):
             load_gaia_astrometry(673, epoch_start=20.0, epoch_end=10.0)
         query.assert_not_called()
@@ -137,7 +135,7 @@ def test_online_response_is_cached_in_original_units_before_filtering(target, tm
         query.reset_mock()
         loaded = load_gaia_astrometry(target, parquet_path=archive_path)
         query.assert_not_called()
-    expected = GaiaAstrometry.load_from_parquet(target, ARCHIVE)
+    expected = GaiaAstrometry.from_parquet(target, ARCHIVE)
     expected.apply_filters()
     pd.testing.assert_frame_equal(loaded.table, expected.table)
 
@@ -163,6 +161,17 @@ def test_failed_query_does_not_create_archive(tmp_path):
         with pytest.raises(RuntimeError, match="Archive query failed"):
             load_gaia_astrometry(673, parquet_path=archive_path)
     assert not archive_path.exists()
+
+
+def test_aip_queries_by_number_and_denomination(tmp_path):
+    raw = pd.read_parquet(ARCHIVE)
+    sources = Table({"source_id": raw.source_id.unique()})
+    responses = [aip_response(sources), aip_response(Table.from_pandas(raw))]
+    with patch("requests.get", side_effect=responses) as query:
+        loaded = GaiaAstrometry.from_aip([673, "Nina"])
+    source_query = query.call_args_list[0].kwargs["params"]["QUERY"]
+    assert "number_mp IN (673) OR denomination IN ('nina')" in source_query
+    assert set(loaded.table["number_mp"]) == {673, 779}
 
 
 @pytest.mark.parametrize("status", ["ERROR", "OVERFLOW"])

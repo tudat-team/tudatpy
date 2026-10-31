@@ -63,7 +63,7 @@ def spice_kernels():
 def _gaia_astrometry():
     """Create a GaiaAstrometry object for asteroids 673 and 779 from the local test archive.
     Runs once per module"""
-    gaia_astrometry = GaiaAstrometry.load_from_parquet(TEST_ASTEROID_MPC, ASTROMETRY_ARCHIVE_PATH)
+    gaia_astrometry = GaiaAstrometry.from_parquet(TEST_ASTEROID_MPC, ASTROMETRY_ARCHIVE_PATH)
     gaia_astrometry.apply_filters()
     return gaia_astrometry
 
@@ -102,7 +102,7 @@ def observation_dataset(gaia_astrometry, bodies):
 @pytest.mark.remote_data
 def test_local_astroquery_consistency(astrometry_table):
     """Test whether data obtained from the local archive and astroquery are consistent"""
-    astrometry_from_astroquery = GaiaAstrometry.load_from_astroquery(TEST_ASTEROID_MPC)
+    astrometry_from_astroquery = GaiaAstrometry.from_astroquery(TEST_ASTEROID_MPC)
     astrometry_from_astroquery.apply_filters()
     astrometry_table_from_astroquery = astrometry_from_astroquery.table
 
@@ -116,18 +116,28 @@ def test_astrometry_retrieval_no_data():
 
     # Online variant
     with pytest.raises(RuntimeError):
-        GaiaAstrometry.load_from_astroquery([asteroid_no_data])
+        GaiaAstrometry.from_astroquery([asteroid_no_data])
     # Local variant
     with pytest.raises(RuntimeError):
-        GaiaAstrometry.load_from_parquet([asteroid_no_data], ASTROMETRY_ARCHIVE_PATH)
+        GaiaAstrometry.from_parquet([asteroid_no_data], ASTROMETRY_ARCHIVE_PATH)
 
 
 def test_mpc_number_zero_is_rejected():
     """Natural satellites cannot be distinguished using their shared MPC number zero."""
     with pytest.raises(ValueError, match="MPC number 0"):
-        GaiaAstrometry(pd.DataFrame({"number_mp": [0]}))
-    with pytest.raises(ValueError, match="MPC number 0"):
         get_state_from_gaia_archive(0, SOURCE_ARCHIVE_PATH)
+
+
+def test_table_with_missing_columns_is_rejected():
+    with pytest.raises(ValueError, match="Missing columns"):
+        GaiaAstrometry(pd.DataFrame({"number_mp": [0]}))
+
+
+def test_query_by_mpc_number_and_denomination():
+    """Querying an asteroid by MPC number or by denomination gives the same observations"""
+    by_number = GaiaAstrometry.from_parquet(TEST_ASTEROID_MPC[0], ASTROMETRY_ARCHIVE_PATH)
+    by_denomination = GaiaAstrometry.from_parquet("Edda", ASTROMETRY_ARCHIVE_PATH)
+    pdt.assert_frame_equal(by_number.table, by_denomination.table)
 
 
 _DOWNLOAD_FUNCTION = "tudatpy.data_input.tracking_data.gaia.utils.download_extra_file"
@@ -555,12 +565,12 @@ def test_weight_matrix_symmetry(observation_dataset):
 def test_covariance_matrix_variance_consistency(gaia_astrometry):
     """Test that the covariance matrix diagonal matches the per-observation variances in the
     astrometry table, ordered by epoch (RA then DEC per observation)."""
-    # Concatenate the per-transit covariance blocks into one matrix over all observations
-    covariance = block_diag(*gaia_astrometry._get_observation_covariance(TEST_ASTEROID_MPC[0]))
-    variance_from_matrix = np.diag(covariance)
-
     table = gaia_astrometry.table
     table = table[table["number_mp"] == TEST_ASTEROID_MPC[0]].reset_index(drop=True)
+
+    # Concatenate the per-transit covariance blocks into one matrix over all observations
+    covariance = block_diag(*gaia_astrometry._get_observation_covariance(table))
+    variance_from_matrix = np.diag(covariance)
 
     # By design, the systematic error is constant per transit: use the first entry of each transit_id
     systematic = table.groupby("transit_id", sort=False)[
@@ -582,8 +592,11 @@ def test_covariance_weight_matrix_consistency(observation_dataset, gaia_astromet
     )
     weight_matrix = observation_dataset.get_weight_matrix(condition).toarray()
     covariance_from_obscol = np.linalg.inv(weight_matrix)
+    table = gaia_astrometry.table
     covariance_from_table = block_diag(
-        *gaia_astrometry._get_observation_covariance(TEST_ASTEROID_MPC[0])
+        *gaia_astrometry._get_observation_covariance(
+            table[table["number_mp"] == TEST_ASTEROID_MPC[0]]
+        )
     )
 
     # NOTE: loose tolerance because of high condition number so much precision is lost during 2 inversions
