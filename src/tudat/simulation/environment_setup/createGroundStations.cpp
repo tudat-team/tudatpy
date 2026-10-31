@@ -123,8 +123,9 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 }
                 else if( relativisticStationMotionSettings->useGeneralRelativisticCorrection_ )
                 {
-                    centralBodyBarycentricPositionFunction =
-                            std::bind( &Body::getPositionInBaseFrameFromEphemeris< double, double >, body, std::placeholders::_1 );
+                    centralBodyBarycentricPositionFunction = std::bind( &Body::getPositionInBaseFrameFromEphemeris< double, double >,
+                                                                        bodies.at( relativisticStationMotionSettings->centralBodyName_ ),
+                                                                        std::placeholders::_1 );
                     if( bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
                     {
                         throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " +
@@ -140,7 +141,8 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                         centralBodyBarycentricPositionFunction,
                         inertialToBodyFixedRotationFunction,
                         centralBodyGravitationalParameterFunction,
-                        relativisticStationMotionSettings->useGeneralRelativisticCorrection_ );
+                        relativisticStationMotionSettings->useGeneralRelativisticCorrection_,
+                        relativisticStationMotionSettings->scaleToTdbCompatibleCoordinates_ );
                 break;
             }
             case custom_station_motion: {

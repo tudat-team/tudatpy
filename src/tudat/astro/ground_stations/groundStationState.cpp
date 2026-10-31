@@ -189,18 +189,25 @@ Eigen::Vector6d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedS
         inertialNominalStationPosition_ = currentRotationToBodyFixedFrame_.inverse( ) * groundStationState->getNominalCartesianPosition( );
 
         centralBodyBarycentricState_ = bodyBarycentricStateFunction_( time );
-        stationMotion.segment( 0, 3 ) += ( centralBodyBarycentricState_.segment( 3, 3 ).dot( inertialNominalStationPosition_ ) ) *
+        stationMotion.segment( 0, 3 ) -= 0.5 * ( centralBodyBarycentricState_.segment( 3, 3 ).dot( inertialNominalStationPosition_ ) ) *
                 centralBodyBarycentricState_.segment( 3, 3 );
 
         if( useGeneralRelativisticCorrection_ )
         {
-            stationMotion.segment( 0, 3 ) +=
+            stationMotion.segment( 0, 3 ) -=
                     ( centralBodyGravitationalParameterFunction_( ) /
                       ( centralBodyBarycentricState_.segment( 0, 3 ) - centralBodyBarycentricPositionFunction_( time ) ).norm( ) ) *
                     inertialNominalStationPosition_;
         }
 
         stationMotion.segment( 0, 3 ) *= physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+
+        // L_C, from L_B = L_C + L_G - L_C L_G
+        if( scaleToTdbCompatibleCoordinates_ )
+        {
+            stationMotion.segment( 0, 3 ) -= ( physical_constants::LB_TIME_RATE_TERM - physical_constants::LG_TIME_RATE_TERM ) /
+                    ( 1.0 - physical_constants::LG_TIME_RATE_TERM ) * inertialNominalStationPosition_;
+        }
         stationMotion.segment( 0, 3 ) = currentRotationToBodyFixedFrame_ * stationMotion.segment( 0, 3 );
     }
     return stationMotion;
