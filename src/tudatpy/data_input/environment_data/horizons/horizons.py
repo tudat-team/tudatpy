@@ -746,9 +746,13 @@ class HorizonsQuery:
 
         raw = self.vectors(frame_orientation=frame_orientation, aberations=aberations)
 
-        augmented_table = self._add_time_columns(raw, input_scale="TDB")
+        df = raw.to_pandas()
 
-        df = augmented_table.to_pandas()
+        # 1. Epochs: Horizons vector tables are in TDB, so datetime_jd is a TDB Julian day and no
+        # time scale conversion (which needs leap seconds, unknown for future epochs) is required
+        df["epoch_seconds_TDB"] = [
+            DateTime.from_julian_day(julian_day).to_epoch() for julian_day in df["datetime_jd"]
+        ]
 
         # 2. Standard state conversions
         tab = (
@@ -771,6 +775,9 @@ class HorizonsQuery:
 
         This function takes an astropy Table (which must contain a 'datetime_jd' column
         from Astroquery) and adds 'epoch_seconds_TDB' and 'epoch_seconds_UTC' columns.
+
+        Converting between UTC and TDB requires the leap seconds, which are only known up to
+        the end of tudat's leap second table. For epochs beyond it, the converted column is NaN.
 
         Parameters
         ----------
@@ -809,15 +816,24 @@ class HorizonsQuery:
 
         time_scale_converter = time_representation.default_time_scale_converter()
 
+        def convert_time_or_nan(input_scale, output_scale, input_value):
+            # Tudat raises a RuntimeError for epochs beyond the end of its leap second table
+            try:
+                return time_scale_converter.convert_time(
+                    input_scale=input_scale,
+                    output_scale=output_scale,
+                    input_value=input_value,
+                )
+            except RuntimeError:
+                return np.nan
+
         if input_scale.upper() == "UTC":
             augmented_table["epoch_seconds_UTC"] = naive_seconds
 
             # Convert UTC to TDB
             augmented_table["epoch_seconds_TDB"] = [
-                time_scale_converter.convert_time(
-                    input_scale=time_representation.utc_scale,
-                    output_scale=time_representation.tdb_scale,
-                    input_value=t_utc,
+                convert_time_or_nan(
+                    time_representation.utc_scale, time_representation.tdb_scale, t_utc
                 )
                 for t_utc in naive_seconds
             ]
@@ -827,10 +843,8 @@ class HorizonsQuery:
 
             # Convert TDB to UTC
             augmented_table["epoch_seconds_UTC"] = [
-                time_scale_converter.convert_time(
-                    input_scale=time_representation.tdb_scale,
-                    output_scale=time_representation.utc_scale,
-                    input_value=t_tdb,
+                convert_time_or_nan(
+                    time_representation.tdb_scale, time_representation.utc_scale, t_tdb
                 )
                 for t_tdb in naive_seconds
             ]
