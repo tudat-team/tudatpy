@@ -12,11 +12,14 @@
 #define TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H
 
 #include <map>
+#include <stdexcept>
 #include <Eigen/Core>
 
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/celestialReferenceFrames.h"
+#include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 
 namespace tudat
 {
@@ -24,10 +27,29 @@ namespace tudat
 namespace observation_models
 {
 
+//! Direction from receiver to transmitter, optionally aberrated, rotated from the global frame to the frame selected by ancillary settings
+inline Eigen::Vector3d getAngularPositionDirectionInSelectedFrame(
+        const Eigen::Vector3d& relativePosition,
+        const Eigen::Vector3d& receiverVelocity,
+        const double receptionTime,
+        const Eigen::Matrix3d& j2000ToGlobalFrameTransformation,
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+{
+    const Eigen::Vector3d direction = getPositionAngleUseStellarAberration( ancillarySettings )
+            ? calculateApparentDirectionWithStellarAberration( relativePosition, receiverVelocity )
+            : relativePosition;
+    return getPositionAngleReferenceFrameRotationFromJ2000( receptionTime, ancillarySettings ) *
+            j2000ToGlobalFrameTransformation.transpose( ) * direction;
+}
+
 //! Class for simulating angular position (right ascension/declination) observables.
 /*!
  *  Class for simulating angular position (right ascension/declination), using light-time (with light-time corrections)
  *  to determine the states of the link ends (source and receiver).
+ *  Without position-angle ancillary settings (position_angle_reference_frame and/or position_angle_use_stellar_aberration), the
+ *  angles are computed w.r.t. the axes of the global frame orientation (so, for ECLIPJ2000, they are ecliptic longitude and
+ *  latitude). With these settings, the angles are right ascension and declination w.r.t. the selected celestial frame (J2000 by
+ *  default), optionally including stellar aberration (which uses the receiver velocity w.r.t. the global frame origin).
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -44,12 +66,18 @@ public:
      *  between source and receiver
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
+     *  \param normalizeRightAscension Whether the right ascension is multiplied by the cosine of the declination
+     *  \param j2000ToGlobalFrameTransformation Rotation from ICRF/J2000 to the frame of the link-end states (NaN if not defined)
+     *  \param isGlobalFrameOriginBarycentric Whether the global frame origin is the solar system barycentre (a warning is printed
+     *  when stellar aberration is used otherwise)
      */
     AngularPositionObservationModel(
             const LinkEnds linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr,
-            const bool normalizeRightAscension = false ):
+            const bool normalizeRightAscension = false,
+            const Eigen::Matrix3d& j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( ),
+            const bool isGlobalFrameOriginBarycentric = true ):
         ObservationModel< 2, ObservationScalarType, TimeType >(
                 angular_position,
                 linkEnds,
@@ -60,7 +88,8 @@ public:
                                 lightTimeCalculator },
                         std::make_shared< LightTimeConvergenceCriteria >( ),
                         false ) } ),
-        normalizeRightAscension_( normalizeRightAscension )
+        normalizeRightAscension_( normalizeRightAscension ), j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation ),
+        isGlobalFrameOriginBarycentric_( isGlobalFrameOriginBarycentric )
     {}
 
     //! Destructor
@@ -93,17 +122,34 @@ public:
                 getLightTimeCalculator( );
         this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator, ancillarySetingsInput, ancillarySetings );
 
-        if( ancillarySetings != nullptr )
-        {
-            throw std::runtime_error( "Error, calling angular position observable with ancillary settings, but none are supported." );
-        }
-
         this->getFullLinkLightTimeCalculatorFromBase( )->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
                 linkEndStates.at( 0 ).template cast< ObservationScalarType >( ).segment( 0, 3 ) -
                 linkEndStates.at( 1 ).template cast< ObservationScalarType >( ).segment( 0, 3 );
+        // Rotate to the celestial frame (and apply stellar aberration) selected by the position-angle ancillary settings, if any
+        if( ancillarySetingsInput != nullptr &&
+            ( ancillarySetingsInput->hasAncillaryIntData( position_angle_reference_frame ) ||
+              ancillarySetingsInput->hasAncillaryIntData( position_angle_use_stellar_aberration ) ) )
+        {
+            if( !j2000ToGlobalFrameTransformation_.allFinite( ) )
+            {
+                throw std::runtime_error(
+                        "Error, angular position observations with position-angle ancillary settings require a J2000, ICRF or "
+                        "ECLIPJ2000 global frame orientation." );
+            }
+            if( getPositionAngleUseStellarAberration( ancillarySetingsInput ) )
+            {
+                warnIfStellarAberrationOriginIsNotBarycentric( isGlobalFrameOriginBarycentric_ );
+            }
+            relativePosition = getAngularPositionDirectionInSelectedFrame( relativePosition.template cast< double >( ),
+                                                                           linkEndStates.at( 1 ).segment( 3, 3 ),
+                                                                           linkEndTimes.at( 1 ),
+                                                                           j2000ToGlobalFrameTransformation_,
+                                                                           ancillarySetingsInput )
+                                       .template cast< ObservationScalarType >( );
+        }
 
         // Return observable
         double rightAscension = 2.0 *
@@ -144,6 +190,11 @@ public:
         return normalizeRightAscension_;
     }
 
+    const Eigen::Matrix3d& getJ2000ToGlobalFrameTransformation( ) const
+    {
+        return j2000ToGlobalFrameTransformation_;
+    }
+
     ResidualWrappingSettings getResidualWrappingSettings( ) const override
     {
         ResidualWrappingSettings residualWrappingSettings;
@@ -153,6 +204,12 @@ public:
 
 private:
     bool normalizeRightAscension_;
+
+    //! Rotation from ICRF/J2000 to the frame of the link-end states, used when a celestial frame is selected
+    Eigen::Matrix3d j2000ToGlobalFrameTransformation_;
+
+    //! Whether the global frame origin is the solar system barycentre
+    bool isGlobalFrameOriginBarycentric_;
 };
 
 }  // namespace observation_models

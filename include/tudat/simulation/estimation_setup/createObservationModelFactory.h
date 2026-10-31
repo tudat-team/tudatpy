@@ -711,7 +711,8 @@ std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeT
                                                                           observationSettings->lightTimeCorrectionsList_,
                                                                           observationSettings->lightTimeConvergenceCriteria_ ),
             observationBias,
-            getJ2000ToGlobalFrameTransformation( bodies ) );
+            getJ2000ToGlobalFrameTransformation( bodies ),
+            bodies.getFrameOrigin( ) == "SSB" );
 }
 
 //! Interface class for creating observation models
@@ -1863,6 +1864,20 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
+                // Without position-angle ancillary settings, the angles are w.r.t. the axes of the global frame orientation
+                if( bodies.getFrameOrientation( ) != "J2000" && bodies.getFrameOrientation( ) != "ICRF" )
+                {
+                    static bool isWarningPrinted = false;
+                    if( !isWarningPrinted )
+                    {
+                        std::cerr << "Warning, the global frame orientation is " << bodies.getFrameOrientation( )
+                                  << ". Angular position observations without position-angle ancillary settings are computed w.r.t. "
+                                     "this frame, not as right ascension and declination w.r.t. J2000."
+                                  << std::endl;
+                        isWarningPrinted = true;
+                    }
+                }
+
                 // Create observation model
                 observationModel = std::make_shared< AngularPositionObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
@@ -1874,7 +1889,13 @@ public:
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias,
-                        observationSettings->useNormalization_ );
+                        observationSettings->useNormalization_,
+                        // Only used for observations with celestial frame ancillary settings (NaN if not defined)
+                        ( bodies.getFrameOrientation( ) == "J2000" || bodies.getFrameOrientation( ) == "ICRF" ||
+                          bodies.getFrameOrientation( ) == "ECLIPJ2000" )
+                                ? getJ2000ToGlobalFrameTransformation( bodies )
+                                : Eigen::Matrix3d::Constant( TUDAT_NAN ),
+                        bodies.getFrameOrigin( ) == "SSB" );
 
                 break;
             }

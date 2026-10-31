@@ -38,6 +38,7 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/support/celestialFrameReferenceValues.h"
 
 namespace tudat
 {
@@ -184,11 +185,12 @@ PositionSeparationModel createPositionSeparationModel( SystemOfBodies& bodies,
             std::make_shared< ObservationModelSettings >( position_angle_and_separation, linkEnds ), bodies );
 }
 
-double convertUtcJulianDateToTdb( const double julianDate )
+double convertUtcJulianDateToTdb( const double julianDate,
+                                  const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& timeScaleConverter )
 {
-    std::ostringstream utcJulianDate;
-    utcJulianDate << "JD " << std::setprecision( 16 ) << julianDate << " UTC";
-    return spice_interface::convertDateStringToEphemerisTime( utcJulianDate.str( ) );
+    return timeScaleConverter->getCurrentTime( basic_astrodynamics::utc_scale,
+                                               basic_astrodynamics::tdb_scale,
+                                               ( julianDate - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
 }
 
 double convertFractionalUtcDateToTdb( const int year,
@@ -540,8 +542,9 @@ BOOST_AUTO_TEST_CASE( testPlutoCharonHstPrefitResiduals )
     // the dates agree with the UTC exposure midpoints in the MAST archive to 6 ms, so they are interpreted as UTC. The observations
     // are of the centres of light; the geocentric receiver used here (instead of HST) changes either observable by less than
     // 0.002 mas for these records.
-    dataset.decodeRecord = []( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
-        return ReferenceObservation{ convertUtcJulianDateToTdb( observations( row, 0 ) ),
+    const auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
+    dataset.decodeRecord = [ timeScaleConverter ]( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
+        return ReferenceObservation{ convertUtcJulianDateToTdb( observations( row, 0 ), timeScaleConverter ),
                                      0,
                                      unit_conversions::convertDegreesToRadians( observations( row, 2 ) ),
                                      unit_conversions::convertArcSecondsToRadians( observations( row, 1 ) ) };
@@ -627,7 +630,10 @@ BOOST_AUTO_TEST_CASE( testNereidB1950ReferencePolePrefitResiduals )
     SystemOfBodies bodies = createJ2000SpiceBodies( { "Earth", "Neptune", "Nereid" }, true );
 
     // Historical MPC parallax constants specify these sites in the Earth-fixed
-    // frame without requiring a geodetic-datum interpretation.
+    // frame without requiring a geodetic-datum interpretation. Values (longitude [deg], rho cos(phi'), rho sin(phi')) from lines 566,
+    // 709 and 807 of https://minorplanetcenter.net/iau/lists/ObsCodes.html (retrieved 2026-10-31):
+    // "568 204.5278 0.94171 +0.33725 Maunakea", "711 255.9785 0.86114 +0.50731 McDonald Observatory, Fort Davis" and
+    // "809 289.266260.873440-0.486052European Southern Observatory, La Silla".
     const double terrestrialEquatorialRadius = 6378137.0;
     const std::map< int, Eigen::Vector3d > stationParallaxConstants = {
         { 568, Eigen::Vector3d( unit_conversions::convertDegreesToRadians( 204.5278 ), 0.94171, 0.33725 ) },
@@ -695,7 +701,8 @@ BOOST_AUTO_TEST_CASE( testUranianSatelliteNativeB1950PrefitResiduals )
     SystemOfBodies bodies = createJ2000SpiceBodies( { "Earth", "Uranus", "Ariel", "Umbriel", "Titania", "Oberon" }, true );
 
     // MPC observatory code 371 (Tokyo-Okayama); Earth-fixed parallax constants
-    // avoid imposing a modern geodetic datum on this historical observing site.
+    // avoid imposing a modern geodetic datum on this historical observing site. Values from line 369 of
+    // https://minorplanetcenter.net/iau/lists/ObsCodes.html (retrieved 2026-10-31): "371 133.5965 0.82433 +0.56431 Tokyo-Okayama".
     const double terrestrialEquatorialRadius = 6378137.0;
     const double observatoryLongitude = unit_conversions::convertDegreesToRadians( 133.5965 );
     const double observatoryDistanceFromSpinAxis = terrestrialEquatorialRadius * 0.82433;
@@ -722,16 +729,18 @@ BOOST_AUTO_TEST_CASE( testUranianSatelliteNativeB1950PrefitResiduals )
 
     // Source: Tomita, K. and Soma, M. (1979), Astrometric observations of satellites of Uranus, Tokyo Astronomical Bulletin, Second
     // Series 261, 2977-2981; data from NSDB record um0027 (https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0027.html). Topocentric
-    // astrometric P/S w.r.t. the B1950 equator, with ET calendar time (not UTC).
-    dataset.decodeRecord = []( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
-        const double receiverTimeTdb = basic_astrodynamics::DateTime( static_cast< int >( observations( row, 0 ) ),
-                                                                      static_cast< int >( observations( row, 1 ) ),
-                                                                      static_cast< int >( observations( row, 2 ) ),
-                                                                      static_cast< int >( observations( row, 3 ) ),
-                                                                      static_cast< int >( observations( row, 4 ) ),
-                                                                      static_cast< long double >( observations( row, 5 ) ) )
-                                               .epoch< double >( );
-        // Historical ET--TDB differences are negligible against the photographic precision.
+    // astrometric P/S w.r.t. the B1950 equator, with ET calendar time (not UTC). ET is taken as TT.
+    const auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
+    dataset.decodeRecord = [ timeScaleConverter ]( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
+        const double ephemerisTime = basic_astrodynamics::DateTime( static_cast< int >( observations( row, 0 ) ),
+                                                                    static_cast< int >( observations( row, 1 ) ),
+                                                                    static_cast< int >( observations( row, 2 ) ),
+                                                                    static_cast< int >( observations( row, 3 ) ),
+                                                                    static_cast< int >( observations( row, 4 ) ),
+                                                                    static_cast< long double >( observations( row, 5 ) ) )
+                                             .epoch< double >( );
+        const double receiverTimeTdb =
+                timeScaleConverter->getCurrentTime( basic_astrodynamics::tt_scale, basic_astrodynamics::tdb_scale, ephemerisTime );
         return ReferenceObservation{ receiverTimeTdb,
                                      static_cast< int >( observations( row, 7 ) ),
                                      unit_conversions::convertDegreesToRadians( observations( row, 9 ) ),
@@ -785,8 +794,9 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     // satellites and comparison with theories, A&AS 137, 1-5, https://doi.org/10.1051/aas:1999238, Table 4: apparent topocentric P/S
     // of satellites w.r.t. Titan, w.r.t. the true equator of date, with differential refraction removed, and stellar aberration and
     // parallax retained. Columns: UTC Julian date, measured-satellite NAIF ID, PA [deg], separation [arcsec].
-    dataset.decodeRecord = []( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
-        return ReferenceObservation{ convertUtcJulianDateToTdb( observations( row, 0 ) ),
+    const auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
+    dataset.decodeRecord = [ timeScaleConverter ]( const Eigen::MatrixXd& observations, const Eigen::Index row ) {
+        return ReferenceObservation{ convertUtcJulianDateToTdb( observations( row, 0 ), timeScaleConverter ),
                                      static_cast< int >( observations( row, 1 ) ),
                                      unit_conversions::convertDegreesToRadians( observations( row, 2 ) ),
                                      unit_conversions::convertArcSecondsToRadians( observations( row, 3 ) ) };
@@ -802,6 +812,31 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     dataset.separationCorrectionBounds = CorrectionBounds{ 0.002, 0.01, 0.005, 0.02 };
     dataset.transversePositionAngleCorrectionBounds = CorrectionBounds{ 0.0001, 0.001, 0.0001, 0.001 };
     validateReferenceDataset( dataset );
+}
+
+//! Compare the position angle and separation of the Jupiter w.r.t. the Mars system barycentre (INPOP19a, Newtonian light time), for
+//! each celestial frame, with and without stellar aberration, with independent values computed with skyfield, astropy and pyerfa
+//! (celestialFrameReferenceValues.h)
+BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationIndependentReferenceValues )
+{
+    spice_interface::clearSpiceKernels( );
+    spice_interface::loadStandardSpiceKernels( );
+    SystemOfBodies bodies = createJ2000SpiceBodies( { "Earth", "Mars_barycenter", "Jupiter_barycenter" }, false );
+    const PositionSeparationModel model = createPositionSeparationModel( bodies, "", "Mars_barycenter", "Jupiter_barycenter" );
+
+    for( const CelestialFrameReferenceValue& referenceValue : getCelestialFrameReferenceValues( ) )
+    {
+        const double observationTime =
+                ( referenceValue.julianDayTdb - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
+        const Eigen::Vector2d positionAngleAndSeparation = model->computeObservations(
+                observationTime,
+                receiver,
+                getPositionAngleAncillarySettings( referenceValue.referenceFrame, TUDAT_NAN, referenceValue.useStellarAberration ) );
+
+        // The IAU 2006/2000A true-of-date frame of skyfield differs from that of SOFA by up to 6E-11 rad
+        BOOST_CHECK_SMALL( wrappedAngleDifferenceRadians( referenceValue.positionAngle, positionAngleAndSeparation( 0 ) ), 1.0E-10 );
+        BOOST_CHECK_SMALL( referenceValue.separation - positionAngleAndSeparation( 1 ), 1.0E-10 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

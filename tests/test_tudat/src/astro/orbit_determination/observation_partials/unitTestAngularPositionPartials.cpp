@@ -126,6 +126,50 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
     }
 }
 
+//! Compare analytical and numerical partials of angular positions in each celestial frame, with and without stellar aberration,
+//! with and without normalized right ascension, and for the receiver and the transmitter as reference link end
+BOOST_AUTO_TEST_CASE( testCelestialFrameAngularPositionPartials )
+{
+    LinkDefinition linkEnds;
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "Graz" );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MSL" );
+
+    const std::vector< PositionAngleReferenceFrame > referenceFrames = { j2000_position_angle_reference_frame,
+                                                                         b1950_position_angle_reference_frame,
+                                                                         mean_of_date_iau_1976_position_angle_reference_frame,
+                                                                         true_of_date_iau_1976_1980_position_angle_reference_frame,
+                                                                         mean_of_date_iau_2006_position_angle_reference_frame,
+                                                                         true_of_date_iau_2006_2000a_position_angle_reference_frame };
+    for( const PositionAngleReferenceFrame referenceFrame : referenceFrames )
+    {
+        for( int useStellarAberration = 0; useStellarAberration < 2; useStellarAberration++ )
+        {
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                    getPositionAngleAncillarySettings( referenceFrame, TUDAT_NAN, static_cast< bool >( useStellarAberration ) );
+            for( int normalizeRightAscension = 0; normalizeRightAscension < 2; normalizeRightAscension++ )
+            {
+                const std::shared_ptr< ObservationModelSettings > observationModelSettings =
+                        std::make_shared< ObservationModelSettings >( angular_position,
+                                                                      linkEnds,
+                                                                      std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                                                      nullptr,
+                                                                      std::make_shared< LightTimeConvergenceCriteria >( ),
+                                                                      basic_astrodynamics::tdb_scale,
+                                                                      static_cast< bool >( normalizeRightAscension ) );
+                for( const LinkEndType referenceLinkEnd : { receiver, transmitter } )
+                {
+                    BOOST_TEST_CONTEXT( "Frame " << referenceFrame << ", stellar aberration " << useStellarAberration
+                                                 << ", normalized right ascension " << normalizeRightAscension << ", reference link end "
+                                                 << getLinkEndTypeString( referenceLinkEnd ) )
+                    {
+                        testAberratedObservationPartials< 2 >( observationModelSettings, ancillarySettings, referenceLinkEnd );
+                    }
+                }
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

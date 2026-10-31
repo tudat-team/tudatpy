@@ -437,12 +437,20 @@ void expose_ancillary_settings( py::module& m )
 
  The following reference frames can be used for the north pole: J2000/ICRF (default), B1950, the IAU 1976 or IAU 2006 mean-of-date
  frame, and the IAU 1976/1980 or IAU 2006/2000A true-of-date frame. The orientation of the mean- and true-of-date frames is
- computed using SOFA. Note that the B1950 option only rotates the pole, using the B1950 to J2000 rotation defined by NAIF, and
- is not a full FK4 to ICRF conversion of catalogue coordinates. To use a user-defined north pole, use
+ computed using SOFA. The IAU 1976 and IAU 1976/1980 frames include the frame bias between the ICRF (the frame called J2000 in
+ Tudat) and FK5 J2000. The B1950 option uses the constant FK4 to J2000 rotation defined by NAIF (which includes the FK4 equinox
+ correction at B1950.0). It does not include the E-terms of aberration (up to 0.34 arcsec), nor the epoch-dependent FK4 equinox and
+ proper-motion errors; to process observed FK4 B1950.0 positions exactly, convert them to the ICRF with
+ :func:`~tudatpy.astro.frame_conversion.fk4_b1950_to_icrf_right_ascension_declination`. To use a user-defined north pole, use
  :func:`custom_position_angle_ancillary_settings`.
 
  The reference frame only affects the position angle, while stellar aberration affects both the position angle and the
- separation.
+ separation. Stellar aberration uses the velocity of the receiver w.r.t. the global frame origin, which should be the solar system
+ barycentre (a warning is printed otherwise).
+
+ For angular position observables, the same settings define the frame (other than a custom pole) of the right ascension and
+ declination, and whether stellar aberration is included. Without these settings, the angular position is computed w.r.t. the
+ axes of the global frame orientation (for ECLIPJ2000, these angles are therefore ecliptic longitude and latitude).
 
  Parameters
  ----------
