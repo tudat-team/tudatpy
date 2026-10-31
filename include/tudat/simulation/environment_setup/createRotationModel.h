@@ -1062,6 +1062,22 @@ inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings( c
             originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), 0.0, 0.0 );
 }
 
+//! Function to create settings for a rotation model interpolated from a rotational state history (quaternion of the rotation
+//! from the body-fixed to the base frame, and angular velocity in the body-fixed frame), e.g. as initial model of a body of which
+//! the rotation is propagated (and that is reset with the propagated history)
+inline std::shared_ptr< RotationModelSettings > tabulatedRotationModelSettings(
+        const std::map< double, Eigen::Vector7d >& rotationalStateHistory,
+        const std::string& baseFrame,
+        const std::string& targetFrame,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
+{
+    return std::make_shared< TabulatedRotationSettings >(
+            rotationalStateHistory,
+            baseFrame,
+            targetFrame,
+            interpolatorSettings != nullptr ? interpolatorSettings : std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) );
+}
+
 //! @get_docstring(constantRotationModelSettings, 1)
 inline std::shared_ptr< RotationModelSettings > customRotationModelSettings(
         const std::string& originalFrame,
