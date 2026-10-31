@@ -1511,6 +1511,152 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterBeta, partialWrtBeta, 1.0e-8 );
 }
 
+//! Test partials of the relativistic acceleration correction with the Lense-Thirring (constant angular momentum of the central body)
+//! and de Sitter (Sun as primary body) terms, with and without the Schwarzschild term, by comparing with numerical partials
+BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartialLenseThirringDeSitter )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    for( bool calculateSchwarzschildCorrection : { false, true } )
+    {
+        // Create Sun, Earth and vehicle bodies, with the vehicle in low Earth orbit
+        std::shared_ptr< Body > sun = std::make_shared< Body >( );
+        std::shared_ptr< Body > earth = std::make_shared< Body >( );
+        std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
+        sun->setState( getBodyCartesianStateAtEpoch( "Sun", "SSB", "J2000", "NONE", 1.0E6 ) );
+        earth->setState( getBodyCartesianStateAtEpoch( "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
+        Eigen::Vector6d vehicleKeplerElements;
+        vehicleKeplerElements << 6378.0E3 + 249E3, 0.0004318, convertDegreesToRadians( 96.5975 ), convertDegreesToRadians( 217.6968 ),
+                convertDegreesToRadians( 268.2663 ), convertDegreesToRadians( 142.3958 );
+        vehicle->setState( earth->getState( ) +
+                           convertKeplerianToCartesianElements( vehicleKeplerElements, getBodyGravitationalParameter( "Earth" ) ) );
+
+        SystemOfBodies bodies;
+        bodies.addBody( vehicle, "Vehicle" );
+        bodies.addBody( earth, "Earth" );
+        bodies.addBody( sun, "Sun" );
+        std::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
+                createGravityFieldModel( centralGravityFromSpiceSettings( ), "Earth", bodies );
+        earth->setGravityFieldModel( earthGravityField );
+        std::shared_ptr< gravitation::GravityFieldModel > sunGravityField =
+                createGravityFieldModel( centralGravityFromSpiceSettings( ), "Sun", bodies );
+        sun->setGravityFieldModel( sunGravityField );
+
+        // Create acceleration model, with a constant angular momentum (per unit mass) of the Earth
+        std::shared_ptr< PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+        const Eigen::Vector3d earthAngularMomentum( 1.0E7, -2.0E7, 9.8E8 );
+        std::shared_ptr< RelativisticAccelerationCorrection > accelerationModel = std::make_shared< RelativisticAccelerationCorrection >(
+                std::bind( &Body::getState, vehicle ),
+                std::bind( &Body::getState, earth ),
+                std::bind( &Body::getState, sun ),
+                std::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ),
+                std::bind( &GravityFieldModel::getGravitationalParameter, sunGravityField ),
+                "Sun",
+                [ = ]( ) { return earthAngularMomentum; },
+                std::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet ),
+                std::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet ),
+                calculateSchwarzschildCorrection );
+        std::shared_ptr< RelativisticAccelerationPartial > accelerationPartial =
+                std::make_shared< RelativisticAccelerationPartial >( accelerationModel, "Vehicle", "Earth" );
+        BOOST_CHECK( accelerationPartial->isAccelerationPartialWrtAdditionalBodyNonnullptr( "Sun" ) );
+
+        std::shared_ptr< EstimatableParameter< double > > earthGravitationalParameter =
+                std::make_shared< GravitationalParameter >( earthGravityField, "Earth" );
+        std::shared_ptr< EstimatableParameter< double > > sunGravitationalParameter =
+                std::make_shared< GravitationalParameter >( sunGravityField, "Sun" );
+        std::shared_ptr< EstimatableParameter< double > > ppnParameterGamma = std::make_shared< PPNParameterGamma >( ppnParameterSet );
+        std::shared_ptr< EstimatableParameter< double > > ppnParameterBeta = std::make_shared< PPNParameterBeta >( ppnParameterSet );
+
+        // Calculate analytical partials
+        accelerationModel->updateMembers( );
+        accelerationPartial->update( );
+        std::map< std::string, Eigen::MatrixXd > analyticalPartials;
+        for( std::string name :
+             { "vehicle position", "vehicle velocity", "Earth position", "Earth velocity", "Sun position", "Sun velocity" } )
+        {
+            analyticalPartials[ name ] = Eigen::Matrix3d::Zero( );
+        }
+        accelerationPartial->wrtPositionOfAcceleratedBody( analyticalPartials[ "vehicle position" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtVelocityOfAcceleratedBody( analyticalPartials[ "vehicle velocity" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtPositionOfAcceleratingBody( analyticalPartials[ "Earth position" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtVelocityOfAcceleratingBody( analyticalPartials[ "Earth velocity" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtPositionOfAdditionalBody( "Sun", analyticalPartials[ "Sun position" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtVelocityOfAdditionalBody( "Sun", analyticalPartials[ "Sun velocity" ].block( 0, 0, 3, 3 ), true, 0, 0 );
+        Eigen::Vector3d partialWrtEarthGravitationalParameter = accelerationPartial->wrtParameter( earthGravitationalParameter );
+        Eigen::Vector3d partialWrtSunGravitationalParameter = accelerationPartial->wrtParameter( sunGravitationalParameter );
+        Eigen::Vector3d partialWrtGamma = accelerationPartial->wrtParameter( ppnParameterGamma );
+        Eigen::Vector3d partialWrtBeta = accelerationPartial->wrtParameter( ppnParameterBeta );
+
+        // Calculate numerical partials (larger perturbations for the Sun, on which only the small de Sitter term depends)
+        std::map< std::string, Eigen::MatrixXd > numericalPartials;
+        numericalPartials[ "vehicle position" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, vehicle, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       vehicle->getState( ),
+                                                       Eigen::Vector3d::Constant( 10.0 ),
+                                                       0 );
+        numericalPartials[ "vehicle velocity" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, vehicle, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       vehicle->getState( ),
+                                                       Eigen::Vector3d::Constant( 1.0 ),
+                                                       3 );
+        numericalPartials[ "Earth position" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, earth, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       earth->getState( ),
+                                                       Eigen::Vector3d::Constant( 10.0 ),
+                                                       0 );
+        numericalPartials[ "Earth velocity" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, earth, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       earth->getState( ),
+                                                       Eigen::Vector3d::Constant( 1.0 ),
+                                                       3 );
+        numericalPartials[ "Sun position" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, sun, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       sun->getState( ),
+                                                       Eigen::Vector3d::Constant( 1.0E4 ),
+                                                       0 );
+        numericalPartials[ "Sun velocity" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, sun, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       sun->getState( ),
+                                                       Eigen::Vector3d::Constant( 10.0 ),
+                                                       3 );
+        Eigen::Vector3d testPartialWrtEarthGravitationalParameter =
+                calculateAccelerationWrtParameterPartials( earthGravitationalParameter, accelerationModel, 1.0E10 );
+        Eigen::Vector3d testPartialWrtSunGravitationalParameter =
+                calculateAccelerationWrtParameterPartials( sunGravitationalParameter, accelerationModel, 1.0E15 );
+        Eigen::Vector3d testPartialWrtGamma = calculateAccelerationWrtParameterPartials( ppnParameterGamma, accelerationModel, 100.0 );
+        Eigen::Vector3d testPartialWrtBeta = calculateAccelerationWrtParameterPartials( ppnParameterBeta, accelerationModel, 100.0 );
+
+        // Compare numerical and analytical results
+        for( auto it : analyticalPartials )
+        {
+            BOOST_CHECK_GT( it.second.norm( ), 0.0 );
+            BOOST_CHECK_SMALL( ( it.second - numericalPartials.at( it.first ) ).norm( ) / it.second.norm( ),
+                               it.first.substr( 0, 3 ) == "Sun" ? 1.0E-6 : 1.0E-7 );
+        }
+        BOOST_CHECK_SMALL( ( partialWrtEarthGravitationalParameter - testPartialWrtEarthGravitationalParameter ).norm( ) /
+                                   partialWrtEarthGravitationalParameter.norm( ),
+                           1.0E-8 );
+        BOOST_CHECK_SMALL( ( partialWrtSunGravitationalParameter - testPartialWrtSunGravitationalParameter ).norm( ) /
+                                   partialWrtSunGravitationalParameter.norm( ),
+                           1.0E-8 );
+        BOOST_CHECK_SMALL( ( partialWrtGamma - testPartialWrtGamma ).norm( ) / partialWrtGamma.norm( ), 1.0E-8 );
+        if( calculateSchwarzschildCorrection )
+        {
+            BOOST_CHECK_SMALL( ( partialWrtBeta - testPartialWrtBeta ).norm( ) / partialWrtBeta.norm( ), 1.0E-8 );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( partialWrtBeta.norm( ), 0.0 );
+            BOOST_CHECK_EQUAL( testPartialWrtBeta.norm( ), 0.0 );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 {
     // Create earth and vehicle bodies.
