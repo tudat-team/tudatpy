@@ -761,8 +761,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum order of the spherical harmonic expansion for the central body, if needed.
  remove_point_mass_body_exerting : bool, default=False
      Whether the central (degree zero) term of the field of the body exerting the acceleration is excluded, e.g. when its
-     point mass is part of another acceleration model (such as the Einstein-Infeld-Hoffmann acceleration). The central term
-     of the body undergoing the acceleration is always excluded.
+     point mass is part of another acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  MutualSphericalHarmonicAccelerationSettings
