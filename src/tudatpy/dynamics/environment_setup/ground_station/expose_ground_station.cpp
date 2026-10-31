@@ -515,10 +515,8 @@ reference_epoch:
 
  Function for creating settings for the relativistic correction of the station position w.r.t. the solar system barycenter
 
- Function for creating settings for the relativistic correction of the station position, applied when the station position
- is computed w.r.t. the solar system barycenter (and zero for any other origin). The correction is the spatial part of
- Eqs. (11.18) and (11.19) of the IERS Conventions 2010 (Petit and Luzum, 2010, IERS Technical Note 36), without the terms
- that depend on the acceleration of the body on which the station is located:
+ Function for creating settings for the relativistic correction of the station position, applied when SSB is the global frame origin. The correction is from
+ Eqs. (11.18) and (11.19) of the IERS Conventions 2010 :cite:p:`Petit2010`, with acceleration terms omitted
 
  .. math::
     \Delta\mathbf{r}=-\left(\frac{U}{c^{2}}+L_{C}\right)\mathbf{r}-\frac{1}{2c^{2}}\left(\mathbf{v}\cdot\mathbf{r}\right)\mathbf{v}
