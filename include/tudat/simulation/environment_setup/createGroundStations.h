@@ -88,9 +88,11 @@ class BodyCentricToBarycentricGroundStationMotionSettings : public GroundStation
 {
 public:
     BodyCentricToBarycentricGroundStationMotionSettings( const std::string centralBodyName = "Sun",
-                                                         const bool useGeneralRelativisticCorrection = true ):
+                                                         const bool useGeneralRelativisticCorrection = true,
+                                                         const bool scaleToTdbCompatibleCoordinates = true ):
         GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( centralBodyName ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
+        scaleToTdbCompatibleCoordinates_( scaleToTdbCompatibleCoordinates )
     {}
 
     virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ) {}
@@ -98,6 +100,8 @@ public:
     std::string centralBodyName_;
 
     bool useGeneralRelativisticCorrection_;
+
+    bool scaleToTdbCompatibleCoordinates_;
 };
 
 class CustomGroundStationMotionSettings : public GroundStationMotionSettings
@@ -140,9 +144,11 @@ inline std::shared_ptr< GroundStationMotionSettings > bodyDeformationStationMoti
 
 inline std::shared_ptr< GroundStationMotionSettings > bodycentricToBarycentricStationMotionSettings(
         const std::string centralBodyName = "Sun",
-        const bool useGeneralRelativisticCorrection = true )
+        const bool useGeneralRelativisticCorrection = true,
+        const bool scaleToTdbCompatibleCoordinates = true )
 {
-    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( centralBodyName, useGeneralRelativisticCorrection );
+    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >(
+            centralBodyName, useGeneralRelativisticCorrection, scaleToTdbCompatibleCoordinates );
 }
 
 class GroundStationSettings
