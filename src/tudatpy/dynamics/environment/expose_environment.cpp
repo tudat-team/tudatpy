@@ -27,6 +27,8 @@
 #include <tudat/astro/aerodynamics/flightConditions.h>
 #include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
 #include <tudat/astro/basic_astro/ionosphereModel.h>
+#include <tudat/astro/basic_astro/sphericalBodyShapeModel.h>
+#include <tudat/astro/basic_astro/triAxialEllipsoidBodyShapeModel.h>
 #include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
 #include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
 #include <tudat/astro/electromagnetism/radiationSourceModel.h>
@@ -2779,6 +2781,47 @@ bool
 
          :type: float
 
+
+     )doc" );
+
+    py::class_< tba::SphericalBodyShapeModel, std::shared_ptr< tba::SphericalBodyShapeModel >, tba::BodyShapeModel >(
+            m,
+            "SphericalBodyShapeModel",
+            R"doc(
+
+         Body shape model defined as a sphere.
+
+     )doc" )
+            .def( py::init< const double >( ), py::arg( "radius" ) )
+            .def_property_readonly( "radius", &tba::SphericalBodyShapeModel::getAverageRadius, R"doc(
+
+         **read-only**
+
+         Radius of the sphere [m].
+
+         :type: float
+
+     )doc" );
+
+    py::class_< tba::TriAxialEllipsoidBodyShapeModel, std::shared_ptr< tba::TriAxialEllipsoidBodyShapeModel >, tba::BodyShapeModel >(
+            m,
+            "TriAxialEllipsoidBodyShapeModel",
+            R"doc(
+
+         Body shape model defined as a tri-axial ellipsoid, with semi-axes aligned with the body-fixed x-, y- and z-axes.
+
+     )doc" )
+            .def( py::init< const double, const double, const double >( ),
+                  py::arg( "semi_axis_a" ),
+                  py::arg( "semi_axis_b" ),
+                  py::arg( "semi_axis_c" ) )
+            .def_property_readonly( "semi_axes", &tba::TriAxialEllipsoidBodyShapeModel::getSemiAxes, R"doc(
+
+         **read-only**
+
+         Semi-axes of the ellipsoid along the body-fixed x-, y- and z-axes [m].
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
 
      )doc" );
 

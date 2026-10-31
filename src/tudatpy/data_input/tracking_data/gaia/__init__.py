@@ -5,6 +5,5 @@ from .gaia import (
     get_kepler_covariance_from_gaia_archive,
     get_state_covariance_from_gaia_archive,
     get_state_from_gaia_archive,
-    generate_astrometry_parquet,
-    generate_asteroid_parquet,
 )
+from .utils import download_gaia_archive

@@ -86,7 +86,11 @@ Classes
    TimeDependentSphericalHarmonicsGravityField
    
    BodyShapeModel
-   
+
+   SphericalBodyShapeModel
+
+   TriAxialEllipsoidBodyShapeModel
+
    RigidBodyProperties
       
    AtmosphereModel
@@ -159,6 +163,12 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.BodyShapeModel
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.SphericalBodyShapeModel
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.TriAxialEllipsoidBodyShapeModel
    :members:
   
 .. autoclass:: tudatpy.dynamics.environment.RigidBodyProperties
