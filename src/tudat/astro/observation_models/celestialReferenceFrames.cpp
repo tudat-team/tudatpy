@@ -11,6 +11,7 @@
 #include "tudat/astro/observation_models/celestialReferenceFrames.h"
 
 #include <cmath>
+#include <iostream>
 #include <limits>
 #include <stdexcept>
 
@@ -92,12 +93,16 @@ Eigen::Matrix3d getPositionAngleReferenceFrameRotationFromJ2000(
             const double terrestrialTime = sofa_interface::convertTDBtoTT( referenceEpoch, Eigen::Vector3d::Zero( ) );
             const bool useIau2006 = ( referenceFrame == mean_of_date_iau_2006_position_angle_reference_frame ||
                                       referenceFrame == true_of_date_iau_2006_2000a_position_angle_reference_frame );
-            if( referenceFrame == mean_of_date_iau_1976_position_angle_reference_frame ||
-                referenceFrame == mean_of_date_iau_2006_position_angle_reference_frame )
-            {
-                return sofa_interface::getPrecessionMatrix( terrestrialTime, basic_astrodynamics::JULIAN_DAY_ON_J2000, useIau2006 );
-            }
-            return sofa_interface::getPrecessionNutationMatrix( terrestrialTime, basic_astrodynamics::JULIAN_DAY_ON_J2000, useIau2006 );
+            const Eigen::Matrix3d rotationFromFrameOfReference = ( referenceFrame == mean_of_date_iau_1976_position_angle_reference_frame ||
+                                                                   referenceFrame == mean_of_date_iau_2006_position_angle_reference_frame )
+                    ? sofa_interface::getPrecessionMatrix( terrestrialTime, basic_astrodynamics::JULIAN_DAY_ON_J2000, useIau2006 )
+                    : sofa_interface::getPrecessionNutationMatrix( terrestrialTime, basic_astrodynamics::JULIAN_DAY_ON_J2000, useIau2006 );
+
+            // The IAU 2006 matrices start from the ICRF (GCRS); the IAU 1976 matrices start from FK5 J2000, so the ICRF to FK5 J2000
+            // frame bias is applied first
+            return useIau2006 ? rotationFromFrameOfReference
+                              : Eigen::Matrix3d( rotationFromFrameOfReference *
+                                                 sofa_interface::getFrameBias( 0.0, basic_astrodynamics::iau_2000_a ) );
         }
         default:
             throw std::runtime_error( "Error, a full rotation is not defined for position-angle reference frame setting " +
@@ -126,6 +131,41 @@ Eigen::Vector3d getPositionAngleReferencePoleInJ2000( const double observationTi
         throw std::runtime_error( "Custom position-angle reference pole must be finite and non-zero." );
     }
     return referencePole.normalized( );
+}
+
+Eigen::Vector2d convertFk4B1950ToIcrfRightAscensionDeclination( const double rightAscension,
+                                                                const double declination,
+                                                                const double observationTime )
+{
+    const double daysSinceJ2000 = observationTime / physical_constants::JULIAN_DAY;
+
+    double fk5RightAscension, fk5Declination;
+    iauFk45z( rightAscension,
+              declination,
+              iauEpb( basic_astrodynamics::JULIAN_DAY_ON_J2000, daysSinceJ2000 ),
+              &fk5RightAscension,
+              &fk5Declination );
+
+    double icrfRightAscension, icrfDeclination;
+    iauFk5hz( fk5RightAscension,
+              fk5Declination,
+              basic_astrodynamics::JULIAN_DAY_ON_J2000,
+              daysSinceJ2000,
+              &icrfRightAscension,
+              &icrfDeclination );
+    return Eigen::Vector2d( icrfRightAscension, icrfDeclination );
+}
+
+void warnIfStellarAberrationOriginIsNotBarycentric( const bool isGlobalFrameOriginBarycentric )
+{
+    static bool isWarningPrinted = false;
+    if( !isGlobalFrameOriginBarycentric && !isWarningPrinted )
+    {
+        std::cerr << "Warning, stellar aberration is computed from the receiver velocity w.r.t. the global frame origin, which is not "
+                     "the solar system barycentre. The aberration is therefore not w.r.t. the barycentric velocity."
+                  << std::endl;
+        isWarningPrinted = true;
+    }
 }
 
 bool getPositionAngleUseStellarAberration( const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )

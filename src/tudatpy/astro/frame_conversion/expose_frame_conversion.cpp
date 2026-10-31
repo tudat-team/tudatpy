@@ -17,6 +17,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
+#include <tudat/astro/observation_models/celestialReferenceFrames.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
 namespace trf = tudat::reference_frames;
@@ -331,6 +332,41 @@ void expose_frame_conversion( py::module& m )
      )doc" );
 
     m.attr( "transform_cartesian_state_to_frame" ) = m.attr( "rotate_state_to_frame" );
+
+    m.def( "fk4_b1950_to_icrf_right_ascension_declination",
+           &tudat::observation_models::convertFk4B1950ToIcrfRightAscensionDeclination,
+           py::arg( "right_ascension" ),
+           py::arg( "declination" ),
+           py::arg( "observation_time" ),
+           R"doc(
+
+ Converts an observed FK4 B1950.0 right ascension and declination to the ICRF.
+
+ Converts a right ascension and declination observed in the FK4 B1950.0 system (for instance, historical astrometry reduced with
+ FK4 reference stars) to the ICRF, which is the frame called J2000 in Tudat. The conversion uses the standard SOFA functions
+ ``iauFk45z`` (FK4 B1950.0 to FK5 J2000.0, following Aoki et al. 1983, which removes the E-terms of aberration and accounts for the
+ FK4 equinox and proper-motion system, assuming zero proper motion in FK5), followed by ``iauFk5hz`` (FK5 to the Hipparcos/ICRS
+ system, assuming zero proper motion in Hipparcos). Both steps depend on the epoch of the observation.
+
+ This conversion is applied to the observations. In contrast, the B1950 option of
+ :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings` applies a single constant
+ rotation in the observation model, which does not include these effects.
+
+ Parameters
+ ----------
+ right_ascension : float
+     FK4 B1950.0 right ascension at the epoch of observation [rad]
+ declination : float
+     FK4 B1950.0 declination at the epoch of observation [rad]
+ observation_time : float
+     Epoch of observation, in TT seconds since J2000 (TDB may be used, as the difference is negligible)
+
+ Returns
+ -------
+ numpy.ndarray
+     ICRF right ascension and declination [rad]
+
+     )doc" );
 }
 
 }  // namespace frame_conversion

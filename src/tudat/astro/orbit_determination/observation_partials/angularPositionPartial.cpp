@@ -67,8 +67,9 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPositio
         {
             throw std::runtime_error( "Error when getting angular position partial scaling for normalized observable; incompatible input" );
         }
-        double rightAscension = currentObservation( 0 );
-        double declination = currentObservation( 1 );
+        // The normalized observable is the right ascension times the cosine of the declination
+        const double declination = currentObservation( 1 );
+        const double rightAscension = currentObservation( 0 ) / std::cos( declination );
         Eigen::Matrix< double, 2, 3 > normalizedAngularPositionPartial = angularPositionPartial;
 
         normalizedAngularPositionPartial.block( 0, 0, 1, 3 ) = std::cos( declination ) * angularPositionPartial.block( 0, 0, 1, 3 ) -

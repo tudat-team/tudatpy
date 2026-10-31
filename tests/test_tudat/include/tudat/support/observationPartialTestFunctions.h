@@ -704,27 +704,38 @@ Eigen::MatrixXd sumPartialContributions(
     return summedPartial;
 }
 
-//! Compare analytical and numerical partials of a direction observable (angular position, position angle and/or separation) using
-//! aberrated directions and a fast-moving receiver (Earth/Graz), with transmitters Mars/MSL (and Moon).
+//! Compare analytical and numerical partials of a direction observable (angular position, position angle and/or separation) for
+//! a fast-moving receiver (Earth/Graz), with transmitters Mars/MSL (and Moon).
 /*!
- *  The receiver (Earth) is given a constant velocity of order 0.01c, so that the aberration factors in the partials differ from
- *  their astrometric values by order 1.0E-2, well above the tolerance of the numerical-partial comparison.
+ *  For the receiver as reference link end, the receiver (Earth) is given a constant velocity of order 0.01c, so that, if the ancillary
+ *  settings select stellar aberration, the aberration factors in the partials differ from their astrometric values by order 1.0E-2,
+ *  well above the tolerance of the numerical-partial comparison. Without stellar aberration, the partials w.r.t. the receiver velocity
+ *  must be zero.
+ *  \param observationModelSettings Settings of the observation model
+ *  \param ancillarySettings Ancillary settings of the observation (celestial frame and stellar aberration)
+ *  \param referenceLinkEnd Link end at which the observation time is kept fixed
  */
 template< int ObservationSize >
 void testAberratedObservationPartials( const std::shared_ptr< ObservationModelSettings > observationModelSettings,
-                                       const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
+                                       const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
+                                       const LinkEndType referenceLinkEnd = receiver )
 {
     std::vector< std::pair< std::string, std::string > > groundStations = { std::make_pair( "Earth", "Graz" ),
                                                                             std::make_pair( "Mars", "MSL" ),
                                                                             std::make_pair( "Moon", "" ) };
     SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
-    std::shared_ptr< ConstantEphemeris > earthEphemeris =
-            std::dynamic_pointer_cast< ConstantEphemeris >( bodies.at( "Earth" )->getEphemeris( ) );
-    Eigen::Vector6d earthState = earthEphemeris->getCartesianState( 0.0 );
-    earthState.segment< 3 >( 3 ) = Eigen::Vector3d( 1.2E6, -2.1E6, 0.8E6 );
-    earthEphemeris->updateConstantState( earthState );
-    bodies.at( "Earth" )->recomputeStateOnNextCall( );
+    // With the transmitter as reference link end, the light-time partials use the receiver velocity, which is not consistent with the
+    // (fixed) position of a constant ephemeris, so that the receiver velocity is only set for the receiver as reference link end
+    if( referenceLinkEnd == receiver )
+    {
+        std::shared_ptr< ConstantEphemeris > earthEphemeris =
+                std::dynamic_pointer_cast< ConstantEphemeris >( bodies.at( "Earth" )->getEphemeris( ) );
+        Eigen::Vector6d earthState = earthEphemeris->getCartesianState( 0.0 );
+        earthState.segment< 3 >( 3 ) = Eigen::Vector3d( 1.2E6, -2.1E6, 0.8E6 );
+        earthEphemeris->updateConstantState( earthState );
+        bodies.at( "Earth" )->recomputeStateOnNextCall( );
+    }
 
     std::shared_ptr< ObservationModel< ObservationSize > > observationModel =
             ObservationModelCreator< ObservationSize, double, double >::createObservationModel( observationModelSettings, bodies );
@@ -737,14 +748,14 @@ void testAberratedObservationPartials( const std::shared_ptr< ObservationModelSe
     std::vector< Eigen::Vector6d > linkEndStates;
     std::vector< double > linkEndTimes;
     const Eigen::VectorXd observation = observationModel->computeObservationsWithLinkEndData(
-            observationTime, receiver, linkEndTimes, linkEndStates, ancillarySettings );
-    partialSet.second->update( linkEndStates, linkEndTimes, receiver, observation, ancillarySettings );
+            observationTime, referenceLinkEnd, linkEndTimes, linkEndStates, ancillarySettings );
+    partialSet.second->update( linkEndStates, linkEndTimes, referenceLinkEnd, observation, ancillarySettings );
 
     std::function< Eigen::VectorXd( const double ) > observationFunction =
             std::bind( &ObservationModel< ObservationSize >::computeObservations,
                        observationModel,
                        std::placeholders::_1,
-                       receiver,
+                       referenceLinkEnd,
                        ancillarySettings );
 
     // Initial states of Earth (receiver) and Mars (transmitter) are the first two parameters
@@ -755,7 +766,7 @@ void testAberratedObservationPartials( const std::shared_ptr< ObservationModelSe
         BOOST_REQUIRE( partialSet.first.count( parameterIndices ) == 1 );
         const Eigen::MatrixXd analyticalPartial = sumPartialContributions< ObservationSize >(
                 partialSet.first.at( parameterIndices )
-                        ->calculatePartial( linkEndStates, linkEndTimes, receiver, ancillarySettings, observation ) );
+                        ->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, ancillarySettings, observation ) );
 
         const Eigen::MatrixXd numericalPositionPartial = calculatePartialWrtConstantBodyState( bodiesWithEstimatedState.at( i ),
                                                                                                bodies,
@@ -765,14 +776,14 @@ void testAberratedObservationPartials( const std::shared_ptr< ObservationModelSe
                                                                                                ObservationSize );
         checkMatrixCloseRelativeToNorm( analyticalPartial.block( 0, 0, ObservationSize, 3 ), numericalPositionPartial, 1.0E-6 );
 
-        // Only the receiver velocity enters through stellar aberration
+        // Only the receiver velocity enters, through stellar aberration
         const Eigen::MatrixXd numericalVelocityPartial = calculatePartialWrtConstantBodyVelocity( bodiesWithEstimatedState.at( i ),
                                                                                                   bodies,
                                                                                                   Eigen::Vector3d::Constant( 1.0E2 ),
                                                                                                   observationFunction,
                                                                                                   observationTime,
                                                                                                   ObservationSize );
-        if( bodiesWithEstimatedState.at( i ) == "Earth" )
+        if( bodiesWithEstimatedState.at( i ) == "Earth" && getPositionAngleUseStellarAberration( ancillarySettings ) )
         {
             BOOST_CHECK_GT( numericalVelocityPartial.norm( ), 1.0E-10 );
             checkMatrixCloseRelativeToNorm( analyticalPartial.block( 0, 3, ObservationSize, 3 ), numericalVelocityPartial, 1.0E-6 );
@@ -799,7 +810,7 @@ void testAberratedObservationPartials( const std::shared_ptr< ObservationModelSe
     BOOST_REQUIRE( partialSet.first.count( rotationRateIndices ) == 1 );
     const Eigen::MatrixXd analyticalRotationRatePartial = sumPartialContributions< ObservationSize >(
             partialSet.first.at( rotationRateIndices )
-                    ->calculatePartial( linkEndStates, linkEndTimes, receiver, ancillarySettings, observation ) );
+                    ->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, ancillarySettings, observation ) );
     const std::vector< Eigen::VectorXd > numericalRotationRatePartial = calculateNumericalPartialsWrtDoubleParameters(
             { earthRotationRate }, { []( ) {} }, { 1.0E-10 }, observationFunction, observationTime );
     checkMatrixCloseRelativeToNorm( analyticalRotationRatePartial, numericalRotationRatePartial.at( 0 ), 1.0E-5 );

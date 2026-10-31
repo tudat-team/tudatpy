@@ -163,6 +163,8 @@ public:
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      *  \param j2000ToGlobalFrameTransformation Rotation from ICRF/J2000 to the frame of the link-end states.
+     *  \param isGlobalFrameOriginBarycentric Whether the global frame origin is the solar system barycentre (a warning is printed
+     *  when stellar aberration is used otherwise)
      */
     PositionAngleAndSeparationObservationModel(
             const ObservableType observableType,
@@ -172,14 +174,16 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
                     lightTimeCalculatorSecondTransmitter,
             const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr,
-            const Eigen::Matrix3d& j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( ) ):
+            const Eigen::Matrix3d& j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( ),
+            const bool isGlobalFrameOriginBarycentric = true ):
         ObservationModel< ObservationSize, ObservationScalarType, TimeType >(
                 observableType,
                 linkEnds,
                 observationBiasCalculator,
                 createFullLinkLightTimeCalculators( lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter ) ),
         j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation ),
-        calculatePositionAngle_( observableType != separation_distance ), firstComponent_( observableType == separation_distance ? 1 : 0 )
+        isGlobalFrameOriginBarycentric_( isGlobalFrameOriginBarycentric ), calculatePositionAngle_( observableType != separation_distance ),
+        firstComponent_( observableType == separation_distance ? 1 : 0 )
     {
         if( ( ObservationSize == 2 && observableType != position_angle_and_separation ) ||
             ( ObservationSize == 1 && observableType != position_angle && observableType != separation_distance ) )
@@ -249,6 +253,7 @@ public:
 
         if( getPositionAngleUseStellarAberration( ancillarySettingsInput ) )
         {
+            warnIfStellarAberrationOriginIsNotBarycentric( isGlobalFrameOriginBarycentric_ );
             const Eigen::Vector3d receiverVelocity = receiverState.segment( 3, 3 ).template cast< double >( );
             relativePositionFirstTransmitter = calculateApparentDirectionWithStellarAberration(
                                                        relativePositionFirstTransmitter.template cast< double >( ), receiverVelocity )
@@ -315,6 +320,9 @@ public:
 
 private:
     Eigen::Matrix3d j2000ToGlobalFrameTransformation_;
+
+    //! Whether the global frame origin is the solar system barycentre
+    bool isGlobalFrameOriginBarycentric_;
 
     //! Whether the position angle is calculated (false for separation-distance-only observables).
     bool calculatePositionAngle_;
