@@ -657,6 +657,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
            &tss::sphericalHarmonicAcceleration,
            py::arg( "maximum_degree" ),
            py::arg( "maximum_order" ),
+           py::arg( "remove_point_mass" ) = false,
            R"doc(
 
  Creates settings for the spherical harmonic gravity acceleration.
@@ -682,6 +683,9 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum degree of the spherical harmonic expansion.
  maximum_order : int
      Maximum order of the spherical harmonic expansion.
+ remove_point_mass : bool, default=False
+     Whether the central (degree zero) term is excluded, e.g. when the point mass of the body is part of another
+     acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  SphericalHarmonicAccelerationSettings
@@ -719,6 +723,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
            py::arg( "maximum_order_body_undergoing" ),
            py::arg( "maximum_degree_central_body" ) = 0,
            py::arg( "maximum_order_central_body" ) = 0,
+           py::arg( "remove_point_mass_body_exerting" ) = false,
            R"doc(
 
  Creates settings for the mutual spherical harmonic gravity acceleration.
@@ -754,6 +759,9 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum degree of the spherical harmonic expansion for the central body, if needed.
  maximum_order_central_body : int, default=0
      Maximum order of the spherical harmonic expansion for the central body, if needed.
+ remove_point_mass_body_exerting : bool, default=False
+     Whether the central (degree zero) term of the field of the body exerting the acceleration is excluded, e.g. when its
+     point mass is part of another acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  MutualSphericalHarmonicAccelerationSettings

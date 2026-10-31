@@ -578,16 +578,23 @@ std::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationM
                 maximumOrderOfUndergoingBody = mutualSphericalHarmonicsSettings->maximumOrderOfCentralBody_;
             }
 
+            // The central term of the field of the body exerting the acceleration may be excluded
+            SphericalHarmonicsBlock cosineCoefficientBlockOfBodyExertingAcceleration(
+                    std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsReference,
+                               sphericalHarmonicsGravityFieldOfBodyExertingAcceleration ),
+                    mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_ + 1,
+                    mutualSphericalHarmonicsSettings->maximumOrderOfBodyExertingAcceleration_ + 1 );
+            if( mutualSphericalHarmonicsSettings->removePointMassOfBodyExertingAcceleration_ )
+            {
+                cosineCoefficientBlockOfBodyExertingAcceleration.setEnablePointMass( false );
+            }
             accelerationModel = std::make_shared< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                     std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
                     std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                     gravitationalParameterFunction,
                     sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getReferenceRadius( ),
                     sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration->getReferenceRadius( ),
-                    SphericalHarmonicsBlock( std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsReference,
-                                                        sphericalHarmonicsGravityFieldOfBodyExertingAcceleration ),
-                                             mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_ + 1,
-                                             mutualSphericalHarmonicsSettings->maximumOrderOfBodyExertingAcceleration_ + 1 ),
+                    cosineCoefficientBlockOfBodyExertingAcceleration,
                     SphericalHarmonicsBlock( std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsReference,
                                                         sphericalHarmonicsGravityFieldOfBodyExertingAcceleration ),
                                              mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_ + 1,
