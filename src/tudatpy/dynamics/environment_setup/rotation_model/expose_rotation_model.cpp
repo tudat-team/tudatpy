@@ -1009,7 +1009,7 @@ void expose_rotation_model_setup( py::module& m )
         1.0: (11.7 * milliarcsec_to_rad * np.sin(np.radians(118.7)),
               11.7 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
         2.0: (3.9 * milliarcsec_to_rad * np.sin(np.radians(172.5)),
-              3.9 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
+              3.9 * milliarcsec_to_rad * np.cos(np.radians(172.5))),
         3.0: (0.0, 0.0),
         4.0: (0.0, 0.0),
         3.34: (0.0, 50.0 * milliarcsec_to_rad)
