@@ -5,6 +5,9 @@ Tests for the Gaia interfaces in tudatpy.data_input.tracking_data.gaia.gaia.
 from pathlib import Path
 from unittest import mock
 import ast
+import gzip
+import hashlib
+import shutil
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
@@ -16,8 +19,9 @@ from tudatpy.data_input.tracking_data.gaia import (
     get_kepler_covariance_from_gaia_archive,
     get_state_covariance_from_gaia_archive,
     get_state_from_gaia_archive,
-    generate_astrometry_parquet,
+    download_gaia_archive,
 )
+from tudatpy.data_input.tracking_data.gaia.utils import _generate_parquet_from_download
 from tudatpy.astro.time_representation import (
     date_time_components_to_epoch,
     julian_day_to_seconds_since_epoch,
@@ -59,9 +63,7 @@ def spice_kernels():
 def _gaia_astrometry():
     """Create a GaiaAstrometry object for asteroids 673 and 779 from the local test archive.
     Runs once per module"""
-    gaia_astrometry = GaiaAstrometry.load_from_local_archive(
-        ASTROMETRY_ARCHIVE_PATH, TEST_ASTEROID_MPC
-    )
+    gaia_astrometry = GaiaAstrometry.load_from_parquet(TEST_ASTEROID_MPC, ASTROMETRY_ARCHIVE_PATH)
     gaia_astrometry.apply_filters()
     return gaia_astrometry
 
@@ -117,7 +119,7 @@ def test_astrometry_retrieval_no_data():
         GaiaAstrometry.load_from_astroquery([asteroid_no_data])
     # Local variant
     with pytest.raises(RuntimeError):
-        GaiaAstrometry.load_from_local_archive(ASTROMETRY_ARCHIVE_PATH, [asteroid_no_data])
+        GaiaAstrometry.load_from_parquet([asteroid_no_data], ASTROMETRY_ARCHIVE_PATH)
 
 
 def test_mpc_number_zero_is_rejected():
@@ -128,31 +130,100 @@ def test_mpc_number_zero_is_rejected():
         get_state_from_gaia_archive(0, SOURCE_ARCHIVE_PATH)
 
 
-def test_generate_astrometry_parquet_accepts_compressed_csv(tmp_path):
-    """The parquet generator accepts the compressed files distributed by the Gaia archive."""
-    archive_dir = tmp_path / "archive"
-    archive_dir.mkdir()
+_DOWNLOAD_FUNCTION = "tudatpy.data_input.tracking_data.gaia.utils.download_extra_file"
+
+
+def test_download_gaia_archive(tmp_path):
+    """The files listed in the MD5 file are downloaded, verified and combined into one .parquet file."""
+    # Stand-in for the Gaia CDN, serving three compressed files and their MD5 file
+    server_dir = tmp_path / "server"
+    server_dir.mkdir()
 
     chunks = []
-    for file_number in range(20):
+    md5_lines = []
+    for file_number in range(3):
         chunk = pd.DataFrame(
             {
-                "number_mp": [20 - file_number],
+                "number_mp": [3 - file_number],
                 "value": [file_number],
             }
         )
-        chunk.to_csv(
-            archive_dir / f"SsoObservation_{file_number:02d}.csv.gz",
-            index=False,
-            compression="gzip",
-        )
+        file_name = f"SsoObservation_{file_number:02d}.csv.gz"
+        chunk.to_csv(server_dir / file_name, index=False, compression="gzip")
+        md5 = hashlib.md5((server_dir / file_name).read_bytes()).hexdigest()
+        md5_lines.append(f"{md5}  {file_name}")
         chunks.append(chunk)
+    (server_dir / "_MD5SUM.txt").write_text("\n".join(md5_lines) + "\n")
 
-    generate_astrometry_parquet(archive_dir, tmp_path)
+    def fake_download(url, dest_path, cache_dir, force=False):
+        shutil.copy(server_dir / url.split("/")[-1], dest_path)
+        return dest_path
+
+    destination = tmp_path / "gaia"
+    with mock.patch(_DOWNLOAD_FUNCTION, side_effect=fake_download) as download:
+        download_gaia_archive(asteroid_orbits=False, destination_path=str(destination))
+        # A second call keeps the existing .parquet file
+        download_gaia_archive(asteroid_orbits=False, destination_path=destination)
+
+    assert download.call_count == 4  # MD5 file and three data files, during the first call only
+    assert [path.name for path in destination.iterdir()] == ["sso_observation.parquet"]
 
     expected = pd.concat(chunks, ignore_index=True).sort_values("number_mp", ignore_index=True)
-    result = pd.read_parquet(tmp_path / "gaia_astrometry_archive.parquet")
+    result = pd.read_parquet(destination / "sso_observation.parquet")
     pdt.assert_frame_equal(result, expected)
+
+
+def test_download_gaia_archive_rejects_corrupted_files(tmp_path):
+    """A file that keeps failing its MD5 check aborts the download after the allowed attempts."""
+
+    def fake_download(url, dest_path, cache_dir, force=False):
+        if url.endswith("_MD5SUM.txt"):
+            Path(dest_path).write_text(f"{'0' * 32}  SsoSource_00.csv.gz\n")
+        else:
+            Path(dest_path).write_text("corrupted")
+        return dest_path
+
+    with mock.patch(_DOWNLOAD_FUNCTION, side_effect=fake_download) as download:
+        with pytest.raises(RuntimeError, match="Checksum of SsoSource_00.csv.gz"):
+            download_gaia_archive(astrometry=False, destination_path=tmp_path)
+
+    assert download.call_count == 4  # MD5 file and three attempts
+    assert not (tmp_path / "sso_source.parquet").exists()
+
+
+def test_generate_parquet_from_download(tmp_path):
+    """Files with an ECSV header are merged into one file sorted by MPC number, with text arrays as lists."""
+    header = "# %ECSV 1.0\n# ---\n# delimiter: ','\n"
+    file_contents = [
+        'number_mp,denomination,state\n5,"e","[1.0,2.0]"\n1,"a","[1E-3,-4.5]"\n5,"e",\n',
+        'number_mp,denomination,state\n3,"c","[3.0,4.0]"\n4,"d","[5.0,6.0]"\n',
+        'number_mp,denomination,state\n2,"b","[7.0,8.0]"\n6,"f","[9.0,1.5]"\n',
+    ]
+    csv_files = []
+    for file_number, content in enumerate(file_contents):
+        csv_file = tmp_path / f"SsoSource_{file_number:02d}.csv.gz"
+        with gzip.open(csv_file, "wt") as file:
+            file.write(header + content)
+        csv_files.append(csv_file)
+
+    parquet_path = tmp_path / "sso_source.parquet"
+    # Few rows per chunk, so the files are merged over several chunks
+    _generate_parquet_from_download(csv_files, parquet_path, rows_per_chunk=2)
+
+    result = pd.read_parquet(parquet_path)
+    assert result["number_mp"].tolist() == [1, 2, 3, 4, 5, 5, 6]
+    assert result["denomination"].tolist() == ["a", "b", "c", "d", "e", "e", "f"]
+    states = result["state"].tolist()
+    assert states[4] is None or states[5] is None  # Missing array is kept as missing
+    assert [list(state) for state in states if state is not None] == [
+        [1e-3, -4.5],
+        [7.0, 8.0],
+        [3.0, 4.0],
+        [5.0, 6.0],
+        [1.0, 2.0],
+        [9.0, 1.5],
+    ]
+    assert [path.name for path in tmp_path.iterdir()] == ["sso_source.parquet"]
 
 
 def test_observation_table_angles(astrometry_table):

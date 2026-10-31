@@ -182,7 +182,7 @@ def test_transfer_to_filtered_set_and_serialization_preserve_numerical_metadata(
 
 def test_gaia_angles_match_ccd_rows_after_filtering_and_dataset_conversion():
     archive = Path(__file__).with_name("gaia_astro_archive_for_tests.parquet")
-    gaia = GaiaAstrometry.load_from_local_archive(archive, 673)
+    gaia = GaiaAstrometry.load_from_parquet(673, archive)
     gaia.apply_filters()
     sources, _ = gaia.to_tracking_data()
     table = gaia.table
