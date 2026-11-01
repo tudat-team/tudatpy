@@ -172,6 +172,9 @@ void expose_acceleration_setup( py::module& m )
                     tba::AvailableAcceleration::yarkovsky_acceleration,
                     R"doc(
       )doc" )
+            .value( "gravitational_parameter_rate_acceleration_type",
+                    tba::AvailableAcceleration::gravitational_parameter_rate_acceleration,
+                    R"doc(Point-mass acceleration due to a linear variation of the gravitational parameter of the exerting body.)doc" )
             .value( "relativistic_acceleration_from_metric_type",
                     tba::AvailableAcceleration::relativistic_acceleration_from_metric,
                     R"doc(
@@ -347,6 +350,18 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
     )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::YarkovskyAccelerationSettings )
             TUDATPY_DEF_EQ_NE( tss::YarkovskyAccelerationSettings );
+
+    py::class_< tss::GravitationalParameterRateAccelerationSettings,
+                std::shared_ptr< tss::GravitationalParameterRateAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "GravitationalParameterRateAccelerationSettings",
+                                             R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the point-mass acceleration due to a linear variation of the
+       gravitational parameter of the exerting body.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::GravitationalParameterRateAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::GravitationalParameterRateAccelerationSettings );
 
     py::class_< tss::RelativisticAccelerationCorrectionSettings,
                 std::shared_ptr< tss::RelativisticAccelerationCorrectionSettings >,
@@ -1313,6 +1328,41 @@ AccelerationSettings
  -------
  RTGAccelerationSettings
      RTG acceleration settings object.
+
+     )doc" );
+
+    m.def( "gravitational_parameter_rate",
+           &tss::gravitationalParameterRateAcceleration,
+           py::arg( "relative_gravitational_parameter_rate" ),
+           py::arg( "reference_epoch" ) = 0.0,
+           R"doc(
+
+ Creates settings for the acceleration due to a linear variation of the gravitational parameter of the exerting body.
+
+ Creates settings for the point-mass acceleration due to the change since a reference epoch :math:`t_{0}` of the gravitational
+ parameter :math:`\mu` of the exerting body (e.g. the solar mass loss), with a constant relative rate
+ :math:`\rho=\dot{\mu}/\mu` :cite:p:`Genova2018`:
+
+ .. math::
+
+    \mathbf{a}=-\mu\rho\left(t-t_{0}\right)\frac{\mathbf{r}}{r^{3}}
+
+ where :math:`\mathbf{r}` is the position of the accelerated body w.r.t. the exerting body, and :math:`\mu` is the gravitational
+ parameter of the gravity field of the exerting body, which is its value at :math:`t_{0}`. The acceleration is to be used next to
+ a point-mass (or Einstein-Infeld-Hoffmann) acceleration. Only the direct acceleration is implemented: the central body of the
+ propagation must be the exerting body or an inertial origin. The rate can be estimated with
+ :func:`~tudatpy.dynamics.parameters_setup.relative_gravitational_parameter_rate`.
+
+ Parameters
+ ----------
+ relative_gravitational_parameter_rate : float
+     Relative rate :math:`\rho=\dot{\mu}/\mu` of the gravitational parameter of the exerting body [1/s].
+ reference_epoch : float, default = 0.0
+     Epoch :math:`t_{0}` at which the gravitational parameter is that of the gravity field of the exerting body [s].
+ Returns
+ -------
+ GravitationalParameterRateAccelerationSettings
+     Acceleration settings object.
 
      )doc" );
 

@@ -1494,6 +1494,41 @@ std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAccele
     return accelerationModel;
 }
 
+std::shared_ptr< gravitation::GravitationalParameterRateAcceleration > createGravitationalParameterRateAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+    std::shared_ptr< GravitationalParameterRateAccelerationSettings > rateSettings =
+            std::dynamic_pointer_cast< GravitationalParameterRateAccelerationSettings >( accelerationSettings );
+    if( rateSettings == nullptr )
+    {
+        throw std::runtime_error( "Error, expected gravitational parameter rate acceleration settings when making acceleration model on " +
+                                  nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
+    }
+    else if( bodyExertingAcceleration->getGravityFieldModel( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when making gravitational parameter rate acceleration on " + nameOfBodyUndergoingAcceleration +
+                                  ", " + nameOfBodyExertingAcceleration + " has no gravity field" );
+    }
+    // Only the direct acceleration is implemented (no third-body form)
+    else if( nameOfCentralBody != nameOfBodyExertingAcceleration && !ephemerides::isFrameInertial( nameOfCentralBody ) )
+    {
+        throw std::runtime_error( "Error when making gravitational parameter rate acceleration on " + nameOfBodyUndergoingAcceleration +
+                                  " due to " + nameOfBodyExertingAcceleration + ", central body " + nameOfCentralBody +
+                                  " must be the exerting body or an inertial origin" );
+    }
+    return std::make_shared< gravitation::GravitationalParameterRateAcceleration >(
+            std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
+            std::bind( &Body::getPosition, bodyExertingAcceleration ),
+            std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyExertingAcceleration->getGravityFieldModel( ) ),
+            rateSettings->relativeGravitationalParameterRate_,
+            rateSettings->referenceEpoch_ );
+}
+
 std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > createCustomAccelerationModel(
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const std::string& nameOfBodyUndergoingAcceleration )
@@ -2145,6 +2180,14 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                                                                    nameOfBodyUndergoingAcceleration,
                                                                    nameOfBodyExertingAcceleration,
                                                                    accelerationSettings );
+            break;
+        case gravitational_parameter_rate_acceleration:
+            accelerationModelPointer = createGravitationalParameterRateAcceleration( bodyUndergoingAcceleration,
+                                                                                     bodyExertingAcceleration,
+                                                                                     nameOfBodyUndergoingAcceleration,
+                                                                                     nameOfBodyExertingAcceleration,
+                                                                                     nameOfCentralBody,
+                                                                                     accelerationSettings );
             break;
         case custom_acceleration:
             accelerationModelPointer = createCustomAccelerationModel( accelerationSettings, nameOfBodyUndergoingAcceleration );

@@ -159,6 +159,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case yarkovsky_parameter:
             parameterDescription = " Yarkovsky parameter A2 ";
             break;
+        case relative_gravitational_parameter_rate:
+            parameterDescription = " relative gravitational parameter rate ";
+            break;
         case custom_estimated_parameter:
             parameterDescription = " Custom parameter ";
             break;
@@ -407,6 +410,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = true;
             break;
         case yarkovsky_parameter:
+        case relative_gravitational_parameter_rate:
             isDoubleParameter = true;
             break;
         case custom_estimated_parameter:

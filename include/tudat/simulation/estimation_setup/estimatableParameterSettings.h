@@ -1740,6 +1740,11 @@ inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > relativeGravitationalParameterRate( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, relative_gravitational_parameter_rate );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetDirectionScaling( const std::string targetName,
                                                                                                 const std::string sourceName )
 {

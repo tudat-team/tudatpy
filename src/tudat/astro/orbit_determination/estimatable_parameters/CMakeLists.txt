@@ -41,6 +41,7 @@ set(estimatable_parameters_HEADERS
   "empiricalAccelerationCoefficients.h"
   "tidalLoveNumber.h"
   "directTidalTimeLag.h"
+  "relativeGravitationalParameterRate.h"
   "meanMomentOfInertiaParameter.h"
   "desaturationDeltaV.h"
   "periodicSpinVariation.h"
