@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
 
             std::shared_ptr< GroundStationSettings > stationSettings = std::make_shared< GroundStationSettings >(
                     "Station1", nominalStationState, coordinate_conversions::cartesian_position, stationMotionSettings );
-            createGroundStation( bodies.at( "Earth" ), stationSettings );
+            createGroundStation( bodies.at( "Earth" ), stationSettings, bodies );
 
             std::shared_ptr< tudat::ground_stations::GroundStationState > stationState =
                     bodies.at( "Earth" )->getGroundStation( "Station1" )->getNominalStationState( );
