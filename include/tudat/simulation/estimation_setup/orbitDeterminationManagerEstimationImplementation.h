@@ -36,7 +36,7 @@ std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimateParameters(
         std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
 {
-    if( estimationInput->getSparseDesignMatrix( ) )
+    if( estimationInput->getUseSparseDesignMatrix( ) )
     {
         return performEstimation< Eigen::SparseMatrix< double > >( estimationInput );
     }
@@ -83,7 +83,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
     Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
     // Dense or sparse, depending on the estimation input; left empty if the design matrix is not saved
-    optionalAnyMatrix bestDesignMatrixEstimatedParameters;
+    DenseOrSparseOrNoMatrix bestDesignMatrixEstimatedParameters;
     Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
     Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix =
             Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
@@ -235,7 +235,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
                             weightsMatrixDiagonals,
                             DesignMatrixTraits::from_dense( normalizedInverseAprioriCovarianceMatrix ),
                             conditionNumberCheck,
-                            DesignMatrixTraits::from_dense( constraintStateMultiplier ),
+                            constraintStateMultiplier,
                             constraintRightHandSide,
                             DesignMatrixTraits::from_dense( designMatrixConsiderParameters ),
                             normalizedConsiderParametersDeviation,

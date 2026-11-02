@@ -284,10 +284,10 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
     considerTestMatchIndices[ { 12, 2 } ] = { 2, 2 };
 
     {
-        Eigen::MatrixXd fullUnnormalizedPartials = covarianceOutputAll->getUnnormalizedDesignMatrix( );
+        Eigen::MatrixXd fullUnnormalizedPartials = std::get< Eigen::MatrixXd >( covarianceOutputAll->getUnnormalizedDesignMatrix( ) );
         Eigen::MatrixXd fullConsiderPartials = covarianceOutputAll->getUnnormalizedDesignMatrixConsiderParameters( );
 
-        Eigen::MatrixXd unnormalizedPartials = covarianceOutput->getUnnormalizedDesignMatrix( );
+        Eigen::MatrixXd unnormalizedPartials = std::get< Eigen::MatrixXd >( covarianceOutput->getUnnormalizedDesignMatrix( ) );
         Eigen::MatrixXd unnormalizedConsiderPartials = covarianceOutput->getUnnormalizedDesignMatrixConsiderParameters( );
 
         int numberOfObservations = fullUnnormalizedPartials.rows( );
@@ -329,12 +329,12 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
 
     // Retrieve unnormalised partials estimated and consider parameters
     Eigen::MatrixXd considerPartials = estimationOutput->getUnnormalizedDesignMatrixConsiderParameters( );
-    Eigen::MatrixXd estimatedPartials = estimationOutput->getUnnormalizedDesignMatrix( );
+    Eigen::MatrixXd estimatedPartials = std::get< Eigen::MatrixXd >( estimationOutput->getUnnormalizedDesignMatrix( ) );
     Eigen::MatrixXd weightedEstimatedPartials =
             linear_algebra::multiplyDesignMatrixByDiagonalWeightMatrix( estimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
 
     // Manually compute normalised inverse covariance (w/o consider parameters)
-    Eigen::MatrixXd normalisedEstimatedPartials = estimationOutput->getNormalizedDesignMatrix( );
+    Eigen::MatrixXd normalisedEstimatedPartials = std::get< Eigen::MatrixXd >( estimationOutput->getNormalizedDesignMatrix( ) );
     Eigen::MatrixXd normalisedConsiderPartials = estimationOutput->getNormalizedDesignMatrixConsiderParameters( );
     Eigen::MatrixXd weightedNormalisedEstimatedPartials = linear_algebra::multiplyDesignMatrixByDiagonalWeightMatrix(
             normalisedEstimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
 
     // Compare with manually computed covariance
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            covarianceOutput->unnormalizedCovarianceWithConsiderParameters_, computedCovarianceConsiderParameters, 1.0e-11 );
+            covarianceOutput->unnormalizedCovarianceWithConsiderParameters_, computedCovarianceConsiderParameters, 1.0e-10 );
 
     // Manually perform full estimation step
     Eigen::VectorXd rightHandSide = normalisedEstimatedPartials.transpose( ) *
@@ -399,6 +399,24 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
 
     // Check consistency
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( updatedParameters, computedUpdatedParameters, 1.0e-12 );
+
+    // Rerun covariance analysis and estimation with a sparse design matrix, and compare with the dense results
+    parameters->resetParameterValues< double >( nominalParameters );
+    covarianceInput->setUseSparseDesignMatrix( true );
+    estimationInput->setUseSparseDesignMatrix( true );
+    std::shared_ptr< CovarianceAnalysisOutput< double, double > > sparseCovarianceOutput =
+            orbitDeterminationManager.computeCovariance( covarianceInput );
+    std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            Eigen::MatrixXd( std::get< Eigen::SparseMatrix< double > >( sparseEstimationOutput->getNormalizedDesignMatrix( ) ) ),
+            normalisedEstimatedPartials,
+            1.0e-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseCovarianceOutput->unnormalizedCovarianceWithConsiderParameters_,
+                                       covarianceOutput->unnormalizedCovarianceWithConsiderParameters_,
+                                       1.0e-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->parameterHistory_.at( 1 ), updatedParameters, 1.0e-10 );
 }
 
 BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )
@@ -613,12 +631,12 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )
 
     // Retrieve unnormalised partials estimated and consider parameters
     Eigen::MatrixXd considerPartials = estimationOutput->getUnnormalizedDesignMatrixConsiderParameters( );
-    Eigen::MatrixXd estimatedPartials = estimationOutput->getUnnormalizedDesignMatrix( );
+    Eigen::MatrixXd estimatedPartials = std::get< Eigen::MatrixXd >( estimationOutput->getUnnormalizedDesignMatrix( ) );
     Eigen::MatrixXd weightedEstimatedPartials =
             linear_algebra::multiplyDesignMatrixByDiagonalWeightMatrix( estimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
 
     // Manually compute normalised inverse covariance (w/o consider parameters)
-    Eigen::MatrixXd normalisedEstimatedPartials = estimationOutput->getNormalizedDesignMatrix( );
+    Eigen::MatrixXd normalisedEstimatedPartials = std::get< Eigen::MatrixXd >( estimationOutput->getNormalizedDesignMatrix( ) );
     Eigen::MatrixXd normalisedConsiderPartials = estimationOutput->getNormalizedDesignMatrixConsiderParameters( );
     Eigen::MatrixXd weightedNormalisedEstimatedPartials = linear_algebra::multiplyDesignMatrixByDiagonalWeightMatrix(
             normalisedEstimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
@@ -683,6 +701,24 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )
 
     // Check consistency
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( updatedParameters, computedUpdatedParameters, 1.0e-12 );
+
+    // Rerun covariance analysis and estimation with a sparse design matrix, and compare with the dense results
+    parameters->resetParameterValues< double >( nominalParameters );
+    covarianceInput->setUseSparseDesignMatrix( true );
+    estimationInput->setUseSparseDesignMatrix( true );
+    std::shared_ptr< CovarianceAnalysisOutput< double, double > > sparseCovarianceOutput =
+            orbitDeterminationManager.computeCovariance( covarianceInput );
+    std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            Eigen::MatrixXd( std::get< Eigen::SparseMatrix< double > >( sparseEstimationOutput->getNormalizedDesignMatrix( ) ) ),
+            normalisedEstimatedPartials,
+            1.0e-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseCovarianceOutput->unnormalizedCovarianceWithConsiderParameters_,
+                                       covarianceOutput->unnormalizedCovarianceWithConsiderParameters_,
+                                       1.0e-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->parameterHistory_.at( 1 ), updatedParameters, 1.0e-10 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

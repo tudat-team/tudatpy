@@ -55,7 +55,7 @@ std::shared_ptr< OutputType > roundTripSerialize( const std::shared_ptr< OutputT
 
 template< typename TimeType >
 std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< double, TimeType > > createCovarianceAnalysisOutput(
-        const simulation_setup::optionalAnyMatrix& normalizedDesignMatrix =
+        const simulation_setup::DenseOrSparseOrNoMatrix& normalizedDesignMatrix =
                 Eigen::MatrixXd( ( Eigen::MatrixXd( 3, 2 ) << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 ).finished( ) ) )
 {
     const Eigen::VectorXd weightsMatrixDiagonal( ( Eigen::VectorXd( 3 ) << 7.0, 8.0, 9.0 ).finished( ) );
@@ -82,7 +82,7 @@ std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< double, TimeType > 
 
 template< typename TimeType >
 std::shared_ptr< simulation_setup::EstimationOutput< double, TimeType > > createEstimationOutput(
-        const simulation_setup::optionalAnyMatrix& normalizedDesignMatrix =
+        const simulation_setup::DenseOrSparseOrNoMatrix& normalizedDesignMatrix =
                 Eigen::MatrixXd( ( Eigen::MatrixXd( 3, 2 ) << 33.0, 34.0, 35.0, 36.0, 37.0, 38.0 ).finished( ) ) )
 {
     const Eigen::Matrix< double, Eigen::Dynamic, 1 > parameterEstimate( ( Eigen::Vector2d( ) << 28.0, 29.0 ).finished( ) );
@@ -174,7 +174,8 @@ BOOST_AUTO_TEST_CASE( test_SparseDesignMatrixSerialization )
         BOOST_CHECK( std::holds_alternative< Eigen::SparseMatrix< double > >( roundTripped->normalizedDesignMatrix_ ) );
         BOOST_CHECK( roundTripped->designMatrixSaved_ );
         const Eigen::MatrixXd expectedDesignMatrix = Eigen::MatrixXd( sparseDesignMatrix );
-        const Eigen::MatrixXd roundTrippedDesignMatrix = Eigen::MatrixXd( roundTripped->getNormalizedDesignMatrixSparse( ) );
+        const Eigen::MatrixXd roundTrippedDesignMatrix =
+                Eigen::MatrixXd( std::get< Eigen::SparseMatrix< double > >( roundTripped->getNormalizedDesignMatrix( ) ) );
         BOOST_CHECK( roundTrippedDesignMatrix == expectedDesignMatrix );
     }
 
@@ -185,7 +186,7 @@ BOOST_AUTO_TEST_CASE( test_SparseDesignMatrixSerialization )
                  *createCovarianceAnalysisOutput< double >( changedDesignMatrix ) );
 
     // Absent design matrix
-    auto withoutDesignMatrix = createCovarianceAnalysisOutput< double >( simulation_setup::optionalAnyMatrix( ) );
+    auto withoutDesignMatrix = createCovarianceAnalysisOutput< double >( simulation_setup::DenseOrSparseOrNoMatrix( ) );
     auto roundTrippedWithoutDesignMatrix = roundTripSerialize( withoutDesignMatrix );
     BOOST_REQUIRE( roundTrippedWithoutDesignMatrix != nullptr );
     BOOST_CHECK( *withoutDesignMatrix == *roundTrippedWithoutDesignMatrix );

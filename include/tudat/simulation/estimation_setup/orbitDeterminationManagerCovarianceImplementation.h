@@ -12,7 +12,6 @@
 #define TUDAT_ORBITDETERMINATIONMANAGERCOVARIANCEIMPLEMENTATION_H
 
 #include <iostream>
-#include <optional>
 #include <type_traits>
 #include <utility>
 
@@ -35,7 +34,7 @@ std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
-    if( estimationInput->getSparseDesignMatrix( ) )
+    if( estimationInput->getUseSparseDesignMatrix( ) )
     {
         return performCovarianceAnalysis< Eigen::SparseMatrix< double > >( estimationInput );
     }
@@ -105,18 +104,13 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performCova
 
     // Compute inverse of updated covariance in the storage of the design matrix (dense or sparse). The other matrices
     // are converted to the same storage, the inverse covariance is returned as a dense matrix.
-    std::optional< DesignMatrixType > constraintStateMultiplierOptional = constraintStateMultiplier.rows( ) == 0
-            ? std::nullopt
-            : std::optional< DesignMatrixType >( DesignMatrixTraits::from_dense( constraintStateMultiplier ) );
-    std::optional< Eigen::VectorXd > constraintRightHandSideOptional =
-            constraintStateMultiplier.rows( ) == 0 ? std::nullopt : std::optional< Eigen::VectorXd >( constraintRightHandSide );
     Eigen::MatrixXd inverseNormalizedCovariance =
             DesignMatrixTraits::to_dense( linear_algebra::calculateInverseOfUpdatedCovarianceMatrix< DesignMatrixType >(
                     designMatrixEstimatedParameters,
                     estimationInput->getWeightsMatrixDiagonals( ),
                     DesignMatrixTraits::from_dense( normalizedInverseAprioriCovarianceMatrix ),
-                    constraintStateMultiplierOptional,
-                    constraintRightHandSideOptional,
+                    constraintStateMultiplier,
+                    constraintRightHandSide,
                     estimationInput->getLimitConditionNumberForWarning( ) ) );
 
     const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
@@ -160,8 +154,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performCova
     // Create covariance output object
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput =
             std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
-                    estimationInput->getSaveDesignMatrix( ) ? optionalAnyMatrix( std::move( designMatrixEstimatedParameters ) )
-                                                            : optionalAnyMatrix( ),
+                    estimationInput->getSaveDesignMatrix( ) ? DenseOrSparseOrNoMatrix( std::move( designMatrixEstimatedParameters ) )
+                                                            : DenseOrSparseOrNoMatrix( ),
                     estimationInput->getWeightsMatrixDiagonals( ),
                     normalizationTerms,
                     inverseNormalizedCovariance,

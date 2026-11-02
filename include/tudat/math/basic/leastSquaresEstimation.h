@@ -17,7 +17,6 @@
 
 #include <functional>
 #include <iostream>
-#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -114,7 +113,6 @@ M multiplyDesignMatrixByDiagonalWeightMatrix( const M& designMatrix,
     return diagonalOfWeightMatrix.asDiagonal( ) * designMatrix;
 }
 
-// TODO: ask dominic about replacing arguments with std::optional.
 //! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 /*!
  * Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
@@ -130,8 +128,8 @@ M calculateInverseOfUpdatedCovarianceMatrix(
         const M& designMatrix,
         const typename from_eigen< M >::dense_vector_type& diagonalOfWeightMatrix,
         const M& inverseOfAPrioriCovarianceMatrix,
-        const std::optional< M >& constraintMultiplier = std::nullopt,
-        const std::optional< typename from_eigen< M >::dense_vector_type >& constraintRightHandside = std::nullopt,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const typename from_eigen< M >::dense_vector_type& constraintRightHandside = typename from_eigen< M >::dense_vector_type( 0 ),
         typename from_eigen< M >::value_type limitConditionNumberForWarning = 1.0E8 )
 {
     using traits = typename from_eigen< M >::traits;
@@ -141,55 +139,42 @@ M calculateInverseOfUpdatedCovarianceMatrix(
             inverseOfAPrioriCovarianceMatrix + designMatrix.transpose( ) * diagonalOfWeightMatrix.asDiagonal( ) * designMatrix;
 
     // Add constraints to inverse covariance matrix if required
-    if( constraintMultiplier )
+    if( constraintMultiplier.rows( ) != 0 )
     {
-        if( !constraintRightHandside )
+        if( constraintRightHandside.rows( ) == 0 )
         {
             throw std::runtime_error(
                     "Error when performing constrained least-squares, both multiplier and right-hand-side should be given." );
         }
 
-        if( constraintMultiplier->rows( ) != constraintRightHandside->rows( ) )
+        if( constraintMultiplier.rows( ) != constraintRightHandside.rows( ) )
         {
             throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible" );
         }
 
-        if( constraintMultiplier->cols( ) != designMatrix.cols( ) )
+        if( constraintMultiplier.cols( ) != designMatrix.cols( ) )
         {
             throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
         }
 
-        traits::extend_symmetric( inverseOfCovarianceMatrix, *constraintMultiplier );
+        traits::extend_symmetric( inverseOfCovarianceMatrix, traits::from_dense( constraintMultiplier ) );
     }
 
     return inverseOfCovarianceMatrix;
 }
 
 //! Function to compute the contribution of consider parameters to the covariance matrix
-template< typename M >
-M calculateConsiderParametersCovarianceContribution( const M& normalisedCovarianceMatrix,
-                                                     const M& designMatrix,
-                                                     const typename from_eigen< M >::dense_vector_type& diagonalOfWeightMatrix,
-                                                     const M& considerDesignMatrix,
-                                                     const M& considerCovariance )
-{
-    M covarianceTimesWeightedPartials =
-            normalisedCovarianceMatrix * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( );
-    return ( covarianceTimesWeightedPartials * considerDesignMatrix ) * considerCovariance *
-            ( considerDesignMatrix.transpose( ) * covarianceTimesWeightedPartials.transpose( ) );
-}
-
-//! Function to compute the contribution of consider parameters to the covariance matrix, for a sparse design matrix
 /*!
- * Same result as the dense version, (P H^T W H_c) C (P H^T W H_c)^T with P the normalised covariance, but with the products
- * ordered such that no dense matrix of the size of the design matrix is formed. The partials w.r.t. the consider parameters
- * (H_c) are dense.
+ * Function to compute (P H^T W H_c) C (P H^T W H_c)^T, with P the normalised covariance, H the (dense or sparse) design matrix,
+ * W the weights, H_c the partials w.r.t. the consider parameters and C the consider covariance. The products are ordered such
+ * that no matrix of the size of the design matrix is formed.
  */
-inline Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
-                                                                          const Eigen::SparseMatrix< double >& designMatrix,
-                                                                          const Eigen::VectorXd& diagonalOfWeightMatrix,
-                                                                          const Eigen::MatrixXd& considerDesignMatrix,
-                                                                          const Eigen::MatrixXd& considerCovariance )
+template< typename M >
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
+                                                                   const M& designMatrix,
+                                                                   const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                                   const Eigen::MatrixXd& considerDesignMatrix,
+                                                                   const Eigen::MatrixXd& considerCovariance )
 {
     Eigen::MatrixXd covarianceTimesConsiderNormalMatrix =
             normalisedCovarianceMatrix * ( designMatrix.transpose( ) * ( diagonalOfWeightMatrix.asDiagonal( ) * considerDesignMatrix ) );
@@ -222,7 +207,7 @@ std::pair< typename from_eigen< M >::dense_vector_type, M > performLeastSquaresA
         const typename from_eigen< M >::dense_vector_type& diagonalOfWeightMatrix,
         const M& inverseOfAPrioriCovarianceMatrix,
         typename from_eigen< M >::value_type limitConditionNumberForWarning = 1.0E8,
-        const M& constraintMultiplier = M( 0, 0 ),
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
         const typename from_eigen< M >::dense_vector_type& constraintRightHandside = typename from_eigen< M >::dense_vector_type( 0 ),
         const M& designMatrixConsiderParameters = M( 0, 0 ),
         const typename from_eigen< M >::dense_vector_type& considerParametersDeviations = typename from_eigen< M >::dense_vector_type( 0 ),

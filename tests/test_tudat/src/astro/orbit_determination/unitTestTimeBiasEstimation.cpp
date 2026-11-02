@@ -283,7 +283,7 @@ int main( )
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
         Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
-        Eigen::MatrixXd partials = estimationOutput->getUnnormalizedDesignMatrix( );
+        Eigen::MatrixXd partials = std::get< Eigen::MatrixXd >( estimationOutput->getUnnormalizedDesignMatrix( ) );
 
         std::cout << "true parameters: " << truthParameters.transpose( ) << "\n\n";
         std::cout << "estimationError: " << estimationError.transpose( ) << "\n\n";
