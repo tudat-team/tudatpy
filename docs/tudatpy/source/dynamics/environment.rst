@@ -67,8 +67,6 @@ Classes
 
    TimeEphemeris
 
-   Tle
-
    TleFitResult
 
    RotationalEphemeris
@@ -131,10 +129,6 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.TimeEphemeris
    :members:
-
-.. autoclass:: tudatpy.dynamics.environment.Tle
-   :members:
-   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment.TleFitResult
    :members:

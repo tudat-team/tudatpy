@@ -51,6 +51,8 @@ Functions
 
    inverse_power_series_solar_corona_light_time_correction
 
+   solar_corona_model_coefficients
+
    set_vmf_troposphere_data
 
    set_ionosphere_model_from_ionex
@@ -79,6 +81,8 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.inverse_power_series_solar_corona_light_time_correction
 
+.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.solar_corona_model_coefficients
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.set_vmf_troposphere_data
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.set_ionosphere_model_from_ionex
@@ -95,6 +99,8 @@ Enumerations
 
    WaterVaporPartialPressureModel
 
+   SolarCoronaModel
+
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeFailureHandling
    :members:
@@ -103,6 +109,9 @@ Enumerations
    :members:
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.WaterVaporPartialPressureModel
+   :members:
+
+.. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.SolarCoronaModel
    :members:
 
 

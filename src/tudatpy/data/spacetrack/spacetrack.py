@@ -5,6 +5,7 @@ import requests
 from collections import defaultdict
 from urllib.parse import urljoin, urlparse
 from tudatpy.dynamics import environment
+from tudatpy.dynamics.environment_setup import ephemeris
 from datetime import datetime, timedelta
 import math
 from tudatpy.data import get_resource_path
@@ -690,11 +691,11 @@ class OMMUtils:
             Configured TleEphemeris object.
         """
         return environment.TleEphemeris(
-            "Earth", "J2000", environment.Tle(tle_line_1, tle_line_2), False
+            "Earth", "J2000", ephemeris.Tle(tle_line_1, tle_line_2), False
         )
 
     @staticmethod
-    def tle_to_Tle_object(tle_line_1: str, tle_line_2: str) -> environment.Tle:
+    def tle_to_Tle_object(tle_line_1: str, tle_line_2: str) -> ephemeris.Tle:
         """
         Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
 
@@ -707,10 +708,10 @@ class OMMUtils:
 
         Returns
         -------
-        environment.Tle
+        ephemeris.Tle
             Tle object.
         """
-        return environment.Tle(tle_line_1, tle_line_2)
+        return ephemeris.Tle(tle_line_1, tle_line_2)
 
     @staticmethod
     def clean_file(filepath: str) -> None:

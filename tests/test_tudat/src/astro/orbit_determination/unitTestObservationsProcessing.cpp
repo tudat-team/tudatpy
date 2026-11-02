@@ -871,6 +871,41 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     simulatedObservations->removeSingleObservationSets( indexSetToRemove );
     BOOST_CHECK( simulatedObservations->getSingleObservationSets( observationParser( angular_position ) ).size( ) == 1 );
 
+    // Test residual filtering with opposite condition on multi-component observable: only observations for which
+    // all components are within the cut-off value should be removed (issue #1084)
+    std::shared_ptr< SingleObservationSet<> > angularPositionSet =
+            simulatedObservations->getSingleObservationSets( observationParser( angular_position ) ).at( 0 );
+    unsigned int nbAngularPositions = angularPositionSet->getNumberOfObservables( );
+    std::vector< Eigen::VectorXd > angularResiduals;
+    unsigned int nbSmallAngularResiduals = 0;
+    for( unsigned int i = 0; i < nbAngularPositions; i++ )
+    {
+        // Cycle through: both components large, only first component large, both components small
+        Eigen::VectorXd currentResidual = ( residualCutOffValue - 0.05 ) * Eigen::Vector2d::Ones( );
+        if( i % 3 != 2 )
+        {
+            currentResidual[ 0 ] = residualCutOffValue + 0.05;
+        }
+        else
+        {
+            nbSmallAngularResiduals++;
+        }
+        if( i % 3 == 0 )
+        {
+            currentResidual[ 1 ] = residualCutOffValue + 0.05;
+        }
+        angularResiduals.push_back( currentResidual );
+    }
+    angularPositionSet->setResiduals( angularResiduals );
+
+    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > oppositeResidualFilter = {
+        { observationParser( angular_position ), observationFilter( residual_filtering, residualCutOffValue, true, true ) }
+    };
+    simulatedObservations->filterObservations( oppositeResidualFilter );
+
+    BOOST_CHECK( angularPositionSet->getNumberOfObservables( ) == nbAngularPositions - nbSmallAngularResiduals );
+    BOOST_CHECK( angularPositionSet->getNumberOfFilteredObservations( ) == nbSmallAngularResiduals );
+
     // Retrieve elevation angles before filtering
     std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings = elevationAngleDependentVariable( );
     std::vector< Eigen::MatrixXd > originalElevationAngles =

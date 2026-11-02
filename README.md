@@ -19,6 +19,7 @@ For complete example applications see our [examples page](https://docs.tudat.spa
   - [Prerequisites](#prerequisites)
   - [Compilation Steps](#compilation-steps)
   - [Verify your Build](#verify-your-build)
+  - [Optional: Mars Climate Database Interface](#optional-mars-climate-database-interface)
 - [Contributing](#contributing)
 - [Citation](#citation)
 
@@ -163,6 +164,43 @@ Total Test time (real) = 490.77 sec
 ````
 
 Note that when running tests in parallel with `-j`, CTest may execute tests in a non-sequential order to minimize total execution time.
+
+### Optional: Mars Climate Database Interface
+
+Tudat contains an interface to the [Mars Climate Database (MCD)](https://www-mars.lmd.jussieu.fr/MCD_pro/mcd_pro.html), which provides the [`mars_climate_database_climate_model`](https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model) and [`mars_climate_database_atmosphere_model`](https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model) functions in `tudatpy.dynamics.environment_setup.atmosphere`.
+This interface is not included in the default build or in the conda packages.
+These two functions only exist in `tudatpy` (and are only listed in the API documentation) when Tudat is built with the MCD interface active, as described below.
+
+> [!IMPORTANT]
+> The MCD code and data are **not** distributed with Tudat, and are not open source.
+> You must obtain the MCD (Fortran code and data files) yourself from the Laboratoire de Météorologie Dynamique, through the [MCD website](https://www-mars.lmd.jussieu.fr/MCD_pro/mcd_pro.html), before you can build Tudat with this interface.
+
+To build Tudat with the MCD interface:
+
+1. Place the MCD files in the `third_parties/mcd` directory of this repository (these paths are ignored by Git, so the MCD files will not be committed):
+
+   ```
+   third_parties/mcd/
+   ├── CMakeLists.txt                      # Provided by Tudat
+   ├── MCD.F90                             # MCD Fortran source (module `mcd`, with subroutine `call_mcd`)
+   ├── interfaces/c_interfaces/mcd.h       # MCD C interface header
+   └── data/                               # MCD data files
+   ```
+
+2. Install a Fortran compiler and the NetCDF libraries required by the MCD in your `tudatpy-dev` environment:
+
+   ```
+   conda install -c conda-forge gfortran netcdf-fortran
+   ```
+
+3. Build with the `--with-mcd` flag (which sets the CMake option `TUDAT_BUILD_WITH_MCD_INTERFACE=ON` and uses the `gfortran` compiler of your conda environment):
+
+   ```
+   python build.py --with-mcd -j <number-of-cores>
+   ```
+
+The absolute path of `third_parties/mcd/data` is stored in the compiled library as the default location of the MCD data files.
+If you move the data files after compiling, provide their location through the `mcd_data_path` argument of [`mars_climate_database_climate_model`](https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model).
 
 ## Contributing
 

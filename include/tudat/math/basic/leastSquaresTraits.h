@@ -378,7 +378,15 @@ struct SolverTraits< Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >, SVD 
 
     static vector_type solve( const matrix_type& A, const vector_type& b, Real limitConditionNumberForWarning )
     {
-        auto svd = A.template jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
+        // Symmetric diagonal (Jacobi) scaling, so that strongly different diagonal entries (e.g. from observables with very different
+        // weights) do not limit the precision of the solution
+        vector_type scaling = A.diagonal( ).cwiseAbs( ).cwiseSqrt( );
+        for( int i = 0; i < scaling.rows( ); i++ )
+        {
+            scaling( i ) = ( scaling( i ) > 0.0 ) ? 1.0 / scaling( i ) : 1.0;
+        }
+
+        auto svd = ( scaling.asDiagonal( ) * A * scaling.asDiagonal( ) ).template jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
         if( limitConditionNumberForWarning == limitConditionNumberForWarning )
         {
             const vector_type& singularValues = svd.singularValues( );
@@ -388,7 +396,7 @@ struct SolverTraits< Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >, SVD 
                 std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
             }
         }
-        return svd.solve( b );
+        return scaling.asDiagonal( ) * svd.solve( scaling.asDiagonal( ) * b );
     }
 };
 

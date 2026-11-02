@@ -13,11 +13,9 @@ Highlights of this release
   This allows the high-fidelity orbital-rotational dynamics of for instance binary
   asteroid or close-in moons to be modelled. Stay tuned for the consistent incorporation
   of tidal effects into this dynamics for the next release!
-* New readers, converters, and download tools support DSN ATDF tracking data and
-  optical-navigation pixel/line data (tested with Voyager data). The DSN TNF and
+* New readers and converters support optical-navigation pixel/line data (tested with Voyager data). The DSN TNF and
   MPC readers have also been improved. This facilitates analyses using data coming from
-  even more sources/missions. See our `EPSC abstract and poster
-  <https://meetingorganizer.copernicus.org/EPSC2026/EPSC2026-349.html>`_
+  even more sources/missions.
 * Orbit determination now supports camera pixel/line, azimuth/elevation,
   differenced time-of-arrival, differenced frequency-of-arrival, and measured
   one-way-frequency observables. This has further broadened the data types that
@@ -83,9 +81,8 @@ Other dynamics additions include:
 Mission, tracking, and catalogue data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* New or improved processing is available for DSN ATDF and TNF, FDETS,
-  optical-navigation PSF, and ILRS CRD/SINEX data. The ODF, IFMS, ramp-table,
-  and Doppler-compression workflows have also been extended.
+* New or improved processing is available for TNF, FDETS,
+  optical-navigation PSF, and ILRS CRD/SINEX data.
 * MPC support includes a separate parser for 80-column observations,
   standardized table handling, and custom target names.
 * Space-Track queries use more selective API calls and configurable timeouts.
@@ -172,9 +169,7 @@ Atmospheres and environmental modelling
 
 The Mars Climate Database is available as an optional source of atmospheric
 density data for high-fidelity Mars orbiter simulations.
-See `atmosphere.mcd
-<https://py.api.tudat.space/en/latest/dynamics/environment_setup/atmosphere.html#tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model>`_
-and `Forget et al. (1999) <https://doi.org/10.1029/1999JE001025>`_. Tudat does not
+Tudat does not
 ship MCD; it must be compiled separately by the user.
 
 A new cometary-coma framework implements the four-dimensional spherical-harmonic
