@@ -88,9 +88,11 @@ class BodyCentricToBarycentricGroundStationMotionSettings : public GroundStation
 {
 public:
     BodyCentricToBarycentricGroundStationMotionSettings( const std::string centralBodyName = "Sun",
-                                                         const bool useGeneralRelativisticCorrection = true ):
+                                                         const bool useGeneralRelativisticCorrection = true,
+                                                         const bool scaleToTdbCompatibleCoordinates = true ):
         GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( centralBodyName ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
+        scaleToTdbCompatibleCoordinates_( scaleToTdbCompatibleCoordinates )
     {}
 
     virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ) {}
@@ -98,6 +100,8 @@ public:
     std::string centralBodyName_;
 
     bool useGeneralRelativisticCorrection_;
+
+    bool scaleToTdbCompatibleCoordinates_;
 };
 
 class CustomGroundStationMotionSettings : public GroundStationMotionSettings
@@ -140,9 +144,11 @@ inline std::shared_ptr< GroundStationMotionSettings > bodyDeformationStationMoti
 
 inline std::shared_ptr< GroundStationMotionSettings > bodycentricToBarycentricStationMotionSettings(
         const std::string centralBodyName = "Sun",
-        const bool useGeneralRelativisticCorrection = true )
+        const bool useGeneralRelativisticCorrection = true,
+        const bool scaleToTdbCompatibleCoordinates = true )
 {
-    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( centralBodyName, useGeneralRelativisticCorrection );
+    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >(
+            centralBodyName, useGeneralRelativisticCorrection, scaleToTdbCompatibleCoordinates );
 }
 
 class GroundStationSettings
@@ -255,6 +261,15 @@ void createGroundStation(
         const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
                 std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
 
+//! Function to create a ground station and add it to a Body object, with the bodies needed by its motion models (e.g. the central
+//! body of the bodycentric to barycentric station position correction)
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::string groundStationName,
+                          const Eigen::Vector3d groundStationPosition,
+                          const coordinate_conversions::PositionElementTypes positionElementType,
+                          const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings,
+                          const SystemOfBodies& bodies );
+
 //! Function to create a set of ground stations and add them to the corresponding Body objects
 /*!
  * Function to create a set of ground stations and add them to the corresponding Body objects
@@ -269,6 +284,10 @@ void createGroundStations(
         const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position );
 
 void createGroundStation( const std::shared_ptr< Body > body, const std::shared_ptr< GroundStationSettings > groundStationSettings );
+
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::shared_ptr< GroundStationSettings > groundStationSettings,
+                          const SystemOfBodies& bodies );
 
 std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndList( const std::shared_ptr< Body > body );
 

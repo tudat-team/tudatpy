@@ -136,6 +136,19 @@ reference_epoch:
                     Define station motion settings based on body deformation
                     )doc" );
 
+    py::class_< tss::BodyCentricToBarycentricGroundStationMotionSettings,
+                std::shared_ptr< tss::BodyCentricToBarycentricGroundStationMotionSettings >,
+                tss::GroundStationMotionSettings >( m,
+                                                    "BodyCentricToBarycentricGroundStationMotionSettings",
+                                                    R"doc(
+
+         Class for defining the relativistic correction of the station position w.r.t. the solar system barycenter.
+
+         `GroundStationMotionSettings` derived class for the relativistic correction of the station position w.r.t. the solar
+         system barycenter (see :func:`~tudatpy.dynamics.environment_setup.ground_station.bodycentric_to_barycentric_station_motion`).
+
+      )doc" );
+
     py::class_< tss::CustomGroundStationMotionSettings,
                 std::shared_ptr< tss::CustomGroundStationMotionSettings >,
                 tss::GroundStationMotionSettings >( m,
@@ -490,6 +503,41 @@ reference_epoch:
 
 
 
+
+     )doc" );
+
+    m.def( "bodycentric_to_barycentric_station_motion",
+           &tss::bodycentricToBarycentricStationMotionSettings,
+           py::arg( "central_body_name" ) = "Sun",
+           py::arg( "use_general_relativistic_correction" ) = true,
+           py::arg( "scale_to_tdb_compatible_coordinates" ) = true,
+           R"doc(
+
+ Function for creating settings for the relativistic correction of the station position w.r.t. the solar system barycenter
+
+ Function for creating settings for the relativistic correction of the station position, applied when SSB is the global frame origin. The correction is from
+ Eqs. (11.18) and (11.19) of the IERS Conventions 2010 :cite:p:`Petit2010`, with acceleration terms omitted
+
+ .. math::
+    \Delta\mathbf{r}=-\left(\frac{U}{c^{2}}+L_{C}\right)\mathbf{r}-\frac{1}{2c^{2}}\left(\mathbf{v}\cdot\mathbf{r}\right)\mathbf{v}
+
+ with :math:`\mathbf{r}` the nominal station position w.r.t. the centre of its body (in inertial orientation), :math:`\mathbf{v}`
+ the barycentric velocity of that body, :math:`U=\mu/d` the gravitational potential of the central body (with gravitational
+ parameter :math:`\mu`) at the centre of the station's body (at distance :math:`d`), and :math:`L_{C}=1.48082686741\cdot 10^{-8}`.
+
+
+ Parameters
+ ----------
+ central_body_name : str, default = "Sun"
+     Name of the body whose gravitational potential :math:`U` is used.
+ use_general_relativistic_correction : bool, default = True
+     Boolean denoting whether the term with :math:`U` is included.
+ scale_to_tdb_compatible_coordinates : bool, default = True
+     Boolean denoting whether the term with :math:`L_{C}` (scaling of TT-compatible to TDB-compatible coordinates, Eq. (11.19)) is included.
+ Returns
+ -------
+ GroundStationMotionSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.dynamics.environment_setup.ground_station.BodyCentricToBarycentricGroundStationMotionSettings` class
 
      )doc" );
 

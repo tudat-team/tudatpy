@@ -70,6 +70,8 @@ Functions
 
     custom_station_motion
 
+    bodycentric_to_barycentric_station_motion
+
     get_approximate_dsn_ground_station_positions
 
     get_vlbi_station_positions
@@ -102,6 +104,8 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.custom_station_motion
 
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.bodycentric_to_barycentric_station_motion
+
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_vlbi_station_positions
@@ -133,6 +137,8 @@ Classes
 
    CustomGroundStationMotionSettings
 
+   BodyCentricToBarycentricGroundStationMotionSettings
+
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings
@@ -149,5 +155,8 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.CustomGroundStationMotionSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.ground_station.BodyCentricToBarycentricGroundStationMotionSettings
    :members:
 
