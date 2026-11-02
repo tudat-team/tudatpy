@@ -40,7 +40,7 @@ public:
     /*!
      * Constructor
      * \param eopFile Name of EOP file that is to be used
-     * \param format Identifier for file format that is provied
+     * \param format Identifier for file format that is provided: "C04" (14 C04 or 20 C04 series) or "finals2000A"
      * \param nutationTheory Nutation theory w.r.t. which the EOP data is given.
      */
     EOPReader( const std::string& eopFile = tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
@@ -132,13 +132,6 @@ public:
     }
 
 private:
-    //! Function to read EOP file
-    /*!
-     * Function to read EOP file
-     * \param fileName EOP file name.
-     */
-    void readEopFile( const std::string& fileName );
-
     //! Terrestrial pole position corrections (CIP in ITRS; polar motion), read from file
     std::map< double, Eigen::Vector2d > cipInItrs;
 

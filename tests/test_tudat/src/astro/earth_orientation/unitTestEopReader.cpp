@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <sstream>
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -20,6 +21,7 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
+#include "tudat/astro/earth_orientation/readEarthOrientationData.h"
 #include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
 
 namespace tudat
@@ -199,6 +201,64 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneMilliSecond - differenceAtEpochPlusOneMilliSecond + 1.0 ), 1.0E-10 );
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneDay - differencePlusOneDay + 1.0 ), 0.01 );
     }
+}
+
+//! Check reading of modern (20 C04) C04 data, using an extract of the official IERS file (header and first three rows)
+BOOST_AUTO_TEST_CASE( testModernC04Reading )
+{
+    std::istringstream stream(
+            R"(# EARTH ORIENTATION PARAMETER (EOP) PRODUCT CENTER CENTER (PARIS OBSERVATORY) - INTERNATIONAL EARTH ROTATION AND REFERENCE SYSTEMS SERVICE  
+# EOP (IERS) 20 C04 TIME SERIES consistent with ITRF 2020 - sampled at 12h UTC       
+# Description: https://hpiers.obspm.fr/eoppc/eop/eopc04/readme        Contact: christian.bizouard@obspm.fr                              
+# Reference Precession-Nutation Model: IAU 2000
+# format(4(i4),f10.2,2(f12.6),f12.7,2(f12.6),2(f12.6),f12.7,2(f12.6),f12.7,2(f12.6),2(f12.6),f12.7)
+# YR  MM  DD  HH       MJD        x(")        y(")  UT1-UTC(s)       dX(")       dY(")  xrt("/day)  yrt("/day)      LOD(s)        x Er        y Er  UT1-UTC Er       dX Er       dY Er      xrt Er      yrt Er      LOD Er
+1984   1   1  12  45700.50   -0.134064    0.093057   0.3968898    0.002255   -0.002791   -0.002644    0.003317   0.0014139    0.001250    0.000992   0.0002417    0.000349    0.000351    0.000873    0.000771   0.0000730
+1984   1   2  12  45701.50   -0.136239    0.096494   0.3955314    0.001470   -0.001946   -0.002689    0.003144   0.0013168    0.001201    0.000990   0.0002417    0.000349    0.000351    0.000841    0.000770   0.0000730
+1984   1   3  12  45702.50   -0.139537    0.099240   0.3942317    0.000860   -0.001281   -0.003560    0.002270   0.0012952    0.001156    0.000987   0.0002417    0.000349    0.000351    0.000804    0.000786   0.0000730
+)" );
+    std::map< double, EarthOrientationRecord > records = readEarthOrientationData( stream, EarthOrientationFormat::c04 );
+
+    const double arcsecond = mathematical_constants::PI / 648000.0;
+    BOOST_REQUIRE_EQUAL( records.size( ), 3 );
+    BOOST_CHECK_EQUAL( records.begin( )->first, 45700.5 );
+    BOOST_CHECK_EQUAL( records.rbegin( )->first, 45702.5 );
+
+    const EarthOrientationRecord& firstRecord = records.begin( )->second;
+    BOOST_CHECK_SMALL( firstRecord.polarMotion[ 0 ] + 0.134064 * arcsecond, 1.0E-20 );
+    BOOST_CHECK_SMALL( firstRecord.polarMotion[ 1 ] - 0.093057 * arcsecond, 1.0E-20 );
+    BOOST_CHECK_EQUAL( firstRecord.ut1MinusUtc, 0.3968898 );
+    BOOST_REQUIRE( firstRecord.lengthOfDay.has_value( ) );
+    BOOST_CHECK_EQUAL( *firstRecord.lengthOfDay, 0.0014139 );
+    BOOST_REQUIRE( firstRecord.celestialPoleOffsets.has_value( ) );
+    BOOST_CHECK_SMALL( ( *firstRecord.celestialPoleOffsets )[ 0 ] - 0.002255 * arcsecond, 1.0E-22 );
+    BOOST_CHECK_SMALL( ( *firstRecord.celestialPoleOffsets )[ 1 ] + 0.002791 * arcsecond, 1.0E-22 );
+}
+
+//! Check reading of USNO finals2000A data, using an extract of the official file (three observed rows, one prediction without
+//! LOD and celestial pole offsets, and one date-only future placeholder)
+BOOST_AUTO_TEST_CASE( testFinals2000aReading )
+{
+    std::istringstream stream(
+            R"(73 1 2 41684.00 I  0.120733 0.009786  0.136966 0.015902  I 0.8084178 0.0002710  0.0000 0.1916  P    -0.766    0.199    -0.720    0.300   .143000   .137000   .8075000   -18.637    -3.667  
+73 1 3 41685.00 I  0.118980 0.011039  0.135656 0.013616  I 0.8056163 0.0002710  3.5563 0.1916  P    -0.751    0.199    -0.701    0.300   .141000   .134000   .8044000   -18.636    -3.571  
+73 1 4 41686.00 I  0.117227 0.011039  0.134348 0.013616  I 0.8027895 0.0002710  2.6599 0.1916  P    -0.738    0.199    -0.662    0.300   .139000   .131000   .8012000   -18.669    -3.621  
+261222 61396.00 P  0.091510 0.007564  0.349919 0.010511  P-0.1142750 0.0072970                                                                                                             
+2710 5 61683.00                                                                                                                                                                            
+)" );
+    std::map< double, EarthOrientationRecord > records = readEarthOrientationData( stream, EarthOrientationFormat::finals2000a );
+
+    const double arcsecond = mathematical_constants::PI / 648000.0;
+    BOOST_REQUIRE_EQUAL( records.size( ), 4 );
+
+    const EarthOrientationRecord& firstRecord = records.begin( )->second;
+    BOOST_CHECK_SMALL( firstRecord.polarMotion[ 0 ] - 0.120733 * arcsecond, 1.0E-20 );
+    BOOST_CHECK_EQUAL( firstRecord.ut1MinusUtc, 0.8084178 );
+
+    BOOST_REQUIRE_EQUAL( records.count( 61396.0 ), 1 );
+    BOOST_CHECK( !records.at( 61396.0 ).lengthOfDay.has_value( ) );
+    BOOST_CHECK( !records.at( 61396.0 ).celestialPoleOffsets.has_value( ) );
+    BOOST_CHECK_EQUAL( records.count( 61683.0 ), 0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

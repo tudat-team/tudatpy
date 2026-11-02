@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE( testPlanetaryRotationModelFullyCustomParameters )
     defaultYPolarMotionCoefficients[ 1.0 ] = std::make_pair( 11.7 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 118.7 ) ),
                                                              11.7 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
     defaultYPolarMotionCoefficients[ 2.0 ] = std::make_pair( 3.9 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 172.5 ) ),
-                                                             3.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
+                                                             3.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 172.5 ) ) );
     defaultYPolarMotionCoefficients[ 3.0 ] = std::make_pair( 0.0, 0.0 );
     defaultYPolarMotionCoefficients[ 4.0 ] = std::make_pair( 0.0, 0.0 );
     defaultYPolarMotionCoefficients[ 3.34 ] = std::make_pair( 0.0, 50.0 * milliArcSecondToRadian );  // Mars's Chandler wobble T=205 dd
