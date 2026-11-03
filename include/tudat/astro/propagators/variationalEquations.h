@@ -490,13 +490,13 @@ public:
             !( currentPropagationTimeInterval.first >= propagationTimeInterval_.first &&
                currentPropagationTimeInterval.second <= propagationTimeInterval_.second ) )
         {
-            throw std::runtime_error( "Error when propagating variational equations with reduced sensitivity matrix columns, propagation "
-                                      "time interval [" +
-                                      std::to_string( currentPropagationTimeInterval.first ) + ", " +
-                                      std::to_string( currentPropagationTimeInterval.second ) + "] is not inside interval [" +
-                                      std::to_string( propagationTimeInterval_.first ) + ", " +
-                                      std::to_string( propagationTimeInterval_.second ) +
-                                      "] used to select the columns when the variational equations solver was created." );
+            throw std::runtime_error(
+                    "Error when propagating variational equations with reduced sensitivity matrix columns, propagation "
+                    "time interval [" +
+                    std::to_string( currentPropagationTimeInterval.first ) + ", " +
+                    std::to_string( currentPropagationTimeInterval.second ) + "] is not inside interval [" +
+                    std::to_string( propagationTimeInterval_.first ) + ", " + std::to_string( propagationTimeInterval_.second ) +
+                    "] used to select the columns when the variational equations solver was created." );
         }
     }
 
