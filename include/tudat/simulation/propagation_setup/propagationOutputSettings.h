@@ -441,6 +441,10 @@ public:
         }
     }
 
+    std::vector< std::pair< int, int > > getDegreeOrderIndices( ) const
+    {
+        return componentIndices_;
+    }
     // List of degree/order terms that are to be saved
     std::vector< std::pair< int, int > > componentIndices_;
 

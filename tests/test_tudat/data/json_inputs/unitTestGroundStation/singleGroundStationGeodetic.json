@@ -1,0 +1,9 @@
+{
+  "stationName": "station",
+  "stationPosition": [
+           	-63.667,
+		-0.12682522258626103,
+		1.262974717421854
+   ],
+  "positionElementType": "geodeticPosition"
+}

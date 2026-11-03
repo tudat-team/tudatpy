@@ -35,8 +35,16 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
                                                const Eigen::VectorXd rightHandSideVector,
                                                const double limitConditionNumberForWarning )
 {
+    // Symmetric diagonal (Jacobi) scaling, so that strongly different diagonal entries (e.g. from observables with very different
+    // weights) do not limit the precision of the solution
+    Eigen::VectorXd scaling = matrixToInvert.diagonal( ).cwiseAbs( ).cwiseSqrt( );
+    for( int i = 0; i < scaling.rows( ); i++ )
+    {
+        scaling( i ) = ( scaling( i ) > 0.0 ) ? 1.0 / scaling( i ) : 1.0;
+    }
+
     Eigen::JacobiSVD< Eigen::MatrixXd, Eigen::ComputeThinU | Eigen::ComputeThinV > svdDecomposition =
-            matrixToInvert.jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
+            ( scaling.asDiagonal( ) * matrixToInvert * scaling.asDiagonal( ) ).jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
     if( limitConditionNumberForWarning == limitConditionNumberForWarning )
     {
         double conditionNumber = getConditionNumberOfDecomposedMatrix( svdDecomposition );
@@ -46,7 +54,7 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
             std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
         }
     }
-    return svdDecomposition.solve( rightHandSideVector );
+    return scaling.asDiagonal( ) * svdDecomposition.solve( scaling.asDiagonal( ) * rightHandSideVector );
 }
 
 //! Function to multiply information matrix by diagonal weights matrix

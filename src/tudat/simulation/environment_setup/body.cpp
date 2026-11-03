@@ -173,8 +173,9 @@ void Body::setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentR
     currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 );
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = currentRotationToLocalFrame_.toRotationMatrix( );
+    // For inertial-to-body rotation R, R_dot = -[omega_body x] R.
     currentRotationToLocalFrameDerivative_ =
-            linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
+            -linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
             currentRotationMatrixToLocalFrame;
     isRotationSet_ = true;
 }
@@ -222,17 +223,6 @@ Eigen::Matrix3d Body::getCurrentRotationMatrixToLocalFrame( )
         throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
     }
     return Eigen::Matrix3d( currentRotationToLocalFrame_ );
-}
-
-Eigen::Vector7d Body::getCurrentRotationalState( )
-{
-    if( !isRotationSet_ )
-    {
-        throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation quaternion and angular velocity)" );
-    }
-    return ( Eigen::VectorXd( 7 ) << linear_algebra::convertQuaternionToVectorFormat( getCurrentRotationToGlobalFrame( ) ),
-             getCurrentAngularVelocityVectorInGlobalFrame( ) )
-            .finished( );
 }
 
 Eigen::Matrix3d Body::getCurrentRotationMatrixDerivativeToGlobalFrame( )
@@ -711,6 +701,9 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
     isBodyInPropagation_ = isBodyInPropagation;
 
+    // Ephemerides (or states set during propagation) may have changed, so state is recomputed on next request
+    recomputeStateOnNextCall( );
+
     if( rotationalEphemeris_ != nullptr )
     {
         rotationalEphemeris_->setIsBodyInPropagation( isBodyInPropagation );
@@ -791,6 +784,20 @@ void setAreBodiesInPropagation( const SystemOfBodies& bodies, const bool areBodi
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }
+}
+
+//! Function to retrieve the ephemeris origins of all bodies that have an ephemeris
+std::map< std::string, std::string > getEphemerisOrigins( const SystemOfBodies& bodies )
+{
+    std::map< std::string, std::string > ephemerisOrigins;
+    for( auto bodyIterator : bodies.getMap( ) )
+    {
+        if( bodyIterator.second->getEphemeris( ) != nullptr )
+        {
+            ephemerisOrigins[ bodyIterator.first ] = bodyIterator.second->getEphemeris( )->getReferenceFrameOrigin( );
+        }
+    }
+    return ephemerisOrigins;
 }
 
 bool isReferencePointGroundStation( const std::shared_ptr< Body > body, const std::string& referencePointName )

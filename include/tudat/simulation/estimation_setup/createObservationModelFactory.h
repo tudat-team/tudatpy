@@ -926,7 +926,8 @@ public:
                             oneWayDopplerSettings->normalizeWithSpeedOfLight_ );
                 }
 
-                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                // A leg of a two-way/measured-frequency model gets its frequencies through the parent's ancillary settings
+                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) && topLevelObservableType == one_way_doppler )
                 {
                     oneWayDopplerModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
                 }
@@ -1040,6 +1041,13 @@ public:
                                                     one_way_doppler, downlinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ),
                                             bodies,
                                             topLevelObservableType ) );
+                }
+
+                // The downlink model evaluates its corrections as a single leg: flag them, so that frequency-dependent
+                // corrections select the downlink frequency (also when computing partials)
+                for( const auto& downlinkCorrection : downlinkDopplerCalculator->getLightTimeCalculator( )->getLightTimeCorrection( ) )
+                {
+                    downlinkCorrection->setIsDownlinkOfTwoWayLink( true );
                 }
 
                 bool normalizeWithSpeedOfLight = false;
@@ -1491,19 +1499,18 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
+                // Retrieve ground station states, used to convert the transmission time to UTC when evaluating the
+                // transmitted frequency
                 std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
-                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                for( auto it : linkEnds )
                 {
-                    for( auto it : linkEnds )
+                    if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                ->getGroundStationMap( )
+                                .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                     {
-                        if( bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                    ->getGroundStationMap( )
-                                    .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
-                        {
-                            stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                                ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
-                                                                ->getNominalStationState( );
-                        }
+                        stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                            ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
+                                                            ->getNominalStationState( );
                     }
                 }
 
