@@ -43,10 +43,13 @@ public:
     /*!
      * Constructor
      * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
+     * \param rotationToBaseFrameFunction Function returning the rotation from body-fixed to base frame as a function of time, with
+     * the quaternion entries of the rotational state.
      */
     EulerAngleObervationPartialWrtCurrentRotationalState(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
-        ObservationPartial< 3 >( parameterIdentifier )
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
+            const std::function< Eigen::Quaterniond( const double ) > rotationToBaseFrameFunction ):
+        ObservationPartial< 3 >( parameterIdentifier ), rotationToBaseFrameFunction_( rotationToBaseFrameFunction )
     {}
 
     //! Destructor
@@ -74,13 +77,20 @@ public:
 
         currentTime_ = times.at( 0 );
         currentPartial_.setZero( );
+        // The observable is a function of the rotation to the body-fixed frame, the rotational state of its inverse (with equal real
+        // part and opposite imaginary part). The partial changes sign with the quaternion, so this sign must be that of the state.
+        const Eigen::Quaterniond rotationToBaseFrame = rotationToBaseFrameFunction_( currentTime_ );
         currentPartial_.block( 0, 0, 3, 4 ) =
-                -basic_mathematics::calculateEulerAngle313WrtQuaternionPartialFromEulerAngles( currentObservation );
+                basic_mathematics::calculateEulerAngle313WrtQuaternionPartial( rotationToBaseFrame.inverse( ) );
+        currentPartial_.block( 0, 1, 3, 3 ) *= -1.0;
         returnPartial.push_back( std::make_pair( currentPartial_, currentTime_ ) );
         return returnPartial;
     }
 
 protected:
+    //! Function returning the rotation from body-fixed to base frame as a function of time
+    std::function< Eigen::Quaterniond( const double ) > rotationToBaseFrameFunction_;
+
     //! Partial derivative, as computed by last call to calculatePartial function
     Eigen::Matrix< double, 3, 7 > currentPartial_;
 

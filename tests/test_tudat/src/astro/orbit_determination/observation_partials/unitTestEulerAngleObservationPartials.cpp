@@ -24,6 +24,7 @@
 
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
+#include "tudat/astro/orbit_determination/observation_partials/eulerAngleObservablePartials.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/support/numericalObservationPartial.h"
@@ -73,6 +74,56 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
 
         testObservationPartials< 3 >(
                 eulerAngleModel, bodies, fullEstimatableParameterSet, linkEnds, euler_angle_313_observable, 1.0E-6, false, false );
+    }
+}
+
+//! Test all components of the partial w.r.t. the rotational state (rotation to the base frame), for both signs of the quaternion, against
+//! central differences of the observable function.
+BOOST_AUTO_TEST_CASE( testEulerAnglePartialWrtRotationalState )
+{
+    const Eigen::Quaterniond rotationToBaseFrame =
+            Eigen::Quaterniond( Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 0.4, Eigen::Vector3d::UnitX( ) ) *
+                                Eigen::AngleAxisd( -1.9, Eigen::Vector3d::UnitZ( ) ) );
+    const double perturbation = 1.0E-6;
+
+    for( double sign : { 1.0, -1.0 } )
+    {
+        const Eigen::Vector4d state = sign * linear_algebra::convertQuaternionToVectorFormat( rotationToBaseFrame );
+        const Eigen::Quaterniond signedRotation( state( 0 ), state( 1 ), state( 2 ), state( 3 ) );
+
+        EulerAngleObervationPartialWrtCurrentRotationalState partialObject(
+                std::make_pair( initial_rotational_body_state, std::make_pair( "Mars", "" ) ),
+                [ signedRotation ]( const double ) { return signedRotation; } );
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > partial =
+                partialObject
+                        .calculatePartial( std::vector< Eigen::Vector6d >( { Eigen::Vector6d::Zero( ) } ),
+                                           std::vector< double >( { 0.0 } ),
+                                           observed_body )
+                        .at( 0 )
+                        .first;
+
+        // The state is a unit quaternion: compare along each state entry, projected on the tangent space
+        for( int i = 0; i < 4; i++ )
+        {
+            Eigen::Vector4d direction = Eigen::Vector4d::Unit( i );
+            direction -= direction.dot( state ) * state;
+
+            const Eigen::Vector4d upperState = ( state + perturbation * direction ).normalized( );
+            const Eigen::Vector4d lowerState = ( state - perturbation * direction ).normalized( );
+            const Eigen::Vector3d upperAngles = basic_mathematics::get313EulerAnglesFromQuaternion(
+                    Eigen::Quaterniond( upperState( 0 ), upperState( 1 ), upperState( 2 ), upperState( 3 ) ).inverse( ) );
+            const Eigen::Vector3d lowerAngles = basic_mathematics::get313EulerAnglesFromQuaternion(
+                    Eigen::Quaterniond( lowerState( 0 ), lowerState( 1 ), lowerState( 2 ), lowerState( 3 ) ).inverse( ) );
+            const Eigen::Vector3d numericalChange = ( upperAngles - lowerAngles ) / ( 2.0 * perturbation );
+            const Eigen::Vector3d analyticalChange = partial.block( 0, 0, 3, 4 ) * direction;
+            for( int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL( numericalChange( j ) - analyticalChange( j ), 1.0E-8 );
+            }
+        }
+
+        // The observable does not depend on the angular velocity
+        BOOST_CHECK_EQUAL( partial.block( 0, 4, 3, 3 ).norm( ), 0.0 );
     }
 }
 

@@ -23,6 +23,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
@@ -41,10 +42,12 @@ namespace observation_partials
 /*!
  * Function to create object that comptes partial derivative of Euler angle observation w.r.t. current rotational state
  * \param parameterIdentifier Type and reference body of parameter to be estimated (initial rotational state)
+ * \param rotationToBaseFrameFunction Function returning the rotation from body-fixed to base frame as a function of time
  * \return Object that comptes partial derivative of Euler angle observation w.r.t. current rotational state
  */
 std::shared_ptr< ObservationPartial< 3 > > createEulerAngleObservablePartialWrtCurrentRotationalState(
-        const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier );
+        const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
+        const std::function< Eigen::Quaterniond( const double ) > rotationToBaseFrameFunction );
 
 //! Function to compute Euler angle observation partial objects for a single set of link ends
 /*!
@@ -86,7 +89,12 @@ std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionParti
         {
             // Create partial (if needed)
             std::shared_ptr< ObservationPartial< 3 > > currentObservablePartial =
-                    createEulerAngleObservablePartialWrtCurrentRotationalState( initialDynamicalParameters.at( i )->getParameterName( ) );
+                    createEulerAngleObservablePartialWrtCurrentRotationalState(
+                            initialDynamicalParameters.at( i )->getParameterName( ),
+                            std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrameTemplated< double >,
+                                       bodies.at( initialDynamicalParameters.at( i )->getParameterName( ).second.first )
+                                               ->getRotationalEphemeris( ),
+                                       std::placeholders::_1 ) );
 
             // If partial exists, then dependency exists and parameter must be added.
             if( currentObservablePartial != nullptr )
