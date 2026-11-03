@@ -702,8 +702,9 @@ public:
     void getConstraints( Eigen::MatrixXd& constraintStateMultiplier, Eigen::VectorXd& constraintRightHandSide )
     {
         // Resize constraint elements
-        constraintStateMultiplier.setZero( getConstraintSize( ), estimatedParameterSetSize_ );
-        constraintRightHandSide.setZero( getConstraintSize( ), 1 );
+        const int constraintSize = getConstraintSize( );
+        constraintStateMultiplier.setZero( constraintSize, estimatedParameterSetSize_ );
+        constraintRightHandSide.setZero( constraintSize, 1 );
 
         // Iterate over all state parameters
         int currentConstraintRow = 0;

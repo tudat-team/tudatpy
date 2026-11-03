@@ -370,6 +370,24 @@ public:
     //! Function to set multiplier G of linear constraint G * dx = 0 on parameter correction dx (one constraint per row)
     void setConstraintStateMultiplier( const Eigen::MatrixXd& constraintStateMultiplier )
     {
+        if( constraintStateMultiplier.rows( ) > 0 )
+        {
+            if( constraintStateMultiplier.cols( ) != getParameterSize( ) )
+            {
+                throw std::runtime_error( "Error when setting parameter correction constraint, size (" +
+                                          std::to_string( constraintStateMultiplier.cols( ) ) + ") is not equal to parameter size (" +
+                                          std::to_string( getParameterSize( ) ) + ")" );
+            }
+            if( !constraintStateMultiplier.allFinite( ) || ( constraintStateMultiplier.rowwise( ).norm( ).array( ) == 0.0 ).any( ) )
+            {
+                throw std::runtime_error( "Error when setting parameter correction constraint, constraint must be finite and non-zero" );
+            }
+            if( parameterName_.first == initial_rotational_body_state )
+            {
+                std::cerr << "Warning when setting parameter correction constraint on " << getParameterDescription( )
+                          << " Constraint is not applied, only the quaternion norm constraint is used for this parameter." << std::endl;
+            }
+        }
         constraintStateMultiplier_ = constraintStateMultiplier;
     }
 
@@ -442,19 +460,14 @@ protected:
 /*!
  * Function to constrain the correction to an estimated parameter to be orthogonal to a given direction, for instance the weak
  * direction of the covariance of an initial state, to compute points along the line of variations (Milani et al., 2005).
- * Any constraint previously set on the parameter is replaced.
+ * Any constraint previously set on the parameter is replaced. Constraints cannot be combined with consider parameters, and
+ * are not applied to an initial rotational state (a warning is given), which only uses its quaternion norm constraint.
  * \param parameter Parameter to constrain
  * \param constraintDirection Direction to which the parameter correction is to be orthogonal
  */
 inline void setParameterCorrectionConstraint( const std::shared_ptr< EstimatableParameterBase > parameter,
                                               const Eigen::VectorXd& constraintDirection )
 {
-    if( constraintDirection.rows( ) != parameter->getParameterSize( ) )
-    {
-        throw std::runtime_error( "Error when setting parameter correction constraint, direction size (" +
-                                  std::to_string( constraintDirection.rows( ) ) + ") is not equal to parameter size (" +
-                                  std::to_string( parameter->getParameterSize( ) ) + ")" );
-    }
     parameter->setConstraintStateMultiplier( constraintDirection.transpose( ) );
 }
 

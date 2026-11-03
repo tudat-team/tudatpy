@@ -390,9 +390,15 @@ void expose_parameters( py::module& m )
  Function to constrain the correction :math:`\Delta\mathbf{x}` to an estimated parameter to be orthogonal to a given direction
  :math:`\mathbf{g}`, by imposing :math:`\mathbf{g}^{T}\Delta\mathbf{x}=0` (using Lagrange multipliers) in each iteration of the
  estimation. For instance, when :math:`\mathbf{g}` is the weak direction of the covariance of an initial state from an
- unconstrained solution, this can be used to compute points along the line of variations (Milani et al., 2005).
+ unconstrained solution, this can be used to compute points along the line of variations :cite:p:`milani2005`.
  Any constraint previously set on the parameter is replaced; it can be removed with
  :func:`~tudatpy.dynamics.parameters.remove_parameter_correction_constraint`.
+ Estimations and covariance analyses with a constraint raise an error if the parameter set includes consider parameters.
+ A constraint set on an initial rotational state is not applied (a warning is given), as this parameter only uses its
+ quaternion norm constraint.
+ With a constraint, the covariance in the estimation or covariance analysis output has one additional row and column per
+ constraint; the parameter covariance is the top-left block with the size of the parameter vector. This block is the one used by
+ :func:`~tudatpy.estimation.estimation_analysis.propagate_covariance_from_analysis_objects`.
 
  Parameters
  ----------
@@ -400,7 +406,7 @@ void expose_parameters( py::module& m )
      Estimated parameter, as retrieved from the parameter set with
      :meth:`~tudatpy.dynamics.parameters.EstimatableParameterSet.parameters_for_parameter_type`.
  constraint_direction : numpy.ndarray[numpy.float64[n, 1]]
-     Direction (of the same size as the parameter) to which the parameter correction is to be orthogonal.
+     Finite, non-zero direction (of the same size as the parameter) to which the parameter correction is to be orthogonal.
 
      )doc" );
 
