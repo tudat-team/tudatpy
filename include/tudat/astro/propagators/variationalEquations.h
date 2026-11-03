@@ -188,6 +188,10 @@ public:
      * \param stateTypeStartIndices Start index (value) in vector of propagated state for each type of state (key)
      * \param currentArcIndex Index of current arc (-1 if not multi-arc)
      * \param arcIndicesPerBody Arc index for each propagated body (empty if not multi-arc)
+     * \param ephemerisOrigins Ephemeris origin (value) of each body with an ephemeris (key). Bodies that are not estimated, but
+     * have an ephemeris defined (directly or indirectly) w.r.t. a body with estimated translational state, have their state
+     * shifted by a change in the state of this estimated body. Their state partials are added to the partials w.r.t. the
+     * estimated body (for instance a planet and moons with ephemerides w.r.t. a propagated planetary system barycenter).
      * \param propagationTimeInterval Minimum and maximum time of the propagation (NaN if not known before propagation). Used
      * to omit sensitivity matrix columns that are zero in the propagation arc, if requested by parametersToEstimate (see
      * EstimatableParameterSet::setReduceSensitivityMatrixColumns)
@@ -199,6 +203,7 @@ public:
             const std::map< IntegratedStateType, int >& stateTypeStartIndices,
             const int currentArcIndex = -1,
             const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ),
+            const std::map< std::string, std::string >& ephemerisOrigins = std::map< std::string, std::string >( ),
             const std::pair< double, double > propagationTimeInterval = std::make_pair( std::numeric_limits< double >::quiet_NaN( ),
                                                                                         std::numeric_limits< double >::quiet_NaN( ) ) ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
@@ -206,6 +211,7 @@ public:
     {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >( parametersToEstimate );
+        setEphemerisDependentBodies( ephemerisOrigins );
 
         // Get size of dynamical state to estimate
         numberOfParameterValues_ = estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
@@ -704,6 +710,15 @@ private:
             }
         }
 
+        // Central bodies with an ephemeris w.r.t. an estimated body are replaced by this estimated body
+        for( unsigned int i = 0; i < centralBodies.size( ); i++ )
+        {
+            if( ephemerisDependentBodies_.count( centralBodies.at( i ) ) > 0 )
+            {
+                centralBodies[ i ] = ephemerisDependentBodies_.at( centralBodies.at( i ) );
+            }
+        }
+
         if( propagatedBodies.size( ) > 0 )
         {
             // Get order in which ephemerides were to be updated.
@@ -728,6 +743,14 @@ private:
             }
         }
     }
+
+    //! Function to set the bodies with an ephemeris defined w.r.t. a body with an estimated translational state
+    /*!
+     *  Function to set the bodies with an ephemeris defined (directly or indirectly) w.r.t. a body with an estimated translational
+     *  state (ephemerisDependentBodies_ member). Bodies with an estimated translational state themselves are not included.
+     *  \param ephemerisOrigins Ephemeris origin (value) of each body with an ephemeris (key).
+     */
+    void setEphemerisDependentBodies( const std::map< std::string, std::string >& ephemerisOrigins );
 
     //! Function that sets the pre-multipliers for angular acceleration partial derivatives
     /*!
@@ -789,6 +812,10 @@ private:
      * \sa setTranslationalStatePartialFrameScalingFunctions
      */
     std::vector< std::pair< int, int > > statePartialAdditionIndices_;
+
+    //! Bodies (key) that are not estimated, but have an ephemeris defined (directly or indirectly) w.r.t. a body with an
+    //! estimated translational state (value)
+    std::map< std::string, std::string > ephemerisDependentBodies_;
 
     //! Functions returning inertia tensors of bodies, to be used for rotational variational equations
     std::vector< std::pair< int, std::function< Eigen::Matrix3d( ) > > > inertiaTensorsForMultiplication_;

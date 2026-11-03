@@ -197,6 +197,7 @@ public:
                     dynamicsStateDerivatives_.at( i )->getStateTypeStartIndices( ),
                     i,
                     arcIndicesPerBody_[ i ],
+                    simulation_setup::getEphemerisOrigins( bodies ),
                     getPropagationTimeInterval( propagatorSettings_->getSingleArcSettings( ).at( i ) ) );
 
             dynamicsStateDerivatives_.at( i )->addVariationalEquations( variationalEquationsObject_ );

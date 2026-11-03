@@ -45,6 +45,21 @@ void removePropagatedStatesFomEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
         const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList );
 
+//! Function that adds the ephemeris origins between updated bodies and a propagated body to the updated environment variables
+/*!
+ * Function that adds the ephemeris origins between updated bodies and a propagated body to the updated environment variables. For
+ * instance, if a moon has an ephemeris w.r.t. a planet, which has an ephemeris w.r.t. a propagated barycenter, the planet is added
+ * when the moon is updated. Since the state of the planet depends on the propagated state, it must be recomputed at each update.
+ * \param environmentModelsToUpdate List of environment models to be updated, this data structure is modified by this function
+ * and returned by reference
+ * \param integratedStateList List of states that are numerically integrated.
+ * \param bodies List of body objects used in the simulations.
+ */
+void addEphemerisOriginsOfUpdatedStates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList,
+        const simulation_setup::SystemOfBodies& bodies );
+
 //! Get list of required environment model update settings from torque models.
 /*!
  * Get list of required environment model update settings from torque models.
@@ -233,6 +248,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     // Remove variables from environment updates that are numerically propagated.
     if( !isPartOfMultiTypePropagation )
     {
+        addEphemerisOriginsOfUpdatedStates( environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ), bodies );
         removePropagatedStatesFomEnvironmentUpdates( environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
         checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodies );
     }

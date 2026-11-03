@@ -110,17 +110,23 @@ public:
                              accelerationModel,
                              basic_astrodynamics::relativistic_correction_acceleration )
     {
-        // Only the Schwarzschild partials are implemented; the Lense-Thirring term is included in the dynamics, with zero partials
-        if( accelerationModel->getCalculateDeSitterCorrection( ) )
-        {
-            throw std::runtime_error( "Error when creating relativistic acceleration correction partial, de Sitter term not implemented" );
-        }
         centralBodyState_ = accelerationModel->getStateFunctionOfCentralBody( );
         acceleratedBodyState_ = accelerationModel->getStateFunctionOfAcceleratedBody( );
 
         ppnGammaParameterFunction_ = accelerationModel->getPpnParameterGammaFunction_( );
         ppnBetaParameterFunction_ = accelerationModel->getPpnParameterBetaFunction_( );
         centralBodyGravitationalParameterFunction_ = accelerationModel->getGravitationalParameterFunctionOfCentralBody( );
+        calculateSchwarzschildCorrection_ = accelerationModel->getCalculateSchwarzschildCorrection( );
+        calculateLenseThirringCorrection_ = accelerationModel->getCalculateLenseThirringCorrection( );
+        calculateDeSitterCorrection_ = accelerationModel->getCalculateDeSitterCorrection( );
+        centralBodyAngularMomentumFunction_ = accelerationModel->getCentralBodyAngularMomentumFunction( );
+        primaryBodyState_ = accelerationModel->getStateFunctionOfPrimaryBody( );
+        primaryBodyGravitationalParameterFunction_ = accelerationModel->getGravitationalParameterFunctionOfPrimaryBody( );
+        primaryBodyName_ = accelerationModel->getPrimaryBodyName( );
+        currentLenseThirringAcceleration_.setZero( );
+        currentDeSitterAcceleration_.setZero( );
+        currentDeSitterPartialWrtCentralBodyPosition_.setZero( );
+        currentDeSitterPartialWrtCentralBodyVelocity_.setZero( );
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.
@@ -167,11 +173,13 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) +=
+                    -currentPartialWrtPosition_ + currentDeSitterPartialWrtCentralBodyPosition_;
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -=
+                    -currentPartialWrtPosition_ + currentDeSitterPartialWrtCentralBodyPosition_;
         }
     }
 
@@ -219,12 +227,49 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtVelocity_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) +=
+                    -currentPartialWrtVelocity_ + currentDeSitterPartialWrtCentralBodyVelocity_;
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtVelocity_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -=
+                    -currentPartialWrtVelocity_ + currentDeSitterPartialWrtCentralBodyVelocity_;
         }
+    }
+
+    //! Function for calculating the partial of the acceleration w.r.t. the position of the primary body of the de Sitter term
+    void wrtPositionOfAdditionalBody( const std::string& bodyName,
+                                      Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                      const bool addContribution = 1,
+                                      const int startRow = 0,
+                                      const int startColumn = 0 )
+    {
+        if( isAccelerationPartialWrtAdditionalBodyNonnullptr( bodyName ) )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) +=
+                    ( addContribution ? -1.0 : 1.0 ) * currentDeSitterPartialWrtCentralBodyPosition_;
+        }
+    }
+
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of the primary body of the de Sitter term
+    void wrtVelocityOfAdditionalBody( const std::string& bodyName,
+                                      Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                      const bool addContribution = 1,
+                                      const int startRow = 0,
+                                      const int startColumn = 3 )
+    {
+        if( isAccelerationPartialWrtAdditionalBodyNonnullptr( bodyName ) )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) +=
+                    ( addContribution ? -1.0 : 1.0 ) * currentDeSitterPartialWrtCentralBodyVelocity_;
+        }
+    }
+
+    //! Function to check whether the partial w.r.t. the state of a third body is non-zero (the primary body of the de Sitter term)
+    bool isAccelerationPartialWrtAdditionalBodyNonnullptr( const std::string& bodyName )
+    {
+        return calculateDeSitterCorrection_ && bodyName == primaryBodyName_ && bodyName != acceleratedBody_ &&
+                bodyName != acceleratingBody_;
     }
 
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.
@@ -276,13 +321,13 @@ public:
      * Function to compute partial derivative of relativistic acceleration correction w.r.t. central body gravitational patameter.
      * \param partialMatrix Requested (returnd by reference)
      */
-    void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix )
+    void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix );
+
+    //! Function to compute partial derivative of relativistic acceleration correction w.r.t. primary body gravitational parameter
+    //! (de Sitter term)
+    void wrtGravitationalParameterOfPrimaryBody( Eigen::MatrixXd& partialMatrix )
     {
-        computePartialOfSchwarzschildAccelerationCorrectionWrtGravitationalParameter( currentRelativeState_,
-                                                                                      centralBodyGravitationalParameterFunction_( ),
-                                                                                      partialMatrix,
-                                                                                      ppnGammaParameterFunction_( ),
-                                                                                      ppnBetaParameterFunction_( ) );
+        partialMatrix = currentDeSitterAcceleration_ / primaryBodyGravitationalParameterFunction_( );
     }
 
     //! Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter gamma
@@ -290,22 +335,14 @@ public:
      * Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter gamma
      * \param partialMatrix Requested (returnd by reference)
      */
-    void wrtPpnParameterGamma( Eigen::MatrixXd& partialMatrix )
-    {
-        return computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterGamma(
-                currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix );
-    }
+    void wrtPpnParameterGamma( Eigen::MatrixXd& partialMatrix );
 
     //! Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter beta
     /*!
      * Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter beta
      * \param partialMatrix Requested (returnd by reference)
      */
-    void wrtPpnParameterBeta( Eigen::MatrixXd& partialMatrix )
-    {
-        return computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterBeta(
-                currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix );
-    }
+    void wrtPpnParameterBeta( Eigen::MatrixXd& partialMatrix );
 
     //! Function for updating partial w.r.t. the bodies' states
     /*!
@@ -330,6 +367,23 @@ private:
 
     //! Function to retrieve current gravitational parameter of central body.
     std::function< double( ) > centralBodyGravitationalParameterFunction_;
+
+    //! Model functions and settings of the Lense-Thirring and de Sitter terms
+    std::function< Eigen::Vector3d( ) > centralBodyAngularMomentumFunction_;
+    std::function< Eigen::Vector6d( ) > primaryBodyState_;
+    std::function< double( ) > primaryBodyGravitationalParameterFunction_;
+    std::string primaryBodyName_;
+    bool calculateSchwarzschildCorrection_;
+    bool calculateLenseThirringCorrection_;
+    bool calculateDeSitterCorrection_;
+
+    //! Current Lense-Thirring and de Sitter accelerations
+    Eigen::Vector3d currentLenseThirringAcceleration_;
+    Eigen::Vector3d currentDeSitterAcceleration_;
+
+    //! Partials of the de Sitter term w.r.t. the position and velocity of the central body w.r.t. the primary body
+    Eigen::Matrix3d currentDeSitterPartialWrtCentralBodyPosition_;
+    Eigen::Matrix3d currentDeSitterPartialWrtCentralBodyVelocity_;
 
     //! Current partial of relativistic acceleration correction w.r.t. position of body undergoing acceleration
     /*!

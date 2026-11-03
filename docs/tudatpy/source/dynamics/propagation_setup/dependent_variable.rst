@@ -426,6 +426,8 @@ Classes
 
    SingleAccelerationDependentVariableSaveSettings
 
+   SphericalHarmonicAccelerationTermsDependentVariableSaveSettings
+
 
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.dependent_variable.VariableSettings
@@ -435,4 +437,7 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.dependent_variable.SingleAccelerationDependentVariableSaveSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.dependent_variable.SphericalHarmonicAccelerationTermsDependentVariableSaveSettings
    :members:

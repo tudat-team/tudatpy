@@ -105,6 +105,7 @@ public:
                                                           dynamicsSimulator_->getDynamicsStateDerivative( )->getStateTypeStartIndices( ),
                                                           -1,
                                                           std::map< std::string, int >( ),
+                                                          simulation_setup::getEphemerisOrigins( bodies ),
                                                           getPropagationTimeInterval( propagatorSettings_ ) );
         dynamicsSimulator_->getDynamicsStateDerivative( )->addVariationalEquations( variationalEquationsObject_ );
         this->propagatedParameterVectorSize_ = variationalEquationsObject_->getNumberOfParameterValues( );

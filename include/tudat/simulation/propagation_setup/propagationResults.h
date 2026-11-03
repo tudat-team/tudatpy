@@ -734,7 +734,7 @@ public:
             sensitivitySolution_[ static_cast< double >( it.first ) ] =
                     it.second.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, propagatedSensitivityMatrixSize )
                             .template cast< double >( );
-            equationsOfMotionNumericalSolutionRaw[ static_cast< double >( it.first ) ] =
+            equationsOfMotionNumericalSolutionRaw[ it.first ] =
                     it.second.block( 0, stateTransitionMatrixSize_ + propagatedSensitivityMatrixSize, stateTransitionMatrixSize_, 1 );
         }
     }
