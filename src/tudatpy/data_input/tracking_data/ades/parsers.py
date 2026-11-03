@@ -681,7 +681,7 @@ def parse_ades_file(file_path: str):  # -> Table:
     for obs_type in root.iter():
         obs_kind = _tag_name(obs_type)
 
-        if obs_kind not in {"optical", "radar", "occultation"}:
+        if obs_kind not in {"optical", "radar", "offset", "occultation"}:
             continue
 
         # Include direct child fields, e.g. permID, obsTime, ra, dec.

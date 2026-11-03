@@ -120,17 +120,18 @@ def test_ades_weights_from_uncertainties_and_local_night(
     data, _ = read_optical_data(table, weighing_scheme=scheme)
     collection = create_observation_collection_from_tracking_data(data, weighting_bodies())
 
-    # The RA uncertainty is scaled by 1/cos(Dec); for ADES_NIGHT, weights are divided by sqrt(N).
+    # The RA uncertainty is scaled by 1/cos(Dec); for ADES_NIGHT, weights are divided by N.
     arcsec = np.deg2rad(1.0 / 3600.0)
-    expected = np.column_stack(
-        [
-            (np.cos(np.deg2rad(table["DEC"])) / (table["rmsRA"] * arcsec)) ** 2,
-            1.0 / (table["rmsDec"] * arcsec) ** 2,
-        ]
-    ) / np.sqrt(observations_per_night)[:, None]
-    np.testing.assert_allclose(
-        collection.concatenated_weights, expected.reshape(-1), rtol=1.0e-12
+    expected = (
+        np.column_stack(
+            [
+                (np.cos(np.deg2rad(table["DEC"])) / (table["rmsRA"] * arcsec)) ** 2,
+                1.0 / (table["rmsDec"] * arcsec) ** 2,
+            ]
+        )
+        / np.array(observations_per_night)[:, None]
     )
+    np.testing.assert_allclose(collection.concatenated_weights, expected.reshape(-1), rtol=1.0e-12)
 
 
 @pytest.mark.parametrize("source", ["pandas", "mpc"])

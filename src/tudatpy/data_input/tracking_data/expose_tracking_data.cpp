@@ -74,7 +74,7 @@ void expose_tracking_data( py::module& m )
              from this object, unless weights have been set manually. For ``"ADES"`` and
              ``"ADES_NIGHT"``, the weights are computed from the rmsRA and rmsDec uncertainties
              stored in the metadata. For ``"ADES_NIGHT"``, the weights are additionally divided by
-             the square root of the number of observations in the same local night (using the same
+             the number of observations in the same local night (using the same
              definition of a local night as for ``"VFCC17"``).
       )doc" )
             .def_property_readonly( "observable_type",

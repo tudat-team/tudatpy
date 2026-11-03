@@ -318,7 +318,7 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
 
 //! Function to set the observation weights of angular position TrackingData for the ADES and ADES_NIGHT weighing schemes. The weights are
 //! computed from the rmsRA and rmsDec uncertainties (in arcseconds, stored as string metadata); the RA uncertainty is divided by cos(Dec).
-//! For ADES_NIGHT, each weight is additionally divided by sqrt(N), with N the number of observations in the same local night (identical
+//! For ADES_NIGHT, each weight is additionally divided by N, with N the number of observations in the same local night (identical
 //! night definition as used for the VFCC17 weighing scheme)
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -357,12 +357,13 @@ void setAdesWeights( const std::shared_ptr< TrackingData< ObservationScalarType,
         }
 
         const double declination = static_cast< double >( observations.at( i )( 1 ) );
-        const double raUncertainty = unit_conversions::convertArcSecondsToRadians( std::stod( rmsRaIterator->second ) ) / std::cos( declination );
+        const double raUncertainty =
+                unit_conversions::convertArcSecondsToRadians( std::stod( rmsRaIterator->second ) ) / std::cos( declination );
         const double decUncertainty = unit_conversions::convertArcSecondsToRadians( std::stod( rmsDecIterator->second ) );
 
         Eigen::Matrix< double, Eigen::Dynamic, 1 > weight( 2 );
         weight << 1.0 / ( raUncertainty * raUncertainty ), 1.0 / ( decUncertainty * decUncertainty );
-        observationWeights.push_back( weight / std::sqrt( static_cast< double >( observationsPerLocalNight.at( i ) ) ) );
+        observationWeights.push_back( weight / static_cast< double >( observationsPerLocalNight.at( i ) ) );
     }
 
     trackingData->setObservationWeights( observationWeights );

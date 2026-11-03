@@ -96,7 +96,8 @@ void setObservationWeightsFromTrackingDataScheme(
     }
     else
     {
-        data::setAdesWeights< ObservationScalarType, TimeType >( trackingData, stationPositions, stringMetadata, weighingScheme == "ADES_NIGHT" );
+        data::setAdesWeights< ObservationScalarType, TimeType >(
+                trackingData, stationPositions, stringMetadata, weighingScheme == "ADES_NIGHT" );
     }
 }
 
