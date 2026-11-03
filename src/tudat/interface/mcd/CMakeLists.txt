@@ -32,8 +32,8 @@ TUDAT_ADD_LIBRARY("mcd_interface"
 
 # Expose MCD headers to dependent targets (e.g., tudat_propagation_setup)
 # Use generator expressions to handle build vs install scenarios
-target_include_directories(tudat_mcd_interface 
-        SYSTEM PUBLIC 
+target_include_directories(tudat_mcd_interface
+        SYSTEM PUBLIC
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/mcd_modules>
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third_parties/mcd>
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third_parties/mcd/interfaces/c_interfaces>

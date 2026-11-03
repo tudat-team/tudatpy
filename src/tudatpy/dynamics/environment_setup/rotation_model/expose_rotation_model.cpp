@@ -691,6 +691,37 @@ void expose_rotation_model_setup( py::module& m )
 
      )doc" );
 
+    m.def( "tabulated_rotation",
+           &tss::tabulatedRotationModelSettings,
+           py::arg( "rotational_state_history" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "interpolator_settings" ) = nullptr,
+           R"doc(
+
+ Function for creating settings for a rotation model interpolated from a rotational state history.
+
+ The rotational state at each epoch consists of the quaternion entries (see :func:`~tudatpy.astro.element_conversion.rotation_matrix_to_quaternion_entries` for conversion from rotation matrix) of the rotation from the body-fixed (target)
+ frame to the base frame, followed by the angular velocity of the body [rad/s] in the body-fixed frame, as for a propagated rotational state.
+
+ Parameters
+ ----------
+ rotational_state_history : dict[float, numpy.ndarray[numpy.float64[7, 1]]]
+     Rotational states (quaternion entries and body-fixed angular velocity), per epoch [s since J2000].
+ base_frame : str
+     Name of the base frame of the rotation model.
+ target_frame : str
+     Name of the body-fixed (target) frame of the rotation model.
+ interpolator_settings : InterpolatorSettings, default = None
+     Settings of the interpolator of the rotational states (None: Lagrange interpolation of order 8).
+
+ Returns
+ -------
+ RotationModelSettings
+     Settings for the tabulated rotation model.
+
+      )doc" );
+
     m.def( "constant_rotation_model",
            py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d& >( &tss::constantRotationModelSettings ),
            py::arg( "base_frame" ),
@@ -1009,7 +1040,7 @@ void expose_rotation_model_setup( py::module& m )
         1.0: (11.7 * milliarcsec_to_rad * np.sin(np.radians(118.7)),
               11.7 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
         2.0: (3.9 * milliarcsec_to_rad * np.sin(np.radians(172.5)),
-              3.9 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
+              3.9 * milliarcsec_to_rad * np.cos(np.radians(172.5))),
         3.0: (0.0, 0.0),
         4.0: (0.0, 0.0),
         3.34: (0.0, 50.0 * milliarcsec_to_rad)

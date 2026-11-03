@@ -101,8 +101,8 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
     bodyList.push_back( "Sun" );
     bodyList.push_back( "Mars" );
 
-    // Run test for inertial and Mars-centered acceleration.
-    for( int testCase = 0; testCase < 2; testCase++ )
+    // Run test for inertial and Mars-centered acceleration, and for inertial acceleration without the central term of Mars
+    for( int testCase = 0; testCase < 3; testCase++ )
     {
         double initialTime = 1.0E6 - 1.0E5;
 
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 
         // Create acceleration model.
         std::shared_ptr< AccelerationSettings > accelerationSettings =
-                std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 10, 10, 6, 6, 0, 0 );
+                std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 10, 10, 6, 6, 0, 0, testCase == 2 );
         std::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > accelerationModel =
                 std::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                         createAccelerationModel( phobos, mars, accelerationSettings, "Phobos", "Mars", centralBodyObject, centralBody ) );
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         // Compare numerical and analytical partials of gravitational parameters
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 2.0e-14 );
 
-        if( testCase == 0 )
+        if( testCase != 1 )
         {
             for( unsigned int j = 0; j < 3; j++ )
             {
