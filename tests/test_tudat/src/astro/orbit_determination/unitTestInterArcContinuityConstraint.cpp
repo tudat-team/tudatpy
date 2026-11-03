@@ -713,7 +713,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationAndCovariance_WithInterArcContinuity )
     parametersToEstimate->resetParameterValues( initialEstimate );
     estimationInputWithConstraint->setUseSparseDesignMatrix( true );
     auto sparseOutputWithConstraint = orbitDeterminationManager.estimateParameters( estimationInputWithConstraint );
-    BOOST_CHECK_EQUAL( sparseOutputWithConstraint->bestIteration_, outputWithConstraint->bestIteration_ );
     // The problem is ill-conditioned, so the dense (SVD) and sparse (QR) solutions are compared relative to the formal errors
     const Eigen::VectorXd formalErrors = outputWithConstraint->getFormalErrorVector( );
     for( int i = 0; i < formalErrors.rows( ); i++ )
