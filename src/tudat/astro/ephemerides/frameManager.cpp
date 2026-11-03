@@ -7,6 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#include <algorithm>
+#include <set>
+
 #include "tudat/astro/ephemerides/frameManager.h"
 
 namespace tudat
@@ -338,6 +341,39 @@ std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins( const std
         ephemerisOrigins.push_back( getBaseFrameNameOfBody( bodyList.at( i ) ) );
     }
     return ephemerisOrigins;
+}
+
+//! Function to find the bodies with an ephemeris defined (directly or indirectly) w.r.t. one of a list of bodies
+std::map< std::string, std::string > getEphemerisDependentBodies( const std::map< std::string, std::string >& ephemerisOrigins,
+                                                                  const std::vector< std::string >& originBodies )
+{
+    std::map< std::string, std::string > ephemerisDependentBodies;
+    for( auto originIterator : ephemerisOrigins )
+    {
+        if( std::find( originBodies.begin( ), originBodies.end( ), originIterator.first ) != originBodies.end( ) )
+        {
+            continue;
+        }
+
+        // Follow chain of ephemeris origins, until a body in originBodies is found (or the chain ends, or is circular)
+        std::set< std::string > checkedBodies = { originIterator.first };
+        std::string currentOrigin = originIterator.second;
+        while( checkedBodies.count( currentOrigin ) == 0 )
+        {
+            if( std::find( originBodies.begin( ), originBodies.end( ), currentOrigin ) != originBodies.end( ) )
+            {
+                ephemerisDependentBodies[ originIterator.first ] = currentOrigin;
+                break;
+            }
+            else if( ephemerisOrigins.count( currentOrigin ) == 0 )
+            {
+                break;
+            }
+            checkedBodies.insert( currentOrigin );
+            currentOrigin = ephemerisOrigins.at( currentOrigin );
+        }
+    }
+    return ephemerisDependentBodies;
 }
 
 }  // namespace ephemerides

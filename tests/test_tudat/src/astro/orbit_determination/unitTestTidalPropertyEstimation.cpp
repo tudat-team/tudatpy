@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         {
             BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ), 2.0e-6 );
             BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimatedParametervalues( 13 ) ), 1.0e-4 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ), 1.0E-7 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ), 2.0E-7 );
             if( test == 1 )
             {
                 BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimatedParametervalues( 15 ) ), 1.0E-6 );

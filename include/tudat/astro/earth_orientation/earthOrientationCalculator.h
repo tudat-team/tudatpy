@@ -97,7 +97,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const double celestialPoleX
             ( -2.0 * mathematical_constants::PI / 86400.0 * 1.00273781191135448 );
 
     return ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
-             calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 - 1.42E-3 ) ) )
+             calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) ) )
                    .toRotationMatrix( ) *
             auxiliaryMatrix * calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator ).toRotationMatrix( );
 }

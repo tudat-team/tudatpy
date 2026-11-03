@@ -12,8 +12,12 @@
 #ifndef TUDAT_COMPRESSDOPPLEROBSERVATIONDATASET_H
 #define TUDAT_COMPRESSDOPPLEROBSERVATIONDATASET_H
 
+#include <cmath>
+#include <functional>
 #include <memory>
 
+#include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 
@@ -144,15 +148,38 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     return compressedDataset;
 }
 
-//! Compress every eligible Doppler arc in a dataset while retaining other observable types.
+//! Compute the number of Doppler observations of a set to average to obtain a given count time.
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createCompressedDopplerDataset(
+unsigned int getDopplerCompressionRatio(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio,
-        const unsigned int minNumberObservations = 10,
-        const double maxArcGap = 300.0,
-        const std::map< std::string, Eigen::Vector3d >& approximateGroundStationPositions =
-                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+        const unsigned int setId,
+        const double targetCountTime )
+{
+    const double countTimeTolerance = 1.0e-4;
+    double currentCountTime =
+            originalDopplerData->getAncillarySettings( originalDopplerData->getObservationSetMetadata( setId ).ancillarySettingsId_ )
+                    ->getAncillaryDoubleData( observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
+
+    unsigned int compressionRatio = static_cast< unsigned int >( std::round( targetCountTime / currentCountTime ) );
+    if( compressionRatio == 0 ||
+        std::fabs( static_cast< double >( compressionRatio ) * currentCountTime - targetCountTime ) > countTimeTolerance )
+    {
+        throw std::runtime_error( "Error in Doppler data compression, target count time " + std::to_string( targetCountTime ) +
+                                  " s is not an integer multiple of the count time " + std::to_string( currentCountTime ) + " s." );
+    }
+    return compressionRatio;
+}
+
+//! Compress every eligible Doppler arc in a dataset while retaining other observable types, with the compression ratio of each
+//! observation set provided by a function of the set id.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >
+createCompressedDopplerDatasetFromRatioFunction(
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
+        const std::function< unsigned int( const unsigned int ) >& compressionRatioFunction,
+        const unsigned int minNumberObservations,
+        const double maxArcGap,
+        const std::map< std::string, Eigen::Vector3d >& approximateGroundStationPositions )
 {
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressedData =
             std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
@@ -203,7 +230,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
 
                 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressedArcDataset =
                         compressDopplerData< ObservationScalarType, TimeType >(
-                                arcDataset, 0, compressionRatio, approximateGroundStationPositions );
+                                arcDataset, 0, compressionRatioFunction( setId ), approximateGroundStationPositions );
                 if( compressedArcDataset->getNumberOfObservationSets( ) > 0 &&
                     compressedArcDataset->getNumberOfObservationsForSet( 0 ) > 0 )
                 {
@@ -216,6 +243,54 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     }
 
     return compressedData;
+}
+
+//! Compress every eligible Doppler arc in a dataset while retaining other observable types.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createCompressedDopplerDataset(
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
+        const unsigned int compressionRatio,
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0,
+        const std::map< std::string, Eigen::Vector3d >& approximateGroundStationPositions =
+                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    return createCompressedDopplerDatasetFromRatioFunction< ObservationScalarType, TimeType >(
+            originalDopplerData,
+            [ = ]( const unsigned int ) { return compressionRatio; },
+            minNumberObservations,
+            maxArcGap,
+            approximateGroundStationPositions );
+}
+
+//! Retrieve the nominal Earth-fixed positions of all ground stations on Earth.
+inline std::map< std::string, Eigen::Vector3d > getEarthGroundStationPositions( const simulation_setup::SystemOfBodies& bodies )
+{
+    std::map< std::string, Eigen::Vector3d > groundStationPositions;
+    for( const auto& groundStation : bodies.at( "Earth" )->getGroundStationMap( ) )
+    {
+        groundStationPositions[ groundStation.first ] = groundStation.second->getNominalStationState( )->getNominalCartesianPosition( );
+    }
+    return groundStationPositions;
+}
+
+//! Compress Doppler data to a target count time, using the ground station positions in the bodies.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createCountTimeCompressedDopplerDataset(
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
+        const simulation_setup::SystemOfBodies& bodies,
+        const double targetCountTime,
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0 )
+{
+    return createCompressedDopplerDatasetFromRatioFunction< ObservationScalarType, TimeType >(
+            originalDopplerData,
+            [ = ]( const unsigned int setId ) {
+                return getDopplerCompressionRatio< ObservationScalarType, TimeType >( originalDopplerData, setId, targetCountTime );
+            },
+            minNumberObservations,
+            maxArcGap,
+            getEarthGroundStationPositions( bodies ) );
 }
 
 //! Compress a legacy single observation set through its dataset backend.
@@ -249,6 +324,20 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                                                                                minNumberObservations,
                                                                                maxArcGap,
                                                                                approximateGroundStationPositions ) );
+}
+
+//! Compress a legacy observation collection to a target count time and return a compatibility facade.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCountTimeCompressedDopplerCollection(
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
+        const simulation_setup::SystemOfBodies& bodies,
+        const double targetCountTime,
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0 )
+{
+    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
+            createCountTimeCompressedDopplerDataset< ObservationScalarType, TimeType >(
+                    originalDopplerData->getObservationDataset( ), bodies, targetCountTime, minNumberObservations, maxArcGap ) );
 }
 
 }  // namespace observation_models

@@ -1846,8 +1846,33 @@ tudatpy.estimation.observations.ObservationDataset
                       py::arg( "observation_epochs" ),
                       py::arg( "reference_link_end" ),
                       py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
-                      py::arg( "dependent_variable_bookkeeping" ) = nullptr,
-                      py::arg( "ancillary_settings" ) = nullptr )
+                      py::arg_v( "dependent_variable_bookkeeping", std::shared_ptr< tss::ObservationDependentVariableBookkeeping >( ), "None" ),
+                      py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
+                      R"doc(
+
+         Create an observation set from its observable type, link, measurement vectors, epochs and reference link end,
+         with optional dependent variables and ancillary data.
+
+         Parameters
+         ----------
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         link_ends : LinkDefinition
+             Definition of the bodies and reference points participating in the observation link.
+         observations : list[numpy.ndarray[numpy.float64[m, 1]]]
+             Measurement vectors for the observation set.
+         observation_epochs : list[Time]
+             Epochs of the measurements, in seconds since J2000.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         observation_dependent_variables : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
+             Dependent-variable values associated with each measurement.
+         dependent_variable_bookkeeping : ObservationDependentVariableBookkeeping, default = None
+             Optional object defining the dependent-variable layout.
+         ancillary_settings : ObservationAncillarySimulationSettings, default = None
+             Optional observable-specific ancillary data.
+
+      )doc" )
                 .def(
                         "__getattribute__",
                         []( const py::object& self, const std::string& attributeName ) {
@@ -3137,7 +3162,18 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "append",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::appendObservationCollection,
-                      py::arg( "observation_collection_to_append" ) )
+                      py::arg( "observation_collection_to_append" ),
+                      R"doc(
+
+         Append all observation sets from ``observation_collection_to_append`` to this collection and refresh its
+         observation bookkeeping.
+
+         Parameters
+         ----------
+         observation_collection_to_append : ObservationCollection
+             Collection whose observation sets are appended to this collection.
+
+      )doc" )
                 .def(
                         "filter_observations",
                         []( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >& observationCollection,
@@ -3375,7 +3411,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to add.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets to which the variable should be added.
-         
+
          Returns
          -------
          tudatpy.estimation.observations.observations_processing.ObservationCollectionParser
@@ -3721,7 +3757,23 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
                                                     "ObservationDataset.add_observation_set_from_dataset" );
                     return tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >( observationCollectionList );
                 },
-                py::arg( "observation_collection_list" ) );
+                py::arg( "observation_collection_list" ),
+                R"doc(
+
+         Return an ObservationCollection containing the observation sets from every collection in
+         ``observation_collection_list``.
+
+         Parameters
+         ----------
+         observation_collection_list : list[ObservationCollection]
+             Observation collections to merge, in the supplied order.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the merged observation sets.
+
+      )doc" );
 
         // The following functions create a new ObservationCollection object from an existing one
 

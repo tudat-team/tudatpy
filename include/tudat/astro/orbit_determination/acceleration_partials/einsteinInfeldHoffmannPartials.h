@@ -190,7 +190,7 @@ public:
     void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                        const bool addContribution = 1,
                                        const int startRow = 0,
-                                       const int startColumn = 0 )
+                                       const int startColumn = 0 ) override
     {
         if( addContribution )
         {
@@ -207,7 +207,7 @@ public:
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1,
                                         const int startRow = 0,
-                                        const int startColumn = 0 )
+                                        const int startColumn = 0 ) override
     {
         throw std::runtime_error( "Error when calculating EIH partial w.r.t. body exerting acceleration, no such single body exists" );
     }
@@ -216,7 +216,7 @@ public:
                                               Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                               const bool addContribution = 1,
                                               const int startRow = 0,
-                                              const int startColumn = 0 )
+                                              const int startColumn = 0 ) override
     {
         int additionalBodyIndex = bodyIndices_.at( bodyName );
         if( addContribution )
@@ -234,7 +234,7 @@ public:
     void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                        const bool addContribution = 1,
                                        const int startRow = 0,
-                                       const int startColumn = 0 )
+                                       const int startColumn = 0 ) override
     {
         if( addContribution )
         {
@@ -251,7 +251,7 @@ public:
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1,
                                         const int startRow = 0,
-                                        const int startColumn = 0 )
+                                        const int startColumn = 0 ) override
     {
         throw std::runtime_error( "Error when calculating EIH partial w.r.t. body exerting acceleration, no such single body exists" );
     }
@@ -260,7 +260,7 @@ public:
                                               Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                               const bool addContribution = 1,
                                               const int startRow = 0,
-                                              const int startColumn = 0 )
+                                              const int startColumn = 0 ) override
     {
         int additionalBodyIndex = bodyIndices_.at( bodyName );
         if( addContribution )
@@ -275,14 +275,19 @@ public:
         }
     }
 
+    bool isAccelerationPartialWrtAdditionalBodyNonnullptr( const std::string& bodyName ) override
+    {
+        return bodyName != acceleratedBody_ && bodyIndices_.count( bodyName ) > 0;
+    }
+
     bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
-                                                                     const propagators::IntegratedStateType integratedStateType )
+                                                                     const propagators::IntegratedStateType integratedStateType ) override
     {
         return 0;
     }
 
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter ) override
     {
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
 
@@ -325,13 +330,13 @@ public:
     }
 
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter ) override
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         return std::make_pair( partialFunction, 0 );
     }
 
-    void update( const double currentTime = TUDAT_NAN )
+    void update( const double currentTime = TUDAT_NAN ) override
     {
         fullEihPartials_->update( currentTime );
         currentTime_ = currentTime;

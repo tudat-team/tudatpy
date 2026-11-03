@@ -138,6 +138,7 @@ bool isObservationSetSelectedByLegacyParser( const ObservationDataset< Observati
                 }
                 else if( currentSettings != nullptr && settings != nullptr &&
                          currentSettings->getDoubleData( ) == settings->getDoubleData( ) &&
+                         currentSettings->getIntData( ) == settings->getIntData( ) &&
                          currentSettings->getDoubleVectorData( ) == settings->getDoubleVectorData( ) )
                 {
                     isSelected = true;

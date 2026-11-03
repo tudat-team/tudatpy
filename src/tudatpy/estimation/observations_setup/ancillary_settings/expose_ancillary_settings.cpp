@@ -75,9 +75,11 @@ void expose_ancillary_settings_types( py::module& m )
         This enum lists variables that are computed during the observation simulation process and can be stored for later analysis.
         )doc" )
             .value( "transmitter_frequency_intermediate",
-                    tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate )
+                    tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate,
+                    R"doc(Intermediate transmitter frequency used in the observation calculation.)doc" )
             .value( "received_frequency_intermediate",
-                    tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate )
+                    tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate,
+                    R"doc(Intermediate received frequency used in the observation calculation.)doc" )
             .export_values( );
 
     py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
@@ -85,10 +87,27 @@ void expose_ancillary_settings_types( py::module& m )
 
         This enum lists common frequency bands used in deep space navigation.
         )doc" )
-            .value( "s_band", tom::FrequencyBands::s_band )
-            .value( "x_band", tom::FrequencyBands::x_band )
-            .value( "ka_band", tom::FrequencyBands::ka_band )
-            .value( "ku_band", tom::FrequencyBands::ku_band );
+            .value( "s_band", tom::FrequencyBands::s_band, R"doc(S-band radio frequency identifier.)doc" )
+            .value( "x_band", tom::FrequencyBands::x_band, R"doc(X-band radio frequency identifier.)doc" )
+            .value( "ka_band", tom::FrequencyBands::ka_band, R"doc(Ka-band radio frequency identifier.)doc" )
+            .value( "ku_band", tom::FrequencyBands::ku_band, R"doc(Ku-band radio frequency identifier.)doc" );
+
+    py::enum_< tom::PositionAngleReferenceFrame >( m,
+                                                   "PositionAngleReferenceFrame",
+                                                   R"doc(
+        Enumeration of the reference frames that can be used to define the north pole of position angle observables.
+
+        See :func:`position_angle_ancillary_settings` for a description of each option.
+        )doc" )
+            .value( "j2000", tom::PositionAngleReferenceFrame::j2000_position_angle_reference_frame )
+            .value( "b1950", tom::PositionAngleReferenceFrame::b1950_position_angle_reference_frame )
+            .value( "mean_of_date_iau_1976", tom::PositionAngleReferenceFrame::mean_of_date_iau_1976_position_angle_reference_frame )
+            .value( "true_of_date_iau_1976_1980",
+                    tom::PositionAngleReferenceFrame::true_of_date_iau_1976_1980_position_angle_reference_frame )
+            .value( "mean_of_date_iau_2006", tom::PositionAngleReferenceFrame::mean_of_date_iau_2006_position_angle_reference_frame )
+            .value( "true_of_date_iau_2006_2000a",
+                    tom::PositionAngleReferenceFrame::true_of_date_iau_2006_2000a_position_angle_reference_frame )
+            .value( "custom_pole", tom::PositionAngleReferenceFrame::custom_position_angle_reference_pole );
 
     py::enum_< tom::ObservationAncillarySimulationVariable >( m,
                                                               "ObservationAncillarySimulationVariable",
@@ -165,6 +184,38 @@ void expose_ancillary_settings_types( py::module& m )
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
                     )doc" )
+            .value( "position_angle_reference_frame",
+                    tom::ObservationAncillarySimulationVariable::position_angle_reference_frame,
+                    R"doc(
+                    Reference frame (see :class:`PositionAngleReferenceFrame`) of which the north pole is used to define position angle observables.
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_int_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_int_settings`
+                    )doc" )
+            .value( "position_angle_reference_epoch",
+                    tom::ObservationAncillarySimulationVariable::position_angle_reference_epoch,
+                    R"doc(
+                    Epoch (TDB seconds since J2000) at which a time-dependent position angle reference frame (mean- or true-of-date) is evaluated.
+                    If this setting is not defined, the reception time of each observation is used. This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
+                    )doc" )
+            .value( "position_angle_custom_reference_pole",
+                    tom::ObservationAncillarySimulationVariable::position_angle_custom_reference_pole,
+                    R"doc(
+                    Direction of the north pole, in ICRF/J2000 coordinates, used to define position angle observables when a custom pole is used
+                    (see :func:`custom_position_angle_ancillary_settings`). This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_list_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_list_settings`
+                    )doc" )
+            .value( "position_angle_use_stellar_aberration",
+                    tom::ObservationAncillarySimulationVariable::position_angle_use_stellar_aberration,
+                    R"doc(
+                    Whether the directions used to compute position angle and separation observables include stellar aberration (1) or not (0).
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_int_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_int_settings`
+                    )doc" )
             .export_values( );
 
     py::class_< tom::ObservationAncillarySimulationSettings, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(
@@ -174,7 +225,7 @@ void expose_ancillary_settings_types( py::module& m )
 
     Class for holding ancillary settings for observation simulation (see module level documentation for typical usage and creation).
 
-    This class holds both single-valued (float) and multi-valued (list of floats) ancillary settings
+    This class holds integer, floating-point, and list-of-floating-point ancillary settings.
 
       )doc" )
             .def( py::init<>( ),
@@ -193,7 +244,7 @@ void expose_ancillary_settings_types( py::module& m )
                   py::arg( "value" ),
                   R"doc(
 
-                Function to set a multi-valued ancillary setting in this object
+                Function to set a single-valued floating-point ancillary setting in this object
 
                 Parameters
                 ----------
@@ -204,13 +255,30 @@ void expose_ancillary_settings_types( py::module& m )
                    Value for the setting
 
                 )doc" )
+            .def( "set_int_settings",
+                  &tom::ObservationAncillarySimulationSettings::setAncillaryIntData,
+                  py::arg( "variable" ),
+                  py::arg( "value" ),
+                  R"doc(
+
+                Function to set an integer-valued ancillary setting in this object
+
+                Parameters
+                ----------
+                variable : ObservationAncillarySimulationVariable
+                   Type of the setting for which the value is to be set
+
+                value : int
+                   Value for the setting
+
+                )doc" )
             .def( "set_float_list_settings",
                   &tudat::observation_models::ObservationAncillarySimulationSettings::setAncillaryDoubleVectorData,
                   py::arg( "variable" ),
                   py::arg( "value" ),
                   R"doc(
 
-                Function to set a single-valued ancillary setting value in this object
+                Function to set a list-valued floating-point ancillary setting in this object
 
                 Parameters
                 ----------
@@ -224,7 +292,19 @@ void expose_ancillary_settings_types( py::module& m )
             .def( "set_intermediate_double_data",
                   &tudat::observation_models::ObservationAncillarySimulationSettings::setIntermediateDoubleData,
                   py::arg( "variable" ),
-                  py::arg( "value" ) )
+                  py::arg( "value" ),
+                  R"doc(
+
+         Assign the numeric ``value`` to the intermediate ancillary ``variable`` used by the observation model.
+
+         Parameters
+         ----------
+         variable : ObservationIntermediateSimulationVariable
+             Ancillary variable whose data is set.
+         value : float
+             Value to store for the specified data field.
+
+      )doc" )
             .def( "get_float_settings",
                   &tom::ObservationAncillarySimulationSettings::getAncillaryDoubleData,
                   py::arg( "setting_type" ),
@@ -247,6 +327,24 @@ void expose_ancillary_settings_types( py::module& m )
              Value of the requested ancillary variable (or NaN if it does not exist and ``throw_exception`` is ``false``)
 
      )doc" )
+            .def( "get_int_settings",
+                  &tom::ObservationAncillarySimulationSettings::getAncillaryIntData,
+                  py::arg( "setting_type" ),
+                  R"doc(
+
+                Function to retrieve an integer-valued ancillary setting value. An exception is thrown if the setting does not exist.
+
+                Parameters
+                ----------
+                setting_type : ObservationAncillarySimulationVariable
+                    Type of the setting for which the value is to be returned
+
+                Returns
+                -------
+                int
+                    Value of the requested ancillary variable
+
+                )doc" )
             .def( "get_float_list_settings",
                   &tom::ObservationAncillarySimulationSettings::getAncillaryDoubleVectorData,
                   py::arg( "setting_type" ),
@@ -307,6 +405,91 @@ void expose_ancillary_settings( py::module& m )
  -------
  ObservationAncillarySimulationSettings
      Empty ancillary settings.
+
+     )doc" );
+
+    m.def( "position_angle_ancillary_settings",
+           &tom::getPositionAngleAncillarySettings,
+           py::arg( "reference_frame" ) = tom::j2000_position_angle_reference_frame,
+           py::arg( "reference_epoch" ) = TUDAT_NAN,
+           py::arg( "use_stellar_aberration" ) = false,
+           R"doc(
+
+ Function for creating ancillary settings for position angle and separation observables.
+
+ Function for creating ancillary settings for position angle and/or separation observables (see
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle`,
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance` and
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation`). These settings define the
+ reference frame of which the north pole is used to compute the position angle, and whether the directions to the transmitters
+ include stellar aberration. These choices depend on how a given set of observations is defined, and are
+ therefore set per set of observations, rather than in the observation model settings. As a result, the same observation model
+ can be used for sets of observations that use different conventions.
+
+ When simulating observations, these ancillary settings are provided to the observation simulation settings (for instance using
+ the ``ancillary_settings`` argument of
+ :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings`, or using
+ :func:`~tudatpy.estimation.observations_setup.ancillary_settings.add_ancillary_settings_to_observable`). When using real
+ observations, they are stored in the observation set (for instance using the ``ancillary_settings`` argument of
+ :func:`~tudatpy.estimation.observations.create_single_observation_set`), so that the residuals and partial derivatives are
+ computed using the same conventions as the observations. If no such settings are provided, the J2000/ICRF north pole is used,
+ without stellar aberration.
+
+ The following reference frames can be used for the north pole: J2000/ICRF (default), B1950, the IAU 1976 or IAU 2006 mean-of-date
+ frame, and the IAU 1976/1980 or IAU 2006/2000A true-of-date frame. The orientation of the mean- and true-of-date frames is
+ computed using SOFA. Note that the B1950 option only rotates the pole, using the B1950 to J2000 rotation defined by NAIF, and
+ is not a full FK4 to ICRF conversion of catalogue coordinates. To use a user-defined north pole, use
+ :func:`custom_position_angle_ancillary_settings`.
+
+ The reference frame only affects the position angle, while stellar aberration affects both the position angle and the
+ separation.
+
+ Parameters
+ ----------
+ reference_frame : PositionAngleReferenceFrame, default = j2000
+     Reference frame of which the north pole is used to compute the position angle
+
+ reference_epoch : float, default = NaN
+     Epoch (TDB seconds since J2000) at which a mean- or true-of-date frame is evaluated. If not provided (NaN), the reception time
+     of each observation is used. This setting is not used for the J2000 and B1950 frames. It does not modify the observation times
+     or the light-time computation.
+
+ use_stellar_aberration : bool, default = False
+     Whether the (light-time corrected) directions used to compute the observables are corrected for stellar aberration due to the
+     velocity of the receiver
+
+ Returns
+ -------
+ :class:`ObservationAncillarySimulationSettings`
+     Instance of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings` with the required settings.
+
+     )doc" );
+
+    m.def( "custom_position_angle_ancillary_settings",
+           &tom::getCustomPositionAngleAncillarySettings,
+           py::arg( "reference_pole" ),
+           py::arg( "use_stellar_aberration" ) = false,
+           R"doc(
+
+ Function for creating ancillary settings for position angle and separation observables, using a user-defined north pole.
+
+ Function for creating ancillary settings for position angle and/or separation observables, where the north pole used to compute
+ the position angle is defined by the user. Apart from the definition of the pole, these settings are used in the same way as
+ those created by :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`.
+
+ Parameters
+ ----------
+ reference_pole : numpy.ndarray[numpy.float64[3, 1]]
+     Direction of the north pole, in ICRF/J2000 coordinates (need not be normalized, but must be non-zero)
+
+ use_stellar_aberration : bool, default = False
+     Whether stellar aberration is used (see
+     :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`)
+
+ Returns
+ -------
+ :class:`ObservationAncillarySimulationSettings`
+     Instance of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings` with the required settings.
 
      )doc" );
 

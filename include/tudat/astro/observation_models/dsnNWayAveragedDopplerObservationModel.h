@@ -149,7 +149,8 @@ public:
                         arcStartObservationModel->getFullLinkLightTimeCalculator( ),
                         arcEndObservationModel->getFullLinkLightTimeCalculator( ) } ),
         arcStartObservationModel_( arcStartObservationModel ), arcEndObservationModel_( arcEndObservationModel ),
-        numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ), subtractDopplerSignature_( subtractDopplerSignature )
+        numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ), subtractDopplerSignature_( subtractDopplerSignature ),
+        checkLightTimeCorrectionFallbacks_( doLightTimeCorrectionsHaveFallback( arcStartObservationModel->getLightTimeCalculators( ) ) )
     {
         this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
         if( !std::is_same< Time, TimeType >::value )
@@ -259,40 +260,49 @@ public:
                 ? Eigen::Vector3d::Zero( )
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
-        // Set frequencies for ionosphere/corona
-        if( arcStartObservationModel_->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        // Compute light times at the start and end of the integration time
+        if( checkLightTimeCorrectionFallbacks_ )
         {
-            setTransmissionReceptionFrequencies( arcStartObservationModel_->getFullLinkLightTimeCalculator( ),
-                                                 timeScaleConverter_,
-                                                 frequencyInterpolator_,
-                                                 receptionTdbStartTime,
-                                                 linkEndAssociatedWithTime,
-                                                 ancillarySettings,
-                                                 currentTurnAroundRatio );
+            resetLightTimeCorrectionFallbacks( arcStartObservationModel_->getLightTimeCalculators( ) );
+            resetLightTimeCorrectionFallbacks( arcEndObservationModel_->getLightTimeCalculators( ) );
         }
+        TimeType startLightTime = computeArcLightTime( arcStartObservationModel_,
+                                                       receptionTdbStartTime,
+                                                       linkEndAssociatedWithTime,
+                                                       ancillarySettings,
+                                                       currentTurnAroundRatio,
+                                                       arcStartLinkEndTimes,
+                                                       arcStartLinkEndStates );
+        TimeType endLightTime = computeArcLightTime( arcEndObservationModel_,
+                                                     receptionTdbEndTime,
+                                                     linkEndAssociatedWithTime,
+                                                     ancillarySettings,
+                                                     currentTurnAroundRatio,
+                                                     arcEndLinkEndTimes,
+                                                     arcEndLinkEndStates );
 
-        TimeType startLightTime =
-                arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
-                        receptionTdbStartTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancillarySettings )(
-                        0, 0 ) /
-                physical_constants::getSpeedOfLight< ObservationScalarType >( );
-
-        // Set frequencies for ionosphere/corona
-        if( arcEndObservationModel_->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        // If a light-time correction used its fallback model at only one of the start and end (e.g. at the edge of measured
+        // tropospheric data), recompute with the fallback model forced at both. The forcing remains set until the next call of this
+        // function.
+        if( checkLightTimeCorrectionFallbacks_ &&
+            forceConsistentLightTimeCorrectionFallbacks( arcStartObservationModel_->getLightTimeCalculators( ),
+                                                         arcEndObservationModel_->getLightTimeCalculators( ) ) )
         {
-            setTransmissionReceptionFrequencies( arcEndObservationModel_->getFullLinkLightTimeCalculator( ),
-                                                 timeScaleConverter_,
-                                                 frequencyInterpolator_,
-                                                 receptionTdbEndTime,
-                                                 linkEndAssociatedWithTime,
-                                                 ancillarySettings,
-                                                 currentTurnAroundRatio );
+            startLightTime = computeArcLightTime( arcStartObservationModel_,
+                                                  receptionTdbStartTime,
+                                                  linkEndAssociatedWithTime,
+                                                  ancillarySettings,
+                                                  currentTurnAroundRatio,
+                                                  arcStartLinkEndTimes,
+                                                  arcStartLinkEndStates );
+            endLightTime = computeArcLightTime( arcEndObservationModel_,
+                                                receptionTdbEndTime,
+                                                linkEndAssociatedWithTime,
+                                                ancillarySettings,
+                                                currentTurnAroundRatio,
+                                                arcEndLinkEndTimes,
+                                                arcEndLinkEndStates );
         }
-        TimeType endLightTime =
-                arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
-                        receptionTdbEndTime, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySettings )( 0,
-                                                                                                                                      0 ) /
-                physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Moyer (2000), eqs. 13-52 and 13-53
         TimeType transmissionTdbStartTime = receptionTdbStartTime - startLightTime;
@@ -366,6 +376,31 @@ public:
     }
 
 private:
+    // Function to compute the light time of the start or end of the Doppler integration time, setting the frequencies (for
+    // ionosphere/corona) if needed
+    TimeType computeArcLightTime( const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcObservationModel,
+                                  const TimeType receptionTdbTime,
+                                  const LinkEndType linkEndAssociatedWithTime,
+                                  const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
+                                  const ObservationScalarType turnAroundRatio,
+                                  std::vector< double >& arcLinkEndTimes,
+                                  std::vector< Eigen::Matrix< double, 6, 1 > >& arcLinkEndStates )
+    {
+        if( arcObservationModel->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        {
+            setTransmissionReceptionFrequencies( arcObservationModel->getFullLinkLightTimeCalculator( ),
+                                                 timeScaleConverter_,
+                                                 frequencyInterpolator_,
+                                                 receptionTdbTime,
+                                                 linkEndAssociatedWithTime,
+                                                 ancillarySettings,
+                                                 turnAroundRatio );
+        }
+        return arcObservationModel->computeIdealObservationsWithLinkEndData(
+                       receptionTdbTime, linkEndAssociatedWithTime, arcLinkEndTimes, arcLinkEndStates, ancillarySettings )( 0, 0 ) /
+                physical_constants::getSpeedOfLight< ObservationScalarType >( );
+    }
+
     // N-way range observation model associated with the start of the Doppler integration time.
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
 
@@ -378,6 +413,10 @@ private:
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 
     bool subtractDopplerSignature_;
+
+    // Boolean denoting whether any light-time correction has a fallback model, for which consistency between start and end of the
+    // integration time is to be checked
+    bool checkLightTimeCorrectionFallbacks_;
 };
 
 }  // namespace observation_models

@@ -17,6 +17,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/preProcessOdfFile.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationDataset.h"
@@ -252,6 +253,26 @@ BOOST_AUTO_TEST_CASE( testCompressDopplerDataUsesCadenceRuns )
             compressDopplerData( createSyntheticDopplerDataset( { 0.0, 10.0 }, 10.0 ), 0, 3 );
     BOOST_CHECK_EQUAL( shortRunCompressedObservationSet->getObservationsForSet( 0 ).size( ), 0 );
     BOOST_CHECK_EQUAL( shortRunCompressedObservationSet->getObservationTimesForSet( 0 ).size( ), 0 );
+}
+
+BOOST_AUTO_TEST_CASE( testDopplerCompressionRatioFromCountTime )
+{
+    std::shared_ptr< ObservationDataset< double, double > > observationDataset = createSyntheticDopplerDataset( { 0.0, 10.0, 20.0 }, 10.0 );
+
+    BOOST_CHECK_EQUAL( getDopplerCompressionRatio( observationDataset, 0, 60.0 ), 6 );
+    BOOST_CHECK_THROW( getDopplerCompressionRatio( observationDataset, 0, 25.0 ), std::runtime_error );
+
+    // Compress to a 30 s count time, using the ground station position from the bodies
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Earth" );
+    createGroundStation( bodies.at( "Earth" ),
+                         syntheticDopplerStationName,
+                         simulation_setup::getCombinedApproximateGroundStationPositions( ).at( syntheticDopplerStationName ) );
+    std::shared_ptr< ObservationDataset< double, double > > compressedDataset = createCountTimeCompressedDopplerDataset(
+            createSyntheticDopplerDataset( { 0.0, 10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0 }, 10.0 ), bodies, 30.0, 1 );
+    BOOST_REQUIRE_EQUAL( compressedDataset->getNumberOfObservationSets( ), 1 );
+    checkScalarObservations( compressedDataset, { 10.0, 70.0, 100.0 } );
+    checkUtcOffsets( compressedDataset, { 10.0, 70.0, 100.0 } );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

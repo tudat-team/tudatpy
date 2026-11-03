@@ -25,6 +25,7 @@
 #include <Eigen/Core>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 
@@ -808,6 +809,32 @@ BOOST_AUTO_TEST_CASE( testAutomaticConversionFunctions )
             automaticTnwToRsw, ( automaticRswToTnw.transpose( ) ), ( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             automaticTnwToRsw, Eigen::Matrix3d( manualTnwToInertial * manualInertialToRsw ), std::numeric_limits< double >::epsilon( ) );
+}
+
+BOOST_AUTO_TEST_CASE( testItrf2020GroundStationConversion )
+{
+    const double julianYear = physical_constants::JULIAN_YEAR;
+    Eigen::Vector6d state2020;
+    state2020 << 4.0e6, 2.0e6, 4.5e6, 0.01 / julianYear, -0.02 / julianYear, 0.03 / julianYear;
+    const Eigen::Vector3d translation2015( -1.4e-3, -0.9e-3, 1.4e-3 );
+    const Eigen::Vector3d translationRate( 0.0, -0.1e-3, 0.2e-3 );
+
+    for( const double yearsSinceJ2000 : { 10.0, 15.0, 25.0 } )
+    {
+        // Independently apply the published IGN ITRF2020 -> ITRF2014 parameters.
+        Eigen::Vector6d expectedState2014 = ( 1.0 - 0.42e-9 ) * state2020;
+        expectedState2014.head< 3 >( ) += translation2015 + ( yearsSinceJ2000 - 15.0 ) * translationRate;
+        expectedState2014.tail< 3 >( ) += translationRate / julianYear;
+        const double epoch = yearsSinceJ2000 * julianYear;
+        const Eigen::Vector6d state2014 = convertGroundStationStateBetweenItrfFrames( state2020, epoch, "ITRF2020", "ITRF2014" );
+        BOOST_CHECK_SMALL( ( state2014.head< 3 >( ) - expectedState2014.head< 3 >( ) ).norm( ), 1.0e-8 );
+        BOOST_CHECK_SMALL( ( state2014.tail< 3 >( ) - expectedState2014.tail< 3 >( ) ).norm( ), 1.0e-20 );
+
+        const Eigen::Vector6d recoveredState2020 =
+                convertGroundStationStateBetweenItrfFrames( expectedState2014, epoch, "ITRF2014", "ITRF2020" );
+        BOOST_CHECK_SMALL( ( recoveredState2020.head< 3 >( ) - state2020.head< 3 >( ) ).norm( ), 1.0e-8 );
+        BOOST_CHECK_SMALL( ( recoveredState2020.tail< 3 >( ) - state2020.tail< 3 >( ) ).norm( ), 1.0e-20 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

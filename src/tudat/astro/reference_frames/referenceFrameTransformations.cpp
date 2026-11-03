@@ -610,7 +610,12 @@ Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& tar
 {
     double d = 0.0, r1 = 0.0, r2 = 0.0, r3 = 0.0;
 
-    if( targetFrame == "ITRF2008" )
+    if( targetFrame == "ITRF2020" )
+    {
+        // Inverse of the ITRF2020 -> ITRF2014 scale published by IGN.
+        d = 0.42;
+    }
+    else if( targetFrame == "ITRF2008" )
     {
         d = -0.02;
     }
@@ -679,7 +684,12 @@ Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::s
 {
     double d_d = 0.0, r1_d = 0.0, r2_d = 0.0, r3_d = 0.0;
 
-    if( targetFrame == "ITRF2008" || targetFrame == "ITRF2005" )
+    if( targetFrame == "ITRF2020" )
+    {
+        // ITRF2020 and ITRF2014 have zero relative scale and rotation rates.
+        return Eigen::Matrix3d::Zero( );
+    }
+    else if( targetFrame == "ITRF2008" || targetFrame == "ITRF2005" )
     {
         d_d = 0.03;
     }
@@ -723,7 +733,17 @@ Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& target
 {
     double t1 = 0.0, t2 = 0.0, t3 = 0.0, t1_d = 0.0, t2_d = 0.0, t3_d = 0.0;
 
-    if( targetFrame == "ITRF2008" )
+    if( targetFrame == "ITRF2020" )
+    {
+        // Invert the IGN parameters at 2015.0 and propagate them to 2010.0.
+        // https://itrf.ign.fr/docs/solutions/itrf2020/Transfo-ITRF2020_TRFs.txt
+        t1 = 1.4;
+        t2 = 0.4;
+        t3 = -0.4;
+        t2_d = 0.1;
+        t3_d = -0.2;
+    }
+    else if( targetFrame == "ITRF2008" )
     {
         t1 = 1.6;
         t2 = 1.9;

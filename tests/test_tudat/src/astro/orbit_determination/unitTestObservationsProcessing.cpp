@@ -603,6 +603,40 @@ BOOST_AUTO_TEST_CASE( testAngularObservationSplittingPreservesComponentWeights )
     }
 }
 
+// Residual filtering with the opposite condition on a multi-component observable: only observations for which all
+// components are within the cut-off value should be removed (issue #1084).
+BOOST_AUTO_TEST_CASE( testOppositeResidualFilteringOfMultiComponentObservable )
+{
+    const LinkDefinition links( LinkEnds{ { transmitter, LinkEndId( "Target" ) }, { receiver, LinkEndId( "Earth", "Station" ) } } );
+    const double residualCutOffValue = 0.25;
+    std::vector< Eigen::VectorXd > values, residuals;
+    std::vector< double > times;
+    for( unsigned int i = 0; i < 9; ++i )
+    {
+        times.push_back( 10.0 * i );
+        values.push_back( Eigen::Vector2d( i, 100.0 + i ) );
+
+        // Cycle through: both components large, only first component large, both components small
+        Eigen::VectorXd currentResidual = ( residualCutOffValue - 0.05 ) * Eigen::Vector2d::Ones( );
+        if( i % 3 != 2 )
+        {
+            currentResidual[ 0 ] = residualCutOffValue + 0.05;
+        }
+        if( i % 3 == 0 )
+        {
+            currentResidual[ 1 ] = residualCutOffValue + 0.05;
+        }
+        residuals.push_back( currentResidual );
+    }
+    auto observationSet = std::make_shared< SingleObservationSet<> >( angular_position, links, values, times, receiver );
+    observationSet->setResiduals( residuals );
+
+    observationSet->filterObservations( observationFilter( residual_filtering, residualCutOffValue, true, true ) );
+
+    BOOST_CHECK_EQUAL( observationSet->getNumberOfObservables( ), 6 );
+    BOOST_CHECK_EQUAL( observationSet->getNumberOfFilteredObservations( ), 3 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

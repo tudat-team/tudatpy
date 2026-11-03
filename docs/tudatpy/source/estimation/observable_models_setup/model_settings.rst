@@ -21,6 +21,7 @@ Details on the procedure to create observation models, and the various top-level
 Functions
 ---------
 .. currentmodule:: tudatpy.estimation.observable_models_setup.model_settings
+
 .. autosummary::
 
    one_way_range
@@ -65,6 +66,8 @@ Functions
 
    relative_angular_position
 
+   pixel_coordinates
+
    cartesian_position
 
    relative_cartesian_position
@@ -74,6 +77,12 @@ Functions
    differenced_time_of_arrival
 
    differenced_frequency_of_arrival
+
+   position_angle
+
+   separation_distance
+
+   position_angle_and_separation
 
    get_observable_size
 
@@ -119,6 +128,8 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_angular_position
 
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.pixel_coordinates
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_position
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_cartesian_position
@@ -128,6 +139,12 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_time_of_arrival
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_frequency_of_arrival
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.position_angle
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.separation_distance
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.get_observable_size
 

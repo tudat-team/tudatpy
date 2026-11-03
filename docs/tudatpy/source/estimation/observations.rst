@@ -54,6 +54,7 @@ Functions
    create_pseudo_observation_dataset_and_models_from_observation_times
    simulate_observation_dataset
    create_compressed_doppler_dataset
+   create_count_time_compressed_doppler_dataset
    observation_simulation_settings_from_dataset
    compute_residuals_and_dependent_variables
    set_tracking_supplementary_data_in_bodies
@@ -65,6 +66,7 @@ Functions
 .. autofunction:: create_pseudo_observation_dataset_and_models_from_observation_times
 .. autofunction:: simulate_observation_dataset
 .. autofunction:: create_compressed_doppler_dataset
+.. autofunction:: create_count_time_compressed_doppler_dataset
 .. autofunction:: observation_simulation_settings_from_dataset
 .. autofunction:: compute_residuals_and_dependent_variables
 .. autofunction:: set_tracking_supplementary_data_in_bodies

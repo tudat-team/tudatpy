@@ -175,7 +175,7 @@ def test_legacy_omm_tle_conversion_methods():
     first = "1 00005U 58002B   00179.78495062  .00000023  00000-0  28098-4 0  4753"
     second = "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667"
     # One older instruction must make the TLE; the other must make its position history.
-    assert isinstance(Utils.tle_to_Tle_object(first, second), environment.Tle)
+    assert isinstance(Utils.tle_to_Tle_object(first, second), environment_setup.ephemeris.Tle)
     assert isinstance(Utils.tle_to_TleEphemeris_object(first, second), environment.TleEphemeris)
 
 

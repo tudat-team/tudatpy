@@ -115,6 +115,8 @@ Functions
 
    free_core_nutation_rate
 
+   shared_observation_bias
+
    absolute_observation_bias
 
    relative_observation_bias
@@ -273,6 +275,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.core_factor
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.free_core_nutation_rate
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.shared_observation_bias
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.absolute_observation_bias
 

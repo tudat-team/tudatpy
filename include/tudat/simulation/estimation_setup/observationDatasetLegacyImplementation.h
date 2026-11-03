@@ -241,16 +241,16 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
             {
                 const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual =
                         getResidualValue( observationIdsBySet_.at( setId ).at( j ) );
-                bool removeObservation = false;
+                bool conditionMet = false;
                 for( unsigned int k = 0; k < observableSize; ++k )
                 {
-                    if( ( !useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] ) ) ||
-                        ( useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) <= residualCutOff[ k ] ) ) )
+                    if( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] )
                     {
-                        removeObservation = true;
+                        conditionMet = true;
                     }
                 }
-                if( removeObservation )
+                // Opposite condition is applied to the observation as a whole, not per component
+                if( conditionMet != useOppositeCondition )
                 {
                     indicesToRemove.push_back( j );
                 }
@@ -281,16 +281,15 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
             {
                 const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation =
                         getObservationValue( observationIdsBySet_.at( setId ).at( j ) );
-                bool removeObservation = false;
+                bool conditionMet = false;
                 for( unsigned int k = 0; k < observableSize; ++k )
                 {
-                    if( ( !useOppositeCondition && ( singleObservation[ k ] > absoluteValueCutOff[ k ] ) ) ||
-                        ( useOppositeCondition && ( singleObservation[ k ] <= absoluteValueCutOff[ k ] ) ) )
+                    if( singleObservation[ k ] > absoluteValueCutOff[ k ] )
                     {
-                        removeObservation = true;
+                        conditionMet = true;
                     }
                 }
-                if( removeObservation )
+                if( conditionMet != useOppositeCondition )
                 {
                     indicesToRemove.push_back( j );
                 }
@@ -361,16 +360,15 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
 
             for( unsigned int j = 0; j < numberOfObservations; ++j )
             {
-                bool removeObservation = false;
+                bool conditionMet = false;
                 for( unsigned int k = 0; k < dependentVariableSize; ++k )
                 {
-                    if( ( !useOppositeCondition && ( singleDependentVariableValues( j, k ) ) > dependentVariableCutOff[ k ] ) ||
-                        ( useOppositeCondition && ( singleDependentVariableValues( j, k ) ) <= dependentVariableCutOff[ k ] ) )
+                    if( singleDependentVariableValues( j, k ) > dependentVariableCutOff[ k ] )
                     {
-                        removeObservation = true;
+                        conditionMet = true;
                     }
                 }
-                if( removeObservation )
+                if( conditionMet != useOppositeCondition )
                 {
                     indicesToRemove.push_back( j );
                 }

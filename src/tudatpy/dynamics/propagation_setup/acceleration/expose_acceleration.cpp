@@ -247,8 +247,24 @@ The three entries are the constant effective areas :math:`(A_1,A_2,A_3)` in squa
 source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 )doc" )
-            .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ )
-            .def_readwrite( "reference_body", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_ );
+            .def_readwrite( "coefficients",
+                            &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_,
+                            R"doc(
+
+         Three coefficients controlling the three-coefficient radiation pressure acceleration model.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+
+      )doc" )
+            .def_readwrite( "reference_body",
+                            &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_,
+                            R"doc(
+
+         Name of the reference body used by the three-coefficient radiation pressure model.
+
+         :type: str
+
+      )doc" );
 
     py::class_< tss::MutualSphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::MutualSphericalHarmonicAccelerationSettings >,
@@ -641,6 +657,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
            &tss::sphericalHarmonicAcceleration,
            py::arg( "maximum_degree" ),
            py::arg( "maximum_order" ),
+           py::arg( "remove_point_mass" ) = false,
            R"doc(
 
  Creates settings for the spherical harmonic gravity acceleration.
@@ -666,6 +683,9 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum degree of the spherical harmonic expansion.
  maximum_order : int
      Maximum order of the spherical harmonic expansion.
+ remove_point_mass : bool, default=False
+     Whether the central (degree zero) term is excluded, e.g. when the point mass of the body is part of another
+     acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  SphericalHarmonicAccelerationSettings
@@ -703,6 +723,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
            py::arg( "maximum_order_body_undergoing" ),
            py::arg( "maximum_degree_central_body" ) = 0,
            py::arg( "maximum_order_central_body" ) = 0,
+           py::arg( "remove_point_mass_body_exerting" ) = false,
            R"doc(
 
  Creates settings for the mutual spherical harmonic gravity acceleration.
@@ -738,6 +759,9 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum degree of the spherical harmonic expansion for the central body, if needed.
  maximum_order_central_body : int, default=0
      Maximum order of the spherical harmonic expansion for the central body, if needed.
+ remove_point_mass_body_exerting : bool, default=False
+     Whether the central (degree zero) term of the field of the body exerting the acceleration is excluded, e.g. when its
+     point mass is part of another acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  MutualSphericalHarmonicAccelerationSettings
@@ -1079,7 +1103,7 @@ It implements the model of 2010 Conventions (chapter 10, section 3).
 For the Schwarzschild correction, we have:
 
 .. math::
-   
+
    \mathbf{a}=\frac{\mu_{B}}{c^{2}r^{3}}\left(\left(2(\beta+\gamma)\frac{\mu_{B}}{r}-\gamma(\mathbf{v}\cdot\mathbf{v}) \right)\mathbf{r} +2(1+\gamma)(\mathbf{r}\cdot\mathbf{v})\mathbf{v}\right)
 
 For the Lense-Thirring correction, we have:
@@ -1099,7 +1123,6 @@ of the body undergoing the acceleration w.r.t. the body exerting the acceleratio
 acceleration, :math:`h`_{B}` is the angular momentum vector per unit mass of the body exerting the acceleration (in the global frame orientation), and :math:`\mu_{S}` and
 :math:`\mathbf{R}_{S}` are the gravitational parameter of the 'de Sitter central body' and the position of the body exerting the acceleration w.r.t. the 'de Sitter central body'.
 For normal applications, the 'de Sitter central body' should be set as the Sun, if the body exerting the acceleration is a natural solar system body (except the Sun itself)
-
 
 Parameters
 ----------
@@ -1142,7 +1165,6 @@ In this example, we define the relativistic correction acceleration for a Mars o
        use_de_sitter,
        de_sitter_central_body,
        lense_thirring_angular_momentum)]
-
 
      )doc" );
 
@@ -1397,23 +1419,52 @@ AccelerationSettings
 
 Creates settings for tidal acceleration.
 
-Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+Creates settings for tidal accelerations. The effect of tides in a satellite system is applied directly as
 an acceleration (as opposed to a modification of spherical harmonic coefficients).
 The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
 particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
 effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
 to be tidally locked to the planet.
 
+The acceleration acts on the satellite :math:`S` (body undergoing the acceleration) and is exerted by the planet
+:math:`P` (body exerting the acceleration). The explicit expressions for both tides are given by :cite:t:`lari2018`.
+With :math:`\mathbf{r}=\mathbf{r}_{S}-\mathbf{r}_{P}` and :math:`\mathbf{v}=\mathbf{v}_{S}-\mathbf{v}_{P}` the position
+and velocity of the satellite w.r.t. the planet, and :math:`r=||\mathbf{r}||`, the acceleration due to the tide raised
+on the planet (``use_tide_raised_on_planet`` true) is:
+
+.. math::
+    \mathbf{a}=-3k_{2,P}\frac{\mu_{S}R_{P}^{5}}{r^{8}}\left(\mathbf{r}+\Delta t_{P}\left(2\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}+\mathbf{r}\times\boldsymbol{\omega}_{P}+\mathbf{v}\right)\right)
+
+The acceleration due to the tide raised on the satellite (``use_tide_raised_on_planet`` false) is:
+
+.. math::
+    \mathbf{a}=-3k_{2,S}\frac{\mu_{P}^{2}R_{S}^{5}}{\mu_{S}r^{8}}\left(\mathbf{r}+7\Delta t_{S}\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}\right)
+
+where the factor 7 accounts for both the radial and the librational tide of a satellite in synchronous rotation, with the
+dissipation due to the librational tide being 4/3 times that of the radial tide (:cite:t:`lari2018`). If
+``explicit_libraional_tide_on_satellite`` is true, this averaging is not used. Instead, the expression for the tide on the
+planet is used, scaled to the tide raised on the satellite:
+
+.. math::
+    \mathbf{a}=-3k_{2,S}\frac{\mu_{P}^{2}R_{S}^{5}}{\mu_{S}r^{8}}\left(\mathbf{r}+\Delta t_{S}\left(2\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}+\mathbf{r}\times\boldsymbol{\omega}_{P}+\mathbf{v}\right)\right)
+
+Here, :math:`\mu` denotes a gravitational parameter, :math:`k_{2}`, :math:`R` and :math:`\Delta t` the Love number,
+reference radius of the spherical harmonic gravity field and tidal time lag of the deformed body, and
+:math:`\boldsymbol{\omega}_{P}` the angular velocity vector of the planet. The first term in brackets, :math:`\mathbf{r}`,
+is independent of the time lag, and is omitted if ``include_direct_radial_component`` is false.
+
 Parameters
 ----------
 k2_love_number : float
     Value of the k2 Love number.
 time_lag : float
-    Value of the tidal time lag.
+    Value of the tidal time lag (in seconds).
 include_direct_radial_component : bool, default=True
     It denotes whether the term independent of the time lag is to be computed.
 use_tide_raised_on_planet : bool, default=True
     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+explicit_libraional_tide_on_satellite : bool, default=False
+    It denotes whether the tide raised on the satellite is computed with the expression for the tide on the planet, scaled to the tide on the satellite (if true), instead of the averaged expression with the factor 7 (if false). Cannot be set to true if ``use_tide_raised_on_planet`` is true.
 Returns
 -------
 DirectTidalDissipationAccelerationSettings
@@ -1430,11 +1481,11 @@ through the spherical harmonic gravity:
     love_number = 0.1
     time_lag = 100.0
     # Add entry to acceleration settings dict
-    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
-    love_number,
-    time_lag,
-    False,
-    False)]
+    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation_acceleration(
+        love_number,
+        time_lag,
+        False,
+        False)]
 
 
      )doc" );
@@ -1451,23 +1502,32 @@ through the spherical harmonic gravity:
 
 Creates settings for tidal acceleration.
 
-Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+Creates settings for tidal accelerations. The effect of tides in a satellite system is applied directly as
 an acceleration (as opposed to a modification of spherical harmonic coefficients).
 The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
 particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
 effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
 to be tidally locked to the planet.
 
+In this overload, the tidal time lag is not provided directly, but is computed from the inverse tidal quality factor
+:math:`Q^{-1}` and the tidal period :math:`T` as :math:`\Delta t = T\arctan(Q^{-1})/(2\pi)` (:cite:t:`lari2018`).
+The equations of the acceleration model are given in the documentation of the overload of this function that
+takes ``time_lag`` as input.
+
 Parameters
 ----------
 k2_love_number : float
     Value of the k2 Love number.
-time_lag : float
-    Value of the tidal time lag.
+inverse_tidal_quality_factor : float
+    Value of the inverse of the tidal quality factor :math:`Q`.
+tidal_period : float
+    Tidal period (in seconds) used to compute the tidal time lag from the tidal quality factor.
 include_direct_radial_component : bool, default=True
     It denotes whether the term independent of the time lag is to be computed.
 use_tide_raised_on_planet : bool, default=True
     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+explicit_libraional_tide_on_satellite : bool, default=False
+    It denotes whether the tide raised on the satellite is computed with the expression for the tide on the planet, scaled to the tide on the satellite (if true), instead of the averaged expression with the factor 7 (if false). Only used if ``use_tide_raised_on_planet`` is false.
 Returns
 -------
 DirectTidalDissipationAccelerationSettings
@@ -1482,11 +1542,13 @@ through the spherical harmonic gravity:
 
     # Define parameters
     love_number = 0.1
-    time_lag = 100.0
+    inverse_tidal_quality_factor = 0.01
+    tidal_period = 1.77 * 86400.0
     # Add entry to acceleration settings dict
-    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
+    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation_acceleration(
         love_number,
-        time_lag,
+        inverse_tidal_quality_factor,
+        tidal_period,
         False,
         False)]
 

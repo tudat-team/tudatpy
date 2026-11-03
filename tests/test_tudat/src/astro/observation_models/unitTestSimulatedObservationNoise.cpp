@@ -17,6 +17,10 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/observation_models/angularPositionObservationModel.h"
+#include "tudat/astro/observation_models/transmissionFrequencyInterface.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/math/statistics/basicStatistics.h"
 
@@ -38,6 +42,147 @@ using namespace tudat::coordinate_conversions;
 using namespace tudat::statistics;
 
 BOOST_AUTO_TEST_SUITE( test_observation_noise_models )
+
+//! Check the conversion from Gaussian RA*cos(DEC) noise to RA noise at each observation time.
+BOOST_AUTO_TEST_CASE( testAngularPositionNoiseScaling )
+{
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Target" );
+    linkEnds[ receiver ] = LinkEndId( "Observer" );
+    const std::vector< double > declinations = { 0.0, mathematical_constants::PI / 3.0, -mathematical_constants::PI / 3.0, 1.4 };
+    const std::shared_ptr< ObservationSimulationSettings<> > settings =
+            tabulatedObservationSimulationSettings( angular_position, linkEnds, declinations );
+
+    // An independent generator with the same seed provides the unscaled Gaussian samples.
+    const double noiseAmplitude = 0.01;
+    const int seed = noiseSeed;
+    const std::function< Eigen::VectorXd( const double ) > referenceNoiseFunction =
+            getIndependentGaussianNoiseFunction( noiseAmplitude, 0.0, seed, 2 );
+    addGaussianNoiseToAngularPositionObservationSimulationSettings<>( { settings }, noiseAmplitude );
+
+    for( unsigned int i = 0; i < declinations.size( ); i++ )
+    {
+        const double observationTime = static_cast< double >( i );
+        const double declination = declinations.at( i );
+        const Eigen::VectorXd unscaledNoise = referenceNoiseFunction( observationTime );
+        Eigen::Vector2d observation( 0.5, declination );
+        Eigen::VectorXd dependentVariables;
+        addNoiseAndDependentVariableToObservation< 2 >( observation,
+                                                        observationTime,
+                                                        dependentVariables,
+                                                        {},
+                                                        {},
+                                                        nullptr,
+                                                        angular_position,
+                                                        settings->getObservationNoiseFunction( ),
+                                                        nullptr,
+                                                        settings->getScaleAngularPositionNoise( ) );
+
+        // DEC must be taken before adding its noise, and only the RA sample is scaled.
+        BOOST_CHECK_SMALL( ( observation( 0 ) - 0.5 ) * std::cos( declination ) - unscaledNoise( 0 ), 1.0e-15 );
+        BOOST_CHECK_SMALL( observation( 1 ) - declination - unscaledNoise( 1 ), 1.0e-15 );
+    }
+
+    const std::shared_ptr< ObservationSimulationSettings<> > rangeSettings =
+            tabulatedObservationSimulationSettings( one_way_range, linkEnds, std::vector< double >{ 0.0 } );
+    BOOST_CHECK_THROW( rangeSettings->setScaleAngularPositionNoise( true ), std::runtime_error );
+
+    // Applying the RA scaling to an already normalized angular position model must be rejected.
+    const std::shared_ptr< LightTimeCalculator<> > lightTimeCalculator = std::make_shared< LightTimeCalculator<> >(
+            std::make_shared< ConstantEphemeris >( ( Eigen::Vector6d( ) << 1.0e8, 1.0e8, 1.0e8, 0.0, 0.0, 0.0 ).finished( ) ),
+            std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
+    const std::shared_ptr< ObservationModel< 2 > > normalizedModel =
+            std::make_shared< AngularPositionObservationModel<> >( linkEnds, lightTimeCalculator, nullptr, true );
+    BOOST_CHECK_THROW( simulateObservationWithCheck< 2 >(
+                               0.0, normalizedModel, receiver, {}, settings->getObservationNoiseFunction( ), nullptr, nullptr, true ),
+                       std::runtime_error );
+}
+
+//! Check the RA noise RMS through the normal observation simulation interfaces at five declinations.
+BOOST_AUTO_TEST_CASE( testSimulatedAngularPositionNoiseScaling )
+{
+    const int numberOfObservations = 1000;
+    const double noiseAmplitude = 1.0e-5;
+    const double earthRadius = 6371.0e3;
+    const Eigen::Vector3d stationPosition( earthRadius, 0.0, 0.0 );
+    std::vector< double > observationTimes;
+    for( int i = 0; i < numberOfObservations; i++ )
+    {
+        observationTimes.push_back( 1.0e6 + static_cast< double >( i ) );
+    }
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Target" );
+    linkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
+    const int originalNoiseSeed = noiseSeed;
+
+    for( const double declinationInDegrees : { 0.0, 20.0, 40.0, 60.0, 80.0 } )
+    {
+        BOOST_TEST_CONTEXT( "Declination: " << declinationInDegrees << " degrees" )
+        {
+            const double declination = declinationInDegrees * mathematical_constants::PI / 180.0;
+            const double rightAscension = 0.5;
+            const Eigen::Vector3d relativePosition = 1.0e11 *
+                    Eigen::Vector3d( std::cos( declination ) * std::cos( rightAscension ),
+                                     std::cos( declination ) * std::sin( rightAscension ),
+                                     std::sin( declination ) );
+            Eigen::Vector6d targetState = Eigen::Vector6d::Zero( );
+            targetState.segment< 3 >( 0 ) = stationPosition + relativePosition;
+
+            // Compute the true angles directly from the static station-to-target geometry.
+            const Eigen::Vector3d lineOfSight = targetState.segment< 3 >( 0 ) - stationPosition;
+            const double trueRightAscension = std::atan2( lineOfSight.y( ), lineOfSight.x( ) );
+            const double trueDeclination = std::atan2( lineOfSight.z( ), lineOfSight.head< 2 >( ).norm( ) );
+
+            BodyListSettings bodySettings;
+            bodySettings.addSettings( "Earth" );
+            bodySettings.addSettings( "Target" );
+            bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
+            bodySettings.at( "Earth" )->rotationModelSettings =
+                    std::make_shared< SimpleRotationModelSettings >( "ECLIPJ2000", "IAU_Earth", Eigen::Quaterniond::Identity( ), 0.0, 0.0 );
+            bodySettings.at( "Earth" )->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( earthRadius );
+            bodySettings.at( "Target" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( targetState );
+            SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+            createGroundStation( bodies.at( "Earth" ), "Station", stationPosition, cartesian_position );
+
+            const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings = { angularPositionSettings(
+                    linkEnds ) };
+            const std::vector< std::shared_ptr< ObservationSimulatorBase<> > > observationSimulators =
+                    createObservationSimulators( observationModelSettings, bodies );
+            const std::vector< std::shared_ptr< ObservationSimulationSettings<> > > simulationSettings = {
+                tabulatedObservationSimulationSettings( angular_position, linkEnds, observationTimes, receiver )
+            };
+
+            // Use the same Gaussian samples at each declination to isolate the effect of cos(DEC).
+            noiseSeed = 12345;
+            addGaussianNoiseToAngularPositionObservationSimulationSettings( simulationSettings, noiseAmplitude );
+            const std::shared_ptr< ObservationCollection<> > simulatedObservations =
+                    simulateObservations( simulationSettings, observationSimulators, bodies );
+            const Eigen::VectorXd angularPositions = simulatedObservations->getSingleLinkObservations( angular_position, linkEnds );
+            BOOST_REQUIRE_EQUAL( angularPositions.size( ), 2 * numberOfObservations );
+
+            double sumSquaredRaNoise = 0.0;
+            double sumSquaredDecNoise = 0.0;
+            for( int i = 0; i < numberOfObservations; i++ )
+            {
+                const double raNoise = trueRightAscension - angularPositions( 2 * i );
+                const double decNoise = trueDeclination - angularPositions( 2 * i + 1 );
+                sumSquaredRaNoise += raNoise * raNoise;
+                sumSquaredDecNoise += decNoise * decNoise;
+            }
+            const double raNoiseRms = std::sqrt( sumSquaredRaNoise / numberOfObservations );
+            const double decNoiseRms = std::sqrt( sumSquaredDecNoise / numberOfObservations );
+            const double expectedRaNoiseRms = noiseAmplitude / std::cos( trueDeclination );
+            BOOST_TEST_MESSAGE( "DEC = " << declinationInDegrees << " deg; RA noise RMS = " << raNoiseRms
+                                         << "; expected = " << expectedRaNoiseRms << "; DEC noise RMS = " << decNoiseRms );
+
+            // Allow sampling variation in the RMS of 1000 independent Gaussian observations.
+            BOOST_CHECK_CLOSE_FRACTION( raNoiseRms, expectedRaNoiseRms, 0.1 );
+            BOOST_CHECK_CLOSE_FRACTION( decNoiseRms, noiseAmplitude, 0.1 );
+        }
+    }
+    noiseSeed = originalNoiseSeed;
+}
 
 // Function to conver
 double ignoreInputeVariable( std::function< double( ) > inputFreeFunction, const double dummyInput )
