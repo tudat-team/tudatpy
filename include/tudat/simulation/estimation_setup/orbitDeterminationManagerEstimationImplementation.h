@@ -200,10 +200,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
             normalizeLinearConstraints( constraintStateMultiplier, constraintRightHandSide, normalizationTerms );
 
-            // Constraint is defined for unnormalized parameters: rescale it consistently with the normalized design matrix
-            constraintStateMultiplier =
-                    constraintStateMultiplier * normalizationTerms.head( constraintStateMultiplier.cols( ) ).cwiseInverse( ).asDiagonal( );
-
             double conditionNumberCheck = estimationInput->getLimitConditionNumberForWarning( );
             if( numberOfIterations > 0 && estimationInput->conditionNumberWarningEachIteration_ == false )
             {

@@ -214,6 +214,7 @@ BOOST_AUTO_TEST_CASE( test_InitialStateCorrectionConstraint )
                     std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
 
     // Simulate relative position observations from true dynamics
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
     std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
                std::shared_ptr< observation_models::ObservationCollection< double > > >
