@@ -8,12 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-#TUDAT_ADD_TEST_CASE(CannonBallRadiationPressureAccelerationAndForce
-#        PRIVATE_LINKS
-#        tudat_electromagnetism
-#        tudat_basic_astrodynamics
-#        )
-
 TUDAT_ADD_TEST_CASE(LorentzStaticMagneticAccelerationAndForce
         PRIVATE_LINKS
         tudat_electromagnetism

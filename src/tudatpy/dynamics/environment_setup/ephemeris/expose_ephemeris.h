@@ -24,6 +24,8 @@ namespace environment_setup
 namespace ephemeris
 {
 
+void expose_ephemeris_types( py::module& m );
+
 void expose_ephemeris_setup( py::module& m );
 
 }  // namespace ephemeris

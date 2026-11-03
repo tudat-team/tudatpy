@@ -26,6 +26,8 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -67,13 +69,17 @@ ObservationDependentVariableFunction getObservationDoubleDependentVariableFuncti
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkDefinition linkEnds );
+        const observation_models::LinkDefinition linkEnds,
+        const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                        std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >& legLightTimeCalculators = {} );
 
 ObservationDependentVariableFunction getObservationVectorDependentVariableFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
-        const observation_models::LinkDefinition linkEnds );
+        const observation_models::LinkDefinition linkEnds,
+        const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                        std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >& legLightTimeCalculators = {} );
 
 class ObservationDependentVariableBookkeeping
 {
@@ -165,7 +171,79 @@ public:
         return deferredSettings_;
     }
 
+    //! Save dependent variable bookkeeping to a binary file
+    TUDAT_DECLARE_BINARY_IO( ObservationDependentVariableBookkeeping )
+
+    bool operator==( const ObservationDependentVariableBookkeeping& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const ObservationDependentVariableBookkeeping& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+protected:
+    // Default constructor for serialization
+    ObservationDependentVariableBookkeeping( ):
+        observableType_( observation_models::undefined_observation_model ), totalDependentVariableSize_( 0 )
+    {}
+
+    // Used for serialization testing
+    bool equals( const ObservationDependentVariableBookkeeping& other ) const
+    {
+        const auto settingsListsEqual = []( const auto& lhs, const auto& rhs ) {
+            if( lhs.size( ) != rhs.size( ) )
+            {
+                return false;
+            }
+            for( std::size_t i = 0; i < lhs.size( ); ++i )
+            {
+                if( static_cast< bool >( lhs.at( i ) ) != static_cast< bool >( rhs.at( i ) ) ||
+                    ( lhs.at( i ) && *lhs.at( i ) != *rhs.at( i ) ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        return observableType_ == other.observableType_ && linkEnds_ == other.linkEnds_ &&
+                settingsListsEqual( settingsList_, other.settingsList_ ) &&
+                dependentVariableStartIndices_ == other.dependentVariableStartIndices_ &&
+                dependentVariableSizes_ == other.dependentVariableSizes_ &&
+                totalDependentVariableSize_ == other.totalDependentVariableSize_ &&
+                settingsListsEqual( deferredSettings_, other.deferredSettings_ );
+    }
+
 private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( settingsList_ ) );
+        ar( CEREAL_NVP( dependentVariableStartIndices_ ) );
+        ar( CEREAL_NVP( dependentVariableSizes_ ) );
+        ar( CEREAL_NVP( totalDependentVariableSize_ ) );
+        ar( CEREAL_NVP( deferredSettings_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( settingsList_ ) );
+        ar( CEREAL_NVP( dependentVariableStartIndices_ ) );
+        ar( CEREAL_NVP( dependentVariableSizes_ ) );
+        ar( CEREAL_NVP( totalDependentVariableSize_ ) );
+        ar( CEREAL_NVP( deferredSettings_ ) );
+    }
+
     observation_models::ObservableType observableType_;
 
     observation_models::LinkDefinition linkEnds_;
@@ -212,7 +290,7 @@ public:
         // observable rather than silently dropping the user's request.
         for( const auto& settings : dependentVariableBookkeeping_->takeDeferredSettings( ) )
         {
-            registerLightTimeCorrectionComponents( settings );
+            registerLightTimeCorrectionComponents( settings, bodies );
         }
     }
 
@@ -240,6 +318,19 @@ public:
         return legLightTimeCalculators_;
     }
 
+    bool operator==( const ObservationDependentVariableCalculator& rhs ) const
+    {
+        return ( dependentVariableBookkeeping_ == rhs.dependentVariableBookkeeping_ ||
+                 ( dependentVariableBookkeeping_ && rhs.dependentVariableBookkeeping_ &&
+                   *dependentVariableBookkeeping_ == *rhs.dependentVariableBookkeeping_ ) ) &&
+                legLightTimeCalculators_ == rhs.legLightTimeCalculators_;
+    }
+
+    bool operator!=( const ObservationDependentVariableCalculator& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
 private:
     void addDependentVariableFunction( const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
                                        const SystemOfBodies& bodies,
@@ -255,18 +346,22 @@ private:
                                       const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) > >
             dependentVariableAddFunctions_;
 
-    //! Per-leg light-time calculators used only for `light_time_correction_components`. Populated
-    //! at simulate-time by the simulator (or left empty if no leg-specific variables are requested).
+    //! Per-leg light-time calculators used by leg-specific dependent variables such as
+    //! `light_time_dependent_variable` and `light_time_correction_components`. Populated at simulate-time by the
+    //! simulator (or left empty if no leg-specific variables are requested).
     std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
               std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >
             legLightTimeCalculators_;
 
     //! Worker function that registers a single `light_time_correction_components` setting. Assumes
-    //! `legLightTimeCalculators_` is already populated.
-    void registerLightTimeCorrectionComponents( const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+    //! `legLightTimeCalculators_` is already populated. Size is resolved here, then the add-function
+    //! is built through `getObservationVectorDependentVariableFunction`.
+    void registerLightTimeCorrectionComponents( const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+                                                const SystemOfBodies& bodies );
 };
 
 }  // namespace simulation_setup
 
 }  // namespace tudat
+
 #endif  // TUDAT_OBSERVATIONOUTPUT

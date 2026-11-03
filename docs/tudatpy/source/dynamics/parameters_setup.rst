@@ -37,6 +37,8 @@ Functions
 
    radiation_pressure_coefficient
 
+   three_coefficient_radiation_pressure_coefficients
+
    arcwise_radiation_pressure_coefficient
 
    radiation_pressure_target_direction_scaling
@@ -112,6 +114,8 @@ Functions
    core_factor
 
    free_core_nutation_rate
+
+   shared_observation_bias
 
    absolute_observation_bias
 
@@ -194,6 +198,8 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.radiation_pressure_coefficient
 
+.. autofunction:: tudatpy.dynamics.parameters_setup.three_coefficient_radiation_pressure_coefficients
+
 .. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_radiation_pressure_coefficient
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.radiation_pressure_target_direction_scaling
@@ -269,6 +275,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.core_factor
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.free_core_nutation_rate
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.shared_observation_bias
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.absolute_observation_bias
 

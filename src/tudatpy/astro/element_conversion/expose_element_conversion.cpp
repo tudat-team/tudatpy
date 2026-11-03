@@ -158,9 +158,15 @@ Element 5 in vector of spherical orbital state elements
                                             R"doc(
 Enumeration describing different types of position element types (typically used for body-centered, body-fixed position)
       )doc" )
-            .value( "cartesian_position_type", tcc::PositionElementTypes::cartesian_position )
-            .value( "spherical_position_type", tcc::PositionElementTypes::spherical_position )
-            .value( "geodetic_position_type", tcc::PositionElementTypes::geodetic_position )
+            .value( "cartesian_position_type",
+                    tcc::PositionElementTypes::cartesian_position,
+                    R"doc(Cartesian position coordinates (x, y, z), in metres.)doc" )
+            .value( "spherical_position_type",
+                    tcc::PositionElementTypes::spherical_position,
+                    R"doc(Spherical position coordinates (radius, latitude, longitude), in metres and radians.)doc" )
+            .value( "geodetic_position_type",
+                    tcc::PositionElementTypes::geodetic_position,
+                    R"doc(Geodetic position coordinates (altitude, latitude, longitude), in metres and radians.)doc" )
             .export_values( );
 
     m.def( "convert_cartesian_to_geodetic_coordinates",
@@ -577,7 +583,7 @@ Enumeration describing different types of position element types (typically used
      Boolean to determine whether the user-defined initial guess (for mean-to-eccentric anomaly conversion) is used, or an automatically generated one.
  non_default_initial_guess : float, default = NaN
      User-defined initial guess for mean-to-eccentric anomaly conversion, to be used only if ``use_default_initial_guess`` is set to ``False``.
- root_finder : RootFinder, default = None
+ root_finder : RootFinderCore, default = None
      User-defined root finder, overriding default root-finding algorithm for mean-to-eccentric anomaly conversion (default is used if this input is left empty)
  Returns
  -------
@@ -725,7 +731,7 @@ Enumeration describing different types of position element types (typically used
      Boolean to determine whether the user-defined initial guess is used for conversion, or an automatically generated one.
  non_default_initial_guess : float, default = NaN
      User-defined initial guess for conversion, to be used only if ``use_default_initial_guess`` is set to ``False``.
- root_finder : RootFinder, default = None
+ root_finder : RootFinderCore, default = None
      User-defined root finder, overriding default root-finding algorithm for conversion (default is used if this input is left empty)
  Returns
  -------
@@ -1337,8 +1343,8 @@ Enumeration describing different types of position element types (typically used
 
  Parameters
  ----------
- epoch : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000
+ epoch : float
+     Floating-point epoch in seconds since J2000.
  Returns
  -------
  numpy.ndarray
@@ -1356,8 +1362,8 @@ Enumeration describing different types of position element types (typically used
 
  Parameters
  ----------
- epoch : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000
+ epoch : float
+     Floating-point epoch in seconds since J2000.
  Returns
  -------
  numpy.ndarray

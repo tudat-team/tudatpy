@@ -82,7 +82,15 @@ Eigen::Vector6d calculateDelaunayFundamentalArgumentsWithGmst( const double tdbT
 //! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
 Eigen::Vector6d calculateApproximateDelaunayFundamentalArgumentsWithGmst( const double tdbTime )
 {
-    return calculateDelaunayFundamentalArgumentsWithGmst( tdbTime, tdbTime, convertTTtoUTC( tdbTime ) );
+    // Avoid asking SOFA for UTC before UTC existed. As in the approximate TDB-TT conversion, use TAI as a rough UT1 proxy
+    // in that period. Callers with historical UT1 available should use calculateDelaunayFundamentalArgumentsWithGmst directly.
+    const double taiTime = basic_astrodynamics::convertTTtoTAI( tdbTime );
+    const static double utcIntroductionEpochInTai =
+            convertUTCtoTAI( ( basic_astrodynamics::JULIAN_DAY_OF_UTC_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                             physical_constants::JULIAN_DAY );
+    const double approximateUt1 = taiTime < utcIntroductionEpochInTai ? taiTime : convertTAItoUTC( taiTime );
+
+    return calculateDelaunayFundamentalArgumentsWithGmst( tdbTime, tdbTime, approximateUt1 );
 }
 
 //! Function to calculate the Doodson arguments at the requested time.

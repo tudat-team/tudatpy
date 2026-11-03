@@ -22,7 +22,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
-#include "tudat/astro/propagators/integrateEquations.h"
+#include "tudat/astro/propagators/singleArcPropagationController.h"
 #include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
@@ -542,62 +542,6 @@ protected:
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedSingleArcSettings(
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const bool clearNumericalSolutions = false,
-        const bool setIntegratedResult = false,
-        const bool printNumberOfFunctionEvaluations = false,
-        const bool printDependentVariableData = false,
-        const bool printStateData = false,
-        const bool updateDependentVariableInterpolator = false )
-{
-    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings =
-            std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
-    if( singleArcPropagatorSettings == nullptr )
-    {
-        throw std::runtime_error( "Error in dynamics simulator (deprecated), input must be single-arc." );
-    }
-    else
-    {
-        if( integratorSettings != nullptr && singleArcPropagatorSettings->getIntegratorSettings( ) != nullptr )
-        {
-            std::cerr << "Warning when processing deprecated propagator settitngs, integrator settings defined independently, and in "
-                         "propagator settings"
-                      << std::endl;
-        }
-
-        if( integratorSettings != nullptr )
-        {
-            singleArcPropagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            if( singleArcPropagatorSettings->getInitialTime( ) != singleArcPropagatorSettings->getInitialTime( ) )
-            {
-                std::cerr << "Warning when processing deprecated propagator settitngs, initial propagation time is NaN" << std::endl;
-            }
-        }
-
-        singleArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolutions );
-        singleArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResult );
-        singleArcPropagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( updateDependentVariableInterpolator );
-        singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                printNumberOfFunctionEvaluations,
-                printDependentVariableData,
-                singleArcPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                printStateData,
-                false,
-                false,
-                false );
-
-        singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
-    }
-
-    return singleArcPropagatorSettings;
-}
-
-template< typename StateScalarType = double, typename TimeType = double >
 struct PredefinedSingleArcStateDerivativeModels {
 public:
     PredefinedSingleArcStateDerivativeModels(
@@ -615,38 +559,6 @@ public:
     std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
-};
-
-template< typename StateScalarType, typename TimeType, int NumberOfColumns >
-struct PostProcessingFunctionProvider {
-    static std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, NumberOfColumns >& ) > getPostProcessingFunction(
-            const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > stateDerivateModel )
-    {
-        throw std::runtime_error( "Error, post-processing function can only be retrieved for single-column or dynamic size" );
-        return nullptr;
-    }
-};
-
-template< typename StateScalarType, typename TimeType >
-struct PostProcessingFunctionProvider< StateScalarType, TimeType, 1 > {
-    static std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > getPostProcessingFunction(
-            const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > stateDerivateModel )
-    {
-        return std::bind(
-                &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessState, stateDerivateModel, std::placeholders::_1 );
-        ;
-    }
-};
-
-template< typename StateScalarType, typename TimeType >
-struct PostProcessingFunctionProvider< StateScalarType, TimeType, Eigen::Dynamic > {
-    static std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > getPostProcessingFunction(
-            const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > stateDerivateModel )
-    {
-        return std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
-                          stateDerivateModel,
-                          std::placeholders::_1 );
-    }
 };
 
 #if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS

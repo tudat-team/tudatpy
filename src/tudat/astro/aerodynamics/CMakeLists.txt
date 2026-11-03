@@ -50,7 +50,6 @@ set(aerodynamics_HEADERS
         "customAerodynamicCoefficientInterface.h"
         "controlSurfaceAerodynamicCoefficientInterface.h"
         "flightConditions.h"
-        "aerodynamicGuidance.h"
         "equilibriumWallTemperature.h"
         "windModel.h"
         "comaWindModel.h"
@@ -83,5 +82,5 @@ TUDAT_ADD_LIBRARY("aerodynamics"
             #        tudat_geometric_shapes
             #        tudat_reference_frames
             #        tudat_interpolators
-            #        PRIVATE_LINKS "${Boost_LIBRARIES}"
+            #        PRIVATE_LINKS "Boost::boost"
             )

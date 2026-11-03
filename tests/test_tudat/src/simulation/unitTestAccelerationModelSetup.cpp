@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -38,7 +37,6 @@
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 
 namespace tudat
 {

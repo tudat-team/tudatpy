@@ -5,9 +5,24 @@ from urllib.error import HTTPError, URLError
 import pytest
 import requests
 
+_REMOTE_SERVICE_UNAVAILABLE_STATUSES = (502, 503, 504)
+_JPL_HORIZONS_OUTAGE_SIGNATURES = (
+    "wldini(): missing required file LTKERNL",
+    "ERROR in VLRDC: Var not declared: IP_ADDR",
+)
+
 
 def _is_connectivity_failure(exception):
     """Return whether an exception represents an unavailable remote service."""
+    # Gateways can respond even when the upstream service is unavailable.
+    if isinstance(exception, requests.exceptions.HTTPError):
+        return (
+            exception.response is not None
+            and exception.response.status_code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
+        )
+    if isinstance(exception, HTTPError):
+        return exception.code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
+
     if isinstance(
         exception,
         (
@@ -24,7 +39,16 @@ def _is_connectivity_failure(exception):
             (requests.exceptions.SSLError, requests.exceptions.InvalidURL),
         )
 
-    return isinstance(exception, URLError) and not isinstance(exception, HTTPError)
+    if isinstance(exception, URLError) and not isinstance(exception, HTTPError):
+        return True
+
+    # Astroquery raises ValueError when the Horizons API itself is reachable but
+    # cannot serve requests because required backend resources are unavailable.
+    exception_message = str(exception)
+    return isinstance(exception, ValueError) and (
+        "API SOURCE: NASA/JPL Horizons API" in exception_message
+        and any(signature in exception_message for signature in _JPL_HORIZONS_OUTAGE_SIGNATURES)
+    )
 
 
 def pytest_addoption(parser):

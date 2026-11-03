@@ -14,13 +14,12 @@
  *          Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <memory>
 #include <tuple>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
 
 #include "tudat/math/basic/rotationRepresentations.h"

@@ -82,24 +82,24 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
 }
 
 //! Lists all files in directory.
-std::vector< boost::filesystem::path > listAllFilesInDirectory( const boost::filesystem::path& directory,
-                                                                const bool isRecurseIntoSubdirectories )
+std::vector< std::filesystem::path > listAllFilesInDirectory( const std::filesystem::path& directory,
+                                                              const bool isRecurseIntoSubdirectories )
 {
     // Declare local variables.
-    std::vector< boost::filesystem::path > listOfFileNamesWithPath_;
+    std::vector< std::filesystem::path > listOfFileNamesWithPath_;
 
-    if( boost::filesystem::exists( directory ) )
+    if( std::filesystem::exists( directory ) )
     {
-        boost::filesystem::directory_iterator iteratorPastEndOfDirectory_;
+        std::filesystem::directory_iterator iteratorPastEndOfDirectory_;
 
-        for( boost::filesystem::directory_iterator directoryIterator_( directory ); directoryIterator_ != iteratorPastEndOfDirectory_;
+        for( std::filesystem::directory_iterator directoryIterator_( directory ); directoryIterator_ != iteratorPastEndOfDirectory_;
              ++directoryIterator_ )
         {
-            if( boost::filesystem::is_directory( *directoryIterator_ ) )
+            if( directoryIterator_->is_directory( ) )
             {
                 if( isRecurseIntoSubdirectories )
                 {
-                    listAllFilesInDirectory( *directoryIterator_ );
+                    listAllFilesInDirectory( directoryIterator_->path( ) );
                 }
             }
 
@@ -116,13 +116,13 @@ std::vector< boost::filesystem::path > listAllFilesInDirectory( const boost::fil
 
 void writeIdMapToTextFile( const std::map< std::pair< int, int >, std::string >& idMap,
                            const std::string& outputFilename,
-                           const boost::filesystem::path& outputDirectory,
+                           const std::filesystem::path& outputDirectory,
                            const std::string& delimiter )
 {
     // Check if output directory exists; create it if it doesn't.
-    if( !boost::filesystem::exists( outputDirectory ) )
+    if( !std::filesystem::exists( outputDirectory ) )
     {
-        boost::filesystem::create_directories( outputDirectory );
+        std::filesystem::create_directories( outputDirectory );
     }
 
     // Open output file.

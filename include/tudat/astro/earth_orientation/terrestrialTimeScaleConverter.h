@@ -338,6 +338,14 @@ public:
             case basic_astrodynamics::ut1_scale:
 
                 timesToUpdate.ut1 = inputTimeValue;
+                if( timesToUpdate.ut1 < utcIntroductionEpochInTai_ )
+                {
+                    // Before EOP data starts, UTC is treated as UT1 and TT is obtained from historical Delta T.
+                    calculateAtomicTimesFromUtc< TimeType >( inputTimeValue );
+                    tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( timesToUpdate.tt, earthFixedPosition ) );
+                    timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
+                    break;
+                }
                 try
                 {
                     timesToUpdate.utc = timesToUpdate.ut1 -
@@ -568,10 +576,11 @@ private:
  * Function to create the default Earth time scales conversion object. All (sub-)diurnal corrections to UTC-UT1
  * according to IERS 2010, and UT1 daily corrections published by IERS (read from input EOPReader).
  * \param eopReader Object that reads an Earth Orientation Parameters file.
+ * \param reuseExistingConverter Reuse a previously created default converter. This option is only used when eopReader is nullptr.
  * \return Default Earth time scales conversion object
  */
-std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter(
-        const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
+std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader = nullptr,
+                                                                             const bool reuseExistingConverter = true );
 
 // static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
 

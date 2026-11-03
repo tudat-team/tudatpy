@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <array>
 #include <map>
 #include "tudat/basics/utilities.h"
 
@@ -58,7 +59,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
     Eigen::Vector3d* vectorVector = new Eigen::Vector3d[ numberOfEntries ];
 
     typedef typename boost::multi_array< double, NumberOfDimensions >::index tIndex;
-    typedef boost::array< tIndex, NumberOfDimensions > tIndexArray;
+    typedef std::array< tIndex, NumberOfDimensions > tIndexArray;
 
     double* p = xComponents.data( );
     tIndexArray index;

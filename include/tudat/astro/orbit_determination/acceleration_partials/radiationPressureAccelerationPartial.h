@@ -15,7 +15,6 @@
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
-#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
 
@@ -42,7 +41,7 @@ public:
             const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > accelerationModel,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::cannon_ball_radiation_pressure ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::radiation_pressure ),
         sourceBodyState_( accelerationModel->getSourcePositionFunction( ) ),
         acceleratedBodyState_( accelerationModel->getTargetPositionFunction( ) ),
         areaFunction_( std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getArea, cannonballTargetModel ) ),

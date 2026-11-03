@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/random.hpp>
-
 #include "tudat/math/statistics/boostProbabilityDistributions.h"
 
 namespace tudat

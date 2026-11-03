@@ -8,13 +8,14 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
+#include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
+#include "tudat/astro/ephemerides/constantEphemeris.h"
 
 namespace tudat
 {
@@ -105,6 +106,94 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
             BOOST_CHECK_SMALL( calculatedCorrectionAnalytical - expectedRangeCorrection.at( id ), tolerance );
             BOOST_CHECK_SMALL( calculatedCorrectionNumerical - expectedRangeCorrection.at( id ), tolerance );
         }
+    }
+}
+
+// Check that the solar corona correction of the downlink of a two-way Doppler observable uses the downlink frequency
+BOOST_AUTO_TEST_CASE( testDopplerDownlinkFrequency )
+{
+    // Fix the geometry to isolate the 1/f^2 scaling of the downlink correction.
+    const auto station =
+            std::make_shared< ephemerides::ConstantEphemeris >( ( Eigen::Vector6d( ) << 1.5e11, 0.0, 0.0, 0.0, 3.0e4, 0.0 ).finished( ) );
+    const auto spacecraft =
+            std::make_shared< ephemerides::ConstantEphemeris >( ( Eigen::Vector6d( ) << -1.5e11, 1.0e10, 0.0, 0.0, 0.0, 0.0 ).finished( ) );
+    // Two-way link Earth-Probe-Earth
+    const LinkEnds linkEnds = { { transmitter, LinkEndId( "Earth" ) },
+                                { reflector1, LinkEndId( "Probe" ) },
+                                { receiver, LinkEndId( "Earth" ) } };
+    const auto corona = std::make_shared< InversePowerSeriesSolarCoronaCorrection >(
+            two_way_doppler, []( double ) { return Eigen::Vector6d::Zero( ).eval( ); } );
+    // Corona correction for the downlink. The flag is normally set by the observation model factory, but is set manually
+    // here, since the observation model is created directly
+    corona->setIsDownlinkOfTwoWayLink( true );
+    const auto uplink = std::make_shared< LightTimeCalculator<> >( station, spacecraft );
+
+    // Uplink frequency; the downlink frequency is set below
+    const auto ancillary = std::make_shared< ObservationAncillarySimulationSettings >( );
+    const double frequency = 7.153e9;
+    ancillary->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
+    // Two-way Doppler models without and with corona correction on the downlink (none on the uplink)
+    std::vector< std::shared_ptr< TwoWayDopplerObservationModel<> > > models;
+    for( const bool corrected : { false, true } )
+    {
+        const auto downlink =
+                std::make_shared< LightTimeCalculator<> >( spacecraft,
+                                                           station,
+                                                           corrected ? std::vector< std::shared_ptr< LightTimeCorrection > >{ corona }
+                                                                     : std::vector< std::shared_ptr< LightTimeCorrection > >{} );
+        models.push_back( std::make_shared< TwoWayDopplerObservationModel<> >(
+                linkEnds,
+                std::make_shared< FullLinkLightTimeCalculator<> >(
+                        std::vector< std::shared_ptr< LightTimeCalculator<> > >{ uplink, downlink } ),
+                std::make_shared< OneWayDopplerObservationModel<> >( getUplinkFromTwoWayLinkEnds( linkEnds ), uplink ),
+                std::make_shared< OneWayDopplerObservationModel<> >( getDownlinkFromTwoWayLinkEnds( linkEnds ), downlink ) ) );
+    }
+    // For several ratios of downlink to uplink frequency, check that the shift due to the correction scales with the
+    // inverse square of the downlink frequency, and that the uplink frequency in the ancillary settings is not modified
+    double referenceShift = 0.0;
+    for( const double ratio : { 1.0, 880.0 / 749.0, 3344.0 / 749.0 } )
+    {
+        ancillary->setIntermediateDoubleData( received_frequency_intermediate, frequency * ratio );
+        const double shift = models[ 1 ]->computeObservations( 0.0, receiver, ancillary )( 0 ) -
+                models[ 0 ]->computeObservations( 0.0, receiver, ancillary )( 0 );
+        if( ratio == 1.0 )
+        {
+            referenceShift = shift;
+            BOOST_REQUIRE_GT( std::fabs( referenceShift ), 1.0e-5 );
+        }
+        BOOST_CHECK_CLOSE_FRACTION( shift, referenceShift / ( ratio * ratio ), 1.0e-5 );
+        BOOST_CHECK_EQUAL( ancillary->getIntermediateDoubleData( transmitter_frequency_intermediate ), frequency );
+    }
+}
+
+// Check that non-integer exponents (integrated numerically) agree with the analytical integral for lines of sight
+// passing close to the Sun
+BOOST_AUTO_TEST_CASE( testNonIntegerExponentsCloseToSun )
+{
+    std::function< Eigen::Vector6d( double time ) > sunStateFunction = []( double time ) { return Eigen::Vector6d::Zero( ); };
+    const std::vector< double > coefficients = { 0.12e14, 1.0e13, 0.41e12 };
+    InversePowerSeriesSolarCoronaCorrection analyticalCorrection( n_way_range, sunStateFunction, coefficients, { 6.0, 3.0, 2.0 } );
+    InversePowerSeriesSolarCoronaCorrection numericalCorrection(
+            n_way_range, sunStateFunction, coefficients, { 6.0 + 1.0e-12, 3.0 + 1.0e-12, 2.0 + 1.0e-12 } );
+
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, 7.2e9 );
+
+    // Earth at 1 AU, spacecraft at 1.5 AU behind the Sun, with the line of sight passing 2 to 20 solar radii from the Sun
+    for( const double impactParameter : { 2.0, 5.0, 20.0 } )
+    {
+        const double distance = impactParameter * 696.0e6;
+        Eigen::Vector6d earthState = Eigen::Vector6d::Zero( );
+        earthState.segment( 0, 2 ) << -std::sqrt( std::pow( physical_constants::ASTRONOMICAL_UNIT, 2 ) - distance * distance ), distance;
+        Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
+        spacecraftState.segment( 0, 2 ) << std::sqrt( std::pow( 1.5 * physical_constants::ASTRONOMICAL_UNIT, 2 ) - distance * distance ),
+                distance;
+        BOOST_CHECK_CLOSE_FRACTION( numericalCorrection.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                                            { spacecraftState, earthState }, { 0.0, 0.0 }, 0, ancillarySettings ),
+                                    analyticalCorrection.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                                            { spacecraftState, earthState }, { 0.0, 0.0 }, 0, ancillarySettings ),
+                                    1.0e-8 );
     }
 }
 

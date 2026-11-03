@@ -19,6 +19,7 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/math/interpolators/lagrangeInterpolator.h"
 
 namespace tudat
 {
@@ -36,11 +37,13 @@ template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >,
                    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > >& podData,
+        std::pair< int, int >& integratedStateInterpolatorOrders,
         const TimeType startTime = TimeType( 1.0E7 ),
         const int numberOfDaysOfData = 3,
         const int numberOfIterations = 5,
         const bool useFullParameterSet = true,
-        const bool saveDesignMatrix = true )
+        const bool saveDesignMatrix = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > integratedStateInterpolatorSettings = nullptr )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -88,14 +91,10 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Vehicle" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Vehicle",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     bodies.at( "Vehicle" )
             ->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
@@ -118,8 +117,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -147,15 +145,27 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
-    // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, TimeType( finalEphemerisTime ), cowell );
-
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                    TimeType( initialEphemerisTime ), 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+                    40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
+    // Create propagator settings
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    TimeType( initialEphemerisTime ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( TimeType( finalEphemerisTime ) ),
+                    cowell );
+    if( integratedStateInterpolatorSettings != nullptr )
+    {
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        propagatorSettings->getOutputSettings( )->setInterpolatorSettings( integratedStateInterpolatorSettings );
+    }
 
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -249,7 +259,25 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
+
+    const auto getIntegratedStateInterpolatorOrder = [ &bodies ]( ) {
+        std::shared_ptr< TabulatedCartesianEphemeris<> > vehicleEphemeris =
+                std::dynamic_pointer_cast< TabulatedCartesianEphemeris<> >( bodies.at( "Vehicle" )->getEphemeris( ) );
+        if( vehicleEphemeris == nullptr )
+        {
+            throw std::runtime_error( "Expected a tabulated vehicle ephemeris in estimation test." );
+        }
+        std::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::Vector6d > > vehicleInterpolator =
+                std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< double, Eigen::Vector6d > >(
+                        vehicleEphemeris->getInterpolator( ) );
+        if( vehicleInterpolator == nullptr )
+        {
+            throw std::runtime_error( "Expected a Lagrange vehicle ephemeris interpolator in estimation test." );
+        }
+        return vehicleInterpolator->getNumberOfStages( );
+    };
+    integratedStateInterpolatorOrders.first = getIntegratedStateInterpolatorOrder( );
 
     std::vector< TimeType > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
@@ -308,12 +336,36 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
 
+    integratedStateInterpolatorOrders.second = getIntegratedStateInterpolatorOrder( );
+
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout << "estimation error: " << ( estimationError ).transpose( ) << std::endl;
 
     podData = std::make_pair( estimationOutput, estimationInput );
 
     return estimationError;
+}
+
+template< typename TimeType = double, typename StateScalarType = double >
+Eigen::VectorXd executeEarthOrbiterParameterEstimation(
+        std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >,
+                   std::shared_ptr< EstimationInput< StateScalarType, TimeType > > >& podData,
+        const TimeType startTime = TimeType( 1.0E7 ),
+        const int numberOfDaysOfData = 3,
+        const int numberOfIterations = 5,
+        const bool useFullParameterSet = true,
+        const bool saveDesignMatrix = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > integratedStateInterpolatorSettings = nullptr )
+{
+    std::pair< int, int > unusedIntegratedStateInterpolatorOrders;
+    return executeEarthOrbiterParameterEstimation< TimeType, StateScalarType >( podData,
+                                                                                unusedIntegratedStateInterpolatorOrders,
+                                                                                startTime,
+                                                                                numberOfDaysOfData,
+                                                                                numberOfIterations,
+                                                                                useFullParameterSet,
+                                                                                saveDesignMatrix,
+                                                                                integratedStateInterpolatorSettings );
 }
 
 }  // namespace unit_tests

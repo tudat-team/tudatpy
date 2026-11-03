@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -16,7 +15,7 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/utilities.h"
 #include "tudat/basics/testMacros.h"
@@ -1394,6 +1393,64 @@ BOOST_AUTO_TEST_CASE( testNWayRangeLinkEndEpochDependentVariable )
         BOOST_CHECK_EQUAL( manualLinkEndTimes.size( ), 4 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( epochsEntry.second, utilities::convertStlVectorToEigenVector( manualLinkEndTimes ), 1.0e-14 );
     }
+}
+
+//! Check that the light-time dependent variables are the light times of the observation model (incl. corrections, excl. delays)
+BOOST_AUTO_TEST_CASE( testLightTimeDependentVariable )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon", "Sun" }, "Earth" );
+    bodySettings.addSettings( "MoonOrbiter" );
+    bodySettings.at( "MoonOrbiter" )->ephemerisSettings = keplerEphemerisSettings(
+            ( Eigen::Vector6d( ) << 2.0E6, 0.1, 1.0, 0.0, 0.0, 0.0 ).finished( ), 0.0, getBodyGravitationalParameter( "Moon" ), "Moon" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Earth", "Station1" );
+    linkEnds[ retransmitter ] = LinkEndId( "MoonOrbiter", "" );
+    linkEnds[ receiver ] = LinkEndId( "Earth", "Station1" );
+
+    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators = createObservationSimulators(
+            { std::make_shared< ObservationModelSettings >( n_way_range,
+                                                            linkEnds,
+                                                            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
+                                                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                                            std::vector< std::string >{ "Sun" } ) } ) },
+            bodies );
+
+    const double retransmissionDelay = 1.0E-3;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput{
+        std::make_shared< TabulatedObservationSimulationSettings<> >( n_way_range,
+                                                                      linkEnds,
+                                                                      std::vector< double >{ 1.0E7 },
+                                                                      receiver,
+                                                                      std::vector< std::shared_ptr< ObservationViabilitySettings > >( ),
+                                                                      nullptr,
+                                                                      getTwoWayRangeAncillarySettings( retransmissionDelay ) )
+    };
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariables = {
+        lightTimeBetweenLinkEndsDependentVariable( transmitter, retransmitter ),
+        lightTimeBetweenLinkEndsDependentVariable( retransmitter, receiver ),
+        targetRangeBetweenLinkEndsDependentVariable( transmitter, retransmitter )
+    };
+    addDependentVariablesToObservationSimulationSettings( measurementSimulationInput, dependentVariables, bodies );
+    std::shared_ptr< ObservationCollection<> > simulatedObservations =
+            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+
+    const double uplinkLightTime = simulatedObservations->getDependentVariableHistory( dependentVariables.at( 0 ) ).begin( )->second( 0 );
+    const double downlinkLightTime = simulatedObservations->getDependentVariableHistory( dependentVariables.at( 1 ) ).begin( )->second( 0 );
+    const double uplinkRange = simulatedObservations->getDependentVariableHistory( dependentVariables.at( 2 ) ).begin( )->second( 0 );
+
+    // Two-way range is the sum of both light times and the retransmission delay
+    BOOST_CHECK_CLOSE_FRACTION( simulatedObservations->getConcatenatedObservations( )( 0 ) / physical_constants::SPEED_OF_LIGHT,
+                                uplinkLightTime + downlinkLightTime + retransmissionDelay,
+                                1.0E-14 );
+
+    // Light time includes the (positive) relativistic correction, which the target range does not
+    BOOST_CHECK_GT( uplinkLightTime - uplinkRange / physical_constants::SPEED_OF_LIGHT, 1.0E-12 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

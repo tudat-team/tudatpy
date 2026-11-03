@@ -23,10 +23,14 @@ void computeLowThrustLegSemiAnalyticalAndFullPropagation(
 
     // Define backward propagator settings variables.
     integratorSettings->initialTimeStep_ = -std::fabs( integratorSettings->initialTimeStep_ );
-    integratorSettings->initialTime_ = lowThrustLeg->getTimeOfFlight( ) / 2.0;
+    const double propagationStartTime = lowThrustLeg->getTimeOfFlight( ) / 2.0;
+    const auto backwardPropagatorSettings =
+            std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first );
+    backwardPropagatorSettings->resetInitialTime( propagationStartTime );
+    backwardPropagatorSettings->setIntegratorSettings( integratorSettings );
 
     // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationBackwards( bodies, integratorSettings, propagatorSettings.first );
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationBackwards( bodies, backwardPropagatorSettings );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
             dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
@@ -47,10 +51,13 @@ void computeLowThrustLegSemiAnalyticalAndFullPropagation(
 
     // Define forward propagator settings variables.
     integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
-    integratorSettings->initialTime_ = lowThrustLeg->getTimeOfFlight( ) / 2.0;
+    const auto forwardPropagatorSettings =
+            std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.second );
+    forwardPropagatorSettings->resetInitialTime( propagationStartTime );
+    forwardPropagatorSettings->setIntegratorSettings( integratorSettings );
 
     // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationForwards( bodies, integratorSettings, propagatorSettings.second );
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationForwards( bodies, forwardPropagatorSettings );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation =
             dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation =

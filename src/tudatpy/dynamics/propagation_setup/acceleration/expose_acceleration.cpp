@@ -20,8 +20,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/environment_setup/thrustSettings.h>
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
@@ -38,6 +36,9 @@
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_acceleration.h"
+
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
@@ -47,71 +48,12 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+namespace tse = tudat::serialization;
 
 namespace tudat
 {
 namespace simulation_setup
 {
-
-inline std::shared_ptr< AccelerationSettings > customAccelerationSettingsDeprecated(
-        const std::function< Eigen::Vector3d( const double ) > accelerationFunction )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.propagation_setup."
-                "acceleration.custom",
-                "tudatpy.dynamics.propagation_setup."
-                "acceleration.custom_acceleration" );
-        isWarningPrinted = true;
-    }
-
-    return customAccelerationSettings( accelerationFunction );
-}
-
-inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved1(
-        const std::shared_ptr< tss::ThrustDirectionSettings > thrustDirectionSettings,
-        const std::shared_ptr< tss::ThrustMagnitudeSettings > thrustMagnitudeSettings )
-{
-    tudat::utilities::printDeprecationError(
-            "tudatpy.dynamics.propagation_setup.acceleration."
-            "thrust_from_direction_and_magnitude",
-            "https://docs.tudat.space/en/stable/_src_user_guide/"
-            "state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
-
-inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved2(
-        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
-        const std::function< double( const double ) > specificImpulseFunction,
-        const ThrustFrames thrustFrame = unspecified_thrust_frame,
-        const std::string centralBody = "" )
-{
-    tudat::utilities::printDeprecationError(
-            "tudatpy.dynamics.propagation_setup.acceleration."
-            "thrust_and_isp_from_custom_function",
-            "https://docs.tudat.space/en/stable/_src_user_guide/"
-            "state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
-
-inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved3(
-        const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
-        const double constantSpecificImpulse,
-        const ThrustFrames thrustFrame = unspecified_thrust_frame,
-        const std::string centralBody = "" )
-{
-    tudat::utilities::printDeprecationError(
-            "tudatpy.dynamics.propagation_setup.acceleration."
-            "thrust_from_custom_function",
-            "https://docs.tudat.space/en/stable/_src_user_guide/"
-            "state_propagation/environment_setup/thrust_refactor/"
-            "thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
 
 //! @get_docstring(customAccelerationSettings)
 inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
@@ -162,10 +104,6 @@ void expose_acceleration_setup( py::module& m )
                     R"doc(
       )doc" )
             .value( "aerodynamic_type", tba::AvailableAcceleration::aerodynamic, R"doc(
-      )doc" )
-            .value( "cannonball_radiation_pressure_type",
-                    tba::AvailableAcceleration::cannon_ball_radiation_pressure,
-                    R"doc(
       )doc" )
             .value( "spherical_harmonic_gravity_type",
                     tba::AvailableAcceleration::spherical_harmonic_gravity,
@@ -255,21 +193,29 @@ void expose_acceleration_setup( py::module& m )
          Functional base class to define settings for accelerations.
 
          Class for providing settings for acceleration model. This class is a functional (base) class for
-         settings of acceleration models that  require no information in addition to their type.
+         settings of acceleration models that require no information in addition to their type.
          Classes defining settings for acceleration models requiring additional information must be derived from this class.
          Bodies exerting and undergoing acceleration are set externally from this class.
          This class can be used for the easy setup of acceleration models
          (see createAccelerationModels.h), but users may also chose to do so manually.
          (Derived) Class members are all public, for ease of access and modification.
 
-
-
-
-
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tss::AccelerationSettings ) TUDATPY_DEF_EQ_NE( tss::AccelerationSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::AccelerationSettings );
     //            .def(py::init<const
     //            tudat::basic_astrodynamics::AvailableAcceleration>(),
     //                 py::arg("acceleration_type"));
+
+    py::class_< tss::RadiationPressureAccelerationSettings,
+                std::shared_ptr< tss::RadiationPressureAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "RadiationPressureAccelerationSettings",
+                                             R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the radiation pressure acceleration.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RadiationPressureAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::RadiationPressureAccelerationSettings );
 
     py::class_< tss::SphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::SphericalHarmonicAccelerationSettings >,
@@ -282,12 +228,9 @@ void expose_acceleration_setup( py::module& m )
          Class for providing settings for spherical harmonics acceleration model,
          including the maximum degree and order up to which the field is to be expanded. Note that
          the minimum degree and order are currently always set to zero.
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
 
-
-
-
-
-      )doc" );
     //            .def(py::init<const int, const int>(),
     //            py::arg("maximum_degree"),
     //                 py::arg("maximum_order"));
@@ -304,8 +247,24 @@ The three entries are the constant effective areas :math:`(A_1,A_2,A_3)` in squa
 source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 )doc" )
-            .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ )
-            .def_readwrite( "reference_body", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_ );
+            .def_readwrite( "coefficients",
+                            &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_,
+                            R"doc(
+
+         Three coefficients controlling the three-coefficient radiation pressure acceleration model.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+
+      )doc" )
+            .def_readwrite( "reference_body",
+                            &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_,
+                            R"doc(
+
+         Name of the reference body used by the three-coefficient radiation pressure model.
+
+         :type: str
+
+      )doc" );
 
     py::class_< tss::MutualSphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::MutualSphericalHarmonicAccelerationSettings >,
@@ -323,7 +282,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MutualSphericalHarmonicAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MutualSphericalHarmonicAccelerationSettings );
 
     py::class_< tss::FullTwoBodySphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::FullTwoBodySphericalHarmonicAccelerationSettings >,
@@ -361,7 +321,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::EmpiricalAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::EmpiricalAccelerationSettings );
 
     py::class_< tss::RTGAccelerationSettings, std::shared_ptr< tss::RTGAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -374,7 +335,18 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
          force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
          to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RTGAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::RTGAccelerationSettings );
+
+    py::class_< tss::YarkovskyAccelerationSettings, std::shared_ptr< tss::YarkovskyAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "YarkovskyAccelerationSettings",
+            R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the Yarkovsky acceleration.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::YarkovskyAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::YarkovskyAccelerationSettings );
 
     py::class_< tss::RelativisticAccelerationCorrectionSettings,
                 std::shared_ptr< tss::RelativisticAccelerationCorrectionSettings >,
@@ -392,7 +364,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RelativisticAccelerationCorrectionSettings )
+            TUDATPY_DEF_EQ_NE( tss::RelativisticAccelerationCorrectionSettings );
 
     py::class_< tss::CustomAccelerationSettings, std::shared_ptr< tss::CustomAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -408,7 +381,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::CustomAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::CustomAccelerationSettings );
 
     py::class_< tss::DirectTidalDissipationAccelerationSettings,
                 std::shared_ptr< tss::DirectTidalDissipationAccelerationSettings >,
@@ -426,7 +400,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::DirectTidalDissipationAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::DirectTidalDissipationAccelerationSettings );
 
     py::class_< tss::MomentumWheelDesaturationAccelerationSettings,
                 std::shared_ptr< tss::MomentumWheelDesaturationAccelerationSettings >,
@@ -443,7 +418,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MomentumWheelDesaturationAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MomentumWheelDesaturationAccelerationSettings );
 
     py::class_< tss::ThrustAccelerationSettings, std::shared_ptr< tss::ThrustAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -458,13 +434,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" )
-            .def_property_readonly(
-                    "direction_settings",
-                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustDirectionSettings > > )
-            .def_property_readonly(
-                    "magnitude_settings",
-                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::ThrustAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::ThrustAccelerationSettings );
 
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration,
@@ -682,12 +653,11 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
 )doc" );
 
-    m.def( "cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration );
-
     m.def( "spherical_harmonic_gravity",
            &tss::sphericalHarmonicAcceleration,
            py::arg( "maximum_degree" ),
            py::arg( "maximum_order" ),
+           py::arg( "remove_point_mass" ) = false,
            R"doc(
 
  Creates settings for the spherical harmonic gravity acceleration.
@@ -713,6 +683,9 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum degree of the spherical harmonic expansion.
  maximum_order : int
      Maximum order of the spherical harmonic expansion.
+ remove_point_mass : bool, default=False
+     Whether the central (degree zero) term is excluded, e.g. when the point mass of the body is part of another
+     acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  SphericalHarmonicAccelerationSettings
@@ -750,6 +723,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
            py::arg( "maximum_order_body_undergoing" ),
            py::arg( "maximum_degree_central_body" ) = 0,
            py::arg( "maximum_order_central_body" ) = 0,
+           py::arg( "remove_point_mass_body_exerting" ) = false,
            R"doc(
 
  Creates settings for the mutual spherical harmonic gravity acceleration.
@@ -785,6 +759,9 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum degree of the spherical harmonic expansion for the central body, if needed.
  maximum_order_central_body : int, default=0
      Maximum order of the spherical harmonic expansion for the central body, if needed.
+ remove_point_mass_body_exerting : bool, default=False
+     Whether the central (degree zero) term of the field of the body exerting the acceleration is excluded, e.g. when its
+     point mass is part of another acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  MutualSphericalHarmonicAccelerationSettings
@@ -1126,7 +1103,7 @@ It implements the model of 2010 Conventions (chapter 10, section 3).
 For the Schwarzschild correction, we have:
 
 .. math::
-   
+
    \mathbf{a}=\frac{\mu_{B}}{c^{2}r^{3}}\left(\left(2(\beta+\gamma)\frac{\mu_{B}}{r}-\gamma(\mathbf{v}\cdot\mathbf{v}) \right)\mathbf{r} +2(1+\gamma)(\mathbf{r}\cdot\mathbf{v})\mathbf{v}\right)
 
 For the Lense-Thirring correction, we have:
@@ -1146,7 +1123,6 @@ of the body undergoing the acceleration w.r.t. the body exerting the acceleratio
 acceleration, :math:`h`_{B}` is the angular momentum vector per unit mass of the body exerting the acceleration (in the global frame orientation), and :math:`\mu_{S}` and
 :math:`\mathbf{R}_{S}` are the gravitational parameter of the 'de Sitter central body' and the position of the body exerting the acceleration w.r.t. the 'de Sitter central body'.
 For normal applications, the 'de Sitter central body' should be set as the Sun, if the body exerting the acceleration is a natural solar system body (except the Sun itself)
-
 
 Parameters
 ----------
@@ -1189,7 +1165,6 @@ In this example, we define the relativistic correction acceleration for a Mars o
        use_de_sitter,
        de_sitter_central_body,
        lense_thirring_angular_momentum)]
-
 
      )doc" );
 
@@ -1374,8 +1349,6 @@ AccelerationSettings
 
      )doc" );
 
-    m.def( "custom", &tss::customAccelerationSettingsDeprecated, py::arg( "acceleration_function" ) );
-
     m.def( "custom_acceleration",
            py::overload_cast< std::function< Eigen::Vector3d( const double ) > >( &tss::customAccelerationSettings ),
            py::arg( "acceleration_function" ),
@@ -1394,7 +1367,7 @@ AccelerationSettings
 
  Parameters
  ----------
- acceleration_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], list]
+ acceleration_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
      Custom acceleration function with time as an independent variable, returning the acceleration in an inertial frame (*e.g.* with global frame orientation) as a function of time.
  Returns
  -------
@@ -1446,23 +1419,52 @@ AccelerationSettings
 
 Creates settings for tidal acceleration.
 
-Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+Creates settings for tidal accelerations. The effect of tides in a satellite system is applied directly as
 an acceleration (as opposed to a modification of spherical harmonic coefficients).
 The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
 particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
 effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
 to be tidally locked to the planet.
 
+The acceleration acts on the satellite :math:`S` (body undergoing the acceleration) and is exerted by the planet
+:math:`P` (body exerting the acceleration). The explicit expressions for both tides are given by :cite:t:`lari2018`.
+With :math:`\mathbf{r}=\mathbf{r}_{S}-\mathbf{r}_{P}` and :math:`\mathbf{v}=\mathbf{v}_{S}-\mathbf{v}_{P}` the position
+and velocity of the satellite w.r.t. the planet, and :math:`r=||\mathbf{r}||`, the acceleration due to the tide raised
+on the planet (``use_tide_raised_on_planet`` true) is:
+
+.. math::
+    \mathbf{a}=-3k_{2,P}\frac{\mu_{S}R_{P}^{5}}{r^{8}}\left(\mathbf{r}+\Delta t_{P}\left(2\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}+\mathbf{r}\times\boldsymbol{\omega}_{P}+\mathbf{v}\right)\right)
+
+The acceleration due to the tide raised on the satellite (``use_tide_raised_on_planet`` false) is:
+
+.. math::
+    \mathbf{a}=-3k_{2,S}\frac{\mu_{P}^{2}R_{S}^{5}}{\mu_{S}r^{8}}\left(\mathbf{r}+7\Delta t_{S}\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}\right)
+
+where the factor 7 accounts for both the radial and the librational tide of a satellite in synchronous rotation, with the
+dissipation due to the librational tide being 4/3 times that of the radial tide (:cite:t:`lari2018`). If
+``explicit_libraional_tide_on_satellite`` is true, this averaging is not used. Instead, the expression for the tide on the
+planet is used, scaled to the tide raised on the satellite:
+
+.. math::
+    \mathbf{a}=-3k_{2,S}\frac{\mu_{P}^{2}R_{S}^{5}}{\mu_{S}r^{8}}\left(\mathbf{r}+\Delta t_{S}\left(2\frac{\mathbf{r}\cdot\mathbf{v}}{r^{2}}\mathbf{r}+\mathbf{r}\times\boldsymbol{\omega}_{P}+\mathbf{v}\right)\right)
+
+Here, :math:`\mu` denotes a gravitational parameter, :math:`k_{2}`, :math:`R` and :math:`\Delta t` the Love number,
+reference radius of the spherical harmonic gravity field and tidal time lag of the deformed body, and
+:math:`\boldsymbol{\omega}_{P}` the angular velocity vector of the planet. The first term in brackets, :math:`\mathbf{r}`,
+is independent of the time lag, and is omitted if ``include_direct_radial_component`` is false.
+
 Parameters
 ----------
 k2_love_number : float
     Value of the k2 Love number.
 time_lag : float
-    Value of the tidal time lag.
+    Value of the tidal time lag (in seconds).
 include_direct_radial_component : bool, default=True
     It denotes whether the term independent of the time lag is to be computed.
 use_tide_raised_on_planet : bool, default=True
     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+explicit_libraional_tide_on_satellite : bool, default=False
+    It denotes whether the tide raised on the satellite is computed with the expression for the tide on the planet, scaled to the tide on the satellite (if true), instead of the averaged expression with the factor 7 (if false). Cannot be set to true if ``use_tide_raised_on_planet`` is true.
 Returns
 -------
 DirectTidalDissipationAccelerationSettings
@@ -1479,11 +1481,11 @@ through the spherical harmonic gravity:
     love_number = 0.1
     time_lag = 100.0
     # Add entry to acceleration settings dict
-    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
-    love_number,
-    time_lag,
-    False,
-    False)]
+    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation_acceleration(
+        love_number,
+        time_lag,
+        False,
+        False)]
 
 
      )doc" );
@@ -1500,23 +1502,32 @@ through the spherical harmonic gravity:
 
 Creates settings for tidal acceleration.
 
-Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+Creates settings for tidal accelerations. The effect of tides in a satellite system is applied directly as
 an acceleration (as opposed to a modification of spherical harmonic coefficients).
 The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
 particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
 effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
 to be tidally locked to the planet.
 
+In this overload, the tidal time lag is not provided directly, but is computed from the inverse tidal quality factor
+:math:`Q^{-1}` and the tidal period :math:`T` as :math:`\Delta t = T\arctan(Q^{-1})/(2\pi)` (:cite:t:`lari2018`).
+The equations of the acceleration model are given in the documentation of the overload of this function that
+takes ``time_lag`` as input.
+
 Parameters
 ----------
 k2_love_number : float
     Value of the k2 Love number.
-time_lag : float
-    Value of the tidal time lag.
+inverse_tidal_quality_factor : float
+    Value of the inverse of the tidal quality factor :math:`Q`.
+tidal_period : float
+    Tidal period (in seconds) used to compute the tidal time lag from the tidal quality factor.
 include_direct_radial_component : bool, default=True
     It denotes whether the term independent of the time lag is to be computed.
 use_tide_raised_on_planet : bool, default=True
     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+explicit_libraional_tide_on_satellite : bool, default=False
+    It denotes whether the tide raised on the satellite is computed with the expression for the tide on the planet, scaled to the tide on the satellite (if true), instead of the averaged expression with the factor 7 (if false). Only used if ``use_tide_raised_on_planet`` is false.
 Returns
 -------
 DirectTidalDissipationAccelerationSettings
@@ -1531,11 +1542,13 @@ through the spherical harmonic gravity:
 
     # Define parameters
     love_number = 0.1
-    time_lag = 100.0
+    inverse_tidal_quality_factor = 0.01
+    tidal_period = 1.77 * 86400.0
     # Add entry to acceleration settings dict
-    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
+    acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation_acceleration(
         love_number,
-        time_lag,
+        inverse_tidal_quality_factor,
+        tidal_period,
         False,
         False)]
 
@@ -1597,9 +1610,9 @@ through the spherical harmonic gravity:
      Set of middle point in times :math:`t_{i}` in the maneuver denoting the epoch of each maneuver.
  delta_v_values : list[numpy.ndarray]
      Set of delta V values :math:`\Delta \mathbf{V}_{i}`, one for each maneuver.
- total_maneuver_time : astro.time_representation.Time
+total_maneuver_time : float
      Total duration of every maneuver :math:`t_{M}`.
- maneuver_rise_time : astro.time_representation.Time
+maneuver_rise_time : float
      :math:`t_{R}` taken by the acceleration to go from zero to its maximum level.
  Returns
  -------
@@ -1711,26 +1724,6 @@ through the spherical harmonic gravity:
 
 
      )doc" );
-
-    m.def( "thrust_from_direction_and_magnitude",
-           &tss::thrustAccelerationRemoved1,
-           py::arg( "thrust_direction_settings" ),
-           py::arg( "thrust_magnitude_settings" ) );
-
-    m.def( "thrust_from_custom_function",
-           &tss::thrustAccelerationRemoved2,
-           py::arg( "thrust_force_function" ),
-           py::arg( "specific_impulse_function" ),
-           py::arg( "thrust_frame" ) = tss::ThrustFrames::inertial_thrust_frame,
-           py::arg( "central_body" ) = "" );
-
-    m.def( "thrust_and_isp_from_custom_function",
-           &tss::thrustAccelerationRemoved3,
-           py::arg( "thrust_force_function" ),
-           py::arg( "constant_specific_impulse" ),
-           py::arg( "thrust_frame" ) = tss::ThrustFrames::inertial_thrust_frame,
-           py::arg( "central_body" ) = "",
-           R"doc(No documentation found.)doc" );
 }
 
 }  // namespace acceleration

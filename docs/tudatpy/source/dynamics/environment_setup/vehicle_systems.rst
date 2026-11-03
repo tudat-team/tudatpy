@@ -59,6 +59,8 @@ Functions
 
 .. autosummary::
 
+   pinhole_camera
+
    frame_fixed_panel_geometry
 
    time_varying_panel_geometry
@@ -79,6 +81,9 @@ Functions
 
 
    merge_body_panel_setting_lists
+
+.. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.pinhole_camera
+
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.frame_fixed_panel_geometry
 
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.time_varying_panel_geometry
@@ -138,6 +143,4 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.vehicle_systems.FullPanelledBodySettings
    :members:
-
-
 

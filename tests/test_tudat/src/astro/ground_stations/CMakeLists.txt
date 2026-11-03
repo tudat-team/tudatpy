@@ -38,3 +38,7 @@ TUDAT_ADD_TEST_CASE(PoleTideDisplacement
  TUDAT_ADD_TEST_CASE(TransmittingFrequencies
      PRIVATE_LINKS
      ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(GroundStationSunVisibility
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES})

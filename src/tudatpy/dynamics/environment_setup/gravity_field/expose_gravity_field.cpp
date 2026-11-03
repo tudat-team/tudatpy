@@ -14,7 +14,6 @@
 #include "tudat/simulation/environment_setup/createGravityField.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup/rigidBodyProperties.h>
 #include <tudat/simulation/environment_setup/createGravityField.h>
 
@@ -52,31 +51,6 @@ inline std::shared_ptr< GravityFieldSettings > predefinedSphericalHarmonic( cons
                                                                             const int maximumDegree = -1 )
 {
     return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( sphericalHarmonicsModel, maximumDegree );
-}
-
-inline std::shared_ptr< GravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated(
-        const double axisA,
-        const double axisB,
-        const double axisC,
-        const double ellipsoidDensity,
-        const int maximumDegree,
-        const int maximumOrder,
-        const std::string& associatedReferenceFrame,
-        const double gravitationalConstant = tpc::GRAVITATIONAL_CONSTANT )
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.environment_setup.gravity_"
-                "field.spherical_harmonic_triaxial_body",
-                "tudatpy.dynamics.environment_setup.gravity_"
-                "field.sh_triaxial_ellipsoid_from_density" );
-        isWarningPrinted = true;
-    }
-
-    return createHomogeneousTriAxialEllipsoidGravitySettings(
-            axisA, axisB, axisC, ellipsoidDensity, maximumDegree, maximumOrder, associatedReferenceFrame, gravitationalConstant );
 }
 
 }  // namespace simulation_setup
@@ -124,7 +98,7 @@ Enumeration of predefined spherical harmonics models.
 
 Enumeration of predefined spherical harmonics models supported by tudat, for which thee coefficient files are automatically available (downloaded from
 `here <https://github.com/tudat-team/tudat-resources/tree/master/resource/gravity_models>`_). The directory where these files are stored can be
-extracted using the :func:`~tudatpy.data.get_gravity_models_path` function.
+extracted using the :func:`~tudatpy.data_input.resource_paths.get_gravity_models_path` function.
 
         )doc" )
             .value( "egm96",
@@ -331,8 +305,12 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
     py::class_< tss::FromFileSphericalHarmonicsGravityFieldSettings,
                 std::shared_ptr< tss::FromFileSphericalHarmonicsGravityFieldSettings >,
-                tss::SphericalHarmonicsGravityFieldSettings >(
-            m, "FromFileSphericalHarmonicsGravityFieldSettings", R"doc(No documentation found.)doc" );
+                tss::SphericalHarmonicsGravityFieldSettings >( m, "FromFileSphericalHarmonicsGravityFieldSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic`,
+         :func:`~tudatpy.dynamics.environment_setup.gravity_field.predefined_spherical_harmonic`.
+
+      )doc" );
 
     py::class_< tss::PolyhedronGravityFieldSettings, std::shared_ptr< tss::PolyhedronGravityFieldSettings >, tss::GravityFieldSettings >(
             m,
@@ -487,7 +465,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a spherical harmonics gravity field settings object.
 
  Function for settings object, defining a gravity field model through spherical harmonic expansion.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the spherical harmonic field is defined.
 
  The gravitational potential is the defined as:
@@ -592,6 +570,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  - The first line should be a series of text blocks (typically numerical data). Two of these blocks (by default the first and second one) should be the gravitational parameter and reference radius, respectively. The text block should be separated by spaces, tabs and/or commas
  - Each subsequent line should contain a set of spherical harmonic coefficients (first ordered in ascending order by degree, then in ascending order by order), where the first, second, third and fourth value of the line should be: degree :math:`l`, order :math:`m`, normalized cosine coefficient :math:`\bar{C}_{lm}`, normalized sine coefficient :math:`\bar{S}_{lm}`. Additional entries (for instance with coefficient uncertainties) are ignored.
 
+ For files in the PDS SHADR format, use :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_shadr_file`, which reads the
+ header in its units, and also supports unordered and unnormalized coefficients.
+
  .. warning::
 
     The function expects exponents to be indicated by either "e" or "E". If the exponent is indicated by "d" or "D", the exponent will not be parsed and the function will read wrong coefficients!
@@ -643,6 +624,42 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
    body_settings.get("Moon").gravity_field_settings = environment_setup.gravity_field.from_file_spherical_harmonic(
        r"...\.tudat\resource\gravity_models\Moon\gggrx_1200l_sha.tab", 300, 300)
 
+
+     )doc" );
+
+    m.def( "from_shadr_file",
+           &tss::shadrSphericalHarmonicsGravityFieldSettings,
+           py::arg( "file" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "associated_reference_frame" ) = "",
+           R"doc(
+
+ Function to load spherical harmonics gravity field settings from a SHADR file.
+
+ Function to load spherical harmonics gravity field settings from a file in the Planetary Data System (PDS) spherical harmonics
+ ASCII data record (SHADR) format, as described `here <https://atmos.nmsu.edu/PDS/data/jnogrv_0002/DOCUMENT/SHADR.ASC>`__.
+ The coefficients are read as in :func:`~tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic`, with
+ the following differences: the reference radius and gravitational parameter are read from the SHADR header (in km and km^3/s^2),
+ the coefficients may be listed in any order (and covariance records are skipped), and unnormalized coefficients (normalization
+ state 0 in the header) are converted to fully normalized coefficients
+ (see :func:`~tudatpy.astro.gravitation.normalize_spherical_harmonic_coefficients`).
+
+ Parameters
+ ----------
+ file : str
+     Full file path and name where the SHADR gravity field file is located
+ maximum_degree : int
+     Maximum degree of the coefficients that are to be loaded (may not exceed that of the file)
+ maximum_order : int
+     Maximum order of the coefficients that are to be loaded (may not exceed that of the file)
+ associated_reference_frame : str, default = ""
+     Name of the body-fixed reference frame to which the gravity field is to be fixed. If left empty, this reference frame will automatically be set to the body-fixed frame defined by this body's rotation (see :ref:`rotation_model` for specifying rotation models).
+
+ Returns
+ -------
+ SphericalHarmonicsGravityFieldSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
 
      )doc" );
 
@@ -698,7 +715,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a polyhedron gravity field settings object, using the gravitational parameter.
 
  Function for settings object, defining a gravity field model through a polyhedron.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
@@ -754,7 +771,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Function for creating a polyhedron gravity field settings object, using the density.
 
  Function for settings object, defining a gravity field model through a polyhedron.
- The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
+ The ``associated_reference_frame`` must be the same frame ID as the target frame of the body's rotation model.
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
@@ -920,24 +937,6 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
      )doc" );
 
-    m.def( "spherical_harmonic_triaxial_body",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const double,
-                              const int,
-                              const int,
-                              const std::string&,
-                              const double >( &tss::createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated ),
-           py::arg( "axis_a" ),
-           py::arg( "axis_b" ),
-           py::arg( "axis_c" ),
-           py::arg( "density" ),
-           py::arg( "maximum_degree" ),
-           py::arg( "maximum_order" ),
-           py::arg( "associated_reference_frame" ),
-           py::arg( "gravitational_constant" ) = tudat::physical_constants::GRAVITATIONAL_CONSTANT );
-
     m.def( "ring_model",
            &tss::ringGravitySettings,
            py::arg( "gravitational_parameter" ),
@@ -962,7 +961,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  elliptic_integral_s_from_d_and_b : bool, default = True
      Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
-     
+
  Returns
  -------
  GravityFieldSettings

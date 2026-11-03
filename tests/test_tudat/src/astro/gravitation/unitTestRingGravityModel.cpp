@@ -9,13 +9,12 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -189,8 +188,7 @@ BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
 
     // Define integrator settings.
     const double fixedStepSize = 0.0001;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialTime, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     // Define propagator settings (Cowell)
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -198,10 +196,13 @@ BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
                                                                                 accelerationModelMap,
                                                                                 bodiesToPropagate,
                                                                                 initialState,
+                                                                                initialTime,
+                                                                                integratorSettings,
+
                                                                                 propagationTimeTerminationSettings( finalTime, true ) );
 
     // Propagate orbit with Cowell method
-    SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+    SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     double computedFinalTime = integrationResult.rbegin( )->first;
@@ -306,7 +307,7 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
             // Define integrator settings.
             const double fixedStepSize = 0.0001;
             std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, initialTime, fixedStepSize );
+                    std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
             // Define propagator settings (Cowell)
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -315,10 +316,13 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
                             accelerationModelMap,
                             bodiesToPropagate,
                             initialState,
+                            initialTime,
+                            integratorSettings,
+
                             propagationTimeTerminationSettings( finalTime, true ) );
 
             // Propagate orbit with Cowell method
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
             std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             double computedFinalTime = integrationResult.rbegin( )->first;

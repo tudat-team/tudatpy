@@ -10,12 +10,19 @@
 
 #include "tudat/io/readPsfFile.h"
 
+#include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>
+
+#include "tudat/astro/basic_astro/dateTime.h"
+#include "tudat/io/readTrackingTxtFile.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -434,7 +441,218 @@ void throwMissingPsfFieldError( const std::string& blockName, const std::string&
 
 }  // namespace
 
-RawPsfFileContents readPsfFile( const std::string& psfFile )
+std::shared_ptr< const data::CameraInstrumentSupplementaryData > getPsfCameraInstrumentSupplementaryData(
+        const RawPsfFileContents& psfFileContents,
+        const std::string& cameraId )
+{
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& supplementaryData : psfFileContents.trackingSupplementaryData_ )
+    {
+        if( supplementaryData == nullptr || supplementaryData->getReferencePointName( ) != cameraId )
+        {
+            continue;
+        }
+
+        for( const std::shared_ptr< data::InstrumentSupplementaryData >& instrumentData :
+             supplementaryData->getInstrumentSupplementaryData( ) )
+        {
+            std::shared_ptr< data::CameraInstrumentSupplementaryData > cameraData =
+                    std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( instrumentData );
+            if( cameraData != nullptr && cameraData->getCameraId( ) == cameraId )
+            {
+                return cameraData;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+double getPsfPictureObservationTime( const RawPsfFileImageContents& imageContents, const bool useMidExposureTime )
+{
+    std::stringstream stream( imageContents.endOfExposureTimeUtcString_ );
+    int year = 0;
+    std::string monthString;
+    int day = 0;
+    std::string timeString;
+    stream >> year >> monthString >> day >> timeString;
+    if( stream.fail( ) || timeString.empty( ) )
+    {
+        throw std::runtime_error( "Error when converting PSF epoch: malformed UTC string '" + imageContents.endOfExposureTimeUtcString_ +
+                                  "'." );
+    }
+
+    std::replace( timeString.begin( ), timeString.end( ), ':', ' ' );
+    std::stringstream timeStream( timeString );
+    int hour = 0;
+    int minute = 0;
+    double seconds = 0.0;
+    timeStream >> hour >> minute >> seconds;
+    if( timeStream.fail( ) )
+    {
+        throw std::runtime_error( "Error when converting PSF epoch: malformed time field in '" + imageContents.endOfExposureTimeUtcString_ +
+                                  "'." );
+    }
+
+    TrackingFileMonthFieldConverter monthConverter( TrackingDataType::month );
+    const int month = static_cast< int >( monthConverter.toDouble( monthString ) );
+    double observationTime = basic_astrodynamics::DateTime( year, month, day, hour, minute, seconds ).epoch< double >( );
+    if( useMidExposureTime )
+    {
+        observationTime -= 0.5 * imageContents.exposureTimeSeconds_;
+    }
+    return observationTime;
+}
+
+Eigen::Quaterniond getPsfPictureRotationFromInertialToCameraFrame( const RawPsfFileImageContents& imageContents )
+{
+    const double rightAscension = imageContents.rightAscensionDegrees_ * mathematical_constants::PI / 180.0;
+    const double declination = imageContents.declinationDegrees_ * mathematical_constants::PI / 180.0;
+    const double plateAngle = ( imageContents.twistDegrees_ - 90.0 ) * mathematical_constants::PI / 180.0;
+
+    const Eigen::Vector3d boresight = ( Eigen::Vector3d( ) << std::cos( declination ) * std::cos( rightAscension ),
+                                        std::cos( declination ) * std::sin( rightAscension ),
+                                        std::sin( declination ) )
+                                              .finished( );
+    const Eigen::Vector3d east = ( Eigen::Vector3d( ) << -std::sin( rightAscension ), std::cos( rightAscension ), 0.0 ).finished( );
+    const Eigen::Vector3d north = ( Eigen::Vector3d( ) << -std::sin( declination ) * std::cos( rightAscension ),
+                                    -std::sin( declination ) * std::sin( rightAscension ),
+                                    std::cos( declination ) )
+                                          .finished( );
+
+    Eigen::Matrix3d rotationFromCameraToInertial;
+    rotationFromCameraToInertial.col( 0 ) = std::cos( plateAngle ) * east + std::sin( plateAngle ) * north;
+    rotationFromCameraToInertial.col( 1 ) = -std::sin( plateAngle ) * east + std::cos( plateAngle ) * north;
+    rotationFromCameraToInertial.col( 2 ) = boresight;
+
+    return Eigen::Quaterniond( rotationFromCameraToInertial.transpose( ) );
+}
+
+std::map< std::string, std::map< double, Eigen::Quaterniond > > getPsfCameraPointingHistory( const RawPsfFileContents& psfFileContents )
+{
+    std::map< std::string, std::map< double, Eigen::Quaterniond > > pointingHistory;
+    for( const RawPsfFileImageContents& imageContents : psfFileContents.images_ )
+    {
+        pointingHistory[ imageContents.cameraId_ ][ getPsfPictureObservationTime( imageContents, true ) ] =
+                getPsfPictureRotationFromInertialToCameraFrame( imageContents );
+    }
+    return pointingHistory;
+}
+
+void rebuildPsfCameraSupplementaryDataWithPointingHistory( RawPsfFileContents& psfFileContents )
+{
+    const std::map< std::string, std::map< double, Eigen::Quaterniond > > cameraPointingHistory =
+            getPsfCameraPointingHistory( psfFileContents );
+    std::vector< std::shared_ptr< data::TrackingSupplementaryData > > updatedSupplementaryData;
+    updatedSupplementaryData.reserve( psfFileContents.trackingSupplementaryData_.size( ) );
+
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& supplementaryData : psfFileContents.trackingSupplementaryData_ )
+    {
+        if( supplementaryData == nullptr )
+        {
+            throw std::runtime_error( "Error when converting PSF data, supplementary data entry is null." );
+        }
+
+        std::shared_ptr< const data::CameraInstrumentSupplementaryData > cameraData =
+                getPsfCameraInstrumentSupplementaryData( psfFileContents, supplementaryData->getReferencePointName( ) );
+        if( cameraData == nullptr )
+        {
+            updatedSupplementaryData.push_back( supplementaryData );
+            continue;
+        }
+
+        std::map< double, Eigen::Quaterniond > pointingHistory;
+        if( cameraPointingHistory.count( cameraData->getCameraId( ) ) != 0 )
+        {
+            pointingHistory = cameraPointingHistory.at( cameraData->getCameraId( ) );
+        }
+
+        std::shared_ptr< data::CameraInstrumentSupplementaryData > updatedCameraData =
+                std::make_shared< data::CameraInstrumentSupplementaryData >( cameraData->getCameraId( ),
+                                                                             cameraData->getFocalLength( ),
+                                                                             cameraData->getPrincipalPoint( ),
+                                                                             cameraData->getFieldOfViewBounds( ),
+                                                                             cameraData->getKMatrix( ),
+                                                                             cameraData->getDistortionCoefficients( ),
+                                                                             cameraData->getMountingOffsets( ),
+                                                                             pointingHistory );
+        std::shared_ptr< data::TrackingSupplementaryData > updatedData = std::make_shared< data::TrackingSupplementaryData >(
+                supplementaryData->getBodyName( ), supplementaryData->getReferencePointName( ) );
+        updatedData->setInstrumentSupplementaryData(
+                std::vector< std::shared_ptr< data::InstrumentSupplementaryData > >( { updatedCameraData } ) );
+        updatedSupplementaryData.push_back( updatedData );
+    }
+
+    psfFileContents.trackingSupplementaryData_ = updatedSupplementaryData;
+}
+
+std::string getTudatBodyNameForPsfMeasurement( const RawPsfMeasurement& measurement,
+                                               const std::map< std::string, std::string >& imageNameToBodyName,
+                                               const bool useRawImageNameAsBodyNameIfUnmapped )
+{
+    if( imageNameToBodyName.count( measurement.imageName_ ) != 0 )
+    {
+        return imageNameToBodyName.at( measurement.imageName_ );
+    }
+
+    std::string upperImageName = measurement.imageName_;
+    std::transform( upperImageName.begin( ), upperImageName.end( ), upperImageName.begin( ), []( unsigned char character ) {
+        return static_cast< char >( std::toupper( character ) );
+    } );
+    if( imageNameToBodyName.count( upperImageName ) != 0 )
+    {
+        return imageNameToBodyName.at( upperImageName );
+    }
+
+    if( useRawImageNameAsBodyNameIfUnmapped )
+    {
+        return measurement.imageName_;
+    }
+
+    return "";
+}
+
+bool shouldConvertPsfMeasurement( const RawPsfMeasurement& measurement,
+                                  const bool includeEndMarkerRecords,
+                                  const bool filterByUseFlag,
+                                  const int requiredUseFlag )
+{
+    if( !includeEndMarkerRecords && measurement.opticalImageType_ == OpticalImageType::end_marker )
+    {
+        return false;
+    }
+
+    if( filterByUseFlag && measurement.useFlag_ != requiredUseFlag )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getPsfTrackingSupplementaryDataForReceiver(
+        const RawPsfFileContents& psfFileContents,
+        const std::string& receiverBodyName )
+{
+    std::vector< std::shared_ptr< data::TrackingSupplementaryData > > trackingSupplementaryDataSets;
+    trackingSupplementaryDataSets.reserve( psfFileContents.trackingSupplementaryData_.size( ) );
+
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& supplementaryData : psfFileContents.trackingSupplementaryData_ )
+    {
+        if( supplementaryData == nullptr )
+        {
+            throw std::runtime_error( "Error when converting PSF data, supplementary data entry is null." );
+        }
+
+        std::shared_ptr< data::TrackingSupplementaryData > copiedSupplementaryData =
+                std::make_shared< data::TrackingSupplementaryData >( receiverBodyName, supplementaryData->getReferencePointName( ) );
+        copiedSupplementaryData->setInstrumentSupplementaryData( supplementaryData->getInstrumentSupplementaryData( ) );
+        trackingSupplementaryDataSets.push_back( copiedSupplementaryData );
+    }
+
+    return trackingSupplementaryDataSets;
+}
+
+RawPsfFileContents readRawPsfFile( const std::string& psfFile )
 {
     std::ifstream dataFile( psfFile.c_str( ) );
     if( !dataFile.good( ) )
@@ -536,7 +754,13 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
             const std::string block = readNamelistBlockContents( dataFile, trimmedLine );
             const std::vector< std::pair< std::string, std::string > > assigns = parseFortranNamelistAssignments( block );
 
-            std::map< int, RawPsfCameraProperties > camerasByIndex;
+            std::map< int, std::string > cameraIds;
+            std::map< int, double > focalLengths;
+            std::map< int, Eigen::Vector2d > principalPoints;
+            std::map< int, Eigen::Vector4d > fieldOfViewBounds;
+            std::map< int, Eigen::Matrix< double, 2, 3 > > kMatrices;
+            std::map< int, Eigen::Matrix< double, 6, 1 > > distortionCoefficients;
+            std::map< int, Eigen::Vector3d > mountingOffsets;
 
             for( std::size_t i = 0; i < assigns.size( ); ++i )
             {
@@ -553,18 +777,17 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                 if( baseKey == "CAMID" && indices.size( ) == 1 )
                 {
                     const int icam = indices.at( 0 );
-                    camerasByIndex[ icam ].cameraId_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( rawValue ) );
+                    cameraIds[ icam ] = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( rawValue ) );
                 }
                 else if( baseKey == "FL" && indices.size( ) == 1 )
                 {
                     const int icam = indices.at( 0 );
-                    camerasByIndex[ icam ].focalLengthMm_ = toDouble( rawValue );
+                    focalLengths[ icam ] = toDouble( rawValue );
                 }
                 else if( baseKey == "PLCTR" && indices.size( ) == 2 )
                 {
                     const int icam = indices.at( 1 );
-                    const Eigen::Vector2d v = parseVector2FromValueText( rawValue, "PLCTR" );
-                    camerasByIndex[ icam ].principalPoint_ = v;
+                    principalPoints[ icam ] = parseVector2FromValueText( rawValue, "PLCTR" );
                 }
                 else if( baseKey == "PLSIZ" && indices.size( ) == 2 )
                 {
@@ -574,10 +797,11 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                     {
                         throw std::runtime_error( "Error when reading PSF file: malformed PLSIZ entry, value='" + rawValue + "'" );
                     }
-                    camerasByIndex[ icam ].fieldOfViewBounds_( 0 ) = toDouble( vals.at( 0 ) );
-                    camerasByIndex[ icam ].fieldOfViewBounds_( 1 ) = toDouble( vals.at( 1 ) );
-                    camerasByIndex[ icam ].fieldOfViewBounds_( 2 ) = toDouble( vals.at( 2 ) );
-                    camerasByIndex[ icam ].fieldOfViewBounds_( 3 ) = toDouble( vals.at( 3 ) );
+                    fieldOfViewBounds[ icam ] = ( Eigen::Vector4d( ) << toDouble( vals.at( 0 ) ),
+                                                  toDouble( vals.at( 1 ) ),
+                                                  toDouble( vals.at( 2 ) ),
+                                                  toDouble( vals.at( 3 ) ) )
+                                                        .finished( );
                 }
                 else if( baseKey == "KMAT" && indices.size( ) == 3 )
                 {
@@ -598,8 +822,12 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                     }
 
                     const Eigen::Vector2d v = parseVector2FromValueText( rawValue, "KMAT" );
-                    camerasByIndex[ icam ].kMatrix_( 0, col ) = v( 0 );
-                    camerasByIndex[ icam ].kMatrix_( 1, col ) = v( 1 );
+                    if( kMatrices.count( icam ) == 0 )
+                    {
+                        kMatrices[ icam ] = Eigen::Matrix< double, 2, 3 >::Zero( );
+                    }
+                    kMatrices[ icam ]( 0, col ) = v( 0 );
+                    kMatrices[ icam ]( 1, col ) = v( 1 );
                 }
                 else if( baseKey == "EM" && indices.size( ) == 2 )
                 {
@@ -613,7 +841,11 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                         const int idx = start0 + static_cast< int >( j );
                         if( idx >= 0 && idx < 6 )
                         {
-                            camerasByIndex[ icam ].distortionCoefficients_( idx ) = toDouble( vals.at( j ) );
+                            if( distortionCoefficients.count( icam ) == 0 )
+                            {
+                                distortionCoefficients[ icam ] = Eigen::Matrix< double, 6, 1 >::Zero( );
+                            }
+                            distortionCoefficients[ icam ]( idx ) = toDouble( vals.at( j ) );
                         }
                     }
                 }
@@ -625,18 +857,37 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                     {
                         throw std::runtime_error( "Error when reading PSF file: malformed OFFSET entry, value='" + rawValue + "'" );
                     }
-                    camerasByIndex[ icam ].mountingOffsetsDegrees_( 0 ) = toDouble( vals.at( 0 ) );
-                    camerasByIndex[ icam ].mountingOffsetsDegrees_( 1 ) = toDouble( vals.at( 1 ) );
-                    camerasByIndex[ icam ].mountingOffsetsDegrees_( 2 ) = toDouble( vals.at( 2 ) );
+                    mountingOffsets[ icam ] =
+                            ( Eigen::Vector3d( ) << toDouble( vals.at( 0 ) ), toDouble( vals.at( 1 ) ), toDouble( vals.at( 2 ) ) )
+                                    .finished( );
                 }
             }
 
-            for( std::map< int, RawPsfCameraProperties >::const_iterator it = camerasByIndex.begin( ); it != camerasByIndex.end( ); ++it )
+            for( const auto& cameraIdEntry : cameraIds )
             {
-                const RawPsfCameraProperties& cam = it->second;
-                if( !cam.cameraId_.empty( ) )
+                const int cameraIndex = cameraIdEntry.first;
+                const std::string& cameraId = cameraIdEntry.second;
+                if( !cameraId.empty( ) )
                 {
-                    fileContents.cameraProperties_[ cam.cameraId_ ] = cam;
+                    std::shared_ptr< data::CameraInstrumentSupplementaryData > cameraData =
+                            std::make_shared< data::CameraInstrumentSupplementaryData >(
+                                    cameraId,
+                                    focalLengths.count( cameraIndex ) == 0 ? 0.0 : focalLengths.at( cameraIndex ),
+                                    principalPoints.count( cameraIndex ) == 0 ? Eigen::Vector2d::Zero( )
+                                                                              : principalPoints.at( cameraIndex ),
+                                    fieldOfViewBounds.count( cameraIndex ) == 0 ? Eigen::Vector4d::Zero( )
+                                                                                : fieldOfViewBounds.at( cameraIndex ),
+                                    kMatrices.count( cameraIndex ) == 0 ? Eigen::Matrix< double, 2, 3 >::Zero( )
+                                                                        : kMatrices.at( cameraIndex ),
+                                    distortionCoefficients.count( cameraIndex ) == 0 ? Eigen::Matrix< double, 6, 1 >::Zero( )
+                                                                                     : distortionCoefficients.at( cameraIndex ),
+                                    mountingOffsets.count( cameraIndex ) == 0 ? Eigen::Vector3d::Zero( )
+                                                                              : mountingOffsets.at( cameraIndex ) );
+                    std::shared_ptr< data::TrackingSupplementaryData > supplementaryData =
+                            std::make_shared< data::TrackingSupplementaryData >( fileContents.spacecraftId_, cameraId );
+                    supplementaryData->setInstrumentSupplementaryData(
+                            std::vector< std::shared_ptr< data::InstrumentSupplementaryData > >( { cameraData } ) );
+                    fileContents.trackingSupplementaryData_.push_back( supplementaryData );
                 }
             }
 
@@ -764,7 +1015,7 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
             {
                 throwMissingPsfFieldError( "$PIC", "TWIST", pictureContext );
             }
-            if( fileContents.cameraProperties_.count( imageContents.cameraId_ ) == 0 )
+            if( getPsfCameraInstrumentSupplementaryData( fileContents, imageContents.cameraId_ ) == nullptr )
             {
                 throw std::runtime_error( "Error when reading PSF file: picture " + imageContents.pictureName_ +
                                           " references unknown camera " + imageContents.cameraId_ + "." );
@@ -922,12 +1173,13 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
     {
         throw std::runtime_error( "Error when reading PSF file: no $CAM block found." );
     }
-    if( fileContents.numberOfCameras_ != static_cast< int >( fileContents.cameraProperties_.size( ) ) )
+    if( fileContents.numberOfCameras_ != static_cast< int >( fileContents.trackingSupplementaryData_.size( ) ) )
     {
         throw std::runtime_error( "Error when reading PSF file: NCAM is " + std::to_string( fileContents.numberOfCameras_ ) + " but " +
-                                  std::to_string( fileContents.cameraProperties_.size( ) ) + " camera properties were parsed." );
+                                  std::to_string( fileContents.trackingSupplementaryData_.size( ) ) + " camera properties were parsed." );
     }
 
+    rebuildPsfCameraSupplementaryDataWithPointingHistory( fileContents );
     return fileContents;
 }
 

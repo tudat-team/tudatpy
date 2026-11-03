@@ -40,6 +40,6 @@ set(numerical_integrators_HEADERS
 TUDAT_ADD_LIBRARY("numerical_integrators"
         "${numerical_integrators_SOURCES}"
         "${numerical_integrators_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

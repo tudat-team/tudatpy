@@ -8,14 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -150,6 +149,36 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyPartials )
                                       1.1E7,
                                       20.0 );
     }
+}
+
+//! Test GM and gamma partials of the Shapiro part of the one-way Doppler measured frequency against numerical partials.
+BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyShapiroParameterPartials )
+{
+    std::vector< std::pair< std::string, std::string > > groundStations = { { "Earth", "Graz" }, { "Mars", "MSL" } };
+
+    // Real ephemerides: the perturbing bodies move, so the explicit time terms are non-zero.
+    SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+    bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setTransmittingFrequencyCalculator(
+            std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 8.4e9 ) );
+
+    LinkDefinition linkEnds;
+    linkEnds[ transmitter ] = groundStations[ 1 ];
+    linkEnds[ receiver ] = groundStations[ 0 ];
+
+    // Mars is evaluated at transmission time, Earth at reception time and the Sun mid-way.
+    const std::vector< std::string > perturbingBodies = { "Earth", "Sun", "Mars" };
+    std::shared_ptr< ObservationModel< 1 > > measuredFrequencyModel = ObservationModelCreator< 1, double, double >::createObservationModel(
+            oneWayDopplerMeasuredFrequencySettings(
+                    linkEnds,
+                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >(
+                            { std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ) ),
+            bodies );
+
+    std::vector< double > parameterPerturbations;
+    std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
+            createShapiroParameters( bodies, perturbingBodies, true, parameterPerturbations, 1.0E4 );
+
+    testDirectDoubleParameterPartials< 1 >( measuredFrequencyModel, bodies, parameterSet, { receiver }, parameterPerturbations, 1.0E-6 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

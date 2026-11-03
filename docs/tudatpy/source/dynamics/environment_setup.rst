@@ -71,8 +71,6 @@ Functions
 
    add_rotation_model
 
-   add_mass_properties_model
-
    add_rigid_body_properties
 
    add_engine_model
@@ -121,8 +119,6 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.add_rotation_model
 
-.. autofunction:: tudatpy.dynamics.environment_setup.add_mass_properties_model
-
 .. autofunction:: tudatpy.dynamics.environment_setup.add_rigid_body_properties
 
 .. autofunction:: tudatpy.dynamics.environment_setup.add_engine_model
@@ -166,8 +162,6 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.BodySettings
    :members:
-   :exclude-members: radiation_pressure_settings
 
 .. autoclass:: tudatpy.dynamics.environment_setup.DirectRelativisticTimeConverterSettings
    :members:
-

@@ -107,9 +107,6 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         case three_coefficient_radiation_pressure:
             accelerationName = "three-coefficient radiation pressure acceleration";
             break;
-        case cannon_ball_radiation_pressure:
-            accelerationName = "cannonball radiation pressure acceleration (deprecated)";
-            break;
         case momentum_wheel_desaturation_acceleration:
             accelerationName = "momentum wheen desaturation acceleration ";
             break;
@@ -294,7 +291,6 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case relativistic_acceleration_from_metric:
             return false;
         case aerodynamic:
-        case cannon_ball_radiation_pressure:
         case radiation_pressure:
         case three_coefficient_radiation_pressure:
             return true;
@@ -337,18 +333,6 @@ std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > > getAccele
         if( getAccelerationModelType( fullList.at( i ) ) == modelType )
         {
             accelerationList.push_back( fullList.at( i ) );
-        }
-        else if( std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) ) !=
-                         nullptr &&
-                 modelType == cannon_ball_radiation_pressure )
-        {
-            std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration =
-                    std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) );
-            if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
-                        radiationPressureAcceleration->getTargetModel( ) ) != nullptr )
-            {
-                accelerationList.push_back( fullList.at( i ) );
-            }
         }
     }
     return accelerationList;

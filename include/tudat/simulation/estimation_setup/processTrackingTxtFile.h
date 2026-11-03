@@ -352,6 +352,7 @@ public:
         {
             case dsn_n_way_averaged_doppler: {
                 ancillarySettings->setAncillaryDoubleData( doppler_integration_time, getObservationTimeStep( ) );
+                break;
             }
             default:
                 break;
@@ -844,6 +845,7 @@ void setTrackingDataInformationInBodies(
     {
         case dsn_n_way_averaged_doppler: {
             setStationFrequenciesFromTrackingData( processedTrackingTxtFileContents, bodies );
+            break;
         }
         default:
             break;

@@ -38,7 +38,10 @@ namespace simulator
 void expose_simulator_dynamics_bindings( py::module& m )
 {
     py::class_< tp::EnvironmentUpdater< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tp::EnvironmentUpdater< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "EnvironmentUpdater" );
+                std::shared_ptr< tp::EnvironmentUpdater< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m,
+            "EnvironmentUpdater",
+            R"doc(Updater that synchronizes physical environment models with the current integrated state and epoch.)doc" );
 
     py::class_< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > > >(
@@ -321,7 +324,7 @@ void expose_simulator_dynamics_bindings( py::module& m )
             Parameters
             ----------
 
-            predefined_state_history : :dict[ float, numpy.ndarray([m, 1]) ]
+            predefined_state_history : dict[float, numpy.ndarray([m, 1])]
                 State history (with state entry definition as per the propagator settings of this object) along which the dependent variables are to be computed
 
             Returns

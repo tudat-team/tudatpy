@@ -87,13 +87,10 @@ int main( )
     double referenceAreaRadiation = 8.0;
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
-    std::shared_ptr< RadiationPressureInterfaceSettings > teslaRoadsterRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies[ "TeslaRoadster" ]->setRadiationPressureInterface(
-            "Sun", createRadiationPressureInterface( teslaRoadsterRadiationPressureSettings, "TeslaRoadster", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "TeslaRoadster",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
@@ -117,8 +114,7 @@ int main( )
     accelerationsOfAsterix[ "Mercury" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Saturn" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
 
     accelerationMap[ "TeslaRoadster" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "TeslaRoadster" );
@@ -160,18 +156,8 @@ int main( )
     std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
             std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                accelerationModelMap,
-                                                                                bodiesToPropagate,
-                                                                                teslaRoadsterInitialState,
-                                                                                simulationEndEpoch,
-                                                                                cowell,
-                                                                                dependentVariablesToSave );
-
     std::shared_ptr< IntegratorSettings<> > integratorSettings =
             std::make_shared< tudat::numerical_integrators::BulirschStoerIntegratorSettings<> >(
-                    simulationStartEpoch,
                     3600.0,
                     numerical_integrators::bulirsch_stoer_sequence,
                     4,
@@ -180,12 +166,24 @@ int main( )
                     1.0E-15,
                     1.0E-12 );
 
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    teslaRoadsterInitialState,
+                    simulationStartEpoch,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    cowell,
+                    dependentVariablesToSave );
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
