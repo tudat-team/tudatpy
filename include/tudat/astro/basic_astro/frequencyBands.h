@@ -20,7 +20,7 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-enum class FrequencyBands { s_band, x_band, ka_band, ku_band };
+enum FrequencyBands { s_band, x_band, ka_band, ku_band };
 
 /*!
  * Function returning a string with the name of the frequency band.

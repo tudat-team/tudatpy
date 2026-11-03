@@ -1239,7 +1239,7 @@ std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, doubl
             [ = ]( const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands, const double time ) {
                 double frequency = transmittedFrequencyCalculator->getTemplatedCurrentFrequency< double, double >( time );
 
-                if( frequencyBands.size( ) + 1 < turnaroundRatioFunctions.size( ) )
+                if( !turnaroundRatioFunctions.empty( ) && frequencyBands.size( ) <= turnaroundRatioFunctions.size( ) )
                 {
                     throw std::runtime_error( "Error when computing link frequency, found incompatible number of frequency bands: " +
                                               std::to_string( frequencyBands.size( ) ) + " and turnaround ratios " +

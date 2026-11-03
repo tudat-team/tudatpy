@@ -73,7 +73,6 @@ namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace tsm = tudat::system_models;
-namespace tom = tudat::observation_models;
 namespace tem = tudat::electromagnetism;
 
 namespace tudat
@@ -2247,7 +2246,7 @@ bool
            py::arg( "downlink_band" ),
            R"doc(
 
-        Get the default DSN turnaround ratio for given uplink and downlink bands, according to Moyer (2003), table 13-1.
+        Get the default DSN turnaround ratio for given uplink and downlink bands, according to :cite:p:`moyer2005`, table 13-1.
 
         Parameters
         ----------
@@ -2271,7 +2270,7 @@ bool
         Get the Cassini turnaround ratio for given uplink and downlink bands.
 
         This function returns the specific Ka-band turnaround ratio for Cassini if both bands are Ka-band,
-        otherwise it falls back to the DSN default turnaround ratios (Moyer (2003), section 13.2.2).
+        otherwise it falls back to the DSN default turnaround ratios (:cite:p:`moyer2005`, section 13.2.2).
 
         Parameters
         ----------
