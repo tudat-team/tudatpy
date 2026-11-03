@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/variationalEquations.h"
 #include "tudat/astro/propagators/rotationalMotionQuaternionsStateDerivative.h"
 
@@ -113,6 +114,20 @@ void VariationalEquations::clearPartials( )
     }
 }
 
+//! Function to set the bodies with an ephemeris defined w.r.t. a body with an estimated translational state
+void VariationalEquations::setEphemerisDependentBodies( const std::map< std::string, std::string >& ephemerisOrigins )
+{
+    std::vector< std::string > estimatedBodies;
+    if( dynamicalStatesToEstimate_.count( translational_state ) > 0 )
+    {
+        for( auto estimatedBody : dynamicalStatesToEstimate_.at( translational_state ) )
+        {
+            estimatedBodies.push_back( estimatedBody.first );
+        }
+    }
+    ephemerisDependentBodies_ = ephemerides::getEphemerisDependentBodies( ephemerisOrigins, estimatedBodies );
+}
+
 //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
 void VariationalEquations::setStatePartialFunctionList( )
 {
@@ -140,18 +155,36 @@ void VariationalEquations::setStatePartialFunctionList( )
                     // Iterate over all bodies to see if body exerting acceleration is also to be estimated (cross-terms)
                     for( unsigned int k = 0; k < estimatedStateIterator->second.size( ); k++ )
                     {
-                        currentDerivativeFunction =
-                                stateDerivativeTypeIterator_->second.at( i ).at( j )->getDerivativeFunctionWrtStateOfIntegratedBody(
-                                        estimatedStateIterator->second.at( k ), estimatedStateIterator->first );
-
-                        // If function is not-empty: add to list.
-                        if( currentDerivativeFunction.second != 0 )
+                        // Partials w.r.t. bodies with an ephemeris defined w.r.t. the current estimated body are added to those
+                        // w.r.t. the estimated body itself, since their state is shifted by the same amount
+                        std::vector< std::pair< std::string, std::string > > bodiesWithCurrentState = { estimatedStateIterator->second.at(
+                                k ) };
+                        if( estimatedStateIterator->first == translational_state )
                         {
-                            currentBodyPartialList.insert(
-                                    std::make_pair( std::make_pair( k * getSingleIntegrationSize( estimatedStateIterator->first ) +
-                                                                            stateTypeStartIndices_.at( estimatedStateIterator->first ),
-                                                                    getSingleIntegrationSize( estimatedStateIterator->first ) ),
-                                                    currentDerivativeFunction.first ) );
+                            for( auto dependentBodyIterator : ephemerisDependentBodies_ )
+                            {
+                                if( dependentBodyIterator.second == estimatedStateIterator->second.at( k ).first )
+                                {
+                                    bodiesWithCurrentState.push_back( std::make_pair( dependentBodyIterator.first, "" ) );
+                                }
+                            }
+                        }
+
+                        for( unsigned int l = 0; l < bodiesWithCurrentState.size( ); l++ )
+                        {
+                            currentDerivativeFunction =
+                                    stateDerivativeTypeIterator_->second.at( i ).at( j )->getDerivativeFunctionWrtStateOfIntegratedBody(
+                                            bodiesWithCurrentState.at( l ), estimatedStateIterator->first );
+
+                            // If function is not-empty: add to list.
+                            if( currentDerivativeFunction.second != 0 )
+                            {
+                                currentBodyPartialList.insert(
+                                        std::make_pair( std::make_pair( k * getSingleIntegrationSize( estimatedStateIterator->first ) +
+                                                                                stateTypeStartIndices_.at( estimatedStateIterator->first ),
+                                                                        getSingleIntegrationSize( estimatedStateIterator->first ) ),
+                                                        currentDerivativeFunction.first ) );
+                            }
                         }
                     }
                 }

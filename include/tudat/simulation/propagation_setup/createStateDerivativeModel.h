@@ -294,8 +294,37 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
                            std::placeholders::_1 );
     }
 
-    return std::make_shared< CentralBodyData< StateScalarType, TimeType > >(
-            centralBodiesToUse, bodiesToIntegrate, bodyStateFunctions, globalFrameOriginBarycentricFunction, globalFrameOrigin );
+    // For non-integrated central bodies with an ephemeris defined (directly or indirectly) w.r.t. an integrated body, retrieve
+    // the integrated body and the ephemeris w.r.t. it. The state of the central body is then computed from the current
+    // integrated state, not from the (outdated) ephemeris of the integrated body
+    std::map< std::string, std::pair< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >
+            centralBodyStatesWrtIntegratedBodies;
+    std::map< std::string, std::string > ephemerisDependentBodies =
+            ephemerides::getEphemerisDependentBodies( simulation_setup::getEphemerisOrigins( bodies ), bodiesToIntegrate );
+    std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager;
+    for( const std::string& centralBody : centralBodiesToUse )
+    {
+        if( ephemerisDependentBodies.count( centralBody ) > 0 )
+        {
+            if( frameManager == nullptr )
+            {
+                frameManager = simulation_setup::createFrameManager( bodies.getMap( ) );
+            }
+            const std::string integratedOrigin = ephemerisDependentBodies.at( centralBody );
+            std::shared_ptr< ephemerides::Ephemeris > ephemerisWrtIntegratedOrigin =
+                    frameManager->getEphemeris< StateScalarType, TimeType >( integratedOrigin, centralBody );
+            centralBodyStatesWrtIntegratedBodies[ centralBody ] = std::make_pair( integratedOrigin, [ = ]( const TimeType time ) {
+                return ephemerisWrtIntegratedOrigin->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time );
+            } );
+        }
+    }
+
+    return std::make_shared< CentralBodyData< StateScalarType, TimeType > >( centralBodiesToUse,
+                                                                             bodiesToIntegrate,
+                                                                             bodyStateFunctions,
+                                                                             globalFrameOriginBarycentricFunction,
+                                                                             globalFrameOrigin,
+                                                                             centralBodyStatesWrtIntegratedBodies );
 }
 
 //! Function to create a translational state derivative model.

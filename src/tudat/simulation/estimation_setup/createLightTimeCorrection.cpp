@@ -85,6 +85,8 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 }
 
                 // Create light-time correction function
+                std::shared_ptr< FirstOrderRelativisticLightTimeCorrectionSettings > relativisticCorrectionSettings =
+                        std::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings );
                 std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
                 lightTimeCorrection = std::make_shared< FirstOrderLightTimeCorrectionCalculator >(
                         perturbingBodyStateFunctions,
@@ -93,8 +95,8 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                         transmitter.bodyName_,
                         receiver.bodyName_,
                         std::bind( &relativity::PPNParameterSet::getParameterGamma, ppnParameterSet ),
-                        std::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings )
-                                ->getBendingFlag( ) );
+                        relativisticCorrectionSettings->getBendingFlag( ),
+                        relativisticCorrectionSettings->getComputeMassiveBodyAtClosestApproach( ) );
             }
             else
             {
@@ -182,6 +184,63 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 lightTimeCorrection = nullptr;
             }
 
+            break;
+        }
+        case measured_tropospheric: {
+            std::shared_ptr< MeasuredTroposphericCorrectionSettings > settings =
+                    std::dynamic_pointer_cast< MeasuredTroposphericCorrectionSettings >( correctionSettings );
+            if( settings == nullptr )
+            {
+                throw std::runtime_error( "Error, correction settings type (measured tropospheric) does not coincide with data type." );
+            }
+
+            // Only apply correction to links with one link end on the body with the atmosphere
+            if( transmitter.bodyName_ == receiver.bodyName_ ||
+                ( transmitter.bodyName_ != settings->getBodyWithAtmosphere( ) &&
+                  receiver.bodyName_ != settings->getBodyWithAtmosphere( ) ) )
+            {
+                break;
+            }
+
+            // Create fallback correction, which is used directly if there are no measurements for the ground station
+            bool isUplink = transmitter.bodyName_ == settings->getBodyWithAtmosphere( );
+            LinkEndId station = isUplink ? transmitter : receiver;
+            lightTimeCorrection = createLightTimeCorrections(
+                    settings->getFallbackSettings( ), bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType, observableType );
+            auto stationZenithDelays = settings->getZenithDelaysPerStation( ).find( station.getReferencePointName( ) );
+            if( stationZenithDelays == settings->getZenithDelaysPerStation( ).end( ) )
+            {
+                break;
+            }
+            std::shared_ptr< MappedTroposphericCorrection > fallback =
+                    std::dynamic_pointer_cast< MappedTroposphericCorrection >( lightTimeCorrection );
+            if( fallback == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when creating measured tropospheric correction, fallback must be a mapped tropospheric correction" );
+            }
+            const Eigen::Vector3d stationPosition = bodies.at( station.bodyName_ )
+                                                            ->getGroundStation( station.getReferencePointName( ) )
+                                                            ->getNominalStationState( )
+                                                            ->getNominalCartesianPosition( );
+
+            // Convert measurement epochs from UTC to TDB
+            const auto timeConverter = earth_orientation::createDefaultTimeConverter( );
+            std::map< double, Eigen::Vector2d > tdbZenithDelays;
+            for( const auto& [ utcTime, zenithDelay ] : stationZenithDelays->second )
+            {
+                tdbZenithDelays[ timeConverter->getCurrentTime(
+                        basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcTime, stationPosition ) ] = zenithDelay;
+            }
+            lightTimeCorrection = std::make_shared< MeasuredTroposphericCorrection >(
+                    tdbZenithDelays,
+                    fallback,
+                    createTroposphericElevationMapping(
+                            settings->getTroposphericMappingModelType( ), bodies, transmitter, receiver, isUplink ),
+                    isUplink,
+                    settings->getMaximumInterpolationGap( ),
+                    settings->getUseMeasuredDryDelay( ),
+                    settings->getInterpolatorSettings( ) );
             break;
         }
         case saastamoinen_tropospheric: {
