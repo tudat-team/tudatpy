@@ -207,7 +207,8 @@ public:
             const std::pair< double, double > propagationTimeInterval = std::make_pair( std::numeric_limits< double >::quiet_NaN( ),
                                                                                         std::numeric_limits< double >::quiet_NaN( ) ) ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
-        reduceSensitivityMatrixColumns_( parametersToEstimate->getReduceSensitivityMatrixColumns( ) )
+        reduceSensitivityMatrixColumns_( parametersToEstimate->getReduceSensitivityMatrixColumns( ) ),
+        propagationTimeInterval_( propagationTimeInterval )
     {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >( parametersToEstimate );
@@ -474,6 +475,29 @@ public:
     std::vector< int > getReducedSensitivityMatrixColumns( )
     {
         return reducedSensitivityMatrixColumns_;
+    }
+
+    //! Function to check that the propagated sensitivity matrix columns are valid for the current propagation time interval
+    /*!
+     * Function to check that the propagated sensitivity matrix columns are valid for the current propagation time interval. If the
+     * columns were selected using the propagation time interval at creation of this object, an error is thrown if the current
+     * interval is not inside that interval (or is not known), since omitted columns could then be non-zero.
+     * \param currentPropagationTimeInterval Minimum and maximum time of the upcoming propagation
+     */
+    void checkPropagationTimeInterval( const std::pair< double, double >& currentPropagationTimeInterval ) const
+    {
+        if( reduceSensitivityMatrixColumns_ && !std::isnan( propagationTimeInterval_.first ) &&
+            !( currentPropagationTimeInterval.first >= propagationTimeInterval_.first &&
+               currentPropagationTimeInterval.second <= propagationTimeInterval_.second ) )
+        {
+            throw std::runtime_error( "Error when propagating variational equations with reduced sensitivity matrix columns, propagation "
+                                      "time interval [" +
+                                      std::to_string( currentPropagationTimeInterval.first ) + ", " +
+                                      std::to_string( currentPropagationTimeInterval.second ) + "] is not inside interval [" +
+                                      std::to_string( propagationTimeInterval_.first ) + ", " +
+                                      std::to_string( propagationTimeInterval_.second ) +
+                                      "] used to select the columns when the variational equations solver was created." );
+        }
     }
 
 protected:
@@ -849,6 +873,9 @@ private:
 
     //! Boolean denoting whether sensitivity matrix columns that are zero in the propagation arc are omitted
     bool reduceSensitivityMatrixColumns_;
+
+    //! Minimum and maximum time of the propagation at creation of this object (NaN if not known)
+    std::pair< double, double > propagationTimeInterval_;
 
     //! Index in the full sensitivity matrix of each propagated sensitivity matrix column
     std::vector< int > reducedSensitivityMatrixColumns_;

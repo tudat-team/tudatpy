@@ -12,6 +12,7 @@
 #define TUDAT_STATETRANSITIONMATRIXINTERFACE_H
 
 #include <iostream>
+#include <numeric>
 #include <vector>
 
 #include <memory>
@@ -188,6 +189,10 @@ public:
     {
         combinedStateTransitionMatrix_ =
                 Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+
+        // All sensitivity matrix columns are propagated, unless set otherwise (see setReducedSensitivityMatrixColumns)
+        reducedSensitivityMatrixColumns_.resize( sensitivityMatrixSize_ );
+        std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
 
         // Re-order state partial addition indices to match ephemeris update order (inverted in variational equations object)
         statePartialAdditionIndices_.clear( );

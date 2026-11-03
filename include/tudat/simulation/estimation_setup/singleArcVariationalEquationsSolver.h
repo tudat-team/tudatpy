@@ -165,6 +165,8 @@ public:
     {
         if( integrateEquationsConcurrently )
         {
+            variationalEquationsObject_->checkPropagationTimeInterval( getPropagationTimeInterval( propagatorSettings_ ) );
+
             // Create initial conditions from new estimate.
             MatrixType initialVariationalState =
                     this->createInitialConditions( dynamicsSimulator_->getDynamicsStateDerivative( )->convertFromOutputSolution(

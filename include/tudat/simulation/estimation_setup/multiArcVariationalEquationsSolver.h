@@ -320,6 +320,12 @@ public:
         // Propagate variational equations and equations of motion concurrently
         if( integrateEquationsConcurrently )
         {
+            for( unsigned int i = 0; i < dynamicsStateDerivatives_.size( ); i++ )
+            {
+                dynamicsStateDerivatives_.at( i )->getVariationalEquationsCalculator( )->checkPropagationTimeInterval(
+                        getPropagationTimeInterval( propagatorSettings_->getSingleArcSettings( ).at( i ) ) );
+            }
+
             // Propagate dynamics and variational equations and store results in variationalPropagationResults_ object
             dynamicsSimulator_->template integrateEquationsOfMotion< MultiArcVariationalResults >(
                     variationalPropagationResults_, getInitialStateProvider( initialStateEstimate ) );

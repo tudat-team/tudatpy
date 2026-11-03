@@ -196,7 +196,9 @@ void expose_parameters( py::module& m )
          arcs) are not propagated, which can substantially reduce the computational cost and memory use for large (multi-arc)
          estimations. The time interval of each propagation arc is only used if it is known before the propagation (time-based
          termination). The full sensitivity matrix is reconstructed when it is retrieved. This setting must be set before the
-         variational equations solver (or estimator) is created.
+         variational equations solver (or estimator) is created. The propagated columns are selected at that point: if a propagation
+         time interval used for this selection is extended afterwards (by changing the initial time or termination settings), or is
+         no longer known before the propagation, an error is thrown when propagating the variational equations.
 
          :type: bool
       )doc" )
