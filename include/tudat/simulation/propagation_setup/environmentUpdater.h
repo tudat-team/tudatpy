@@ -105,7 +105,7 @@ public:
         }
 
         // Set integrated state variables in environment.
-        setIntegratedStatesInEnvironment( integratedStatesToSet );
+        setIntegratedStatesInEnvironment( integratedStatesToSet, currentTime );
 
         // Set current state from environment for override settings setIntegratedStatesFromEnvironment
         setStatesFromEnvironment( setIntegratedStatesFromEnvironment, currentTime );
@@ -126,9 +126,11 @@ private:
      * convertCurrentStateToGlobalRepresentationPerType function of the
      * DynamicsStateDerivativeModel.
      * \param integratedStatesToSet Integrated states which are to be set in environment.
+     * \param currentTime Time at which the integrated states are set.
      */
     void setIntegratedStatesInEnvironment(
-            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet )
+            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet,
+            const TimeType currentTime )
     {
         // Iterate over state types and set states in environment
         for( integratedStateIterator_ = integratedStatesToSet.begin( ); integratedStateIterator_ != integratedStatesToSet.end( );
@@ -140,8 +142,10 @@ private:
                     // Set translational states for bodies provided as input.
                     for( unsigned int i = 0; i < integratedStates_[ translational_state ].size( ); i++ )
                     {
+                        // Associate state with current time, so that bodies with an ephemeris defined w.r.t. this body use it
                         bodyList_.at( std::get< 0 >( integratedStates_[ translational_state ][ i ] ) )
-                                ->template setTemplatedState< StateScalarType >( integratedStateIterator_->second.segment( i * 6, 6 ) );
+                                ->template setPropagatedState< StateScalarType, TimeType >(
+                                        integratedStateIterator_->second.segment( i * 6, 6 ), currentTime );
                     }
                     break;
                 }
@@ -241,6 +245,8 @@ private:
                             integratedStates_[ translational_state ];
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
+                        // Ensure that state is taken from ephemeris, not from a previously set propagated state
+                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->recomputeStateOnNextCall( );
                         bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )
                                 ->template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
                     }

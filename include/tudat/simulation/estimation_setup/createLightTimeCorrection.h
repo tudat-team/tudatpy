@@ -86,9 +86,14 @@ public:
      * Constructor
      * \param perturbingBodies List of bodies for which the point masses are used to compute the light-time correction.
      * \param useBending Boolean flag to determine if light bending should be included, default is true.
+     * \param computeMassiveBodyAtClosestApproach Boolean denoting whether the perturbing body states are evaluated at their
+     * closest approach to the signal path (instead of the link end or light-time midpoint)
      */
-    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies, const bool useBending = false ):
-        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending )
+    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies,
+                                                       const bool useBending = false,
+                                                       const bool computeMassiveBodyAtClosestApproach = false ):
+        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending ),
+        computeMassiveBodyAtClosestApproach_( computeMassiveBodyAtClosestApproach )
     {}
 
     //! Destructor
@@ -114,12 +119,21 @@ public:
         return useBending_;
     }
 
+    //! Function returning whether the perturbing body states are evaluated at their closest approach to the signal path
+    bool getComputeMassiveBodyAtClosestApproach( )
+    {
+        return computeMassiveBodyAtClosestApproach_;
+    }
+
 private:
     //! List of bodies for which the point masses are used to compute the light-time correction.
     std::vector< std::string > perturbingBodies_;
 
     //! Boolean flag to determine if light bending should be included.
     bool useBending_;
+
+    //! Boolean denoting whether the perturbing body states are evaluated at their closest approach to the signal path
+    bool computeMassiveBodyAtClosestApproach_;
 };
 
 // Class defining  settings for tabulated tropospheric corrections
@@ -183,6 +197,83 @@ private:
 
     TroposphericMappingModel troposphericMappingModelType_;
 };
+
+//! Settings for tropospheric correction from measured zenith path delays per ground station, with a fallback (mapped tropospheric
+//! correction) outside of the measurements
+class MeasuredTroposphericCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+    MeasuredTroposphericCorrectionSettings(
+            const std::map< std::string, std::map< double, Eigen::Vector2d > >& zenithDelaysPerStation,
+            const std::shared_ptr< LightTimeCorrectionSettings >& fallbackSettings,
+            const double maximumInterpolationGap,
+            const bool useMeasuredDryDelay = false,
+            const std::string& bodyWithAtmosphere = "Earth",
+            const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell,
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        LightTimeCorrectionSettings( measured_tropospheric ), zenithDelaysPerStation_( zenithDelaysPerStation ),
+        fallbackSettings_( fallbackSettings ), maximumInterpolationGap_( maximumInterpolationGap ),
+        useMeasuredDryDelay_( useMeasuredDryDelay ), bodyWithAtmosphere_( bodyWithAtmosphere ),
+        troposphericMappingModelType_( troposphericMappingModel ), interpolatorSettings_( interpolatorSettings )
+    {}
+
+    const std::map< std::string, std::map< double, Eigen::Vector2d > >& getZenithDelaysPerStation( ) const
+    {
+        return zenithDelaysPerStation_;
+    }
+    std::shared_ptr< LightTimeCorrectionSettings > getFallbackSettings( ) const
+    {
+        return fallbackSettings_;
+    }
+    double getMaximumInterpolationGap( ) const
+    {
+        return maximumInterpolationGap_;
+    }
+    bool getUseMeasuredDryDelay( ) const
+    {
+        return useMeasuredDryDelay_;
+    }
+    std::string getBodyWithAtmosphere( ) const
+    {
+        return bodyWithAtmosphere_;
+    }
+    TroposphericMappingModel getTroposphericMappingModelType( ) const
+    {
+        return troposphericMappingModelType_;
+    }
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( ) const
+    {
+        return interpolatorSettings_;
+    }
+
+private:
+    std::map< std::string, std::map< double, Eigen::Vector2d > > zenithDelaysPerStation_;
+    std::shared_ptr< LightTimeCorrectionSettings > fallbackSettings_;
+    double maximumInterpolationGap_;
+    bool useMeasuredDryDelay_;
+    std::string bodyWithAtmosphere_;
+    TroposphericMappingModel troposphericMappingModelType_;
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+};
+
+//! Function to create settings for tropospheric correction from measured zenith path delays per ground station
+inline std::shared_ptr< LightTimeCorrectionSettings > measuredTroposphericCorrectionSettings(
+        const std::map< std::string, std::map< double, Eigen::Vector2d > >& zenithDelaysPerStation,
+        const std::shared_ptr< LightTimeCorrectionSettings >& fallbackSettings,
+        const double maximumInterpolationGap,
+        const bool useMeasuredDryDelay = false,
+        const std::string& bodyWithAtmosphere = "Earth",
+        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) )
+{
+    return std::make_shared< MeasuredTroposphericCorrectionSettings >( zenithDelaysPerStation,
+                                                                       fallbackSettings,
+                                                                       maximumInterpolationGap,
+                                                                       useMeasuredDryDelay,
+                                                                       bodyWithAtmosphere,
+                                                                       troposphericMappingModel,
+                                                                       interpolatorSettings );
+}
 
 class SaastamoinenTroposphericCorrectionSettings : public LightTimeCorrectionSettings
 {
@@ -516,9 +607,11 @@ private:
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
         const std::vector< std::string >& perturbingBodies,
-        const bool useBending = false )
+        const bool useBending = false,
+        const bool computeMassiveBodyAtClosestApproach = false )
 {
-    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, useBending );
+    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+            perturbingBodies, useBending, computeMassiveBodyAtClosestApproach );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(
