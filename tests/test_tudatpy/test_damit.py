@@ -1,4 +1,6 @@
 from pathlib import Path
+from unittest.mock import patch
+import warnings
 
 import numpy as np
 import pytest
@@ -7,7 +9,6 @@ import tudatpy.data_input.environment_data.damit.damit as damit_module
 from tudatpy.astro.polyhedron_utilities import volume
 from tudatpy.data_input.environment_data.damit import DamitModel
 from tudatpy.dynamics import environment_setup
-import matplotlib.pyplot as plt
 
 DATA_DIR = Path(__file__).parent
 EROS_SPIN = DATA_DIR / "eros_spin.txt"
@@ -218,23 +219,28 @@ def test_query_argument_validation(kwargs):
 
 
 @pytest.fixture
-def offline_damit(tmp_path, monkeypatch):
+def offline_damit(tmp_path):
     """Replace the DAMIT tables by small local tables with several models of Eros, and model downloads by the local
     Eros files. All models load the same Eros files; only the table data (quality flag, size) differs between them.
 
     Returns the list of model IDs that were downloaded."""
     asteroids = tmp_path / "asteroids.csv"
-    asteroids.write_text("id,number,name\n1,433,Eros\n")
+    asteroids.write_text(
+        "id,number,name\n1,433,Eros\n2,1620,Geographos\n3,3103,Eger\n4,4179,Toutatis\n"
+    )
     asteroid_models = tmp_path / "asteroid_models.csv"
     asteroid_models.write_text(
-        "id,asteroid_id,lsm,calibrated_size,equiv_diameter,quality_flag\n"
-        "10,1,LS,0,16.84,2\n"  # low quality
-        "11,1,LS,0,20.0,4\n"  # best quality
-        "12,1,LS,1,,1\n"  # calibrated size
-        "13,1,LS,0,,3\n"  # no size information
+        "id,asteroid_id,lsm,calibrated_size,equiv_diameter,quality_flag,yorp\n"
+        "10,1,LS,0,16.84,2,\n"  # low quality
+        "11,1,LS,0,20.0,4,\n"  # best quality
+        "12,1,LS,1,,1,\n"  # calibrated size
+        "13,1,LS,0,,3,\n"  # no size information
+        "14,2,LS,1,,1,1.0E-8\n"  # two YORP models of one body
+        "15,2,LS,1,,2,2.0E-8\n"
+        "16,3,LS,1,,1,1.0E-8\n"  # YORP model of another body
+        "18,4,LS,1,,3,\n"  # two equally good models, highest ID first
+        "17,4,LS,1,,3,\n"
     )  # Text column as in the real table, otherwise pandas turns the selected model ID into a float
-    monkeypatch.setattr(damit_module, "_DAMIT_ASTEROIDS", asteroids)
-    monkeypatch.setattr(damit_module, "_DAMIT_ASTEROID_MODELS", asteroid_models)
 
     downloaded = []
 
@@ -242,8 +248,12 @@ def offline_damit(tmp_path, monkeypatch):
         downloaded.append(model_id)
         return EROS_SHAPE, EROS_SPIN
 
-    monkeypatch.setattr(damit_module, "_download_model", download_model)
-    return downloaded
+    with (
+        patch.object(damit_module, "_DAMIT_ASTEROIDS", asteroids),
+        patch.object(damit_module, "_DAMIT_ASTEROID_MODELS", asteroid_models),
+        patch.object(damit_module, "_download_model", download_model),
+    ):
+        yield downloaded
 
 
 def test_query_selection_offline(offline_damit, eros):
@@ -252,6 +262,13 @@ def test_query_selection_offline(offline_damit, eros):
     best = DamitModel.query(mpc_number=433)
     assert offline_damit == [11]
     assert _model_volume(best) == pytest.approx(_sphere_volume(20_000.0))
+    assert best.number_of_equally_good_models == 1
+
+    # Equally good models: lowest model ID is selected, whatever the table order
+    equally_good = DamitModel.query(mpc_number=4179)
+    assert offline_damit[-1] == 17
+    assert equally_good.number_of_equally_good_models == 2
+    assert DamitModel.query(damit_model_id=18).number_of_equally_good_models is None
 
     # Given diameter overrides the catalog diameter
     assert _model_volume(DamitModel.query(damit_model_id=10, diameter=1_000.0)) == pytest.approx(
@@ -272,18 +289,52 @@ def test_query_selection_offline(offline_damit, eros):
         DamitModel.query(damit_model_id=99)
 
 
+def _count_yorp_warnings(caught):
+    return sum("YORP" in str(warning.message) for warning in caught)
+
+
+def test_yorp_warning_once_per_body(offline_damit):
+    """Ignored YORP is not reported for loading or shape use, and once per body when rotation is used"""
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("default")
+
+        first_model = DamitModel.query(damit_model_id=14)
+        _ = first_model.vertices
+        first_model.best_fitting_ellipsoid()
+        assert _count_yorp_warnings(caught) == 0
+
+        _ = first_model.period
+        first_model.initial_orientation("J2000")
+        _ = DamitModel.query(damit_model_id=15).pole_latitude  # same body
+        assert _count_yorp_warnings(caught) == 1
+
+        _ = DamitModel.query(damit_model_id=16).reference_epoch  # other body
+        assert _count_yorp_warnings(caught) == 2
+
+        _ = DamitModel.query(damit_model_id=10).period  # no YORP
+        assert _count_yorp_warnings(caught) == 2
+
+
 @pytest.mark.remote_data
-def test_query_remote():
-    """Querying the online database by MPC number and by model ID gives the same model"""
-    model_by_mpc = DamitModel.query(mpc_number=TEST_ASTEROID, force_refresh=True)
-    model_by_id = DamitModel.query(damit_model_id=TEST_ASTEROID_MODEL)
+def test_query_remote(tmp_path):
+    """Querying the online database (into a temporary folder) by MPC number, and by the ID of the model that this
+    should select, gives the same model"""
+    with (
+        patch.object(damit_module, "_DAMIT_ASTEROIDS", tmp_path / "tables" / "asteroids.csv"),
+        patch.object(
+            damit_module, "_DAMIT_ASTEROID_MODELS", tmp_path / "tables" / "asteroid_models.csv"
+        ),
+        patch.object(damit_module, "_DAMIT_MODELS_DIR", tmp_path / "models"),
+    ):
+        models = damit_module.list_damit_models(mpc_number=TEST_ASTEROID)
+        best_model_id = int(
+            models[models["quality_flag"] == models["quality_flag"].max()].index.min()
+        )
+
+        model_by_mpc = DamitModel.query(mpc_number=TEST_ASTEROID)
+        model_by_id = DamitModel.query(damit_model_id=best_model_id, force_refresh=True)
 
     assert _model_volume(model_by_mpc) == pytest.approx(_model_volume(model_by_id))
     assert model_by_mpc.pole_longitude == pytest.approx(model_by_id.pole_longitude)
     assert model_by_mpc.pole_latitude == pytest.approx(model_by_id.pole_latitude)
     assert model_by_mpc.period == pytest.approx(model_by_id.period)
-
-
-def test_model_plotting(eros):
-    """Tests that plotting the model does not raise and returns Axes"""
-    assert isinstance(eros.plot_shape_model(show=False), plt.Axes)

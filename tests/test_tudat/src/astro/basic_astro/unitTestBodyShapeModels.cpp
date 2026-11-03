@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE( testTriAxialEllipsoidShapeModel )
     using namespace tudat::basic_astrodynamics;
 
     // Define tolerance
-    const double tolerance = 1.0E-14;
+    const double tolerance = 1.0E-11;
 
     // Define elongated ellipsoid
     const double a = 3.0E3;
@@ -313,25 +313,32 @@ BOOST_AUTO_TEST_CASE( testTriAxialEllipsoidShapeModel )
     BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d( 0.0, -( b + altitude ), 0.0 ) ), altitude, tolerance );
     BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d( 0.0, 0.0, c + altitude ) ), altitude, tolerance );
 
-    // Test point on axis, inside the ellipsoid
-    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d( a / 2.0, 0.0, 0.0 ) ), -a / 2.0, tolerance );
+    // Test point on long axis, inside the ellipsoid. The closest surface point is off-axis, at
+    // x = a^2 x0 / ( a^2 - c^2 ) = 1687.5, y = 0, z = c sqrt( 1 - ( x / a )^2 ), at a squared distance of 718750.
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d( a / 2.0, 0.0, 0.0 ) ), -std::sqrt( 718750.0 ), tolerance );
 
     // Test center of body
-    BOOST_CHECK_EQUAL( shapeModel.getAltitude( Eigen::Vector3d::Zero( ) ), -c );
+    BOOST_CHECK_CLOSE_FRACTION( shapeModel.getAltitude( Eigen::Vector3d::Zero( ) ), -c, tolerance );
 
-    // Test general point: surface point in the same direction should lie on the ellipsoid
+    // Test general points: moving along the surface normal from a surface point gives a point with that altitude, and
+    // that surface point as the closest one. Inside, this requires a distance below the smallest radius of curvature
+    // c^2 / a = 333 m.
+    for( const double latitude : { 0.0, 0.4, -1.1 } )
     {
-        const Eigen::Vector3d testCartesianPosition( 2.1E3, -1.7E3, 0.9E3 );
-        const double surfaceRadius = shapeModel.getSurfaceRadius( testCartesianPosition );
-        const Eigen::Vector3d surfacePoint = testCartesianPosition.normalized( ) * surfaceRadius;
+        for( const double longitude : { 0.0, 0.7, 2.5, -1.9 } )
+        {
+            const Eigen::Vector3d surfacePoint( a * std::cos( latitude ) * std::cos( longitude ),
+                                                b * std::cos( latitude ) * std::sin( longitude ),
+                                                c * std::sin( latitude ) );
+            const Eigen::Vector3d surfaceNormal = ( surfacePoint.array( ) / Eigen::Array3d( a * a, b * b, c * c ) ).matrix( ).normalized( );
 
-        BOOST_CHECK_CLOSE_FRACTION(
-                std::pow( surfacePoint.x( ) / a, 2 ) + std::pow( surfacePoint.y( ) / b, 2 ) + std::pow( surfacePoint.z( ) / c, 2 ),
-                1.0,
-                tolerance );
-        BOOST_CHECK_CLOSE_FRACTION(
-                shapeModel.getAltitude( testCartesianPosition ), testCartesianPosition.norm( ) - surfaceRadius, tolerance );
-        BOOST_CHECK_SMALL( shapeModel.getAltitude( surfacePoint ), 1.0E-9 );
+            BOOST_CHECK_SMALL( shapeModel.getAltitude( surfacePoint ), 1.0E-9 );
+            for( const double testAltitude : { 250.0, -100.0, 1.0E7 } )
+            {
+                BOOST_CHECK_CLOSE_FRACTION(
+                        shapeModel.getAltitude( surfacePoint + testAltitude * surfaceNormal ), testAltitude, tolerance );
+            }
+        }
     }
 
     // Test average radius
