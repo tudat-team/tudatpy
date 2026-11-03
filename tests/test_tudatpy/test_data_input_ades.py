@@ -206,7 +206,8 @@ def test_rejects_incomplete_location_group_optical(observations):
     invalid["pos2"] = [2.0] * 4
     # pos3 is omitted, so the location group is incomplete
     with pytest.raises(
-        ValueError, match="If any of sys, ctr, pos1, pos2, pos3 is provided, all must be provided"
+        ValueError,
+        match="If any of the identifier of the location group is provided, all must be provided",
     ):
         parser._check_possible_failures(invalid, "optical")
 
@@ -218,7 +219,7 @@ def test_rejects_position_that_is_not_numeric_optical(observations):
     invalid["pos1"] = ["not-a-number"] * 4
     invalid["pos2"] = [2.0] * 4
     invalid["pos3"] = [3.0] * 4
-    with pytest.raises(ValueError, match="pos1, pos2, and pos3 must be convertible to floats"):
+    with pytest.raises(ValueError, match="The position values must be convertible to floats"):
         parser._check_possible_failures(invalid, "optical")
 
 
@@ -226,7 +227,7 @@ def test_rejects_ra_that_is_not_numeric(observations):
     invalid = observations.copy()
     invalid["ra"] = invalid["ra"].astype("object")
     invalid.loc[0, "ra"] = "not-a-number"
-    with pytest.raises(ValueError, match="Column 'ra' must contain values convertible to floats"):
+    with pytest.raises(ValueError, match="Column 'ra' must be convertible to floats"):
         parser._check_possible_failures(invalid, "optical")
 
 
@@ -302,7 +303,8 @@ def test_rejects_incomplete_location_group_occultation(observations_occultation)
     invalid["pos2"] = [2.0] * 4
     # pos3 is omitted, so the location group is incomplete
     with pytest.raises(
-        ValueError, match="If any of sys, ctr, pos1, pos2, pos3 is provided, all must be provided"
+        ValueError,
+        match="If any of the identifier of the location group is provided, all must be provided",
     ):
         parser._check_possible_failures(invalid, "occultation")
 
@@ -314,7 +316,7 @@ def test_rejects_position_that_is_not_numeric_occultation(observations_occultati
     invalid["pos1"] = ["not-a-number"] * 4
     invalid["pos2"] = [2.0] * 4
     invalid["pos3"] = [3.0] * 4
-    with pytest.raises(ValueError, match="pos1, pos2, and pos3 must be convertible to floats"):
+    with pytest.raises(ValueError, match="The position values must be convertible to floats"):
         parser._check_possible_failures(invalid, "occultation")
 
 
@@ -322,9 +324,7 @@ def test_rejects_raStar_that_is_not_numeric(observations_occultation):
     invalid = observations_occultation.copy()
     invalid["raStar"] = invalid["raStar"].astype("object")
     invalid.loc[0, "raStar"] = "not-a-number"
-    with pytest.raises(
-        ValueError, match="Column 'raStar' must contain values convertible to floats"
-    ):
+    with pytest.raises(ValueError, match="Column 'raStar' must be convertible to floats"):
         parser._check_possible_failures(invalid, "occultation")
 
 
@@ -424,6 +424,7 @@ def test_adds_earth_roving_columns(observations):
 def test_adds_spacecraft_roving_columns(observations):
     df = observations.copy()
     df["sys"] = ["ICRF_KM"] * len(df)
+    df["ctr"] = ["399"] * len(df)
     df["pos1"] = [1.0] * len(df)
     df["pos2"] = [2.0] * len(df)
     df["pos3"] = [3.0] * len(df)
