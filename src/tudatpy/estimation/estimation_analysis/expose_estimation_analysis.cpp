@@ -809,7 +809,7 @@ void expose_estimation_analysis( py::module& m )
 
          Matrix of partial derivatives of observations w.r.t. consider parameters :math:`\mathbf{H}_c=\frac{\partial\mathbf{h}}{\partial\mathbf{c}}`.
 
-         :type: numpy.ndarray[numpy.float64[m, n]]
+         :type: numpy.ndarray[numpy.float64[m, n]] or scipy.sparse.csc_matrix (if the design matrix is stored sparse)
       )doc" )
             .def_property_readonly(
                     "normalized_design_matrix_consider_parameters",
@@ -820,7 +820,7 @@ void expose_estimation_analysis( py::module& m )
 
          Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.design_matrix_consider_parameters`
 
-         :type: numpy.ndarray[numpy.float64[m, n]]
+         :type: numpy.ndarray[numpy.float64[m, n]] or scipy.sparse.csc_matrix (if the design matrix is stored sparse)
       )doc" )
 
             .def_readonly( "normalization_terms",

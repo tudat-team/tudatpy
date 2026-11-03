@@ -209,33 +209,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::getObservat
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
+template< typename DesignMatrixType >
+std::pair< DesignMatrixType, DesignMatrixType >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::separateEstimatedAndConsiderDesignMatrices(
-        const Eigen::MatrixXd& designMatrix,
+        const DesignMatrixType& designMatrix,
         const int numberObservations )
 {
-    Eigen::MatrixXd designMatrixEstimatedParameters = designMatrix.block( 0, 0, numberObservations, numberEstimatedParameters_ );
+    DesignMatrixType designMatrixEstimatedParameters = designMatrix.block( 0, 0, numberObservations, numberEstimatedParameters_ );
 
-    Eigen::MatrixXd designMatrixConsiderParameters =
+    DesignMatrixType designMatrixConsiderParameters =
             designMatrix.block( 0, numberEstimatedParameters_, numberObservations, numberConsiderParameters_ );
-
-    return std::make_pair( designMatrixEstimatedParameters, designMatrixConsiderParameters );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::pair< Eigen::SparseMatrix< double >, Eigen::MatrixXd >
-OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::separateEstimatedAndConsiderDesignMatrices(
-        const Eigen::SparseMatrix< double >& designMatrix,
-        const int numberObservations )
-{
-    Eigen::SparseMatrix< double > designMatrixEstimatedParameters =
-            designMatrix.block( 0, 0, numberObservations, numberEstimatedParameters_ );
-
-    // Partials w.r.t. consider parameters are kept dense
-    Eigen::MatrixXd designMatrixConsiderParameters =
-            Eigen::MatrixXd( designMatrix.block( 0, numberEstimatedParameters_, numberObservations, numberConsiderParameters_ ) );
 
     return std::make_pair( std::move( designMatrixEstimatedParameters ), std::move( designMatrixConsiderParameters ) );
 }

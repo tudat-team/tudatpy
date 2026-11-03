@@ -243,9 +243,9 @@ protected:
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > performCovarianceAnalysis(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput );
 
-    //! Function to compute the design matrices (estimated parameters: DesignMatrixType, consider parameters: dense) and residuals
+    //! Function to compute the design matrices (estimated and consider parameters) and residuals
     template< typename DesignMatrixType = Eigen::MatrixXd >
-    std::pair< std::pair< DesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+    std::pair< std::pair< DesignMatrixType, DesignMatrixType >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
     performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
                                const ParameterVectorType& newParameterEstimate,
                                const bool calculateResiduals,
@@ -253,13 +253,9 @@ protected:
                                bool& exceptionDuringPropagation,
                                std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults );
 
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices( const Eigen::MatrixXd& designMatrix,
-                                                                                              const int numberObservations );
-
-    //! Function to separate a sparse design matrix; the partials w.r.t. consider parameters are returned dense
-    std::pair< Eigen::SparseMatrix< double >, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices(
-            const Eigen::SparseMatrix< double >& designMatrix,
-            const int numberObservations );
+    template< typename DesignMatrixType >
+    std::pair< DesignMatrixType, DesignMatrixType > separateEstimatedAndConsiderDesignMatrices( const DesignMatrixType& designMatrix,
+                                                                                                const int numberObservations );
 
     //! Boolean to denote whether any dynamical parameters are estimated
     bool integrateAndEstimateOrbit_;

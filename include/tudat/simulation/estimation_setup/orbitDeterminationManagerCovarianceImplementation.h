@@ -71,11 +71,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performCova
     // Compute design matrices (estimated and consider), and residuals (empty for covariance analysis)
     bool exceptionDuringPropagation = false;
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-    std::pair< std::pair< DesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+    std::pair< std::pair< DesignMatrixType, DesignMatrixType >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
             designMatricesAndResiduals = performPreEstimationSteps< DesignMatrixType >(
                     estimationInput, parameterValues, false, 0, exceptionDuringPropagation, simulationResults );
     DesignMatrixType designMatrixEstimatedParameters = std::move( designMatricesAndResiduals.first.first );
-    Eigen::MatrixXd designMatrixConsiderParameters = std::move( designMatricesAndResiduals.first.second );
+    DesignMatrixType designMatrixConsiderParameters = std::move( designMatricesAndResiduals.first.second );
 
     // Normalise partials and inverse a priori covariance
     Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
@@ -159,7 +159,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performCova
                     estimationInput->getWeightsMatrixDiagonals( ),
                     normalizationTerms,
                     inverseNormalizedCovariance,
-                    estimationInput->getSaveDesignMatrix( ) ? designMatrixConsiderParameters : Eigen::MatrixXd::Zero( 0, 0 ),
+                    estimationInput->getSaveDesignMatrix( ) ? DenseOrSparseOrNoMatrix( std::move( designMatrixConsiderParameters ) )
+                                                            : DenseOrSparseOrNoMatrix( ),
                     considerNormalizationTerms,
                     covarianceContributionConsiderParameters,
                     estimationInput->getConsiderCovariance( ),

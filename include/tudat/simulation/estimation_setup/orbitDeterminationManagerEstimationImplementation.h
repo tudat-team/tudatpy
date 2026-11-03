@@ -89,17 +89,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
             Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
 
     Eigen::VectorXd bestConsiderTransformationData;
-    Eigen::MatrixXd bestDesignMatrixConsiderParameters, bestConsiderCovarianceContribution;
+    DenseOrSparseOrNoMatrix bestDesignMatrixConsiderParameters;
+    Eigen::MatrixXd bestConsiderCovarianceContribution;
     if( considerParametersIncluded_ )
     {
         bestConsiderTransformationData = Eigen::VectorXd::Constant( numberConsiderParameters_, TUDAT_NAN );
-        bestDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
         bestConsiderCovarianceContribution = Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
     }
     else
     {
         bestConsiderTransformationData = Eigen::VectorXd::Zero( 0 );
-        bestDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
         bestConsiderCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 );
     }
 
@@ -137,12 +136,12 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
 
         // Compute design matrices (for estimated and consider parameters) and residuals.
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-        std::pair< std::pair< DesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+        std::pair< std::pair< DesignMatrixType, DesignMatrixType >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
                 designMatricesAndResiduals = performPreEstimationSteps< DesignMatrixType >(
                         estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = std::move( designMatricesAndResiduals.second );
         DesignMatrixType designMatrixEstimatedParameters = std::move( designMatricesAndResiduals.first.first );
-        Eigen::MatrixXd designMatrixConsiderParameters = std::move( designMatricesAndResiduals.first.second );
+        DesignMatrixType designMatrixConsiderParameters = std::move( designMatricesAndResiduals.first.second );
 
         // Set simulation results
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
@@ -237,7 +236,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
                             conditionNumberCheck,
                             constraintStateMultiplier,
                             constraintRightHandSide,
-                            DesignMatrixTraits::from_dense( designMatrixConsiderParameters ),
+                            designMatrixConsiderParameters,
                             normalizedConsiderParametersDeviation,
                             DesignMatrixTraits::from_dense( interArcContribution.additionalNormalMatrix ),
                             interArcContribution.additionalRightHandSide,
@@ -488,7 +487,7 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 template< typename DesignMatrixType >
-std::pair< std::pair< DesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+std::pair< std::pair< DesignMatrixType, DesignMatrixType >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreEstimationSteps(
         std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
         const ParameterVectorType& newParameterEstimate,
@@ -562,7 +561,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     }
 
     // Divide partials matrix between estimated and consider parameters
-    std::pair< DesignMatrixType, Eigen::MatrixXd > designMatrices =
+    std::pair< DesignMatrixType, DesignMatrixType > designMatrices =
             separateEstimatedAndConsiderDesignMatrices( designMatrix, totalNumberOfObservations );
 
     return std::make_pair( std::move( designMatrices ), std::move( residuals ) );
