@@ -88,6 +88,37 @@ BOOST_AUTO_TEST_CASE( test_NormalizedLinearConstraints )
 
 // Test the a priori contribution to one linear least-squares step by comparing its covariance and parameter correction
 // against the normal equations evaluated explicitly.
+//! A constraint fixing a null direction of the normal equations must be retained for any magnitude of the weights
+BOOST_AUTO_TEST_CASE( test_ConstraintWithStronglyWeightedNormalEquations )
+{
+    // The design matrix has the null vector (1, 1, 1), which is the direction fixed by the constraint
+    Eigen::MatrixXd designMatrix( 4, 3 );
+    designMatrix << 1.0, 0.0, -1.0, 0.0, 1.0, -1.0, 1.0, 1.0, -2.0, 1.0, -1.0, 0.0;
+    const Eigen::Vector4d residuals( 0.3, -0.2, 0.1, 0.5 );
+    const Eigen::Vector3d constraint = Eigen::Vector3d::Ones( ).normalized( );
+
+    Eigen::MatrixXd normalMatrix = Eigen::MatrixXd::Zero( 4, 4 );
+    normalMatrix.block( 3, 0, 1, 3 ) = constraint.transpose( );
+    normalMatrix.block( 0, 3, 3, 1 ) = constraint;
+    Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( 4 );
+
+    Eigen::Vector3d solutionWithUnitWeight;
+    for( double weight : { 1.0, 1.0E8, 1.0E16, 1.0E20 } )
+    {
+        normalMatrix.block( 0, 0, 3, 3 ) = weight * designMatrix.transpose( ) * designMatrix;
+        rightHandSide.segment( 0, 3 ) = weight * designMatrix.transpose( ) * residuals;
+        const Eigen::Vector3d solution =
+                linear_algebra::solveSystemOfEquationsWithSvd( normalMatrix, rightHandSide, TUDAT_NAN ).segment( 0, 3 );
+        if( weight == 1.0 )
+        {
+            solutionWithUnitWeight = solution;
+            BOOST_CHECK_GT( solution.norm( ), 0.1 );
+        }
+        BOOST_CHECK_SMALL( constraint.dot( solution ), 1.0E-12 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( solution, solutionWithUnitWeight, 1.0E-10 );
+    }
+}
+
 BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviationNormalEquations )
 {
     Eigen::MatrixXd designMatrix( 3, 2 );
