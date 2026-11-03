@@ -50,19 +50,18 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange( const simulation_se
             station_azimuth_angle, groundStationId, groundStationRole ) );
     addDependentVariablesToObservationSimulationSettings( { observationSimulationSettings }, dependentVariablesToSave, bodies );
 
-    std::shared_ptr< observation_models::ObservationCollection< double, double > > observations =
-            simulateObservations( { observationSimulationSettings }, { observationSimulator }, bodies );
+    std::shared_ptr< observation_models::ObservationDataset< double, double > > observations =
+            simulateObservationDataset( { observationSimulationSettings }, { observationSimulator }, bodies );
 
-    std::shared_ptr< SingleObservationSet< double, double > > singleObservationSet =
-            observations->getSingleLinkAndTypeObservationSets( one_way_range, LinkDefinition( linkEnds ) ).at( 0 );
-    std::map< double, Eigen::VectorXd > angles = singleObservationSet->getDependentVariableHistory( );
-    std::map< double, Eigen::VectorXd > observationValues = singleObservationSet->getObservationsHistory( );
+    const std::vector< double > observationTimes = observations->getObservationTimesForSet( 0 );
+    const std::vector< Eigen::VectorXd > angles = observations->getDependentVariablesForSet( 0 );
+    const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observationValues = observations->getObservationsForSet( 0 );
 
     std::map< double, Eigen::VectorXd > anglesAndRange;
-    for( auto it : angles )
+    for( unsigned int i = 0; i < observationTimes.size( ); ++i )
     {
-        anglesAndRange[ it.first ] =
-                ( Eigen::VectorXd( 3 ) << it.second( 0 ), it.second( 1 ), observationValues.at( it.first ) ).finished( );
+        anglesAndRange[ observationTimes.at( i ) ] =
+                ( Eigen::VectorXd( 3 ) << angles.at( i )( 0 ), angles.at( i )( 1 ), observationValues.at( i )( 0 ) ).finished( );
     }
     return anglesAndRange;
 }

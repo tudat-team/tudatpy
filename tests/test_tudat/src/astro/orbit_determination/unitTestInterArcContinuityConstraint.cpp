@@ -613,7 +613,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationAndCovariance_WithInterArcContinuity )
         std::make_shared< TabulatedObservationSimulationSettings< double > >( one_way_range, linkEnds, observationTimes, receiver )
     };
     auto observations =
-            simulateObservations< double, double >( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+            simulateObservationDataset< double, double >( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Compare covariance information at one linearization point before perturbing the parameters for estimation.
     auto unconstrainedCovarianceOutput =

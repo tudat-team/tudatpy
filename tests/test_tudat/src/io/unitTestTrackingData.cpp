@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( testConcatenatedObservationEpochsForVectorObservables )
 {
     data::TrackingData< double, double > trackingData = createVectorTrackingData( );
 
-    // One epoch is stored per vector-valued observation. The flattened form repeats
+    // One epoch is stored per vector-valued observation. The scalar-aligned form repeats
     // that epoch for each observable component so it aligns with the observation vector.
     const Eigen::VectorXd concatenatedEpochs = trackingData.getObservationEpochsVector( );
 

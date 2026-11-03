@@ -38,6 +38,7 @@ Main Processor
 
 .. autoclass:: tudatpy.data.processTrk234.Trk234Processor
    :members:
+   :exclude-members: process_observation_collection
    :special-members: __init__
 
 
