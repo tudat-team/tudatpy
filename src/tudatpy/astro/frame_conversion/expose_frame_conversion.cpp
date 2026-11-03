@@ -344,7 +344,7 @@ void expose_frame_conversion( py::module& m )
 
  Converts a right ascension and declination observed in the FK4 B1950.0 system (for instance, historical astrometry reduced with
  FK4 reference stars) to the ICRF, which is the frame called J2000 in Tudat. The conversion uses the standard SOFA functions
- ``iauFk45z`` (FK4 B1950.0 to FK5 J2000.0, following Aoki et al. 1983, which removes the E-terms of aberration and accounts for the
+ ``iauFk45z`` (FK4 B1950.0 to FK5 J2000.0, following :cite:t:`aoki1983`, which removes the E-terms of aberration and accounts for the
  FK4 equinox and proper-motion system, assuming zero proper motion in FK5), followed by ``iauFk5hz`` (FK5 to the Hipparcos/ICRS
  system, assuming zero proper motion in Hipparcos). Both steps depend on the epoch of the observation.
 
