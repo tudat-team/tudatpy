@@ -391,11 +391,8 @@ BodyShapeSettings
  Function for settings object, defining a tri-axial ellipsoid body shape model from its three semi-axes, which are
  aligned with the body-fixed x-, y- and z-axes, respectively.
 
- The altitude is computed along the line connecting the point to the center of the body (i.e. the distance from the
- point to where this line intersects the surface), and is negative for points inside the ellipsoid. Note that this is
- not the shortest distance to the surface: for elongated bodies, and close to the surface, it is larger than the
- shortest distance. The average radius of the shape model is the radius of a sphere with the same volume,
- :math:`(abc)^{1/3}`.
+ The altitude is the shortest distance from the point to the surface, and is negative for points inside the ellipsoid.
+ The average radius of the shape model is the radius of a sphere with the same volume, :math:`(abc)^{1/3}`.
 
 
  Parameters

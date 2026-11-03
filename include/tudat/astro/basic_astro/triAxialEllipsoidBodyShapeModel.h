@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 #include <Eigen/Core>
@@ -27,9 +28,7 @@ namespace basic_astrodynamics
 //! Body shape model defined as a tri-axial ellipsoid
 /*!
  *  Body shape model defined as a tri-axial ellipsoid, with semi-axes a, b and c aligned with the body-fixed x-, y- and
- *  z-axes, respectively. The altitude is computed along the line connecting the point to the center of the body (i.e.
- *  the distance from the point to the intersection of this line with the surface). Note that this is not the shortest
- *  distance to the surface: for elongated bodies, and close to the surface, it is larger than the shortest distance.
+ *  z-axes, respectively. The altitude is the shortest distance from the point to the surface.
  */
 class TriAxialEllipsoidBodyShapeModel : public BodyShapeModel
 {
@@ -55,35 +54,58 @@ public:
 
     //! Calculates the altitude above the ellipsoid
     /*!
-     *  Function to calculate the altitude above the ellipsoid from a body fixed position, measured along the line
-     *  connecting the point to the center of the body. The altitude is negative for points inside the ellipsoid. At
-     *  the center of the body, the direction is undefined, and minus the smallest semi-axis is returned.
+     *  Function to calculate the altitude above the ellipsoid from a body fixed position, defined as the shortest
+     *  distance to the surface. The altitude is negative for points inside the ellipsoid.
+     *
+     *  The closest surface point p of a position x satisfies p_i = a_i^2 x_i / ( a_i^2 + t ), with a_i the semi-axes,
+     *  so that x - p = t n, with n_i = p_i / a_i^2 the (non-unit) surface normal. The value of t follows from requiring
+     *  p to be on the surface, and is solved in terms of u = t + c_min^2, with c_min the smallest semi-axis:
+     *  sum_i ( a_i x_i / ( a_i^2 - c_min^2 + u ) )^2 = 1. The left-hand side is convex and decreasing for u > 0, so
+     *  Newton iterations from a lower bound of the root converge monotonically. If the left-hand side is below 1 at
+     *  u = 0 (only possible for an interior point in the plane normal to the smallest axis), there is no root, and the
+     *  closest point is out of this plane, with t = -c_min^2 and the remainder of the surface equation along the
+     *  smallest axis.
      *  \param bodyFixedPosition Cartesian, body-fixed position of the point at which the altitude
      *  is to be determined.
      *  \return Altitude above the ellipsoid.
      */
     double getAltitude( const Eigen::Vector3d& bodyFixedPosition )
     {
-        const double distanceToCenter = bodyFixedPosition.norm( );
-        if( distanceToCenter == 0.0 )
-        {
-            return -std::min( { semiAxisA_, semiAxisB_, semiAxisC_ } );
-        }
-        return distanceToCenter - getSurfaceRadius( bodyFixedPosition );
-    }
+        const Eigen::Array3d semiAxes( semiAxisA_, semiAxisB_, semiAxisC_ );
+        const Eigen::Array3d scaledPosition = semiAxes * bodyFixedPosition.array( );
+        const double smallestSquaredSemiAxis = semiAxes.square( ).minCoeff( );
+        const Eigen::Array3d squaredSemiAxisOffsets = semiAxes.square( ) - smallestSquaredSemiAxis;
 
-    //! Calculates the distance from the center to the surface, in the direction of the given position
-    /*!
-     *  Function to calculate the distance from the center of the body to the surface of the ellipsoid, along the
-     *  direction of the given body-fixed position.
-     *  \param bodyFixedPosition Cartesian, body-fixed position defining the direction (must be non-zero).
-     *  \return Distance from the center to the surface in the given direction.
-     */
-    double getSurfaceRadius( const Eigen::Vector3d& bodyFixedPosition )
-    {
-        const double scaledSquaredDistance = std::pow( bodyFixedPosition.x( ) / semiAxisA_, 2 ) +
-                std::pow( bodyFixedPosition.y( ) / semiAxisB_, 2 ) + std::pow( bodyFixedPosition.z( ) / semiAxisC_, 2 );
-        return bodyFixedPosition.norm( ) / std::sqrt( scaledSquaredDistance );
+        // Lower bounds of the root: from the terms of the smallest semi-axis alone, and from replacing all offsets by
+        // the largest one (which is close to the root far from the body).
+        double u = std::max( std::sqrt( ( squaredSemiAxisOffsets == 0.0 ).select( scaledPosition.square( ), 0.0 ).sum( ) ),
+                             std::sqrt( scaledPosition.square( ).sum( ) ) - squaredSemiAxisOffsets.maxCoeff( ) );
+
+        Eigen::Array3d surfaceNormal;
+        double residual = 0.0;
+        for( int iteration = 0; iteration < 100; iteration++ )
+        {
+            // Denominator is only limited for u = 0 along the smallest axis, where the position component is zero
+            const Eigen::Array3d denominators = ( squaredSemiAxisOffsets + u ).max( std::numeric_limits< double >::min( ) );
+            surfaceNormal = bodyFixedPosition.array( ) / denominators;
+
+            const Eigen::Array3d squaredTerms = ( semiAxes * surfaceNormal ).square( );
+            residual = squaredTerms.sum( ) - 1.0;
+            if( residual <= 0.0 )
+            {
+                break;
+            }
+
+            const double step = residual / ( 2.0 * ( squaredTerms / denominators ).sum( ) );
+            if( u + step == u )
+            {
+                break;
+            }
+            u += step;
+        }
+
+        return ( u - smallestSquaredSemiAxis ) *
+                std::sqrt( surfaceNormal.square( ).sum( ) + std::max( -residual, 0.0 ) / smallestSquaredSemiAxis );
     }
 
     //! Function to return the mean radius of the ellipsoid.

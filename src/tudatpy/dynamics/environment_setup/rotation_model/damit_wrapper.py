@@ -58,11 +58,11 @@ def damit_best_fitting_ellipsoid(
 
     Creates the rotation model settings of the best fitting ellipsoid with equivalent moment of inertia to the DAMIT
     polyhedron shape model (see
-    :func:`~tudatpy.dynamics.environment_setup.shape.damit_wrapper.damit_best_fitting_ellipsoid`). Rotation is
+    :func:`~tudatpy.dynamics.environment_setup.shape.damit_best_fitting_ellipsoid`). Rotation is
     assumed to be around a fixed axis in inertial space with a fixed rate of rotation.
 
     NOTE: this rotation model is **not** the same as computed by
-    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_wrapper.damit_polyhedron`,
+    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_polyhedron`,
     because an extra offset to the initial phase of rotation is necessary for the ellipsoid model.
 
     This function wraps :class:`~tudatpy.data_input.environment_data.damit.DamitModel`.

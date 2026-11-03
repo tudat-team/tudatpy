@@ -36,7 +36,7 @@ def damit_best_fitting_ellipsoid(
 
     Creates a triaxial ellipsoid shape model for an ellipsoid with equivalent moment of inertia to the DAMIT
     polyhedron shape model. Use together with
-    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_wrapper.damit_best_fitting_ellipsoid` for the
+    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_best_fitting_ellipsoid` for the
     rotation model, to correctly align the ellipsoid.
 
     This function wraps :class:`~tudatpy.data_input.environment_data.damit.DamitModel`.
