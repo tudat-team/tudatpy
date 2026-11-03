@@ -275,6 +275,7 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
                         estimationOutput->getSimulationResults( ).at( i ) );
         BOOST_REQUIRE( iterationResults != nullptr );
         BOOST_CHECK_EQUAL( iterationResults->getSingleArcResults( ).size( ), integrationArcStartTimes.size( ) );
+        BOOST_CHECK_EQUAL( iterationResults->getArcStartTimes( ).size( ), integrationArcStartTimes.size( ) );
         for( unsigned int j = 0; j < iterationResults->getSingleArcResults( ).size( ); j++ )
         {
             BOOST_CHECK( iterationResults->getSingleArcResults( ).at( j )->getEquationsOfMotionNumericalSolution( ).size( ) > 0 );

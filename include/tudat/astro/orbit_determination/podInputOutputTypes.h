@@ -390,10 +390,8 @@ public:
      *  \param saveResidualsAndParametersFromEachIteration Boolean denoting whether the residuals and parameters from the each
      *  iteration are to be saved
      *  \param saveStateHistoryForEachIteration Boolean denoting whether the state history is to be saved on each iteration
-     *  \param saveVariationalResultsForEachIteration Boolean denoting whether the variational results (state transition
-     *  and sensitivity matrices) are to be saved alongside the state history on each iteration. Only relevant if
-     *  saveStateHistoryForEachIteration is true. Retaining these matrices is typically orders of magnitude more
-     *  expensive in memory than the state history itself, and they are discarded by default.
+     *  \param saveVariationalResultsForEachIteration Boolean denoting whether the state transition and sensitivity
+     *  matrices are to be saved on each iteration (only used if saveStateHistoryForEachIteration is true)
      */
     void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
                                    const bool reintegrateVariationalEquations = 1,
@@ -446,12 +444,7 @@ public:
         return saveStateHistoryForEachIteration_;
     }
 
-    //! Function to return the boolean denoting whether the variational results are to be saved on each iteration.
-    /*!
-     * Function to return the boolean denoting whether the variational results (state transition and sensitivity
-     * matrices) are to be saved on each iteration, in addition to the state history and dependent variables.
-     * \return Boolean denoting whether the variational results are to be saved on each iteration.
-     */
+    //! Function to return the boolean denoting whether the state transition and sensitivity matrices are to be saved on each iteration
     bool getSaveVariationalResultsForEachIteration( )
     {
         return saveVariationalResultsForEachIteration_;
@@ -469,7 +462,7 @@ public:
     //! Boolean denoting whether the state history is to be saved on each iteration.
     bool saveStateHistoryForEachIteration_;
 
-    //! Boolean denoting whether the variational results are to be saved on each iteration (in addition to the dynamics).
+    //! Boolean denoting whether the state transition and sensitivity matrices are to be saved on each iteration.
     bool saveVariationalResultsForEachIteration_;
 
     std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
