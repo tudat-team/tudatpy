@@ -56,7 +56,7 @@ void expose_rotation_model_setup( py::module& m )
 
 
       )doc" )
-            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(No documentation found.)doc" )
+            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model )
             .value( "spice_rotation_model",
                     tss::RotationModelType::spice_rotation_model,
                     R"doc(
@@ -153,17 +153,44 @@ void expose_rotation_model_setup( py::module& m )
       )doc" );
 
     py::class_< tss::SimpleRotationModelSettings, std::shared_ptr< tss::SimpleRotationModelSettings >, tss::RotationModelSettings >(
-            m, "SimpleRotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "SimpleRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple_from_spice`.
+
+      )doc" );
 
     py::class_< tss::PlanetaryRotationModelSettings, std::shared_ptr< tss::PlanetaryRotationModelSettings >, tss::RotationModelSettings >(
-            m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "PlanetaryRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_custom_angles`,
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_full_custom`.
+
+      )doc" );
 
     py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
-            m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
+            m, "IAURotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model`.
+
+      )doc" );
 
     py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
-            m, "GcrsToItrsRotationModelSettings", R"doc(No documentation found.)doc" )
-            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile );
+            m, "GcrsToItrsRotationModelSettings", R"doc(
+
+         Settings returned by :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs`.
+
+      )doc" )
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile, R"doc(
+
+         **read-only**
+
+         Path to the Earth orientation parameter file used by the GCRS to ITRS rotation model.
+
+         :type: str
+
+      )doc" );
 
     m.def( "simple",
            py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d&, const double, const double >(
@@ -314,6 +341,18 @@ void expose_rotation_model_setup( py::module& m )
 
  Such a model can be useful for, for instance, approximate rotation of tidally locked natural satellites or nadir-pointing spacecraft.
 
+ Direct longitudinal libration can be added to the resulting
+ :class:`~tudatpy.dynamics.environment.SynchronousRotationalEphemeris` by assigning a
+ :class:`~tudatpy.dynamics.environment.DirectLongitudeLibrationCalculator` to its
+ :attr:`~tudatpy.dynamics.environment.SynchronousRotationalEphemeris.libration_calculator` property.
+ In this case, the angle relative to fully synchronous rotation is
+ :math:`\theta=A(\mathbf{r}\cdot\mathbf{v})/\lVert\mathbf{r}\times\mathbf{v}\rVert`,
+ where :math:`A` is the calculator's ``scaled_libration_amplitude``, and :math:`\mathbf{r}` and
+ :math:`\mathbf{v}` are the body's position and velocity relative to its central body. The angle is in radians.
+
+ .. note::
+
+     A dedicated API documentation page deriving this mathematical libration model remains to be written.
 
  Parameters
  ----------
@@ -327,10 +366,6 @@ void expose_rotation_model_setup( py::module& m )
  -------
  SynchronousRotationModelSettings
      Settings for a synchronous rotation model.
-
-
-
-
 
  Examples
  --------
@@ -347,7 +382,6 @@ void expose_rotation_model_setup( py::module& m )
     # create rotation model settings for target frame and assign to body settings of "Phobos"
     body_settings.get( "Phobos" ).rotation_model_settings = environment_setup.rotation_model.synchronous(
     central_body_name, original_frame, target_frame)
-
 
      )doc" );
 
@@ -656,6 +690,37 @@ void expose_rotation_model_setup( py::module& m )
 
 
      )doc" );
+
+    m.def( "tabulated_rotation",
+           &tss::tabulatedRotationModelSettings,
+           py::arg( "rotational_state_history" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "interpolator_settings" ) = nullptr,
+           R"doc(
+
+ Function for creating settings for a rotation model interpolated from a rotational state history.
+
+ The rotational state at each epoch consists of the quaternion entries (see :func:`~tudatpy.astro.element_conversion.rotation_matrix_to_quaternion_entries` for conversion from rotation matrix) of the rotation from the body-fixed (target)
+ frame to the base frame, followed by the angular velocity of the body [rad/s] in the body-fixed frame, as for a propagated rotational state.
+
+ Parameters
+ ----------
+ rotational_state_history : dict[float, numpy.ndarray[numpy.float64[7, 1]]]
+     Rotational states (quaternion entries and body-fixed angular velocity), per epoch [s since J2000].
+ base_frame : str
+     Name of the base frame of the rotation model.
+ target_frame : str
+     Name of the body-fixed (target) frame of the rotation model.
+ interpolator_settings : InterpolatorSettings, default = None
+     Settings of the interpolator of the rotational states (None: Lagrange interpolation of order 8).
+
+ Returns
+ -------
+ RotationModelSettings
+     Settings for the tabulated rotation model.
+
+      )doc" );
 
     m.def( "constant_rotation_model",
            py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d& >( &tss::constantRotationModelSettings ),
@@ -975,7 +1040,7 @@ void expose_rotation_model_setup( py::module& m )
         1.0: (11.7 * milliarcsec_to_rad * np.sin(np.radians(118.7)),
               11.7 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
         2.0: (3.9 * milliarcsec_to_rad * np.sin(np.radians(172.5)),
-              3.9 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
+              3.9 * milliarcsec_to_rad * np.cos(np.radians(172.5))),
         3.0: (0.0, 0.0),
         4.0: (0.0, 0.0),
         3.34: (0.0, 50.0 * milliarcsec_to_rad)

@@ -18,10 +18,10 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 #include "tudat/astro/system_models/camera.h"
 
 namespace tudat
@@ -140,9 +140,8 @@ public:
         Eigen::Vector3d inertialDirectionToProject = inertialRelativePosition.template cast< double >( );
         if( correctForStellarAberration_ )
         {
-            inertialDirectionToProject = computeApparentDirectionWithStellarAberration(
-                    inertialDirectionToProject.normalized( ),
-                    observerState.segment( 3, 3 ).template cast< double >( ) / physical_constants::SPEED_OF_LIGHT );
+            inertialDirectionToProject = calculateApparentDirectionWithStellarAberration(
+                    inertialDirectionToProject.normalized( ), observerState.segment( 3, 3 ).template cast< double >( ) );
         }
 
         Eigen::Vector2d pixelCoordinates;
@@ -176,16 +175,6 @@ public:
     }
 
 protected:
-    //! Convert actual geometric direction to apparent direction using the inverse of Jacobson's stellar-aberration correction.
-    Eigen::Vector3d computeApparentDirectionWithStellarAberration( const Eigen::Vector3d& actualDirection,
-                                                                   const Eigen::Vector3d& observerVelocityDividedBySpeedOfLight ) const
-    {
-        const double directionDotVelocity = actualDirection.dot( observerVelocityDividedBySpeedOfLight );
-        const double velocitySquared = observerVelocityDividedBySpeedOfLight.squaredNorm( );
-        const double scaleFactor = -directionDotVelocity + std::sqrt( 1.0 - velocitySquared + directionDotVelocity * directionDotVelocity );
-        return ( scaleFactor * actualDirection + observerVelocityDividedBySpeedOfLight ).normalized( );
-    }
-
     //! Object to compute the light-time (including any corrections w.r.t. Euclidean case) between source and receiver
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 

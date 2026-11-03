@@ -25,9 +25,9 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/basicTypedefs.h"
-#include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
@@ -1653,6 +1653,7 @@ public:
                             {
                                 bool identicalAncillarySettings = false;
                                 if( ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleData( ) == setting->getDoubleData( ) ) &&
+                                    ( linkEndsIt.second.at( k )->getAncillarySettings( )->getIntData( ) == setting->getIntData( ) ) &&
                                     ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleVectorData( ) ==
                                       setting->getDoubleVectorData( ) ) )
                                 {

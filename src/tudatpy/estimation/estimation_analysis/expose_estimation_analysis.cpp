@@ -466,6 +466,7 @@ void expose_estimation_analysis( py::module& m )
                             const Eigen::MatrixXd,
                             const Eigen::VectorXd,
                             const bool,
+                            const bool,
                             const bool >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -476,6 +477,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
                   py::arg( "apply_apriori_parameter_deviation" ) = false,
+                  py::arg( "reset_parameters_to_best_iteration" ) = false,
                   R"doc(
 
          Class constructor.
@@ -496,11 +498,17 @@ void expose_estimation_analysis( py::module& m )
          consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
              Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
          apply_final_parameter_correction : bool, default = True
-             Whether to apply the final estimated parameter correction to the simulation models after convergence.
+             Whether to apply the final estimated parameter correction to the simulation models after convergence. Only used to set
+             the simulation models if ``reset_parameters_to_best_iteration`` is ``False``.
          apply_apriori_parameter_deviation : bool, default = False
              Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
              of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
              each differential correction independently.
+         reset_parameters_to_best_iteration : bool, default = False
+             Whether to set the estimated parameters (in the ``parameters_to_estimate``) to those of the best iteration of the
+             estimation after the estimation is finished. If ``False``, they are set to those of the last iteration (see
+             :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`). Setting this to ``False`` is deprecated:
+             the default will change to ``True``, after which this input will be removed.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
@@ -774,9 +782,8 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters, 
+         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters,
          equal to the sum of the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance` matrix and the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` matrix.
-
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -883,6 +890,16 @@ void expose_estimation_analysis( py::module& m )
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
+            .def_property_readonly( "residual_times",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualTimes,
+                                    R"doc(
+
+         **read-only**
+
+         Observation times corresponding to the entries of the residual vectors (in :attr:`final_residuals` and :attr:`residual_history`), in the same order as :attr:`~tudatpy.estimation.observations.ObservationCollection.concatenated_times` of the observation collection used in the estimation.
+
+         :type: list[float]
+      )doc" )
             .def_property_readonly( "parameter_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getParameterHistoryMatrix,
                                     R"doc(
@@ -915,16 +932,48 @@ void expose_estimation_analysis( py::module& m )
       )doc" )
             .def_readonly( "final_parameters",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::parameterEstimate_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Parameter estimate from the selected best iteration of the estimation.
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+
+      )doc" )
             .def_readonly( "exception_during_inversion",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringInversion_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Whether an exception occurred while solving the estimation normal equations.
+
+         :type: bool
+
+      )doc" )
             .def_readonly( "exception_during_propagation",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringPropagation_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Whether an exception occurred while propagating the dynamics or variational equations.
+
+         :type: bool
+
+      )doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Zero-based index of the estimation iteration selected as the best result.
+
+         :type: int
+
+      )doc" )
             .def_property_readonly( "inter_arc_continuity_cost_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCostHistory,
                                     R"doc(

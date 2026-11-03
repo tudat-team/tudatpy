@@ -67,8 +67,6 @@ Classes
 
    TimeEphemeris
 
-   Tle
-
    TleFitResult
 
    RotationalEphemeris
@@ -90,6 +88,8 @@ Classes
    RigidBodyProperties
       
    AtmosphereModel
+
+   NRLMSISE00Atmosphere
    
    RadiationSourceModel
 
@@ -130,10 +130,6 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment.TimeEphemeris
    :members:
 
-.. autoclass:: tudatpy.dynamics.environment.Tle
-   :members:
-   :special-members: __init__
-
 .. autoclass:: tudatpy.dynamics.environment.TleFitResult
    :members:
 
@@ -166,6 +162,11 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.AtmosphereModel
    :members:     
+
+.. autoclass:: tudatpy.dynamics.environment.NRLMSISE00Atmosphere
+   :members:
+   :special-members: __init__
+   :show-inheritance:
 
 .. autoclass:: tudatpy.dynamics.environment.RadiationSourceModel
    :members:   

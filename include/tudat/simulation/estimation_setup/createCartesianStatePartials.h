@@ -41,12 +41,16 @@ namespace observation_partials
  *  requested body and, if so, a partial object is created.
  *  \param bodies Map of body objects, used in the creation of the partials.
  *  \param bodyToEstimate Name of body wrt the position of which partials are to be created.
+ *  \param bodiesWithEstimatedState Names of all bodies with an estimated translational state. If provided, a partial is also
+ *  created for link ends on a body without estimated state that has an ephemeris defined (directly or indirectly) w.r.t.
+ *  bodyToEstimate (with no other body with estimated state in between), since its state is shifted by that of bodyToEstimate.
  *  \return Map of position partial objects, one entry for each link end corresponding to the bodyToEstimate.
  */
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate );
+        const std::string bodyToEstimate,
+        const std::vector< std::string >& bodiesWithEstimatedState = std::vector< std::string >( ) );
 
 //! Function to return partial(s) of position of ground station(s) w.r.t. rotational state of a single body.
 /*!

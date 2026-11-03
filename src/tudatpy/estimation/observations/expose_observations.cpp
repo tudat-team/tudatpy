@@ -24,13 +24,17 @@
 #include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"
+#include "expose_observations_bindings.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace te = tudat::ephemerides;
+namespace tdat = tudat::data;
 
 namespace tudatpy
 {
@@ -106,7 +110,32 @@ void expose_observations( py::module& m )
                   py::arg( "reference_link_end" ),
                   py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
                   py::arg_v( "dependent_variable_bookkeeping", std::shared_ptr< tss::ObservationDependentVariableBookkeeping >( ), "None" ),
-                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ) )
+                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
+                  R"doc(
+
+         Create an observation set from its observable type, link, measurement vectors, epochs and reference link end,
+         with optional dependent variables and ancillary data.
+
+         Parameters
+         ----------
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         link_ends : LinkDefinition
+             Definition of the bodies and reference points participating in the observation link.
+         observations : list[numpy.ndarray[numpy.float64[m, 1]]]
+             Measurement vectors for the observation set.
+         observation_epochs : list[Time]
+             Epochs of the measurements, in seconds since J2000.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         observation_dependent_variables : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
+             Dependent-variable values associated with each measurement.
+         dependent_variable_bookkeeping : ObservationDependentVariableBookkeeping, default = None
+             Optional object defining the dependent-variable layout.
+         ancillary_settings : ObservationAncillarySimulationSettings, default = None
+             Optional observable-specific ancillary data.
+
+      )doc" )
             .def( "set_observations",
                   py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservations ),
@@ -574,7 +603,7 @@ numpy.ndarray
          Class collecting all observations and associated data for use in an estimation.
 
          Class containing the full set of observations and associated data, typically for input into the estimation. When using simulated data,
-         this class is instantiated via a call to the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. More information is provided
+         this class is instantiated via a call to the :func:`~tudatpy.estimation.observations.simulate_observations` function. More information is provided
          on the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__
 
 
@@ -1363,7 +1392,18 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "append",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::appendObservationCollection,
-                  py::arg( "observation_collection_to_append" ) )
+                  py::arg( "observation_collection_to_append" ),
+                  R"doc(
+
+         Append all observation sets from ``observation_collection_to_append`` to this collection and refresh its
+         observation bookkeeping.
+
+         Parameters
+         ----------
+         observation_collection_to_append : ObservationCollection
+             Collection whose observation sets are appended to this collection.
+
+      )doc" )
             .def( "filter_observations",
                   py::overload_cast< const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
                                                      std::shared_ptr< tom::ObservationFilterBase > >&,
@@ -1576,22 +1616,22 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::arg( "dependent_variable_settings" ),
                   py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
+
          Add an observation dependent variable to a subset of the single observation sets.
 
          Parameters
          ----------
          dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to add.
-         bodies : tudatpy.dynamics.environment.SystemOfBodies
-             System of bodies containing the environment.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets to which the variable should be added.
-         
+
          Returns
          -------
          tudatpy.estimation.observations.observations_processing.ObservationCollectionParser
              A parser that can be used to retrieve the added dependent variable.
-     )doc" )
+
+      )doc" )
             .def( "dependent_variable",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariables,
                   py::arg( "dependent_variable_settings" ),
@@ -1765,6 +1805,56 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                     TUDATPY_DEF_EQ_NE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_BINARY_IO( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > );
 
+    tudatpy::estimation::observations::expose_observations_io_bindings( m );
+    tudatpy::estimation::observations::expose_observations_simulation_bindings( m );
+
+    m.def( "create_observation_collection_from_tracking_data",
+           &tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "tracking_data" ),
+           py::arg( "bodies" ),
+           py::arg( "apply_corrections" ) = false,
+           R"doc(
+
+        Factory function to create an `ObservationCollection` from a list of `TrackingData` objects.
+
+        This function converts each entry of `tracking_data` (as produced e.g. by
+        :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data`, :func:`~tudatpy.data_input.tracking_data.fdets.read_fdets_data`, or a custom
+        reader) into a `SingleObservationSet`, and collects the results into an `ObservationCollection`.
+
+        Parameters
+        ----------
+        tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
+            List of tracking data objects to convert.
+        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+            System of bodies, used to resolve ground station positions for time scale conversions.
+        apply_corrections : bool, optional
+            Whether corrections stored in the tracking data should be applied to
+            the observation values during conversion. Default is False.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationCollection
+            An `ObservationCollection` containing one observation set per input `TrackingData` object.
+        )doc" );
+
+    m.def( "set_tracking_supplementary_data_in_bodies",
+           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
+                   &tom::setTrackingSupplementaryDataInBodies ),
+           py::arg( "bodies" ),
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+        Sets tracking supplementary data (e.g. ground station frequency ramps) in the bodies.
+
+        Parameters
+        ----------
+        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+            System of bodies in which the supplementary data is set.
+        supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+            List of tracking supplementary data objects, as produced e.g. by
+            :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data` or a custom reader.
+        )doc" );
+
     m.def( "compute_residuals_and_dependent_variables",
            &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_collection" ),
@@ -1864,7 +1954,23 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
     m.def( "merge_observation_collections",
            &tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "observation_collection_list" ) );
+           py::arg( "observation_collection_list" ),
+           R"doc(
+
+         Return an ObservationCollection containing the observation sets from every collection in
+         ``observation_collection_list``.
+
+         Parameters
+         ----------
+         observation_collection_list : list[ObservationCollection]
+             Observation collections to merge, in the supplied order.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the merged observation sets.
+
+      )doc" );
 
     // The following functions create a new ObservationCollection object from an existing one
 
@@ -1975,6 +2081,71 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
         -------
         tudatpy.estimation.observations.ObservationCollection
             A new observation collection containing the selected subset of observation sets.
+        )doc" );
+
+    m.def( "create_compressed_doppler_collection",
+           &tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "compression_ratio" ),
+           py::arg( "minimum_number_of_observations" ) = 10,
+           py::arg( "max_arc_gap" ) = 300.0,
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
+           R"doc(
+        Create a compressed Doppler observation collection.
+
+        This function takes a collection of Doppler observations, splits them into arcs, and compresses each arc by averaging observations.
+
+        Parameters
+        ----------
+        original_observation_collection : tudatpy.estimation.observations.ObservationCollection
+            The original observation collection containing Doppler data.
+        compression_ratio : int
+            The number of observations to average into a single compressed observation.
+        minimum_number_of_observations : int, optional
+            The minimum number of observations required in an arc to be considered for compression, by default 10.
+        max_arc_gap : float, optional
+            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationCollection
+            A new observation collection with compressed Doppler data.
+        )doc" );
+
+    m.def( "create_count_time_compressed_doppler_collection",
+           &tom::createCountTimeCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "bodies" ),
+           py::arg( "target_count_time" ),
+           py::arg( "minimum_number_of_observations" ) = 10,
+           py::arg( "max_arc_gap" ) = 300.0,
+           R"doc(
+        Create a Doppler observation collection compressed to a target count time.
+
+        Same as :func:`create_compressed_doppler_collection`, but with the number of observations to average determined
+        separately for each observation set, from its count time and the ``target_count_time``. The ground station
+        positions used for the time scale conversions are taken from the ground stations on Earth in ``bodies``.
+
+        Parameters
+        ----------
+        original_observation_collection : tudatpy.estimation.observations.ObservationCollection
+            The original observation collection containing Doppler data.
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
+            System of bodies, containing the Earth with the ground stations of the Doppler observations.
+        target_count_time : float
+            Count time (in seconds) of the compressed observations, which must be an integer multiple of the count time of each
+            observation set.
+        minimum_number_of_observations : int, optional
+            The minimum number of observations required in an arc to be considered for compression, by default 10.
+        max_arc_gap : float, optional
+            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationCollection
+            A new observation collection with compressed Doppler data.
         )doc" );
 }
 

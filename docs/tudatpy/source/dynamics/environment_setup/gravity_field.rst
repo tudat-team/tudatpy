@@ -83,6 +83,8 @@ Functions
 
    from_file_spherical_harmonic
 
+   from_shadr_file
+
    predefined_spherical_harmonic
 
    polyhedron_from_mu
@@ -107,6 +109,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.sh_triaxial_ellipsoid_from_gravitational_parameter
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic
+
+.. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.from_shadr_file
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.predefined_spherical_harmonic
 

@@ -176,11 +176,26 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
+        Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > idealObservation;
+        return computeObservationsWithLinkEndData(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, idealObservation, ancillarySetings );
+    }
+
+    //! Compute the full observation and return its ideal value at the effective observation time by reference.
+    Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >& idealObservation,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
+    {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
-            return computeIdealObservationsWithLinkEndData(
+            idealObservation = computeIdealObservationsWithLinkEndData(
                     time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
+            return idealObservation;
         }
         else
         {
@@ -193,13 +208,13 @@ public:
             }
 
             // Compute ideal observable
-            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
+            idealObservation = computeIdealObservationsWithLinkEndData(
                     observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
             // Add correction
-            return currentObservation +
+            return idealObservation +
                     this->observationBiasCalculator_
-                            ->getObservationBias( linkEndTimes, linkEndStates, currentObservation.template cast< double >( ) )
+                            ->getObservationBias( linkEndTimes, linkEndStates, idealObservation.template cast< double >( ) )
                             .template cast< ObservationScalarType >( );
         }
     }
@@ -335,7 +350,7 @@ public:
 
     virtual void setTimeScaleConverter( )
     {
-        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
+        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( nullptr, true );
     }
 
     void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )

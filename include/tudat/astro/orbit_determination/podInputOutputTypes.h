@@ -331,6 +331,8 @@ public:
      * size 0) by default
      * \param applyAprioriParameterDeviation Whether to apply the a priori constraint to the total parameter deviation from
      * the parameter vector at the start of the estimation. If false, the legacy correction-only regularization is used.
+     * \param resetParametersToBestIteration Whether to set the estimated parameters to those of the best iteration after the
+     * estimation. If false (deprecated), they are those of the last iteration.
      */
     EstimationInput(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
@@ -339,12 +341,14 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
             const bool applyFinalParameterCorrection = true,
-            const bool applyAprioriParameterDeviation = false ):
+            const bool applyAprioriParameterDeviation = false,
+            const bool resetParametersToBestIteration = false ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         saveVariationalResultsForEachIteration_( false ), convergenceChecker_( convergenceChecker ),
         considerParametersDeviations_( considerParametersDeviations ), conditionNumberWarningEachIteration_( true ),
-        applyFinalParameterCorrection_( applyFinalParameterCorrection ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation )
+        applyFinalParameterCorrection_( applyFinalParameterCorrection ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation ),
+        resetParametersToBestIteration_( resetParametersToBestIteration )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -479,6 +483,9 @@ public:
 
     //! Whether to use the total parameter deviation for the iterative a priori constraint.
     bool applyAprioriParameterDeviation_;
+
+    //! Whether to set the estimated parameters to those of the best (rather than the last) iteration after the estimation.
+    bool resetParametersToBestIteration_;
 };
 
 inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker( const unsigned int maximumNumberOfIterations = 5,
@@ -1089,6 +1096,16 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return interArcContinuityDiscrepancyHistory_;
     }
 
+    void setResidualTimes( const std::vector< double >& residualTimes )
+    {
+        residualTimes_ = residualTimes;
+    }
+
+    const std::vector< double >& getResidualTimes( ) const
+    {
+        return residualTimes_;
+    }
+
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
     {
         return simulationResultsPerIteration_.at( bestIteration_ );
@@ -1107,6 +1124,9 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 
     //! Vector of residuals per iteration
     std::vector< Eigen::VectorXd > residualHistory_;
+
+    //! Observation times corresponding to the entries of the residual vectors
+    std::vector< double > residualTimes_;
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > parameterHistory_;
@@ -1201,11 +1221,10 @@ private:
     }
 };
 
-// extern template class CovarianceAnalysisInput< double, double >;
-// extern template struct CovarianceAnalysisOutput< double >;
-//
-// extern template class EstimationInput< double, double >;
-// extern template struct EstimationOutput< double >;
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+extern template struct CovarianceAnalysisOutput< double, double >;
+extern template struct EstimationOutput< double, double >;
+#endif
 
 // Type aliases for CEREAL_REGISTER_TYPE registration
 using CovarianceAnalysisOutputDD = CovarianceAnalysisOutput< double, double >;

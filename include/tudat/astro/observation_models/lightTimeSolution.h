@@ -242,13 +242,13 @@ private:
     LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction_;
 };
 
-//! Non-templated base class providing type-erased access to light-time correction data.
+//! Non-templated base class providing type-erased access to the most recent light-time solution.
 /*!
  *  Non-templated base class of `LightTimeCalculator`, exposing only the subset of the API that
  *  does not depend on the `ObservationScalarType` / `TimeType` template parameters. This allows
  *  callers that do not want to commit to a specific instantiation (e.g. dependent-variable
- *  plumbing or Python bindings) to hold a pointer to any `LightTimeCalculator` and read its
- *  per-correction breakdown from the last evaluation.
+ *  plumbing) to hold a pointer to any `LightTimeCalculator` and read the
+ *  solved light time or its per-correction breakdown from the last evaluation.
  */
 class LightTimeCalculatorBase
 {
@@ -259,9 +259,76 @@ public:
     //! Order matches `getLightTimeCorrectionList()`.
     virtual const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const = 0;
 
+    //! Returns the total solved light time from the most recent evaluation, including configured corrections.
+    virtual double getCurrentTotalLightTime( ) const = 0;
+
     //! Returns the list of light-time correction objects registered on this calculator.
     virtual std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const = 0;
 };
+
+//! Function to determine whether any of the light-time corrections of a set of light-time calculators has a fallback model
+template< typename LightTimeCalculatorType >
+bool doLightTimeCorrectionsHaveFallback( const std::vector< std::shared_ptr< LightTimeCalculatorType > >& legCalculators )
+{
+    for( const std::shared_ptr< LightTimeCalculatorType >& legCalculator : legCalculators )
+    {
+        for( const std::shared_ptr< LightTimeCorrection >& correction : legCalculator->getLightTimeCorrectionList( ) )
+        {
+            if( correction->hasFallback( ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//! Function to force the fallback model of each light-time correction that used it at only one of the start and end of an integrated
+//! observable (e.g. averaged Doppler)
+/*!
+ * Function to force the fallback model of each light-time correction that used it at only one of the start and end of an integrated
+ * observable (e.g. averaged Doppler), at both the start and the end. This is done per leg, so that each leg uses the same model at
+ * the start and the end.
+ * \param arcStartLegCalculators Light-time calculators (per leg) at the start of the integrated observable
+ * \param arcEndLegCalculators Light-time calculators (per leg) at the end of the integrated observable
+ * \return True if the fallback model was forced for any light-time correction (in which case the observable is to be recomputed)
+ */
+template< typename LightTimeCalculatorType >
+bool forceConsistentLightTimeCorrectionFallbacks( const std::vector< std::shared_ptr< LightTimeCalculatorType > >& arcStartLegCalculators,
+                                                  const std::vector< std::shared_ptr< LightTimeCalculatorType > >& arcEndLegCalculators )
+{
+    bool isFallbackForced = false;
+    for( unsigned int i = 0; i < arcStartLegCalculators.size( ); i++ )
+    {
+        const std::vector< std::shared_ptr< LightTimeCorrection > > arcStartCorrections =
+                arcStartLegCalculators.at( i )->getLightTimeCorrectionList( );
+        const std::vector< std::shared_ptr< LightTimeCorrection > > arcEndCorrections =
+                arcEndLegCalculators.at( i )->getLightTimeCorrectionList( );
+        for( unsigned int j = 0; j < arcStartCorrections.size( ); j++ )
+        {
+            if( arcStartCorrections.at( j )->isFallbackUsed( ) != arcEndCorrections.at( j )->isFallbackUsed( ) )
+            {
+                arcStartCorrections.at( j )->setForceFallback( true );
+                arcEndCorrections.at( j )->setForceFallback( true );
+                isFallbackForced = true;
+            }
+        }
+    }
+    return isFallbackForced;
+}
+
+//! Function to remove the forcing of the fallback model of all light-time corrections (see forceConsistentLightTimeCorrectionFallbacks)
+template< typename LightTimeCalculatorType >
+void resetLightTimeCorrectionFallbacks( const std::vector< std::shared_ptr< LightTimeCalculatorType > >& legCalculators )
+{
+    for( const std::shared_ptr< LightTimeCalculatorType >& legCalculator : legCalculators )
+    {
+        for( const std::shared_ptr< LightTimeCorrection >& correction : legCalculator->getLightTimeCorrectionList( ) )
+        {
+            correction->setForceFallback( false );
+        }
+    }
+}
 
 //! Class to calculate the light time between two points.
 /*!
@@ -706,6 +773,11 @@ public:
         return currentCorrectionComponents_;
     }
 
+    double getCurrentTotalLightTime( ) const override
+    {
+        return static_cast< double >( currentIdealLightTime_ + currentCorrection_ );
+    }
+
     std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const override
     {
         return correctionFunctions_;
@@ -737,6 +809,11 @@ public:
             }
         }
         return correctionsNeedFrequency;
+    }
+
+    std::shared_ptr< LightTimeConvergenceCriteria > getLightTimeConvergenceCriteria( ) const
+    {
+        return lightTimeConvergenceCriteria_;
     }
 
 protected:
@@ -830,6 +907,15 @@ protected:
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
     {
+        // Frequency-dependent corrections retrieve the frequency from the ancillary settings
+        if( ancillarySettings == nullptr && doCorrectionsNeedFrequency( ) )
+        {
+            throw std::runtime_error(
+                    "Error when computing light-time corrections: frequency-dependent corrections (e.g. ionosphere, solar corona) are "
+                    "used, but no ancillary settings (containing the link frequencies) are available. Check that a transmitter "
+                    "frequency is defined for the link, or that the observation model provides the frequencies." );
+        }
+
         ObservationScalarType totalLightTimeCorrections = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
 
         std::vector< double > linkEndTimesDouble( linkEndTimes.size( ) );
@@ -883,8 +969,7 @@ public:
             const bool iterateMultiLegLightTime = true ):
         lightTimeCalculators_( lightTimeCalculators ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         numberOfLinks_( lightTimeCalculators.size( ) ), numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
-        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( iterateMultiLegLightTime ),
-        ancillaryDelayOverrideWarningPrinted_( false )
+        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( iterateMultiLegLightTime )
     {
         initializeFullLinkLightTimeCalculator( );
     }
@@ -897,7 +982,7 @@ public:
                                  const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                                          std::make_shared< LightTimeConvergenceCriteria >( ) ):
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ), numberOfLinks_( 1 ), numberOfLinkEnds_( 2 ),
-        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( false ), ancillaryDelayOverrideWarningPrinted_( false )
+        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( false )
     {
         lightTimeCalculators_.clear( );
         lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
@@ -916,15 +1001,6 @@ public:
 
         if( !linkEndsDelays_.empty( ) )
         {
-            if( hasDefaultLinkEndDelayFunctions_ && !ancillaryDelayOverrideWarningPrinted_ )
-            {
-                std::cerr << "Warning when computing observation: transponder delay functions are present in the observation model, "
-                             "but retransmission delays are provided through ancillary settings. The ancillary settings will be used. "
-                             "This warning is printed only once for this light-time calculator."
-                          << std::endl;
-                ancillaryDelayOverrideWarningPrinted_ = true;
-            }
-
             // Delays vector not including delays at receiving and transmitting stations: set them to 0
             if( linkEndsDelays_.size( ) == numberOfLinkEnds_ - 2 )
             {
@@ -936,6 +1012,17 @@ public:
                 throw std::runtime_error( "Error when computing multi-leg light time: size of retransmission delays (" +
                                           std::to_string( linkEndsDelays_.size( ) ) + ") is invalid, should be " +
                                           std::to_string( numberOfLinkEnds_ ) + " or " + std::to_string( numberOfLinkEnds_ - 2 ) + "." );
+            }
+
+            if( hasDefaultLinkEndDelayFunctions_ )
+            {
+                for( unsigned int i = 1; i < numberOfLinkEnds_ - 1; i++ )
+                {
+                    if( defaultLinkEndDelayFunctions_.at( i ) != nullptr )
+                    {
+                        linkEndsDelays_.at( i ) = defaultLinkEndDelayFunctions_.at( i )( );
+                    }
+                }
             }
         }
         else
@@ -1281,8 +1368,6 @@ private:
     std::vector< std::vector< unsigned int > > singleLegIterationsPerMultiLegIteration_;
 
     const bool iterateMultiLegLightTime_;
-
-    bool ancillaryDelayOverrideWarningPrinted_;
 
     bool correctionsNeedFrequency_;
 };

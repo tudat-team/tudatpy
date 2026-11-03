@@ -51,6 +51,37 @@ typedef Eigen::Matrix< int, 12, 1 > Vector12i;
 
 BOOST_AUTO_TEST_SUITE( test_LegendreFunctions )
 
+//! Test explicit (unnormalized) Legendre polynomials against those computed from the recurrence relations
+BOOST_AUTO_TEST_CASE( test_ExplicitLegendrePolynomialsAgainstRecurrence )
+{
+    basic_mathematics::LegendreCache unnormalizedCache( 6, 6, false );
+    basic_mathematics::LegendreCache normalizedCache( 6, 6, true );
+    unnormalizedCache.setComputeFirstDerivatives( false );
+    normalizedCache.setComputeFirstDerivatives( false );
+    for( const double argument : { -0.999999, -0.7, -0.2, 0.0, 0.2, 0.7, 0.999999 } )
+    {
+        unnormalizedCache.update( argument );
+        normalizedCache.update( argument );
+        for( int degree = 0; degree <= 6; ++degree )
+        {
+            const int maximumOrder = degree <= 4 ? degree : 0;
+            for( int order = 0; order <= maximumOrder; ++order )
+            {
+                BOOST_TEST_CONTEXT( "degree=" << degree << ", order=" << order << ", argument=" << argument )
+                {
+                    const double explicitValue = basic_mathematics::computeLegendrePolynomialExplicit( degree, order, argument );
+                    const double recurrenceValue = unnormalizedCache.getLegendrePolynomial( degree, order );
+                    // Compare with unnormalized and geodesy-normalized recurrence results
+                    BOOST_CHECK_SMALL( explicitValue - recurrenceValue, 5.0e-14 * ( 1.0 + std::abs( recurrenceValue ) ) );
+                    const double normalizedValue = normalizedCache.getLegendrePolynomial( degree, order );
+                    const double normalization = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( degree, order );
+                    BOOST_CHECK_SMALL( normalization * explicitValue - normalizedValue, 5.0e-13 * ( 1.0 + std::abs( normalizedValue ) ) );
+                }
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
 {
     // Declare test values vector.

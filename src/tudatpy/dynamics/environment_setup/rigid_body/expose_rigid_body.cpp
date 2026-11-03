@@ -39,7 +39,11 @@ namespace rigid_body
 
 void expose_rigid_body_setup( py::module& m )
 {
-    py::enum_< tss::RigidBodyPropertiesType >( m, "RigidBodyPropertiesType" )
+    py::enum_< tss::RigidBodyPropertiesType >( m, "RigidBodyPropertiesType", R"doc(
+
+         Enumeration of rigid body property models.
+
+      )doc" )
             .value( "from_function_rigid_body_properties", tss::RigidBodyPropertiesType::from_function_rigid_body_properties )
             .value( "constant_rigid_body_properties", tss::RigidBodyPropertiesType::constant_rigid_body_properties )
             .value( "from_gravity_field_rigid_body_properties", tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties )
