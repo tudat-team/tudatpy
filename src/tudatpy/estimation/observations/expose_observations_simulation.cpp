@@ -224,7 +224,7 @@ tudatpy.estimation.observations.ObservationDataset
             py::arg( "observations" ),
             py::arg( "reference_link_end" ),
             py::arg( "ancillary_settings_per_observable" ) =
-                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) ,
+                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
             R"doc(
 
          Create an ObservationCollection from existing measurements grouped by observable type.
