@@ -130,6 +130,17 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::SystemOfBodies& bodies );
 
+//! Function that adds the environment updates required by the solid-body tide variations of updated gravity fields
+/*!
+ * Function that adds the environment updates required by the solid-body tide variations of updated gravity fields: the
+ * translational and rotational state of the deformed body, and the translational state of the deforming bodies.
+ * \param environmentModelsToUpdate List of required environment model updates, to which the updates are added (returned by reference).
+ * \param bodies List of body objects that comprises the environment
+ */
+void addSolidBodyTideEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const simulation_setup::SystemOfBodies& bodies );
+
 //! Get list of required environment model update settings from a list of propagation settings.
 /*!
  * Get list of required environment model update settings from a list of propagation settings.
@@ -233,6 +244,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     // Remove variables from environment updates that are numerically propagated.
     if( !isPartOfMultiTypePropagation )
     {
+        addSolidBodyTideEnvironmentUpdates( environmentModelsToUpdate, bodies );
         removePropagatedStatesFomEnvironmentUpdates( environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
         checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodies );
     }

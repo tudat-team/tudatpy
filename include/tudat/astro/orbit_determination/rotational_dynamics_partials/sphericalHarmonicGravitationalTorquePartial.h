@@ -51,7 +51,7 @@ public:
             const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial,
             const std::string acceleratedBody,
             const std::string acceleratingBody,
-            const bool perturberMassIsGravityDerived = false ):
+            const bool perturberMassIsGravityDerived ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravitational_torque ),
         torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial ),
         perturberMassIsGravityDerived_( perturberMassIsGravityDerived )
@@ -160,9 +160,6 @@ protected:
     void getParameterPartialFromAccelerationPartialFunction(
             Eigen::MatrixXd& partialMatrix,
             const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction );
-
-    //! Function to add the partial w.r.t. the gravitational parameter of the body exerting the torque, due to its mass (M = mu/G)
-    void addPerturberMassPartialWrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
 
     //! Function to compute the partial w.r.t. the gravitational parameter of the body exerting the torque
     void getPerturberGravitationalParameterPartial(

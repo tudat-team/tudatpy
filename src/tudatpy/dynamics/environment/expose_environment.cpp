@@ -3217,6 +3217,18 @@ bool
 
 
      )doc" )
+            .def( py::init< const double >( ),
+                  py::arg( "gravitational_parameter" ),
+                  R"doc(
+
+         Create a central gravity field with gravitational parameter in cubic metres per second squared.
+
+         Parameters
+         ----------
+         gravitational_parameter : float
+             Gravitational parameter of the body, in cubic metres per second squared.
+
+      )doc" )
             .def( "get_gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter, R"doc(
 
          Retrieve the gravitational parameter of the body.

@@ -21,7 +21,6 @@
 
 namespace tudat
 {
-
 namespace gravitation
 {
 
@@ -37,7 +36,7 @@ public:
      * Default constructor.
      * \param gravitationalParameter Gravitational parameter associated with gravity field
      */
-    GravityFieldModel( const double gravitationalParameter );
+    GravityFieldModel( const double gravitationalParameter ): gravitationalParameter_( gravitationalParameter ) {}
 
     //! Default destructor.
     /*!
@@ -50,7 +49,10 @@ public:
      * Define the gravitational parameter in meter^3 per second^2.
      * \param gravitationalParameter New gravitational parameter associated with gravity field.
      */
-    void resetGravitationalParameter( const double gravitationalParameter );
+    void resetGravitationalParameter( const double gravitationalParameter )
+    {
+        gravitationalParameter_ = gravitationalParameter;
+    }
 
     //! Get the gravitational parameter.
     /*!

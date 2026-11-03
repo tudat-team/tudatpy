@@ -16,13 +16,6 @@ namespace tudat
 namespace gravitation
 {
 
-GravityFieldModel::GravityFieldModel( const double gravitationalParameter ): gravitationalParameter_( gravitationalParameter ) {}
-
-void GravityFieldModel::resetGravitationalParameter( const double gravitationalParameter )
-{
-    gravitationalParameter_ = gravitationalParameter;
-}
-
 //! Set predefined central gravity field settings.
 std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
         BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField )

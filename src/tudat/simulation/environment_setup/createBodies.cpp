@@ -58,9 +58,11 @@ std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSetting
 
     if( explicitSettings == nullptr )
     {
-        // A constant mass specified in BodySettings takes precedence over gravity-derived mass.
-        return std::isnan( bodySettings->constantMass ) ? fromGravityFieldRigidBodyPropertiesSettings( legacyScaledMeanMomentOfInertia )
-                                                        : nullptr;
+        // Body::setGravityFieldModel already created gravity-derived properties, so new settings are only needed to transfer a
+        // legacy moment. A constant mass specified in BodySettings takes precedence over gravity-derived mass.
+        return ( std::isnan( bodySettings->constantMass ) && std::isfinite( legacyScaledMeanMomentOfInertia ) )
+                ? fromGravityFieldRigidBodyPropertiesSettings( legacyScaledMeanMomentOfInertia )
+                : nullptr;
     }
 
     const std::shared_ptr< FromGravityFieldRigidBodyPropertiesSettings > gravityDerivedSettings =

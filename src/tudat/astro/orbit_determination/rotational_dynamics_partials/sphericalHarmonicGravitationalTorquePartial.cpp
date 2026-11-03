@@ -154,25 +154,21 @@ void SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAcceler
     Eigen::MatrixXd accelerationPartialsMatrix = Eigen::MatrixXd( 3, accelerationPartialFunction.second );
     accelerationPartialFunction.first( accelerationPartialsMatrix );
 
-    partialMatrix += currentParameterPartialPreMultiplier_ * accelerationPartialsMatrix;
-}
-
-void SphericalHarmonicGravitationalTorquePartial::addPerturberMassPartialWrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
-{
-    // Torque is linear in perturber mass M = mu/G, so its partial w.r.t. mu is T/(G M)
-    partialMatrix.block( 0, 0, 3, 1 ) +=
-            torqueModel_->getTorque( ) / ( physical_constants::GRAVITATIONAL_CONSTANT * torqueModel_->perturberMassFunction( )( ) );
+    partialMatrix = currentParameterPartialPreMultiplier_ * accelerationPartialsMatrix;
 }
 
 void SphericalHarmonicGravitationalTorquePartial::getPerturberGravitationalParameterPartial(
         Eigen::MatrixXd& partialMatrix,
         const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction )
 {
+    partialMatrix.setZero( );
     if( accelerationPartialFunction.second > 0 )
     {
         getParameterPartialFromAccelerationPartialFunction( partialMatrix, accelerationPartialFunction );
     }
-    addPerturberMassPartialWrtGravitationalParameter( partialMatrix );
+
+    // Torque is linear in perturber mass M = mu/G, so its partial w.r.t. mu is T/(G M)
+    partialMatrix.block( 0, 0, 3, 1 ) += torqueModel_->getTorque( ) / ( physical_constants::GRAVITATIONAL_CONSTANT * currentMass_ );
 }
 
 }  // namespace acceleration_partials

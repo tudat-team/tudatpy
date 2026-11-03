@@ -60,24 +60,6 @@ void computeSphericalHarmonicMassDistribution( const std::shared_ptr< gravitatio
     }
 }
 
-void computePolyhedronMassDistribution( const Eigen::Matrix3d& inertiaTensorPerUnitMass,
-                                        const double mass,
-                                        Eigen::Vector3d& centerOfMass,
-                                        Eigen::Matrix3d& inertiaTensor,
-                                        bool& inertiaTensorAvailable )
-{
-    centerOfMass.setZero( );
-    inertiaTensor = mass * inertiaTensorPerUnitMass;
-    inertiaTensorAvailable = true;
-}
-
-// Point mass and ring gravity fields: center of mass at origin, no inertia tensor
-void computePointMassDistribution( Eigen::Vector3d& centerOfMass, bool& inertiaTensorAvailable )
-{
-    centerOfMass.setZero( );
-    inertiaTensorAvailable = false;
-}
-
 }  // namespace
 
 RigidBodyProperties::RigidBodyProperties( ):
@@ -286,7 +268,6 @@ void FromGravityFieldRigidBodyProperties::resetCurrentTime( )
 {
     if( modelIsTimeDependent_ )
     {
-        isMassComputed_ = false;
         isComComputed_ = false;
         isInertiaTensorComputed_ = false;
     }
@@ -368,13 +349,16 @@ void FromGravityFieldRigidBodyProperties::computeMassDistributionFromGravityFiel
     }
     else if( std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ ) != nullptr )
     {
-        computePolyhedronMassDistribution(
-                polyhedronInertiaTensorPerUnitMass_, currentMass_, currentCenterOfMass_, currentInertiaTensor_, isInertiaTensorAvailable_ );
+        currentCenterOfMass_.setZero( );
+        currentInertiaTensor_ = currentMass_ * polyhedronInertiaTensorPerUnitMass_;
+        isInertiaTensorAvailable_ = true;
     }
     else if( std::dynamic_pointer_cast< gravitation::RingGravityField >( gravityFieldModel_ ) != nullptr ||
              typeid( gravityFieldReference ) == typeid( gravitation::GravityFieldModel ) )
     {
-        computePointMassDistribution( currentCenterOfMass_, isInertiaTensorAvailable_ );
+        // Point mass and ring gravity fields: center of mass at origin, no inertia tensor
+        currentCenterOfMass_.setZero( );
+        isInertiaTensorAvailable_ = false;
     }
     else
     {

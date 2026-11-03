@@ -123,8 +123,15 @@ public:
             currentAngularVelocityVector_ = angularVelocityFunction_( );
             currentAngularVelocityCrossProductMatrix_ = linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ );
 
-            currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
-            currentGravitationalParameter_ = bodyGravitationalParameterFunction_( );
+            // These functions are not defined for all bodies, and are only used by partials that check for their existence
+            if( getInertiaTensorNormalizationFactor_ != nullptr )
+            {
+                currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+            }
+            if( bodyGravitationalParameterFunction_ != nullptr )
+            {
+                currentGravitationalParameter_ = bodyGravitationalParameterFunction_( );
+            }
 
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );

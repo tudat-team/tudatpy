@@ -10,6 +10,7 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
+#include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
@@ -268,6 +269,42 @@ void removePropagatedStatesFomEnvironmentUpdates(
     }
 }
 
+//! Function that adds the environment updates required by the solid-body tide variations of updated gravity fields
+void addSolidBodyTideEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( environmentModelsToUpdate.count( spherical_harmonic_gravity_field_update ) == 0 )
+    {
+        return;
+    }
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > tideUpdateNeeds;
+    for( const std::string& bodyName : environmentModelsToUpdate.at( spherical_harmonic_gravity_field_update ) )
+    {
+        const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet =
+                bodies.at( bodyName )->getGravityFieldVariationSet( );
+        if( variationSet != nullptr )
+        {
+            for( const std::shared_ptr< gravitation::GravityFieldVariations >& variation : variationSet->getVariationObjects( ) )
+            {
+                const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > tideVariation =
+                        std::dynamic_pointer_cast< gravitation::SolidBodyTideGravityFieldVariations >( variation );
+                if( tideVariation != nullptr )
+                {
+                    tideUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
+                    tideUpdateNeeds[ body_rotational_state_update ].push_back( bodyName );
+                    for( const std::string& deformingBody : tideVariation->getDeformingBodies( ) )
+                    {
+                        tideUpdateNeeds[ body_translational_state_update ].push_back( deformingBody );
+                    }
+                }
+            }
+        }
+    }
+    addEnvironmentUpdates( environmentModelsToUpdate, tideUpdateNeeds );
+}
+
 //! Get list of required environment model update settings from torque models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
         const basic_astrodynamics::TorqueModelMap& torqueModels,
@@ -282,6 +319,15 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( bodiesToIntegrate.at( i ) );
+
+        // An inertia tensor derived from a time-dependent gravity field requires the current coefficients
+        const std::shared_ptr< simulation_setup::Body > body = bodies.at( bodiesToIntegrate.at( i ) );
+        if( std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( body->getMassProperties( ) ) != nullptr &&
+            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( body->getGravityFieldModel( ) ) !=
+                    nullptr )
+        {
+            singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( bodiesToIntegrate.at( i ) );
+        }
     }
     addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
 
