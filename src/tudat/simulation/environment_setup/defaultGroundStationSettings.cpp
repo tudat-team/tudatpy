@@ -46,7 +46,7 @@ const std::map< std::string, Eigen::Vector3d >& getApproximateDsnGroundStationPo
         { "DSS-43", ( Eigen::Vector3d( ) << -4460894.917, +2682361.507, -3674748.152 ).finished( ) },
         { "DSS-45", ( Eigen::Vector3d( ) << -4460935.578, +2682765.661, -3674380.982 ).finished( ) },
         { "DSS-47", ( Eigen::Vector3d( ) << -4750925.349, +2792913.649, -3200490.875 ).finished( ) },  // W196:
-        // DSS-47 is not DSN, but affiliate (W196 pas of ATCA VLBI Array) Source https://arxiv.org/pdf/0809.0627
+        // DSS-47 is not DSN, but affiliate (W196 pad of ATCA VLBI Array) Source https://arxiv.org/pdf/0809.0627
         // Position taken from https://arxiv.org/pdf/0809.0627, drift corrected to 2003.0 epoch, but may include small error on cm level
         // (from missing ITRF93 --> ITRF2005 correction)
         { "DSS-53", ( Eigen::Vector3d( ) << +4849338.209, -360657.812, +4114746.173 ).finished( ) },
