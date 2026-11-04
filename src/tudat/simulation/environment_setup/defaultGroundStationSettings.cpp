@@ -45,11 +45,10 @@ const std::map< std::string, Eigen::Vector3d >& getApproximateDsnGroundStationPo
                   .finished( ) },  // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
         { "DSS-43", ( Eigen::Vector3d( ) << -4460894.917, +2682361.507, -3674748.152 ).finished( ) },
         { "DSS-45", ( Eigen::Vector3d( ) << -4460935.578, +2682765.661, -3674380.982 ).finished( ) },
-        //{ "DSS-47",
-        //( Eigen::Vector3d( ) << -4750915.837, +2792906.182, -3200483.747 )
-        //          .finished( ) },  // W196:
-        // https://www.narrabri.atnf.csiro.au/observing/users_guide/html_old_20090512/Cartesian_Coordinates.html
-        // (may not be entirely accurate)
+        { "DSS-47", ( Eigen::Vector3d( ) << -4750925.349, +2792913.649, -3200490.875 ).finished( ) },  // W196:
+        // DSS-47 is not DSN, but affiliate (W196 pas of ATCA VLBI Array) Source https://arxiv.org/pdf/0809.0627
+        // Position taken from https://arxiv.org/pdf/0809.0627, drift corrected to 2003.0 epoch, but may include small error on cm level
+        // (from missing ITRF93 --> ITRF2005 correction)
         { "DSS-53", ( Eigen::Vector3d( ) << +4849338.209, -360657.812, +4114746.173 ).finished( ) },
         { "DSS-54", ( Eigen::Vector3d( ) << +4849434.488, -360723.8999, +4114618.835 ).finished( ) },
         { "DSS-55", ( Eigen::Vector3d( ) << +4849525.256, -360606.0932, +4114495.084 ).finished( ) },
