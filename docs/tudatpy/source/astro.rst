@@ -28,6 +28,7 @@ The other modules make extensive use of the functionality exposed here.
    astro/polyhedron_utilities
    astro/gravitation
    astro/fundamentals
+   astro/close_encounters
 
 
 

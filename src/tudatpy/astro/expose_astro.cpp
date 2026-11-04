@@ -13,6 +13,7 @@
 #endif
 #include "expose_astro.h"
 
+#include "close_encounters/expose_close_encounters.h"
 #include "element_conversion/expose_element_conversion.h"
 #include "frame_conversion/expose_frame_conversion.h"
 #include "fundamentals/expose_fundamentals.h"
@@ -54,6 +55,9 @@ void expose_astro( py::module& m )
 
     auto polyhedron_utilities = m.def_submodule( "polyhedron_utilities" );
     polyhedron_utilities::expose_polyhedron_utilities( polyhedron_utilities );
+
+    auto close_encounters = m.def_submodule( "close_encounters" );
+    close_encounters::expose_close_encounters( close_encounters );
 }
 
 }  // namespace astro
