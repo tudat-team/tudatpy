@@ -7,4 +7,4 @@ weather, comet-coma data, and mission-specific environment products.
 
 from tudatpy.kernel.data_input.environment_data import *
 
-from . import coma, discos, horizons, ilrs, missions, sbdb, space_weather, spacetrack, spice
+from . import coma, damit, discos, horizons, ilrs, missions, sbdb, space_weather, spacetrack, spice

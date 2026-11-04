@@ -131,6 +131,7 @@ install_manifest.txt
 *.lo
 *.o
 *.obj
+!tests/test_tudatpy/eros_shape.obj
 
 # Precompiled Headers
 *.gch
