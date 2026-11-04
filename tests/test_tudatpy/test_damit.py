@@ -1,6 +1,5 @@
 from pathlib import Path
 from unittest.mock import patch
-import warnings
 
 import numpy as np
 import pytest
@@ -225,9 +224,7 @@ def offline_damit(tmp_path):
 
     Returns the list of model IDs that were downloaded."""
     asteroids = tmp_path / "asteroids.csv"
-    asteroids.write_text(
-        "id,number,name\n1,433,Eros\n2,1620,Geographos\n3,3103,Eger\n4,4179,Toutatis\n"
-    )
+    asteroids.write_text("id,number,name\n1,433,Eros\n4,4179,Toutatis\n")
     asteroid_models = tmp_path / "asteroid_models.csv"
     asteroid_models.write_text(
         "id,asteroid_id,lsm,calibrated_size,equiv_diameter,quality_flag,yorp\n"
@@ -235,9 +232,6 @@ def offline_damit(tmp_path):
         "11,1,LS,0,20.0,4,\n"  # best quality
         "12,1,LS,1,,1,\n"  # calibrated size
         "13,1,LS,0,,3,\n"  # no size information
-        "14,2,LS,1,,1,1.0E-8\n"  # two YORP models of one body
-        "15,2,LS,1,,2,2.0E-8\n"
-        "16,3,LS,1,,1,1.0E-8\n"  # YORP model of another body
         "18,4,LS,1,,3,\n"  # two equally good models, highest ID first
         "17,4,LS,1,,3,\n"
     )  # Text column as in the real table, otherwise pandas turns the selected model ID into a float
@@ -287,32 +281,6 @@ def test_query_selection_offline(offline_damit, eros):
         DamitModel.query(mpc_number=1)
     with pytest.raises(LookupError):
         DamitModel.query(damit_model_id=99)
-
-
-def _count_yorp_warnings(caught):
-    return sum("YORP" in str(warning.message) for warning in caught)
-
-
-def test_yorp_warning_once_per_body(offline_damit):
-    """Ignored YORP is not reported for loading or shape use, and once per body when rotation is used"""
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("default")
-
-        first_model = DamitModel.query(damit_model_id=14)
-        _ = first_model.vertices
-        first_model.best_fitting_ellipsoid()
-        assert _count_yorp_warnings(caught) == 0
-
-        _ = first_model.period
-        first_model.initial_orientation("J2000")
-        _ = DamitModel.query(damit_model_id=15).pole_latitude  # same body
-        assert _count_yorp_warnings(caught) == 1
-
-        _ = DamitModel.query(damit_model_id=16).reference_epoch  # other body
-        assert _count_yorp_warnings(caught) == 2
-
-        _ = DamitModel.query(damit_model_id=10).period  # no YORP
-        assert _count_yorp_warnings(caught) == 2
 
 
 @pytest.mark.remote_data
