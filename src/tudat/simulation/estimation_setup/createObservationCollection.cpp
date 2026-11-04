@@ -734,7 +734,7 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
                 body->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
             }
             body->getVehicleSystems( )->setTransponderTurnaroundRatio(
-                    []( observation_models::FrequencyBands, observation_models::FrequencyBands ) { return 1.0; } );
+                    []( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) { return 1.0; } );
         }
 
         if( !currentSupplementaryData.getTranslationalStateSupplementaryData( ).getStateHistory( ).empty( ) )
