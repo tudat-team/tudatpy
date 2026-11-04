@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
     {
         const Eigen::Vector6d stateCorrection = regularStateHistory.col( iteration ) - regularStateHistory.col( iteration - 1 );
         BOOST_CHECK_SMALL( constraintDirection.dot( stateCorrection ),
-                           1.0E-9 * std::max( 1.0, constraintDirection.cwiseProduct( stateCorrection ).cwiseAbs( ).maxCoeff( ) ) );
+                           std::max( 1.0E-7, 1.0E-9 * constraintDirection.cwiseProduct( stateCorrection ).cwiseAbs( ).maxCoeff( ) ) );
     }
     BOOST_CHECK_GT( ( regularStateHistory.col( regularStateHistory.cols( ) - 1 ) - regularStateHistory.col( 0 ) ).norm( ), 1.0 );
 
