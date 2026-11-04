@@ -18,6 +18,9 @@ _DAMIT_TABLES_DIR = _DAMIT_DIR / "tables"
 _DAMIT_ASTEROID_MODELS = _DAMIT_TABLES_DIR / "asteroid_models.csv"
 _DAMIT_ASTEROIDS = _DAMIT_TABLES_DIR / "asteroids.csv"
 
+# Rotation warnings that were already given, since Python may report a repeated warning again
+_reported_rotation_warnings = set()
+
 
 def _download_tables(force: bool = False) -> None:
     """Download DAMIT asteroid and asteroid model tables, necessary for:
@@ -172,10 +175,12 @@ class DamitModel:
         self._number_of_equally_good_models = None
 
     def _warn_if_rotation_incomplete(self) -> None:
-        """Warns if rotation is used of a model with ignored rotational data. Python reports a warning with the same
-        text only once, and the text identifies the body, so this is reported once per body."""
-        if self._rotation_warning is not None:
-            warn(self._rotation_warning)
+        """Warns if rotation is used of a model with ignored rotational data. The text identifies the body, so this
+        is reported once per body."""
+        warning = self._rotation_warning
+        if warning is not None and warning not in _reported_rotation_warnings:
+            _reported_rotation_warnings.add(warning)
+            warn(warning)
 
     @property
     def vertices(self) -> np.ndarray:
