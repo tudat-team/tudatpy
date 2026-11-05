@@ -8,14 +8,14 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References:
- *      Wan, E. and Van Der Merwe, R., “The Unscented Kalman Filter for Nonlinear estimation,” in Adaptive Systems
+ *      Wan, E. and Van Der Merwe, R., "The Unscented Kalman Filter for Nonlinear estimation," in Adaptive Systems
  *          for Signal Processing, Communications, and Control Symposium. Institute of Electrical and Electronics
  *          Engineers, 2000, pp. 153–158.
- *      Jah, M., Lisano, M., Born, G., and Axelrad, P., “Mars Aerobraking Spacecraft State estimation By Processing
- *          Inertial Measurement Unit Data,” Journal of Guidance, Control, and Dynamics, vol. 31, no. 6, pp. 1802–1812,
+ *      Jah, M., Lisano, M., Born, G., and Axelrad, P., "Mars Aerobraking Spacecraft State estimation By Processing
+ *          Inertial Measurement Unit Data," Journal of Guidance, Control, and Dynamics, vol. 31, no. 6, pp. 1802–1812,
  *          November–December 2008.
- *      Challa, M., Moore, J., and Rogers, D., “A Simple Attitude Unscented Kalman Filter: Theory and Evaluation in
- *          a Magnetometer-Only Spacecraft Scenario,” IEEE Access, vol. 4, pp. 1845–1858, 2016.
+ *      Challa, M., Moore, J., and Rogers, D., "A Simple Attitude Unscented Kalman Filter: Theory and Evaluation in
+ *          a Magnetometer-Only Spacecraft Scenario," IEEE Access, vol. 4, pp. 1845–1858, 2016.
  *      Vittaldev, V. (2010). The unified state model: Derivation and application in astro
  *          and navigation. Master's thesis, Delft University of Technology.
  */

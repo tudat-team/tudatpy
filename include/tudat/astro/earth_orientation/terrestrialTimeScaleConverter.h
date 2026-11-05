@@ -338,6 +338,14 @@ public:
             case basic_astrodynamics::ut1_scale:
 
                 timesToUpdate.ut1 = inputTimeValue;
+                if( timesToUpdate.ut1 < utcIntroductionEpochInTai_ )
+                {
+                    // Before EOP data starts, UTC is treated as UT1 and TT is obtained from historical Delta T.
+                    calculateAtomicTimesFromUtc< TimeType >( inputTimeValue );
+                    tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( timesToUpdate.tt, earthFixedPosition ) );
+                    timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
+                    break;
+                }
                 try
                 {
                     timesToUpdate.utc = timesToUpdate.ut1 -

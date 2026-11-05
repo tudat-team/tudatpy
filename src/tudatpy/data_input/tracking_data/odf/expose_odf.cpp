@@ -7,6 +7,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <fstream>
+
 #include "scalarTypes.h"
 #include "tudat/io/preProcessOdfFile.h"
 #include "tudat/io/readOdfFile.h"
@@ -56,15 +58,15 @@ void expose_odf( py::module& m )
             .value( "y_angle_south", tio::OdfDataType::y_angle_south );
 
     py::class_< tio::OdfCommonDataBlock, std::shared_ptr< tio::OdfCommonDataBlock > >( m, "OdfCommonDataBlock", R"doc(
-         Base class observable-independent ODF data containers
+        Base class observable-independent ODF data containers
 
-                 The data section of an ODF is split into blocks (lines), each associated with
-                 an observation epoch. The first elements of each block (e.g. observation epoch,
-                 value of the observable) are common for all the observable types, but the
-                 values in the remaining columns will have different meanings for different
-                 types of observations. This class serves as interface to the observable-independent
-                 part of an ODF data block. The different classes inheriting from OdfDataSpecificBlock
-                 provide interfaces to the observable-specific part of the blocks.
+        The data section of an ODF is split into blocks (lines), each associated with
+        an observation epoch. The first elements of each block (e.g. observation epoch,
+        value of the observable) are common for all the observable types, but the
+        values in the remaining columns will have different meanings for different
+        types of observations. This class serves as interface to the observable-independent
+        part of an ODF data block. The different classes inheriting from OdfDataSpecificBlock
+        provide interfaces to the observable-specific part of the blocks.
       )doc" )
             .def_property_readonly( "observable_time", &tio::OdfCommonDataBlock::getObservableTime )
             .def_property_readonly( "observable_value", &tio::OdfCommonDataBlock::getObservableValue )
@@ -78,30 +80,34 @@ void expose_odf( py::module& m )
             .def_readonly( "uplink_band_id", &tio::OdfCommonDataBlock::uplinkBandId_ )
             .def_readonly( "reference_band_id", &tio::OdfCommonDataBlock::referenceBandId_ )
             .def_readonly( "is_invalid", &tio::OdfCommonDataBlock::validity_ )
-            .def( "print_data_block",
-                  &tio::OdfCommonDataBlock::printDataBlock,
-                  py::arg( "output_file" ),
-                  R"doc(
-         Write the contents of the data block to a text file
+            .def(
+                    "print_data_block",
+                    []( tio::OdfCommonDataBlock& block, const std::string& output_file ) {
+                        std::ofstream output_stream( output_file );
+                        block.printDataBlock( output_stream );
+                    },
+                    py::arg( "output_file" ),
+                    R"doc(
+        Write the contents of the data block to a text file
 
-                           The file is created if it does not exist, and it can have, for example, txt extension
+        The file is created if it does not exist, and it can have, for example, txt extension
 
-                           Parameters
-                           ----------
-                           output_file : str
-                               Contents will be written to the file defined by this path
+        Parameters
+        ----------
+        output_file : str
+            Contents will be written to the file defined by this path
       )doc" );
 
     py::class_< tio::OdfDataSpecificBlock, std::shared_ptr< tio::OdfDataSpecificBlock > >( m, "OdfDataSpecificBlock", R"doc(
-         Base class observable-dependent ODF data containers
+        Base class observable-dependent ODF data containers
 
-                 The data section of an ODF is split into blocks (lines), each associated with
-                 an observation epoch. The first elements of each block (e.g. observation epoch,
-                 value of the observable) are common for all the observable types, but the
-                 values in the remaining columns will have different meanings for different
-                 types of observations. This base class serves as parent for interfaces to the
-                 observable-specific part of an ODF data block. The interface to the common
-                 part of the blocks is provided by the OdfCommonDataBlock class.
+        The data section of an ODF is split into blocks (lines), each associated with
+        an observation epoch. The first elements of each block (e.g. observation epoch,
+        value of the observable) are common for all the observable types, but the
+        values in the remaining columns will have different meanings for different
+        types of observations. This base class serves as parent for interfaces to the
+        observable-specific part of an ODF data block. The interface to the common
+        part of the blocks is provided by the OdfCommonDataBlock class.
       )doc" );
 
     py::class_< tio::OdfDopplerDataBlock, std::shared_ptr< tio::OdfDopplerDataBlock >, tio::OdfDataSpecificBlock >(
@@ -117,18 +123,22 @@ void expose_odf( py::module& m )
             m, "OdfDataBlock", R"doc(Contents of a line of the data section of an ODF)doc" )
             .def_property_readonly( "observable_specific_data_block", &tio::OdfDataBlock::getObservableSpecificDataBlock )
             .def_property_readonly( "common_data_block", &tio::OdfDataBlock::getCommonDataBlock )
-            .def( "print_data_block",
-                  &tio::OdfDataBlock::printDataBlock,
-                  py::arg( "output_file" ),
-                  R"doc(
-         Write the contents of the data block to a text file
+            .def(
+                    "print_data_block",
+                    []( tio::OdfDataBlock& block, const std::string& output_file ) {
+                        std::ofstream output_stream( output_file );
+                        block.printDataBlock( output_stream );
+                    },
+                    py::arg( "output_file" ),
+                    R"doc(
+        Write the contents of the data block to a text file
 
-                           The file is created if it does not exist, and it can have, for example, txt extension
+        The file is created if it does not exist, and it can have, for example, txt extension
 
-                           Parameters
-                           ----------
-                           output_file : str
-                               Contents will be written to the file defined by this path
+        Parameters
+        ----------
+        output_file : str
+            Contents will be written to the file defined by this path
       )doc" );
 
     py::class_< tio::OdfRampBlock, std::shared_ptr< tio::OdfRampBlock > >(
@@ -138,6 +148,11 @@ void expose_odf( py::module& m )
             .def_property_readonly( "ramp_start_epoch", &tio::OdfRampBlock::getRampStartTime )
             .def_property_readonly( "ramp_end_epoch", &tio::OdfRampBlock::getRampEndTime )
             .def_property_readonly( "transmitting_station_id", &tio::OdfRampBlock::getTransmittingStationId );
+
+    py::class_< tio::OdfClockOffsetBlock, std::shared_ptr< tio::OdfClockOffsetBlock > >( m, "OdfClockOffsetBlock" )
+            .def_property_readonly( "start_time", &tio::OdfClockOffsetBlock::getStartTime )
+            .def_property_readonly( "end_time", &tio::OdfClockOffsetBlock::getEndTime )
+            .def_property_readonly( "clock_offset", &tio::OdfClockOffsetBlock::getClockOffset );
 
     py::class_< tio::OdfRawFileContents, std::shared_ptr< tio::OdfRawFileContents > >(
             m, "RawOdfFileContents", R"doc(Raw contents of a parsed ODF file.)doc" )
@@ -160,7 +175,7 @@ void expose_odf( py::module& m )
 
          ODF clock-offset blocks.
 
-         :type: list
+         :type: list[OdfClockOffsetBlock]
       )doc" )
             .def_readonly( "file_reference_date", &tio::OdfRawFileContents::fileReferenceDate_, R"doc(
          **read-only**
@@ -221,19 +236,44 @@ void expose_odf( py::module& m )
            R"doc(
          Read ODF files and convert them to tracking-data containers.
 
-         ODF files are binary Deep Space Network (DSN) orbit-data files containing
-         radiometric spacecraft tracking data. The format is described in ``820-013,
-         TRK-2-18 Tracking System Interfaces Orbit Data File Interface, Revision E,
-         2008, JPL/DSN``.
          The reader parses the raw ODF contents, which can also be inspected with
          :func:`read_raw_odf_file_contents`, and converts the selected tracking
-         records to Tudat ``TrackingData`` and ``TrackingSupplementaryData``
-         objects.
+         records to Tudat :class:`~tudatpy.data_input.tracking_data.TrackingData`
+         and :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects
+         using the :func:`convert_raw_odf_file_contents` function.
 
          Parameters
          ----------
          odf_file_names : list[str]
              Paths to ODF files.
+         spacecraft_name : str
+             Name assigned to the spacecraft link end (to be used for all files).
+         earth_name : str, default="Earth"
+             Name assigned to the Earth body (to be used only when it is needed
+             to place the ground stations on a body not named 'Earth').
+         verbose_output : bool, default=True
+             Whether reader progress is printed (to be used for all files).
+
+         Returns
+         -------
+         tuple[list[TrackingData], list[TrackingSupplementaryData]]
+             Tracking data objects and supplementary data objects.
+      )doc" );
+    m.def( "convert_raw_odf_file_contents",
+           &tio::convertRawOdfFile< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "raw_odf_contents" ),
+           py::arg( "spacecraft_name" ),
+           py::arg( "earth_name" ),
+           py::arg( "verbose_output" ) = true,
+           R"doc(
+         Convert raw ODF file contents to tracking-data containers.
+
+         This function converts the raw ODF contents, which can be obtained with :func:`read_raw_odf_file_contents`, to Tudat :class:`~tudatpy.data_input.tracking_data.TrackingData` and :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects.
+
+         Parameters
+         ----------
+         raw_odf_contents : RawOdfFileContents
+             Raw parsed ODF file contents.
          spacecraft_name : str
              Name assigned to the spacecraft link end (to be used for all files).
          earth_name : str, default="Earth"

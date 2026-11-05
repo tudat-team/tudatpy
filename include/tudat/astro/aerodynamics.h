@@ -15,7 +15,6 @@
 #include "aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "aerodynamics/aerodynamicCoefficientInterface.h"
 #include "aerodynamics/aerodynamicForce.h"
-#include "aerodynamics/aerodynamicGuidance.h"
 #include "aerodynamics/aerodynamics.h"
 #include "aerodynamics/aerodynamicTorque.h"
 #include "aerodynamics/atmosphereModel.h"

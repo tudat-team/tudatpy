@@ -9,6 +9,8 @@ package; this module converts the decoded records to Tudat tracking-data and
 supplementary-data objects.
 """
 
+from tudatpy.data_input.tracking_data import TrackingData, TrackingSupplementaryData
+
 from ._converters.ramp import OpenRampHandling
 from ._processor import TnfTrackingDataProcessor
 
@@ -18,7 +20,7 @@ def read_tnf_data(
     requested_observable_types: list[str],
     spacecraft_name: str | None = None,
     open_ramp_handling: OpenRampHandling = OpenRampHandling.print_warning_once,
-):
+) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
     """Read TNF/TRK-2-34 files into tracking-data containers.
 
     TNF/TRK-2-34 files are binary DSN Tracking and Navigation Files containing

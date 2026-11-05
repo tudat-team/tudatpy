@@ -1,7 +1,7 @@
 from tudatpy.data._compat import deprecated_dir, deprecated_getattr
 
 _ALIASES = {
-    "DerivedSraRangeConverter": "tudatpy.data_input.tracking_data.tnf._converters.DerivedSraRangeConverter",
+    "DerivedSraRangeConverter": "tudatpy.data.processTrk234._legacy_converters.DerivedSraRangeConverter",
 }
 
 __all__ = sorted(_ALIASES)

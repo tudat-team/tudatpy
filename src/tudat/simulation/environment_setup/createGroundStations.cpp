@@ -270,8 +270,9 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 }
                 else if( relativisticStationMotionSettings->useGeneralRelativisticCorrection_ )
                 {
-                    centralBodyBarycentricPositionFunction =
-                            std::bind( &Body::getPositionInBaseFrameFromEphemeris< double, double >, body, std::placeholders::_1 );
+                    centralBodyBarycentricPositionFunction = std::bind( &Body::getPositionInBaseFrameFromEphemeris< double, double >,
+                                                                        bodies.at( relativisticStationMotionSettings->centralBodyName_ ),
+                                                                        std::placeholders::_1 );
                     if( bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
                     {
                         throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " +
@@ -287,7 +288,8 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                         centralBodyBarycentricPositionFunction,
                         inertialToBodyFixedRotationFunction,
                         centralBodyGravitationalParameterFunction,
-                        relativisticStationMotionSettings->useGeneralRelativisticCorrection_ );
+                        relativisticStationMotionSettings->useGeneralRelativisticCorrection_,
+                        relativisticStationMotionSettings->scaleToTdbCompatibleCoordinates_ );
                 break;
             }
             case custom_station_motion: {
@@ -330,8 +332,20 @@ void createGroundStation( const std::shared_ptr< Body > body,
                           const coordinate_conversions::PositionElementTypes positionElementType,
                           const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings )
 {
-    createGroundStation(
-            body, groundStationName, createGroundStationState( body, groundStationPosition, positionElementType, stationMotionSettings ) );
+    createGroundStation( body, groundStationName, groundStationPosition, positionElementType, stationMotionSettings, SystemOfBodies( ) );
+}
+
+//! Function to create a ground station and add it to a Body object, with the bodies needed by its motion models
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::string groundStationName,
+                          const Eigen::Vector3d groundStationPosition,
+                          const coordinate_conversions::PositionElementTypes positionElementType,
+                          const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings,
+                          const SystemOfBodies& bodies )
+{
+    createGroundStation( body,
+                         groundStationName,
+                         createGroundStationState( body, groundStationPosition, positionElementType, stationMotionSettings, bodies ) );
 }
 
 //! Function to create a set of ground stations and add them to the corresponding Body objects
@@ -356,6 +370,13 @@ void createGroundStations( const SystemOfBodies& bodies,
 
 void createGroundStation( const std::shared_ptr< Body > body, const std::shared_ptr< GroundStationSettings > groundStationSettings )
 {
+    createGroundStation( body, groundStationSettings, SystemOfBodies( ) );
+}
+
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::shared_ptr< GroundStationSettings > groundStationSettings,
+                          const SystemOfBodies& bodies )
+{
     if( body->getGroundStationMap( ).count( groundStationSettings->getStationName( ) ) != 0 )
     {
         throw std::runtime_error( "Error when creating ground station " + groundStationSettings->getStationName( ) + " on body " +
@@ -367,7 +388,8 @@ void createGroundStation( const std::shared_ptr< Body > body, const std::shared_
                              groundStationSettings->getStationName( ),
                              groundStationSettings->getGroundStationPosition( ),
                              groundStationSettings->getPositionElementType( ),
-                             groundStationSettings->getStationMotionSettings( ) );
+                             groundStationSettings->getStationMotionSettings( ),
+                             bodies );
         if( groundStationSettings->getWeatherDataSettings( ) != nullptr )
         {
             setWeatherDataInGroundStation( body->getGroundStation( groundStationSettings->getStationName( ) ),
@@ -420,6 +442,41 @@ std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndLis
 //    }
 //    return elevationAngles;
 //}
+
+//! Function to determine whether the Sun is below a given elevation angle as seen from a ground station.
+// Note: this function is just a convenient wrapper that allows the user to check whether it is night or day at a given ground station.
+// It uses isTargetVisibleFromGroundStation and allows the user to avoid extracting the states at a given time for both Sun and Ground
+// Station. The same result could be achieved by extracting the states and using those directly inside isTargetVisibleFromGroundStation
+// (this would also be faster).
+bool isItDarkAtGroundStation( const std::string& groundStationName,
+                              const double timeTdb,
+                              const double maxSunElevation,
+                              const SystemOfBodies& bodies,
+                              const std::string& centralBodyName )
+{
+    std::shared_ptr< Body > centralBody = bodies.getBody( centralBodyName );
+
+    if( centralBody->getGroundStationMap( ).count( groundStationName ) == 0 )
+    {
+        throw std::runtime_error( "Error when checking darkness at ground station " + groundStationName + " on body " + centralBodyName +
+                                  ": station not found." );
+    }
+
+    // Inertial state of the ground station, obtained from the central body's ephemeris and rotation model, combined with the
+    // station's body-fixed position.
+    std::function< Eigen::Vector6d( const double ) > groundStationStateFunction = getLinkEndCompleteEphemerisFunction< double, double >(
+            observation_models::LinkEndId( centralBodyName, groundStationName ), bodies );
+    const Eigen::Vector3d groundStationPosition = groundStationStateFunction( timeTdb ).segment( 0, 3 );
+
+    // Inertial position of the Sun.
+    const Eigen::Vector3d sunPosition = bodies.getBody( "Sun" )->getPositionInBaseFrameFromEphemeris< double, double >( timeTdb );
+
+    const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
+            centralBody->getGroundStation( groundStationName )->getPointingAnglesCalculator( );
+
+    return !ground_stations::isTargetVisibleFromGroundStation(
+            groundStationPosition, sunPosition, timeTdb, maxSunElevation, pointingAnglesCalculator );
+}
 
 }  // namespace simulation_setup
 

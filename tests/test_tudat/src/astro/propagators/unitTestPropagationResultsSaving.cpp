@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -16,7 +15,7 @@
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -120,7 +119,7 @@ BOOST_AUTO_TEST_CASE( test_StateSaveEpochs )
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    double( initialEphemerisTime ), 70.0, CoefficientSets::rungeKuttaFehlberg78, 0.01, 3600.0, 1.0E-12, 1.0E-12 );
+                    70.0, CoefficientSets::rungeKuttaFehlberg78, 0.01, 3600.0, 1.0E-12, 1.0E-12 );
 
     std::vector< std::map< double, Eigen::VectorXd > > numericalResultsVector;
     for( unsigned int i = 0; i < 4; i++ )

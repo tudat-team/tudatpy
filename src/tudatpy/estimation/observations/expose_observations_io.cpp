@@ -23,9 +23,10 @@
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
-#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
+namespace tba = tudat::basic_astrodynamics;
 namespace tom = tudat::observation_models;
+namespace tsm = tudat::system_models;
 namespace tss = tudat::simulation_setup;
 
 namespace tudatpy
@@ -37,11 +38,6 @@ namespace observations
 
 void expose_observations_io_bindings( py::module& m )
 {
-    py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
-                                                                 tudat::observation_models::FrequencyBands band2 ) {
-        return tom::getDsnDefaultTurnaroundRatios( band1, band2 );
-    };
-
     py::class_< tom::ProcessedOdfFileContents< TIME_TYPE >, std::shared_ptr< tom::ProcessedOdfFileContents< TIME_TYPE > > >(
             m, "ProcessedOdfFileContents", R"doc(
         Class containing processed ODF data.
@@ -178,7 +174,9 @@ void expose_observations_io_bindings( py::module& m )
            py::arg( "processed_odf_file" ),
            py::arg( "bodies" ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
-           py::arg( "turnaround_ratio_function" ) = getDsnDefaultTurnaroundRatios_wrapper,
+           py::arg_v( "turnaround_ratio_function",
+                      std::function< double( tba::FrequencyBands, tba::FrequencyBands ) >( &tsm::getDsnDefaultTurnaroundRatios ),
+                      "tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios" ),
            R"doc(
         Sets the ODF information required for simulating observations into the system of bodies.
 
@@ -194,7 +192,7 @@ void expose_observations_io_bindings( py::module& m )
             System of bodies.
         body_with_ground_stations_name : str, optional
             Name of the body in which the ground stations are located, by default "Earth".
-        turnaround_ratio_function : function, optional
+        turnaround_ratio_function : Callable[[FrequencyBands, FrequencyBands], float], default = :func:`~tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios`
             Function returning the turnaround ratio as a function of the uplink and downlink bands.
         )doc" );
 
@@ -215,7 +213,7 @@ void expose_observations_io_bindings( py::module& m )
             Processed ODF data.
         observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
             Observable types to process.
-        start_and_end_times_to_process : tuple[float, float]
+        start_and_end_times_to_process : tuple[astro.time_representation.Time, astro.time_representation.Time]
             Start and end times of the data to process.
         allow_duplicate_observations_within_single_set: bool
             Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation, default is True.
@@ -290,9 +288,9 @@ void expose_observations_io_bindings( py::module& m )
             Name of the target spacecraft.
         ground_station_name : str
             Name of the ground station.
-        reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        reception_band : tudatpy.dynamics.environment.FrequencyBands
             Reception frequency band.
-        transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        transmission_band : tudatpy.dynamics.environment.FrequencyBands
             Transmission frequency band.
         apply_troposphere_correction : bool, optional
             Whether to apply troposphere correction, by default True.
@@ -335,9 +333,9 @@ void expose_observations_io_bindings( py::module& m )
             Name of the target spacecraft.
         ground_station_names : list[str]
             List of ground station names, must be same size as ifms_file_names.
-        reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        reception_band : tudatpy.dynamics.environment.FrequencyBands
             Reception frequency band.
-        transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        transmission_band : tudatpy.dynamics.environment.FrequencyBands
             Transmission frequency band.
         apply_troposphere_correction : bool, optional
             Whether to apply troposphere correction, by default True.
@@ -359,8 +357,8 @@ void expose_observations_io_bindings( py::module& m )
                               const std::string&,
                               const std::string&,
                               const std::string&,
-                              const tom::FrequencyBands&,
-                              const tom::FrequencyBands&,
+                              const tba::FrequencyBands&,
+                              const tba::FrequencyBands&,
                               const std::map< std::string, Eigen::Vector3d >& >(
                    &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "fdets_file_name" ),
@@ -393,9 +391,9 @@ void expose_observations_io_bindings( py::module& m )
             Name of the transmitting station.
         receiving_station_name : str
             Name of the receiving station.
-        reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        reception_band : tudatpy.dynamics.environment.FrequencyBands
             Reception frequency band.
-        transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        transmission_band : tudatpy.dynamics.environment.FrequencyBands
             Transmission frequency band.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` will be used.
@@ -409,8 +407,8 @@ void expose_observations_io_bindings( py::module& m )
                               const std::string&,
                               const std::string&,
                               const std::string&,
-                              const tom::FrequencyBands&,
-                              const tom::FrequencyBands&,
+                              const tba::FrequencyBands&,
+                              const tba::FrequencyBands&,
                               const std::map< std::string, Eigen::Vector3d >& >(
                    &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "fdets_file_name" ),
@@ -430,37 +428,6 @@ void expose_observations_io_bindings( py::module& m )
         .. deprecated::
             Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
 
-        )doc" );
-
-    m.def( "create_compressed_doppler_collection",
-           &tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_collection" ),
-           py::arg( "compression_ratio" ),
-           py::arg( "minimum_number_of_observations" ) = 10,
-           py::arg( "max_arc_gap" ) = 300.0,
-           py::arg_v( "earth_fixed_ground_station_positions",
-                      tss::getApproximateDsnGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
-           R"doc(
-        Create a compressed Doppler observation collection.
-
-        This function takes a collection of Doppler observations, splits them into arcs, and compresses each arc by averaging observations.
-
-        Parameters
-        ----------
-        original_observation_collection : tudatpy.estimation.observations.ObservationCollection
-            The original observation collection containing Doppler data.
-        compression_ratio : int
-            The number of observations to average into a single compressed observation.
-        minimum_number_of_observations : int, optional
-            The minimum number of observations required in an arc to be considered for compression, by default 10.
-        max_arc_gap : float, optional
-            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
-
-        Returns
-        -------
-        tudatpy.estimation.observations.ObservationCollection
-            A new observation collection with compressed Doppler data.
         )doc" );
 
     m.def(
@@ -496,8 +463,8 @@ void expose_observations_io_bindings( py::module& m )
             List of observable types to process. If empty, all available types are processed.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions of DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) will be used.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
-            Ancillary settings for the observations.
+        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings | None, default = None
+            Ancillary settings for the observations. If ``None``, empty ancillary settings are used.
 
         Returns
         -------

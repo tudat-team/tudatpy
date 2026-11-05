@@ -9,12 +9,18 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 # Find dependencies.
 include(CMakeFindDependencyMacro)
+find_dependency(cereal)
 find_dependency(CSpice)
 find_dependency(Sofa)
 #find_dependency(Eigen3)
-#efind_dependency(Boost)
-#set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
-#include(TudatFindBoost)
+if(POLICY CMP0167)
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0167 OLD)
+endif()
+include(TudatFindBoost)
+if(POLICY CMP0167)
+  cmake_policy(POP)
+endif()
 
 @PACKAGE_INIT@
 

@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
@@ -20,7 +19,7 @@
 #include <tuple>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -166,8 +165,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAndTorqueInCoupledOrbitRotation
     dependentVariablesList.push_back( totalAccelerationDependentVariable( "Io" ) );
     dependentVariablesList.push_back( singleTorqueVariable( full_two_body_spherical_harmonic_gravitational_torque, "Io", "Jupiter" ) );
 
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEpoch, integrationStep );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, integrationStep );
     std::shared_ptr< PropagationTerminationSettings > terminationSettings =
             std::make_shared< PropagationTimeTerminationSettings >( finalEpoch );
 

@@ -42,6 +42,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case radiation_pressure_coefficient:
             parameterDescription = "radiation pressure coefficient ";
             break;
+        case three_coefficient_radiation_pressure_coefficients:
+            parameterDescription = "three-coefficient radiation-pressure areas ";
+            break;
         case arc_wise_radiation_pressure_coefficient:
             parameterDescription = "arc-wise radiation pressure coefficient ";
             break;
@@ -59,6 +62,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
             break;
         case rotation_pole_position:
             parameterDescription = "pole position ";
+            break;
+        case shared_observation_bias:
+            parameterDescription = "shared observation bias ";
             break;
         case constant_additive_observation_bias:
             parameterDescription = "absolute observation bias ";
@@ -171,6 +177,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case diffuse_reflectivity:
             parameterDescription = " diffuse reflectivity for panel group ";
             break;
+        case energy_accommodation_coefficient:
+            parameterDescription = " energy accommodation coefficient for panel group ";
+            break;
+        case normal_accommodation_coefficient:
+            parameterDescription = " normal accommodation coefficient for panel group ";
+            break;
+        case tangential_accommodation_coefficient:
+            parameterDescription = " tangential accommodation coefficient for panel group ";
+            break;
+        case normal_velocity_at_wall_ratio:
+            parameterDescription = " normal velocity at wall ratio for panel group ";
+            break;
         case mode_coupled_tidal_love_numbers:
             parameterDescription = " Mode-coupled tidal Love numbers";
             break;
@@ -276,6 +294,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case radiation_pressure_coefficient:
             isDoubleParameter = true;
             break;
+        case three_coefficient_radiation_pressure_coefficients:
+            isDoubleParameter = false;
+            break;
         case arc_wise_radiation_pressure_coefficient:
             isDoubleParameter = false;
             break;
@@ -294,6 +315,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_pole_position:
             isDoubleParameter = false;
             break;
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             isDoubleParameter = false;
             break;
@@ -408,6 +430,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case diffuse_reflectivity:
             isDoubleParameter = true;
             break;
+        case energy_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case normal_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case tangential_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case normal_velocity_at_wall_ratio:
+            isDoubleParameter = true;
+            break;
         case mode_coupled_tidal_love_numbers:
             isDoubleParameter = false;
             break;
@@ -519,6 +553,7 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     bool flag;
     switch( parameterType )
     {
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             flag = true;
             break;

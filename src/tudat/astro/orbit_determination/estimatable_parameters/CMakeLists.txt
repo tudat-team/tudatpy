@@ -16,6 +16,7 @@ set(estimatable_parameters_SOURCES
   "sphericalHarmonicCosineCoefficients.cpp"
   "tidalLoveNumber.cpp"
   "specularDiffuseReflectivity.cpp"
+  "panelMaterialProperty.cpp"
 )
 
 # Set the header files.
@@ -27,6 +28,7 @@ set(estimatable_parameters_HEADERS
   "initialRotationalState.h"
   "initialMassState.h"
   "radiationPressureCoefficient.h"
+  "threeCoefficientRadiationPressureCoefficients.h"
   "sphericalHarmonicSineCoefficients.h"
   "sphericalHarmonicCosineCoefficients.h"
   "constantRotationRate.h"
@@ -46,6 +48,7 @@ set(estimatable_parameters_HEADERS
   "coreFactor.h"
   "freeCoreNutationRate.h"
   "specularDiffuseReflectivity.h"
+  "panelMaterialProperty.h"
   "polynomialClockCorrections.h"
   "iauRotationModelParameters.h"
 )

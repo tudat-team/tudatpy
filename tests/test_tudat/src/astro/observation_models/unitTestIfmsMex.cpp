@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -16,7 +15,7 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
@@ -27,8 +26,6 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
-
-#include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
@@ -72,10 +69,10 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
     for( int i = 0; i < 1; i++ )
     {
-        FrequencyBands currentReceptionBand = x_band;
+        FrequencyBands currentReceptionBand = FrequencyBands::x_band;
         if( i < 2 )
         {
-            currentReceptionBand = s_band;
+            currentReceptionBand = FrequencyBands::s_band;
         }
 
         // Create settings for default bodies
@@ -104,23 +101,24 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.at( "MeX" )->setVehicleSystems( vehicleSystems );
 
         /****************************************************************************************
          ************************** LOAD IFMS FILES
          *****************************************************************************************/
 
-        auto trackingDataAndSupplementaryData = readIfmsFiles< long double, Time >(
-                { ifmsFileNames.at( i ) },
-                "MeX",
-                "NWNORCIA",
-                "Earth",
-                true,
-                true,
-                std::vector< double >( { convertFrequencyBandToDouble( x_band ), convertFrequencyBandToDouble( currentReceptionBand ) } ),
-                convertFrequencyBandToDouble( currentReceptionBand ),
-                0.0 );
+        auto trackingDataAndSupplementaryData =
+                readIfmsFiles< long double, Time >( { ifmsFileNames.at( i ) },
+                                                    "MeX",
+                                                    "NWNORCIA",
+                                                    "Earth",
+                                                    true,
+                                                    true,
+                                                    std::vector< std::string >( { getFrequencyBandString( FrequencyBands::x_band ),
+                                                                                  getFrequencyBandString( currentReceptionBand ) } ),
+                                                    getFrequencyBandString( currentReceptionBand ),
+                                                    0.0 );
 
         setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
 

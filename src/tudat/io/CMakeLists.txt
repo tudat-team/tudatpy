@@ -40,6 +40,7 @@ set(io_SOURCES
         "readSinexFile.cpp"
         "mapTextFileReader.cpp"
         "readTabulatedMediaCorrections.cpp"
+        "readDsnAmcFile.cpp"
         "readTabulatedWeatherData.cpp"
         "readTrackingTxtFile.cpp"
         "readVariousPdsFiles.cpp"
@@ -93,6 +94,7 @@ set(io_HEADERS
         "readSinexFile.h"
         "readBinaryFile.h"
         "readTabulatedMediaCorrections.h"
+        "readDsnAmcFile.h"
         "readTabulatedWeatherData.h"
         "readTrackingTxtFile.h"
         "readVariousPdsFiles.h"
@@ -109,6 +111,10 @@ TUDAT_ADD_LIBRARY("input_output"
         PUBLIC_LINKS
         tudat_ephemerides
         tudat_interpolators
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    add_subdirectory(serialization)
+endif ()

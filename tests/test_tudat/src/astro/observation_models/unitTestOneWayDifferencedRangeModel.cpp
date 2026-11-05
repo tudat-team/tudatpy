@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -33,6 +32,7 @@ namespace unit_tests
 
 using namespace tudat;
 using namespace tudat::observation_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
@@ -232,7 +232,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
                     std::make_shared< ObservationAncillarySimulationSettings >( );
 
             double integrationTime = 7200.0;
-            ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+            ancillarySettings->setAncillaryDoubleVectorData(
+                    frequency_bands, convertFrequencyBandsToDoubleVector( { FrequencyBands::x_band, FrequencyBands::x_band } ) );
             ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
 
             std::vector< double > linkEndTimes;

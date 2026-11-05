@@ -1,7 +1,7 @@
 from tudatpy.data._compat import deprecated_dir, deprecated_getattr
 
 _ALIASES = {
-    "DerivedDopplerConverter": "tudatpy.data_input.tracking_data.tnf._converters.DerivedDopplerConverter",
+    "DerivedDopplerConverter": "tudatpy.data.processTrk234._legacy_converters.DerivedDopplerConverter",
 }
 
 __all__ = sorted(_ALIASES)

@@ -73,13 +73,14 @@ double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLi
                                             legTransmissionTime,
                                             legReceptionTime );
 
-    // Get frequency from ancillary settings
+    // Get frequency from ancillary settings, selected by the role of the leg in the full link (uplink or downlink)
+    const unsigned int transmitterIndexInFullLink = getTransmitterIndexInFullLink( currentMultiLegTransmitterIndex );
     double currentFrequency = TUDAT_NAN;
-    if( currentMultiLegTransmitterIndex == 0 )
+    if( transmitterIndexInFullLink == 0 )
     {
         currentFrequency = ancillarySettings->getIntermediateDoubleData( transmitter_frequency_intermediate, true );
     }
-    else if( currentMultiLegTransmitterIndex == 2 )
+    else if( transmitterIndexInFullLink == 2 )
     {
         currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate, true );
     }

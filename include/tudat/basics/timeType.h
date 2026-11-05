@@ -22,6 +22,8 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -498,26 +500,29 @@ public:
     //! Equality operator for two Time objects
     /*!
      * Equality operator for two Time objects
-     * \param timeToCompare1 First time to compare
-     * \param timeToCompare2 Second time to compare
+     * \param timeToCompare Time to compare against this
      * \return True if two times are fully equal; false if not.
      */
-    friend bool operator==( const Time& timeToCompare1, const Time& timeToCompare2 )
+    bool operator==( const Time& timeToCompare ) const
     {
-        return ( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
-                 ( timeToCompare1.getSecondsIntoFullPeriod( ) == timeToCompare2.getSecondsIntoFullPeriod( ) ) );
+        return equals( timeToCompare );
     }
 
     //! Inequality operator for two Time objects
     /*!
-     * Inqquality operator for two Time objects
-     * \param timeToCompare1 First time to compare
-     * \param timeToCompare2 Second time to compare
+     * Inequality operator for two Time objects
+     * \param timeToCompare Time to compare against this
      * \return False if two times are fully equal; true if not.
      */
-    friend bool operator!=( const Time& timeToCompare1, const Time& timeToCompare2 )
+    bool operator!=( const Time& timeToCompare ) const
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( *this == timeToCompare );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const Time& rhs ) const
+    {
+        return getFullPeriods( ) == rhs.getFullPeriods( ) && getSecondsIntoFullPeriod( ) == rhs.getSecondsIntoFullPeriod( );
     }
 
     //! Equality operator for a Time object with an integer.
@@ -569,7 +574,7 @@ public:
      */
     friend bool operator!=( const Time& timeToCompare1, const double timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Inequality operator for a Time object with a double
@@ -582,7 +587,7 @@ public:
      */
     friend bool operator!=( const double timeToCompare1, const Time& timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Equality operator for a Time object with a long double
@@ -621,7 +626,7 @@ public:
      */
     friend bool operator!=( const Time& timeToCompare1, const long double timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Inequality operator for a Time object with a long double
@@ -634,7 +639,7 @@ public:
      */
     friend bool operator!=( const long double timeToCompare1, const Time& timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Greater-than operator for two Time objects
@@ -1053,7 +1058,32 @@ protected:
 
     //! Pre-declared variable used in often-called normalizeMembers function
     int daysToAdd;
-};
+
+public:
+    TUDAT_DECLARE_BINARY_IO( Time )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( fullPeriods_ ) );
+        ar( CEREAL_NVP( secondsIntoFullPeriod_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( fullPeriods_ ) );
+        ar( CEREAL_NVP( secondsIntoFullPeriod_ ) );
+    }
+};  // class Time
+
+}  // namespace tudat
+
+namespace tudat
+{
 
 //! The Time at JD0
 constexpr static Time TIME_AT_JD0 = Time( -basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * tudat::TIME_NORMALIZATION_TERMS_PER_DAY, 0.0L );

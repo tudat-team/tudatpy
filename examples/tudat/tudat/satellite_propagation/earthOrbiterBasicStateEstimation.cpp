@@ -10,7 +10,6 @@
 
 #include <tudat/simulation/estimation.h>
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include <tudat/io/applicationOutput.h>
@@ -147,15 +146,21 @@ int main( )
     Eigen::Matrix< double, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
-    // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, double( finalEphemerisTime ) );
-
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    double( initialEphemerisTime ), 40.0, rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+                    40.0, rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
+    // Create propagator settings
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    double( initialEphemerisTime ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( double( finalEphemerisTime ) ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             DEFINE LINK ENDS FOR OBSERVATIONS            //////////////////////////////////////
@@ -220,8 +225,8 @@ int main( )
     }
 
     // Create orbit determination object.
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Compute list of observation times.
     std::vector< double > baseTimeList;
@@ -281,12 +286,10 @@ int main( )
     std::shared_ptr< EstimationInput< double, double > > estimationInput =
             std::make_shared< EstimationInput< double, double > >( observationsAndTimes );
 
-    std::map< observation_models::ObservableType, double > weightPerObservable;
-    weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
-    weightPerObservable[ one_way_doppler ] =
-            1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
-
-    estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    observationsAndTimes->setConstantWeight( 1.0 / ( 1.0 * 1.0 ), observationParser( one_way_range ) );
+    observationsAndTimes->setConstantWeight(
+            1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT ),
+            observationParser( one_way_doppler ) );
     estimationInput->defineEstimationSettings( true, true, true, true, true );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 10 ) );
 

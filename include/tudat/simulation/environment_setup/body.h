@@ -33,6 +33,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/math/basic/numericalDerivative.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/simulation/environment_setup/baseStateInterface.h"
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
@@ -57,7 +58,6 @@ class BodyShapeModel;
 
 namespace electromagnetism
 {
-class RadiationPressureInterface;
 class RadiationPressureTargetModel;
 class RadiationSourceModel;
 }  // namespace electromagnetism
@@ -168,6 +168,24 @@ public:
      */
     template< typename StateScalarType >
     void setTemplatedState( const Eigen::Matrix< StateScalarType, 6, 1 >& state );
+
+    //! Function to set the current state of the body, as obtained from a numerical propagation at a given time
+    /*!
+     * Function to set the current state of the body, as obtained from a numerical propagation at a given time. Both the
+     * currentState_ and currentLongState_ are set, and the state is associated with the input time. Subsequent requests for
+     * the state of this body at this time from its ephemeris (for instance by a body with an ephemeris defined w.r.t. this
+     * body) then return this propagated state, instead of recomputing (and overwriting) it from the ephemeris.
+     * \param state Current state of the body that is set, in the global frame
+     * \param time Time at which the state is set
+     */
+    template< typename StateScalarType, typename TimeType >
+    void setPropagatedState( const Eigen::Matrix< StateScalarType, 6, 1 >& state, const TimeType time )
+    {
+        currentState_ = state.template cast< double >( );
+        currentLongState_ = state.template cast< long double >( );
+        timeOfCurrentState_ = static_cast< Time >( time );
+        isStateSet_ = true;
+    }
 
     //! Templated function to set the current state of the body from its ephemeris and
     //! global-to-ephemeris-frame function.
@@ -433,14 +451,6 @@ public:
 
     Eigen::Matrix3d getCurrentRotationMatrixToLocalFrame( );
 
-    //! Get current rotational state.
-    /*!
-     *  Get current rotational state, expressed as a quaternion from global to body-fixed frame
-     *  (in vector form) and the body's angular velocity vector in inertial frame.
-     *  \return Current rotational state in quaternions and rotational velocity.
-     */
-    Eigen::Vector7d getCurrentRotationalState( );
-
     //! Get current rotation matrix derivative from body-fixed to global frame.
     /*!
      *  Get current rotation matrix derivative from body-fixed frame to global, as set from the
@@ -535,15 +545,6 @@ public:
     std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& getBodyDeformationModelsReference( );
 
     void addBodyDeformationModel( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel );
-    //! Function to set the radiation pressure interface of the body, for a single radiation source.
-    /*!
-     *  Function to set the radiation pressure interface of the body, for a single radiation source
-     *  \param radiatingBody Name of body that is the source of the radiation.
-     *  \param radiationPressureInterface Radiation pressure interface of the body.
-     */
-    void setRadiationPressureInterface( const std::string& radiatingBody,
-                                        const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface );
-
     //! Function to set the radiation source model of the body.
     /*!
      *  Function to set the radiation source model of the body.
@@ -630,13 +631,6 @@ public:
      * \return Body flight conditions
      */
     std::shared_ptr< aerodynamics::FlightConditions > getFlightConditions( );
-
-    //! Function to retrieve the shape model of the body.
-    /*!
-     *  Function to retrieve the shape model of the body.
-     *  \return Shape model of the body.
-     */
-    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > getRadiationPressureInterfaces( );
 
     //! Function to retrieve the radiation source model of the body.
     /*!
@@ -828,6 +822,16 @@ public:
         return timeScaleConverter_;
     }
 
+    void setClimateModel( std::shared_ptr< environment::ClimateModel > climateModel )
+    {
+        climateModel_ = climateModel;
+    }
+
+    std::shared_ptr< environment::ClimateModel > getClimateModel( )
+    {
+        return climateModel_;
+    }
+
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -907,10 +911,6 @@ private:
 
     std::shared_ptr< RigidBodyProperties > massProperties_;
 
-    //! List of radiation pressure models for the body, with the sources bodies as key
-    // RP-OLD
-    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > radiationPressureInterfaces_;
-
     //! Radiation source model of the body.
     std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel_;
 
@@ -937,6 +937,8 @@ private:
     bool isRotationSet_;
 
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
+
+    std::shared_ptr< environment::ClimateModel > climateModel_;
 
     std::shared_ptr< TimeEphemeris > timeScaleConverter_;
 };
@@ -1058,11 +1060,11 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                     if( globalFrameOrigin == bodyIterator.first )
                     {
                         std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager = createFrameManager( bodies );
-                        frameManager->getEphemeris( globalFrameOrigin, "SSB" );
+                        frameManager->getEphemeris< StateScalarType, TimeType >( globalFrameOrigin, "SSB" );
 
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                 std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >,
-                                           frameManager->getEphemeris( globalFrameOrigin, "SSB" ),
+                                           frameManager->getEphemeris< StateScalarType, TimeType >( globalFrameOrigin, "SSB" ),
                                            std::placeholders::_1 );
 
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
@@ -1392,6 +1394,14 @@ std::string getGlobalFrameOrigin( const SystemOfBodies& bodies );
  * \param areBodiesInPropagation Boolean defining whether the bodies are currently being propagated, or not
  */
 void setAreBodiesInPropagation( const SystemOfBodies& bodies, const bool areBodiesInPropagation );
+
+//! Function to retrieve the ephemeris origins of all bodies that have an ephemeris
+/*!
+ * Function to retrieve the ephemeris origins of all bodies that have an ephemeris
+ * \param bodies List of body objects.
+ * \return Map with the ephemeris origin (value) of each body with an ephemeris (key)
+ */
+std::map< std::string, std::string > getEphemerisOrigins( const SystemOfBodies& bodies );
 
 std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair< std::string, std::string > linkEndName,
                                                                 const SystemOfBodies& bodyMap );

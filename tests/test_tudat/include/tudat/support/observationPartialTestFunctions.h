@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+#include <iomanip>
 #include <limits>
 #include <string>
 #include <vector>
@@ -26,6 +28,9 @@
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/support/numericalObservationPartial.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -204,12 +209,24 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( ( observableType == observation_models::position_angle || observableType == observation_models::separation_distance ||
+              observableType == observation_models::position_angle_and_separation ) &&
+            ( linkEndIterator->first != receiver ) )
+        {
+            runSimulation = false;
+        }
+
         if( ( observableType == observation_models::n_way_differenced_range ) && ( linkEndIterator->first == retransmitter ) )
         {
             runSimulation = false;
         }
 
         if( observableType == observation_models::dsn_n_way_averaged_doppler && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
+        if( observableType == observation_models::dsn_n_way_range && linkEndIterator->first != receiver )
         {
             runSimulation = false;
         }
@@ -274,8 +291,11 @@ void testObservationPartials(
             // Calculate analytical observation partials.
             if( positionPartialScaler != nullptr )
             {
-                positionPartialScaler->update(
-                        vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ), currentObservation );
+                positionPartialScaler->update( vectorOfStates,
+                                               vectorOfTimes,
+                                               static_cast< LinkEndType >( linkEndIterator->first ),
+                                               currentObservation,
+                                               modifiedAncillarySettings );
             }
 
             typedef std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > >
@@ -539,6 +559,261 @@ void testObservationPartials(
             }
         }
     }
+}
+
+//! Create the gravitational parameters of the given bodies, and optionally PPN gamma, as the only estimated parameters.
+inline std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > createShapiroParameters(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::vector< std::string >& gravitationalParameterBodies,
+        const bool estimateGamma,
+        std::vector< double >& parameterPerturbations,
+        const double perturbationScaling = 1.0 )
+{
+    using namespace tudat::estimatable_parameters;
+
+    // All parameters enter the (bending-free) Shapiro delay linearly, so large perturbations are used to suppress
+    // round-off in the numerical partials. For planets, the Shapiro Doppler is so small that the perturbation must exceed
+    // the nominal GM by orders of magnitude to resolve it. Observables with a large nominal value (e.g. frequencies) need
+    // a further perturbationScaling.
+    std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameters;
+    parameterPerturbations.clear( );
+    for( const std::string& bodyName : gravitationalParameterBodies )
+    {
+        doubleParameters.push_back(
+                std::make_shared< GravitationalParameter >( bodies.at( bodyName )->getGravityFieldModel( ), bodyName ) );
+        parameterPerturbations.push_back( perturbationScaling * std::max( 0.5 * doubleParameters.back( )->getParameterValue( ), 1.0E19 ) );
+    }
+    if( estimateGamma )
+    {
+        doubleParameters.push_back( std::make_shared< PPNParameterGamma >( bodies.getSpaceTimeProperties( )->getPpnParameterSet( ) ) );
+        parameterPerturbations.push_back( perturbationScaling );
+    }
+    return std::make_shared< EstimatableParameterSet< double > >(
+            doubleParameters, std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ) );
+}
+
+//! Compare analytical partials w.r.t. double parameters with central-difference partials of the observable.
+/*!
+ * Intended for parameters that enter the observation model directly (e.g. gravitational parameters of light-time
+ * perturbing bodies, PPN gamma), so the parameter set must contain only double parameters. The observable is evaluated
+ * for each requested reference link end, and the largest relative error per parameter is returned (for diagnostics).
+ */
+template< int ObservableSize = 1, typename TimeType = double >
+std::vector< double > testDirectDoubleParameterPartials(
+        const std::shared_ptr< ObservationModel< ObservableSize, double, TimeType > > observationModel,
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< EstimatableParameterSet< double > > parameterSet,
+        const std::vector< LinkEndType >& referenceLinkEnds,
+        const std::vector< double >& parameterPerturbations,
+        const double tolerance,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
+        const double observationTime = 1.1E7 )
+{
+    const std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameters = parameterSet->getEstimatedDoubleParameters( );
+    if( parameterSet->getParameterSetSize( ) != static_cast< int >( doubleParameters.size( ) ) ||
+        parameterPerturbations.size( ) != doubleParameters.size( ) )
+    {
+        throw std::runtime_error( "Error in testDirectDoubleParameterPartials: only double parameters are supported." );
+    }
+
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservableSize > > >,
+               std::shared_ptr< PositionPartialScaling > >
+            partialSet = ObservationPartialCreator< ObservableSize, double, TimeType >::createObservationPartials(
+                    observationModel, bodies, parameterSet );
+
+    std::vector< double > maximumRelativeErrors( doubleParameters.size( ), 0.0 );
+    for( const LinkEndType referenceLinkEnd : referenceLinkEnds )
+    {
+        std::vector< Eigen::Vector6d > linkEndStates;
+        std::vector< double > linkEndTimes;
+        Eigen::Matrix< double, ObservableSize, 1 > nominalObservation = observationModel->computeObservationsWithLinkEndData(
+                observationTime, referenceLinkEnd, linkEndTimes, linkEndStates, ancillarySettings );
+        if( partialSet.second != nullptr )
+        {
+            partialSet.second->update( linkEndStates, linkEndTimes, referenceLinkEnd, nominalObservation );
+        }
+
+        // Compute all analytical partials before any perturbed evaluation: light-time correction partials use the
+        // correction cached by the last light-time computation.
+        std::vector< Eigen::Matrix< double, ObservableSize, 1 > > analyticalPartials( doubleParameters.size( ),
+                                                                                      Eigen::Matrix< double, ObservableSize, 1 >::Zero( ) );
+        for( const auto& partialEntry : partialSet.first )
+        {
+            const auto partialList = partialEntry.second->calculatePartial(
+                    linkEndStates, linkEndTimes, referenceLinkEnd, ancillarySettings, nominalObservation );
+            for( const auto& partial : partialList )
+            {
+                analyticalPartials.at( partialEntry.first.first ) += partial.first;
+            }
+        }
+
+        for( unsigned int i = 0; i < doubleParameters.size( ); i++ )
+        {
+            const Eigen::Matrix< double, ObservableSize, 1 >& analyticalPartial = analyticalPartials.at( i );
+            const double nominalValue = doubleParameters.at( i )->getParameterValue( );
+            doubleParameters.at( i )->setParameterValue( nominalValue + parameterPerturbations.at( i ) );
+            const Eigen::Matrix< double, ObservableSize, 1 > upObservation =
+                    observationModel->computeObservations( observationTime, referenceLinkEnd, ancillarySettings );
+            doubleParameters.at( i )->setParameterValue( nominalValue - parameterPerturbations.at( i ) );
+            const Eigen::Matrix< double, ObservableSize, 1 > downObservation =
+                    observationModel->computeObservations( observationTime, referenceLinkEnd, ancillarySettings );
+            doubleParameters.at( i )->setParameterValue( nominalValue );
+
+            const Eigen::Matrix< double, ObservableSize, 1 > numericalPartial =
+                    ( upObservation - downObservation ) / ( 2.0 * parameterPerturbations.at( i ) );
+            const double relativeError = ( analyticalPartial - numericalPartial ).norm( ) / numericalPartial.norm( );
+            maximumRelativeErrors.at( i ) = std::max( maximumRelativeErrors.at( i ), relativeError );
+
+            std::cout << "Direct parameter partial " << getParameterTypeString( doubleParameters.at( i )->getParameterName( ).first ) << " "
+                      << doubleParameters.at( i )->getParameterName( ).second.first << ", reference link end "
+                      << getLinkEndTypeString( referenceLinkEnd ) << ": analytical " << std::setprecision( 16 )
+                      << analyticalPartial.transpose( ) << ", numerical " << numericalPartial.transpose( ) << ", relative error "
+                      << relativeError << std::endl;
+
+            BOOST_TEST_CONTEXT( "Parameter " << doubleParameters.at( i )->getParameterDescription( ) << ", reference link end "
+                                             << getLinkEndTypeString( referenceLinkEnd ) )
+            {
+                BOOST_CHECK( numericalPartial.norm( ) > 0.0 );
+                BOOST_CHECK_SMALL( relativeError, tolerance );
+            }
+        }
+    }
+    return maximumRelativeErrors;
+}
+
+//! Check that two matrices agree to within a tolerance relative to the norm of the expected matrix.
+inline void checkMatrixCloseRelativeToNorm( const Eigen::MatrixXd& computedMatrix,
+                                            const Eigen::MatrixXd& expectedMatrix,
+                                            const double tolerance )
+{
+    BOOST_REQUIRE_EQUAL( computedMatrix.rows( ), expectedMatrix.rows( ) );
+    BOOST_REQUIRE_EQUAL( computedMatrix.cols( ), expectedMatrix.cols( ) );
+    BOOST_CHECK_SMALL( ( computedMatrix - expectedMatrix ).norm( ) / expectedMatrix.norm( ), tolerance );
+}
+
+//! Sum the partial-derivative contributions returned by an observation partial.
+template< int ObservationSize >
+Eigen::MatrixXd sumPartialContributions(
+        const std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > >& partialContributions )
+{
+    Eigen::MatrixXd summedPartial = partialContributions.at( 0 ).first;
+    for( unsigned int i = 1; i < partialContributions.size( ); i++ )
+    {
+        summedPartial += partialContributions.at( i ).first;
+    }
+    return summedPartial;
+}
+
+//! Compare analytical and numerical partials of a direction observable (angular position, position angle and/or separation) for
+//! a fast-moving receiver (Earth/Graz), with transmitters Mars/MSL (and Moon).
+/*!
+ *  For the receiver as reference link end, the receiver (Earth) is given a constant velocity of order 0.01c, so that, if the ancillary
+ *  settings select stellar aberration, the aberration factors in the partials differ from their astrometric values by order 1.0E-2,
+ *  well above the tolerance of the numerical-partial comparison. Without stellar aberration, the partials w.r.t. the receiver velocity
+ *  must be zero.
+ *  \param observationModelSettings Settings of the observation model
+ *  \param ancillarySettings Ancillary settings of the observation (celestial frame and stellar aberration)
+ *  \param referenceLinkEnd Link end at which the observation time is kept fixed
+ */
+template< int ObservationSize >
+void testAberratedObservationPartials( const std::shared_ptr< ObservationModelSettings > observationModelSettings,
+                                       const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
+                                       const LinkEndType referenceLinkEnd = receiver )
+{
+    std::vector< std::pair< std::string, std::string > > groundStations = { std::make_pair( "Earth", "Graz" ),
+                                                                            std::make_pair( "Mars", "MSL" ),
+                                                                            std::make_pair( "Moon", "" ) };
+    SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+
+    // With the transmitter as reference link end, the light-time partials use the receiver velocity, which is not consistent with the
+    // (fixed) position of a constant ephemeris, so that the receiver velocity is only set for the receiver as reference link end
+    if( referenceLinkEnd == receiver )
+    {
+        std::shared_ptr< ConstantEphemeris > earthEphemeris =
+                std::dynamic_pointer_cast< ConstantEphemeris >( bodies.at( "Earth" )->getEphemeris( ) );
+        Eigen::Vector6d earthState = earthEphemeris->getCartesianState( 0.0 );
+        earthState.segment< 3 >( 3 ) = Eigen::Vector3d( 1.2E6, -2.1E6, 0.8E6 );
+        earthEphemeris->updateConstantState( earthState );
+        bodies.at( "Earth" )->recomputeStateOnNextCall( );
+    }
+
+    std::shared_ptr< ObservationModel< ObservationSize > > observationModel =
+            ObservationModelCreator< ObservationSize, double, double >::createObservationModel( observationModelSettings, bodies );
+    std::shared_ptr< EstimatableParameterSet< double > > parameterSet = createEstimatableParameters( bodies, 1.1E7 );
+
+    const auto partialSet = ObservationPartialCreator< ObservationSize, double, double >::createObservationPartials(
+            observationModel, bodies, parameterSet );
+
+    const double observationTime = 1.1E7;
+    std::vector< Eigen::Vector6d > linkEndStates;
+    std::vector< double > linkEndTimes;
+    const Eigen::VectorXd observation = observationModel->computeObservationsWithLinkEndData(
+            observationTime, referenceLinkEnd, linkEndTimes, linkEndStates, ancillarySettings );
+    partialSet.second->update( linkEndStates, linkEndTimes, referenceLinkEnd, observation, ancillarySettings );
+
+    std::function< Eigen::VectorXd( const double ) > observationFunction =
+            std::bind( &ObservationModel< ObservationSize >::computeObservations,
+                       observationModel,
+                       std::placeholders::_1,
+                       referenceLinkEnd,
+                       ancillarySettings );
+
+    // Initial states of Earth (receiver) and Mars (transmitter) are the first two parameters
+    const std::vector< std::string > bodiesWithEstimatedState = { "Earth", "Mars" };
+    for( unsigned int i = 0; i < bodiesWithEstimatedState.size( ); i++ )
+    {
+        const std::pair< int, int > parameterIndices = std::make_pair( 6 * i, 6 );
+        BOOST_REQUIRE( partialSet.first.count( parameterIndices ) == 1 );
+        const Eigen::MatrixXd analyticalPartial = sumPartialContributions< ObservationSize >(
+                partialSet.first.at( parameterIndices )
+                        ->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, ancillarySettings, observation ) );
+
+        const Eigen::MatrixXd numericalPositionPartial = calculatePartialWrtConstantBodyState( bodiesWithEstimatedState.at( i ),
+                                                                                               bodies,
+                                                                                               Eigen::Vector3d::Constant( 1.0E5 ),
+                                                                                               observationFunction,
+                                                                                               observationTime,
+                                                                                               ObservationSize );
+        checkMatrixCloseRelativeToNorm( analyticalPartial.block( 0, 0, ObservationSize, 3 ), numericalPositionPartial, 1.0E-6 );
+
+        // Only the receiver velocity enters, through stellar aberration
+        const Eigen::MatrixXd numericalVelocityPartial = calculatePartialWrtConstantBodyVelocity( bodiesWithEstimatedState.at( i ),
+                                                                                                  bodies,
+                                                                                                  Eigen::Vector3d::Constant( 1.0E2 ),
+                                                                                                  observationFunction,
+                                                                                                  observationTime,
+                                                                                                  ObservationSize );
+        if( bodiesWithEstimatedState.at( i ) == "Earth" && getPositionAngleUseStellarAberration( ancillarySettings ) )
+        {
+            BOOST_CHECK_GT( numericalVelocityPartial.norm( ), 1.0E-10 );
+            checkMatrixCloseRelativeToNorm( analyticalPartial.block( 0, 3, ObservationSize, 3 ), numericalVelocityPartial, 1.0E-6 );
+        }
+        else
+        {
+            BOOST_CHECK_SMALL( analyticalPartial.block( 0, 3, ObservationSize, 3 ).norm( ), std::numeric_limits< double >::min( ) );
+        }
+    }
+
+    // Earth rotation rate changes the receiver velocity as well as its position
+    std::shared_ptr< EstimatableParameter< double > > earthRotationRate;
+    std::pair< int, int > rotationRateIndices;
+    for( const auto& doubleParameter : parameterSet->getDoubleParameters( ) )
+    {
+        if( doubleParameter.second->getParameterName( ).first == constant_rotation_rate &&
+            doubleParameter.second->getParameterName( ).second.first == "Earth" )
+        {
+            earthRotationRate = doubleParameter.second;
+            rotationRateIndices = std::make_pair( doubleParameter.first, 1 );
+        }
+    }
+    BOOST_REQUIRE( earthRotationRate != nullptr );
+    BOOST_REQUIRE( partialSet.first.count( rotationRateIndices ) == 1 );
+    const Eigen::MatrixXd analyticalRotationRatePartial = sumPartialContributions< ObservationSize >(
+            partialSet.first.at( rotationRateIndices )
+                    ->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, ancillarySettings, observation ) );
+    const std::vector< Eigen::VectorXd > numericalRotationRatePartial = calculateNumericalPartialsWrtDoubleParameters(
+            { earthRotationRate }, { []( ) {} }, { 1.0E-10 }, observationFunction, observationTime );
+    checkMatrixCloseRelativeToNorm( analyticalRotationRatePartial, numericalRotationRatePartial.at( 0 ), 1.0E-5 );
 }
 
 }  // namespace unit_tests

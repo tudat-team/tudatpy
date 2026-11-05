@@ -164,23 +164,26 @@ void expose_parameters( py::module& m )
 
          :type: int
       )doc" )
-            .def_property( "parameter_vector",
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithoutConsiderParameters< double >,
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithoutConsiderParameters< double >,
-                           R"doc(
+            .def_property(
+                    "parameter_vector",
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithoutConsiderParameters<
+                            STATE_SCALAR_TYPE >,
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithoutConsiderParameters< STATE_SCALAR_TYPE >,
+                    R"doc(
 
          Vector containing the parameter values of all parameters in the set (excluding consider parameters).
 
-         :type: numpy.ndarray[numpy.float64[m, 1]]
+         :type: numpy.ndarray[m, 1] with the configured state scalar dtype (float64 or longdouble)
       )doc" )
-            .def_property( "estimated_and_consider_parameter_vector",
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithConsiderParameters< double >,
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithConsiderParameters< double >,
-                           R"doc(
+            .def_property(
+                    "estimated_and_consider_parameter_vector",
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithConsiderParameters< STATE_SCALAR_TYPE >,
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithConsiderParameters< STATE_SCALAR_TYPE >,
+                    R"doc(
 
          Vector containing the parameter values of all parameters in the set (including consider parameters; concatenated after estimated parameters).
 
-         :type: numpy.ndarray[numpy.float64[m, 1]]
+         :type: numpy.ndarray[m, 1] with the configured state scalar dtype (float64 or longdouble)
       )doc" )
             .def_property_readonly( "consider_parameters",
                                     &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getConsiderParameters,
@@ -214,7 +217,7 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         List[ tuple[int, int] ]
+         list[tuple[int, int]]
              Matching ``(start_index, size)`` entries in parameter-set order.
 
      )doc" )
@@ -261,7 +264,7 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         List[ tuple[int, int] ]
+         tuple[int, int]
              Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
 
      )doc" )
@@ -286,7 +289,7 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+         list[tuple[:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str]]]
              List of parameter identifiers. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
 
 
@@ -309,8 +312,8 @@ void expose_parameters( py::module& m )
 
  Returns
  -------
- List[]
-     Verbose List of all parameters that shall be estimated. Consider parameters are listed separately.
+ None
+     This function prints the parameter names to standard output.
 
  Examples
  --------

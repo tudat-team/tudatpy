@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
@@ -95,7 +94,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
                         "ECLIPJ2000" ) );
 
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
 
         // Create ground station
@@ -335,7 +334,10 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
                 else if( currentObservable == dsn_n_way_averaged_doppler )
                 {
                     ancillarySettings = getDsnNWayAveragedDopplerAncillarySettings(
-                            std::vector< FrequencyBands >{ x_band, x_band }, x_band, 8.5e9, 60.0 );
+                            std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                            FrequencyBands::x_band,
+                            8.5e9,
+                            60.0 );
                     measurementSimulationInput.at( 0 )->setAncillarySettings( ancillarySettings );
                 }
 

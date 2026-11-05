@@ -510,6 +510,7 @@ public:
                                 break;
                         }
                     }
+                    break;
                 }
                 case rotational_state:
                     break;
@@ -1129,6 +1130,38 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
         const std::string& bodyExertingAcceleration,
         const std::string& bodyUndergoignAcceleration );
 #endif
+
+template< typename StateScalarType, typename TimeType, int NumberOfColumns >
+struct PostProcessingFunctionProvider {
+    static std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, NumberOfColumns >& ) > getPostProcessingFunction(
+            const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > stateDerivateModel )
+    {
+        throw std::runtime_error( "Error, post-processing function can only be retrieved for single-column or dynamic size" );
+        return nullptr;
+    }
+};
+
+template< typename StateScalarType, typename TimeType >
+struct PostProcessingFunctionProvider< StateScalarType, TimeType, 1 > {
+    static std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > getPostProcessingFunction(
+            const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > stateDerivateModel )
+    {
+        return std::bind(
+                &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessState, stateDerivateModel, std::placeholders::_1 );
+        ;
+    }
+};
+
+template< typename StateScalarType, typename TimeType >
+struct PostProcessingFunctionProvider< StateScalarType, TimeType, Eigen::Dynamic > {
+    static std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > getPostProcessingFunction(
+            const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > stateDerivateModel )
+    {
+        return std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
+                          stateDerivateModel,
+                          std::placeholders::_1 );
+    }
+};
 
 template< typename TimeType = double,
           typename StateScalarType = double,

@@ -99,9 +99,11 @@ class BodyCentricToBarycentricGroundStationMotionSettings : public GroundStation
 {
 public:
     BodyCentricToBarycentricGroundStationMotionSettings( const std::string centralBodyName = "Sun",
-                                                         const bool useGeneralRelativisticCorrection = true ):
+                                                         const bool useGeneralRelativisticCorrection = true,
+                                                         const bool scaleToTdbCompatibleCoordinates = true ):
         GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( centralBodyName ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
+        scaleToTdbCompatibleCoordinates_( scaleToTdbCompatibleCoordinates )
     {}
 
     virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ) {}
@@ -109,6 +111,8 @@ public:
     std::string centralBodyName_;
 
     bool useGeneralRelativisticCorrection_;
+
+    bool scaleToTdbCompatibleCoordinates_;
 };
 
 class CustomGroundStationMotionSettings : public GroundStationMotionSettings
@@ -151,9 +155,11 @@ inline std::shared_ptr< GroundStationMotionSettings > bodyDeformationStationMoti
 
 inline std::shared_ptr< GroundStationMotionSettings > bodycentricToBarycentricStationMotionSettings(
         const std::string centralBodyName = "Sun",
-        const bool useGeneralRelativisticCorrection = true )
+        const bool useGeneralRelativisticCorrection = true,
+        const bool scaleToTdbCompatibleCoordinates = true )
 {
-    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( centralBodyName, useGeneralRelativisticCorrection );
+    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >(
+            centralBodyName, useGeneralRelativisticCorrection, scaleToTdbCompatibleCoordinates );
 }
 
 enum WeatherDataSettingsType { dsn_weather_data, estrack_weather_data };
@@ -376,6 +382,15 @@ void createGroundStation(
         const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
                 std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
 
+//! Function to create a ground station and add it to a Body object, with the bodies needed by its motion models (e.g. the central
+//! body of the bodycentric to barycentric station position correction)
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::string groundStationName,
+                          const Eigen::Vector3d groundStationPosition,
+                          const coordinate_conversions::PositionElementTypes positionElementType,
+                          const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings,
+                          const SystemOfBodies& bodies );
+
 //! Function to create a set of ground stations and add them to the corresponding Body objects
 /*!
  * Function to create a set of ground stations and add them to the corresponding Body objects
@@ -390,6 +405,10 @@ void createGroundStations(
         const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position );
 
 void createGroundStation( const std::shared_ptr< Body > body, const std::shared_ptr< GroundStationSettings > groundStationSettings );
+
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::shared_ptr< GroundStationSettings > groundStationSettings,
+                          const SystemOfBodies& bodies );
 
 std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndList( const std::shared_ptr< Body > body );
 
@@ -697,6 +716,24 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > getLinkEndCompleteCur
 //         const std::shared_ptr< Body > targetBody,
 //         const std::string groundStationName,
 //         const std::vector< double > times );
+
+//! Function to determine whether the Sun is below a given elevation angle as seen from a ground station.
+/*!
+ * Function to determine whether a ground station is in darkness at a given time, based on the elevation angle of the Sun
+ * as seen from that station. The station is considered dark if the Sun's elevation angle is below maxSunElevation (e.g. a
+ * civil twilight bound of -6 degrees, or a custom bound such as 0 degrees for the geometric horizon).
+ * \param groundStationName Name of the ground station, which must be defined on the body identified by centralBodyName.
+ * \param timeTdb Time (TDB seconds since J2000) at which the check is to be performed.
+ * \param maxSunElevation Sun elevation angle [rad] below which the ground station is considered to be in darkness.
+ * \param bodies System of bodies, used to retrieve the ground station, and the ephemerides of the central body and the Sun.
+ * \param centralBodyName Name of the body on which the ground station is located.
+ * \return True if the Sun's elevation angle at the ground station is below maxSunElevation, false otherwise.
+ */
+bool isItDarkAtGroundStation( const std::string& groundStationName,
+                              const double timeTdb,
+                              const double maxSunElevation,
+                              const SystemOfBodies& bodies,
+                              const std::string& centralBodyName = "Earth" );
 
 }  // namespace simulation_setup
 

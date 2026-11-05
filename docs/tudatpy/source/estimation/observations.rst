@@ -26,11 +26,7 @@ Functions
 
    compute_residuals_and_dependent_variables
 
-   single_observation_set
-
    create_single_observation_set
-
-   filter_observations
 
    create_filtered_observation_set
 
@@ -46,6 +42,8 @@ Functions
 
    create_observation_collection_from_tracking_data
 
+   create_count_time_compressed_doppler_collection
+
    create_observation_collection_from_arrays
 
    create_single_type_observation_collection_from_arrays
@@ -56,14 +54,14 @@ Functions
 
    set_tracking_supplementary_data_in_bodies
 
+   create_compressed_doppler_collection
+
+   create_count_time_compressed_doppler_collection
+
 
 .. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 
-.. autofunction:: tudatpy.estimation.observations.single_observation_set
-
 .. autofunction:: tudatpy.estimation.observations.create_single_observation_set
-
-.. autofunction:: tudatpy.estimation.observations.filter_observations
 
 .. autofunction:: tudatpy.estimation.observations.create_filtered_observation_set
 
@@ -79,6 +77,8 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_tracking_data
 
+.. autofunction:: tudatpy.estimation.observations.create_count_time_compressed_doppler_collection
+
 .. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_arrays
 
 .. autofunction:: tudatpy.estimation.observations.create_single_type_observation_collection_from_arrays
@@ -88,6 +88,10 @@ Functions
 .. autofunction:: tudatpy.estimation.observations.simulate_pseudo_observations
 
 .. autofunction:: tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies
+
+.. autofunction:: tudatpy.estimation.observations.create_compressed_doppler_collection
+
+.. autofunction:: tudatpy.estimation.observations.create_count_time_compressed_doppler_collection
 
 
 Classes
@@ -102,6 +106,8 @@ Classes
 
 .. autoclass:: tudatpy.estimation.observations.SingleObservationSet
    :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.estimation.observations.ObservationCollection
    :members:
+   :special-members: __init__

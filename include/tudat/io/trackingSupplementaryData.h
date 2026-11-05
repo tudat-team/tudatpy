@@ -17,8 +17,10 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <stdexcept>
 #include <vector>
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/basics/timeType.h"
 
 namespace tudat
 {
@@ -50,12 +52,12 @@ public:
     struct FrequencyRamp {
         FrequencyRamp( ) = default;
 
-        FrequencyRamp( const double startTime, const double endTime, const double startFrequency, const double frequencyRate ):
+        FrequencyRamp( const Time startTime, const Time endTime, const double startFrequency, const double frequencyRate ):
             startTime_( startTime ), endTime_( endTime ), startFrequency_( startFrequency ), frequencyRate_( frequencyRate )
         {}
 
-        double startTime_ = 0.0;
-        double endTime_ = 0.0;
+        Time startTime_ = 0.0;
+        Time endTime_ = 0.0;
         double startFrequency_ = 0.0;
         double frequencyRate_ = 0.0;
     };
@@ -66,7 +68,7 @@ public:
         FrequencySupplementaryData( "ramped_frequency" ), frequencyRamps_( frequencyRamps )
     {}
 
-    void addFrequencyRamp( const double startTime, const double endTime, const double startFrequency, const double frequencyRate )
+    void addFrequencyRamp( const Time startTime, const Time endTime, const double startFrequency, const double frequencyRate )
     {
         frequencyRamps_.emplace_back( startTime, endTime, startFrequency, frequencyRate );
     }
@@ -181,6 +183,27 @@ public:
         return rotationFromInertialToCameraFrameHistory_;
     }
 
+    //! Merge compatible camera histories; conflicting calibration or attitudes are errors.
+    void merge( const CameraInstrumentSupplementaryData& other )
+    {
+        if( cameraId_ != other.cameraId_ || focalLength_ != other.focalLength_ || !principalPoint_.isApprox( other.principalPoint_ ) ||
+            !fieldOfViewBounds_.isApprox( other.fieldOfViewBounds_ ) || !kMatrix_.isApprox( other.kMatrix_ ) ||
+            !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) )
+        {
+            throw std::runtime_error( "Inconsistent calibration for PSF camera " + cameraId_ );
+        }
+        auto mergedHistory = rotationFromInertialToCameraFrameHistory_;
+        for( const auto& entry : other.rotationFromInertialToCameraFrameHistory_ )
+        {
+            const auto inserted = mergedHistory.emplace( entry );
+            if( !inserted.second && !inserted.first->second.toRotationMatrix( ).isApprox( entry.second.toRotationMatrix( ) ) )
+            {
+                throw std::runtime_error( "Conflicting pointing epochs for PSF camera " + cameraId_ );
+            }
+        }
+        rotationFromInertialToCameraFrameHistory_.swap( mergedHistory );
+    }
+
 private:
     std::string cameraId_;
 
@@ -202,6 +225,24 @@ private:
 class TranslationalStateSupplementaryData
 {
 public:
+    TranslationalStateSupplementaryData( ) = default;
+
+    //! Constructor for supplementary body-state histories loaded with tracking data.
+    /*!
+     * The epoch keys in the state history are tagged with a time scale. The default
+     * is TDB to preserve the existing ephemeris convention for callers that do not
+     * explicitly provide a time scale. The default frame orientation is J2000,
+     * matching the tracking-data readers that currently create this object.
+     */
+    TranslationalStateSupplementaryData( const std::map< double, Eigen::Vector6d >& stateHistory,
+                                         const std::string& frameOrigin,
+                                         const bool isVelocityDefined,
+                                         const std::string& timeScale = "TDB",
+                                         const std::string& frameOrientation = "J2000" ):
+        stateHistory_( stateHistory ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ),
+        isVelocityDefined_( isVelocityDefined ), timeScale_( timeScale )
+    {}
+
     const std::map< double, Eigen::Vector6d >& getStateHistory( ) const
     {
         return stateHistory_;
@@ -212,9 +253,20 @@ public:
         return frameOrigin_;
     }
 
+    const std::string& getFrameOrientation( ) const
+    {
+        return frameOrientation_;
+    }
+
     bool isVelocityDefined( ) const
     {
         return isVelocityDefined_;
+    }
+
+    //! Time scale used by the state-history epoch keys.
+    const std::string& getTimeScale( ) const
+    {
+        return timeScale_;
     }
 
 private:
@@ -222,7 +274,11 @@ private:
 
     std::string frameOrigin_;
 
+    std::string frameOrientation_ = "J2000";
+
     bool isVelocityDefined_ = false;
+
+    std::string timeScale_ = "TDB";
 };
 
 class RotationalStateSupplementaryData
@@ -257,7 +313,7 @@ public:
     TrackingSupplementaryData( ) = default;
 
     TrackingSupplementaryData( const std::string& bodyName, const std::string& referencePointName ):
-        bodyName_( bodyName ), referencePointName_( referencePointName )
+        bodyName_( bodyName ), referencePointName_( referencePointName ), isPassiveRadarReflector_( false )
     {}
 
     void setTranslationalStateSupplementaryData( const TranslationalStateSupplementaryData& translationalStateSupplementaryData )
@@ -320,6 +376,16 @@ public:
         return referencePointName_;
     }
 
+    bool isPassiveRadarReflector( ) const
+    {
+        return isPassiveRadarReflector_;
+    }
+
+    void setIsPassiveRadarReflector( const bool isPassiveRadarReflector )
+    {
+        isPassiveRadarReflector_ = isPassiveRadarReflector;
+    }
+
 private:
     TranslationalStateSupplementaryData translationalStateSupplementaryData_;
 
@@ -332,6 +398,8 @@ private:
     std::string bodyName_;
 
     std::string referencePointName_;
+
+    bool isPassiveRadarReflector_ = false;
 };
 
 }  // namespace data

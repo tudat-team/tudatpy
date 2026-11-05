@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
@@ -19,9 +18,10 @@
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/ephemerides/customRotationalEphemeris.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
@@ -34,6 +34,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/threeCoefficientRadiationPressureCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
@@ -74,6 +75,221 @@ using namespace tudat::basic_astrodynamics;
 using namespace tudat::propulsion;
 
 BOOST_AUTO_TEST_SUITE( test_acceleration_partials )
+
+BOOST_AUTO_TEST_CASE( testThreeCoefficientRadiationPressureAccelerationPartials )
+{
+    auto vehicle = std::make_shared< Body >( );
+    auto earth = std::make_shared< Body >( );
+    auto sun = std::make_shared< Body >( );
+    const double vehicleMass = 2800.0;
+    vehicle->setConstantBodyMass( vehicleMass );
+
+    sun->setState( ( Eigen::Vector6d( ) << 2.0e9, -3.0e9, 7.0e8, 110.0, -75.0, 30.0 ).finished( ) );
+    earth->setState( ( Eigen::Vector6d( ) << 1.22e11, 7.7e10, -1.3e9, -1.389e4, 2.2925e4, 1.13e3 ).finished( ) );
+    vehicle->setState( ( Eigen::Vector6d( ) << 1.2203e11, 7.704e10, -1.29e9, -1.1e4, 2.5e4, 1.0e3 ).finished( ) );
+
+    SystemOfBodies bodies;
+    bodies.addBody( vehicle, "Vehicle" );
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( sun, "Sun" );
+    sun->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( 6.96e8 ) );
+    sun->setRadiationSourceModel( std::make_shared< IsotropicPointRadiationSourceModel >(
+            std::make_shared< ConstantLuminosityModel >( computeLuminosityFromIrradiance( 1361.0, physical_constants::ASTRONOMICAL_UNIT ) ),
+            "Sun" ) );
+    vehicle->addRadiationPressureTargetModel( std::make_shared< CannonballRadiationPressureTargetModel >( 37.14, 1.3 ) );
+
+    const Eigen::Vector3d coefficients( -48.282, 2.3, -0.7 );
+    auto accelerationModel = createThreeCoefficientRadiationPressureAccelerationModel(
+            vehicle, sun, "Vehicle", "Sun", earth, "Earth", bodies, threeCoefficientRadiationPressureAcceleration( coefficients ) );
+    BOOST_CHECK_EQUAL( accelerationModel->getReferenceBodyName( ), "Earth" );
+    sun->getRadiationSourceModel( )->updateMembers( 0.0 );
+    vehicle->getRadiationPressureTargetModel( )->updateMembers( 0.0 );
+    accelerationModel->updateMembers( 0.0 );
+
+    auto accelerationPartial = createAnalyticalAccelerationPartial(
+            accelerationModel, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Sun", sun ), bodies );
+    accelerationPartial->update( 0.0 );
+
+    Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+    accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), true, 0, 0 );
+    accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
+    accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtSunVelocity.block( 0, 0, 3, 3 ), true, 0, 0 );
+    accelerationPartial->wrtPositionOfAdditionalBody( "Earth", partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+    accelerationPartial->wrtVelocityOfAdditionalBody( "Earth", partialWrtEarthVelocity.block( 0, 0, 3, 3 ), true, 0, 0 );
+    Eigen::MatrixXd partialWrtMass = Eigen::MatrixXd::Zero( 3, 1 );
+    accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
+            partialWrtMass.block( 0, 0, 3, 1 ), std::make_pair( "Vehicle", "" ), propagators::body_mass_state );
+
+    AccelerationMap parameterAccelerationMap;
+    parameterAccelerationMap[ "Vehicle" ][ "Sun" ].push_back( accelerationModel );
+    std::shared_ptr< propagators::PropagatorSettings< double > > parameterPropagatorSettings =
+            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >( std::vector< std::string >( { "Earth" } ),
+                                                                                             parameterAccelerationMap,
+                                                                                             std::vector< std::string >( { "Vehicle" } ),
+                                                                                             vehicle->getState( ),
+                                                                                             1.0,
+                                                                                             propagators::cowell );
+    const auto parameterSet = createParametersToEstimate( std::vector< std::shared_ptr< EstimatableParameterSettings > >(
+                                                                  { threeCoefficientRadiationPressureCoefficients( "Vehicle", "Sun" ) } ),
+                                                          bodies,
+                                                          parameterPropagatorSettings );
+    BOOST_CHECK_EQUAL( parameterSet->getEstimatedParameterSetSize( ), 3 );
+    const auto vectorParameters = parameterSet->getEstimatedVectorParameters( );
+    BOOST_REQUIRE_EQUAL( vectorParameters.size( ), 1 );
+    const auto coefficientParameter = vectorParameters.front( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( coefficientParameter->getParameterValue( ), coefficients, 1.0E-15 );
+    const Eigen::MatrixXd partialWrtCoefficients = accelerationPartial->wrtParameter( coefficientParameter );
+
+    const auto updateEnvironment = [ = ]( ) {
+        sun->getRadiationSourceModel( )->updateMembers( 0.0 );
+        vehicle->getRadiationPressureTargetModel( )->updateMembers( 0.0 );
+    };
+    const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 1000.0 );
+    const Eigen::Vector3d velocityPerturbation = Eigen::Vector3d::Constant( 100.0 );
+    const Eigen::Matrix3d numericalVehiclePosition =
+            calculateAccelerationWrtStatePartials( [ = ]( const Eigen::Vector6d state ) { vehicle->setState( state ); },
+                                                   accelerationModel,
+                                                   vehicle->getState( ),
+                                                   positionPerturbation,
+                                                   0,
+                                                   updateEnvironment,
+                                                   0.0 );
+    const Eigen::Matrix3d numericalVehicleVelocity =
+            calculateAccelerationWrtStatePartials( [ = ]( const Eigen::Vector6d state ) { vehicle->setState( state ); },
+                                                   accelerationModel,
+                                                   vehicle->getState( ),
+                                                   velocityPerturbation,
+                                                   3,
+                                                   updateEnvironment,
+                                                   0.0 );
+    const Eigen::Matrix3d numericalSunPosition =
+            calculateAccelerationWrtStatePartials( [ = ]( const Eigen::Vector6d state ) { sun->setState( state ); },
+                                                   accelerationModel,
+                                                   sun->getState( ),
+                                                   positionPerturbation,
+                                                   0,
+                                                   updateEnvironment,
+                                                   0.0 );
+    const Eigen::Matrix3d numericalSunVelocity =
+            calculateAccelerationWrtStatePartials( [ = ]( const Eigen::Vector6d state ) { sun->setState( state ); },
+                                                   accelerationModel,
+                                                   sun->getState( ),
+                                                   velocityPerturbation,
+                                                   3,
+                                                   updateEnvironment,
+                                                   0.0 );
+    const Eigen::Matrix3d numericalEarthPosition =
+            calculateAccelerationWrtStatePartials( [ = ]( const Eigen::Vector6d state ) { earth->setState( state ); },
+                                                   accelerationModel,
+                                                   earth->getState( ),
+                                                   positionPerturbation,
+                                                   0,
+                                                   updateEnvironment,
+                                                   0.0 );
+    const Eigen::Matrix3d numericalEarthVelocity =
+            calculateAccelerationWrtStatePartials( [ = ]( const Eigen::Vector6d state ) { earth->setState( state ); },
+                                                   accelerationModel,
+                                                   earth->getState( ),
+                                                   velocityPerturbation,
+                                                   3,
+                                                   updateEnvironment,
+                                                   0.0 );
+    const Eigen::MatrixXd numericalCoefficients = calculateAccelerationWrtParameterPartials(
+            coefficientParameter, accelerationModel, Eigen::Vector3d::Constant( 1.0e-4 ), updateEnvironment, 0.0 );
+    const Eigen::Vector3d numericalMass =
+            calculateAccelerationWrtMassPartials( [ = ]( const double mass ) { vehicle->setConstantBodyMass( mass ); },
+                                                  accelerationModel,
+                                                  vehicleMass,
+                                                  0.1,
+                                                  updateEnvironment,
+                                                  0.0 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalVehiclePosition, partialWrtVehiclePosition, 2.0e-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalVehicleVelocity, partialWrtVehicleVelocity, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalSunPosition, partialWrtSunPosition, 3.0e-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalSunVelocity, partialWrtSunVelocity, 1.0e-4 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalEarthPosition, partialWrtEarthPosition, 2.0e-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalEarthVelocity, partialWrtEarthVelocity, 1.0e-4 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalCoefficients, partialWrtCoefficients, 2.0e-9 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalMass, partialWrtMass, 2.0e-9 );
+
+    // Selecting the accelerated body as reference makes the A1-only model exactly equal to cannonball SRP.
+    const Eigen::Vector3d cannonballCoefficients( -37.14 * 1.3, 0.0, 0.0 );
+    const auto targetReferenceAccelerationModel = createThreeCoefficientRadiationPressureAccelerationModel(
+            vehicle,
+            sun,
+            "Vehicle",
+            "Sun",
+            earth,
+            "Earth",
+            bodies,
+            threeCoefficientRadiationPressureAcceleration( cannonballCoefficients, "Vehicle" ) );
+    const auto cannonballAccelerationModel = createRadiationPressureAccelerationModel( vehicle, sun, "Vehicle", "Sun", bodies );
+    BOOST_CHECK_EQUAL( targetReferenceAccelerationModel->getReferenceBodyName( ), "Vehicle" );
+
+    const auto targetReferencePartial = createAnalyticalAccelerationPartial(
+            targetReferenceAccelerationModel, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Sun", sun ), bodies );
+    const auto cannonballPartial = createAnalyticalAccelerationPartial(
+            cannonballAccelerationModel, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Sun", sun ), bodies );
+    sun->getRadiationSourceModel( )->updateMembers( 1.0 );
+    vehicle->getRadiationPressureTargetModel( )->updateMembers( 1.0 );
+    targetReferencePartial->update( 1.0 );
+    cannonballPartial->update( 1.0 );
+
+    Eigen::MatrixXd targetReferencePartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd targetReferencePartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd targetReferencePartialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd targetReferencePartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd cannonballPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd cannonballPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd cannonballPartialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    Eigen::MatrixXd cannonballPartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+    targetReferencePartial->wrtPositionOfAcceleratedBody( targetReferencePartialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+    targetReferencePartial->wrtVelocityOfAcceleratedBody( targetReferencePartialWrtVehicleVelocity.block( 0, 0, 3, 3 ), true, 0, 0 );
+    targetReferencePartial->wrtPositionOfAcceleratingBody( targetReferencePartialWrtSunPosition.block( 0, 0, 3, 3 ) );
+    targetReferencePartial->wrtVelocityOfAcceleratingBody( targetReferencePartialWrtSunVelocity.block( 0, 0, 3, 3 ), true, 0, 0 );
+    cannonballPartial->wrtPositionOfAcceleratedBody( cannonballPartialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+    cannonballPartial->wrtVelocityOfAcceleratedBody( cannonballPartialWrtVehicleVelocity.block( 0, 0, 3, 3 ), true, 0, 0 );
+    cannonballPartial->wrtPositionOfAcceleratingBody( cannonballPartialWrtSunPosition.block( 0, 0, 3, 3 ) );
+    cannonballPartial->wrtVelocityOfAcceleratingBody( cannonballPartialWrtSunVelocity.block( 0, 0, 3, 3 ), true, 0, 0 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            targetReferenceAccelerationModel->getAcceleration( ), cannonballAccelerationModel->getAcceleration( ), 2.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( targetReferencePartialWrtVehiclePosition, cannonballPartialWrtVehiclePosition, 2.0e-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( targetReferencePartialWrtSunPosition, cannonballPartialWrtSunPosition, 2.0e-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( targetReferencePartialWrtVehicleVelocity, cannonballPartialWrtVehicleVelocity, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( targetReferencePartialWrtSunVelocity, cannonballPartialWrtSunVelocity, 1.0e-15 );
+
+    BOOST_CHECK( !targetReferencePartial->isAccelerationPartialWrtAdditionalBodyNonnullptr( "Earth" ) );
+    Eigen::MatrixXd targetReferencePartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    targetReferencePartial->wrtPositionOfAdditionalBody( "Earth", targetReferencePartialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+    BOOST_CHECK_SMALL( targetReferencePartialWrtEarthPosition.norm( ), std::numeric_limits< double >::epsilon( ) );
+
+    const Eigen::Matrix3d numericalTargetReferenceVehiclePosition =
+            calculateAccelerationWrtStatePartials( [ = ]( const Eigen::Vector6d state ) { vehicle->setState( state ); },
+                                                   targetReferenceAccelerationModel,
+                                                   vehicle->getState( ),
+                                                   positionPerturbation,
+                                                   0,
+                                                   updateEnvironment,
+                                                   2.0 );
+    const Eigen::Matrix3d numericalTargetReferenceSunPosition =
+            calculateAccelerationWrtStatePartials( [ = ]( const Eigen::Vector6d state ) { sun->setState( state ); },
+                                                   targetReferenceAccelerationModel,
+                                                   sun->getState( ),
+                                                   positionPerturbation,
+                                                   0,
+                                                   updateEnvironment,
+                                                   2.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalTargetReferenceVehiclePosition, targetReferencePartialWrtVehiclePosition, 2.0e-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalTargetReferenceSunPosition, targetReferencePartialWrtSunPosition, 3.0e-6 );
+}
 
 BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 {
@@ -1293,6 +1509,152 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterGamma, partialWrtGamma, 1.0e-8 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterBeta, partialWrtBeta, 1.0e-8 );
+}
+
+//! Test partials of the relativistic acceleration correction with the Lense-Thirring (constant angular momentum of the central body)
+//! and de Sitter (Sun as primary body) terms, with and without the Schwarzschild term, by comparing with numerical partials
+BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartialLenseThirringDeSitter )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    for( bool calculateSchwarzschildCorrection : { false, true } )
+    {
+        // Create Sun, Earth and vehicle bodies, with the vehicle in low Earth orbit
+        std::shared_ptr< Body > sun = std::make_shared< Body >( );
+        std::shared_ptr< Body > earth = std::make_shared< Body >( );
+        std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
+        sun->setState( getBodyCartesianStateAtEpoch( "Sun", "SSB", "J2000", "NONE", 1.0E6 ) );
+        earth->setState( getBodyCartesianStateAtEpoch( "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
+        Eigen::Vector6d vehicleKeplerElements;
+        vehicleKeplerElements << 6378.0E3 + 249E3, 0.0004318, convertDegreesToRadians( 96.5975 ), convertDegreesToRadians( 217.6968 ),
+                convertDegreesToRadians( 268.2663 ), convertDegreesToRadians( 142.3958 );
+        vehicle->setState( earth->getState( ) +
+                           convertKeplerianToCartesianElements( vehicleKeplerElements, getBodyGravitationalParameter( "Earth" ) ) );
+
+        SystemOfBodies bodies;
+        bodies.addBody( vehicle, "Vehicle" );
+        bodies.addBody( earth, "Earth" );
+        bodies.addBody( sun, "Sun" );
+        std::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
+                createGravityFieldModel( centralGravityFromSpiceSettings( ), "Earth", bodies );
+        earth->setGravityFieldModel( earthGravityField );
+        std::shared_ptr< gravitation::GravityFieldModel > sunGravityField =
+                createGravityFieldModel( centralGravityFromSpiceSettings( ), "Sun", bodies );
+        sun->setGravityFieldModel( sunGravityField );
+
+        // Create acceleration model, with a constant angular momentum (per unit mass) of the Earth
+        std::shared_ptr< PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+        const Eigen::Vector3d earthAngularMomentum( 1.0E7, -2.0E7, 9.8E8 );
+        std::shared_ptr< RelativisticAccelerationCorrection > accelerationModel = std::make_shared< RelativisticAccelerationCorrection >(
+                std::bind( &Body::getState, vehicle ),
+                std::bind( &Body::getState, earth ),
+                std::bind( &Body::getState, sun ),
+                std::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ),
+                std::bind( &GravityFieldModel::getGravitationalParameter, sunGravityField ),
+                "Sun",
+                [ = ]( ) { return earthAngularMomentum; },
+                std::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet ),
+                std::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet ),
+                calculateSchwarzschildCorrection );
+        std::shared_ptr< RelativisticAccelerationPartial > accelerationPartial =
+                std::make_shared< RelativisticAccelerationPartial >( accelerationModel, "Vehicle", "Earth" );
+        BOOST_CHECK( accelerationPartial->isAccelerationPartialWrtAdditionalBodyNonnullptr( "Sun" ) );
+
+        std::shared_ptr< EstimatableParameter< double > > earthGravitationalParameter =
+                std::make_shared< GravitationalParameter >( earthGravityField, "Earth" );
+        std::shared_ptr< EstimatableParameter< double > > sunGravitationalParameter =
+                std::make_shared< GravitationalParameter >( sunGravityField, "Sun" );
+        std::shared_ptr< EstimatableParameter< double > > ppnParameterGamma = std::make_shared< PPNParameterGamma >( ppnParameterSet );
+        std::shared_ptr< EstimatableParameter< double > > ppnParameterBeta = std::make_shared< PPNParameterBeta >( ppnParameterSet );
+
+        // Calculate analytical partials
+        accelerationModel->updateMembers( );
+        accelerationPartial->update( );
+        std::map< std::string, Eigen::MatrixXd > analyticalPartials;
+        for( std::string name :
+             { "vehicle position", "vehicle velocity", "Earth position", "Earth velocity", "Sun position", "Sun velocity" } )
+        {
+            analyticalPartials[ name ] = Eigen::Matrix3d::Zero( );
+        }
+        accelerationPartial->wrtPositionOfAcceleratedBody( analyticalPartials[ "vehicle position" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtVelocityOfAcceleratedBody( analyticalPartials[ "vehicle velocity" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtPositionOfAcceleratingBody( analyticalPartials[ "Earth position" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtVelocityOfAcceleratingBody( analyticalPartials[ "Earth velocity" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtPositionOfAdditionalBody( "Sun", analyticalPartials[ "Sun position" ].block( 0, 0, 3, 3 ) );
+        accelerationPartial->wrtVelocityOfAdditionalBody( "Sun", analyticalPartials[ "Sun velocity" ].block( 0, 0, 3, 3 ), true, 0, 0 );
+        Eigen::Vector3d partialWrtEarthGravitationalParameter = accelerationPartial->wrtParameter( earthGravitationalParameter );
+        Eigen::Vector3d partialWrtSunGravitationalParameter = accelerationPartial->wrtParameter( sunGravitationalParameter );
+        Eigen::Vector3d partialWrtGamma = accelerationPartial->wrtParameter( ppnParameterGamma );
+        Eigen::Vector3d partialWrtBeta = accelerationPartial->wrtParameter( ppnParameterBeta );
+
+        // Calculate numerical partials (larger perturbations for the Sun, on which only the small de Sitter term depends)
+        std::map< std::string, Eigen::MatrixXd > numericalPartials;
+        numericalPartials[ "vehicle position" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, vehicle, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       vehicle->getState( ),
+                                                       Eigen::Vector3d::Constant( 10.0 ),
+                                                       0 );
+        numericalPartials[ "vehicle velocity" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, vehicle, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       vehicle->getState( ),
+                                                       Eigen::Vector3d::Constant( 1.0 ),
+                                                       3 );
+        numericalPartials[ "Earth position" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, earth, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       earth->getState( ),
+                                                       Eigen::Vector3d::Constant( 10.0 ),
+                                                       0 );
+        numericalPartials[ "Earth velocity" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, earth, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       earth->getState( ),
+                                                       Eigen::Vector3d::Constant( 1.0 ),
+                                                       3 );
+        numericalPartials[ "Sun position" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, sun, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       sun->getState( ),
+                                                       Eigen::Vector3d::Constant( 1.0E4 ),
+                                                       0 );
+        numericalPartials[ "Sun velocity" ] =
+                calculateAccelerationWrtStatePartials( std::bind( &Body::setState, sun, std::placeholders::_1 ),
+                                                       accelerationModel,
+                                                       sun->getState( ),
+                                                       Eigen::Vector3d::Constant( 10.0 ),
+                                                       3 );
+        Eigen::Vector3d testPartialWrtEarthGravitationalParameter =
+                calculateAccelerationWrtParameterPartials( earthGravitationalParameter, accelerationModel, 1.0E10 );
+        Eigen::Vector3d testPartialWrtSunGravitationalParameter =
+                calculateAccelerationWrtParameterPartials( sunGravitationalParameter, accelerationModel, 1.0E15 );
+        Eigen::Vector3d testPartialWrtGamma = calculateAccelerationWrtParameterPartials( ppnParameterGamma, accelerationModel, 100.0 );
+        Eigen::Vector3d testPartialWrtBeta = calculateAccelerationWrtParameterPartials( ppnParameterBeta, accelerationModel, 100.0 );
+
+        // Compare numerical and analytical results
+        for( auto it : analyticalPartials )
+        {
+            BOOST_CHECK_GT( it.second.norm( ), 0.0 );
+            BOOST_CHECK_SMALL( ( it.second - numericalPartials.at( it.first ) ).norm( ) / it.second.norm( ),
+                               it.first.substr( 0, 3 ) == "Sun" ? 1.0E-6 : 1.0E-7 );
+        }
+        BOOST_CHECK_SMALL( ( partialWrtEarthGravitationalParameter - testPartialWrtEarthGravitationalParameter ).norm( ) /
+                                   partialWrtEarthGravitationalParameter.norm( ),
+                           1.0E-8 );
+        BOOST_CHECK_SMALL( ( partialWrtSunGravitationalParameter - testPartialWrtSunGravitationalParameter ).norm( ) /
+                                   partialWrtSunGravitationalParameter.norm( ),
+                           1.0E-8 );
+        BOOST_CHECK_SMALL( ( partialWrtGamma - testPartialWrtGamma ).norm( ) / partialWrtGamma.norm( ), 1.0E-8 );
+        if( calculateSchwarzschildCorrection )
+        {
+            BOOST_CHECK_SMALL( ( partialWrtBeta - testPartialWrtBeta ).norm( ) / partialWrtBeta.norm( ), 1.0E-8 );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( partialWrtBeta.norm( ), 0.0 );
+            BOOST_CHECK_EQUAL( testPartialWrtBeta.norm( ), 0.0 );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )

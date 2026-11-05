@@ -29,24 +29,12 @@
 #include "tudat/astro/low_thrust/lowThrustLeg.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
-#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
-
-// List of available types of thrust direction guidance
-//! @get_docstring(ThrustDirectionTypes.__docstring__)
-enum ThrustDirectionTypes {
-    colinear_with_state_segment_thrust_direction,
-    thrust_direction_from_existing_body_orientation,
-    custom_thrust_direction,
-    custom_thrust_orientation,
-    mee_costate_based_thrust_direction
-
-};
 
 // Function to create a list of functions that (compute and) return independent variables for thrust
 /*
@@ -64,85 +52,6 @@ std::vector< std::function< double( ) > > getPropulsionInputVariables(
         const std::shared_ptr< Body > bodyWithGuidance,
         const std::vector< propulsion::ThrustIndependentVariables > independentVariables,
         const std::vector< std::function< double( ) > > guidanceInputFunctions = std::vector< std::function< double( ) > >( ) );
-
-class ThrustDirectionSettings
-{
-public:
-    ThrustDirectionSettings( const ThrustDirectionTypes thrustDirectionType, const std::string relativeBody = "" ):
-        thrustDirectionType_( thrustDirectionType ), relativeBody_( relativeBody )
-    {
-        utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.ThrustDirectionSettings",
-                                          "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                          "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
-    }
-
-    virtual ~ThrustDirectionSettings( ) {}
-    ThrustDirectionTypes thrustDirectionType_;
-    std::string relativeBody_;
-};
-
-class ThrustDirectionFromStateGuidanceSettings : public ThrustDirectionSettings
-{
-public:
-    ThrustDirectionFromStateGuidanceSettings( const std::string& centralBody,
-                                              const bool isColinearWithVelocity,
-                                              const bool directionIsOppositeToVector ):
-        ThrustDirectionSettings( colinear_with_state_segment_thrust_direction, centralBody ),
-        isColinearWithVelocity_( isColinearWithVelocity ), directionIsOppositeToVector_( directionIsOppositeToVector )
-    {
-        utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.ThrustDirectionFromStateGuidanceSettings",
-                                          "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                          "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
-    }
-
-    ~ThrustDirectionFromStateGuidanceSettings( ) {}
-
-    bool isColinearWithVelocity_;
-    bool directionIsOppositeToVector_;
-};
-
-class CustomThrustDirectionSettings : public ThrustDirectionSettings
-{
-public:
-    CustomThrustDirectionSettings( const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction ):
-        ThrustDirectionSettings( custom_thrust_direction, "" ), thrustDirectionFunction_( thrustDirectionFunction )
-    {
-        utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.CustomThrustDirectionSettings",
-                                          "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                          "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
-    }
-
-    ~CustomThrustDirectionSettings( ) {}
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction_;
-};
-
-class CustomThrustOrientationSettings : public ThrustDirectionSettings
-{
-public:
-    CustomThrustOrientationSettings( const std::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction ):
-        ThrustDirectionSettings( custom_thrust_orientation, "" ), thrustOrientationFunction_( thrustOrientationFunction )
-    {
-        {
-            utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.CustomThrustOrientationSettings",
-                                              "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                              "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
-        }
-    }
-
-    CustomThrustOrientationSettings( const std::function< Eigen::Matrix3d( const double ) > thrustOrientationFunction ):
-        ThrustDirectionSettings( custom_thrust_orientation, "" ),
-        thrustOrientationFunction_( [ = ]( const double time ) { return Eigen::Quaterniond( thrustOrientationFunction( time ) ); } )
-    {
-        {
-            utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.CustomThrustOrientationSettings",
-                                              "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                              "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
-        }
-    }
-
-    ~CustomThrustOrientationSettings( ) {}
-    std::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction_;
-};
 
 //// Class for defining settings for MEE-costate based thrust direction guidance
 ///*
@@ -211,43 +120,6 @@ public:
 //    std::function< Eigen::VectorXd( const double ) > costateFunction_;
 
 //};
-
-//! @get_docstring(thrustDirectionFromStateGuidanceSettings)
-inline std::shared_ptr< ThrustDirectionSettings > thrustDirectionFromStateGuidanceSettings( const std::string& centralBody,
-                                                                                            const bool isColinearWithVelocity,
-                                                                                            const bool directionIsOppositeToVector )
-{
-    return std::make_shared< ThrustDirectionFromStateGuidanceSettings >( centralBody, isColinearWithVelocity, directionIsOppositeToVector );
-}
-
-//! @get_docstring(thrustFromExistingBodyOrientation)
-inline std::shared_ptr< ThrustDirectionSettings > thrustFromExistingBodyOrientation( )
-{
-    utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.thrust_from_existing_body_orientation",
-                                      "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                      "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
-
-//! @get_docstring(customThrustOrientationSettings, 2)
-inline std::shared_ptr< ThrustDirectionSettings > customThrustOrientationSettings(
-        const std::function< Eigen::Matrix3d( const double ) > thrustOrientationFunction )
-{
-    utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.custom_thrust_orientation",
-                                      "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                      "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
-
-//! @get_docstring(customThrustDirectionSettings)
-inline std::shared_ptr< ThrustDirectionSettings > customThrustDirectionSettings(
-        const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction )
-{
-    utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.custom_thrust_direction",
-                                      "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
-                                      "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
-    return nullptr;
-}
 
 // List of available types of thrust magnitude types
 //! @get_docstring(ThrustMagnitudeTypes.__docstring__)

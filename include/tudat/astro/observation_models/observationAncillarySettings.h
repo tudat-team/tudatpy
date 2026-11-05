@@ -11,6 +11,7 @@
 #ifndef TUDAT_ANCILLARYSETTINGS_H
 #define TUDAT_ANCILLARYSETTINGS_H
 
+#include <cmath>
 #include <Eigen/Core>
 #include <functional>
 #include <map>
@@ -21,12 +22,14 @@
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -42,6 +45,21 @@ enum ObservationAncillarySimulationVariable {
     doppler_reference_frequency,
     sequential_range_lowest_ranging_component,
     range_conversion_factor,
+    position_angle_reference_frame,
+    position_angle_reference_epoch,
+    position_angle_custom_reference_pole,
+    position_angle_use_stellar_aberration,
+};
+
+//! Celestial reference frame whose north pole defines a position-angle observable.
+enum PositionAngleReferenceFrame {
+    j2000_position_angle_reference_frame = 0,
+    b1950_position_angle_reference_frame = 1,
+    mean_of_date_iau_1976_position_angle_reference_frame = 2,
+    true_of_date_iau_1976_1980_position_angle_reference_frame = 3,
+    mean_of_date_iau_2006_position_angle_reference_frame = 4,
+    true_of_date_iau_2006_2000a_position_angle_reference_frame = 5,
+    custom_position_angle_reference_pole = 6
 };
 
 enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
@@ -52,6 +70,9 @@ public:
 
     virtual ~ObservationAncillarySimulationSettings( ) {}
 
+    //! Save ancillary settings to a JSON file
+    TUDAT_DECLARE_FILE_IO( ObservationAncillarySimulationSettings )
+
     void setAncillaryDoubleData( const ObservationAncillarySimulationVariable& variableType, const double variable )
     {
         switch( variableType )
@@ -61,6 +82,7 @@ public:
             case reception_reference_frequency_band:
             case sequential_range_lowest_ranging_component:
             case range_conversion_factor:
+            case position_angle_reference_epoch:
                 doubleData_[ variableType ] = variable;
                 break;
             default:
@@ -71,12 +93,54 @@ public:
         }
     }
 
+    //! Store an integer-valued ancillary option (currently the P/S reference frame, or use of stellar aberration).
+    void setAncillaryIntData( const ObservationAncillarySimulationVariable& variableType, const int variable )
+    {
+        switch( variableType )
+        {
+            case position_angle_reference_frame:
+            case position_angle_use_stellar_aberration:
+                intData_[ variableType ] = variable;
+                break;
+            default:
+                throw std::runtime_error( "Error when setting integer ancillary observation data; could not set type " +
+                                          getAncillaryDataName( variableType ) );
+        }
+    }
+
+    //! Check whether an integer-valued ancillary option was explicitly set.
+    bool hasAncillaryIntData( const ObservationAncillarySimulationVariable& variableType ) const
+    {
+        return intData_.count( variableType ) != 0;
+    }
+
+    //! Retrieve an integer-valued ancillary option, throwing if its type is invalid or its value is absent.
+    int getAncillaryIntData( const ObservationAncillarySimulationVariable& variableType ) const
+    {
+        switch( variableType )
+        {
+            case position_angle_reference_frame:
+            case position_angle_use_stellar_aberration:
+                break;
+            default:
+                throw std::runtime_error( "Error when getting integer ancillary observation data; could not retrieve type " +
+                                          getAncillaryDataName( variableType ) );
+        }
+        const auto setting = intData_.find( variableType );
+        if( setting == intData_.end( ) )
+        {
+            throw std::runtime_error( "Integer ancillary observation data not set for " + getAncillaryDataName( variableType ) );
+        }
+        return setting->second;
+    }
+
     void setAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable& variableType, const std::vector< double >& variable )
     {
         switch( variableType )
         {
             case link_ends_delays:
             case frequency_bands:
+            case position_angle_custom_reference_pole:
                 doubleVectorData_[ variableType ] = variable;
                 break;
             default:
@@ -99,6 +163,7 @@ public:
                 case reception_reference_frequency_band:
                 case sequential_range_lowest_ranging_component:
                 case range_conversion_factor:
+                case position_angle_reference_epoch:
                     returnVariable = doubleData_.at( variableType );
                     break;
                 default:
@@ -135,6 +200,7 @@ public:
             {
                 case link_ends_delays:
                 case frequency_bands:
+                case position_angle_custom_reference_pole:
                     returnVariable = doubleVectorData_.at( variableType );
                     break;
                 default:
@@ -161,7 +227,7 @@ public:
         return returnVariable;
     }
 
-    std::string getAncillaryDataName( const ObservationAncillarySimulationVariable& variableType )
+    std::string getAncillaryDataName( const ObservationAncillarySimulationVariable& variableType ) const
     {
         std::string name;
 
@@ -187,6 +253,18 @@ public:
                 break;
             case range_conversion_factor:
                 name = "DSN range conversion factor from RU to meter";
+                break;
+            case position_angle_reference_frame:
+                name = "position-angle celestial reference frame";
+                break;
+            case position_angle_reference_epoch:
+                name = "position-angle celestial reference epoch";
+                break;
+            case position_angle_custom_reference_pole:
+                name = "custom position-angle reference pole";
+                break;
+            case position_angle_use_stellar_aberration:
+                name = "position-angle use of stellar aberration";
                 break;
             default:
                 throw std::runtime_error(
@@ -275,12 +353,29 @@ public:
 
     bool operator==( const ObservationAncillarySimulationSettings& rightSettings ) const
     {
-        return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
+        return equals( rightSettings );
+    }
+
+    bool operator!=( const ObservationAncillarySimulationSettings& rightSettings ) const
+    {
+        return !( *this == rightSettings );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const ObservationAncillarySimulationSettings& rhs ) const
+    {
+        return doubleData_ == rhs.doubleData_ && intData_ == rhs.intData_ && doubleVectorData_ == rhs.doubleVectorData_ &&
+                doubleIntermediateData_ == rhs.doubleIntermediateData_;
     }
 
     std::map< ObservationAncillarySimulationVariable, double > getDoubleData( ) const
     {
         return doubleData_;
+    }
+
+    std::map< ObservationAncillarySimulationVariable, int > getIntData( ) const
+    {
+        return intData_;
     }
 
     std::map< ObservationAncillarySimulationVariable, std::vector< double > > getDoubleVectorData( ) const
@@ -290,9 +385,31 @@ public:
 
 protected:
     std::map< ObservationAncillarySimulationVariable, double > doubleData_;
+    std::map< ObservationAncillarySimulationVariable, int > intData_;
     std::map< ObservationAncillarySimulationVariable, std::vector< double > > doubleVectorData_;
 
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( intData_ ) );
+        ar( CEREAL_NVP( doubleVectorData_ ) );
+        ar( CEREAL_NVP( doubleIntermediateData_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( intData_ ) );
+        ar( CEREAL_NVP( doubleVectorData_ ) );
+        ar( CEREAL_NVP( doubleIntermediateData_ ) );
+    }
 };
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopplerAncillarySettings( const double integrationTime = 60.0 )
@@ -303,27 +420,58 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopp
     return ancillarySettings;
 }
 
+//! Create ancillary settings selecting the celestial pole, and the use of stellar aberration, for P/S.
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getPositionAngleAncillarySettings(
+        const PositionAngleReferenceFrame referenceFrame = j2000_position_angle_reference_frame,
+        const double referenceEpoch = TUDAT_NAN,
+        const bool useStellarAberration = false )
+{
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setAncillaryIntData( position_angle_reference_frame, static_cast< int >( referenceFrame ) );
+    ancillarySettings->setAncillaryIntData( position_angle_use_stellar_aberration, static_cast< int >( useStellarAberration ) );
+    if( !std::isnan( referenceEpoch ) )
+    {
+        ancillarySettings->setAncillaryDoubleData( position_angle_reference_epoch, referenceEpoch );
+    }
+    return ancillarySettings;
+}
+
+//! Create ancillary settings defining a custom position-angle reference pole in ICRF/J2000 coordinates.
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getCustomPositionAngleAncillarySettings(
+        const Eigen::Vector3d& referencePole,
+        const bool useStellarAberration = false )
+{
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            getPositionAngleAncillarySettings( custom_position_angle_reference_pole, TUDAT_NAN, useStellarAberration );
+    ancillarySettings->setAncillaryDoubleVectorData( position_angle_custom_reference_pole,
+                                                     { referencePole.x( ), referencePole.y( ), referencePole.z( ) } );
+    return ancillarySettings;
+}
+
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayRangeAncillarySettings(
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands = std::vector< basic_astrodynamics::FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayAveragedDopplerAncillarySettings(
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands = std::vector< basic_astrodynamics::FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancillarySettings;
 }
 
@@ -340,8 +488,8 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getTwoWayAverag
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands,
-        const FrequencyBands receptionReferenceFrequencyBand,
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands,
+        const basic_astrodynamics::FrequencyBands receptionReferenceFrequencyBand,
         const double referenceFrequency,
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
@@ -352,16 +500,17 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAvera
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, referenceFrequency );
     ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band,
-                                               convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
+                                               basic_astrodynamics::convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRangeAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands,
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands,
         const double lowestRangingComponent,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 
@@ -371,19 +520,21 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRange
 
     ancillarySettings->setAncillaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDopplerMeasuredFrequencyAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
 
     return ancillarySettings;
 }
@@ -450,4 +601,5 @@ inline void checkTrackingDataAncillarySettings( const observation_models::Observ
 }  // namespace observation_models
 
 }  // namespace tudat
+
 #endif  // TUDAT_ANCILLARYSETTINGS_H

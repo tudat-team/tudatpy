@@ -12,6 +12,7 @@ set(earth_orientation_SOURCES
         "earthOrientationCalculator.cpp"
         "terrestrialTimeScaleConverter.cpp"
         "eopReader.cpp"
+        "readEarthOrientationData.cpp"
         "polarMotionCalculator.cpp"
         "precessionNutationCalculator.cpp"
         "readAmplitudeAndArgumentMultipliers.cpp"
@@ -24,6 +25,7 @@ set(earth_orientation_HEADERS
         "earthOrientationCalculator.h"
         "terrestrialTimeScaleConverter.h"
         "eopReader.h"
+        "readEarthOrientationData.h"
         "polarMotionCalculator.h"
         "precessionNutationCalculator.h"
         "readAmplitudeAndArgumentMultipliers.h"
@@ -34,6 +36,6 @@ set(earth_orientation_HEADERS
 TUDAT_ADD_LIBRARY("earth_orientation"
         "${earth_orientation_SOURCES}"
         "${earth_orientation_HEADERS}"
-#        PRIVATE_LINKS "${Sofa_LIBRARIES}" "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "${Sofa_LIBRARIES}" "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )

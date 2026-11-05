@@ -19,6 +19,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 #include "tudat/simulation/estimation_setup/createObservationViability.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
@@ -72,7 +73,7 @@ namespace observations_setup
 namespace viability
 {
 
-void expose_viability( py::module& m )
+void expose_observation_viability_settings_type( py::module& m )
 {
     py::class_< tom::ObservationViabilitySettings, std::shared_ptr< tom::ObservationViabilitySettings > >( m,
                                                                                                            "ObservationViabilitySettings",
@@ -94,7 +95,7 @@ void expose_viability( py::module& m )
              # Create ObservationViabilitySettings object
              # In this case, we exclude observations for which the local elevation angle at link end is less 15 degrees.
              min_elevation = np.deg2rad(15)
-             # We apply these settings to every ground station on Earth using the following link_end_id: [“Earth”, “”]
+             # We apply these settings to every ground station on Earth using the following link_end_id: ["Earth", ""]
              viability_settings = viability.elevation_angle_viability(["Earth", ""], min_elevation)
 
              # Show that this is indeed an ObservationViabilitySettings object
@@ -104,7 +105,10 @@ void expose_viability( py::module& m )
 
 
       )doc" );
+}
 
+void expose_viability( py::module& m )
+{
     py::class_< tom::ObservationBoundariesViabilitySettings,
                 std::shared_ptr< tom::ObservationBoundariesViabilitySettings >,
                 tom::ObservationViabilitySettings >( m,
@@ -139,10 +143,24 @@ Examples
 
 
       )doc" )
-            .value( "minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle )
-            .value( "body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
-            .value( "body_occultation", tom::ObservationViabilityType::body_occultation )
-            .value( "observation_boundaries", tom::ObservationViabilityType::observation_boundaries )
+            .value( "minimum_elevation_angle",
+                    tom::ObservationViabilityType::minimum_elevation_angle,
+                    R"doc(Require the target to be above a minimum station elevation angle.)doc" )
+            .value( "body_avoidance_angle",
+                    tom::ObservationViabilityType::body_avoidance_angle,
+                    R"doc(Require the line of sight to remain outside the avoidance angle of a body.)doc" )
+            .value( "body_occultation",
+                    tom::ObservationViabilityType::body_occultation,
+                    R"doc(Reject observations whose line of sight is occulted by a body.)doc" )
+            .value( "observation_boundaries",
+                    tom::ObservationViabilityType::observation_boundaries,
+                    R"doc(Apply configured observation visibility or geometry boundaries.)doc" )
+            .value( "ground_station_darkness",
+                    tom::ObservationViabilityType::ground_station_darkness,
+                    R"doc(Require the observing ground station to be in darkness.)doc" )
+            .value( "body_in_sunlight",
+                    tom::ObservationViabilityType::body_in_sunlight,
+                    R"doc(Require the observed body to be illuminated by sunlight.)doc" )
             .export_values( );
 
     m.def( "observation_boundaries_viability",
@@ -156,6 +174,19 @@ Examples
 
     Function for defining observation boundaries viability settings for single link ends.
     When simulating observations, this setting ensures that any applicable observations, for which the observed value is outside of given boundaries, will be omitted.
+
+    Parameters
+    ----------
+    link_end_id : tuple[str,str]
+        Link end (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` ), for which the viability settings are to be created.
+
+    boundaries : list[tuple[float, float]]
+        List of pairs of minimum and maximum allowed values for the observation. Each entry on the list corresponds to minimum and maximum allowed for each entry in the observation vector.
+
+    Returns
+    -------
+    ObservationBoundariesViabilitySettings
+        Observation-boundary viability settings for the link end.
 
     Examples
     --------
@@ -172,21 +203,8 @@ Examples
 
         # Show that this is indeed an ObservationBoundariesViabilitySettings object
         print(viability_settings)
-    
-    Parameters
-    ----------
-    link_end_id : tuple[str,str]
-    Link end (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` ), for which the viability settings are to be created.
-    
-    boundaries : list[tuple[float, float]]
-    List of pairs of minimum and maximum allowed values for the observation. Each entry on the list corresponds to minimum and maximum allowed for each entry in the observation vector.
 
-    Returns
-    -------
-    :class:`ObservationBoundariesViabilitySettings`
-    Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationBoundariesViabilitySettings`, defining the settings for observation viability.
-
-     )doc" );
+ )doc" );
 
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >( &tom::elevationAngleViabilitySettings ),
@@ -219,8 +237,34 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ ObservationViabilitySettings
      Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` class, defining the settings for observation viability
+
+     )doc" );
+
+    m.def( "ground_station_darkness_viability",
+           &tom::groundStationDarknessViabilitySettings,
+           py::arg( "link_end_id" ),
+           py::arg( "maximum_sun_elevation" ) = -12.0 * tudat::mathematical_constants::PI / 180.0,
+           R"doc(
+
+ Function for defining a ground-station darkness viability setting.
+
+ Observations are retained only when the Sun elevation at every epoch at which the specified ground station participates
+ in the observation is at or below ``maximum_sun_elevation``. The Sun state is obtained from the environment in the global
+ frame, independently of the observation link-end states.
+
+ Parameters
+ ----------
+ link_end_id : tuple[str,str]
+     Ground-station link end for which darkness is required.
+ maximum_sun_elevation : float, default=-0.20943951023931953
+     Maximum allowed Sun elevation in radians. The default is -12 degrees.
+
+ Returns
+ -------
+ ObservationViabilitySettings
+     Settings defining the ground-station darkness viability condition.
 
      )doc" );
 
@@ -264,7 +308,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ ObservationViabilitySettings
      Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings`, defining the settings for observation viability.
 
 
@@ -303,13 +347,45 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ ObservationViabilitySettings
      Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings`, defining the settings for observation viability.
 
 
 
 
 
+
+     )doc" );
+
+    m.def( "body_in_sunlight_viability",
+           &tom::bodyInSunlightViabilitySettings,
+           py::arg( "link_end_id" ),
+           py::arg( "occulting_bodies" ),
+           py::arg( "minimum_shadow_function_value" ) = 1.0,
+           R"doc(
+
+ Function for defining a body-in-sunlight viability setting.
+
+ Observations are retained only when the shadow function of the Sun, as occulted by any of ``occulting_bodies``, is at least
+ ``minimum_shadow_function_value`` at every epoch at which the specified link end participates in the observation. The Sun is
+ treated as an extended (rather than point) source, with its radius retrieved automatically from its shape model. Sun and
+ occulting-body states are obtained from the environment in the global frame, independently of the other observation
+ link-end states.
+
+ Parameters
+ ----------
+ link_end_id : tuple[str,str]
+     Link end representing the body that must be illuminated by the Sun.
+ occulting_bodies : list[str]
+     Bodies that may occult the Sun, using their spherical average radii.
+ minimum_shadow_function_value : float, default = 1.0
+     Minimum value of the shadow function (0: umbra, 1: fully illuminated) for which the observation is considered viable.
+     The default requires the body to be fully exposed to the Sun, excluding any degree of penumbra/antumbra/umbra.
+
+ Returns
+ -------
+ ObservationViabilitySettings
+     Settings defining the body-in-sunlight viability condition.
 
      )doc" );
 
@@ -330,6 +406,11 @@ Examples
 
     boundaries : list[tuple[float, float]]
     List of pairs of minimum and maximum allowed values for the observation. Each entry on the list corresponds to minimum and maximum allowed for each entry in the observation vector.
+
+ Returns
+ -------
+ list[ObservationBoundariesViabilitySettings]
+     List of observation-boundary viability settings, one for each link end.
     )doc" );
 
     m.def( "elevation_angle_viability_list",
@@ -355,7 +436,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ list[ObservationViabilitySettings]
      List of :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 
@@ -391,7 +472,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ list[ObservationViabilitySettings]
      List of :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 
@@ -424,7 +505,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ list[ObservationViabilitySettings]
      List of :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 

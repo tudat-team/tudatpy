@@ -13,6 +13,7 @@
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include <iostream>
+#include <stdexcept>
 
 //! Tudat library namespace.
 namespace tudat
@@ -23,7 +24,12 @@ namespace aerodynamics
 void NRLMSISE00Atmosphere::setInputStruct( const double altitude, const double longitude, const double geodeticLatitude, const double time )
 {
     // Retrieve input data.
-    inputData_ = nrlmsise00InputFunction_( altitude, longitude, geodeticLatitude, time );
+    const NRLMSISE00Input inputData = nrlmsise00InputFunction_( altitude, longitude, geodeticLatitude, time );
+    if( inputData.apVector.size( ) != 7 )
+    {
+        throw std::invalid_argument( "NRLMSISE00 Ap input must contain exactly seven entries: daily Ap followed by six history values." );
+    }
+    inputData_ = inputData;
     std::copy( inputData_.apVector.begin( ), inputData_.apVector.end( ), aph_.a );
     std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
 
@@ -53,9 +59,9 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude,
     {
         return;
     }
-    hashKey_ = hashKey;
-
     setInputStruct( altitude, longitude, geodeticLatitude, time );
+    // Rejected Ap inputs must not be cached, even when the next call uses the same coordinates and epoch.
+    hashKey_ = hashKey;
 
     // Call NRLMSISE00 accounting for the contributions from anomalous oxygen
     if( useAnomalousOxygen_ )

@@ -195,6 +195,8 @@ Classes
 
    TabulatedEphemerisSettings
 
+   Tle
+
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings
@@ -226,3 +228,7 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings
    :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.Tle
+   :members:
+   :special-members: __init__

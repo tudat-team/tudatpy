@@ -16,6 +16,7 @@ set(basic_astrodynamics_SOURCES
         "geodeticCoordinateConversions.cpp"
         "missionGeometry.cpp"
         "modifiedEquinoctialElementConversions.cpp"
+        "equinoctialElementConversions.cpp"
         "timeConversions.cpp"
         "astrodynamicsFunctions.cpp"
         "physicalConstants.cpp"
@@ -30,10 +31,12 @@ set(basic_astrodynamics_SOURCES
         "torqueModelTypes.cpp"
         "torqueModel.cpp"
         "neQuick2Model.cpp"
+        "frequencyBands.cpp"
         )
 
 # Set the header files.
 set(basic_astrodynamics_HEADERS
+        "frequencyBands.h"
         "accelerationModelTypes.h"
         "accelerationModel.h"
         "dateTime.h"
@@ -47,6 +50,7 @@ set(basic_astrodynamics_HEADERS
         "keplerPropagator.h"
         "missionGeometry.h"
         "modifiedEquinoctialElementConversions.h"
+        "equinoctialElementConversions.h"
         "stateVectorIndices.h"
         "timeConversions.h"
         "tests/testAccelerationModels.h"
@@ -72,6 +76,7 @@ set(basic_astrodynamics_HEADERS
         "torqueModel.h"
         "torqueModelTypes.h"
         "dissipativeTorqueModel.h"
+        "climateModel.h"
         )
 
 TUDAT_ADD_LIBRARY("basic_astrodynamics"

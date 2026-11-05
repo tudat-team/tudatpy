@@ -38,6 +38,7 @@ class AerodynamicAcceleration;
 namespace electromagnetism
 {
 class RadiationPressureAcceleration;
+class ThreeCoefficientRadiationPressureAcceleration;
 class YarkovskyAcceleration;
 }  // namespace electromagnetism
 
@@ -479,6 +480,17 @@ std::shared_ptr< electromagnetism::RadiationPressureAcceleration > createRadiati
         const std::string& nameOfBodyExertingAcceleration,
         const SystemOfBodies& bodies,
         const std::shared_ptr< AccelerationSettings > accelerationSetting = nullptr );
+
+//! Create a three-coefficient radiation-pressure acceleration model.
+std::shared_ptr< electromagnetism::ThreeCoefficientRadiationPressureAcceleration > createThreeCoefficientRadiationPressureAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< Body > referenceBody,
+        const std::string& referenceBodyName,
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create a thrust acceleration model.
 /*!

@@ -55,7 +55,8 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
                     {
                         deformingBodyStateFunctions.push_back( std::bind( &Body::getPosition, bodies.at( deformingBodies.at( i ) ) ) );
                     }
-                    // Create partial object
+                    // Create partial object. Keep one interface per distinct variation model (pointer identity), so that
+                    // independent per-degree models for the same deforming body remain available to Love-number partials.
                     auto newLoveNumberInterface = std::make_shared< orbit_determination::TidalLoveNumberPartialInterface >(
                             variationObjectList.at( i ),
                             deformedBodyPositionFunction,
@@ -66,13 +67,11 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
                     bool addInterface = true;
                     for( unsigned int j = 0; j < loveNumberInterfaces.size( ); j++ )
                     {
-                        if( acceleratingBodyName == loveNumberInterfaces.at( j )->getDeformedBody( ) )
+                        if( newLoveNumberInterface->getGravityFieldVariations( ) ==
+                            loveNumberInterfaces.at( j )->getGravityFieldVariations( ) )
                         {
-                            if( utilities::compareStlVectors< std::string >( newLoveNumberInterface->getDeformingBodies( ),
-                                                                             loveNumberInterfaces.at( j )->getDeformingBodies( ) ) )
-                            {
-                                addInterface = false;
-                            }
+                            addInterface = false;
+                            break;
                         }
                     }
 

@@ -21,7 +21,6 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -29,7 +28,7 @@
 
 #include <Eigen/Core>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/integrators/adamsBashforthMoultonIntegrator.h"
 #include "tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h"

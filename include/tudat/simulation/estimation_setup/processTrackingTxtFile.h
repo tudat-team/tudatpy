@@ -352,6 +352,7 @@ public:
         {
             case dsn_n_way_averaged_doppler: {
                 ancillarySettings->setAncillaryDoubleData( doppler_integration_time, getObservationTimeStep( ) );
+                break;
             }
             default:
                 break;
@@ -844,6 +845,7 @@ void setTrackingDataInformationInBodies(
     {
         case dsn_n_way_averaged_doppler: {
             setStationFrequenciesFromTrackingData( processedTrackingTxtFileContents, bodies );
+            break;
         }
         default:
             break;
@@ -857,8 +859,8 @@ createMultiStationIfmsObservedObservationCollectionFromFiles(
         simulation_setup::SystemOfBodies& bodies,
         const std::string& targetName,
         const std::vector< std::string >& groundStationNames,
-        const FrequencyBands& receptionBand,
-        const FrequencyBands& transmissionBand,
+        const basic_astrodynamics::FrequencyBands& receptionBand,
+        const basic_astrodynamics::FrequencyBands& transmissionBand,
         const bool applyTroposphereCorrection = true,
         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                 simulation_setup::getCombinedApproximateGroundStationPositions( ),
@@ -891,7 +893,8 @@ createMultiStationIfmsObservedObservationCollectionFromFiles(
     ancillarySettings.setAncillaryDoubleVectorData( frequency_bands,
                                                     { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) } );
     ancillarySettings.setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
-    ancillarySettings.setAncillaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( receptionBand ) );
+    ancillarySettings.setAncillaryDoubleData( reception_reference_frequency_band,
+                                              basic_astrodynamics::convertFrequencyBandToDouble( receptionBand ) );
 
     return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
             processedIfmsFiles, std::vector< ObservableType >( ), ancillarySettings );
@@ -903,8 +906,8 @@ createIfmsObservedObservationCollectionFromFiles( const std::vector< std::string
                                                   simulation_setup::SystemOfBodies& bodies,
                                                   const std::string& targetName,
                                                   const std::string& groundStationName,
-                                                  const FrequencyBands& receptionBand,
-                                                  const FrequencyBands& transmissionBand,
+                                                  const basic_astrodynamics::FrequencyBands& receptionBand,
+                                                  const basic_astrodynamics::FrequencyBands& transmissionBand,
                                                   const bool applyTroposphereCorrection = true,
                                                   const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                                                           simulation_setup::getCombinedApproximateGroundStationPositions( ),
@@ -931,8 +934,8 @@ createFdetsObservedObservationCollectionFromRawContents( const std::shared_ptr< 
                                                          const std::string& targetName,
                                                          const std::string& transmittingStationName,
                                                          const std::string& receivingStationName,
-                                                         const FrequencyBands& receptionBand,
-                                                         const FrequencyBands& transmissionBand,
+                                                         const basic_astrodynamics::FrequencyBands& receptionBand,
+                                                         const basic_astrodynamics::FrequencyBands& transmissionBand,
                                                          const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions )
 {
     using namespace input_output;
@@ -962,8 +965,8 @@ createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileNa
                                                   const std::string& targetName,
                                                   const std::string& transmittingStationName,
                                                   const std::string& receivingStationName,
-                                                  const FrequencyBands& receptionBand,
-                                                  const FrequencyBands& transmissionBand,
+                                                  const basic_astrodynamics::FrequencyBands& receptionBand,
+                                                  const basic_astrodynamics::FrequencyBands& transmissionBand,
                                                   const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                                                           simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
@@ -986,8 +989,8 @@ createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileNa
                                                   const std::string& targetName,
                                                   const std::string& transmittingStationName,
                                                   const std::string& receivingStationName,
-                                                  const FrequencyBands& receptionBand,
-                                                  const FrequencyBands& transmissionBand,
+                                                  const basic_astrodynamics::FrequencyBands& receptionBand,
+                                                  const basic_astrodynamics::FrequencyBands& transmissionBand,
                                                   const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                                                           simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {

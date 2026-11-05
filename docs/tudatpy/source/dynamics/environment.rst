@@ -31,11 +31,23 @@ Functions
    
    save_vehicle_mesh_to_file
 
+   fit_tle_to_cartesian_state_history
+
+   dsn_default_turnaround_ratios
+
+   cassini_turnaround_ratios
+
 
 
 .. autofunction:: tudatpy.dynamics.environment.save_vehicle_mesh_to_file
 
 .. autofunction:: tudatpy.dynamics.environment.transform_to_inertial_orientation
+
+.. autofunction:: tudatpy.dynamics.environment.fit_tle_to_cartesian_state_history
+
+.. autofunction:: tudatpy.dynamics.environment.dsn_default_turnaround_ratios
+
+.. autofunction:: tudatpy.dynamics.environment.cassini_turnaround_ratios
 
 
 Enums
@@ -47,8 +59,13 @@ Enums
 
    FrequencyGapHandling
 
+   FrequencyBands
+
 
 .. autoclass:: tudatpy.dynamics.environment.FrequencyGapHandling
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.FrequencyBands
    :members:
 
 
@@ -63,7 +80,7 @@ Classes
 
    TimeEphemeris
 
-   Tle
+   TleFitResult
 
    RotationalEphemeris
 
@@ -84,6 +101,8 @@ Classes
    RigidBodyProperties
       
    AtmosphereModel
+
+   NRLMSISE00Atmosphere
    
    RadiationSourceModel
 
@@ -124,9 +143,8 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment.TimeEphemeris
    :members:
 
-.. autoclass:: tudatpy.dynamics.environment.Tle
+.. autoclass:: tudatpy.dynamics.environment.TleFitResult
    :members:
-   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment.RotationalEphemeris
    :members:
@@ -157,6 +175,11 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.AtmosphereModel
    :members:     
+
+.. autoclass:: tudatpy.dynamics.environment.NRLMSISE00Atmosphere
+   :members:
+   :special-members: __init__
+   :show-inheritance:
 
 .. autoclass:: tudatpy.dynamics.environment.RadiationSourceModel
    :members:   
@@ -206,3 +229,4 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.SystemOfBodies
    :members:
+   :exclude-members: get_body

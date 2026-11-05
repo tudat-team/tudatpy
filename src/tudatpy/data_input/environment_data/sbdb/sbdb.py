@@ -1,8 +1,130 @@
 from astroquery.jplsbdb import SBDB as astroquerySBDB
 from astropy import units as u
-from typing import Any, Union
+from os import PathLike
+from typing import Any, Iterable, Optional, Union
+from datetime import datetime
 import math
+import numpy as np
+import pandas as pd
+import requests
+from tudatpy.astro.time_representation import DateTime
 from tudatpy.constants import GRAVITATIONAL_CONSTANT
+
+
+class SBDBbatch:
+    """Access the JPL Small-Body Database catalogue as a table.
+
+    Load a saved CSV file, or fetch all catalogue rows from JPL through
+    requests of at most ``page_size`` rows each. Use :meth:`get`
+    to select rows by primary MPC designation (the ``pdes`` field).
+
+    Parameters
+    ----------
+    csv_path : str or os.PathLike, optional
+        Path to a previously saved CSV file. When provided, the catalogue is
+        read from this file instead of queried from JPL.
+    fields : iterable of str, optional
+        SBDB fields to request when downloading. If omitted, all fields
+        advertised by the API are requested. Include ``"pdes"`` to use
+        :meth:`get`.
+    page_size : int, optional
+        Maximum number of rows requested per JPL request. Default is 100,000.
+    timeout : float, optional
+        HTTP timeout in seconds for each request. Default is 120.
+
+    Attributes
+    ----------
+    dataframe : pandas.DataFrame
+        The downloaded or loaded catalogue.
+    """
+
+    api_url = "https://ssd-api.jpl.nasa.gov/sbdb_query.api"
+
+    def __init__(
+        self,
+        csv_path: Optional[Union[str, PathLike]] = None,
+        fields: Optional[Iterable[str]] = None,
+        page_size: int = 100_000,
+        timeout: float = 120,
+    ) -> None:
+        """Load the catalogue from JPL or a local CSV file."""
+        self.dataframe = (
+            pd.read_csv(csv_path, dtype={"pdes": str, "spkid": str})
+            if csv_path is not None
+            else self._download(fields, page_size, timeout)
+        )
+
+    @classmethod
+    def _download(
+        cls, fields: Optional[Iterable[str]], page_size: int, timeout: float
+    ) -> pd.DataFrame:
+        """Fetch all catalogue rows through successive API requests.
+
+        Parameters
+        ----------
+        fields : iterable of str or None
+            SBDB field names. If None, request all fields advertised by the API.
+        page_size : int
+            Maximum number of rows requested per API call.
+        timeout : float
+            HTTP timeout in seconds for each request.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Catalogue rows with the columns returned by JPL.
+        """
+        if fields is None:
+            response = requests.get(cls.api_url, params={"info": "field"}, timeout=timeout)
+            response.raise_for_status()
+            fields = [
+                field["name"]
+                for group in response.json()["info"]["field"].values()
+                for field in group["list"]
+            ]
+        fields = list(fields)
+
+        rows, offset, columns = [], 0, []
+        while True:
+            response = requests.get(
+                cls.api_url,
+                params={"fields": ",".join(fields), "limit": page_size, "limit-from": offset},
+                timeout=timeout,
+            )
+            response.raise_for_status()
+            result = response.json()
+            columns = result["fields"]
+            rows.extend(result.get("data", []))
+            offset += len(result.get("data", []))
+            if offset >= int(result["count"]) or not result.get("data"):
+                break
+        return pd.DataFrame(rows, columns=columns)
+
+    def get(self, mpc_codes: Union[str, int, Iterable[Union[str, int]]]) -> pd.DataFrame:
+        """Select catalogue rows by primary MPC designation.
+
+        Parameters
+        ----------
+        mpc_codes : str, int, or iterable of str or int
+            One or more designations to match against the ``pdes`` column.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Matching rows, or an empty table if no designation matches.
+        """
+        codes = [mpc_codes] if isinstance(mpc_codes, (str, int)) else mpc_codes
+        return self.dataframe[self.dataframe["pdes"].astype(str).isin(map(str, codes))]
+
+    def to_csv(self, path: Union[str, PathLike]) -> None:
+        """Save the loaded catalogue to a CSV file for offline reuse.
+
+        Parameters
+        ----------
+        path : str or os.PathLike
+            Output CSV path. The DataFrame index is not written.
+        """
+        self.dataframe.to_csv(path, index=False)
 
 
 class SBDBquery:
@@ -55,6 +177,22 @@ class SBDBquery:
         Returns the JPL SPKID, the related codes_300_spkid method returns a modified ID for the Tudat standard kernel
         """
         return self.query["object"]["spkid"]
+
+    @property
+    def moid(self):
+        """**read-only**
+
+        Small body's minimum orbital intersection distance with Earth, in metres.
+        """
+        return self.query["orbit"]["moid"].to(u.meter).value
+
+    @property
+    def moid_jup(self):
+        """**read-only**
+
+        Small body's minimum orbital intersection distance with Jupiter, in metres.
+        """
+        return self.query["orbit"]["moid_jup"].to(u.meter).value
 
     @property
     def codes_300_spkid(self):
@@ -119,9 +257,93 @@ class SBDBquery:
             res = self.query["phys_par"]["diameter"].to(u.meter)
             return res.value
         except Exception as _:
-            raise ValueError(f"Gravitational parameter is not available for object {self.name}")
+            raise ValueError(f"Diameter is not available for object {self.name}")
 
-    def estimated_spherical_mass(self, density: float):
+    @property
+    def nongrav_params(self):
+        """**read-only**
+
+        Cometary non-gravitational model parameters ``A1``, ``A2`` and ``A3``
+        in m/s². Missing parameters are returned as zero.
+        """
+        parameters = []
+        for name in ("A1", "A2", "A3"):
+            try:
+                value = self.query["orbit"]["model_pars"][name].to(u.m / u.s**2).value
+            except Exception:
+                value = 0.0
+            parameters.append(value)
+        return np.array(parameters)
+
+    @property
+    def Dt(self):
+        """**read-only**
+
+        Asymmetric cometary non-gravitational model parameter ``DT`` in seconds.
+        """
+        try:
+            return self.query["orbit"]["model_pars"]["DT"].to(u.s).value
+        except Exception as exception:
+            raise ValueError(
+                f"Asymmetry parameter DT is not available for object {self.name}"
+            ) from exception
+
+    @property
+    def first_obs(self):
+        """**read-only**
+
+        Epoch of the first observation used in the orbit solution, in seconds since J2000.
+        """
+        try:
+            observation_start = datetime.strptime(self.query["orbit"]["first_obs"], "%Y-%m-%d")
+            return DateTime.from_python_datetime(observation_start).to_epoch()
+        except Exception as exception:
+            raise ValueError(
+                f"Date of first observation is not available for object {self.name}"
+            ) from exception
+
+    @property
+    def last_obs(self):
+        """**read-only**
+
+        Epoch of the last observation used in the orbit solution, in seconds since J2000.
+        """
+        try:
+            observation_end = datetime.strptime(self.query["orbit"]["last_obs"], "%Y-%m-%d")
+            return DateTime.from_python_datetime(observation_end).to_epoch()
+        except Exception as exception:
+            raise ValueError(
+                f"Date of last observation is not available for object {self.name}"
+            ) from exception
+
+    @property
+    def perihelion(self):
+        """**read-only**
+
+        Perihelion distance in metres.
+        """
+        try:
+            return self.query["orbit"]["elements"]["q"].to(u.m).value
+        except Exception as exception:
+            raise ValueError(
+                f"Perihelion distance is not available for object {self.name}"
+            ) from exception
+
+    @property
+    def time_perihelion(self):
+        """**read-only**
+
+        Perihelion epoch in seconds since J2000.
+        """
+        try:
+            epoch_julian_day = self.query["orbit"]["elements"]["tp"].value
+            return DateTime.from_julian_day(epoch_julian_day).to_epoch()
+        except Exception as exception:
+            raise ValueError(
+                f"Perihelion time is not available for object {self.name}"
+            ) from exception
+
+    def estimated_spherical_mass(self, density: float) -> float:
         """Calculate a very simple mass by estimating the object's mass using a given density.
         Will raise an error if the body's diameter is not available on SBDB.
 
@@ -139,7 +361,7 @@ class SBDBquery:
         mass = volume * density
         return mass
 
-    def estimated_spherical_gravitational_parameter(self, density: float):
+    def estimated_spherical_gravitational_parameter(self, density: float) -> float:
         """Calculate a very simple gravitational parameter by estimating the object's mass using a given density.
         Will raise an error if the body's diameter is not available on SBDB.
 

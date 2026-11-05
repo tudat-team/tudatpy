@@ -9,7 +9,6 @@
  */
 //
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -19,7 +18,7 @@
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
@@ -72,20 +71,17 @@ BOOST_AUTO_TEST_CASE( test_FitToSpice )
         double radiationPressureCoefficient = 1.5;
         std::vector< std::string > occultingBodies;
         occultingBodies.push_back( "Mars" );
-        std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-        // Create and set radiation pressure settings
-        bodies.at( "MGS" )->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface( asterixRadiationPressureSettings, "MGS", bodies ) );
+        addRadiationPressureTargetModel(
+                bodies,
+                "MGS",
+                cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
         bodies.at( "MGS" )->setConstantBodyMass( 2000.0 );
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSpacecraft;
         accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-        accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+        accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
         accelerationsOfSpacecraft[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationsOfSpacecraft[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 64, 64 ) );
         accelerationsOfSpacecraft[ "Mars" ].push_back( empiricalAcceleration( ) );

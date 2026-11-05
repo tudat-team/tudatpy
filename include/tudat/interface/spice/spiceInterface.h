@@ -33,11 +33,22 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/io/basicInputOutput.h"
 
+#ifndef VOID
+#define TUDAT_SPICE_INTERFACE_UNDEFINE_VOID
+#endif
+
 extern "C" {
 #include <cspice/SpiceUsr.h>
 #include <cspice/SpiceZfc.h>
 #include <cspice/SpiceErr.h>
 }
+
+// SpiceZfc.h defines VOID as a macro. If it did not exist before this header,
+// do not leak it: winnt.h uses the macro's absence to declare core Windows types.
+#ifdef TUDAT_SPICE_INTERFACE_UNDEFINE_VOID
+#undef VOID
+#undef TUDAT_SPICE_INTERFACE_UNDEFINE_VOID
+#endif
 
 #include "tudat/astro/ephemerides/tleEphemeris.h"
 #include "tudat/interface/spice/spiceError.h"

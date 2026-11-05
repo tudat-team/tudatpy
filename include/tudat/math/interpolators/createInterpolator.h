@@ -26,6 +26,9 @@
 
 #include "tudat/io/mapTextFileReader.h"
 
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
+
 namespace tudat
 {
 
@@ -143,7 +146,39 @@ public:
         }
     }
 
+    //! Equality operator for serialization testing
+    bool operator==( const InterpolatorSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const InterpolatorSettings& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Virtual equals function to be overridden by derived classes. Base class implementation
+     * compares base class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    virtual bool equals( const InterpolatorSettings& rhs ) const
+    {
+        return interpolatorType_ == rhs.interpolatorType_ && selectedLookupScheme_ == rhs.selectedLookupScheme_ &&
+                boundaryHandling_ == rhs.boundaryHandling_;
+    }
+
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( InterpolatorSettings )
+
 protected:
+    //! Default constructor for serialization.
+    InterpolatorSettings( ):
+        interpolatorType_( linear_interpolator ), selectedLookupScheme_( huntingAlgorithm ),
+        boundaryHandling_( std::vector< BoundaryInterpolationType >( 1, extrapolate_at_boundary ) )
+    {}
+
     //! Selected type of interpolator.
     InterpolatorTypes interpolatorType_;
 
@@ -152,6 +187,25 @@ protected:
 
     //! Boundary handling method.
     std::vector< BoundaryInterpolationType > boundaryHandling_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( interpolatorType_ ) );
+        ar( CEREAL_NVP( selectedLookupScheme_ ) );
+        ar( CEREAL_NVP( boundaryHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( interpolatorType_ ) );
+        ar( CEREAL_NVP( selectedLookupScheme_ ) );
+        ar( CEREAL_NVP( boundaryHandling_ ) );
+    }
 };
 
 //! Class for providing settings to creating a Lagrange interpolator.
@@ -203,12 +257,50 @@ public:
         return lagrangeBoundaryHandling_;
     }
 
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Compares base and derived class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const InterpolatorSettings& rhs ) const override
+    {
+        const auto* derivedRhs = dynamic_cast< const LagrangeInterpolatorSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return InterpolatorSettings::equals( rhs ) && interpolatorOrder_ == derivedRhs->interpolatorOrder_ &&
+                lagrangeBoundaryHandling_ == derivedRhs->lagrangeBoundaryHandling_;
+    }
+
 protected:
+    //! Default constructor for serialization.
+    LagrangeInterpolatorSettings( ):
+        InterpolatorSettings( ), interpolatorOrder_( 6 ), lagrangeBoundaryHandling_( lagrange_cubic_spline_boundary_interpolation )
+    {}
+
     //! Order of the Lagrange interpolator that is to be created.
     int interpolatorOrder_;
 
     //! Lagrange boundary handling method.
     LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< InterpolatorSettings >( this ) );
+        ar( CEREAL_NVP( interpolatorOrder_ ) );
+        ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< InterpolatorSettings >( this ) );
+        ar( CEREAL_NVP( interpolatorOrder_ ) );
+        ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
+    }
 };
 
 inline std::shared_ptr< InterpolatorSettings > linearInterpolation(

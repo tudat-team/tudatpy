@@ -44,10 +44,22 @@ update_sources(exceptions sources)
 
 YACMA_PYTHON_MODULE(kernel ${sources})
 
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    target_link_libraries(kernel PRIVATE
+        mcd_fortran
+        tudat_mcd_interface
+        ${NetCDF_Fortran_LIBRARIES}
+        ${NetCDF_C_LIBRARIES}
+    )
+    target_include_directories(kernel SYSTEM PRIVATE
+        "${NetCDF_INCLUDE_DIRS}"
+        "${CMAKE_SOURCE_DIR}/third_parties/mcd")
+    message(STATUS "Tudatpy: MCD support linked to kernel")
+endif()
+
 # Link against libraries
 target_link_libraries(kernel PRIVATE
-    ${Boost_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARY}
+    Boost::boost
     ${Tudat_PROPAGATION_LIBRARIES}
     ${Tudat_ESTIMATION_LIBRARIES}
 )
@@ -56,21 +68,29 @@ target_link_libraries(kernel PRIVATE
 # These headers are included by virtually every binding .cpp file.
 # PCH eliminates redundant parsing across all 86+ translation units.
 if (TUDAT_BUILD_WITH_PCH)
-    target_precompile_headers(kernel PRIVATE
-        <pybind11/pybind11.h>
-        <pybind11/stl.h>
-        <pybind11/eigen.h>
-        <pybind11/functional.h>
-        <pybind11/numpy.h>
-        <pybind11/chrono.h>
-        <Eigen/Core>
-        <Eigen/Geometry>
-        <memory>
-        <vector>
-        <string>
-        <map>
-        <functional>
-    )
+    # clang-cl can emit invalid exception copy metadata for types loaded from a
+    # PCH, causing pybind11 exception translation to corrupt the Windows heap.
+    # See https://github.com/llvm/llvm-project/issues/118276.
+    if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
+            AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+        message(STATUS "Disabling TudatPy kernel PCH for clang-cl on Windows")
+    else ()
+        target_precompile_headers(kernel PRIVATE
+            <pybind11/pybind11.h>
+            <pybind11/stl.h>
+            <pybind11/eigen.h>
+            <pybind11/functional.h>
+            <pybind11/numpy.h>
+            <pybind11/chrono.h>
+            <Eigen/Core>
+            <Eigen/Geometry>
+            <memory>
+            <vector>
+            <string>
+            <map>
+            <functional>
+        )
+    endif ()
 endif ()
 
 # Disable unity build for binding target (each file exposes unique symbols)
@@ -94,8 +114,13 @@ endif ()
     target_include_directories(kernel SYSTEM PRIVATE "${Sofa_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${Tudat_INCLUDE_DIRS}")
     target_compile_definitions(kernel PRIVATE "${pybind11_DEFINITIONS}")
-    set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
-    set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
+    if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY AND TUDAT_BUILD_WITH_SERIALIZATION)
+        set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET default)
+        set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN FALSE)
+    else ()
+        set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
+        set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
+    endif ()
 
 # Install
 #################################################################

@@ -10,10 +10,13 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
+#include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
@@ -174,6 +177,17 @@ void checkValidityOfRequiredEnvironmentUpdates(
                         }
                         break;
                     }
+                    case climate_model_update: {
+                        std::shared_ptr< environment::ClimateModel > climateModel =
+                                bodies.at( updateIterator->second.at( i ) )->getClimateModel( );
+                        if( climateModel == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when making environment model update settings, could not find climate model of body " +
+                                    updateIterator->second.at( i ) );
+                        }
+                        break;
+                    }
                     case space_time_metric_update: {
                         break;
                     }
@@ -250,6 +264,40 @@ void removePropagatedStatesFomEnvironmentUpdates(
                 default:
                     throw std::runtime_error( "Error when removing propagated states from environment updates, state type " +
                                               std::to_string( it->first ) + " not recognized." );
+            }
+        }
+    }
+}
+
+//! Function that adds the ephemeris origins between updated bodies and a propagated body to the updated environment variables
+void addEphemerisOriginsOfUpdatedStates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( integratedStateList.count( translational_state ) == 0 || environmentModelsToUpdate.count( body_translational_state_update ) == 0 )
+    {
+        return;
+    }
+
+    std::map< std::string, std::string > ephemerisOrigins = simulation_setup::getEphemerisOrigins( bodies );
+    std::map< std::string, std::string > ephemerisDependentBodies = ephemerides::getEphemerisDependentBodies(
+            ephemerisOrigins, utilities::getFirstTupleEntryVector( integratedStateList.at( translational_state ) ) );
+
+    // The state of these origins depends on the propagated state, so it must be recomputed at each update (not only at each new time)
+    std::vector< std::string >& bodiesToUpdate = environmentModelsToUpdate.at( body_translational_state_update );
+    for( unsigned int i = 0; i < bodiesToUpdate.size( ); i++ )
+    {
+        if( ephemerisDependentBodies.count( bodiesToUpdate.at( i ) ) > 0 )
+        {
+            std::string currentOrigin = ephemerisOrigins.at( bodiesToUpdate.at( i ) );
+            while( currentOrigin != ephemerisDependentBodies.at( bodiesToUpdate.at( i ) ) )
+            {
+                if( std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), currentOrigin ) == bodiesToUpdate.end( ) )
+                {
+                    bodiesToUpdate.push_back( currentOrigin );
+                }
+                currentOrigin = ephemerisOrigins.at( currentOrigin );
             }
         }
     }
@@ -574,6 +622,35 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             {
                                 singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( "Sun" );
                             }
+                        }
+                        break;
+                    }
+                    case three_coefficient_radiation_pressure: {
+                        const auto threeCoefficientAcceleration =
+                                std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >(
+                                        accelerationModelIterator->second.at( i ) );
+                        if( threeCoefficientAcceleration == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating environment updates for three-coefficient radiation pressure: model type is "
+                                    "inconsistent." );
+                        }
+
+                        const std::string& sourceName = accelerationModelIterator->first;
+                        const std::string& targetName = acceleratedBodyIterator->first;
+                        singleAccelerationUpdateNeeds[ body_mass_update ].push_back( targetName );
+                        singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back( sourceName );
+                        singleAccelerationUpdateNeeds[ cannonball_radiation_pressure_target_model_update ].push_back( targetName );
+
+                        if( translationalAccelerationModels.count( threeCoefficientAcceleration->getReferenceBodyName( ) ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    threeCoefficientAcceleration->getReferenceBodyName( ) );
+                        }
+                        for( const std::string& occultingBody :
+                             threeCoefficientAcceleration->getSourceToTargetOccultationModel( )->getOccultingBodyNames( ) )
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( occultingBody );
                         }
                         break;
                     }

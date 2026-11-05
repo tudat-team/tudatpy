@@ -17,7 +17,6 @@
 
 #include "tudat/basics/utilities.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
-#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/math/interpolators/piecewiseConstantInterpolator.h"

@@ -11,7 +11,6 @@
 #ifndef TUDAT_MUTUALFORCEPOTENTIAL_H
 #define TUDAT_MUTUALFORCEPOTENTIAL_H
 
-#include <boost/math/special_functions/factorials.hpp>
 #include <tuple>
 
 #include <Eigen/Core>

@@ -138,12 +138,22 @@ def test_dependent_variable_dictionary():
         ),
     ]
 
+    # Value equality must not make settings unusable as dictionary keys.
+    equivalent_total_acceleration = propagation_setup.dependent_variable.total_acceleration(
+        "Delfi-C3"
+    )
+    assert dependent_variables_to_save[0] == equivalent_total_acceleration
+    assert hash(dependent_variables_to_save[0]) == hash(equivalent_total_acceleration)
+
     # Create termination settings
     termination_condition = propagation_setup.propagator.time_termination(simulation_end_epoch)
 
     # Create numerical integrator settings
     fixed_step_size = 10.0
-    integrator_settings = propagation_setup.integrator.runge_kutta_4(fixed_step_size)
+    integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step(
+        fixed_step_size,
+        propagation_setup.integrator.CoefficientSets.rk_4,
+    )
 
     # Create propagation settings
     propagator_settings = propagation_setup.propagator.translational(
