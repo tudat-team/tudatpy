@@ -16,6 +16,10 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <vector>
+
+#include <Eigen/Sparse>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/observationManager.h"
@@ -210,9 +214,11 @@ void calculateResiduals(
  *  \param totalObservationSize Total number of observations in observationsAndTimes map.
  *  \param residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
  *  observables w.r.t. parameter vector (return by reference).
+ *  \tparam DesignMatrixType Type of the design matrix, Eigen::MatrixXd or Eigen::SparseMatrix< double >
  */
 template< typename ObservationScalarType = double,
           typename TimeType = double,
+          typename DesignMatrixType = Eigen::MatrixXd,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateDesignMatrixAndResiduals(
         std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
@@ -221,21 +227,31 @@ void calculateDesignMatrixAndResiduals(
                 observationManagers,
         const int totalNumberParameters,
         const int totalObservationSize,
-        Eigen::MatrixXd& designMatrix,
+        DesignMatrixType& designMatrix,
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
         const bool calculateResiduals = true,
         const bool calculatePartials = true )
 {
+    constexpr bool sparseDesignMatrix = std::is_same_v< DesignMatrixType, Eigen::SparseMatrix< double > >;
+
     if( calculatePartials && totalNumberParameters <= 0 )
     {
         throw std::runtime_error( "Error when computing observation partials; number of parameters is 0 or smaller: " +
                                   std::to_string( totalNumberParameters ) );
     }
 
-    // Initialize return data.
+    // Initialize return data. A sparse design matrix is assembled from triplets once all partials are computed.
+    std::vector< Eigen::Triplet< double > > designMatrixTriplets;
     if( calculatePartials )
     {
-        designMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalNumberParameters );
+        if constexpr( sparseDesignMatrix )
+        {
+            designMatrix.resize( totalObservationSize, totalNumberParameters );
+        }
+        else
+        {
+            designMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalNumberParameters );
+        }
     }
 
     if( calculateResiduals )
@@ -274,7 +290,7 @@ void calculateDesignMatrixAndResiduals(
                 {
                     // Compute estimated ranges and range partials from current parameter estimate.
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
-                    Eigen::MatrixXd partialsMatrix;
+                    DesignMatrixType partialsMatrix;
                     observationManagers.at( currentObservableType )
                             ->computeObservationsWithPartials( currentObservations->getObservationTimes( ),
                                                                currentLinkEnds,
@@ -288,8 +304,21 @@ void calculateDesignMatrixAndResiduals(
                     if( calculatePartials )
                     {
                         // Set current observation partials in matrix of all partials
-                        designMatrix.block( observationIndices.first, 0, observationIndices.second, totalNumberParameters ) =
-                                partialsMatrix;
+                        if constexpr( sparseDesignMatrix )
+                        {
+                            for( int k = 0; k < partialsMatrix.outerSize( ); k++ )
+                            {
+                                for( Eigen::SparseMatrix< double >::InnerIterator it( partialsMatrix, k ); it; ++it )
+                                {
+                                    designMatrixTriplets.emplace_back( observationIndices.first + it.row( ), it.col( ), it.value( ) );
+                                }
+                            }
+                        }
+                        else
+                        {
+                            designMatrix.block( observationIndices.first, 0, observationIndices.second, totalNumberParameters ) =
+                                    partialsMatrix;
+                        }
                     }
 
                     // Compute residuals for current link ends and observable type.
@@ -312,10 +341,19 @@ void calculateDesignMatrixAndResiduals(
             }
         }
     }
+
+    if constexpr( sparseDesignMatrix )
+    {
+        if( calculatePartials )
+        {
+            designMatrix.setFromTriplets( designMatrixTriplets.begin( ), designMatrixTriplets.end( ) );
+        }
+    }
 }
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
+          typename DesignMatrixType = Eigen::MatrixXd,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateDesignMatrix(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
@@ -324,7 +362,7 @@ void calculateDesignMatrix(
                 observationManagers,
         const int totalNumberParameters,
         const int totalObservationSize,
-        Eigen::MatrixXd& designMatrix )
+        DesignMatrixType& designMatrix )
 {
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > dummyVector;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationsCollection,
@@ -348,7 +386,7 @@ void calculateResiduals(
         const int totalObservationSize,
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
-    Eigen::VectorXd dummyMatrix;
+    Eigen::MatrixXd dummyMatrix;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
             observationsCollection, observationManagers, 0, totalObservationSize, dummyMatrix, residuals, true, false );
 }

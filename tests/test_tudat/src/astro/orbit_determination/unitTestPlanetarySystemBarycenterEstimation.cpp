@@ -299,7 +299,8 @@ void checkObservationPartials( const SystemOfBodies& bodies,
     std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
     covarianceInput->defineCovarianceSettings( true, true, true, false );
-    Eigen::MatrixXd analyticalPartials = orbitDeterminationManager.computeCovariance( covarianceInput )->getUnnormalizedDesignMatrix( );
+    Eigen::MatrixXd analyticalPartials =
+            std::get< Eigen::MatrixXd >( orbitDeterminationManager.computeCovariance( covarianceInput )->getUnnormalizedDesignMatrix( ) );
 
     // Compute numerical partials
     const Eigen::VectorXd nominalParameters = parametersToEstimate->getFullParameterValues< double >( );
