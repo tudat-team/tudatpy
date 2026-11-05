@@ -851,8 +851,10 @@ Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& target
 bool isItrfFrameSupported( const std::string& frameName )
 {
     // Keep this registry beside the Helmert tables so every caller uses the same supported-frame definition.
-    static const std::set< std::string > supportedFrames = { "ITRF88", "ITRF89", "ITRF90",   "ITRF91",   "ITRF92",   "ITRF93",  "ITRF94",
-                                                             "ITRF96", "ITRF97", "ITRF2000", "ITRF2005", "ITRF2008", "ITRF2014" };
+    static const std::set< std::string > supportedFrames = {
+        "ITRF88", "ITRF89", "ITRF90",   "ITRF91",   "ITRF92",   "ITRF93",   "ITRF94",
+        "ITRF96", "ITRF97", "ITRF2000", "ITRF2005", "ITRF2008", "ITRF2014", "ITRF2020"
+    };
     return supportedFrames.count( frameName ) > 0;
 }
 
