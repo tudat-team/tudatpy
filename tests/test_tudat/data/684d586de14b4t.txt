@@ -1,0 +1,83 @@
+%*****************************************************************************************************************
+% RADIATE format v 2.0
+%
+% This file contains ray-tracing results.
+%
+% Created by: Armin Hofmeister, Technische Universität Wien
+%
+% Created with RADIATE program developed by Armin Hofmeister
+%    Version: 2.0_Fortran
+%    Subversion: global_limit
+%
+% File created on:
+%    2025-06-14 | 13:10:17.520
+%
+% Data content:
+%    Ray-tracing results for session:
+%        684d586de14b4t
+%    Total number of observations:
+%        1
+%
+% Chosen ray-tracing options:
+%    Assignment of observations to the epochs of the numerical weather model:
+%        one_epoch_per_obs
+%    Method of vertical interpolation (horizontal treatment):
+%        profilewise
+%    Method of numerical weather model usage:
+%        Full grid information used
+%    Ray-tracing approach:
+%        pwl
+%    Station coordinate catalogue-file:
+%        vlbi.ell
+%
+% Numerical weather model used:
+%    Epoch 1: 2025053000 | Grib-file resolution: res_lat= 1.000 deg, res_lon= 1.000 deg
+%
+% Origin and use of the observational data:
+%    Observational data (scan number, observation time, station, azimuth, elevation, source)
+%    as well as temperature-, pressure- and water vapour pressure-values provided in this file
+%    originate from the AzEl-file created by VieVS.
+%    The reported temperature-, pressure- and water vapour pressure-values from the numerical
+%    weather model at the station positions have been determined from the numerical weather
+%    model by interpolation within the ray-tracing application.
+%    Ray-tracing used temperature-, pressure- and water vapour-values only from the numerical
+%    weather model.
+%
+%
+% Data columns:
+%    1  .... scannumber
+%    2  .... mjd
+%    3  .... year
+%    4  .... day of year
+%    5  .... hour
+%    6  .... min
+%    7  .... sec
+%    8  .... station
+%    9  .... azimuth in [rad]
+%    10 .... outgoing elevation angle (calculated, theoretical) in [rad]
+%    11 .... source
+%    12 .... temperature at station in [°C]
+%    13 .... pressure at station in [hPa]
+%    14 .... water vapour pressure at station in [hPa]
+%    15 .... zenith total delay in [m]
+%    16 .... zenith hydrostatic delay in [m]
+%    17 .... zenith wet delay in [m]
+%    18 .... slant total delay including geometric bending effect in [m]
+%    19 .... slant hydrostatic delay including geometric bending effect in [m]
+%    20 .... slant wet delay in [m]
+%    21 .... elevation angle at station in [rad]
+%    22 .... outgoing elevation angle from ray-tracing in [rad]
+%    23 .... geometric bending effect in [m]
+%    24 .... total mapping factor (includes treatment of geometric bending effect) [total_delay_along_the_path / total_zenith_delay]
+%    25 .... hydrostatic mapping factor (includes treatment of geometric bending effect) [hydrostatic_delay_along_the_path / hydrostatic_zenith_delay]
+%    26 .... wet mapping factor [wet_delay_along_the_path / wet_zenith_delay]
+%    27 .... temperature at the station position interpolated from the numerical weather model in [°C]
+%    28 .... pressure at the station position interpolated from the numerical weather model in [hPa]
+%    29 .... water vapour pressure at the station position interpolated from the numerical weather model in [hPa]
+%*****************************************************************************************************************
+%
+%
+%    1|          2|   3|  4| 5| 6|    7|       8|                   9|                  10|      11|    12|     13|    14|       15|       16|       17|       18|       19|       20|          21|          22|       23|        24|        25|        26|    27|     28|    29
+% scan|        mjd|year|doy| h| m|  sec| station|       azimuth [rad]|   calc. elev. [rad]|  source|T [°C]|p [hPa]|w[hPa]|  ztd [m]|  zhd [m]|  zwd [m]|  std [m]|  shd [m]|  swd [m]|e at st[rad]|e rtrd [rad]|bend. [m]|  total mf|  hydr. mf|    wet mf|T [°C]|p [hPa]|w[hPa]
+%
+     1 60825.00000 2025 150  0  0  0.00 ARECIBO     0.349065850398866    0.349065850398866 none        NaN     NaN    NaN    2.4041    2.1967    0.2074    6.9705    6.3605    0.6100    0.3500321    0.3490658    0.0043    2.89943    2.89550    2.94098  23.50  961.75  24.41

@@ -27,6 +27,7 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
         // Custom corrections receive the ancillary settings, but are not assumed to require frequencies
         case function_wrapper_light_time_correction:
         case tabulated_tropospheric:
+        case measured_tropospheric:
         case saastamoinen_tropospheric:
         case vmf3_tropospheric:
         case vmf3o_tropospheric:
@@ -60,6 +61,9 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
             break;
         case tabulated_tropospheric:
             name = "tabulated tropospheric";
+            break;
+        case measured_tropospheric:
+            name = "measured tropospheric";
             break;
         case tabulated_ionospheric:
             name = "tabulated ionospheric";

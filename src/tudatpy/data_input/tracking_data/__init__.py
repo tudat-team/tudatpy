@@ -9,6 +9,7 @@ text-file inputs.
 from tudatpy.kernel.data_input.tracking_data import *
 
 from . import (
+    ades,
     atdf,
     fdets,
     obs_80_cols,

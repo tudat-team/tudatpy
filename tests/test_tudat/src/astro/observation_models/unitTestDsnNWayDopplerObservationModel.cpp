@@ -39,6 +39,7 @@ using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::input_output;
 using namespace tudat::simulation_setup;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::unit_tests;
 using namespace tudat;
 
