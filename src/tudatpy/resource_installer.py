@@ -344,11 +344,10 @@ def _download_file(
         ``True`` when downloaded, or ``False`` when an existing file was kept.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    if dest_path.exists():
-        if not force:
-            return False
-        dest_path.unlink()
+    if dest_path.exists() and not force:
+        return False
 
+    # Replaces an existing file only after a completed download
     _download_with_requests(url, dest_path)
 
     if expected_hash and not _verify_sha256(dest_path, expected_hash):

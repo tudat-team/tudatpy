@@ -119,9 +119,9 @@ Functions
 
    iau_rotation_model
 
-   damit_wrapper.damit_polyhedron
+   damit_polyhedron
 
-   damit_wrapper.damit_best_fitting_ellipsoid
+   damit_best_fitting_ellipsoid
 
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.simple
@@ -154,9 +154,9 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model
 
-.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.damit_wrapper.damit_polyhedron
+.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.damit_polyhedron
 
-.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.damit_wrapper.damit_best_fitting_ellipsoid
+.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.damit_best_fitting_ellipsoid
 
 
 Enumerations
