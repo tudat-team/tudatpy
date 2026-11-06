@@ -345,9 +345,10 @@ public:
             const bool resetParametersToBestIteration = false ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
-        convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
-        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
-        applyAprioriParameterDeviation_( applyAprioriParameterDeviation ), resetParametersToBestIteration_( resetParametersToBestIteration )
+        saveVariationalResultsForEachIteration_( false ), convergenceChecker_( convergenceChecker ),
+        considerParametersDeviations_( considerParametersDeviations ), conditionNumberWarningEachIteration_( true ),
+        applyFinalParameterCorrection_( applyFinalParameterCorrection ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation ),
+        resetParametersToBestIteration_( resetParametersToBestIteration )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -389,6 +390,8 @@ public:
      *  \param saveResidualsAndParametersFromEachIteration Boolean denoting whether the residuals and parameters from the each
      *  iteration are to be saved
      *  \param saveStateHistoryForEachIteration Boolean denoting whether the state history is to be saved on each iteration
+     *  \param saveVariationalResultsForEachIteration Boolean denoting whether the state transition and sensitivity
+     *  matrices are to be saved on each iteration (only used if saveStateHistoryForEachIteration is true)
      */
     void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
                                    const bool reintegrateVariationalEquations = 1,
@@ -397,7 +400,8 @@ public:
                                    const bool saveResidualsAndParametersFromEachIteration = 1,
                                    const bool saveStateHistoryForEachIteration = 0,
                                    const double limitConditionNumberForWarning = 1.0E8,
-                                   const bool conditionNumberWarningEachIteration = true )
+                                   const bool conditionNumberWarningEachIteration = true,
+                                   const bool saveVariationalResultsForEachIteration = 0 )
     {
         this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
         this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
@@ -405,6 +409,7 @@ public:
         this->printOutput_ = printOutput;
         this->saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
         this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+        this->saveVariationalResultsForEachIteration_ = saveVariationalResultsForEachIteration;
         this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
         this->conditionNumberWarningEachIteration_ = conditionNumberWarningEachIteration;
     }
@@ -439,6 +444,12 @@ public:
         return saveStateHistoryForEachIteration_;
     }
 
+    //! Function to return the boolean denoting whether the state transition and sensitivity matrices are to be saved on each iteration
+    bool getSaveVariationalResultsForEachIteration( )
+    {
+        return saveVariationalResultsForEachIteration_;
+    }
+
     //! Return whether the a priori constraint is applied to the total deviation from the initial parameter vector.
     bool getApplyAprioriParameterDeviation( ) const
     {
@@ -450,6 +461,9 @@ public:
 
     //! Boolean denoting whether the state history is to be saved on each iteration.
     bool saveStateHistoryForEachIteration_;
+
+    //! Boolean denoting whether the state transition and sensitivity matrices are to be saved on each iteration.
+    bool saveVariationalResultsForEachIteration_;
 
     std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
 
