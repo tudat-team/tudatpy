@@ -53,15 +53,15 @@ skipped; an empty list or a list containing no epochs raises ValueError.)doc" );
 
 The target and observer are obtained from the tracking-data link ends. These settings
 contain no environment objects and do not change source observations.)doc" )
-            .def( py::init< const std::vector< std::string >&, const Eigen::VectorXd& >( ),
+            .def( py::init< const std::vector< std::string >&, const bool >( ),
                   py::arg( "light_deflection_bodies" ) = std::vector< std::string >( ),
-                  py::arg( "photocenter_body_dimensions" ) = Eigen::VectorXd( ),
+                  py::arg( "photocenter_correction" ) = false,
                   R"doc(Request light deflection by the named bodies and/or a photocenter correction.
 
-Photocenter dimensions are an empty vector, a one-element radius vector, or three
-ellipsoid semi-axes, in metres.)doc" )
+The photocenter correction takes the target's size from its shape model, which must be
+a spherical or tri-axial ellipsoid shape model.)doc" )
             .def_readonly( "light_deflection_bodies", &tdat::AngularObservationCorrectionSettings::lightDeflectionBodies_ )
-            .def_readonly( "photocenter_body_dimensions", &tdat::AngularObservationCorrectionSettings::photocenterBodyDimensions_ );
+            .def_readonly( "photocenter_correction", &tdat::AngularObservationCorrectionSettings::photocenterCorrection_ );
 
     py::class_< tom::ObservationWeightSettings >( m,
                                                   "ObservationWeightSettings",

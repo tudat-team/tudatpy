@@ -25,8 +25,7 @@ when ``apply_corrections=True``; source observations remain unchanged.
 
    GaiaAstrometry
    load_gaia_astrometry
-   generate_astrometry_parquet
-   generate_asteroid_parquet
+   download_gaia_archive
    gaia_object_catalog
    get_state_from_gaia_archive
    get_state_covariance_from_gaia_archive
@@ -36,8 +35,7 @@ when ``apply_corrections=True``; source observations remain unchanged.
    :members:
 
 .. autofunction:: load_gaia_astrometry
-.. autofunction:: generate_astrometry_parquet
-.. autofunction:: generate_asteroid_parquet
+.. autofunction:: download_gaia_archive
 .. autofunction:: gaia_object_catalog
 .. autofunction:: get_state_from_gaia_archive
 .. autofunction:: get_state_covariance_from_gaia_archive

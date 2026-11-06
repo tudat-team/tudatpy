@@ -89,14 +89,10 @@ std::vector< Eigen::VectorXd > evaluateTrackingDataAngularCorrections(
 
     const auto module = py::module_::import( "tudatpy.estimation.observations.observation_corrections" );
     Eigen::MatrixXd corrections = Eigen::MatrixXd::Zero( sourceObservations.size( ), 2 );
-    if( settings.photocenterBodyDimensions_.size( ) != 0 )
+    if( settings.photocenterCorrection_ )
     {
-        py::object dimensions = settings.photocenterBodyDimensions_.size( ) == 1
-                ? py::object( py::float_( settings.photocenterBodyDimensions_( 0 ) ) )
-                : py::cast( settings.photocenterBodyDimensions_ );
         corrections += module.attr( "photocenter_correction_angular_observations" )(
                                      py::arg( "observations" ) = observations,
-                                     py::arg( "body_dimensions" ) = dimensions,
                                      py::arg( "bodies" ) = py::cast( &bodies, py::return_value_policy::reference ),
                                      py::arg( "body_name" ) = target.bodyName_,
                                      py::arg( "observer_body_name" ) = observer.bodyName_,

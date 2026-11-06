@@ -34,6 +34,7 @@
 #include "basic_astro/sphericalBodyShapeModel.h"
 #include "basic_astro/polyhedronBodyShapeModel.h"
 #include "basic_astro/hybridBodyShapeModel.h"
+#include "basic_astro/triAxialEllipsoidBodyShapeModel.h"
 #include "basic_astro/sphericalStateConversions.h"
 #include "basic_astro/stateRepresentationConversions.h"
 #include "basic_astro/stateVectorIndices.h"

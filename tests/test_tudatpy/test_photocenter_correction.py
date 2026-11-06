@@ -8,6 +8,9 @@ import pytest
 import numpy as np
 from numpy.linalg import norm
 from tudatpy.constants import SPEED_OF_LIGHT
+from tudatpy.dynamics.environment import SphericalBodyShapeModel, TriAxialEllipsoidBodyShapeModel
+from tudatpy.dynamics.environment_setup import BodyListSettings, create_system_of_bodies
+from tudatpy.dynamics.environment_setup import shape
 from tudatpy.estimation import observations
 from tudatpy.estimation.observations.observation_corrections.photocenter_correction import (
     _photocenter_correction_ellipsoidal,
@@ -106,7 +109,6 @@ def test_apply_photocenter_correction_to_observation_dataset(in_place):
     ):
         result = apply_photocenter_correction_to_observation_dataset(
             observation_dataset=dataset,
-            body_dimensions=1000.0,
             bodies=MagicMock(),
             body_name="Asteroid",
             observer_body_name="Observer",
@@ -130,11 +132,12 @@ def test_apply_photocenter_correction_to_observation_dataset(in_place):
     np.testing.assert_allclose(np.asarray(target_dataset.get_observations()), expected_observations)
 
 
-def _mock_bodies(inertial_to_body_fixed=np.eye(3)):
+def _mock_bodies(shape_model, inertial_to_body_fixed=np.eye(3)):
     """Mocked SystemOfBodies with a static geometry: Sun in the origin, asteroid on the +x axis, observer mirrored
     over the x-axis between the two epochs (t < 0.5 and t >= 0.5). Both epochs have a 90 deg solar phase angle.
 
-    Passing None for inertial_to_body_fixed gives an asteroid without a rotation model."""
+    The asteroid gets the given shape model. Passing None for inertial_to_body_fixed gives an asteroid without a
+    rotation model."""
     bodies_mock = MagicMock()
     sun_mock, asteroid_mock, observer_mock = MagicMock(), MagicMock(), MagicMock()
     bodies_mock.get.side_effect = lambda name: (
@@ -147,6 +150,7 @@ def _mock_bodies(inertial_to_body_fixed=np.eye(3)):
     observer_mock.state_in_base_frame_from_ephemeris.side_effect = lambda epoch: (
         np.array([1e11, -1e11, 0, 0, 0, 0]) if epoch < 0.5 else np.array([1e11, 1e11, 0, 0, 0, 0])
     )
+    asteroid_mock.shape_model = shape_model
 
     if inertial_to_body_fixed is None:
         asteroid_mock.rotation_model = None
@@ -379,8 +383,7 @@ def test_spherical_corrections_integration():
 
     angular_corrections = photocenter_correction_angular_observations(
         observations=observations,
-        body_dimensions=radius,  # A single number, so the body is a sphere
-        bodies=_mock_bodies(None),  # No rotation model
+        bodies=_mock_bodies(SphericalBodyShapeModel(radius), None),  # No rotation model
         body_name="Asteroid",
         observer_body_name="Observer",
     )
@@ -404,12 +407,11 @@ def test_spherical_corrections_integration():
 
 def test_ellipsoidal_corrections_use_target_state_and_rotation_at_emission_time():
     """Test that the target state and orientation use the same approximate emission time, while the Sun uses reception."""
-    bodies = _mock_bodies()
+    bodies = _mock_bodies(TriAxialEllipsoidBodyShapeModel(300.0, 200.0, 150.0))
     observations = np.array([[0.0, np.pi / 2, 0.0]])
 
     photocenter_correction_angular_observations(
         observations=observations,
-        body_dimensions=[300.0, 200.0, 150.0],
         bodies=bodies,
         body_name="Asteroid",
         observer_body_name="Observer",
@@ -424,29 +426,71 @@ def test_ellipsoidal_corrections_use_target_state_and_rotation_at_emission_time(
     rotation_model.inertial_to_body_fixed_rotation.assert_called_once_with(expected_epoch)
 
 
-def test_ellipsoidal_input_validation():
-    """Test that invalid observation shapes and semi-axis counts are rejected"""
-    bodies_mock = _mock_bodies()
+def test_observation_shape_validation():
+    """Test that observations not in N x 3 shape are rejected"""
+    bodies_mock = _mock_bodies(TriAxialEllipsoidBodyShapeModel(300.0, 200.0, 150.0))
     observations = np.array([[0.0, np.pi / 2, 0.0]])
 
-    # Observations not in N x 3 shape
     with pytest.raises(ValueError, match="N x 3"):
         photocenter_correction_angular_observations(
-            observations[:, :2], [300.0, 200.0, 150.0], bodies_mock, "Asteroid", "Observer"
-        )
-
-    # Semi-axes not of length 3
-    with pytest.raises(ValueError, match="length 3"):
-        photocenter_correction_angular_observations(
-            observations, [300.0, 200.0], bodies_mock, "Asteroid", "Observer"
+            observations[:, :2], bodies_mock, "Asteroid", "Observer"
         )
 
 
 def test_ellipsoid_requires_rotation_model():
     """Test that a genuine ellipsoid is rejected without a rotation model, unlike a sphere"""
     observations = np.array([[0.0, np.pi / 2, 0.0]])
+    bodies_mock = _mock_bodies(TriAxialEllipsoidBodyShapeModel(300.0, 200.0, 150.0), None)
 
     with pytest.raises(ValueError, match="rotation model"):
         photocenter_correction_angular_observations(
-            observations, [300.0, 200.0, 150.0], _mock_bodies(None), "Asteroid", "Observer"
+            observations, bodies_mock, "Asteroid", "Observer"
         )
+
+
+def test_body_requires_shape_model():
+    """Test that a body without a shape model is rejected"""
+    observations = np.array([[0.0, np.pi / 2, 0.0]])
+
+    with pytest.raises(ValueError, match="needs a shape model"):
+        photocenter_correction_angular_observations(
+            observations, _mock_bodies(None), "Asteroid", "Observer"
+        )
+
+
+def test_unsupported_shape_model_is_rejected():
+    """Test that shape models other than a sphere or tri-axial ellipsoid are rejected"""
+    body_settings = BodyListSettings("SSB", "J2000")
+    body_settings.add_empty_settings("Asteroid")
+    body_settings.get("Asteroid").shape_settings = shape.oblate_spherical(1000.0, 0.1)
+    oblate_shape_model = create_system_of_bodies(body_settings).get("Asteroid").shape_model
+    observations = np.array([[0.0, np.pi / 2, 0.0]])
+
+    with pytest.raises(ValueError, match="only supports"):
+        photocenter_correction_angular_observations(
+            observations, _mock_bodies(oblate_shape_model), "Asteroid", "Observer"
+        )
+
+
+@pytest.mark.parametrize(
+    "shape_settings, semi_axes",
+    [
+        (shape.spherical(500.0), [500.0, 500.0, 500.0]),
+        (shape.triaxial_ellipsoid(300.0, 200.0, 150.0), [300.0, 200.0, 150.0]),
+    ],
+)
+def test_dimensions_are_taken_from_body_shape_model(shape_settings, semi_axes):
+    """Test that the body dimensions passed to the offset computation are those of the body's shape model"""
+    body_settings = BodyListSettings("SSB", "J2000")
+    body_settings.add_empty_settings("Asteroid")
+    body_settings.get("Asteroid").shape_settings = shape_settings
+    shape_model = create_system_of_bodies(body_settings).get("Asteroid").shape_model
+    observations = np.array([[0.0, np.pi / 2, 0.0]])
+
+    with patch(
+        f"{_MODULE}._photocenter_correction_ellipsoidal", return_value=np.zeros(3)
+    ) as offset_function:
+        photocenter_correction_angular_observations(
+            observations, _mock_bodies(shape_model), "Asteroid", "Observer"
+        )
+    np.testing.assert_array_equal(offset_function.call_args.args[0], semi_axes)
