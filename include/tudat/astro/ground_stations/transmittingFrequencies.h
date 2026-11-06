@@ -469,9 +469,6 @@ private:
 
     //! Lookup scheme to find the nearest ramp start time for a given time
     std::shared_ptr< interpolators::LookUpScheme< Time > > startTimeLookupScheme_;
-
-    //! Lookup scheme to find the nearest start time of the blocks without frequency transmission
-    std::shared_ptr< interpolators::LookUpScheme< Time > > invalidStartTimeLookupScheme_;
 };
 
 }  // namespace ground_stations

@@ -69,12 +69,10 @@ void calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint( Eigen::MatrixXd
     const unsigned int numberOfVertices = verticesCoordinates.rows( );
     verticesCoordinatesRelativeToFieldPoint.setZero( numberOfVertices, 3 );
 
-    const Eigen::MatrixXd bodyFixedPositionMatrix = bodyFixedPosition.transpose( );
-
     for( unsigned int vertex = 0; vertex < numberOfVertices; ++vertex )
     {
         verticesCoordinatesRelativeToFieldPoint.block< 1, 3 >( vertex, 0 ) =
-                verticesCoordinates.block< 1, 3 >( vertex, 0 ) - bodyFixedPositionMatrix;
+                verticesCoordinates.block< 1, 3 >( vertex, 0 ) - bodyFixedPosition.transpose( );
     }
 }
 

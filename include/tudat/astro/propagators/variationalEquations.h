@@ -243,7 +243,7 @@ public:
      */
     template< typename StateScalarType >
     void updatePartials( const double currentTime,
-                         const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
+                         const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
                                  currentStatesPerTypeInConventionalRepresentation )
     {
         for( auto stateIterator = currentStatesPerTypeInConventionalRepresentation.begin( );
