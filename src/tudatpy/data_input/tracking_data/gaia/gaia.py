@@ -90,6 +90,17 @@ class GaiaAstrometry:
     """The class acts as a container for all Gaia astrometric observations and its metadata. It takes care of
     retrieval, filtering/correcting of observations, applying weights and conversion to a tudat-compatible format.
 
+    Usually the GaiaAstrometry class is instantiated via one of the classmethods:
+    :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_astroquery` (online),
+    :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_aip` (online) or
+    :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_parquet` (local).
+
+    Parameters
+    ----------
+    observations_and_metadata : pd.DataFrame
+        A dataframe containing the observations and metadata in SI units and in the TDB timescale. Raises when columns
+        are missing or the dataframe is empty. The dataframe is typically created by one of the classmethods.
+
     Examples
     --------
     Typical short usage example:
@@ -129,13 +140,8 @@ class GaiaAstrometry:
     """
 
     def __init__(self, observations_and_metadata: pd.DataFrame) -> None:
-        """Create an empty GaiaAstrometry object.
+        """Default constructor"""
 
-        Usually the GaiaAstrometry class is instantiated via the classmethods:
-        :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_astroquery`,
-        :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_aip` or
-        :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_parquet`.
-        """
         if not isinstance(observations_and_metadata, pd.DataFrame):
             raise TypeError("observations_and_metadata must be a pandas.DataFrame.")
         if observations_and_metadata.empty:
@@ -355,9 +361,8 @@ class GaiaAstrometry:
         ----------
         targets : int | str | list
             Targets to query observations for. Integers are interpreted as numbered asteroid MPC numbers,
-            strings are interpreted as the denomination. Query asteroids by MPC number for faster lookups. Moons can
-            only be queried by denomination. If a target belongs to both a moon and asteroid (e.g. Io), it is assumed
-            the observations of the moon are queried.
+            strings are interpreted as the denomination. Moons can only be queried by denomination. If a target belongs
+            to both a moon and asteroid (e.g. Io), it is assumed the observations of the moon are queried.
         username : str, optional
             Username for the Gaia archives, by default None.
         password : str, optional
@@ -562,9 +567,12 @@ class GaiaAstrometry:
         targets: int | str | Iterable | None = None,
         epoch_start: float | DateTime | None = None,
         epoch_end: float | DateTime | None = None,
+        transit_ids: list[int] | None = None,
+        observation_ids: list[int] | None = None,
     ) -> None:
         """
-        Apply filters to the set of observations in-place. This modifies the dataset.
+        Apply filters to the set of observations in-place. This modifies the dataset. In any case, this function should
+        be called **before** creating ``TrackingData`` objects.
 
         Parameters
         ----------
@@ -573,12 +581,16 @@ class GaiaAstrometry:
             These observations may be affected by one of several issues and can be unreliable. See Gaia documentation
             for more information.
         targets : int | str | Iterable, optional
-            Retain only objects with these MPC numbers (integers) or denominations (strings). A denomination shared
-            by a moon and an asteroid selects the moon.
+            Remove objects with these MPC numbers (integers) or denominations (strings). A denomination shared
+            by a moon and an asteroid removes only the moon; use the MPC number to remove the asteroid.
         epoch_start : float | DateTime, optional
             Remove observations before this epoch
         epoch_end : float | DateTime, optional
             Remove observations later than this epoch.
+        transit_ids : list[int] | None, optional
+            Removes complete transits with this ID.
+        observation_ids : list[int] | None, optional
+            Removes individual CCD observations with this observation ID.
         """
         # Filter observations
         if exclude_poor_observations:
@@ -603,10 +615,19 @@ class GaiaAstrometry:
         # Filter MPC numbers and denominations
         if targets is not None:
             mpc_numbers, denominations = _split_targets(targets)
+            named_objects = _filter_duplicate_denominations(
+                self._table[self._table["denomination"].isin(denominations)]
+            )
             target_filter = self._table["number_mp"].isin(mpc_numbers) | self._table[
-                "denomination"
-            ].isin(denominations)
-            self._table = _filter_duplicate_denominations(self._table[target_filter])
+                "source_id"
+            ].isin(named_objects["source_id"])
+            self._table = self._table[~target_filter]
+
+        # Filter transits and CCD observations
+        if transit_ids is not None:
+            self._table = self._table[~self._table["transit_id"].isin(transit_ids)]
+        if observation_ids is not None:
+            self._table = self._table[~self._table["observation_id"].isin(observation_ids)]
 
         if self._table.empty:
             raise RuntimeError("No observations left after applying filters")
