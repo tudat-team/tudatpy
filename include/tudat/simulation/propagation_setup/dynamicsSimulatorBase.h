@@ -388,7 +388,7 @@ public:
         if( printSettings->getPrintPropagatedStateData( ) )
         {
             int totalNumberOfColumns =
-                    propagationResults->getStateTransitionMatrixSize( ) + propagationResults->getSensitivityMatrixSize( ) + 1;
+                    propagationResults->getStateTransitionMatrixSize( ) + propagationResults->getPropagatedSensitivityMatrixSize( ) + 1;
             std::cout << "PROPAGATED STATE DETAILS:" << std::endl;
             std::cout << "Propagating state transition matrix Phi(=dx/dx0), Sensitivity matrix S(=dx/dp), and state vector y as single "
                          "matrix [Phi┊S┊y]], total size ["

@@ -35,6 +35,10 @@ namespace estimatable_parameters
 {
 
 //! List of parameters that can be estimated by the orbit determination code.
+/*!
+ * List of parameters that can be estimated by the orbit determination code. When adding a parameter type, it must be added
+ * to isParameterArcWiseDynamicalProperty (and to the other type-classification functions below, where applicable).
+ */
 enum EstimatebleParametersEnum {
     arc_wise_initial_body_state,
     initial_body_state,
@@ -177,6 +181,34 @@ bool isParameterNonTidalGravityFieldVariationProperty( const EstimatebleParamete
 bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType );
 
 bool isParameterClockProperty( const EstimatebleParametersEnum parameterType );
+
+//! Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics
+/*!
+ * Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics, for which each
+ * (set of) parameter entries only influences the dynamics in a limited time interval, such as arc-wise empirical
+ * accelerations or desaturation maneuver delta Vs. Such parameters must provide their time intervals of influence (see
+ * EstimatableParameterBase::getTimeIntervalsOfInfluencePerEntry, checked by checkParameterTimeIntervalsOfInfluence), and
+ * their partials must be created with StateDerivativePartial::createArcWiseParameterPartialFunction, so that the
+ * cost of propagating the variational equations does not depend on the total number of arcs. Every parameter type must
+ * be included in this function.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is an arc-wise property of the dynamics
+ */
+bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parameterType );
+
+//! Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active
+/*!
+ * Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active.
+ * Arc i is active from arcStartTimes[ i ] to arcStartTimes[ i + 1 ] (the partials w.r.t. the parameter are zero before the
+ * start of the first arc).
+ * \param arcStartTimes Start times of the arcs, with a final entry (beyond numberOfArcs) denoting the end of the last arc
+ * \param numberOfArcs Number of arcs in the parameter
+ * \param entriesPerArc Number of parameter entries for each arc (stored consecutively per arc)
+ * \return Start and end time of the interval in which each parameter entry is active
+ */
+std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInfluence( const std::vector< double >& arcStartTimes,
+                                                                                        const int numberOfArcs,
+                                                                                        const int entriesPerArc = 1 );
 
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
@@ -369,6 +401,19 @@ public:
 
     virtual void throwExceptionIfNotFullyDefined( ) {}
 
+    //! Function to retrieve the time intervals in which each parameter entry can influence the dynamics
+    /*!
+     * Function to retrieve the time intervals in which each parameter entry can influence the dynamics, used to determine
+     * which sensitivity matrix columns are zero in a given propagation arc. Overridden for parameters with a limited
+     * time of influence (e.g. arc-wise parameters).
+     * \return Start and end time of the interval in which each parameter entry can influence the dynamics. An empty
+     * vector (default) denotes that all entries can influence the dynamics at all times.
+     */
+    virtual std::vector< std::pair< double, double > > getTimeIntervalsOfInfluencePerEntry( )
+    {
+        return std::vector< std::pair< double, double > >( );
+    }
+
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > getCustomPartialSettings( )
     {
         return customPartialSettings_;
@@ -428,6 +473,16 @@ protected:
         }
     }
 };
+
+//! Function to check whether the time intervals of influence of a parameter are consistent with its type
+/*!
+ * Function to check whether the time intervals of influence of a parameter (see
+ * EstimatableParameterBase::getTimeIntervalsOfInfluencePerEntry) are consistent with its type: they must be provided
+ * for each entry of an arc-wise parameter (see isParameterArcWiseDynamicalProperty), and not for any other parameter.
+ * An error is thrown if this is not the case.
+ * \param parameter Parameter that is to be checked
+ */
+void checkParameterTimeIntervalsOfInfluence( const std::shared_ptr< EstimatableParameterBase > parameter );
 
 template< typename ParameterType >
 Eigen::VectorXd convertEstimatableParameterToVector( const ParameterType& parameterValue )
