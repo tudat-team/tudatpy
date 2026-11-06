@@ -32,7 +32,7 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             $<INSTALL_INTERFACE:include>)
 
     target_include_directories("${target_name}"
-            SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES} ${Boost_INCLUDE_DIRS} ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS} ${TudatResources_INCLUDE_DIRS}
+            SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES} ${Boost_INCLUDE_DIRS} ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
             )
 
     # Public headers conditionally expose archive/file-I/O methods. Export the selected value so
@@ -138,7 +138,7 @@ function(TUDAT_ADD_TEST_LIBRARY arg1 arg2 arg3)
             $<INSTALL_INTERFACE:include>)
 
     target_include_directories("${target_name}"
-            SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES} ${Boost_INCLUDE_DIRS} ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS} ${TudatResources_INCLUDE_DIRS}
+            SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES} ${Boost_INCLUDE_DIRS} ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
             )
 
     target_link_libraries("${target_name}"
