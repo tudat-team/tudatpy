@@ -119,6 +119,17 @@ public:
      */
     virtual DependentVariableType interpolate( const IndependentVariableType independentVariableValue ) = 0;
 
+    //! Function to create a copy of the interpolator that shares no mutable (look-up) data with this object.
+    /*!
+     *  Function to create a copy of the interpolator that shares no mutable (look-up) data with this object, so that the copy
+     *  and the original can be used simultaneously in different threads.
+     *  \return Copy of this interpolator
+     */
+    virtual std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > clone( ) const
+    {
+        throw std::runtime_error( "Error, copying is not implemented for this type of one-dimensional interpolator" );
+    }
+
     //! Function to perform interpolation, with non-const input argument.
     /*!
      *  This function performs the interpolation, with non-const input argument. Function calls the interpolate function and is

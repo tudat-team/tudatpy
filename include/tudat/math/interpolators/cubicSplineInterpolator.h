@@ -274,6 +274,17 @@ public:
     //! Destructor.
     ~CubicSplineInterpolator( ) {}
 
+    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > clone( ) const override
+    {
+        std::shared_ptr< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > > clonedInterpolator =
+                std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >( *this );
+        if( lookUpScheme_ != nullptr )
+        {
+            clonedInterpolator->makeLookupScheme( this->selectedLookupScheme_ );
+        }
+        return clonedInterpolator;
+    }
+
     //! Interpolate.
     /*!
      *  Executes interpolation of data at a given target value of the independent variable, to

@@ -23,44 +23,47 @@ namespace tudat
 namespace numerical_derivatives
 {
 
+//! Create coefficients of all available orders for central difference numerical derivatives.
+std::map< CentralDifferenceOrders, std::map< int, double > > createCentralDifferenceCoefficients( )
+{
+    std::map< CentralDifferenceOrders, std::map< int, double > > coefficients;
+    // Initialize the coefficients map
+    coefficients[ order2 ] = std::map< int, double >( );
+    coefficients[ order2 ][ -1 ] = -1.0 / 2.0;
+    coefficients[ order2 ][ 1 ] = 1.0 / 2.0;
+
+    coefficients[ order4 ] = std::map< int, double >( );
+    coefficients[ order4 ][ -2 ] = 1.0 / 12.0;
+    coefficients[ order4 ][ -1 ] = -2.0 / 3.0;
+    coefficients[ order4 ][ 1 ] = 2.0 / 3.0;
+    coefficients[ order4 ][ 2 ] = -1.0 / 12.0;
+
+    coefficients[ order6 ] = std::map< int, double >( );
+    coefficients[ order6 ][ -3 ] = -1.0 / 60.0;
+    coefficients[ order6 ][ -2 ] = 3.0 / 20.0;
+    coefficients[ order6 ][ -1 ] = -3.0 / 4.0;
+    coefficients[ order6 ][ 1 ] = 1.0 / 60.0;
+    coefficients[ order6 ][ 2 ] = -3.0 / 20.0;
+    coefficients[ order6 ][ 3 ] = 3.0 / 4.0;
+
+    coefficients[ order8 ] = std::map< int, double >( );
+    coefficients[ order8 ][ -4 ] = 1.0 / 280.0;
+    coefficients[ order8 ][ -3 ] = -4.0 / 105.0;
+    coefficients[ order8 ][ -2 ] = 1.0 / 5.0;
+    coefficients[ order8 ][ -1 ] = -4.0 / 5.0;
+    coefficients[ order8 ][ 1 ] = 4.0 / 5.0;
+    coefficients[ order8 ][ 2 ] = -1.0 / 5.0;
+    coefficients[ order8 ][ 3 ] = 4.0 / 105.0;
+    coefficients[ order8 ][ 4 ] = -1.0 / 280.0;
+    return coefficients;
+}
+
 //! Get coefficients of a certain order for central difference numerical derivatives.
 const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferenceOrders order )
 {
-    static std::map< CentralDifferenceOrders, std::map< int, double > > coefficients;
-
-    if( coefficients.empty( ) )
-    {
-        // Initialize the coefficients map
-        coefficients[ order2 ] = std::map< int, double >( );
-        coefficients[ order2 ][ -1 ] = -1.0 / 2.0;
-        coefficients[ order2 ][ 1 ] = 1.0 / 2.0;
-
-        coefficients[ order4 ] = std::map< int, double >( );
-        coefficients[ order4 ][ -2 ] = 1.0 / 12.0;
-        coefficients[ order4 ][ -1 ] = -2.0 / 3.0;
-        coefficients[ order4 ][ 1 ] = 2.0 / 3.0;
-        coefficients[ order4 ][ 2 ] = -1.0 / 12.0;
-
-        coefficients[ order6 ] = std::map< int, double >( );
-        coefficients[ order6 ][ -3 ] = -1.0 / 60.0;
-        coefficients[ order6 ][ -2 ] = 3.0 / 20.0;
-        coefficients[ order6 ][ -1 ] = -3.0 / 4.0;
-        coefficients[ order6 ][ 1 ] = 1.0 / 60.0;
-        coefficients[ order6 ][ 2 ] = -3.0 / 20.0;
-        coefficients[ order6 ][ 3 ] = 3.0 / 4.0;
-
-        coefficients[ order8 ] = std::map< int, double >( );
-        coefficients[ order8 ][ -4 ] = 1.0 / 280.0;
-        coefficients[ order8 ][ -3 ] = -4.0 / 105.0;
-        coefficients[ order8 ][ -2 ] = 1.0 / 5.0;
-        coefficients[ order8 ][ -1 ] = -4.0 / 5.0;
-        coefficients[ order8 ][ 1 ] = 4.0 / 5.0;
-        coefficients[ order8 ][ 2 ] = -1.0 / 5.0;
-        coefficients[ order8 ][ 3 ] = 4.0 / 105.0;
-        coefficients[ order8 ][ 4 ] = -1.0 / 280.0;
-    }
-
-    return coefficients[ order ];
+    // Initialization of a static local variable is thread-safe
+    static const std::map< CentralDifferenceOrders, std::map< int, double > > coefficients = createCentralDifferenceCoefficients( );
+    return coefficients.at( order );
 }
 
 Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input,

@@ -223,6 +223,17 @@ public:
      */
     ~LinearInterpolator( ) {}
 
+    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > clone( ) const override
+    {
+        std::shared_ptr< LinearInterpolator< IndependentVariableType, DependentVariableType, ScalarType > > clonedInterpolator =
+                std::make_shared< LinearInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >( *this );
+        if( lookUpScheme_ != nullptr )
+        {
+            clonedInterpolator->makeLookupScheme( this->selectedLookupScheme_ );
+        }
+        return clonedInterpolator;
+    }
+
     //! Function interpolates dependent variable value at given independent variable value.
     /*!
      * Function interpolates dependent variable value at given independent variable value.

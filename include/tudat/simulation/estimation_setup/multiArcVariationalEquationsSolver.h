@@ -11,6 +11,7 @@
 #ifndef TUDAT_MULTIARCVARIATIONALEQUATIONSSOLVER_H
 #define TUDAT_MULTIARCVARIATIONALEQUATIONSSOLVER_H
 
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
 #include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
 
@@ -120,23 +121,89 @@ public:
     //! Constructor
     /*!
      *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion.
+     *  This constructor cannot be used for multi-threaded propagation (use the constructor with parameter settings instead).
      *  \param bodies Map of bodies (with names) of all bodies in integration.
      *  \param propagatorSettings Settings for propagator.
      *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
      *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
      *  end of this contructor (default false).
      */
-
     MultiArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const bool integrateEquationsOnCreation = false ):
+        MultiArcVariationalEquationsSolver(
+                bodies,
+                propagatorSettings,
+                parametersToEstimate,
+                createSingleThreadedDynamicsSimulator( bodies, propagatorSettings ),
+                std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > >( ),
+                integrateEquationsOnCreation )
+    {}
+
+    //! Constructor, creating the estimated parameters from their settings
+    /*!
+     *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion,
+     *  and creates the estimated parameters from their settings. For multi-threaded propagation, a parameter set is created for the
+     *  bodies of each thread, in addition to the one for the bodies provided here (see getParametersToEstimate).
+     *  \param bodies Map of bodies (with names) of all bodies in integration.
+     *  \param propagatorSettings Settings for propagator.
+     *  \param parameterSettings Settings for the parameters that are to be estimated.
+     *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
+     *  end of this contructor (default false).
+     *  \param considerParameterSettings Settings for the consider parameters (default none).
+     */
+    MultiArcVariationalEquationsSolver(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterSettings,
+            const bool integrateEquationsOnCreation = false,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterSettings =
+                    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ) ):
+        MultiArcVariationalEquationsSolver(
+                bodies,
+                propagatorSettings,
+                std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >( bodies, propagatorSettings, false ),
+                parameterSettings,
+                considerParameterSettings,
+                integrateEquationsOnCreation )
+    {}
+
+private:
+    MultiArcVariationalEquationsSolver(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
+            const std::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterSettings,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterSettings,
+            const bool integrateEquationsOnCreation ):
+        MultiArcVariationalEquationsSolver(
+                bodies,
+                propagatorSettings,
+                createParametersForBodies( bodies,
+                                           propagatorSettings,
+                                           dynamicsSimulator,
+                                           parameterSettings,
+                                           considerParameterSettings,
+                                           -1 ),
+                dynamicsSimulator,
+                createThreadParameterSets( bodies, propagatorSettings, dynamicsSimulator, parameterSettings, considerParameterSettings ),
+                integrateEquationsOnCreation )
+    {}
+
+    MultiArcVariationalEquationsSolver(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+            const std::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > >& threadParameterSets,
+            const bool integrateEquationsOnCreation ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
                 bodies,
                 parametersToEstimate,
                 propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false ),
-        propagatorSettings_( propagatorSettings ),
+        dynamicsSimulator_( dynamicsSimulator ), threadParameterSets_( threadParameterSets ), propagatorSettings_( propagatorSettings ),
         resetMultiArcDynamicsAfterPropagation_(
                 propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getSetIntegratedResult( ) : false )
     {
@@ -165,6 +232,27 @@ public:
                                                                    estimatedBodiesPerArc_,
                                                                    arcIndicesPerBody_ );
 
+        // For multi-threaded propagation, use the parameters linked to the bodies of the thread on which each arc is propagated
+        for( unsigned int i = 0; i < threadParameterSets_.size( ); i++ )
+        {
+            threadParameterSets_.at( i )->resetParameterValues(
+                    parametersToEstimate->template getFullParameterValues< StateScalarType >( true ), true );
+
+            std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > > threadArcWiseParameters;
+            estimatable_parameters::getParametersToEstimatePerArcTest( threadParameterSets_.at( i ),
+                                                                       threadArcWiseParameters,
+                                                                       propagatorSettings->getArcStartTimes( ),
+                                                                       estimatedBodiesPerArc_,
+                                                                       arcIndicesPerBody_ );
+            for( unsigned int arc = 0; arc < arcWiseParametersToEstimate_.size( ); arc++ )
+            {
+                if( dynamicsSimulator_->getArcThreadIndex( arc ) == i )
+                {
+                    arcWiseParametersToEstimate_[ arc ] = threadArcWiseParameters.at( arc );
+                }
+            }
+        }
+
         parameterVectorSize_ = 0;
         stateTransitionMatrixSize_ = 0;
 
@@ -174,9 +262,6 @@ public:
                     estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate, arc ) );
             arcWiseParameterVectorSize_.push_back( estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate, arc ) );
         }
-
-        dynamicsSimulator_ =
-                std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >( bodies, propagatorSettings, false );
 
         std::vector< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
                 dynamicsSimulator_->getSingleArcDynamicsSimulators( );
@@ -197,11 +282,12 @@ public:
         for( unsigned int i = 0; i < singleArcDynamicsSimulators.size( ); i++ )
         {
             dynamicsStateDerivatives_.push_back( singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ) );
+            simulation_setup::SystemOfBodies arcBodies = singleArcDynamicsSimulators.at( i )->getSystemOfBodies( );
 
             // Create variational equations objects.
             std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials =
                     simulation_setup::createStateDerivativePartials< StateScalarType, TimeType >(
-                            dynamicsStateDerivatives_.at( i )->getStateDerivativeModels( ), bodies, arcWiseParametersToEstimate_[ i ] );
+                            dynamicsStateDerivatives_.at( i )->getStateDerivativeModels( ), arcBodies, arcWiseParametersToEstimate_[ i ] );
 
             std::shared_ptr< VariationalEquations > variationalEquationsObject_ =
                     std::make_shared< VariationalEquations >( stateDerivativePartials,
@@ -209,7 +295,7 @@ public:
                                                               dynamicsStateDerivatives_.at( i )->getStateTypeStartIndices( ),
                                                               i,
                                                               arcIndicesPerBody_[ i ],
-                                                              simulation_setup::getEphemerisOrigins( bodies ) );
+                                                              simulation_setup::getEphemerisOrigins( arcBodies ) );
 
             dynamicsStateDerivatives_.at( i )->addVariationalEquations( variationalEquationsObject_ );
         }
@@ -230,6 +316,7 @@ public:
         }
     }
 
+public:
     //! Destructor
     /*!
      *  Destructor
@@ -367,6 +454,10 @@ public:
     {
         // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
+        for( unsigned int i = 0; i < threadParameterSets_.size( ); i++ )
+        {
+            threadParameterSets_.at( i )->template resetParameterValues< StateScalarType >( newParameterEstimate );
+        }
         simulation_setup::setInitialStateVectorFromParameterSet< StateScalarType, TimeType >( parametersToEstimate_, propagatorSettings_ );
 
         for( int i = 0; i < numberOfArcs_; i++ )
@@ -540,6 +631,83 @@ private:
 
     //! Object to propagate the dynamics for all arcs.
     std::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
+
+    //! Parameter sets linked to the bodies of each thread in multi-threaded propagation (empty if single-threaded)
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > > threadParameterSets_;
+
+    //! Function to create the dynamics simulator if the parameter objects are provided (not possible for multi-threaded propagation)
+    static std::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > createSingleThreadedDynamicsSimulator(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings )
+    {
+        if( propagatorSettings != nullptr && propagatorSettings->getNumberOfThreads( ) > 1 )
+        {
+            throw std::runtime_error(
+                    "Error when making multi-arc variational equations solver, for multi-threaded propagation the settings of the "
+                    "estimated parameters must be provided, rather than the parameters" );
+        }
+        return std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >( bodies, propagatorSettings, false );
+    }
+
+    //! Function to create the estimated parameters for the bodies of a thread, or for the bodies provided to this object
+    /*!
+     *  Function to create the estimated parameters for the bodies of a thread, or for the bodies provided to this object (threadIndex
+     *  of -1). For multi-threaded propagation, the parameters are linked only to the models of the arcs propagated on the bodies
+     *  for which they are created (for threadIndex -1, the arcs' models are created on the bodies provided to this object).
+     */
+    static std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > createParametersForBodies(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
+            const std::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterSettings,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterSettings,
+            const int threadIndex )
+    {
+        if( dynamicsSimulator->getThreadBodies( ).size( ) == 0 )
+        {
+            return simulation_setup::createParametersToEstimate< StateScalarType, TimeType >(
+                    parameterSettings, bodies, propagatorSettings, considerParameterSettings );
+        }
+
+        std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > arcSettings;
+        for( unsigned int i = 0; i < propagatorSettings->getSingleArcSettings( ).size( ); i++ )
+        {
+            if( threadIndex < 0 || static_cast< int >( dynamicsSimulator->getArcThreadIndex( i ) ) == threadIndex )
+            {
+                arcSettings.push_back( propagatorSettings->getSingleArcSettings( ).at( i )->clone( ) );
+                if( threadIndex < 0 )
+                {
+                    arcSettings.back( )->resetIntegratedStateModels( bodies );
+                }
+            }
+        }
+        return simulation_setup::createParametersToEstimate< StateScalarType, TimeType >(
+                parameterSettings,
+                threadIndex < 0 ? bodies : dynamicsSimulator->getThreadBodies( ).at( threadIndex ),
+                std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( arcSettings ),
+                considerParameterSettings );
+    }
+
+    //! Function to create the estimated parameters for the bodies of each thread (empty if single-threaded)
+    static std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > > createThreadParameterSets(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
+            const std::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterSettings,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterSettings )
+    {
+        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > > threadParameterSets;
+        for( unsigned int i = 0; i < dynamicsSimulator->getThreadBodies( ).size( ); i++ )
+        {
+            threadParameterSets.push_back( createParametersForBodies( bodies,
+                                                                      propagatorSettings,
+                                                                      dynamicsSimulator,
+                                                                      parameterSettings,
+                                                                      considerParameterSettings,
+                                                                      static_cast< int >( i ) ) );
+        }
+        return threadParameterSets;
+    }
 
     //    //! Numerical solution history of integrated variational equations, per arc.
     //    /*!

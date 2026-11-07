@@ -182,7 +182,7 @@ std::pair< std::vector< double >, std::vector< double > > NRLMSISE00Atmosphere::
 
 Eigen::VectorXd getNrlmsiseInputAsVector( const nrlmsise_input& input )
 {
-    static Eigen::VectorXd inputVector( 17 );
+    Eigen::VectorXd inputVector( 17 );
     inputVector( 0 ) = static_cast< double >( input.year );
     inputVector( 1 ) = static_cast< double >( input.doy );
     inputVector( 2 ) = input.sec;

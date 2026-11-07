@@ -117,6 +117,16 @@ public:
         return singleArcEphemerides_;
     }
 
+    std::vector< double > getArcStartTimes( )
+    {
+        return arcStartTimes_;
+    }
+
+    std::shared_ptr< Ephemeris > getDefaultEphemeris( )
+    {
+        return defaultEphemeris_;
+    }
+
 private:
     void setArcInitialAndFinalTimes( );
 

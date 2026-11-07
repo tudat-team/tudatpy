@@ -226,6 +226,25 @@ public:
     // Using statement to prevent compiler warning.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
+    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > clone( ) const override
+    {
+        std::shared_ptr< LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > > clonedInterpolator =
+                std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >( *this );
+        if( lookUpScheme_ != nullptr )
+        {
+            clonedInterpolator->makeLookupScheme( this->selectedLookupScheme_ );
+        }
+        if( beginInterpolator_ != nullptr )
+        {
+            clonedInterpolator->beginInterpolator_ = beginInterpolator_->clone( );
+        }
+        if( endInterpolator_ != nullptr )
+        {
+            clonedInterpolator->endInterpolator_ = endInterpolator_->clone( );
+        }
+        return clonedInterpolator;
+    }
+
     //! Function interpolates dependent variable value at given independent variable value.
     /*!
      *  Function interpolates dependent variable value at given independent variable value.

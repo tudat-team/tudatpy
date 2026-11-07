@@ -53,6 +53,10 @@ public:
         {
             throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, propagator settings are incompatible" );
         }
+        else if( hybridPropagatorSettings_->getMultiArcPropagatorSettings( )->getNumberOfThreads( ) > 1 )
+        {
+            throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, multi-threaded propagation is not supported" );
+        }
 
         singleArcDynamicsSize_ = hybridPropagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( );
         multiArcDynamicsSize_ = hybridPropagatorSettings_->getMultiArcPropagatorSettings( )->getPropagatedStateSize( );

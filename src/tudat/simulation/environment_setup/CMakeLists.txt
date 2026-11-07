@@ -40,6 +40,7 @@ set(environment_HEADERS
         createCameras.h
         createRelativisticTimeConverter.h
         createMetric.h
+        copySystemOfBodies.h
         )
 
 # Add header files.
@@ -73,6 +74,7 @@ set(environment_SOURCES
         createCameras.cpp
         createRelativisticTimeConverter.cpp
         createMetric.cpp
+        copySystemOfBodies.cpp
         )
 
 if (TUDAT_BUILD_WITH_SERIALIZATION)

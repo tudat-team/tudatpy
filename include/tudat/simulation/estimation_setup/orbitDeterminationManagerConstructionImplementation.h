@@ -40,6 +40,41 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::OrbitDeterm
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::OrbitDeterminationManager(
+        const SystemOfBodies& bodies,
+        const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+        const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+        const bool propagateOnCreation,
+        const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterSettings ):
+    bodies_( bodies )
+{
+    std::shared_ptr< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > > multiArcPropagatorSettings =
+            std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings );
+    if( multiArcPropagatorSettings != nullptr )
+    {
+        // Set output settings as in initializeOrbitDeterminationManager, before they are used by the variational equations solver
+        propagators::toggleIntegratedResultSettings< ObservationScalarType, TimeType >( propagatorSettings );
+        propagatorSettings->getOutputSettingsBase( )->setUpdateDependentVariableInterpolator( true );
+
+        variationalEquationsSolver_ =
+                std::make_shared< propagators::MultiArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(
+                        bodies, multiArcPropagatorSettings, parameterSettings, propagateOnCreation, considerParameterSettings );
+        parametersToEstimate_ = variationalEquationsSolver_->getParametersToEstimate( );
+    }
+    else
+    {
+        parametersToEstimate_ = createParametersToEstimate< ObservationScalarType, TimeType >(
+                parameterSettings, bodies, propagatorSettings, considerParameterSettings );
+    }
+    considerParameters_ = parametersToEstimate_->getConsiderParameters( );
+
+    initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings, propagateOnCreation );
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::initializeOrbitDeterminationManager(
         const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
@@ -85,7 +120,7 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::initia
         propagatorSettings->getOutputSettingsBase( )->setUpdateDependentVariableInterpolator( true );
     }
 
-    if( integrateAndEstimateOrbit_ )
+    if( integrateAndEstimateOrbit_ && variationalEquationsSolver_ == nullptr )
     {
         variationalEquationsSolver_ = simulation_setup::createVariationalEquationsSolver< ObservationScalarType, TimeType >(
                 bodies, propagatorSettings, parametersToEstimate_, propagateOnCreation );

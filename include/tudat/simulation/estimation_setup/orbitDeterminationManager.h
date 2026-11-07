@@ -84,6 +84,27 @@ public:
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true );
 
+    //! Constructor, creating the estimated parameters from their settings
+    /*!
+     *  Constructor, creating the estimated parameters from their settings (retrieved with getParametersToEstimate). For multi-arc
+     *  propagation, the parameters are created by the variational equations solver, which is required for multi-threaded
+     *  propagation (for which a parameter set is created for the bodies of each thread).
+     *  \param bodies Map of bodies (with names) of all bodies in the estimation.
+     *  \param parameterSettings Settings for the parameters that are to be estimated.
+     *  \param observationSettingsList Settings for the observation models.
+     *  \param propagatorSettings Settings for propagator.
+     *  \param propagateOnCreation Boolean denoting whether the dynamics is to be propagated on creation of this object.
+     *  \param considerParameterSettings Settings for the consider parameters (default none).
+     */
+    OrbitDeterminationManager(
+            const SystemOfBodies& bodies,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterSettings,
+            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true,
+            const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterSettings =
+                    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ) );
+
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > getParametersToEstimate( )
     {
         return parametersToEstimate_;
