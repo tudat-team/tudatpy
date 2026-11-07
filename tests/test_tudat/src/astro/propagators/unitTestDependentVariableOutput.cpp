@@ -25,6 +25,7 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
+#include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -483,7 +484,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         earthAtmosphereModel->getDensity( altitude,
                                                           longitude,
                                                           geodeticLatitude,
-                                                          spice_interface::getApproximateUtcFromTdb( variableIterator->first ) ),
+                                                          sofa_interface::getApproximateUtcFromTdb( variableIterator->first ) ),
                         6.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_CLOSE_FRACTION(
                         freestreamDensity, apolloFlightConditions->getCurrentDensity( ), 6.0 * std::numeric_limits< double >::epsilon( ) );
@@ -492,7 +493,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         earthAtmosphereModel->getTemperature( altitude,
                                                               longitude,
                                                               geodeticLatitude,
-                                                              spice_interface::getApproximateUtcFromTdb( variableIterator->first ) ),
+                                                              sofa_interface::getApproximateUtcFromTdb( variableIterator->first ) ),
                         6.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_CLOSE_FRACTION( freestreamTemperature,
                                             apolloFlightConditions->getCurrentFreestreamTemperature( ),
