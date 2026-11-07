@@ -181,6 +181,12 @@ Eigen::Vector6d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedS
         const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
         const std::string& targetFrameOrigin )
 {
+    if( bodyBarycentricStateFunction_ == nullptr || inertialToBodyFixedRotationFunction_ == nullptr ||
+        ( useGeneralRelativisticCorrection_ &&
+          ( centralBodyGravitationalParameterFunction_ == nullptr || centralBodyBarycentricPositionFunction_ == nullptr ) ) )
+    {
+        throw std::runtime_error( "Error in body- to barycentric station motion model, model is not closed (no body functions)" );
+    }
     Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
 
     if( targetFrameOrigin == "SSB" )

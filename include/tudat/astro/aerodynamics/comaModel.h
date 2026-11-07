@@ -162,9 +162,22 @@ public:
         return cachedSolarLongitude_;
     }
 
-    //! Delete copy constructor and copy assignment operator (class contains unique_ptr members)
-    ComaModel( const ComaModel& ) = delete;
+    //! Copy constructor (shares the immutable data and interpolators, closure must be applied to the copy)
+    ComaModel( const ComaModel& ) = default;
     ComaModel& operator=( const ComaModel& ) = delete;
+
+    //! Function to apply the closure of this model: (re)set the state functions of Sun and comet, and the comet rotation. A new
+    //! spherical harmonics calculator is created, so that copies of this model do not share it.
+    void applyEnvironmentModelClosure( const std::function< Eigen::Vector6d( ) > sunStateFunction,
+                                       const std::function< Eigen::Vector6d( ) > cometStateFunction,
+                                       const std::function< Eigen::Matrix3d( ) > cometRotationFunction )
+    {
+        sunStateFunction_ = sunStateFunction;
+        cometStateFunction_ = cometStateFunction;
+        cometRotationFunction_ = cometRotationFunction;
+        sphericalHarmonicsCalculator_ = std::make_shared< SurfaceSphericalHarmonicsCalculator >( );
+        cacheFlags_ = CacheFlags( );
+    }
 
 private:
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
@@ -283,55 +296,55 @@ private:
     //! Pre-initialized interpolators for Stokes coefficients (only used for STOKES_COEFFICIENTS data type)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             stokesInterpolators_;
 
     //! Pre-initialized interpolators for reduced Stokes coefficients (for radius > reference radius)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             reducedStokesInterpolators_;
 
     //! Cache for fallback interpolators (created on-demand, then cached for reuse)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             fallbackStokesInterpolators_;
 
     //! Cache for fallback reduced interpolators (created on-demand, then cached for reuse)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             fallbackReducedStokesInterpolators_;
 
     //! Pre-initialized interpolators for temperature Stokes coefficients (only used if temperature dataset provided)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             temperatureStokesInterpolators_;
 
     //! Pre-initialized interpolators for reduced temperature Stokes coefficients (for radius > reference radius)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             reducedTemperatureStokesInterpolators_;
 
     //! Cache for fallback temperature interpolators (created on-demand, then cached for reuse)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             fallbackTemperatureStokesInterpolators_;
 
     //! Cache for fallback reduced temperature interpolators (created on-demand, then cached for reuse)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             fallbackReducedTemperatureStokesInterpolators_;
 
     /*!

@@ -142,6 +142,10 @@ void BasicTidalBodyDeformation::updateBodyProperties( const double time )
 {
     if( !( currentTime_ == time ) )
     {
+        if( deformedBodyStateFunction_ == nullptr || deformedBodyRotationFunction_ == nullptr )
+        {
+            throw std::runtime_error( "Error in tidal body deformation model, model is not closed (no body functions)" );
+        }
         Eigen::Vector3d deformedBodyPosition = deformedBodyStateFunction_( time ).segment( 0, 3 );
         Eigen::Quaterniond currentDeformedBodyRotation = deformedBodyRotationFunction_( time );
         double currentDeformedBodyGravitationalParameter = gravitionalParameterOfDeformedBody_( );

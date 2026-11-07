@@ -464,6 +464,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             break;
         }
         case direct_from_metric: {
+            std::map< std::pair< std::string, std::string >, std::shared_ptr< Metric > >& evaluatedMetricObjects =
+                    bodyMap.getSpaceTimeProperties( )->getEvaluatedMetricObjects( );
             if( evaluatedMetricObjects.count( stateDerivativeModel->getReferencePointId( ) ) == 0 )
             {
                 std::shared_ptr< Metric > baseMetric = bodyMap.getSpaceTimeProperties( )->getBaseMetric( );

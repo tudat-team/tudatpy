@@ -585,6 +585,48 @@ public:
     //! Destructor.
     ~ParameterizedThrustMagnitudeWrapper( ) {}
 
+    //! Function to set the user-defined (guidance) input functions, used by the closure of the model (with the input functions
+    //! from the environment)
+    void setGuidanceInputFunctions( const std::vector< std::function< double( ) > >& thrustGuidanceInputFunctions,
+                                    const std::vector< std::function< double( ) > >& specificImpulseGuidanceInputFunctions )
+    {
+        thrustGuidanceInputFunctions_ = thrustGuidanceInputFunctions;
+        specificImpulseGuidanceInputFunctions_ = specificImpulseGuidanceInputFunctions;
+    }
+
+    const std::vector< std::function< double( ) > >& getThrustGuidanceInputFunctions( ) const
+    {
+        return thrustGuidanceInputFunctions_;
+    }
+
+    const std::vector< std::function< double( ) > >& getSpecificImpulseGuidanceInputFunctions( ) const
+    {
+        return specificImpulseGuidanceInputFunctions_;
+    }
+
+    const std::vector< propulsion::ThrustIndependentVariables >& getThrustIndependentVariables( ) const
+    {
+        return thrustIndependentVariables_;
+    }
+
+    const std::vector< propulsion::ThrustIndependentVariables >& getSpecificImpulseDependentVariables( ) const
+    {
+        return specificImpulseDependentVariables_;
+    }
+
+    //! Function to apply the closure of this model: (re)set the functions returning the input variables (from the environment)
+    void applyEnvironmentModelClosure( const std::vector< std::function< double( ) > >& thrustInputVariableFunctions,
+                                       const std::vector< std::function< double( ) > >& specificImpulseInputVariableFunctions )
+    {
+        if( thrustInputVariableFunctions.size( ) != thrustIndependentVariables_.size( ) ||
+            specificImpulseInputVariableFunctions.size( ) != specificImpulseDependentVariables_.size( ) )
+        {
+            throw std::runtime_error( "Error when applying closure of parameterized thrust magnitude, number of input functions is inconsistent" );
+        }
+        thrustInputVariableFunctions_ = thrustInputVariableFunctions;
+        specificImpulseInputVariableFunctions_ = specificImpulseInputVariableFunctions;
+    }
+
     //! Function to update the thrust magnitude to the current time.
     /*!
      *  Function to update the thrust magnitude to the current time.
@@ -656,6 +698,10 @@ private:
 
     //! List of identifiers for the physical meaning of each of the entries of the input to the thrustMagnitudeFunction
     //! function.
+    std::vector< std::function< double( ) > > thrustGuidanceInputFunctions_;
+
+    std::vector< std::function< double( ) > > specificImpulseGuidanceInputFunctions_;
+
     std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables_;
 
     //! List of identifiers for the physical meaning of each of the entries of the input to the

@@ -99,6 +99,11 @@ public:
         return planetGravitationalParameter_;
     }
 
+    std::string getBodyName( ) const
+    {
+        return bodyName_;
+    }
+
 protected:
     //! Set planet.
     /*!
@@ -157,6 +162,8 @@ protected:
      * String stream for ephemeris line data.
      */
     std::stringstream ephemerisLineData_;
+
+    std::string bodyName_;
 
 private:
 };

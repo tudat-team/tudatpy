@@ -53,6 +53,16 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< electromagnetism
 //! Function to determine whether a radiation pressure target model requires closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel );
 
+//! Function to determine whether an atmosphere model (including its wind model) requires closure (does not check whether it has
+//! been applied)
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel );
+
+//! Function to determine whether a ground station requires closure (does not check whether it has been applied)
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< ground_stations::GroundStation > groundStation );
+
+//! Function to determine whether a body deformation model requires closure (does not check whether it has been applied)
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel );
+
 //! Function to register (in the body) which of the environment models of a body require closure, to be called after the models
 //! have been created or copied without closure
 void registerEnvironmentModelClosures( const std::shared_ptr< Body > body );

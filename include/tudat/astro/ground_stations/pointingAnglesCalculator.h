@@ -122,16 +122,24 @@ public:
         return rotationFromBodyFixedToTopoCentricFrame_;
     }
 
+    //! Function to apply the closure of this model: (re)set the rotations to the body-fixed and topocentric frames
+    void applyEnvironmentModelClosure( const std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame,
+                                       const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame )
+    {
+        rotationFromInertialToBodyFixedFrame_ = rotationFromInertialToBodyFixedFrame;
+        rotationFromBodyFixedToTopoCentricFrame_ = rotationFromBodyFixedToTopoCentricFrame;
+    }
+
 private:
     //! Function returning the rotation from the inertial to the body-fixed frame at a specified time.
-    const std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame_;
+    std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame_;
 
     //! Function returning the rotation from the body-fixed to the topocentric frame
     /*!
      *  Function returning the rotation from the body-fixed to the topocentric frame at a
      *  specified time (note that this rotation is typically time-independent).
      */
-    const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame_;
+    std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame_;
 };
 
 std::pair< double, double > calculateGroundStationPointingAngles( const std::shared_ptr< PointingAnglesCalculator > angleCalculator,

@@ -19,17 +19,23 @@
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
+#include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
+#include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
+#include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/simulation/environment_setup/copySystemOfBodies.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/createMetric.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/environmentModelClosure.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
@@ -62,6 +68,18 @@ std::map< double, Eigen::Vector6d > getKeplerOrbitStates( const Eigen::Vector6d&
         stateHistory[ time ] = keplerEphemeris.getCartesianState( time );
     }
     return stateHistory;
+}
+
+// Create tabulated rotational states, from a uniform rotation, covering the test interval
+std::map< double, Eigen::Vector7d > getUniformRotationStates( const double rotationRate )
+{
+    SimpleRotationalEphemeris uniformRotation( Eigen::Quaterniond::Identity( ), rotationRate, initialTime );
+    std::map< double, Eigen::Vector7d > rotationalStateHistory;
+    for( double time = initialTime - 3600.0; time <= finalTime + 3600.0; time += 300.0 )
+    {
+        rotationalStateHistory[ time ] = uniformRotation.getRotationStateVector( time );
+    }
+    return rotationalStateHistory;
 }
 
 // Create bodies, with as many different (types of) environment models as possible, none of which use SPICE
@@ -168,7 +186,7 @@ BodyListSettings getTestBodySettings( )
             exponentialAtmosphereSettings( 11.1E3, 0.02, 210.0 ), []( const double time ) { return 1.0 + 1.0E-8 * time; }, false );
     bodySettings.at( "Mars" )->shapeModelSettings = sphericalBodyShapeSettings( 3389.5E3 );
 
-    // Asteroid: scaled Kepler ephemeris, polyhedron gravity field (tabulated rotation is set after creation)
+    // Asteroid: scaled Kepler ephemeris, tabulated rotation, polyhedron gravity field
     Eigen::MatrixXd verticesCoordinates( 8, 3 );
     verticesCoordinates << 0.0, 0.0, 0.0, 2.0E3, 0.0, 0.0, 0.0, 1.0E3, 0.0, 2.0E3, 1.0E3, 0.0, 0.0, 0.0, 1.0E3, 2.0E3, 0.0, 1.0E3, 0.0,
             1.0E3, 1.0E3, 2.0E3, 1.0E3, 1.0E3;
@@ -184,7 +202,7 @@ BodyListSettings getTestBodySettings( )
                                      1.0001,
                                      false );
     bodySettings.at( "Asteroid" )->rotationModelSettings =
-            simpleRotationModelSettings( "J2000", "AsteroidFixed", Eigen::Quaterniond::Identity( ), initialTime, 3.0E-4 );
+            tabulatedRotationModelSettings( getUniformRotationStates( 3.0E-4 ), "J2000", "AsteroidFixed" );
     bodySettings.at( "Asteroid" )->gravityFieldSettings =
             polyhedronGravitySettingsFromMu( 1.0E3, verticesCoordinates, verticesDefiningEachFacet, "AsteroidFixed" );
 
@@ -254,15 +272,12 @@ BodyListSettings getTestBodySettings( )
     return bodySettings;
 }
 
-SystemOfBodies createTestBodies( )
+SystemOfBodies createTestBodies( const BodyListSettings& bodySettings = getTestBodySettings( ) )
 {
-    SystemOfBodies bodies = createSystemOfBodies( getTestBodySettings( ) );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     addEngineModel( "Vehicle3", "MainEngine", constantThrustMagnitudeSettings( 10.0, 300.0 ), bodies );
 
-    // Tabulated rotation model, and flight conditions (after which aerodynamic moment contribution is closed)
-    bodies.at( "Asteroid" )
-            ->setRotationalEphemeris( getTabulatedRotationalEphemeris< double, double >(
-                    bodies.at( "Asteroid" )->getRotationalEphemeris( ), initialTime - 3600.0, finalTime + 3600.0, 300.0 ) );
+    // Flight conditions (after which aerodynamic moment contribution is closed)
     addAtmosphericFlightConditions( bodies, "Vehicle", "Earth" );
     addFlightConditions( bodies, "Vehicle2", "Moon" );
     std::dynamic_pointer_cast< AerodynamicAngleRotationalEphemeris >( bodies.at( "Vehicle" )->getRotationalEphemeris( ) )
@@ -444,6 +459,17 @@ std::vector< double > getTestTimes( const unsigned int numberOfTimes )
     return times;
 }
 
+// Check that a model exists in the copy if, and only if, it exists in the original, and that it is a different object
+template< typename ModelType >
+void checkModelIsCopied( const std::shared_ptr< ModelType > model, const std::shared_ptr< ModelType > modelCopy )
+{
+    BOOST_CHECK_EQUAL( model == nullptr, modelCopy == nullptr );
+    if( model != nullptr )
+    {
+        BOOST_CHECK( model != modelCopy );
+    }
+}
+
 //! Test closure of environment models (links to other models): which models require closure, when it is applied, and that models
 //! without closure cannot be used
 BOOST_AUTO_TEST_CASE( testClosureOfEnvironmentModels )
@@ -559,21 +585,13 @@ BOOST_AUTO_TEST_CASE( testCopiedAndSharedModels )
         }
 
         // Models with data that changes during propagation are copied
-        for( auto model : std::vector< std::pair< std::shared_ptr< void >, std::shared_ptr< void > > >{
-                     { body->getAtmosphereModel( ), bodyCopy->getAtmosphereModel( ) },
-                     { body->getAerodynamicCoefficientInterface( ), bodyCopy->getAerodynamicCoefficientInterface( ) },
-                     { body->getFlightConditions( ), bodyCopy->getFlightConditions( ) },
-                     { body->getMassProperties( ), bodyCopy->getMassProperties( ) },
-                     { body->getVehicleSystems( ), bodyCopy->getVehicleSystems( ) },
-                     { body->getRadiationSourceModel( ), bodyCopy->getRadiationSourceModel( ) },
-                     { body->getGravityFieldVariationSet( ), bodyCopy->getGravityFieldVariationSet( ) } } )
-        {
-            BOOST_CHECK_EQUAL( model.first == nullptr, model.second == nullptr );
-            if( model.first != nullptr )
-            {
-                BOOST_CHECK( model.first != model.second );
-            }
-        }
+        checkModelIsCopied( body->getAtmosphereModel( ), bodyCopy->getAtmosphereModel( ) );
+        checkModelIsCopied( body->getAerodynamicCoefficientInterface( ), bodyCopy->getAerodynamicCoefficientInterface( ) );
+        checkModelIsCopied( body->getFlightConditions( ), bodyCopy->getFlightConditions( ) );
+        checkModelIsCopied( body->getMassProperties( ), bodyCopy->getMassProperties( ) );
+        checkModelIsCopied( body->getVehicleSystems( ), bodyCopy->getVehicleSystems( ) );
+        checkModelIsCopied( body->getRadiationSourceModel( ), bodyCopy->getRadiationSourceModel( ) );
+        checkModelIsCopied( body->getGravityFieldVariationSet( ), bodyCopy->getGravityFieldVariationSet( ) );
         BOOST_CHECK_EQUAL( body->getRadiationPressureTargetModels( ).size( ), bodyCopy->getRadiationPressureTargetModels( ).size( ) );
         for( unsigned int i = 0; i < body->getRadiationPressureTargetModels( ).size( ); i++ )
         {
@@ -737,9 +755,10 @@ BOOST_AUTO_TEST_CASE( testIndependenceOfCopy )
     BOOST_CHECK( ( earthFieldCopy->getCosineCoefficients( ) - earthCosineCoefficients ).cwiseAbs( ).maxCoeff( ) > 1.0E-12 );
 
     // Moment contribution uses center of mass of copy
-    bodiesCopy.at( "Vehicle" )
-            ->setMassProperties( std::make_shared< TimeDependentRigidBodyProperties >(
-                    500.0, ( Eigen::Vector3d( ) << 1.0, 0.0, 0.0 ).finished( ), Eigen::Matrix3d::Identity( ) * 100.0 ) );
+    addRigidBodyProperties( bodiesCopy,
+                            "Vehicle",
+                            constantRigidBodyPropertiesSettings(
+                                    500.0, ( Eigen::Vector3d( ) << 1.0, 0.0, 0.0 ).finished( ), Eigen::Matrix3d::Identity( ) * 100.0 ) );
     BOOST_CHECK(
             bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( )->getMomentContributionInterface( )->centerOfMassPosition_( ) ==
             ( Eigen::Vector3d( ) << 0.1, 0.0, 0.0 ).finished( ) );
@@ -832,6 +851,146 @@ BOOST_AUTO_TEST_CASE( testIndependenceOfCopy )
     for( unsigned int i = 0; i < originalValues.size( ); i++ )
     {
         BOOST_CHECK_EQUAL( originalValuesAfterChanges.at( i ), originalValues.at( i ) );
+    }
+}
+
+//! Test closure and copy of ground station (with deformation and relativistic motion), tidal deformation, space-time metric,
+//! parameterized thrust and approximate ephemeris
+BOOST_AUTO_TEST_CASE( testCopyOfStationsDeformationMetricAndOtherModels )
+{
+    BodyListSettings bodySettings = getTestBodySettings( );
+    const Eigen::Vector3d stationPosition( 4.0E6, 3.0E6, 3.5E6 );
+    bodySettings.at( "Earth" )->bodyDeformationSettings.push_back(
+            basicTidalBodyShapeDeformation( { "Moon", "Sun" }, { { 2, { 0.6, 0.08 } } } ) );
+    bodySettings.at( "Earth" )->groundStationSettings.push_back(
+            groundStationSettings( "Station",
+                                   stationPosition,
+                                   coordinate_conversions::cartesian_position,
+                                   { bodyDeformationStationMotionSettings( ), bodycentricToBarycentricStationMotionSettings( "Sun" ) } ) );
+    SystemOfBodies bodies = createTestBodies( bodySettings );
+    createBaseMetric( std::make_shared< SolarSystemSpaceTimeMetricSettings >( std::vector< std::string >{ "Sun", "Earth", "Moon" } ),
+                      bodies );
+    addEngineModel( "Vehicle",
+                    "AltitudeEngine",
+                    std::make_shared< ParameterizedThrustMagnitudeSettings >(
+                            std::make_shared< interpolators::LinearInterpolator< double, double > >(
+                                    std::map< double, double >( { { 0.0, 1.0 }, { 1.0E6, 2.0 } } ) ),
+                            std::vector< propulsion::ThrustIndependentVariables >{ propulsion::altitude_dependent_thrust },
+                            300.0 ),
+                    bodies );
+
+    SystemOfBodies bodiesCopy = createTestBodiesCopy( bodies, false );
+
+    // Closures of the models in the copy are registered and applied
+    std::map< EnvironmentModelClosureType, bool > earthClosureStates = bodiesCopy.at( "Earth" )->getEnvironmentModelClosureStates( );
+    BOOST_CHECK( earthClosureStates.at( ground_stations_closure ) );
+    BOOST_CHECK( earthClosureStates.at( body_deformation_closure ) );
+    BOOST_CHECK( bodiesCopy.at( "Vehicle" )->getEnvironmentModelClosureStates( ).at( vehicle_systems_closure ) );
+    BOOST_CHECK_EQUAL( getEnvironmentModelsWithoutClosure( bodiesCopy ).size( ), 0 );
+
+    // Models are copied
+    std::shared_ptr< ground_stations::GroundStation > station = bodies.at( "Earth" )->getGroundStation( "Station" );
+    std::shared_ptr< ground_stations::GroundStation > stationCopy = bodiesCopy.at( "Earth" )->getGroundStation( "Station" );
+    BOOST_CHECK( station != stationCopy );
+    BOOST_CHECK( station->getNominalStationState( ) != stationCopy->getNominalStationState( ) );
+    BOOST_CHECK( station->getPointingAnglesCalculator( ) != stationCopy->getPointingAnglesCalculator( ) );
+    BOOST_CHECK( station->getNominalStationState( )->getStationMotionModel( ) !=
+                 stationCopy->getNominalStationState( )->getStationMotionModel( ) );
+    std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformation = bodies.at( "Earth" )->getBodyDeformationModels( ).at( 0 );
+    std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationCopy =
+            bodiesCopy.at( "Earth" )->getBodyDeformationModels( ).at( 0 );
+    BOOST_CHECK( deformation != deformationCopy );
+    std::shared_ptr< SpaceTimeProperties > spaceTimeProperties = bodies.getSpaceTimeProperties( );
+    std::shared_ptr< SpaceTimeProperties > spaceTimePropertiesCopy = bodiesCopy.getSpaceTimeProperties( );
+    BOOST_CHECK( spaceTimeProperties != spaceTimePropertiesCopy );
+    BOOST_CHECK( spaceTimeProperties->getPpnParameterSet( ) != spaceTimePropertiesCopy->getPpnParameterSet( ) );
+    BOOST_CHECK( spaceTimePropertiesCopy->getBaseMetric( ) != nullptr );
+    BOOST_CHECK( spaceTimeProperties->getBaseMetric( ) != spaceTimePropertiesCopy->getBaseMetric( ) );
+    std::shared_ptr< system_models::EngineModel > engine = bodies.at( "Vehicle" )->getVehicleSystems( )->getEngineModels( ).at( "AltitudeEngine" );
+    std::shared_ptr< system_models::EngineModel > engineCopy =
+            bodiesCopy.at( "Vehicle" )->getVehicleSystems( )->getEngineModels( ).at( "AltitudeEngine" );
+    BOOST_CHECK( engine->getThrustMagnitudeWrapper( ) != engineCopy->getThrustMagnitudeWrapper( ) );
+
+    // Evaluation of the copied models gives the same results as the original
+    const double time = initialTime + 30000.0;
+    const Eigen::Vector3d inertialVector( 1.0, -2.0, 0.5 );
+    std::vector< std::vector< double > > values;
+    for( const SystemOfBodies& currentBodies : { bodies, bodiesCopy } )
+    {
+        setBodyStates( currentBodies, time );
+        std::vector< double > currentValues;
+        std::shared_ptr< ground_stations::GroundStation > currentStation = currentBodies.at( "Earth" )->getGroundStation( "Station" );
+        appendVector( currentValues, currentStation->getNominalStationState( )->getCartesianStateInTime( time, "SSB" ) );
+        currentValues.push_back(
+                currentStation->getPointingAnglesCalculator( )->calculateElevationAngleFromInertialVector( inertialVector, time ) );
+        appendVector( currentValues,
+                      currentBodies.at( "Earth" )->getBodyDeformationModels( ).at( 0 )->calculateDisplacement( time, stationPosition ) );
+
+        currentBodies.at( "Vehicle" )->getFlightConditions( )->resetCurrentTime( );
+        currentBodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( time );
+        std::shared_ptr< system_models::EngineModel > currentEngine =
+                currentBodies.at( "Vehicle" )->getVehicleSystems( )->getEngineModels( ).at( "AltitudeEngine" );
+        currentEngine->updateEngineModel( time );
+        currentValues.push_back( currentEngine->getCurrentThrust( ) );
+
+        values.push_back( currentValues );
+    }
+    BOOST_CHECK_EQUAL( values.at( 0 ).size( ), 11 );
+    BOOST_CHECK_EQUAL( values.at( 1 ).size( ), values.at( 0 ).size( ) );
+    for( unsigned int i = 0; i < values.at( 0 ).size( ); i++ )
+    {
+        BOOST_CHECK( !std::isnan( values.at( 0 ).at( i ) ) );
+        BOOST_CHECK_CLOSE_FRACTION( values.at( 1 ).at( i ), values.at( 0 ).at( i ), 1.0E-14 );
+    }
+    BOOST_CHECK( values.at( 0 ).at( 10 ) > 1.0 );
+
+    // Copied models are linked to the copied bodies: changes in the copy change the copied models only (if the original were linked
+    // to the copied bodies, the original and copied models would give equal results)
+    const Eigen::Vector3d displacement = deformation->calculateDisplacement( time + 1.0, stationPosition );
+    bodiesCopy.at( "Moon" )->getGravityFieldModel( )->resetGravitationalParameter(
+            2.0 * bodiesCopy.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( ) );
+    BOOST_CHECK( ( deformationCopy->calculateDisplacement( time + 1.0, stationPosition ) - displacement ).norm( ) >
+                 1.0E-3 * displacement.norm( ) );
+    BOOST_CHECK( ( deformation->calculateDisplacement( time + 2.0, stationPosition ) -
+                   deformationCopy->calculateDisplacement( time + 2.0, stationPosition ) )
+                         .norm( ) > 1.0E-3 * displacement.norm( ) );
+
+    // (evaluation of tidal deformation above resets the current states of the bodies involved)
+    setBodyStates( bodies, time );
+    setBodyStates( bodiesCopy, time );
+    const double thrust = engine->getCurrentThrust( );
+    const Eigen::Vector3d vehicleRadialDirection =
+            ( bodiesCopy.at( "Vehicle" )->getPosition( ) - bodiesCopy.at( "Earth" )->getPosition( ) ).normalized( );
+    bodiesCopy.at( "Vehicle" )->setState( bodiesCopy.at( "Vehicle" )->getState( ) +
+                                          ( Eigen::Vector6d( ) << 1.0E4 * vehicleRadialDirection, Eigen::Vector3d::Zero( ) ).finished( ) );
+    for( const SystemOfBodies& currentBodies : { bodies, bodiesCopy } )
+    {
+        currentBodies.at( "Vehicle" )->getFlightConditions( )->resetCurrentTime( );
+        currentBodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( time );
+        currentBodies.at( "Vehicle" )->getVehicleSystems( )->getEngineModels( ).at( "AltitudeEngine" )->resetCurrentTime( );
+        currentBodies.at( "Vehicle" )->getVehicleSystems( )->getEngineModels( ).at( "AltitudeEngine" )->updateEngineModel( time );
+    }
+    BOOST_CHECK_CLOSE_FRACTION( engineCopy->getCurrentThrust( ) - thrust, 1.0E4 / 1.0E6, 1.0E-2 );
+    BOOST_CHECK_EQUAL( engine->getCurrentThrust( ), thrust );
+
+    spaceTimePropertiesCopy->getPpnParameterSet( )->setParameterGamma( 0.9 );
+    BOOST_CHECK_EQUAL( spaceTimeProperties->getPpnParameterSet( )->getParameterGamma( ), 1.0 );
+
+    // Approximate JPL ephemeris (defined w.r.t. ecliptic) is recreated in the copy
+    BodyListSettings eclipticBodySettings( "SSB", "ECLIPJ2000" );
+    eclipticBodySettings.addSettings( "Sun" );
+    eclipticBodySettings.at( "Sun" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
+    eclipticBodySettings.addSettings( "Jupiter" );
+    eclipticBodySettings.at( "Jupiter" )->ephemerisSettings = approximateJplEphemerisSettings( "Jupiter" );
+    SystemOfBodies eclipticBodies = createSystemOfBodies( eclipticBodySettings );
+    SystemOfBodies eclipticBodiesCopy = createSystemOfBodiesCopy( eclipticBodies, false );
+    BOOST_CHECK( eclipticBodies.at( "Jupiter" )->getEphemeris( ) != eclipticBodiesCopy.at( "Jupiter" )->getEphemeris( ) );
+    BOOST_CHECK( std::dynamic_pointer_cast< ApproximateJplEphemeris >( eclipticBodiesCopy.at( "Jupiter" )->getEphemeris( ) ) != nullptr );
+    const Eigen::Vector6d jupiterState = eclipticBodies.at( "Jupiter" )->getEphemeris( )->getCartesianState( time );
+    const Eigen::Vector6d jupiterStateCopy = eclipticBodiesCopy.at( "Jupiter" )->getEphemeris( )->getCartesianState( time );
+    for( int i = 0; i < 6; i++ )
+    {
+        BOOST_CHECK_EQUAL( jupiterStateCopy( i ), jupiterState( i ) );
     }
 }
 
@@ -964,9 +1123,7 @@ std::vector< std::map< double, Eigen::VectorXd > > propagateTestVehicleArcs( con
     }
     for( const std::string& bodyName : bodiesToPropagate )
     {
-        bodies.at( bodyName )
-                ->setEphemeris(
-                        std::make_shared< MultiArcEphemeris >( std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "J2000" ) );
+        addEmptyEphemeris< double, double >( bodies.at( bodyName ), "Earth", "J2000", true, true );
     }
 
     SelectedAccelerationMap accelerationMap;

@@ -78,6 +78,10 @@ Eigen::Vector3d PointingAnglesCalculator::convertVectorFromInertialToTopocentric
                                                                                        const double time )
 {
     // Calculate anf combine constituent rotations.
+    if( rotationFromInertialToBodyFixedFrame_ == nullptr || rotationFromBodyFixedToTopoCentricFrame_ == nullptr )
+    {
+        throw std::runtime_error( "Error in pointing angles calculator, model is not closed (no rotation functions)" );
+    }
     return rotationFromBodyFixedToTopoCentricFrame_( time ) * rotationFromInertialToBodyFixedFrame_( time ) * inertialVector;
 }
 

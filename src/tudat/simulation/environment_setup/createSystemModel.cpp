@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -214,13 +215,25 @@ bool applyEnvironmentModelClosure( const std::shared_ptr< system_models::Vehicle
         }
     }
 
-    // Closure of parameterized thrust magnitude (which depends on flight conditions) is not implemented
+    // Input variables of parameterized thrust magnitude (which may require closed flight conditions)
     for( auto engineModel : vehicleSystems->getEngineModels( ) )
     {
-        if( std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >(
-                    engineModel.second->getThrustMagnitudeWrapper( ) ) != nullptr )
+        std::shared_ptr< propulsion::ParameterizedThrustMagnitudeWrapper > parameterizedThrustMagnitude =
+                std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >( engineModel.second->getThrustMagnitudeWrapper( ) );
+        if( parameterizedThrustMagnitude != nullptr )
         {
-            return false;
+            std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodies.at( bodyName )->getFlightConditions( );
+            if( flightConditions != nullptr && flightConditions->getAerodynamicAngleCalculator( ) == nullptr )
+            {
+                return false;
+            }
+            parameterizedThrustMagnitude->applyEnvironmentModelClosure(
+                    getPropulsionInputVariables( bodies.at( bodyName ),
+                                                 parameterizedThrustMagnitude->getThrustIndependentVariables( ),
+                                                 parameterizedThrustMagnitude->getThrustGuidanceInputFunctions( ) ),
+                    getPropulsionInputVariables( bodies.at( bodyName ),
+                                                 parameterizedThrustMagnitude->getSpecificImpulseDependentVariables( ),
+                                                 parameterizedThrustMagnitude->getSpecificImpulseGuidanceInputFunctions( ) ) );
         }
     }
     return true;

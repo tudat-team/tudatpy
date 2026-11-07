@@ -65,6 +65,32 @@ public:
         return calculateDisplacement( time, stationState->getNominalCartesianPosition( ) );
     }
 
+    //! Function to set the names of the bodies causing the deformation (used by closure of this model)
+    void setDeformingBodyNames( const std::vector< std::string >& deformingBodyNames )
+    {
+        deformingBodyNames_ = deformingBodyNames;
+    }
+
+    std::vector< std::string > getDeformingBodyNames( ) const
+    {
+        return deformingBodyNames_;
+    }
+
+    //! Function to apply the closure of this model: (re)set the functions for states, rotation and masses of the bodies involved
+    void applyEnvironmentModelClosure( const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
+                                       const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyStateFunctions,
+                                       const std::function< Eigen::Quaterniond( const double ) > deformedBodyRotationFunction,
+                                       const std::function< double( ) > gravitionalParameterOfDeformedBody,
+                                       const std::vector< std::function< double( ) > >& gravitionalParametersOfDeformingBodies )
+    {
+        deformedBodyStateFunction_ = deformedBodyStateFunction;
+        deformingBodyStateFunctions_ = deformingBodyStateFunctions;
+        deformedBodyRotationFunction_ = deformedBodyRotationFunction;
+        gravitionalParameterOfDeformedBody_ = gravitionalParameterOfDeformedBody;
+        gravitionalParametersOfDeformingBodies_ = gravitionalParametersOfDeformingBodies;
+        currentTime_ = TUDAT_NAN;
+    }
+
 protected:
     void updateBodyProperties( const double time );
 
@@ -92,6 +118,8 @@ protected:
     std::vector< Eigen::Vector3d > relativeBodyStates_;
 
     std::vector< double > gravitationalParameterRatios_;
+
+    std::vector< std::string > deformingBodyNames_;
 };
 
 }  // namespace basic_astrodynamics

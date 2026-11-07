@@ -83,6 +83,7 @@ int getPlanetIndex( const std::string& bodyName )
 //! Set planet.
 void ApproximateJplSolarSystemEphemerisBase::setPlanet( const std::string& bodyName )
 {
+    bodyName_ = bodyName;
     // Check if ephemeris data has been loaded, and reload data if not.
     if( containerOfDataFromEphemerisFile_.size( ) == 0 )
     {

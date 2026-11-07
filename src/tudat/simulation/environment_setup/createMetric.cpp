@@ -19,8 +19,6 @@
 namespace tudat
 {
 
-std::map< std::pair< std::string, std::string >, std::shared_ptr< relativity::Metric > > evaluatedMetricObjects;
-
 namespace simulation_setup
 {
 

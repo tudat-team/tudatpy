@@ -356,6 +356,11 @@ void setEstrackWeatherDataInGroundStationSettings(
  * \param groundStationName Name of ground station that is to be created
  * \param groundStationState Object defining the state of the ground-station in a body-fixed frame
  */
+//! Function to apply the closure of a ground station (link to the rotation model, deformation and states of bodies)
+bool applyEnvironmentModelClosure( const std::shared_ptr< ground_stations::GroundStation > groundStation,
+                                   const std::shared_ptr< Body > body,
+                                   const SystemOfBodies& bodies );
+
 void createGroundStation( const std::shared_ptr< Body > body,
                           const std::string groundStationName,
                           const std::shared_ptr< ground_stations::GroundStationState > groundStationState );

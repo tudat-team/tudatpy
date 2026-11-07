@@ -88,6 +88,11 @@ class VehicleSystems;
 
 namespace simulation_setup
 {
+class SpaceTimeMetricSettings;
+}
+
+namespace simulation_setup
+{
 
 //! Types of environment models of a body that may require closure (links to environment models of other bodies, or of the
 //! same body), which is applied in the setup layer (see environmentModelClosure.h)
@@ -98,7 +103,10 @@ enum EnvironmentModelClosureType {
     aerodynamic_coefficients_closure,
     vehicle_systems_closure,
     radiation_source_closure,
-    radiation_pressure_target_closure
+    radiation_pressure_target_closure,
+    atmosphere_closure,
+    ground_stations_closure,
+    body_deformation_closure
 };
 
 //! Body class representing the properties of a celestial body (natural or artificial).
@@ -1205,11 +1213,14 @@ void addEmptyEphemeris( const std::shared_ptr< Body > body,
     if( !ephemerisIsMultiArc )
     {
         body->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                nullptr, centralBody, frameOrientation ) );
+                typename ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType >::StateInterpolatorPointer( ),
+                centralBody,
+                frameOrientation ) );
     }
     else
     {
-        body->setEphemeris( std::make_shared< ephemerides::MultiArcEphemeris >( nullptr, centralBody, frameOrientation ) );
+        body->setEphemeris( std::make_shared< ephemerides::MultiArcEphemeris >(
+                std::map< double, std::shared_ptr< ephemerides::Ephemeris > >( ), centralBody, frameOrientation ) );
     }
 }
 
@@ -1267,12 +1278,33 @@ public:
         baseMetric_ = baseMetric;
     }
 
+    //! Function to set the settings from which the base metric is created (used to recreate the metric for a copy of the bodies)
+    void setBaseMetricSettings( const std::shared_ptr< SpaceTimeMetricSettings >& baseMetricSettings )
+    {
+        baseMetricSettings_ = baseMetricSettings;
+    }
+
+    std::shared_ptr< SpaceTimeMetricSettings > getBaseMetricSettings( ) const
+    {
+        return baseMetricSettings_;
+    }
+
+    //! Function to retrieve the clones of the base metric, evaluated at a given reference point (used by proper time models)
+    std::map< std::pair< std::string, std::string >, std::shared_ptr< relativity::Metric > >& getEvaluatedMetricObjects( )
+    {
+        return evaluatedMetricObjects_;
+    }
+
 private:
     std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
 
     double equivalencePrincipleLpiViolationParameter_;
 
     std::shared_ptr< relativity::Metric > baseMetric_;
+
+    std::shared_ptr< SpaceTimeMetricSettings > baseMetricSettings_;
+
+    std::map< std::pair< std::string, std::string >, std::shared_ptr< relativity::Metric > > evaluatedMetricObjects_;
 };
 
 class SystemOfBodies

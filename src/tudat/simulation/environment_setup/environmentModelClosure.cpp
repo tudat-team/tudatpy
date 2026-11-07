@@ -9,7 +9,17 @@
  */
 
 #include "tudat/simulation/environment_setup/environmentModelClosure.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/aerodynamics/comaWindModel.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "tudat/astro/aerodynamics/customConstantTemperatureAtmosphere.h"
+#include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
+#include "tudat/astro/aerodynamics/standardAtmosphere.h"
+#include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
+#include "tudat/astro/aerodynamics/windModel.h"
+#include "tudat/astro/ground_stations/basicTidalBodyDeformation.h"
+#include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
+#include "tudat/astro/ground_stations/poleTideDeformation.h"
 #include "tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
@@ -34,12 +44,21 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#if TUDAT_BUILD_WITH_NRLMSISE
+#include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
+#endif
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+#include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
+#endif
 
 namespace tudat
 {
@@ -213,6 +232,81 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< electromagnetism
     return false;
 }
 
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
+{
+    using namespace aerodynamics;
+
+    if( atmosphereModel == nullptr )
+    {
+        return false;
+    }
+
+    std::shared_ptr< WindModel > windModel = atmosphereModel->getWindModel( );
+    if( isModelOfType< ComaWindModel >( windModel ) )
+    {
+        return true;
+    }
+    else if( windModel != nullptr && !isModelOfType< ConstantWindModel >( windModel ) && !isModelOfType< CustomWindModel >( windModel ) &&
+             !isModelOfType< EmptyWindModel >( windModel ) )
+    {
+        throwUnknownModelTypeError( "wind model" );
+    }
+
+    if( isModelOfType< ComaModel >( atmosphereModel ) )
+    {
+        return true;
+    }
+    else if( isModelOfType< ScaledAtmosphereModel >( atmosphereModel ) )
+    {
+        return doesEnvironmentModelRequireClosure(
+                std::dynamic_pointer_cast< ScaledAtmosphereModel >( atmosphereModel )->getBaseAtmosphere( ) );
+    }
+    else if( isModelOfType< StandardAtmosphere >( atmosphereModel ) || isModelOfType< TabulatedAtmosphere >( atmosphereModel ) ||
+             isModelOfType< CustomConstantTemperatureAtmosphere >( atmosphereModel ) ||
+             isModelOfType< CustomNumberDensityAtmosphere >( atmosphereModel ) ||
+             isModelOfType< MarsDtmAtmosphereModel >( atmosphereModel ) )
+    {
+        return false;
+    }
+#if TUDAT_BUILD_WITH_NRLMSISE
+    else if( isModelOfType< NRLMSISE00Atmosphere >( atmosphereModel ) )
+    {
+        return false;
+    }
+#endif
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+    else if( isModelOfType< McdAtmosphereModel >( atmosphereModel ) )
+    {
+        return false;
+    }
+#endif
+    throwUnknownModelTypeError( "atmosphere model" );
+    return false;
+}
+
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< ground_stations::GroundStation > groundStation )
+{
+    // Pointing angles calculator is linked to the rotation model of the body
+    return groundStation != nullptr;
+}
+
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel )
+{
+    using namespace basic_astrodynamics;
+
+    if( deformationModel == nullptr || isModelOfType< PoleTideDeformation >( deformationModel ) ||
+        isModelOfType< OceanTideEarthDeformation >( deformationModel ) )
+    {
+        return false;
+    }
+    else if( isModelOfType< BasicTidalBodyDeformation >( deformationModel ) )
+    {
+        return true;
+    }
+    throwUnknownModelTypeError( "body deformation model" );
+    return false;
+}
+
 void registerEnvironmentModelClosures( const std::shared_ptr< Body > body )
 {
     if( doesEnvironmentModelRequireClosure( body->getRotationalEphemeris( ) ) )
@@ -246,6 +340,24 @@ void registerEnvironmentModelClosures( const std::shared_ptr< Body > body )
             body->setEnvironmentModelRequiresClosure( radiation_pressure_target_closure );
         }
     }
+    if( doesEnvironmentModelRequireClosure( body->getAtmosphereModel( ) ) )
+    {
+        body->setEnvironmentModelRequiresClosure( atmosphere_closure );
+    }
+    for( auto groundStation : body->getGroundStationMap( ) )
+    {
+        if( doesEnvironmentModelRequireClosure( groundStation.second ) )
+        {
+            body->setEnvironmentModelRequiresClosure( ground_stations_closure );
+        }
+    }
+    for( auto deformationModel : body->getBodyDeformationModels( ) )
+    {
+        if( doesEnvironmentModelRequireClosure( deformationModel ) )
+        {
+            body->setEnvironmentModelRequiresClosure( body_deformation_closure );
+        }
+    }
 }
 
 bool applyEnvironmentModelClosure( const EnvironmentModelClosureType closureType,
@@ -274,6 +386,30 @@ bool applyEnvironmentModelClosure( const EnvironmentModelClosureType closureType
                 isClosureApplied = applyEnvironmentModelClosure( targetModel, bodyName, bodies ) && isClosureApplied;
             }
             return isClosureApplied;
+        }
+        case atmosphere_closure: {
+            std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel = body->getAtmosphereModel( );
+            std::shared_ptr< aerodynamics::ScaledAtmosphereModel > scaledAtmosphere =
+                    std::dynamic_pointer_cast< aerodynamics::ScaledAtmosphereModel >( atmosphereModel );
+            if( scaledAtmosphere != nullptr )
+            {
+                atmosphereModel = scaledAtmosphere->getBaseAtmosphere( );
+            }
+            return applyEnvironmentModelClosure( atmosphereModel, bodyName, bodies );
+        }
+        case ground_stations_closure: {
+            for( auto groundStation : body->getGroundStationMap( ) )
+            {
+                applyEnvironmentModelClosure( groundStation.second, body, bodies );
+            }
+            return true;
+        }
+        case body_deformation_closure: {
+            for( auto deformationModel : body->getBodyDeformationModels( ) )
+            {
+                applyEnvironmentModelClosure( deformationModel, bodyName, bodies );
+            }
+            return true;
         }
         default:
             throw std::runtime_error( "Error when applying closure of environment model of body " + bodyName + ", closure type " +

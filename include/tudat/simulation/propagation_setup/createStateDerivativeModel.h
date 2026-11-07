@@ -162,6 +162,8 @@ std::shared_ptr< RelativisticTimeStateDerivative< StateScalarType, TimeType > > 
         const std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > conversionSettings,
         const simulation_setup::SystemOfBodies& bodies )
 {
+    std::map< std::pair< std::string, std::string >, std::shared_ptr< relativity::Metric > >& evaluatedMetricObjects =
+            bodies.getSpaceTimeProperties( )->getEvaluatedMetricObjects( );
     if( evaluatedMetricObjects.count( conversionSettings->getReferencePointId( ) ) == 0 )
     {
         std::shared_ptr< relativity::Metric > baseMetric = bodies.getSpaceTimeProperties( )->getBaseMetric( );

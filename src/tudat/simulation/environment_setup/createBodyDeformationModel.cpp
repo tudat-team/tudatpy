@@ -88,6 +88,60 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
     return deformationModel;
 }
 
+bool applyEnvironmentModelClosure( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies )
+{
+    using namespace tudat::basic_astrodynamics;
+
+    // Only tidal deformation models are linked to other bodies
+    std::shared_ptr< BasicTidalBodyDeformation > tidalDeformationModel =
+            std::dynamic_pointer_cast< BasicTidalBodyDeformation >( deformationModel );
+    if( tidalDeformationModel == nullptr )
+    {
+        return true;
+    }
+
+    // IERS 2010 model (always of the Earth) uses states from ephemerides directly, basic model uses states in global frame
+    const bool useEphemerisStates = std::dynamic_pointer_cast< Iers2010EarthDeformation >( deformationModel ) != nullptr;
+    const std::string deformedBody = useEphemerisStates ? "Earth" : body;
+    std::vector< std::string > bodiesInvolved = tidalDeformationModel->getDeformingBodyNames( );
+    bodiesInvolved.insert( bodiesInvolved.begin( ), deformedBody );
+
+    std::vector< std::function< Eigen::Vector6d( const double ) > > stateFunctions;
+    std::vector< std::function< double( ) > > gravitationalParameterFunctions;
+    for( const std::string& bodyName : bodiesInvolved )
+    {
+        if( bodies.count( bodyName ) == 0 || bodies.at( bodyName )->getGravityFieldModel( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when applying closure of tidal deformation model of " + body + ", body " + bodyName +
+                                      " not found, or has no gravity field" );
+        }
+        if( useEphemerisStates )
+        {
+            stateFunctions.push_back(
+                    std::bind( &ephemerides::Ephemeris::getCartesianState, bodies.at( bodyName )->getEphemeris( ), std::placeholders::_1 ) );
+        }
+        else
+        {
+            stateFunctions.push_back(
+                    std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( bodyName ), std::placeholders::_1 ) );
+        }
+        gravitationalParameterFunctions.push_back(
+                std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodies.at( bodyName )->getGravityFieldModel( ) ) );
+    }
+
+    tidalDeformationModel->applyEnvironmentModelClosure(
+            stateFunctions.at( 0 ),
+            std::vector< std::function< Eigen::Vector6d( const double ) > >( stateFunctions.begin( ) + 1, stateFunctions.end( ) ),
+            std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
+                       bodies.at( deformedBody )->getRotationalEphemeris( ),
+                       std::placeholders::_1 ),
+            gravitationalParameterFunctions.at( 0 ),
+            std::vector< std::function< double( ) > >( gravitationalParameterFunctions.begin( ) + 1, gravitationalParameterFunctions.end( ) ) );
+    return true;
+}
+
 std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformationModel(
         const std::shared_ptr< BodyDeformationSettings > bodyDeformationSettings,
         const std::string body,
@@ -172,6 +226,8 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                         gravitionalParametersOfDeformingBodies,
                         deformationReferenceRadius,
                         basicSolidBodyDeformationSettings->getDisplacementLoveNumbers( ) );
+                std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( bodyDeformationModel )
+                        ->setDeformingBodyNames( deformingBodies );
             }
             break;
         }
@@ -201,6 +257,8 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Earth" )->getGravityFieldModel( ) ),
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Moon" )->getGravityFieldModel( ) ),
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Sun" )->getGravityFieldModel( ) ) );
+            std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( bodyDeformationModel )
+                    ->setDeformingBodyNames( { "Moon", "Sun" } );
             break;
         }
         case pole_tide: {

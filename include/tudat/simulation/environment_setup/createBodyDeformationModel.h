@@ -142,6 +142,11 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
         const std::string body,
         const SystemOfBodies& bodyMap );
 
+//! Function to apply the closure of a body deformation model (link tidal deformation to the bodies involved)
+bool applyEnvironmentModelClosure( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies );
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

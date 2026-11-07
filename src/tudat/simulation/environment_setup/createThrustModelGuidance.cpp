@@ -309,6 +309,9 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
                     parameterizedThrustMagnitudeSettings->thrustIndependentVariables_,
                     parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_,
                     parameterizedThrustMagnitudeSettings->inputUpdateFunction_ );
+            std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >( thrustMagnitudeWrapper )
+                    ->setGuidanceInputFunctions( parameterizedThrustMagnitudeSettings->thrustGuidanceInputVariables_,
+                                                 parameterizedThrustMagnitudeSettings->specificImpulseGuidanceInputVariables_ );
 
             break;
         }

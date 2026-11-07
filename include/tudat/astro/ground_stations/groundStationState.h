@@ -230,6 +230,16 @@ public:
         return siteId_;
     }
 
+    std::shared_ptr< StationMotionModel > getStationMotionModel( )
+    {
+        return stationMotionModel_;
+    }
+
+    void setStationMotionModel( const std::shared_ptr< StationMotionModel > stationMotionModel )
+    {
+        stationMotionModel_ = stationMotionModel;
+    }
+
 protected:
     //! Function to reset the rotation from the body-fixed to local topocentric frame, and associated unit vectors
     void setTransformationAndUnitVectors( );
@@ -377,17 +387,37 @@ public:
         centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
         useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
         scaleToTdbCompatibleCoordinates_( scaleToTdbCompatibleCoordinates )
-    {
-        if( useGeneralRelativisticCorrection &&
-            ( centralBodyGravitationalParameterFunction == nullptr || centralBodyBarycentricPositionFunction == nullptr ) )
-        {
-            throw std::runtime_error(
-                    "Error wen creating body- to barycentric station position conversion, GR correction requested, but required functions "
-                    "not provided" );
-        }
-    }
+    { }
 
     ~BodyCentricToBarycentricRelativisticStationMotion( ) {}
+
+    //! Function to apply the closure of this model: (re)set the functions for the states and rotation of the bodies involved
+    void applyEnvironmentModelClosure( const std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction,
+                                       const std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction,
+                                       const std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction,
+                                       const std::function< double( ) > centralBodyGravitationalParameterFunction )
+    {
+        bodyBarycentricStateFunction_ = bodyBarycentricStateFunction;
+        centralBodyBarycentricPositionFunction_ = centralBodyBarycentricPositionFunction;
+        inertialToBodyFixedRotationFunction_ = inertialToBodyFixedRotationFunction;
+        centralBodyGravitationalParameterFunction_ = centralBodyGravitationalParameterFunction;
+    }
+
+    //! Function to set the name of the central body of the general relativistic correction (used by closure of this model)
+    void setCentralBodyName( const std::string& centralBodyName )
+    {
+        centralBodyName_ = centralBodyName;
+    }
+
+    std::string getCentralBodyName( ) const
+    {
+        return centralBodyName_;
+    }
+
+    bool getUseGeneralRelativisticCorrection( ) const
+    {
+        return useGeneralRelativisticCorrection_;
+    }
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
@@ -414,6 +444,8 @@ protected:
 
     // Boolean denoting whether TT-compatible station coordinates are scaled to TDB-compatible coordinates (L_C term)
     bool scaleToTdbCompatibleCoordinates_;
+
+    std::string centralBodyName_;
 };
 
 struct CustomStationMotionModel : public StationMotionModel {
@@ -438,6 +470,11 @@ protected:
 struct CombinedStationMotionModel : public StationMotionModel {
 public:
     CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList ): modelList_( modelList ) {}
+
+    const std::vector< std::shared_ptr< StationMotionModel > >& getModelList( ) const
+    {
+        return modelList_;
+    }
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,

@@ -166,6 +166,76 @@ void setEstrackWeatherDataInGroundStationSettings( const std::vector< std::share
                                                   interpolatorSettings );
 }
 
+//! Function to apply the closure of a station motion model (link to the body on which the station is located, and its central body)
+void applyStationMotionModelClosure( const std::shared_ptr< ground_stations::StationMotionModel > stationMotionModel,
+                                     const std::shared_ptr< Body > body,
+                                     const SystemOfBodies& bodies )
+{
+    using namespace ground_stations;
+
+    std::shared_ptr< BodyDeformationStationMotionModel > deformationStationMotion =
+            std::dynamic_pointer_cast< BodyDeformationStationMotionModel >( stationMotionModel );
+    std::shared_ptr< BodyCentricToBarycentricRelativisticStationMotion > relativisticStationMotion =
+            std::dynamic_pointer_cast< BodyCentricToBarycentricRelativisticStationMotion >( stationMotionModel );
+    std::shared_ptr< CombinedStationMotionModel > combinedStationMotion =
+            std::dynamic_pointer_cast< CombinedStationMotionModel >( stationMotionModel );
+    if( deformationStationMotion != nullptr )
+    {
+        deformationStationMotion->applyEnvironmentModelClosure( std::bind( &Body::getBodyDeformationModelsReference, body ) );
+    }
+    else if( relativisticStationMotion != nullptr )
+    {
+        if( bodies.getFrameOrigin( ) != "SSB" )
+        {
+            throw std::runtime_error(
+                    "Error when getting body state function for (body-centered to barycentered) ground station motion model, only "
+                    "SSB global frame origin is currently supported" );
+        }
+        std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction = nullptr;
+        std::function< double( ) > centralBodyGravitationalParameterFunction = nullptr;
+        if( relativisticStationMotion->getUseGeneralRelativisticCorrection( ) )
+        {
+            std::string centralBodyName = relativisticStationMotion->getCentralBodyName( );
+            if( bodies.count( centralBodyName ) == 0 || bodies.at( centralBodyName )->getGravityFieldModel( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " +
+                                          centralBodyName + " not found, or has no gravity field" );
+            }
+            centralBodyBarycentricPositionFunction = std::bind(
+                    &Body::getPositionInBaseFrameFromEphemeris< double, double >, bodies.at( centralBodyName ), std::placeholders::_1 );
+            centralBodyGravitationalParameterFunction =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodies.at( centralBodyName )->getGravityFieldModel( ) );
+        }
+        relativisticStationMotion->applyEnvironmentModelClosure(
+                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, body, std::placeholders::_1 ),
+                centralBodyBarycentricPositionFunction,
+                std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, body->getRotationalEphemeris( ), std::placeholders::_1 ),
+                centralBodyGravitationalParameterFunction );
+    }
+    else if( combinedStationMotion != nullptr )
+    {
+        for( auto stationMotionModelIterator : combinedStationMotion->getModelList( ) )
+        {
+            applyStationMotionModelClosure( stationMotionModelIterator, body, bodies );
+        }
+    }
+}
+
+bool applyEnvironmentModelClosure( const std::shared_ptr< ground_stations::GroundStation > groundStation,
+                                   const std::shared_ptr< Body > body,
+                                   const SystemOfBodies& bodies )
+{
+    std::shared_ptr< ground_stations::GroundStationState > stationState = groundStation->getNominalStationState( );
+    groundStation->getPointingAnglesCalculator( )->applyEnvironmentModelClosure(
+            std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, body->getRotationalEphemeris( ), std::placeholders::_1 ),
+            std::bind( &ground_stations::GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
+    if( stationState->getStationMotionModel( ) != nullptr )
+    {
+        applyStationMotionModelClosure( stationState->getStationMotionModel( ), body, bodies );
+    }
+    return true;
+}
+
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 void createGroundStation( const std::shared_ptr< Body > body,
                           const std::string groundStationName,
@@ -283,13 +353,16 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                                        bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) );
                 }
 
-                currentStationMotionModel = std::make_shared< ground_stations::BodyCentricToBarycentricRelativisticStationMotion >(
-                        bodyBarycentricStateFunction,
-                        centralBodyBarycentricPositionFunction,
-                        inertialToBodyFixedRotationFunction,
-                        centralBodyGravitationalParameterFunction,
-                        relativisticStationMotionSettings->useGeneralRelativisticCorrection_,
-                        relativisticStationMotionSettings->scaleToTdbCompatibleCoordinates_ );
+                std::shared_ptr< ground_stations::BodyCentricToBarycentricRelativisticStationMotion > relativisticStationMotionModel =
+                        std::make_shared< ground_stations::BodyCentricToBarycentricRelativisticStationMotion >(
+                                bodyBarycentricStateFunction,
+                                centralBodyBarycentricPositionFunction,
+                                inertialToBodyFixedRotationFunction,
+                                centralBodyGravitationalParameterFunction,
+                                relativisticStationMotionSettings->useGeneralRelativisticCorrection_,
+                                relativisticStationMotionSettings->scaleToTdbCompatibleCoordinates_ );
+                relativisticStationMotionModel->setCentralBodyName( relativisticStationMotionSettings->centralBodyName_ );
+                currentStationMotionModel = relativisticStationMotionModel;
                 break;
             }
             case custom_station_motion: {

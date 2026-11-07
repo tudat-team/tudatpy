@@ -58,16 +58,6 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
     cachedInterpolationSolarLongitude_( 0.0 ), coefficientMatricesSized_( false ), cachedLatitude_( 0.0 ), cachedLongitude_( 0.0 ),
     cachedFinalWindVector_( Eigen::Vector3d::Zero( ) ), interpolationPoint2D_( 2 ), interpolationPoint1D_( 1 )
 {
-    if( !comaModel_ )
-    {
-        throw std::invalid_argument( "ComaWindModel: ComaModel must be provided" );
-    }
-
-    if( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
-    {
-        throw std::invalid_argument( "ComaWindModel: All state functions must be provided" );
-    }
-
     if( xPolyDataset_->getNumFiles( ) == 0 || yPolyDataset_->getNumFiles( ) == 0 || zPolyDataset_->getNumFiles( ) == 0 )
     {
         throw std::invalid_argument( "ComaWindModel: All PolyDatasets must contain at least one file" );
@@ -80,7 +70,10 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
 
     // Share the ComaModel's calculator; the grow-only resize logic
     // in calculateSurfaceSphericalHarmonics ensures the cache never shrinks.
-    sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
+    if( comaModel_ != nullptr )
+    {
+        sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
+    }
 
     // Pre-allocate coefficient matrices based on maximum degree/order from dataset
     const int maxDegreeAvailable = xPolyDataset_->getMaxDegreeSH( 0 );
@@ -151,16 +144,6 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
     cachedLatitude_( 0.0 ), cachedLongitude_( 0.0 ), cachedFinalWindVector_( Eigen::Vector3d::Zero( ) ), interpolationPoint2D_( 2 ),
     interpolationPoint1D_( 1 )
 {
-    if( !comaModel_ )
-    {
-        throw std::invalid_argument( "ComaWindModel: ComaModel must be provided" );
-    }
-
-    if( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
-    {
-        throw std::invalid_argument( "ComaWindModel: All state functions must be provided" );
-    }
-
     if( xStokesDataset_->nFiles( ) == 0 || yStokesDataset_->nFiles( ) == 0 || zStokesDataset_->nFiles( ) == 0 )
     {
         throw std::invalid_argument( "ComaWindModel: All StokesDatasets must contain at least one file" );
@@ -173,7 +156,10 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
 
     // Share the ComaModel's calculator; the grow-only resize logic
     // in calculateSurfaceSphericalHarmonics ensures the cache never shrinks.
-    sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
+    if( comaModel_ != nullptr )
+    {
+        sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
+    }
 
     // Pre-allocate coefficient matrices based on nmax from dataset
     const int nmax = xStokesDataset_->nmax( );
@@ -829,8 +815,8 @@ double ComaWindModel::computeWindComponentFromPolyCoefficients( std::shared_ptr<
 double ComaWindModel::computeWindComponentFromStokesCoefficients(
         std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
         const std::map< std::pair< int, int >,
-                        std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                   std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > >& interpolators,
+                        std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                   std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > >& interpolators,
         double radius,
         double longitude,
         double latitude,
@@ -1035,6 +1021,19 @@ double ComaWindModel::calculateSolarLongitude( const double time )
     return cachedSolarLongitude_;
 }
 
+void ComaWindModel::applyEnvironmentModelClosure( const std::shared_ptr< ComaModel > comaModel,
+                                                  const std::function< Eigen::Vector6d( ) > sunStateFunction,
+                                                  const std::function< Eigen::Vector6d( ) > cometStateFunction,
+                                                  const std::function< Eigen::Matrix3d( ) > cometRotationFunction )
+{
+    comaModel_ = comaModel;
+    sunStateFunction_ = sunStateFunction;
+    cometStateFunction_ = cometStateFunction;
+    cometRotationFunction_ = cometRotationFunction;
+    sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
+    cacheFlags_ = CacheFlags( );
+}
+
 /*!
  * \brief Get the active spherical harmonics calculator.
  * Returns the shared calculator from ComaModel if available, otherwise
@@ -1146,7 +1145,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                     }
 
                     // Create interpolators for x-component with periodic solar longitude
-                    auto cosineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+                    auto cosineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                             independentGrids,
                             cosineGrid,
                             interpolators::huntingAlgorithm,
@@ -1155,7 +1154,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                             periods  // Enable periodic interpolation for solar longitude
                     );
 
-                    auto sineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+                    auto sineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                             independentGrids,
                             sineGrid,
                             interpolators::huntingAlgorithm,
@@ -1186,7 +1185,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                     }
 
                     // Create interpolators for y-component with periodic solar longitude
-                    auto cosineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+                    auto cosineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                             independentGrids,
                             cosineGrid,
                             interpolators::huntingAlgorithm,
@@ -1195,7 +1194,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                             periods  // Enable periodic interpolation for solar longitude
                     );
 
-                    auto sineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+                    auto sineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                             independentGrids,
                             sineGrid,
                             interpolators::huntingAlgorithm,
@@ -1226,7 +1225,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                     }
 
                     // Create interpolators for z-component with periodic solar longitude
-                    auto cosineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+                    auto cosineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                             independentGrids,
                             cosineGrid,
                             interpolators::huntingAlgorithm,
@@ -1235,7 +1234,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                             periods  // Enable periodic interpolation for solar longitude
                     );
 
-                    auto sineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+                    auto sineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                             independentGrids,
                             sineGrid,
                             interpolators::huntingAlgorithm,
@@ -1283,7 +1282,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                     }
 
                     // Create and store reduced interpolators for x-component with periodic solar longitude
-                    auto reducedCosineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+                    auto reducedCosineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
                             reducedIndependentGrids,
                             reducedCosineGrid,
                             interpolators::huntingAlgorithm,
@@ -1292,7 +1291,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                             reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
-                    auto reducedSineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+                    auto reducedSineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
                             reducedIndependentGrids,
                             reducedSineGrid,
                             interpolators::huntingAlgorithm,
@@ -1320,7 +1319,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                     }
 
                     // Create and store reduced interpolators for y-component with periodic solar longitude
-                    auto reducedCosineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+                    auto reducedCosineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
                             reducedIndependentGrids,
                             reducedCosineGrid,
                             interpolators::huntingAlgorithm,
@@ -1329,7 +1328,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                             reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
-                    auto reducedSineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+                    auto reducedSineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
                             reducedIndependentGrids,
                             reducedSineGrid,
                             interpolators::huntingAlgorithm,
@@ -1357,7 +1356,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                     }
 
                     // Create and store reduced interpolators for z-component with periodic solar longitude
-                    auto reducedCosineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+                    auto reducedCosineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
                             reducedIndependentGrids,
                             reducedCosineGrid,
                             interpolators::huntingAlgorithm,
@@ -1366,7 +1365,7 @@ void ComaWindModel::initializeStokesInterpolators( )
                             reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
-                    auto reducedSineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+                    auto reducedSineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
                             reducedIndependentGrids,
                             reducedSineGrid,
                             interpolators::huntingAlgorithm,
@@ -1396,8 +1395,8 @@ void ComaWindModel::initializeStokesInterpolators( )
 void ComaWindModel::createFallback2DInterpolator(
         std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
         std::deque< std::map< std::pair< int, int >,
-                              std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                         std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >&
+                              std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                         std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >&
                 fallbackCache,
         const int fileIndex,
         const int degree,
@@ -1458,7 +1457,7 @@ void ComaWindModel::createFallback2DInterpolator(
     periods[ 0 ] = 0.0;                               // Radius is non-periodic
     periods[ 1 ] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
 
-    auto cosineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+    auto cosineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
             independentGrids,
             cosineGrid,
             interpolators::huntingAlgorithm,
@@ -1467,7 +1466,7 @@ void ComaWindModel::createFallback2DInterpolator(
             periods  // Enable periodic interpolation for solar longitude
     );
 
-    auto sineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+    auto sineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
             independentGrids,
             sineGrid,
             interpolators::huntingAlgorithm,
@@ -1500,8 +1499,8 @@ void ComaWindModel::createFallback2DInterpolator(
 void ComaWindModel::createFallback1DInterpolator(
         std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
         std::deque< std::map< std::pair< int, int >,
-                              std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                         std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >&
+                              std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                         std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >&
                 fallbackCache,
         const int fileIndex,
         const int degree,
@@ -1551,7 +1550,7 @@ void ComaWindModel::createFallback1DInterpolator(
     std::vector< double > reducedPeriods( 1 );
     reducedPeriods[ 0 ] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
 
-    auto reducedCosineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+    auto reducedCosineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
             reducedIndependentGrids,
             reducedCosineGrid,
             interpolators::huntingAlgorithm,
@@ -1560,7 +1559,7 @@ void ComaWindModel::createFallback1DInterpolator(
             reducedPeriods  // Enable periodic interpolation for solar longitude
     );
 
-    auto reducedSineInterpolator = std::make_unique< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+    auto reducedSineInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
             reducedIndependentGrids,
             reducedSineGrid,
             interpolators::huntingAlgorithm,

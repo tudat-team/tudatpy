@@ -115,9 +115,16 @@ public:
     //! Destructor
     ~ComaWindModel( ) = default;
 
-    //! Delete copy constructor and copy assignment operator (class contains unique_ptr members)
-    ComaWindModel( const ComaWindModel& ) = delete;
+    //! Copy constructor (shares the immutable data and interpolators, closure must be applied to the copy)
+    ComaWindModel( const ComaWindModel& ) = default;
     ComaWindModel& operator=( const ComaWindModel& ) = delete;
+
+    //! Function to apply the closure of this model: (re)set the coma model, the state functions of Sun and comet, and the comet
+    //! rotation. The spherical harmonics calculator of the coma model is used.
+    void applyEnvironmentModelClosure( const std::shared_ptr< ComaModel > comaModel,
+                                       const std::function< Eigen::Vector6d( ) > sunStateFunction,
+                                       const std::function< Eigen::Vector6d( ) > cometStateFunction,
+                                       const std::function< Eigen::Matrix3d( ) > cometRotationFunction );
 
     //! Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
     /*!
@@ -184,66 +191,66 @@ private:
 
     //! Pre-initialized interpolators for X-component (meridional/North) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             xStokesInterpolators_;
     //! Pre-initialized interpolators for Y-component (zonal/West) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             yStokesInterpolators_;
     //! Pre-initialized interpolators for Z-component (radial outward) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             zStokesInterpolators_;
 
     //! Pre-initialized reduced interpolators for X-component Stokes coefficients (1D: solar longitude only, for radius > reference radius)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             xReducedStokesInterpolators_;
     //! Pre-initialized reduced interpolators for Y-component Stokes coefficients (1D: solar longitude only, for radius > reference radius)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             yReducedStokesInterpolators_;
     //! Pre-initialized reduced interpolators for Z-component Stokes coefficients (1D: solar longitude only, for radius > reference radius)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             zReducedStokesInterpolators_;
 
     //! Cache for fallback X-component interpolators (created on-demand, then cached for reuse)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             xFallbackStokesInterpolators_;
     //! Cache for fallback Y-component interpolators (created on-demand, then cached for reuse)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             yFallbackStokesInterpolators_;
     //! Cache for fallback Z-component interpolators (created on-demand, then cached for reuse)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
             zFallbackStokesInterpolators_;
 
     //! Cache for fallback X-component reduced interpolators (created on-demand, then cached for reuse)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             xFallbackReducedStokesInterpolators_;
     //! Cache for fallback Y-component reduced interpolators (created on-demand, then cached for reuse)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             yFallbackReducedStokesInterpolators_;
     //! Cache for fallback Z-component reduced interpolators (created on-demand, then cached for reuse)
     std::deque< std::map< std::pair< int, int >,
-                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+                          std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
             zFallbackReducedStokesInterpolators_;
 
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
@@ -378,8 +385,8 @@ private:
     double computeWindComponentFromStokesCoefficients(
             std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
             const std::map< std::pair< int, int >,
-                            std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                       std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > >& interpolators,
+                            std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                       std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > >& interpolators,
             double radius,
             double longitude,
             double latitude,
@@ -422,8 +429,8 @@ private:
     void createFallback2DInterpolator(
             std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
             std::deque< std::map< std::pair< int, int >,
-                                  std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
-                                             std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >&
+                                  std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                             std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >&
                     fallbackCache,
             int fileIndex,
             int n,
@@ -447,8 +454,8 @@ private:
     void createFallback1DInterpolator(
             std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
             std::deque< std::map< std::pair< int, int >,
-                                  std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
-                                             std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >&
+                                  std::pair< std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                             std::shared_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >&
                     fallbackCache,
             int fileIndex,
             int n,

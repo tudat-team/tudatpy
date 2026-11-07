@@ -23,8 +23,6 @@
 namespace tudat
 {
 
-extern std::map< std::pair< std::string, std::string >, std::shared_ptr< relativity::Metric > > evaluatedMetricObjects;
-
 namespace simulation_setup
 {
 
@@ -206,7 +204,8 @@ inline void createBaseMetric( const std::shared_ptr< SpaceTimeMetricSettings >& 
                               simulation_setup::SystemOfBodies& bodyMap )
 {
     bodyMap.getSpaceTimeProperties( )->setBaseMetric( createSpaceTimeMetric( spaceTimeMetricSettings, bodyMap ) );
-    evaluatedMetricObjects.clear( );
+    bodyMap.getSpaceTimeProperties( )->setBaseMetricSettings( spaceTimeMetricSettings );
+    bodyMap.getSpaceTimeProperties( )->getEvaluatedMetricObjects( ).clear( );
 }
 
 }  // namespace simulation_setup
