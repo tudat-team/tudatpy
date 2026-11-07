@@ -152,6 +152,9 @@ void expose_parameters_setup_types( py::module& m )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position,
                     R"doc(Estimatable parameter for ground station position.)doc" )
+            .value( "camera_pointing_correction_type",
+                    tep::EstimatebleParametersEnum::camera_pointing_correction,
+                    R"doc(Estimatable parameter for camera pointing correction.)doc" )
             .value( "equivalence_principle_lpi_violation_parameter_type",
                     tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter,
                     R"doc(Estimatable parameter for equivalence principle lpi violation parameter.)doc" )
@@ -2165,6 +2168,39 @@ EstimatableParameterSettings
              Settings for the requested estimatable parameter.
 
       )doc" );
+
+    m.def( "camera_pointing_correction",
+           &tep::cameraPointingCorrection,
+           py::arg( "body" ),
+           py::arg( "camera_name" ),
+           R"doc(
+
+ Function for creating parameter settings for a per-image camera pointing correction.
+
+ Function for creating parameter settings object for the pointing corrections of a camera registered on a
+ body. Each correction is a rotation vector (axis times angle, in radians) in the camera frame. A camera with
+ a pointing history per image (such as the camera created from SPC SUM files) has one correction per image,
+ which applies to the observations closest in time to that image. Otherwise, a single correction applies to
+ all observations of the camera. Using it as estimatable parameter requires:
+
+ * The body to carry a ``VehicleSystems`` with the named camera.
+ * At least one pixel-coordinate observation model to rely on the specified camera.
+
+
+ Parameters
+ ----------
+ body : str
+     Body name identifying the body (spacecraft) carrying the camera.
+ camera_name : str
+     Name which identifies the camera whose pointing is corrected.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the camera pointing correction.
+
+
+     )doc" );
 
     // ###############  Tidal Model Parameters
     // ################################

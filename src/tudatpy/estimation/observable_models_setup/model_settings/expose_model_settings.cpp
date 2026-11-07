@@ -778,6 +778,9 @@ where :math:`(x_{c},y_{c},z_{c})` are the coordinates of the observed object in 
 lengths of the camera in pixel units, and :math:`c_{x}` and :math:`c_{y}` are the coordinates of the principal point of the camera in pixel units.
 The output observable is then :math:`\mathbf{h}_{_{\text{camera}}}=[u;v]`
 
+ No lens distortion is modelled. Measured pixel coordinates must therefore be corrected for distortion before they
+ are used as observations.
+
 
 Parameters
 ----------
