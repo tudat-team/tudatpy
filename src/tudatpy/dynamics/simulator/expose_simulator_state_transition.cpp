@@ -21,6 +21,9 @@
 
 #include "scalarTypes.h"
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_math.h"
+#include "tudat/io/serialization/registrations_propagation.h"
 
 namespace py = pybind11;
 namespace tp = tudat::propagators;
@@ -129,7 +132,9 @@ void expose_simulator_state_transition_bindings( py::module& m )
          Full amount of parameters w.r.t. which partials have been set up via State Transition and Sensitivity Matrices.
 
          :type: int
-      )doc" );
+      )doc" )
+            TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::CombinedStateTransitionAndSensitivityMatrixInterface )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::CombinedStateTransitionAndSensitivityMatrixInterface );
 }
 
 }  // namespace simulator

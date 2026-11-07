@@ -13,15 +13,25 @@
 
 #include <iostream>
 #include <vector>
+#include <cstdint>
 
 #include <memory>
 
 #include <Eigen/Core>
 
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -49,6 +59,9 @@ public:
         stateTransitionMatrixSize_ = numberOfInitialDynamicalParameters;
         sensitivityMatrixSize_ = numberOfParameters - stateTransitionMatrixSize_;
     }
+
+    //! Default constructor for deserialization only — not for general use
+    CombinedStateTransitionAndSensitivityMatrixInterface( ): stateTransitionMatrixSize_( 0 ), sensitivityMatrixSize_( 0 ) {}
 
     //! Destructor.
     virtual ~CombinedStateTransitionAndSensitivityMatrixInterface( ) {}
@@ -105,12 +118,45 @@ public:
      */
     virtual int getFullParameterVectorSize( ) = 0;
 
+    //! Equality operator (used for serialization testing).
+    virtual bool operator==( const CombinedStateTransitionAndSensitivityMatrixInterface& rhs ) const
+    {
+        return ( stateTransitionMatrixSize_ == rhs.stateTransitionMatrixSize_ ) && ( sensitivityMatrixSize_ == rhs.sensitivityMatrixSize_ );
+    }
+
+    bool operator!=( const CombinedStateTransitionAndSensitivityMatrixInterface& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Save interface to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( CombinedStateTransitionAndSensitivityMatrixInterface )
+
 protected:
     //! Size of state transition matrix
     int stateTransitionMatrixSize_;
 
     //! Number of columns of sensitivity matrix.
     int sensitivityMatrixSize_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( CEREAL_NVP( stateTransitionMatrixSize_ ) );
+        ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( CEREAL_NVP( stateTransitionMatrixSize_ ) );
+        ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
+    }
 };
 
 //! Interface object for estimation runs with no numerically propagated dynamics.
@@ -131,6 +177,9 @@ public:
     ObservationOnlyStateTransitionAndSensitivityMatrixInterface( const int numberOfParameters ):
         CombinedStateTransitionAndSensitivityMatrixInterface( 0, numberOfParameters )
     {}
+
+    //! Default constructor for deserialization only — not for general use
+    ObservationOnlyStateTransitionAndSensitivityMatrixInterface( ): CombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Destructor.
     ~ObservationOnlyStateTransitionAndSensitivityMatrixInterface( ) {}
@@ -157,6 +206,40 @@ public:
     int getFullParameterVectorSize( ) override
     {
         return sensitivityMatrixSize_ + stateTransitionMatrixSize_;
+    }
+
+    //! Equality operator (used for serialization testing).
+    bool operator==( const ObservationOnlyStateTransitionAndSensitivityMatrixInterface& rhs ) const
+    {
+        return CombinedStateTransitionAndSensitivityMatrixInterface::operator==( rhs );
+    }
+
+    bool operator!=( const ObservationOnlyStateTransitionAndSensitivityMatrixInterface& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    using CombinedStateTransitionAndSensitivityMatrixInterface::operator==;
+    using CombinedStateTransitionAndSensitivityMatrixInterface::operator!=;
+
+    //! Save interface to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( ObservationOnlyStateTransitionAndSensitivityMatrixInterface )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< CombinedStateTransitionAndSensitivityMatrixInterface >( this ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< CombinedStateTransitionAndSensitivityMatrixInterface >( this ) );
     }
 };
 
@@ -199,6 +282,11 @@ public:
 
     //! Destructor.
     ~SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ) {}
+
+    //! Default constructor for deserialization only — not for general use
+    SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ):
+        CombinedStateTransitionAndSensitivityMatrixInterface( )
+    {}
 
     //! Function to reset the state transition and sensitivity matrix interpolators
     /*!
@@ -275,6 +363,42 @@ public:
         return statePartialAdditionIndices_;
     }
 
+    //! Equality operator (used for serialization testing).
+    bool operator==( const SingleArcCombinedStateTransitionAndSensitivityMatrixInterface& rhs ) const
+    {
+        if( !CombinedStateTransitionAndSensitivityMatrixInterface::operator==( rhs ) )
+        {
+            return false;
+        }
+        if( statePartialAdditionIndices_ != rhs.statePartialAdditionIndices_ )
+        {
+            return false;
+        }
+        const bool thisHasInterpolators = ( stateTransitionMatrixInterpolator_ != nullptr ) && ( sensitivityMatrixInterpolator_ != nullptr );
+        const bool rhsHasInterpolators = ( rhs.stateTransitionMatrixInterpolator_ != nullptr ) && ( rhs.sensitivityMatrixInterpolator_ != nullptr );
+        if( thisHasInterpolators != rhsHasInterpolators )
+        {
+            return false;
+        }
+        if( !thisHasInterpolators )
+        {
+            return true;
+        }
+        return ( *stateTransitionMatrixInterpolator_ == *rhs.stateTransitionMatrixInterpolator_ ) &&
+                ( *sensitivityMatrixInterpolator_ == *rhs.sensitivityMatrixInterpolator_ );
+    }
+
+    bool operator!=( const SingleArcCombinedStateTransitionAndSensitivityMatrixInterface& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    using CombinedStateTransitionAndSensitivityMatrixInterface::operator==;
+    using CombinedStateTransitionAndSensitivityMatrixInterface::operator!=;
+
+    //! Save interface to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( SingleArcCombinedStateTransitionAndSensitivityMatrixInterface )
+
 private:
     //! Predefined matrix to use as return value when calling getCombinedStateTransitionAndSensitivityMatrix.
     Eigen::MatrixXd combinedStateTransitionMatrix_;
@@ -286,6 +410,32 @@ private:
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > sensitivityMatrixInterpolator_;
 
     std::vector< std::pair< int, int > > statePartialAdditionIndices_;
+
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< CombinedStateTransitionAndSensitivityMatrixInterface >( this ) );
+        ar( CEREAL_NVP( stateTransitionMatrixInterpolator_ ) );
+        ar( CEREAL_NVP( sensitivityMatrixInterpolator_ ) );
+        ar( CEREAL_NVP( statePartialAdditionIndices_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< CombinedStateTransitionAndSensitivityMatrixInterface >( this ) );
+        ar( CEREAL_NVP( stateTransitionMatrixInterpolator_ ) );
+        ar( CEREAL_NVP( sensitivityMatrixInterpolator_ ) );
+        ar( CEREAL_NVP( statePartialAdditionIndices_ ) );
+
+        // Rebuild the scratch matrix used as return value.
+        combinedStateTransitionMatrix_ =
+                Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+    }
 };
 
 //! Interface object of interpolation of numerically propagated state transition and sensitivity matrices for multi-arc

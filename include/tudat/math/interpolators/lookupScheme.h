@@ -15,8 +15,16 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <cstdint>
+
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/math/basic/nearestNeighbourSearch.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -49,6 +57,9 @@ public:
         independentVariableValues_( independentVariableValues )
     {}
 
+    //! Default constructor for deserialization only — not for general use
+    LookUpScheme( ) {}
+
     //! Destructor.
     /*!
      * Destructor.
@@ -78,12 +89,32 @@ public:
         return independentVariableValues_.at( index );
     }
 
+    //! Save lookup scheme to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( LookUpScheme< IndependentVariableType > )
+
 protected:
     //! Vector of independent variable values in which lookup is to be performed.
     /*!
      * Vector of independent variable values in which lookup is to be performed.
      */
     std::vector< IndependentVariableType > independentVariableValues_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( CEREAL_NVP( independentVariableValues_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( CEREAL_NVP( independentVariableValues_ ) );
+    }
 };
 
 //! Look-up scheme class for nearest left neighbour search using hunting algorithm.
@@ -106,6 +137,9 @@ public:
     HuntingAlgorithmLookupScheme( const std::vector< IndependentVariableType >& independentVariableValues ):
         LookUpScheme< IndependentVariableType >( independentVariableValues ), isFirstLookupDone( 0 ), previousNearestLowerIndex_( 0 )
     {}
+
+    //! Default constructor for deserialization only — not for general use
+    HuntingAlgorithmLookupScheme( ): LookUpScheme< IndependentVariableType >( ), isFirstLookupDone( 0 ), previousNearestLowerIndex_( 0 ) {}
 
     //! Default destructor
     /*!
@@ -160,6 +194,9 @@ public:
         return newNearestLowerIndex;
     }
 
+    //! Save lookup scheme to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( HuntingAlgorithmLookupScheme< IndependentVariableType > )
+
 private:
     //! Boolean to denote whether a lookup has been done.
     /*!
@@ -172,6 +209,25 @@ private:
      * Nearest left index during previous call
      */
     int previousNearestLowerIndex_;
+
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< LookUpScheme< IndependentVariableType > >( this ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< LookUpScheme< IndependentVariableType > >( this ) );
+        // Runtime lookup state is reset on load.
+        isFirstLookupDone = false;
+        previousNearestLowerIndex_ = 0;
+    }
 };
 
 //! Look-up scheme class for nearest left neighbour search using binary search algorithm.
@@ -195,6 +251,9 @@ public:
         LookUpScheme< IndependentVariableType >( independentVariableValues )
     {}
 
+    //! Default constructor for deserialization only — not for general use
+    BinarySearchLookupScheme( ): LookUpScheme< IndependentVariableType >( ) {}
+
     //! Default destructor
     /*!
      *  Default destructor
@@ -212,6 +271,26 @@ public:
     {
         return basic_mathematics::computeNearestLeftNeighborUsingBinarySearch< IndependentVariableType >( independentVariableValues_,
                                                                                                           valueToLookup );
+    }
+
+    //! Save lookup scheme to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( BinarySearchLookupScheme< IndependentVariableType > )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< LookUpScheme< IndependentVariableType > >( this ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< LookUpScheme< IndependentVariableType > >( this ) );
     }
 };
 

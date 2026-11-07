@@ -19,6 +19,14 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <cstdint>
+
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -28,6 +36,7 @@
 #include "tudat/math/interpolators/lookupScheme.h"
 
 #include "tudat/basics/tudatExceptions.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -219,6 +228,13 @@ public:
 
     //! Destructor.
     ~LagrangeInterpolator( ) {}
+
+    //! Default constructor for deserialization only — not for general use
+    LagrangeInterpolator( ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( ), zeroEntry_( DependentVariableType( ) ),
+        numberOfStages_( 0 ), offsetEntries_( 0 ), numberOfIndependentValues_( 0 ),
+        lagrangeBoundaryHandling_( lagrange_cubic_spline_boundary_interpolation )
+    {}
 
     // Using statement to prevent compiler warning.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::interpolate;
@@ -548,6 +564,55 @@ private:
      *  \sa initializeBoundaryInterpolators
      */
     LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling_;
+
+public:
+    //! Equality operator (used for serialization testing).
+    bool operator==( const LagrangeInterpolator& rhs ) const
+    {
+        return OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::operator==( rhs ) &&
+                ( zeroEntry_ == rhs.zeroEntry_ ) && ( numberOfStages_ == rhs.numberOfStages_ ) &&
+                ( offsetEntries_ == rhs.offsetEntries_ ) && ( numberOfIndependentValues_ == rhs.numberOfIndependentValues_ ) &&
+                ( lagrangeBoundaryHandling_ == rhs.lagrangeBoundaryHandling_ );
+    }
+
+    bool operator!=( const LagrangeInterpolator& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Save interpolator to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >( this ) );
+        ar( CEREAL_NVP( zeroEntry_ ) );
+        ar( CEREAL_NVP( numberOfStages_ ) );
+        ar( CEREAL_NVP( offsetEntries_ ) );
+        ar( CEREAL_NVP( numberOfIndependentValues_ ) );
+        ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >( this ) );
+        ar( CEREAL_NVP( zeroEntry_ ) );
+        ar( CEREAL_NVP( numberOfStages_ ) );
+        ar( CEREAL_NVP( offsetEntries_ ) );
+        ar( CEREAL_NVP( numberOfIndependentValues_ ) );
+        ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
+
+        // Rebuild derived data (denominators and boundary interpolators) from the loaded base data.
+        initializeDenominators( );
+        initializeBoundaryInterpolators( this->selectedLookupScheme_ );
+    }
 };
 
 // extern template class LagrangeInterpolator< double, Eigen::VectorXd >;

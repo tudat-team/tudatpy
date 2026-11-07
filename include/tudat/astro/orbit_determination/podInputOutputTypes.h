@@ -28,6 +28,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
 #include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
@@ -1090,6 +1091,35 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return simulationResultsPerIteration_.at( bestIteration_ );
     }
 
+    //! Function to store the state transition and sensitivity matrix interface for covariance propagation.
+    /*!
+     * Stores the (serializable) state transition and sensitivity matrix interface of the best iteration, so that the
+     * covariance can be propagated in a fresh runtime without access to the OrbitDeterminationManager that produced
+     * this output.
+     * \param stateTransitionInterface Interface object used to propagate the covariance through time.
+     */
+    void setStateTransitionAndSensitivityMatrixInterface(
+            const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface )
+    {
+        stateTransitionAndSensitivityMatrixInterface_ = stateTransitionInterface;
+    }
+
+    //! Function to retrieve the state transition and sensitivity matrix interface stored for covariance propagation.
+    /*!
+     * \return Interface object used to propagate the covariance through time (nullptr if not stored).
+     */
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+    getStateTransitionAndSensitivityMatrixInterface( ) const
+    {
+        return stateTransitionAndSensitivityMatrixInterface_;
+    }
+
+    //! Function to check whether the state transition and sensitivity matrix interface is available.
+    bool hasStateTransitionAndSensitivityMatrixInterface( ) const
+    {
+        return stateTransitionAndSensitivityMatrixInterface_ != nullptr;
+    }
+
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 
@@ -1128,6 +1158,10 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     //! Populated via setInterArcContinuityDiscrepancyHistory; see comment above for rationale.
     std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory_;
 
+    //! State transition and sensitivity matrix interface of the best iteration, stored to allow covariance
+    //! propagation in a fresh runtime. Null if not stored (e.g. observation-only estimation).
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionAndSensitivityMatrixInterface_;
+
     //    //! List of numerical solutions of dynamics (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >
     //    dynamicsHistoryPerIteration_;
@@ -1157,7 +1191,10 @@ protected:
                 ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
                 ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
                 ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
-                ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ );
+                ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ ) &&
+                ( ( stateTransitionAndSensitivityMatrixInterface_ == nullptr && rhs.stateTransitionAndSensitivityMatrixInterface_ == nullptr ) ||
+                  ( stateTransitionAndSensitivityMatrixInterface_ != nullptr && rhs.stateTransitionAndSensitivityMatrixInterface_ != nullptr &&
+                    *stateTransitionAndSensitivityMatrixInterface_ == *rhs.stateTransitionAndSensitivityMatrixInterface_ ) );
     }
 
 private:
@@ -1179,6 +1216,7 @@ private:
         ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+        ar( CEREAL_NVP( stateTransitionAndSensitivityMatrixInterface_ ) );
     }
 
     template< class Archive >
@@ -1197,6 +1235,7 @@ private:
         ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+        ar( CEREAL_NVP( stateTransitionAndSensitivityMatrixInterface_ ) );
     }
 };
 

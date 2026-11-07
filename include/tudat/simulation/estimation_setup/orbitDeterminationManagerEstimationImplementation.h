@@ -406,6 +406,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     {
         estimationOutput->setSimulationResults( simulationResultsPerIteration );
     }
+
+    // Store the state transition and sensitivity matrix interface so that the covariance can be propagated in a
+    // fresh runtime from the (serializable) estimation output.
+    if( stateTransitionAndSensitivityMatrixInterface_ != nullptr )
+    {
+        estimationOutput->setStateTransitionAndSensitivityMatrixInterface( stateTransitionAndSensitivityMatrixInterface_ );
+    }
+
     if( !interArcConstraints.empty( ) )
     {
         estimationOutput->setInterArcContinuityCostHistory( interArcContinuityCostHistory );
