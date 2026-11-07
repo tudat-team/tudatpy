@@ -127,9 +127,9 @@ public:
         return getVelocityScalingFactor( linkEndType );
     }
 
-    bool isVelocityScalingNonZero( ) override
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType ) override
     {
-        return !velocityScalingFactor_.isZero( 0.0 );
+        return linkEndType == observation_models::receiver && !velocityScalingFactor_.isZero( 0.0 );
     }
 
     //! Function to get the fixed link end for last computation of update() function.
