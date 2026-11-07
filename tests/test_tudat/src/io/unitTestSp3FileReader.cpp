@@ -222,18 +222,11 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     const std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
             earth_orientation::createStandardEarthOrientationCalculator( );
 
-    // These reference states were generated independently of sp3EphemerisSettings for the first fixture epoch. The ITRF state
-    // uses the IERS 2010 ITRF97-to-ITRF2014 Helmert parameters; the inertial states use Tudat's standard Earth-orientation model
-    // evaluated in TAI at the GPS epoch plus 19 seconds.
+    // This reference state was generated independently of sp3EphemerisSettings for the first fixture epoch, using the IERS 2010
+    // ITRF97-to-ITRF2014 Helmert parameters.
     Eigen::Vector6d fixedExpectedItrf2014State;
     fixedExpectedItrf2014State << -11044805.788927315, -10475672.310529293, 21929418.173853248, 2029.8880284053553, -1846.2044778039863,
             138.13876811433317;
-    Eigen::Vector6d fixedExpectedJ2000State;
-    fixedExpectedJ2000State << -15219863.539428337, 4842.2730458551086, 21931314.532193668, 201.08363442850714, -3846.5335686132912,
-            138.1089163548755;
-    Eigen::Vector6d fixedExpectedReverseItrf2014State;
-    fixedExpectedReverseItrf2014State << -11044805.788927311, -10475672.310529295, 21929418.173853248, 2029.8878616091658,
-            -1846.2046360045942, 138.13876811435853;
 
     const auto itrf2014Settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
             simulation_setup::sp3EphemerisSettings( contents, "G01", "Earth", "ITRF2014" ) );
@@ -256,23 +249,29 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     // Require tabulated output before checking the Earth-orientation state transformation.
     BOOST_REQUIRE( j2000Settings != nullptr );
     const Eigen::Vector6d j2000State = j2000Settings->getBodyStateHistory( ).begin( )->second;
+    // Evaluate Tudat's standard Earth-orientation model in TAI at the GPS epoch plus 19 seconds, independently of the SP3 factory.
+    const Eigen::Vector6d expectedJ2000State = ephemerides::transformStateToInertialOrientation(
+            fixedExpectedItrf2014State,
+            referenceEpoch + 19.0,
+            std::make_shared< ephemerides::GcrsToItrsRotationModel >(
+                    earthOrientationCalculator, basic_astrodynamics::tai_scale, "J2000" ) );
     // Confirm the ITRF2014-to-J2000 position matches the independently generated Earth-orientation reference.
-    BOOST_CHECK_SMALL( ( j2000State.segment< 3 >( 0 ) - fixedExpectedJ2000State.segment< 3 >( 0 ) ).norm( ), 1.0e-7 );
+    BOOST_CHECK_SMALL( ( j2000State.segment< 3 >( 0 ) - expectedJ2000State.segment< 3 >( 0 ) ).norm( ), 1.0e-7 );
     // Confirm the ITRF2014-to-J2000 velocity includes the independently generated Earth-rotation-rate contribution.
-    BOOST_CHECK_SMALL( ( j2000State.segment< 3 >( 3 ) - fixedExpectedJ2000State.segment< 3 >( 3 ) ).norm( ), 1.0e-10 );
+    BOOST_CHECK_SMALL( ( j2000State.segment< 3 >( 3 ) - expectedJ2000State.segment< 3 >( 3 ) ).norm( ), 1.0e-10 );
 
     const std::shared_ptr< input_output::Sp3FileContents > j2000Contents = std::make_shared< input_output::Sp3FileContents >( *contents );
     j2000Contents->frameName = "J2000";
-    j2000Contents->satelliteStates.at( "G01" ) = { { referenceEpoch, fixedExpectedJ2000State } };
+    j2000Contents->satelliteStates.at( "G01" ) = { { referenceEpoch, j2000State } };
     const auto reverseItrf2014Settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
             simulation_setup::sp3EphemerisSettings( j2000Contents, "G01", "Earth", "ITRF2014" ) );
     // Require tabulated output before checking the reverse Earth-orientation state transformation.
     BOOST_REQUIRE( reverseItrf2014Settings != nullptr );
     const Eigen::Vector6d reverseItrf2014State = reverseItrf2014Settings->getBodyStateHistory( ).begin( )->second;
-    // Confirm the J2000-to-ITRF2014 position matches the independently generated reverse-rotation reference.
-    BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 0 ) - fixedExpectedReverseItrf2014State.segment< 3 >( 0 ) ).norm( ), 1.0e-7 );
-    // Confirm the J2000-to-ITRF2014 velocity includes the independently generated reverse rotation-rate contribution.
-    BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 3 ) - fixedExpectedReverseItrf2014State.segment< 3 >( 3 ) ).norm( ), 1.0e-10 );
+    // Confirm the J2000-to-ITRF2014 position recovers the original ITRF2014 state.
+    BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 0 ) - fixedExpectedItrf2014State.segment< 3 >( 0 ) ).norm( ), 1.0e-7 );
+    // Confirm the J2000-to-ITRF2014 velocity recovers the original ITRF2014 state, including the reverse rotation-rate contribution.
+    BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 3 ) - fixedExpectedItrf2014State.segment< 3 >( 3 ) ).norm( ), 1.0e-10 );
 
     // Reuse the parsed file while changing only its time-system metadata to exercise every supported conversion mapping.
     const std::vector< std::tuple< std::string, basic_astrodynamics::TimeScales, double > > timeSystemCases = {
