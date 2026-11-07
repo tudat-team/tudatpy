@@ -168,3 +168,8 @@ TUDAT_ADD_TEST_CASE(IonexReader
         tudat_input_output
         tudat_basic_astrodynamics
         )
+
+TUDAT_ADD_TEST_CASE(Sp3FileReader
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
