@@ -10,10 +10,13 @@
 
 #define BOOST_TEST_MAIN
 
+#include <filesystem>
 #include <thread>
 
 #include <boost/test/included/unit_test.hpp>
 
+#include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/aerodynamics/comaWindModel.h"
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
@@ -31,6 +34,7 @@
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/simulation/environment_setup/copySystemOfBodies.h"
+#include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
@@ -906,7 +910,8 @@ BOOST_AUTO_TEST_CASE( testCopyOfStationsDeformationMetricAndOtherModels )
     BOOST_CHECK( spaceTimeProperties->getPpnParameterSet( ) != spaceTimePropertiesCopy->getPpnParameterSet( ) );
     BOOST_CHECK( spaceTimePropertiesCopy->getBaseMetric( ) != nullptr );
     BOOST_CHECK( spaceTimeProperties->getBaseMetric( ) != spaceTimePropertiesCopy->getBaseMetric( ) );
-    std::shared_ptr< system_models::EngineModel > engine = bodies.at( "Vehicle" )->getVehicleSystems( )->getEngineModels( ).at( "AltitudeEngine" );
+    std::shared_ptr< system_models::EngineModel > engine =
+            bodies.at( "Vehicle" )->getVehicleSystems( )->getEngineModels( ).at( "AltitudeEngine" );
     std::shared_ptr< system_models::EngineModel > engineCopy =
             bodiesCopy.at( "Vehicle" )->getVehicleSystems( )->getEngineModels( ).at( "AltitudeEngine" );
     BOOST_CHECK( engine->getThrustMagnitudeWrapper( ) != engineCopy->getThrustMagnitudeWrapper( ) );
@@ -961,8 +966,9 @@ BOOST_AUTO_TEST_CASE( testCopyOfStationsDeformationMetricAndOtherModels )
     const double thrust = engine->getCurrentThrust( );
     const Eigen::Vector3d vehicleRadialDirection =
             ( bodiesCopy.at( "Vehicle" )->getPosition( ) - bodiesCopy.at( "Earth" )->getPosition( ) ).normalized( );
-    bodiesCopy.at( "Vehicle" )->setState( bodiesCopy.at( "Vehicle" )->getState( ) +
-                                          ( Eigen::Vector6d( ) << 1.0E4 * vehicleRadialDirection, Eigen::Vector3d::Zero( ) ).finished( ) );
+    bodiesCopy.at( "Vehicle" )
+            ->setState( bodiesCopy.at( "Vehicle" )->getState( ) +
+                        ( Eigen::Vector6d( ) << 1.0E4 * vehicleRadialDirection, Eigen::Vector3d::Zero( ) ).finished( ) );
     for( const SystemOfBodies& currentBodies : { bodies, bodiesCopy } )
     {
         currentBodies.at( "Vehicle" )->getFlightConditions( )->resetCurrentTime( );
@@ -992,6 +998,83 @@ BOOST_AUTO_TEST_CASE( testCopyOfStationsDeformationMetricAndOtherModels )
     {
         BOOST_CHECK_EQUAL( jupiterStateCopy( i ), jupiterState( i ) );
     }
+}
+
+//! Test closure and copy of coma (density and wind) model
+BOOST_AUTO_TEST_CASE( testCopyOfComaModel )
+{
+    const std::filesystem::path comaDataDirectory = std::filesystem::path( paths::getTudatTestDataPath( ) ) / "coma";
+    const std::filesystem::path windDataDirectory = comaDataDirectory / "wind" / "polynomial";
+    ComaWindModelFileProcessor windFileProcessor( std::vector< std::string >{ ( windDataDirectory / "input_poly_wind_x.txt" ).string( ) },
+                                                  std::vector< std::string >{ ( windDataDirectory / "input_poly_wind_y.txt" ).string( ) },
+                                                  std::vector< std::string >{ ( windDataDirectory / "input_poly_wind_z.txt" ).string( ) } );
+
+    BodyListSettings bodySettings( "SSB", "J2000" );
+    bodySettings.addSettings( "Sun" );
+    bodySettings.at( "Sun" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings.addSettings( "Comet" );
+    bodySettings.at( "Comet" )->ephemerisSettings = keplerEphemerisSettings(
+            ( Eigen::Vector6d( ) << 4.5E11, 0.6, 0.1, 0.4, 1.0, 0.5 ).finished( ), initialTime, 1.32712440018E20, "Sun", "J2000" );
+    bodySettings.at( "Comet" )->rotationModelSettings =
+            simpleRotationModelSettings( "J2000", "CometFixed", Eigen::Quaterniond::Identity( ), initialTime, 1.0E-4 );
+    bodySettings.at( "Comet" )->atmosphereSettings =
+            comaSettings( ComaPolyDatasetReader::readFromFiles(
+                                  { ( comaDataDirectory / "density" / "polynomial" / "input_poly_coef_test_file.txt" ).string( ) } ),
+                          0.018 );
+    bodySettings.at( "Comet" )->atmosphereSettings->setWindSettings( comaWindModelSettings( windFileProcessor.createPolyCoefDatasets( ) ) );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    SystemOfBodies bodiesCopy = createSystemOfBodiesCopy( bodies, false );
+
+    // Coma and wind models are copied, and closed in the copy
+    BOOST_CHECK( bodies.at( "Comet" )->getEnvironmentModelClosureStates( ).at( atmosphere_closure ) );
+    BOOST_CHECK( bodiesCopy.at( "Comet" )->getEnvironmentModelClosureStates( ).at( atmosphere_closure ) );
+    std::shared_ptr< AtmosphereModel > comaModel = bodies.at( "Comet" )->getAtmosphereModel( );
+    std::shared_ptr< AtmosphereModel > comaModelCopy = bodiesCopy.at( "Comet" )->getAtmosphereModel( );
+    BOOST_CHECK( std::dynamic_pointer_cast< ComaModel >( comaModelCopy ) != nullptr );
+    BOOST_CHECK( comaModelCopy != comaModel );
+    BOOST_CHECK( std::dynamic_pointer_cast< ComaWindModel >( comaModelCopy->getWindModel( ) ) != nullptr );
+    BOOST_CHECK( comaModelCopy->getWindModel( ) != comaModel->getWindModel( ) );
+    BOOST_CHECK( std::dynamic_pointer_cast< ComaModel >( comaModelCopy )->getSurfaceSphericalHarmonicsCalculator( ) !=
+                 std::dynamic_pointer_cast< ComaModel >( comaModel )->getSurfaceSphericalHarmonicsCalculator( ) );
+
+    // Copy gives the same density and wind as the original
+    const double radius = 6000.0, longitude = 0.3, latitude = 0.2;
+    // Times within the period covered by the coma data file (2015/07/21 - 2015/08/21)
+    std::vector< double > times = { 490708800.0 + 1000.0, 490708800.0 + 50000.0 };
+    for( const SystemOfBodies& currentBodies : { bodies, bodiesCopy } )
+    {
+        for( const std::string& bodyName : { "Sun", "Comet" } )
+        {
+            currentBodies.at( bodyName )->setStateFromEphemeris< double, double >( times.at( 0 ) );
+        }
+        currentBodies.at( "Comet" )->setCurrentRotationalStateToLocalFrameFromEphemeris( times.at( 0 ) );
+    }
+    const double density = comaModel->getDensity( radius, longitude, latitude, times.at( 0 ) );
+    const Eigen::Vector3d windVelocity =
+            comaModel->getWindModel( )->getCurrentBodyFixedCartesianWindVelocity( radius, longitude, latitude, times.at( 0 ) );
+    BOOST_CHECK( density > 0.0 );
+    BOOST_CHECK( windVelocity.norm( ) > 0.0 );
+    BOOST_CHECK_EQUAL( comaModelCopy->getDensity( radius, longitude, latitude, times.at( 0 ) ), density );
+    BOOST_CHECK( comaModelCopy->getWindModel( )->getCurrentBodyFixedCartesianWindVelocity( radius, longitude, latitude, times.at( 0 ) ) ==
+                 windVelocity );
+
+    // Copied models use the orientation of the copied comet (if the original were linked to the copied comet, the original and
+    // copied models would give equal results)
+    for( const SystemOfBodies& currentBodies : { bodies, bodiesCopy } )
+    {
+        for( const std::string& bodyName : { "Sun", "Comet" } )
+        {
+            currentBodies.at( bodyName )->setStateFromEphemeris< double, double >( times.at( 1 ) );
+        }
+    }
+    bodies.at( "Comet" )->setCurrentRotationalStateToLocalFrameFromEphemeris( times.at( 1 ) );
+    bodiesCopy.at( "Comet" )->setCurrentRotationalStateToLocalFrameFromEphemeris( times.at( 1 ) + 20000.0 );
+    BOOST_CHECK( comaModelCopy->getDensity( radius, longitude, latitude, times.at( 1 ) ) !=
+                 comaModel->getDensity( radius, longitude, latitude, times.at( 1 ) ) );
+    BOOST_CHECK( ( comaModelCopy->getWindModel( )->getCurrentBodyFixedCartesianWindVelocity( radius, longitude, latitude, times.at( 1 ) ) -
+                   comaModel->getWindModel( )->getCurrentBodyFixedCartesianWindVelocity( radius, longitude, latitude, times.at( 1 ) ) )
+                         .norm( ) > 0.0 );
 }
 
 //! Test whether the original and its copies can be evaluated concurrently, giving results identical to serial evaluation
