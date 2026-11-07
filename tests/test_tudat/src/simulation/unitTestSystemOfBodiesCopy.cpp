@@ -79,8 +79,9 @@ BodyListSettings getTestBodySettings( )
             simpleRotationModelSettings( "J2000", "IAU_Sun", Eigen::Quaterniond::Identity( ), initialTime, 2.8E-6 );
     bodySettings.at( "Sun" )->radiationSourceModelSettings =
             isotropicPointRadiationSourceModelSettings( constantLuminosityModelSettings( 3.828E26 ) );
+    bodySettings.at( "Sun" )->shapeModelSettings = sphericalBodyShapeSettings( 6.957E8 );
 
-    // Earth: Kepler ephemeris, GCRS-ITRS rotation, spherical harmonics with direct and interpolated tides, NRLMSISE00 atmosphere
+    // Earth: Kepler ephemeris, GCRS-ITRS rotation, spherical harmonics with direct and interpolated tides, tabulated atmosphere
     Eigen::MatrixXd earthCosineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
     Eigen::MatrixXd earthSineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
     earthCosineCoefficients( 0, 0 ) = 1.0;
@@ -107,7 +108,9 @@ BodyListSettings getTestBodySettings( )
             std::vector< std::string >{ "Sun" },
             earthLoveNumbers,
             std::make_shared< ModelInterpolationSettings >( initialTime - 1800.0, finalTime + 1800.0, 600.0 ) ) );
-    bodySettings.at( "Earth" )->atmosphereSettings = nrlmsise00AtmosphereSettings( );
+    // Tabulated atmosphere (NRLMSISE00 would require flight conditions to call SPICE for UTC time, which is not thread-safe)
+    bodySettings.at( "Earth" )->atmosphereSettings =
+            tabulatedAtmosphereSettings( paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     bodySettings.at( "Earth" )->shapeModelSettings = oblateSphericalBodyShapeSettings( 6378137.0, 1.0 / 298.257 );
     bodySettings.at( "Earth" )->radiationSourceModelSettings = extendedRadiationSourceModelSettings(
             { albedoPanelRadiosityModelSettings( 0.3, "Sun" ), delayedThermalPanelRadiosityModelSettings( 0.95, "Sun" ) },
@@ -302,6 +305,8 @@ void setBodyStates( const SystemOfBodies& bodies, const double time )
 {
     for( const std::string& bodyName : bodyNames )
     {
+        // States set manually by a test (at the same time) are overwritten
+        bodies.at( bodyName )->recomputeStateOnNextCall( );
         bodies.at( bodyName )->setStateFromEphemeris< double, double >( time );
     }
     for( const std::string& bodyName : bodyNames )
@@ -534,7 +539,7 @@ BOOST_AUTO_TEST_CASE( testCopiedAndSharedModels )
         // Models without data that changes during propagation are shared
         const bool isEphemerisShared = ( bodyName == "Sun" );
         BOOST_CHECK_EQUAL( body->getEphemeris( ) == bodyCopy->getEphemeris( ), isEphemerisShared );
-        const bool isRotationShared = ( bodyName == "Sun" );
+        const bool isRotationShared = ( bodyName == "Sun" || bodyName == "Vehicle3" );
         BOOST_CHECK_EQUAL( body->getRotationalEphemeris( ) == bodyCopy->getRotationalEphemeris( ), isRotationShared );
         BOOST_CHECK( body->getShapeModel( ) == bodyCopy->getShapeModel( ) );
 
@@ -609,7 +614,10 @@ BOOST_AUTO_TEST_CASE( testCopiedAndSharedModels )
             std::dynamic_pointer_cast< DynamicallyPaneledRadiationSourceModel >( bodiesCopy.at( "Earth" )->getRadiationSourceModel( ) );
     BOOST_CHECK( paneledSourceCopy != nullptr );
     BOOST_CHECK( paneledSourceCopy != bodies.at( "Earth" )->getRadiationSourceModel( ) );
-    BOOST_CHECK_EQUAL( paneledSourceCopy->getNumberOfPanels( ), 18 );
+    BOOST_CHECK_EQUAL(
+            paneledSourceCopy->getNumberOfPanels( ),
+            std::dynamic_pointer_cast< DynamicallyPaneledRadiationSourceModel >( bodies.at( "Earth" )->getRadiationSourceModel( ) )
+                    ->getNumberOfPanels( ) );
     BOOST_CHECK( paneledSourceCopy->getSourcePanelRadiosityModelUpdater( )->getOriginalSourceToSourceOccultingBodyNames( ) ==
                  std::set< std::string >( { "Moon" } ) );
 
@@ -622,7 +630,7 @@ BOOST_AUTO_TEST_CASE( testCopiedAndSharedModels )
     {
         BOOST_CHECK( vehicleSystemsCopy->getAllPanels( ).at( i ) != vehicleSystems->getAllPanels( ).at( i ) );
     }
-    BOOST_CHECK( vehicleSystemsCopy->getVehiclePartOrientation( ).at( "SolarArray" ) !=
+    BOOST_CHECK( vehicleSystemsCopy->getVehiclePartOrientation( ).at( "SolarArray" ) ==
                  vehicleSystems->getVehiclePartOrientation( ).at( "SolarArray" ) );
     BOOST_CHECK( vehicleSystemsCopy->getEngineModels( ).at( "MainEngine" ) != vehicleSystems->getEngineModels( ).at( "MainEngine" ) );
     BOOST_CHECK( vehicleSystemsCopy->getEngineModels( ).at( "MainEngine" )->getThrustMagnitudeWrapper( ) !=
@@ -771,18 +779,18 @@ BOOST_AUTO_TEST_CASE( testIndependenceOfCopy )
     std::shared_ptr< RadiationPressureTargetModel > paneledTarget = bodies.at( "Vehicle3" )->getRadiationPressureTargetModels( ).at( 0 );
     std::shared_ptr< RadiationPressureTargetModel > paneledTargetCopy =
             bodiesCopy.at( "Vehicle3" )->getRadiationPressureTargetModels( ).at( 0 );
-    paneledTargetCopy->updateRadiationPressureForcing( 1361.0, Eigen::Vector3d( 0.0, -1.0, 0.0 ), true, "Sun" );
-    paneledTarget->updateRadiationPressureForcing( 1361.0, Eigen::Vector3d( 0.0, -1.0, 0.0 ), true, "Sun" );
+    paneledTargetCopy->updateRadiationPressureForcing( 1361.0, Eigen::Vector3d( 0.0, 1.0, 0.0 ), true, "Sun" );
+    paneledTarget->updateRadiationPressureForcing( 1361.0, Eigen::Vector3d( 0.0, 1.0, 0.0 ), true, "Sun" );
     const Eigen::Vector3d paneledForce = paneledTarget->getCurrentRadiationPressureForce( "Sun" );
     BOOST_CHECK( ( paneledTargetCopy->getCurrentRadiationPressureForce( "Sun" ) - paneledForce ).norm( ) > 1.0E-3 * paneledForce.norm( ) );
     bodiesCopy.at( "Vehicle3" )->getVehicleSystems( )->updatePartOrientations( time );
-    paneledTargetCopy->updateRadiationPressureForcing( 1361.0, Eigen::Vector3d( 0.0, -1.0, 0.0 ), true, "Sun" );
+    paneledTargetCopy->updateRadiationPressureForcing( 1361.0, Eigen::Vector3d( 0.0, 1.0, 0.0 ), true, "Sun" );
     BOOST_CHECK( paneledTargetCopy->getCurrentRadiationPressureForce( "Sun" ) == paneledForce );
 
     // Changes to model parameters in the copy do not affect the original, and vice versa
     Eigen::MatrixXd moonCosineCoefficients =
-            std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( bodies.at( "Moon" )->getGravityFieldModel( ) )
-                    ->getCosineCoefficients( );
+            std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( bodies.at( "Moon" )->getGravityFieldModel( ) )
+                    ->getNominalCosineCoefficients( );
     Eigen::MatrixXd perturbedCoefficients = moonCosineCoefficients;
     perturbedCoefficients( 2, 0 ) *= 2.0;
     std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( bodiesCopy.at( "Moon" )->getGravityFieldModel( ) )

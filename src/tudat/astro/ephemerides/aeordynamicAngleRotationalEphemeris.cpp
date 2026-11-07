@@ -102,8 +102,14 @@ void AerodynamicAngleRotationalEphemeris::resetCurrentTime( )
     if( currentTime_ == currentTime_ )
     {
         currentTime_ = TUDAT_NAN;
-        aerodynamicAngleCalculator_->resetCurrentTime( );
-        aerodynamicAngleFunction_( TUDAT_NAN );
+        if( aerodynamicAngleCalculator_ != nullptr )
+        {
+            aerodynamicAngleCalculator_->resetCurrentTime( );
+        }
+        if( aerodynamicAngleFunction_ != nullptr )
+        {
+            aerodynamicAngleFunction_( TUDAT_NAN );
+        }
     }
     else
     {
