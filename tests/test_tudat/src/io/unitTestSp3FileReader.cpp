@@ -10,6 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <limits>
@@ -19,7 +20,6 @@
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -29,6 +29,7 @@
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/io/readSp3File.h"
 #include "tudat/simulation/environment_setup/createSp3Ephemeris.h"
+#include "tudat/support/testFileUtilities.h"
 
 namespace tudat
 {
@@ -68,11 +69,10 @@ EOF
 )sp3";
 
 //! Write SP3 text to a uniquely named temporary file.
-boost::filesystem::path writeTemporarySp3File( const std::string& contents )
+std::filesystem::path writeTemporarySp3File( const std::string& contents )
 {
     // Give each fixture a unique path so test cases remain independent when the suite runs concurrently.
-    const boost::filesystem::path path =
-            boost::filesystem::temp_directory_path( ) / boost::filesystem::unique_path( "tudat-sp3-%%%%%%.sp3" );
+    const std::filesystem::path path = createTemporaryFilePath( "tudat-sp3", ".sp3" );
     // Write exactly the supplied fixed-width records; the individual tests remove the file after inspection.
     std::ofstream stream( path.string( ) );
     stream << contents;
@@ -121,10 +121,10 @@ std::string makeMultiConstellationSp3Contents( )
 //! Verify that parsing the supplied SP3 text raises a runtime error.
 void checkReadThrows( const std::string& contents )
 {
-    const boost::filesystem::path path = writeTemporarySp3File( contents );
+    const std::filesystem::path path = writeTemporarySp3File( contents );
     // Confirm the malformed fixture is rejected by the reader rather than producing partial contents.
     BOOST_CHECK_THROW( input_output::readSp3File( path.string( ) ), std::runtime_error );
-    boost::filesystem::remove( path );
+    std::filesystem::remove( path );
 }
 
 BOOST_AUTO_TEST_SUITE( test_sp3_file_reader )
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_SUITE( test_sp3_file_reader )
 //! Verify metadata, epoch conversion, and SI-unit states read from an SP3-d velocity product.
 BOOST_AUTO_TEST_CASE( testVelocityFileMetadataAndState )
 {
-    const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
+    const std::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
 
     // Confirm the reader retains the format version that determines the applicable SP3 grammar.
@@ -172,13 +172,13 @@ BOOST_AUTO_TEST_CASE( testVelocityFileMetadataAndState )
     // Confirm all velocity components are converted from SP3 decimetres per second to metres per second.
     BOOST_CHECK_SMALL( ( firstState.segment< 3 >( 3 ) - expectedFirstState.segment< 3 >( 3 ) ).norm( ), 1.0e-12 );
 
-    boost::filesystem::remove( path );
+    std::filesystem::remove( path );
 }
 
 //! Verify quadratic finite-difference velocity reconstruction for an SP3-c position-only product.
 BOOST_AUTO_TEST_CASE( testPositionOnlyFileUsesSecondOrderFiniteDifferences )
 {
-    const boost::filesystem::path path = writeTemporarySp3File( positionOnlySp3Contents );
+    const std::filesystem::path path = writeTemporarySp3File( positionOnlySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
 
     // Confirm the older SP3-c version is accepted and reported correctly.
@@ -209,13 +209,13 @@ BOOST_AUTO_TEST_CASE( testPositionOnlyFileUsesSecondOrderFiniteDifferences )
     BOOST_REQUIRE( settings != nullptr );
     // Confirm an omitted target frame preserves the frame declared by the SP3 file.
     BOOST_CHECK_EQUAL( settings->getFrameOrientation( ), "WGS84" );
-    boost::filesystem::remove( path );
+    std::filesystem::remove( path );
 }
 
 //! Verify terrestrial-realization and terrestrial/inertial transformations during SP3 ephemeris creation.
 BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
 {
-    const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
+    const std::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
     const Eigen::Vector6d sourceState = contents->satelliteStates.at( "G01" ).begin( )->second;
     const double referenceEpoch = contents->satelliteStates.at( "G01" ).begin( )->first;
@@ -382,13 +382,13 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     unknownFrameContents->frameName = "LOCAL";
     // Confirm an unknown frame tag is rejected instead of applying an assumed Earth-orientation rotation.
     BOOST_CHECK_THROW( simulation_setup::sp3EphemerisSettings( unknownFrameContents, "G01", "Earth", "J2000" ), std::invalid_argument );
-    boost::filesystem::remove( path );
+    std::filesystem::remove( path );
 }
 
 //! Verify the parsed-contents and filename SP3 factory overloads and their input validation.
 BOOST_AUTO_TEST_CASE( testTudatEphemerisFactories )
 {
-    const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
+    const std::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
 
     const std::shared_ptr< simulation_setup::EphemerisSettings > fromContents = simulation_setup::sp3EphemerisSettings( contents, "G01" );
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE( testTudatEphemerisFactories )
     contents->satelliteStates.at( "G01" ).begin( )->second( 3 ) = std::numeric_limits< double >::quiet_NaN( );
     // Confirm missing state components are rejected because tabulated ephemerides require finite states.
     BOOST_CHECK_THROW( simulation_setup::sp3EphemerisSettings( contents, "G01" ), std::runtime_error );
-    boost::filesystem::remove( path );
+    std::filesystem::remove( path );
 }
 
 //! Verify supported SP3 versions and time systems and preservation of frame metadata.
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE( testSupportedVersionsTimeSystemsAndFrameMetadata )
             contents.replace( contents.find( "GPS" ), 3, "ccc" );
         }
 
-        const boost::filesystem::path path = writeTemporarySp3File( contents );
+        const std::filesystem::path path = writeTemporarySp3File( contents );
         const auto parsed = input_output::readSp3File( path.string( ) );
         // Confirm each supported version reaches the parsed metadata unchanged.
         BOOST_CHECK_EQUAL( parsed->formatVersion, version );
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE( testSupportedVersionsTimeSystemsAndFrameMetadata )
         BOOST_CHECK_EQUAL( parsed->timeScale, "GPS" );
         // Confirm legacy numeric and modern constellation-prefixed satellite identifiers are both retained.
         BOOST_CHECK_EQUAL( parsed->satelliteStates.count( version < 'c' ? "1" : "G01" ), 1 );
-        boost::filesystem::remove( path );
+        std::filesystem::remove( path );
     }
 
     const std::vector< std::string > timeSystems = { "GPS", "GLO", "GAL", "BDT", "TAI", "UTC", "IRN", "QZS" };
@@ -455,27 +455,27 @@ BOOST_AUTO_TEST_CASE( testSupportedVersionsTimeSystemsAndFrameMetadata )
     {
         std::string contents = velocitySp3Contents;
         contents.replace( contents.find( "GPS" ), 3, timeSystem );
-        const boost::filesystem::path path = writeTemporarySp3File( contents );
+        const std::filesystem::path path = writeTemporarySp3File( contents );
         // Confirm every time-system code accepted by the reader is exposed unchanged for later environment setup.
         BOOST_CHECK_EQUAL( input_output::readSp3File( path.string( ) )->timeScale, timeSystem );
-        boost::filesystem::remove( path );
+        std::filesystem::remove( path );
     }
 
     for( const std::string frameName : { "IGS97", "IGb14", "WGS84", "GCRF " } )
     {
         std::string contents = velocitySp3Contents;
         contents.replace( contents.find( "IGS97" ), 5, frameName );
-        const boost::filesystem::path path = writeTemporarySp3File( contents );
+        const std::filesystem::path path = writeTemporarySp3File( contents );
         // Confirm data_input trims fixed-width padding but otherwise preserves the frame tag for environment-level interpretation.
         BOOST_CHECK_EQUAL( input_output::readSp3File( path.string( ) )->frameName, boost::algorithm::trim_copy( frameName ) );
-        boost::filesystem::remove( path );
+        std::filesystem::remove( path );
     }
 }
 
 //! Verify satellite-list continuation records and mixed-constellation identifiers.
 BOOST_AUTO_TEST_CASE( testMultipleSatelliteListLinesAndConstellations )
 {
-    const boost::filesystem::path path = writeTemporarySp3File( makeMultiConstellationSp3Contents( ) );
+    const std::filesystem::path path = writeTemporarySp3File( makeMultiConstellationSp3Contents( ) );
     const auto contents = input_output::readSp3File( path.string( ) );
     // Confirm the declared count is read from the first satellite-list record.
     BOOST_CHECK_EQUAL( contents->declaredNumberOfSatellites, 18 );
@@ -485,7 +485,7 @@ BOOST_AUTO_TEST_CASE( testMultipleSatelliteListLinesAndConstellations )
     BOOST_CHECK_EQUAL( contents->satelliteStates.count( "G01" ), 1 );
     // Confirm the final Galileo identifier is read from the continuation '+' record.
     BOOST_CHECK_EQUAL( contents->satelliteStates.count( "E09" ), 1 );
-    boost::filesystem::remove( path );
+    std::filesystem::remove( path );
 }
 
 //! Verify SP3 missing-value markers become non-finite states that ephemeris creation rejects.
@@ -499,7 +499,7 @@ BOOST_AUTO_TEST_CASE( testBadOrAbsentStateValuesAreMarkedNonFinite )
         const std::string::size_type recordEnd = contents.find( '\n', recordStart );
         contents.replace( recordStart, recordEnd - recordStart + 1, makeStateRecord( missingRecordType, "G01", 0.0, 0.0, 0.0 ) );
 
-        const boost::filesystem::path path = writeTemporarySp3File( contents );
+        const std::filesystem::path path = writeTemporarySp3File( contents );
         const auto parsed = input_output::readSp3File( path.string( ) );
         const Eigen::Vector6d& firstState = parsed->satelliteStates.at( "G01" ).begin( )->second;
         const int missingSegmentStart = missingRecordType == 'P' ? 0 : 3;
@@ -507,7 +507,7 @@ BOOST_AUTO_TEST_CASE( testBadOrAbsentStateValuesAreMarkedNonFinite )
         BOOST_CHECK( !firstState.segment< 3 >( missingSegmentStart ).allFinite( ) );
         // Confirm ephemeris construction rejects the incomplete state history before interpolation.
         BOOST_CHECK_THROW( simulation_setup::sp3EphemerisSettings( parsed, "G01" ), std::runtime_error );
-        boost::filesystem::remove( path );
+        std::filesystem::remove( path );
     }
 }
 
