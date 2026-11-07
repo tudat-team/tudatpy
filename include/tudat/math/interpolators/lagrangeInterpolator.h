@@ -41,7 +41,10 @@ enum LagrangeInterpolatorBoundaryHandling {
     lagrange_cubic_spline_boundary_interpolation_with_warning = 1,
     lagrange_boundary_nan_interpolation = 2,
     lagrange_boundary_nan_interpolation_with_warning = 3,
-    lagrange_no_boundary_interpolation = 4
+    lagrange_no_boundary_interpolation = 4,
+    // Near the boundaries, use the polynomial of the nearest interval for which the centred polynomial is defined (through the
+    // first or last numberOfStages data points), which retains the order of the interpolation, in contrast to the cubic spline
+    lagrange_shifted_interval_boundary_interpolation = 5
 };
 
 //! Class to perform Lagrange polynomial interpolation
@@ -255,6 +258,12 @@ public:
         int lowerReliableIntervalIndex = offsetEntries_;
         int upperReliableIntervalIndex = numberOfIndependentValues_ - offsetEntries_ - 1;
 
+        if( lagrangeBoundaryHandling_ == lagrange_shifted_interval_boundary_interpolation )
+        {
+            // Use the polynomial of the nearest interval for which the centred polynomial is defined
+            lowerEntry = std::min( std::max( lowerEntry, lowerReliableIntervalIndex ), upperReliableIntervalIndex - 1 );
+        }
+
         if( lowerEntry < lowerReliableIntervalIndex )
         {
             interpolatedValue = performLagrangeBoundaryInterpolation(
@@ -361,6 +370,8 @@ public:
             case lagrange_no_boundary_interpolation:
                 validInterval = std::make_pair( independentValues_.at( numberOfStages_ / 2 - 1 ),
                                                 independentValues_.at( numberOfIndependentValues_ - ( numberOfStages_ / 2 ) ) );
+                break;
+            case lagrange_shifted_interval_boundary_interpolation:
                 break;
         }
 

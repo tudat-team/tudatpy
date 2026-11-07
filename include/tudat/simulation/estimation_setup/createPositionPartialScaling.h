@@ -401,7 +401,8 @@ public:
                 {
                     throw std::runtime_error( "Error when making angular position partial; object not recognized" );
                 }
-                positionPartialScaler = std::make_shared< AngularPositionScaling >( angularPositionModel->getNormalizeRightAscension( ) );
+                positionPartialScaler = std::make_shared< AngularPositionScaling >(
+                        angularPositionModel->getNormalizeRightAscension( ), angularPositionModel->getJ2000ToGlobalFrameTransformation( ) );
                 break;
             }
             case observation_models::pixel_coordinates: {

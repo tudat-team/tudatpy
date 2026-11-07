@@ -192,11 +192,11 @@ class StubGenerator:
         "FrequencyGapHandling": "tudatpy.kernel.dynamics.environment",
         "IAUConventions": ("tudatpy.kernel.dynamics.environment_setup.rotation_model"),
         "IntegratedObservationPropertyHandling": (
-            "tudatpy.kernel.estimation.observations_setup." "observations_dependent_variables"
+            "tudatpy.kernel.estimation.observations_setup.observations_dependent_variables"
         ),
         "LagrangeInterpolatorBoundaryHandling": ("tudatpy.kernel.math.interpolators"),
         "LightTimeFailureHandling": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
         "LinkEndType": ("tudatpy.kernel.estimation.observable_models_setup.links"),
         "MaximumIterationHandling": "tudatpy.kernel.math.root_finders",
@@ -205,24 +205,27 @@ class StubGenerator:
         ),
         "OrderToIntegrate": ("tudatpy.kernel.dynamics.propagation_setup.integrator"),
         "PositionElementTypes": "tudatpy.kernel.astro.element_conversion",
+        "PositionAngleReferenceFrame": "tudatpy.kernel.estimation.observations_setup.ancillary_settings.PositionAngleReferenceFrame",
         "RadiationPressureTargetModelType": (
             "tudatpy.kernel.dynamics.environment_setup.radiation_pressure"
         ),
         "RotationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
-        "ThrustFrames": "tudatpy.kernel.dynamics.propagation_setup.thrust",
         "TimeScales": "tudatpy.kernel.astro.time_representation",
         "TrackingTxtFileReadFilterType": "tudatpy.kernel.data",
         "TranslationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
         "TroposphericMappingModel": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
         "WaterVaporPartialPressureModel": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
     }
 
     # Ignored modules and methods
-    ignored_modules: list[str] = ["temp", "io", "numerical_simulation", "_deprecation.py"]
+    ignored_modules: list[str] = ["temp", "io", "numerical_simulation", "_deprecation.py", "data"]
+    ignored_module_paths: list[Path] = [
+        Path("estimation/observations_setup/observations_wrapper"),
+    ]
     ignored_methods: list[str] = ["_pybind11_conduit_v1_"]
 
     def __init__(self, build_dir: Path, mock_env: "Environment") -> None:
@@ -650,7 +653,7 @@ class StubGenerator:
             item = item.relative_to(self.python_source_dir)
 
             # Create directory if the module should not be ignored
-            if item.parts[0] not in self.ignored_modules:
+            if item.parts[0] not in self.ignored_modules and item not in self.ignored_module_paths:
                 (self.stubs_dir / item).mkdir(exist_ok=True, parents=True)
 
         return None
@@ -688,6 +691,13 @@ class StubGenerator:
 
             # Get path relative to output directory of pybind11-stubgen
             relative_path = stub.relative_to(tmp_stubs_dir)
+
+            # Pybind11-stubgen discovers all submodules exposed by the kernel,
+            # including compatibility modules that are intentionally omitted
+            # from the final stubs tree.
+            top_level_module = Path(relative_path.parts[0]).stem
+            if top_level_module in self.ignored_modules:
+                continue
 
             # Handle special case for __init__.pyi
             if stub.name == "__init__.pyi":

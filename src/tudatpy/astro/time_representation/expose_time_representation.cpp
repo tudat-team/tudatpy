@@ -137,20 +137,22 @@ void expose_time_representation( py::module& m )
 
      Examples
      --------
-     >>> from tudatpy.kernel import Time
-     >>> t = Time(3600.0)  # 1 hour after J2000
+     .. code-block:: python
+
+        from tudatpy.astro.time_representation import Time
+        t = Time(3600.0)  # 1 hour after J2000
      )doc" )
 
             .def( py::init< const int >( ),
                   py::arg( "seconds_since_j2000" ),
                   R"doc(
 
-         Create a Time object from an integer number of seconds since J2000.
+     Create a Time object from an integer number of seconds since J2000.
 
-         Parameters
-         ----------
-         seconds_since_j2000 : int
-             Number of seconds since J2000.
+     Parameters
+     ----------
+     seconds_since_j2000 : int
+         Number of seconds since J2000.
 
       )doc" )
 
@@ -177,8 +179,10 @@ void expose_time_representation( py::module& m )
 
      Examples
      --------
-     >>> from tudatpy.kernel import Time
-     >>> t = Time(2, 1800.0)  # 2.5 hours after epoch
+     .. code-block:: python
+
+        from tudatpy.astro.time_representation import Time
+        t = Time(2, 1800.0)  # 2.5 hours after epoch
      )doc" ) TUDATPY_DEF_BINARY_IO( tudat::Time )
             .def( py::pickle( []( const Time& p ) { return py::make_tuple( p.getFullPeriods( ), p.getSecondsIntoFullPeriod( ) ); },
                               []( py::tuple t ) {
@@ -202,7 +206,7 @@ void expose_time_representation( py::module& m )
 
     .. code-block:: python
 
-        from tudatpy.kernel import Time
+        from tudatpy.astro.time_representation import Time
 
         # Create a Time object from seconds since J2000
         t = Time(3600.0)  # 1 hour after J2000

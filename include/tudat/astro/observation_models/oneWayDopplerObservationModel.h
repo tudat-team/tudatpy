@@ -19,6 +19,7 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
+#include "tudat/astro/observation_models/transmissionFrequencyInterface.h"
 #include "tudat/astro/relativity/relativisticTimeConversion.h"
 #include "tudat/astro/relativity/metric.h"
 namespace tudat
@@ -559,8 +560,14 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr ) override
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettingsInput = nullptr ) override
     {
+        // Standalone models set their frequency here; constituent legs (no frequency interpolator) use the frequencies
+        // set by their parent observation model.
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
+        this->setFrequencyProperties(
+                time, linkEndAssociatedWithTime, getLightTimeCalculator( ), ancillarySettingsInput, ancillarySetings );
+
         this->getFullLinkLightTimeCalculatorFromBase( )->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
@@ -573,11 +580,6 @@ public:
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
-        if( ancillarySetings != nullptr )
-        {
-            throw std::runtime_error( "Error, calling one-way Doppler observable with ancillary settings, but none are supported." );
-        }
-
         // Compute transmitter and receiver proper time rate
         ObservationScalarType transmitterProperTimeDifference = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
         if( transmitterProperTimeRateCalculator_ != nullptr )
@@ -600,14 +602,14 @@ public:
         std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
                 getLightTimeCalculator( );
         lightTimePartialWrtReceiverPosition_ = lightTimeCalculator->getPartialOfLightTimeWrtLinkEndPosition(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true, ancillarySetings );
         lightTimePartialWrtTransmitterPosition_ = lightTimeCalculator->getPartialOfLightTimeWrtLinkEndPosition(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false, ancillarySetings );
 
         lightTimePartialWrtReceiverTime_ = lightTimeCalculator->getPartialOfLightTimeWrtLinkEndTime(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true, ancillarySetings );
         lightTimePartialWrtTransmitterTime_ = lightTimeCalculator->getPartialOfLightTimeWrtLinkEndTime(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false, ancillarySetings );
 
         ObservationScalarType firstOrderDopplerObservable = computeOneWayFirstOrderDopplerTaylorSeriesExpansion< ObservationScalarType >(
                 linkEndStates.at( 0 ).template cast< ObservationScalarType >( ),

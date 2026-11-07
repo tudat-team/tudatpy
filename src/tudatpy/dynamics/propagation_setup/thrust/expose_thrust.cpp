@@ -87,16 +87,6 @@ void expose_thrust_setup( py::module& m )
          Functional base class to define settings for the thrust magnitude.
 
 
-         Attributes
-         ----------
-         thrust_magnitude_type : ThrustMagnitudeType
-             Thrust magnitude type object.
-         thrust_origin_id : str
-             Reference ID of the thrust origin that should be used (empty if N/A).
-
-
-
-
       )doc" )
             .def_readonly( "thrust_magnitude_type",
                            &tss::ThrustMagnitudeSettings::thrustMagnitudeType_,
@@ -131,17 +121,6 @@ void expose_thrust_setup( py::module& m )
 
          Derived class to provide settings for the thrust magnitude. This class should be used to define a constant thrust
          magnitude.
-
-
-         Attributes
-         ----------
-         thrust_magnitude : float
-             Value of the constant thrust magnitude.
-         specific_impulse : float
-             Value of the constant specific impulse.
-
-
-
 
       )doc" )
             .def_readonly( "thrust_magnitude",

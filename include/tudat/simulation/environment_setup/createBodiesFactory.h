@@ -298,7 +298,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
         {
             createGroundStation( bodyList.at( orderedBodySettings.at( i ).first ),
-                                 orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
+                                 orderedBodySettings.at( i ).second->groundStationSettings.at( j ),
+                                 bodyList );
         }
 
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->cameraSettings.size( ); j++ )

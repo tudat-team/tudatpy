@@ -1,0 +1,7 @@
+{
+  "body": "Moon",
+  "dependentVariableType": "torque",
+  "torqueType": "secondOrderGravitational",
+  "bodyExertingTorque": "Earth",
+  "componentIndex": 2
+}

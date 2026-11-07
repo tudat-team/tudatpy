@@ -140,8 +140,17 @@ def plot_porkchop_of_single_field(
     # Transform ΔV to characteristic energy (C3) if needed
     field = delta_v**2 if C3 else delta_v
 
-    # Mask field array to discard excessive values
-    field_within_range = np.ma.array(field, mask=field >= threshold)
+    # Logarithmic contour levels require finite, strictly positive values.
+    # Invalid/non-positive entries can occur for unsuccessful grid points and
+    # should not determine the plotted contour range.
+    field_data = np.asarray(np.ma.getdata(field))
+    input_mask = np.ma.getmaskarray(field)
+    valid_logarithm_mask = input_mask | (field_data <= 0) | ~np.isfinite(field_data)
+    field_within_range = np.ma.array(
+        field_data,
+        mask=valid_logarithm_mask | (field_data >= threshold),
+    )
+    logarithmic_field = np.ma.log(np.ma.array(field_data, mask=valid_logarithm_mask))
 
     # Calculate departure and arrival time spans
     departure_epoch_span = departure_epochs.max() - departure_epochs.min()
@@ -214,7 +223,7 @@ def plot_porkchop_of_single_field(
             ]
         )
         cbar = fig.colorbar(contour, cax=cax)
-        cbar.ax.set_title("$m^2/s^2$" if C3 else "m/s", pad=12.5, x=2.5)
+        cbar.ax.set_title("$km^2/s^2$" if C3 else "km/s", pad=12.5, x=2.5)
         cbar.ax.yaxis.set_ticks(levels)
         plt.sca(ax)
 
@@ -237,7 +246,7 @@ def plot_porkchop_of_single_field(
             plt.contourf(
                 departure_epochs,
                 arrival_epochs,
-                np.log(field),
+                logarithmic_field,
                 cmap="Reds",
                 zorder=1.25,
             )
