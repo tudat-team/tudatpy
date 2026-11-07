@@ -79,11 +79,12 @@ public:
      * engine is set, the default (empty string) can be used.
      * \param engineModel Model of engine that is to be set
      * \param engineName Reference id of the engine that is to be set.
+     * \param printOverwriteWarning Boolean denoting whether a warning is printed if an existing engine is overwritten
      */
-    void setEngineModel( const std::shared_ptr< EngineModel > engineModel )
+    void setEngineModel( const std::shared_ptr< EngineModel > engineModel, const bool printOverwriteWarning = true )
     {
         // Check if engine with this name already exists.
-        if( engineModels_.count( engineModel->getEngineName( ) ) )
+        if( engineModels_.count( engineModel->getEngineName( ) ) && printOverwriteWarning )
         {
             std::cerr << "Warning, engine model of name " << engineModel->getEngineName( ) << " already exists, overriding old model"
                       << std::endl;
@@ -238,6 +239,7 @@ public:
     {
         vehicleExteriorPanels_ = vehicleExteriorPanels;
         // group all panels in a vector
+        allPanels_.clear( );
         totalNumberOfPanels_ = 0;
         for( auto it : vehicleExteriorPanels_ )
         {
@@ -321,6 +323,11 @@ public:
             const std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation )
     {
         vehiclePartOrientation_ = vehiclePartOrientation;
+    }
+
+    std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > getVehiclePartOrientation( )
+    {
+        return vehiclePartOrientation_;
     }
 
     void setTransponderTurnaroundRatio(

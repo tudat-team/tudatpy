@@ -294,6 +294,14 @@ public:
         }
     }
 
+    //! Copy constructor, which copies the orientation angle calculator (which stores the angles of the previous call).
+    PlanetaryRotationModel( const PlanetaryRotationModel& rotationModel ):
+        RotationalEphemeris( rotationModel ),
+        planetaryOrientationAnglesCalculator_(
+                std::make_shared< PlanetaryOrientationAngleCalculator >( *rotationModel.planetaryOrientationAnglesCalculator_ ) ),
+        rotationFromMeanOrbitToIcrf_( rotationModel.rotationFromMeanOrbitToIcrf_ )
+    {}
+
     Eigen::Quaterniond getPolarMotionRotation( const double ephemerisTime );
 
     Eigen::Quaterniond getRotationFromBodyFixedToIntermediateInertialFrame( const double ephemerisTime );

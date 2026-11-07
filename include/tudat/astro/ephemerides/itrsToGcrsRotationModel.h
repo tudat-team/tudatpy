@@ -104,6 +104,17 @@ public:
                         anglesCalculator_->getRotationAnglesFromItrsToGcrs< double >( ephemerisTime, inputTimeScale_ ), ephemerisTime );
     }
 
+    //! Copy constructor, which copies the time scale converter (which stores the times of the previous call).
+    GcrsToItrsRotationModel( const GcrsToItrsRotationModel& rotationModel ):
+        RotationalEphemeris( rotationModel ), derivativeTimeStep_( rotationModel.derivativeTimeStep_ ),
+        anglesCalculator_( std::make_shared< earth_orientation::EarthOrientationAnglesCalculator >(
+                rotationModel.anglesCalculator_->getPolarMotionCalculator( ),
+                rotationModel.anglesCalculator_->getPrecessionNutationCalculator( ),
+                std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >(
+                        *rotationModel.anglesCalculator_->getTerrestrialTimeScaleConverter( ) ) ) ),
+        inputTimeScale_( rotationModel.inputTimeScale_ ), frameBias_( rotationModel.frameBias_ )
+    {}
+
     //! Function to calculate the rotation quaternion from ITRS to base frame
     /*!
      *  Function to calculate the rotation quaternion from ITRS to base frame at specified time, in extended (e.g. Time class)

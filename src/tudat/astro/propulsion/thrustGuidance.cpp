@@ -21,7 +21,7 @@ Eigen::Vector3d getDirectionColinearWithVelocity( const std::function< void( Eig
                                                   const double currentTime,
                                                   const bool putVectorInOppositeDirection )
 {
-    static Eigen::Vector6d currentState;
+    thread_local Eigen::Vector6d currentState;
     currentStateFunction( currentState );
     return ( ( putVectorInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 3, 3 ) ).normalized( );
 }
@@ -31,7 +31,7 @@ Eigen::Vector3d getDirectionColinearWithPosition( const std::function< void( Eig
                                                   const double currentTime,
                                                   const bool putVectorInOppositeDirection )
 {
-    static Eigen::Vector6d currentState;
+    thread_local Eigen::Vector6d currentState;
     currentStateFunction( currentState );
     return ( ( putVectorInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 0, 3 ) ).normalized( );
 }

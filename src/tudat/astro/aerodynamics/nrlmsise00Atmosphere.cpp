@@ -13,6 +13,7 @@
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include <iostream>
+#include <mutex>
 #include <stdexcept>
 
 //! Tudat library namespace.
@@ -63,14 +64,19 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude,
     // Rejected Ap inputs must not be cached, even when the next call uses the same coordinates and epoch.
     hashKey_ = hashKey;
 
-    // Call NRLMSISE00 accounting for the contributions from anomalous oxygen
-    if( useAnomalousOxygen_ )
+    // Call NRLMSISE00 accounting for the contributions from anomalous oxygen. The NRLMSISE00 library uses global variables, so
+    // only one thread at a time may call it.
     {
-        gtd7d( &input_, &flags_, &output_ );
-    }
-    else
-    {
-        gtd7( &input_, &flags_, &output_ );
+        static std::mutex nrlmsiseMutex;
+        std::lock_guard< std::mutex > nrlmsiseLock( nrlmsiseMutex );
+        if( useAnomalousOxygen_ )
+        {
+            gtd7d( &input_, &flags_, &output_ );
+        }
+        else
+        {
+            gtd7( &input_, &flags_, &output_ );
+        }
     }
 
     // Retrieve density and temperature

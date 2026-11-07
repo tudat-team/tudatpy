@@ -400,6 +400,20 @@ public:
         return variationObjects_;
     }
 
+    void resetVariationObjects( const std::vector< std::shared_ptr< GravityFieldVariations > >& variationObjects )
+    {
+        if( variationObjects.size( ) != variationObjects_.size( ) )
+        {
+            throw std::runtime_error( "Error when resetting gravity field variation objects, number of objects is inconsistent" );
+        }
+        variationObjects_ = variationObjects;
+    }
+
+    bool isVariationInterpolated( const int variationIndex )
+    {
+        return createInterpolator_.count( variationIndex ) > 0;
+    }
+
     //! Function to retrieve the tidal gravity field variation with the specified bodies causing deformation
     /*!
      * Function to retrieve the tidal gravity field variation with the specified bodies causing deformation. If the

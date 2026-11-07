@@ -130,6 +130,21 @@ public:
         return modelType_;
     }
 
+    int getMaximumNumberOfPixels( ) const
+    {
+        return maximumNumberOfPixels_;
+    }
+
+    bool getOnlyDrag( ) const
+    {
+        return onlyDrag_;
+    }
+
+    Eigen::Vector3d getConstantAerodynamicCoefficients( ) const
+    {
+        return constantAerodynamicCoefficients_;
+    }
+
     void setConstantAerodynamicCoefficients( const Eigen::Vector3d constantAerodynamicCoefficients )
     {
         constantAerodynamicCoefficients_ = constantAerodynamicCoefficients;

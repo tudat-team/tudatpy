@@ -14,6 +14,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include "tudat/basics/testMacros.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
@@ -317,7 +318,7 @@ std::pair< Eigen::VectorXd, Eigen::VectorXd > estimateArcWiseAtmosphereParameter
     return std::make_pair( estimationOutput->parameterEstimate_, estimationOutput->residuals_ );
 }
 
-//! Test whether estimation with multi-threaded multi-arc propagation gives results identical to single-threaded propagation
+//! Test whether estimation with multi-threaded multi-arc propagation gives results equal (to numerical noise) to single-threaded propagation
 BOOST_AUTO_TEST_CASE( testParallelMultiArcEstimation )
 {
     spice_interface::loadStandardSpiceKernels( );
@@ -329,8 +330,8 @@ BOOST_AUTO_TEST_CASE( testParallelMultiArcEstimation )
     for( unsigned int numberOfThreads : { 2, 3, 4 } )
     {
         std::pair< Eigen::VectorXd, Eigen::VectorXd > multiThreadResults = estimateArcWiseAtmosphereParameters( numberOfThreads );
-        BOOST_CHECK( multiThreadResults.first == singleThreadResults.first );
-        BOOST_CHECK( multiThreadResults.second == singleThreadResults.second );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( multiThreadResults.first, singleThreadResults.first, 1.0E-8 );
+        BOOST_CHECK_SMALL( ( multiThreadResults.second - singleThreadResults.second ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
     }
 }
 

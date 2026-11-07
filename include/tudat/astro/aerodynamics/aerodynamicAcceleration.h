@@ -71,8 +71,8 @@ class AerodynamicAcceleration : public basic_astrodynamics::AccelerationModel< E
 public:
     AerodynamicAcceleration( const std::shared_ptr< AtmosphericFlightConditions > flightConditions,
                              const std::function< double( ) > currentMass ):
-        flightConditions_( flightConditions ), currentMass_( currentMass ), isScalingModelSet_( false ), dragComponentScaling_( 1.0 ),
-        liftComponentScaling_( 1.0 ), sideComponentScaling_( 1.0 )
+        flightConditions_( flightConditions ), currentMass_( currentMass ), dragComponentScaling_( 1.0 ), liftComponentScaling_( 1.0 ),
+        sideComponentScaling_( 1.0 )
     {
         coefficientInterface_ = flightConditions_->getAerodynamicCoefficientInterface( );
         aerodynamicCoefficientFrame_ = coefficientInterface_->getForceCoefficientsFrame( );

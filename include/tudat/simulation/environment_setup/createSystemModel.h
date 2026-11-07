@@ -492,6 +492,11 @@ void addVariableDirectionEngineModel( const std::string& bodyName,
                                       const simulation_setup::SystemOfBodies& bodies,
                                       const std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection );
 
+//! Function to create the surface normal (in body-fixed frame) of a panel that points towards (or away from) a body
+std::function< Eigen::Vector3d( ) > createBodyTrackingSurfaceNormalFunction( const std::shared_ptr< Body > panelledBody,
+                                                                             const std::shared_ptr< Body > trackedBody,
+                                                                             const bool isPointingTowardsTrackedBody );
+
 std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string > createBodyExteriorPanel(
         const std::shared_ptr< BodyPanelSettings > panelSettings,
         const std::string& bodyName,

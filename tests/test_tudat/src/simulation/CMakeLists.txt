@@ -27,3 +27,8 @@ TUDAT_ADD_TEST_CASE(IlrsStationLoader
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
         )
+
+TUDAT_ADD_TEST_CASE(SystemOfBodiesCopy
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )

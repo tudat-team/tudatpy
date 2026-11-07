@@ -65,6 +65,9 @@ public:
                      const double rootFinderAbsoluteTolerance = 200.0 * std::numeric_limits< double >::epsilon( ),
                      const double rootFinderMaximumNumberOfIterations = 1000.0 );
 
+    //! Copy constructor, which creates a separate root finder (the root finder stores the function of which the root is found).
+    KeplerEphemeris( const KeplerEphemeris& keplerEphemeris );
+
     //! Function to get state from ephemeris.
     /*!
      *  Returns state from ephemeris at given time, assuming a purely Keplerian orbit

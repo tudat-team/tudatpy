@@ -54,6 +54,23 @@ void addVariableDirectionEngineModel( const std::string& bodyName,
     }
 }
 
+std::function< Eigen::Vector3d( ) > createBodyTrackingSurfaceNormalFunction( const std::shared_ptr< Body > panelledBody,
+                                                                             const std::shared_ptr< Body > trackedBody,
+                                                                             const bool isPointingTowardsTrackedBody )
+{
+    const double sign = isPointingTowardsTrackedBody ? +1.0 : -1.0;
+
+    // Construct surface normal function always pointing towards/away from tracked body
+    return [ = ]( ) {
+        const Eigen::Quaterniond rotationFromPropagationToLocalFrame = panelledBody->getCurrentRotationToLocalFrame( );
+        const Eigen::Vector3d relativeSourcePositionInPropagationFrame = trackedBody->getPosition( ) - panelledBody->getPosition( );
+        const Eigen::Vector3d relativeSourcePositionInLocalFrame =
+                rotationFromPropagationToLocalFrame * relativeSourcePositionInPropagationFrame;
+        Eigen::Vector3d surfaceNormal = sign * relativeSourcePositionInLocalFrame.normalized( );
+        return surfaceNormal;
+    };
+}
+
 std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string > createBodyExteriorPanel(
         const std::shared_ptr< BodyPanelSettings > panelSettings,
         const std::string& bodyName,
@@ -115,19 +132,8 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         {
             // Tracking a body means setting the surface normal towards the tracked body in the source local frame
             trackedBodyName = variableBodyPanelGeometrySettings->bodyToTrack_.first;
-            const auto bodyToTrack = bodies.at( trackedBodyName );
-            const auto targetBody = bodies.at( bodyName );
-            const auto sign = variableBodyPanelGeometrySettings->bodyToTrack_.second ? +1.0 : -1.0;
-
-            // Construct surface normal function always pointing towards/away from tracked body
-            localFrameSurfaceNormal = [ = ]( ) {
-                const Eigen::Quaterniond rotationFromPropagationToLocalFrame = targetBody->getCurrentRotationToLocalFrame( );
-                const Eigen::Vector3d relativeSourcePositionInPropagationFrame = bodyToTrack->getPosition( ) - targetBody->getPosition( );
-                const Eigen::Vector3d relativeSourcePositionInLocalFrame =
-                        rotationFromPropagationToLocalFrame * relativeSourcePositionInPropagationFrame;
-                Eigen::Vector3d surfaceNormal = sign * relativeSourcePositionInLocalFrame.normalized( );
-                return surfaceNormal;
-            };
+            localFrameSurfaceNormal = createBodyTrackingSurfaceNormalFunction(
+                    bodies.at( bodyName ), bodies.at( trackedBodyName ), variableBodyPanelGeometrySettings->bodyToTrack_.second );
         }
         else
         {
@@ -146,6 +152,11 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
                                                                      geometry3dLoaded );
 
     exteriorPanel->setPanelTypeId( panelSettings->panelTypeId_ );
+    if( trackedBodyName != "" )
+    {
+        exteriorPanel->setIsPointingTowardsTrackedBody(
+                std::dynamic_pointer_cast< FrameVariableBodyPanelGeometrySettings >( panelSettings->panelGeometry_ )->bodyToTrack_.second );
+    }
 
     if( panelSettings->reflectionLawSettings_ != nullptr )
     {

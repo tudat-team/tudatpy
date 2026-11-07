@@ -297,6 +297,21 @@ public:
         return baseAtmosphere_->getTotalNumberDensity( altitude, longitude, latitude, time ) * densityScalingFunction_( time );
     }
 
+    std::shared_ptr< AtmosphereModel > getBaseAtmosphere( )
+    {
+        return baseAtmosphere_;
+    }
+
+    std::function< double( const double ) > getDensityScalingFunction( )
+    {
+        return densityScalingFunction_;
+    }
+
+    bool getIsScalingAbsolute( )
+    {
+        return isScalingAbsolute_;
+    }
+
 private:
     std::shared_ptr< AtmosphereModel > baseAtmosphere_;
 

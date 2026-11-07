@@ -80,6 +80,11 @@ public:
         aerodynamicAngleFunction_ = aerodynamicAngleFunction;
     }
 
+    std::function< Eigen::Vector3d( const double ) > getAerodynamicAngleFunction( )
+    {
+        return aerodynamicAngleFunction_;
+    }
+
     void addSideslipBankAngleFunctions( std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction )
     {
         if( aerodynamicAngleFunction_ == nullptr )

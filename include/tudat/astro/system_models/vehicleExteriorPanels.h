@@ -121,9 +121,15 @@ public:
     // rotation update function
     void updatePanel( const Eigen::Quaterniond& currentOrientation_ )
     {
-        bodyFixedSurfaceNormal_ = [ this, currentOrientation_ ]( ) { return currentOrientation_ * frameFixedSurfaceNormal_( ); };
-        bodyFixedPositionVector_ = [ this, currentOrientation_ ]( ) {
-            Eigen::Vector3d frameFixedPositionRotated = currentOrientation_ * frameFixedPositionVector_( ) + frameOrigin_;
+        // Functions are captured by value, so that copies of this panel do not use the functions of the original
+        std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal = frameFixedSurfaceNormal_;
+        std::function< Eigen::Vector3d( ) > frameFixedPositionVector = frameFixedPositionVector_;
+        Eigen::Vector3d frameOrigin = frameOrigin_;
+        bodyFixedSurfaceNormal_ = [ frameFixedSurfaceNormal, currentOrientation_ ]( ) {
+            return currentOrientation_ * frameFixedSurfaceNormal( );
+        };
+        bodyFixedPositionVector_ = [ frameFixedPositionVector, frameOrigin, currentOrientation_ ]( ) {
+            Eigen::Vector3d frameFixedPositionRotated = currentOrientation_ * frameFixedPositionVector( ) + frameOrigin;
             return frameFixedPositionRotated;
         };
         bodyFixedTriangle3d_ = Triangle3d( currentOrientation_ * frameFixedTriangle3d_.getVertexA( ) + frameOrigin_,
@@ -174,6 +180,21 @@ public:
     std::string getTrackedBody( )
     {
         return trackedBody_;
+    }
+
+    bool getIsPointingTowardsTrackedBody( )
+    {
+        return isPointingTowardsTrackedBody_;
+    }
+
+    void setIsPointingTowardsTrackedBody( const bool isPointingTowardsTrackedBody )
+    {
+        isPointingTowardsTrackedBody_ = isPointingTowardsTrackedBody;
+    }
+
+    void resetFrameFixedSurfaceNormal( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal )
+    {
+        frameFixedSurfaceNormal_ = frameFixedSurfaceNormal;
     }
 
     std::string getPanelTypeId( ) const
@@ -267,6 +288,8 @@ protected:
     double panelTemperature_;
 
     std::string trackedBody_;
+
+    bool isPointingTowardsTrackedBody_ = true;
 
     std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw_;
 

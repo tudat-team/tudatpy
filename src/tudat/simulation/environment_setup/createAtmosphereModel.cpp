@@ -313,10 +313,10 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
 
             tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
                     tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
-            std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
-                    std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
+            // Container (which stores data of the previous call) is captured by value, so that copies of the function are independent
+            input_output::solar_activity::SolarActivityContainer solarActivityContainer( solarActivityData );
             std::function< double( const double ) > f107Function = [ = ]( const double time ) {
-                return solarActivityContainer->getSolarActivityData( time )->solarRadioFlux107Observed / 2.25;
+                return solarActivityContainer.getSolarActivityData( time )->solarRadioFlux107Observed / 2.25;
             };
 
             // Create atmosphere model using NRLMISE00 input function

@@ -138,6 +138,21 @@ public:
         currentTime_ = TUDAT_NAN;
     }
 
+    std::string getCentralBody( )
+    {
+        return centralBody_;
+    }
+
+    bool getIsColinearWithVelocity( )
+    {
+        return isColinearWithVelocity_;
+    }
+
+    bool getDirectionIsOppositeToVector( )
+    {
+        return directionIsOppositeToVector_;
+    }
+
     virtual void update( const double time )
     {
         if( currentTime_ != time )
@@ -248,6 +263,11 @@ public:
     std::shared_ptr< InertialBodyFixedDirectionCalculator > getInertialBodyAxisDirectionCalculator( )
     {
         return directionCalculator_;
+    }
+
+    std::function< double( const double ) > getFreeRotationAngleFunction( )
+    {
+        return freeRotationAngleFunction_;
     }
 
     void setFreeRotationAngleFunction( const std::function< double( const double ) >& freeRotationAngleFunction )

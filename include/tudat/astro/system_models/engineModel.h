@@ -115,6 +115,11 @@ public:
         return thrustMagnitudeWrapper_;
     }
 
+    std::function< Eigen::Vector3d( const double ) > getBodyFixedThrustDirectionFunction( )
+    {
+        return bodyFixedThrustDirection_;
+    }
+
 protected:
     std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper_;
 

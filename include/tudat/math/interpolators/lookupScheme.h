@@ -12,6 +12,7 @@
 #ifndef TUDAT_LOOK_UP_SCHEME_H
 #define TUDAT_LOOK_UP_SCHEME_H
 
+#include <atomic>
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -126,21 +127,24 @@ public:
         // Initialize return value.
         int newNearestLowerIndex = 0;
 
+        // Retrieve index of previous call once, since the lookup scheme may be used by several threads at once
+        const int previousNearestLowerIndex = previousNearestLowerIndex_.load( std::memory_order_relaxed );
+
         // If this is first call of function, use binary search.
-        if( !isFirstLookupDone )
+        if( !isFirstLookupDone.load( std::memory_order_relaxed ) )
         {
             newNearestLowerIndex = basic_mathematics::computeNearestLeftNeighborUsingBinarySearch< IndependentVariableType >(
                     independentVariableValues_, valueToLookup );
-            isFirstLookupDone = 1;
+            isFirstLookupDone.store( true, std::memory_order_relaxed );
         }
 
         else
         {
             // If requested value is in same interval, return same value as previous time.
             if( basic_mathematics::isIndependentVariableInInterval< IndependentVariableType >(
-                        previousNearestLowerIndex_, valueToLookup, independentVariableValues_ ) )
+                        previousNearestLowerIndex, valueToLookup, independentVariableValues_ ) )
             {
-                newNearestLowerIndex = previousNearestLowerIndex_;
+                newNearestLowerIndex = previousNearestLowerIndex;
             }
             else if( valueToLookup < independentVariableValues_.at( 0 ) )
             {
@@ -150,12 +154,12 @@ public:
             else
             {
                 newNearestLowerIndex = basic_mathematics::findNearestLeftNeighbourUsingHuntingAlgorithm< IndependentVariableType >(
-                        valueToLookup, previousNearestLowerIndex_, independentVariableValues_ );
+                        valueToLookup, previousNearestLowerIndex, independentVariableValues_ );
             }
         }
 
         // Set calculated value for use in next call.
-        previousNearestLowerIndex_ = newNearestLowerIndex;
+        previousNearestLowerIndex_.store( newNearestLowerIndex, std::memory_order_relaxed );
 
         return newNearestLowerIndex;
     }
@@ -165,13 +169,13 @@ private:
     /*!
      * Boolean to denote whether a lookup has been done.
      */
-    bool isFirstLookupDone;
+    std::atomic< bool > isFirstLookupDone;
 
     //! Nearest left index during previous call.
     /*!
      * Nearest left index during previous call
      */
-    int previousNearestLowerIndex_;
+    std::atomic< int > previousNearestLowerIndex_;
 };
 
 //! Look-up scheme class for nearest left neighbour search using binary search algorithm.

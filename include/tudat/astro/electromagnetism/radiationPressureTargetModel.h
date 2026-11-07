@@ -375,6 +375,11 @@ public:
         return panelTypeIdList_;
     }
 
+    std::map< std::string, int > getMaximumNumberOfPixelsPerSource( ) const
+    {
+        return maximumNumberOfPixelsPerSource_;
+    }
+
     std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > getSelfShadowingPerSources( ) const
     {
         return selfShadowingPerSource_;

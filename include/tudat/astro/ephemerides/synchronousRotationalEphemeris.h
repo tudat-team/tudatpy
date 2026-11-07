@@ -193,6 +193,11 @@ public:
         return longitudeLibrationCalculator_;
     }
 
+    std::string getCentralBodyName( )
+    {
+        return centralBodyName_;
+    }
+
     Eigen::Vector6d getRelativeCartesianState( const double time )
     {
         return relativeStateFunction_( time, isBodyInPropagation_ );

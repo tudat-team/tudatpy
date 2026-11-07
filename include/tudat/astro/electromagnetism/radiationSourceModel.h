@@ -294,6 +294,11 @@ public:
         return originalSourceToSourceOccultingBodyNames_;
     }
 
+    const std::map< std::string, std::shared_ptr< OccultationModel > >& getOriginalSourceToSourceOccultationModels( ) const
+    {
+        return originalSourceToSourceOccultationModels_;
+    }
+
 private:
     std::function< Eigen::Vector3d( ) > sourcePositionFunction_;
     std::function< Eigen::Quaterniond( ) > sourceRotationFromLocalToGlobalFrameFunction_;
@@ -486,6 +491,11 @@ public:
     unsigned int getNumberOfPanels( ) const override
     {
         return numberOfPanels;
+    }
+
+    const std::vector< int >& getNumberOfPanelsPerRing( ) const
+    {
+        return numberOfPanelsPerRing_;
     }
 
     std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( ) override;

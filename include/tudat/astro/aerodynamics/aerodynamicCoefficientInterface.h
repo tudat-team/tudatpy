@@ -427,16 +427,23 @@ public:
      * Function to set the list of control surface aerodynamic coefficient interfaces
      * \param controlSurfaceIncrementInterfaces Map of ControlSurfaceIncrementAerodynamicInterface pointers, wach pointer
      * denoting the coefficient interface of a single control sureface, where the map key denotes the surface's name.
+     * \param printOverwriteWarning Boolean denoting whether a warning is printed if existing increments are overwritten
      */
-    void setControlSurfaceIncrements( const std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
-                                              controlSurfaceIncrementInterfaces )
+    void setControlSurfaceIncrements(
+            const std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > > controlSurfaceIncrementInterfaces,
+            const bool printOverwriteWarning = true )
     {
-        if( controlSurfaceIncrementInterfaces_.size( ) != 0 )
+        if( controlSurfaceIncrementInterfaces_.size( ) != 0 && printOverwriteWarning )
         {
             std::cerr << "Warning, overwriting existing control surface increments" << std::endl;
         }
         controlSurfaceIncrementInterfaces_ = controlSurfaceIncrementInterfaces;
         controlSurfaceNames_ = utilities::createVectorFromMapKeys( controlSurfaceIncrementInterfaces_ );
+    }
+
+    std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > > getControlSurfaceIncrementInterfaces( )
+    {
+        return controlSurfaceIncrementInterfaces_;
     }
 
     void addControlSurface( const std::string& controlSurfaceName,
@@ -668,6 +675,26 @@ public:
             currentForceCoefficients_ += forceCoefficientScalingFunction_( currentTime );
             currentMomentCoefficients_ += momentCoefficientScalingFunction_( currentTime );
         }
+    }
+
+    std::shared_ptr< AerodynamicCoefficientInterface > getBaseCoefficientInterface( )
+    {
+        return baseCoefficientInterface_;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getForceCoefficientScalingFunction( )
+    {
+        return forceCoefficientScalingFunction_;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getMomentCoefficientScalingFunction( )
+    {
+        return momentCoefficientScalingFunction_;
+    }
+
+    bool getIsScalingRelative( )
+    {
+        return isScalingRelative_;
     }
 
 private:

@@ -86,6 +86,18 @@ KeplerEphemeris::KeplerEphemeris( const Eigen::Vector6d& initialStateInKeplerian
             TUDAT_NAN, rootFinderAbsoluteTolerance, TUDAT_NAN, rootFinderMaximumNumberOfIterations, root_finders::throw_exception ) );
 }
 
+KeplerEphemeris::KeplerEphemeris( const KeplerEphemeris& keplerEphemeris ):
+    Ephemeris( keplerEphemeris ), initialStateInKeplerianElements_( keplerEphemeris.initialStateInKeplerianElements_ ),
+    semiLatusRectum_( keplerEphemeris.semiLatusRectum_ ), initialMeanAnomaly_( keplerEphemeris.initialMeanAnomaly_ ),
+    semiMajorAxis_( keplerEphemeris.semiMajorAxis_ ), eccentricity_( keplerEphemeris.eccentricity_ ),
+    rotationFromOrbitalPlane_( keplerEphemeris.rotationFromOrbitalPlane_ ),
+    rootFinder_( std::make_shared< root_finders::NewtonRaphson< double > >(
+            *std::dynamic_pointer_cast< root_finders::NewtonRaphson< double > >( keplerEphemeris.rootFinder_ ) ) ),
+    epochOfInitialState_( keplerEphemeris.epochOfInitialState_ ),
+    centralBodyGravitationalParameter_( keplerEphemeris.centralBodyGravitationalParameter_ ),
+    isOrbitHyperbolic_( keplerEphemeris.isOrbitHyperbolic_ )
+{}
+
 //! Function to get state from ephemeris.
 Eigen::Vector6d KeplerEphemeris::getCartesianState( const double secondsSinceEpoch )
 {

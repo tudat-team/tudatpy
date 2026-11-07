@@ -18,6 +18,8 @@
  *
  */
 
+#include <mutex>
+
 #include <Eigen/Core>
 
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
@@ -2435,6 +2437,10 @@ void initializeRungeKuttaFeagin1412Coefficients( RungeKuttaCoefficients& rungeKu
 
 const RungeKuttaCoefficients& RungeKuttaCoefficients::get( CoefficientSets coefficientSet )
 {
+    // Coefficients are initialized on first use, which may be done by several threads at once
+    static std::mutex initializationMutex;
+    std::lock_guard< std::mutex > initializationLock( initializationMutex );
+
     static RungeKuttaCoefficients forwardEulerCoefficients, rungeKutta4Coefficients, explicitMidPointCoefficients,
             explicitTrapezoidRuleCoefficients, ralstonCoefficients, rungeKutta3Coefficients, ralston3Coefficients, SSPRK3Coefficients,
             ralston4Coefficients, threeEighthRuleRK4Coefficients, heunEulerCoefficients, rungeKuttaFehlberg12Coefficients,

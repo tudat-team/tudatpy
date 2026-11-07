@@ -207,6 +207,21 @@ public:
         return currentState;
     }
 
+    std::shared_ptr< Ephemeris > getBaseEphemeris( )
+    {
+        return baseEphemeris_;
+    }
+
+    std::function< Eigen::Vector6d( const double ) > getStateScalingFunction( )
+    {
+        return stateScalingFunction_;
+    }
+
+    bool getIsScalingAbsolute( )
+    {
+        return isScalingAbsolute_;
+    }
+
 private:
     std::shared_ptr< Ephemeris > baseEphemeris_;
 
