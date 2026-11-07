@@ -23,6 +23,9 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/eulerAngleObservablePartials.h"
+#include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
+#include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
@@ -74,71 +77,72 @@ std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionParti
 
     SingleLinkObservationThreePartialList eulerAnglePartials;
 
-    // Define start index and size of current parameter under consideration
-    int currentIndex = 0;
-    std::pair< int, int > currentPair = std::pair< int, int >( currentIndex, 1 );
+    // Rotation of the observed body, and partials of its rotation matrix w.r.t. the estimated parameters
+    const std::string observedBody = eulerAngleLinkEnds.at( observation_models::observed_body ).bodyName_;
+    const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel = bodies.at( observedBody )->getRotationalEphemeris( );
+    const std::function< Eigen::Quaterniond( const double ) > rotationToBaseFrameFunction =
+            std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrameTemplated< double >, rotationModel, std::placeholders::_1 );
+    const RotationMatrixPartialNamedList rotationMatrixPartials =
+            createRotationMatrixPartials( parametersToEstimate, observedBody, bodies );
 
+    // Iterate over the estimated initial states
+    int currentIndex = 0;
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > >
             initialDynamicalParameters = parametersToEstimate->getEstimatedInitialStateParameters( );
-
-    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
-                    initialDynamicalParameters.at( i ) ) != nullptr )
+        const estimatable_parameters::EstimatebleParameterIdentifier parameterName =
+                initialDynamicalParameters.at( i )->getParameterName( );
+        if( parameterName.first == estimatable_parameters::initial_rotational_body_state && parameterName.second.first == observedBody )
         {
-            // Create partial (if needed)
-            std::shared_ptr< ObservationPartial< 3 > > currentObservablePartial =
-                    createEulerAngleObservablePartialWrtCurrentRotationalState(
-                            initialDynamicalParameters.at( i )->getParameterName( ),
-                            std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrameTemplated< double >,
-                                       bodies.at( initialDynamicalParameters.at( i )->getParameterName( ).second.first )
-                                               ->getRotationalEphemeris( ),
-                                       std::placeholders::_1 ) );
-
-            // If partial exists, then dependency exists and parameter must be added.
-            if( currentObservablePartial != nullptr )
+            eulerAnglePartials[ std::make_pair( currentIndex, 7 ) ] =
+                    createEulerAngleObservablePartialWrtCurrentRotationalState( parameterName, rotationToBaseFrameFunction );
+        }
+        else if( ( parameterName.first == estimatable_parameters::initial_body_state ||
+                   parameterName.first == estimatable_parameters::arc_wise_initial_body_state ) &&
+                 rotationMatrixPartials.count( std::make_pair( estimatable_parameters::initial_body_state, "" ) ) > 0 )
+        {
+            // Rotation model that depends on the state of the observed body w.r.t. its central body
+            const std::string centralBody =
+                    std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( rotationModel )->getCentralBodyName( );
+            if( parameterName.second.first == observedBody || parameterName.second.first == centralBody )
             {
-                currentPair = std::pair< int, int >( currentIndex, 7 );
-                eulerAnglePartials[ currentPair ] = currentObservablePartial;
+                eulerAnglePartials[ std::make_pair( currentIndex, 6 ) ] =
+                        std::make_shared< EulerAngleObservationPartialWrtRotationParameter >(
+                                parameterName,
+                                rotationMatrixPartials.at( std::make_pair( estimatable_parameters::initial_body_state, "" ) ),
+                                rotationToBaseFrameFunction,
+                                parameterName.second.first == observedBody ? 1.0 : -1.0 );
             }
         }
         currentIndex += initialDynamicalParameters.at( i )->getParameterSize( );
     }
 
-    // Iterate over all double parameters that are to be estimated.
-    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParametersToEstimate =
-            parametersToEstimate->getDoubleParameters( );
-    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator parameterIterator =
-                 doubleParametersToEstimate.begin( );
-         parameterIterator != doubleParametersToEstimate.end( );
-         parameterIterator++ )
+    // Iterate over the estimated rotation model parameters of the observed body
+    for( auto parameterIterator : parametersToEstimate->getDoubleParameters( ) )
     {
-        if( estimatable_parameters::isParameterRotationMatrixProperty( parameterIterator->second->getParameterName( ).first ) )
+        const estimatable_parameters::EstimatebleParameterIdentifier parameterName = parameterIterator.second->getParameterName( );
+        if( parameterName.second.first == observedBody && estimatable_parameters::isParameterRotationMatrixProperty( parameterName.first ) )
         {
-            throw std::runtime_error(
-                    "Error when making Euler angle partial, found kinematic rotation parameter: " +
-                    std::to_string( estimatable_parameters::isParameterRotationMatrixProperty(
-                            parameterIterator->second->getParameterName( ).first ) ) +
-                    ". Computation requires derivatives of Euler angles w.r.t. rotation matrix entries, which is not yet implemented." );
+            eulerAnglePartials[ std::make_pair( parameterIterator.first, 1 ) ] =
+                    std::make_shared< EulerAngleObservationPartialWrtRotationParameter >(
+                            parameterName,
+                            rotationMatrixPartials.at(
+                                    std::make_pair( parameterName.first, parameterIterator.second->getSecondaryIdentifier( ) ) ),
+                            rotationToBaseFrameFunction );
         }
     }
-
-    // Iterate over all vector parameters that are to be estimated.
-    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate =
-            parametersToEstimate->getVectorParameters( );
-    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator parameterIterator =
-                 vectorParametersToEstimate.begin( );
-         parameterIterator != vectorParametersToEstimate.end( );
-         parameterIterator++ )
+    for( auto parameterIterator : parametersToEstimate->getVectorParameters( ) )
     {
-        if( estimatable_parameters::isParameterRotationMatrixProperty( parameterIterator->second->getParameterName( ).first ) )
+        const estimatable_parameters::EstimatebleParameterIdentifier parameterName = parameterIterator.second->getParameterName( );
+        if( parameterName.second.first == observedBody && estimatable_parameters::isParameterRotationMatrixProperty( parameterName.first ) )
         {
-            throw std::runtime_error(
-                    "Error when making Euler angle partial, found kinematic rotation parameter: " +
-                    std::to_string( estimatable_parameters::isParameterRotationMatrixProperty(
-                            parameterIterator->second->getParameterName( ).first ) ) +
-                    ". Computation requires derivatives of Euler angles w.r.t. rotation matrix entries, which is not yet implemented." );
+            eulerAnglePartials[ std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) ] =
+                    std::make_shared< EulerAngleObservationPartialWrtRotationParameter >(
+                            parameterName,
+                            rotationMatrixPartials.at(
+                                    std::make_pair( parameterName.first, parameterIterator.second->getSecondaryIdentifier( ) ) ),
+                            rotationToBaseFrameFunction );
         }
     }
 
