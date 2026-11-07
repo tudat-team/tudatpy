@@ -104,13 +104,16 @@ SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis, const bool useS
                                                             phobosCosineGravityFieldCoefficients,
                                                             phobosSineGravityFieldCoefficients,
                                                             phobosScaledMeanMomentOfInertia );
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > phobosGravityField =
+            std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
+                                                                             phobosReferenceRadius,
+                                                                             phobosCosineGravityFieldCoefficients,
+                                                                             phobosSineGravityFieldCoefficients,
+                                                                             "Phobos_Fixed" );
+    bodies.at( "Phobos" )->setGravityFieldModel( phobosGravityField );
     bodies.at( "Phobos" )
-            ->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
-                                                                                                     phobosReferenceRadius,
-                                                                                                     phobosCosineGravityFieldCoefficients,
-                                                                                                     phobosSineGravityFieldCoefficients,
-                                                                                                     "Phobos_Fixed",
-                                                                                                     phobosScaledMeanMomentOfInertia ) );
+            ->setMassProperties( std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                    phobosGravityField, phobosScaledMeanMomentOfInertia ) );
 
     // Set Phobos dummy rotational ephemeris
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );

@@ -32,6 +32,7 @@
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include <limits>
 #include <string>
 
@@ -72,6 +73,160 @@ Eigen::Matrix3d dummyInertiaTensorFunction2( const double mass )
 {
     return 3.0 * Eigen::Matrix3d::Identity( ) -
             ( Eigen::Vector3d::Ones( ) * Eigen::Vector3d::Ones( ).transpose( ) ) * ( 5.0E3 - mass ) / 1000.0;
+}
+
+//! Test inertia tensor derived from gravity field (if available), and that explicitly set rigid body properties are not replaced by
+//! properties derived from the gravity field.
+BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
+{
+    using namespace gravitation;
+    using namespace simulation_setup;
+
+    std::shared_ptr< Body > body = std::make_shared< Body >( );
+    body->setBodyName( "TestBody" );
+
+    // Check that a point-mass gravity field defines no inertia tensor
+    body->setGravityFieldModel( std::make_shared< GravityFieldModel >( 4.0E5 ) );
+    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorAvailable( ) );
+
+    // Check inertia tensor from static degree two field and scaled mean moment of inertia, against principal
+    // moments computed from the unnormalized coefficients
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    cosineCoefficients( 2, 0 ) = -1.0E-3;
+    cosineCoefficients( 2, 2 ) = 2.0E-4;
+    std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicField = std::make_shared< SphericalHarmonicsGravityField >(
+            4.0E5, 2.0E3, cosineCoefficients, Eigen::MatrixXd::Zero( 3, 3 ), "BodyFixed" );
+    body->setGravityFieldModel( sphericalHarmonicField );
+    body->setMassProperties( std::make_shared< FromGravityFieldRigidBodyProperties >( sphericalHarmonicField, 0.4 ) );
+
+    const double c20 = -1.0E-3 * std::sqrt( 5.0 );
+    const double c22 = 2.0E-4 * std::sqrt( 5.0 / 12.0 );
+    const Eigen::Vector3d scaledPrincipalMoments( 0.4 + c20 / 3.0 - 2.0 * c22, 0.4 + c20 / 3.0 + 2.0 * c22, 0.4 - 2.0 * c20 / 3.0 );
+    const Eigen::Matrix3d expectedInertiaTensor =
+            ( 4.0E5 / physical_constants::GRAVITATIONAL_CONSTANT ) * ( 2.0E3 * 2.0E3 ) * scaledPrincipalMoments.asDiagonal( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), expectedInertiaTensor, 5.0E-15 );
+
+    // Check that explicitly set rigid body properties are retained when resetting the gravity field
+    const Eigen::Matrix3d explicitInertiaTensor = 7.0 * Eigen::Matrix3d::Identity( );
+    std::shared_ptr< TimeDependentRigidBodyProperties > explicitProperties =
+            std::make_shared< TimeDependentRigidBodyProperties >( 12.0, Eigen::Vector3d::Zero( ), explicitInertiaTensor );
+    body->setMassProperties( explicitProperties );
+    body->setGravityFieldModel( std::make_shared< GravityFieldModel >( 9.0E5 ) );
+    BOOST_CHECK( body->getMassProperties( ) == explicitProperties );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), explicitInertiaTensor, 5.0E-15 );
+}
+
+//! Test creation of rigid body properties from deprecated (gravity field) settings, gravity-derived settings and explicit settings,
+//! and the update of gravity-derived properties when the gravity field changes.
+BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization )
+{
+    using namespace gravitation;
+    using namespace simulation_setup;
+
+    const double gravitationalParameter = 4.0e5;
+    const double referenceRadius = 2.0e3;
+    const double scaledMeanMomentOfInertia = 0.4;
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    cosineCoefficients( 1, 0 ) = 1.0e-5;
+    cosineCoefficients( 1, 1 ) = -2.0e-5;
+    sineCoefficients( 1, 1 ) = 3.0e-5;
+    cosineCoefficients( 2, 0 ) = -1.0e-3;
+    cosineCoefficients( 2, 2 ) = 2.0e-4;
+    sineCoefficients( 2, 1 ) = -3.0e-4;
+
+    const auto makeGravitySettings = [ & ]( const double legacyScaledMeanMoment = TUDAT_NAN ) {
+        return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "BodyFixed", legacyScaledMeanMoment );
+    };
+
+    BodyListSettings settings;
+    for( const std::string bodyName : { "Legacy", "FromGravityField", "NoInertia", "Explicit" } )
+    {
+        settings.addSettings( bodyName );
+    }
+    settings.at( "Legacy" )->gravityFieldSettings = makeGravitySettings( scaledMeanMomentOfInertia );
+    settings.at( "FromGravityField" )->gravityFieldSettings = makeGravitySettings( );
+    settings.at( "FromGravityField" )->rigidBodyPropertiesSettings =
+            fromGravityFieldRigidBodyPropertiesSettings( scaledMeanMomentOfInertia );
+    settings.at( "NoInertia" )->gravityFieldSettings = makeGravitySettings( );
+
+    const double explicitMass = 123.0;
+    const Eigen::Vector3d explicitCenterOfMass = ( Eigen::Vector3d( ) << 1.0, 2.0, 3.0 ).finished( );
+    const Eigen::Matrix3d explicitInertia = 7.0 * Eigen::Matrix3d::Identity( );
+    settings.at( "Explicit" )->gravityFieldSettings = makeGravitySettings( scaledMeanMomentOfInertia );
+    settings.at( "Explicit" )->rigidBodyPropertiesSettings =
+            constantRigidBodyPropertiesSettings( explicitMass, explicitCenterOfMass, explicitInertia );
+
+    SystemOfBodies bodies = createSystemOfBodies( settings );
+    const std::shared_ptr< Body > legacyBody = bodies.at( "Legacy" );
+    const std::shared_ptr< Body > fromGravityFieldBody = bodies.at( "FromGravityField" );
+    const std::shared_ptr< Body > noInertiaBody = bodies.at( "NoInertia" );
+    const std::shared_ptr< Body > explicitBody = bodies.at( "Explicit" );
+
+    // Check that deprecated and gravity-derived settings result in identical rigid body properties
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > legacyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( legacyBody->getMassProperties( ) );
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > fromGravityFieldProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( fromGravityFieldBody->getMassProperties( ) );
+    BOOST_REQUIRE( legacyProperties != nullptr );
+    BOOST_REQUIRE( fromGravityFieldProperties != nullptr );
+    BOOST_CHECK_CLOSE_FRACTION( legacyProperties->getScaledMeanMomentOfInertia( ), scaledMeanMomentOfInertia, 5.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( fromGravityFieldProperties->getScaledMeanMomentOfInertia( ), scaledMeanMomentOfInertia, 5.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( legacyBody->getBodyMass( ), fromGravityFieldBody->getBodyMass( ), 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            legacyBody->getBodyFixedCenterOfMass( ), fromGravityFieldBody->getBodyFixedCenterOfMass( ), 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyBody->getBodyInertiaTensor( ), fromGravityFieldBody->getBodyInertiaTensor( ), 5.0e-15 );
+
+    // Check center of mass from degree one coefficients
+    const Eigen::Vector3d expectedCenterOfMass =
+            referenceRadius * std::sqrt( 3.0 ) * ( Eigen::Vector3d( ) << -2.0e-5, 3.0e-5, 1.0e-5 ).finished( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyFixedCenterOfMass( ), expectedCenterOfMass, 5.0e-15 );
+
+    // Check that no inertia tensor is defined without scaled mean moment of inertia
+    BOOST_REQUIRE( noInertiaBody->getMassProperties( ) != nullptr );
+    BOOST_CHECK( !noInertiaBody->getMassProperties( )->isInertiaTensorAvailable( ) );
+
+    // Check that explicit rigid body settings take precedence over deprecated gravity field settings
+    BOOST_CHECK( std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( explicitBody->getMassProperties( ) ) == nullptr );
+    BOOST_CHECK_CLOSE_FRACTION( explicitBody->getBodyMass( ), explicitMass, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyFixedCenterOfMass( ), explicitCenterOfMass, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
+
+    // Check update of mass and inertia tensor after changing gravitational parameter
+    const double initialMass = fromGravityFieldBody->getBodyMass( );
+    const Eigen::Matrix3d initialInertia = fromGravityFieldBody->getBodyInertiaTensor( );
+    fromGravityFieldBody->getGravityFieldModel( )->resetGravitationalParameter( 2.0 * gravitationalParameter );
+    fromGravityFieldBody->getMassProperties( )->update( 0.0 );
+    BOOST_CHECK_CLOSE_FRACTION( fromGravityFieldBody->getBodyMass( ), 2.0 * initialMass, 5.0e-15 );
+    const Eigen::Matrix3d expectedInertiaAfterMassUpdate = 2.0 * initialInertia;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyInertiaTensor( ), expectedInertiaAfterMassUpdate, 5.0e-15 );
+
+    const std::shared_ptr< SphericalHarmonicsGravityField > fromGravityFieldGravityField =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( fromGravityFieldBody->getGravityFieldModel( ) );
+    BOOST_REQUIRE( fromGravityFieldGravityField != nullptr );
+    Eigen::MatrixXd modifiedCosineCoefficients = cosineCoefficients;
+    // Check update of center of mass and inertia tensor after changing degree one and two coefficients
+    modifiedCosineCoefficients( 1, 1 ) *= 2.0;
+    modifiedCosineCoefficients( 2, 0 ) *= 1.5;
+    fromGravityFieldGravityField->setCosineCoefficients( modifiedCosineCoefficients );
+    fromGravityFieldBody->getMassProperties( )->update( 0.0 );
+    Eigen::Vector3d expectedUpdatedCenterOfMass = expectedCenterOfMass;
+    expectedUpdatedCenterOfMass.x( ) *= 2.0;
+    const double inertiaChangeScale = fromGravityFieldBody->getBodyMass( ) * referenceRadius * referenceRadius * std::sqrt( 5.0 ) *
+            ( modifiedCosineCoefficients( 2, 0 ) - cosineCoefficients( 2, 0 ) ) / 3.0;
+    const Eigen::Matrix3d expectedCoefficientInertiaChange = inertiaChangeScale * Eigen::Vector3d( 1.0, 1.0, -2.0 ).asDiagonal( );
+    const Eigen::Matrix3d expectedUpdatedInertia = expectedInertiaAfterMassUpdate + expectedCoefficientInertiaChange;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyFixedCenterOfMass( ), expectedUpdatedCenterOfMass, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fromGravityFieldBody->getBodyInertiaTensor( ), expectedUpdatedInertia, 5.0e-15 );
+
+    // Check that explicit rigid body properties are not changed by changing the gravity field
+    explicitBody->getGravityFieldModel( )->resetGravitationalParameter( 3.0 * gravitationalParameter );
+    explicitBody->getMassProperties( )->update( 0.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( explicitBody->getBodyMass( ), explicitMass, 5.0e-15 );
 }
 
 BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )

@@ -15,16 +15,19 @@ and added to the associated :class:`~tudatpy.dynamics.environment.Body` object b
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.rigid_body_properties` attribute.
 
 The models defined here **do not** define a gravity field of a body. However, when a body is endowed with a
-gravity field (see :ref:`gravity_field`), compatible rigid body settings are automatically created, mapping the gravitational
-parameter of the gravity field to a mass here. For a :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`
-gravity field, the degree-one coefficients are used to set the body center of mass.
-In addition, when creating a spherical harmonic gravity field, and specifying a :attr:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia`, an inertia tensor is created and defined in the rigid-body settings.
+gravity field (see :ref:`gravity_field`), compatible rigid body settings are automatically created (unless rigid body settings are
+specified by the user), mapping the gravitational parameter of the gravity field to a mass here. For a
+:func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` gravity field, the degree-one coefficients are used to set
+the body center of mass. To also define an inertia tensor from the degree-two coefficients, the scaled mean moment of inertia must be
+provided, using the :func:`~tudatpy.dynamics.environment_setup.rigid_body.from_gravity_field` function.
 
 Functions
 ---------
 .. currentmodule:: tudatpy.dynamics.environment_setup.rigid_body
 
 .. autosummary::
+
+   from_gravity_field
 
    constant_rigid_body_properties
 
@@ -33,6 +36,8 @@ Functions
    custom_mass_dependent_rigid_body_properties
 
 
+
+.. autofunction:: tudatpy.dynamics.environment_setup.rigid_body.from_gravity_field
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rigid_body.constant_rigid_body_properties
 
@@ -53,10 +58,14 @@ Classes
 
    RigidBodyPropertiesSettings
 
+   FromGravityFieldRigidBodyPropertiesSettings
+
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.rigid_body.RigidBodyPropertiesSettings
    :members:
 
+.. autoclass:: tudatpy.dynamics.environment_setup.rigid_body.FromGravityFieldRigidBodyPropertiesSettings
+   :members:
 
 

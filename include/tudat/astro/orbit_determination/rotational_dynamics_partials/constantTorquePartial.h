@@ -122,7 +122,11 @@ public:
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );
 
-            currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+            // This function is not defined for all bodies, and is only used by partials that check for its existence
+            if( getInertiaTensorNormalizationFactor_ != nullptr )
+            {
+                currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+            }
 
             currentTotalTorque_.setZero( );
             for( auto it = torqueVector_.begin( ); it != torqueVector_.end( ); it++ )
