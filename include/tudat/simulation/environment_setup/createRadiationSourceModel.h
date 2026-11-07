@@ -665,6 +665,24 @@ std::shared_ptr< electromagnetism::RadiationSourceModel > createRadiationSourceM
         const std::string& sourceBodyName,
         const SystemOfBodies& bodies );
 
+//! Function to create a radiation source model without closure (link of paneled source to its original sources)
+std::shared_ptr< electromagnetism::RadiationSourceModel > createRadiationSourceModelWithoutClosure(
+        const std::shared_ptr< RadiationSourceModelSettings >& modelSettings,
+        const std::string& sourceBodyName,
+        const SystemOfBodies& bodies );
+
+//! Function to apply the closure of a radiation source model (link of paneled source to its original sources)
+bool applyEnvironmentModelClosure( const std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel,
+                                   const std::string& sourceBodyName,
+                                   const SystemOfBodies& bodies );
+
+//! Function to create the object that updates the panels of a paneled source, from the names of the original sources
+std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSourcePanelRadiosityModelUpdater(
+        const std::vector< std::string >& originalSourceBodyNames,
+        const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodiesMap,
+        const std::string& sourceBodyName,
+        const SystemOfBodies& bodies );
+
 }  // namespace simulation_setup
 }  // namespace tudat
 

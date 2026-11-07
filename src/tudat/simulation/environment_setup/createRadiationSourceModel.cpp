@@ -137,15 +137,8 @@ std::unique_ptr< electromagnetism::SourcePanelRadiosityModel > createPanelRadios
     return panelRadiosityModel;
 }
 
-std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSourcePanelRadiosityModelUpdater(
-        const std::vector< std::shared_ptr< PanelRadiosityModelSettings > >& modelSettings,
-        const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodiesMap,
-        const std::string& sourceBodyName,
-        const SystemOfBodies& bodies )
+std::vector< std::string > getOriginalSourceBodyNames( const std::vector< std::shared_ptr< PanelRadiosityModelSettings > >& modelSettings )
 {
-    auto sourceBody = bodies.at( sourceBodyName );
-
-    // Collect original source body names
     std::set< std::string > originalSourceBodyNames;
     for( auto& radiosityModelSetting : modelSettings )
     {
@@ -156,6 +149,26 @@ std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSour
             originalSourceBodyNames.insert( originalSourceDependentRadiosityModelSetting->getOriginalSourceName( ) );
         }
     }
+    return std::vector< std::string >( originalSourceBodyNames.begin( ), originalSourceBodyNames.end( ) );
+}
+
+std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSourcePanelRadiosityModelUpdater(
+        const std::vector< std::shared_ptr< PanelRadiosityModelSettings > >& modelSettings,
+        const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodiesMap,
+        const std::string& sourceBodyName,
+        const SystemOfBodies& bodies )
+{
+    return createSourcePanelRadiosityModelUpdater(
+            getOriginalSourceBodyNames( modelSettings ), originalSourceToSourceOccultingBodiesMap, sourceBodyName, bodies );
+}
+
+std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSourcePanelRadiosityModelUpdater(
+        const std::vector< std::string >& originalSourceBodyNames,
+        const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodiesMap,
+        const std::string& sourceBodyName,
+        const SystemOfBodies& bodies )
+{
+    auto sourceBody = bodies.at( sourceBodyName );
 
     // Collect original source properties
     std::map< std::string, std::shared_ptr< electromagnetism::IsotropicPointRadiationSourceModel > > originalSourceModels;
@@ -225,7 +238,35 @@ std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSour
             originalSourceToSourceOccultationModels );
 }
 
+bool applyEnvironmentModelClosure( const std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel,
+                                   const std::string& sourceBodyName,
+                                   const SystemOfBodies& bodies )
+{
+    std::shared_ptr< electromagnetism::PaneledRadiationSourceModel > paneledSourceModel =
+            std::dynamic_pointer_cast< electromagnetism::PaneledRadiationSourceModel >( radiationSourceModel );
+    if( paneledSourceModel != nullptr )
+    {
+        paneledSourceModel->applyEnvironmentModelClosure(
+                createSourcePanelRadiosityModelUpdater( paneledSourceModel->getOriginalSourceBodyNames( ),
+                                                        paneledSourceModel->getOriginalSourceToSourceOccultingBodies( ),
+                                                        sourceBodyName,
+                                                        bodies ) );
+    }
+    return true;
+}
+
 std::shared_ptr< electromagnetism::RadiationSourceModel > createRadiationSourceModel(
+        const std::shared_ptr< RadiationSourceModelSettings >& modelSettings,
+        const std::string& sourceBodyName,
+        const SystemOfBodies& bodies )
+{
+    std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel =
+            createRadiationSourceModelWithoutClosure( modelSettings, sourceBodyName, bodies );
+    applyEnvironmentModelClosure( radiationSourceModel, sourceBodyName, bodies );
+    return radiationSourceModel;
+}
+
+std::shared_ptr< electromagnetism::RadiationSourceModel > createRadiationSourceModelWithoutClosure(
         const std::shared_ptr< RadiationSourceModelSettings >& modelSettings,
         const std::string& sourceBodyName,
         const SystemOfBodies& bodies )
@@ -276,18 +317,16 @@ std::shared_ptr< electromagnetism::RadiationSourceModel > createRadiationSourceM
                 radiosityModels.push_back( createPanelRadiosityModel( radiosityModelSetting, sourceBodyName ) );
             }
 
-            auto sourcePanelRadiosityModelUpdater =
-                    createSourcePanelRadiosityModelUpdater( paneledModelSettings->getPanelRadiosityModelSettings( ),
-                                                            paneledModelSettings->getOriginalSourceToSourceOccultingBodies( ),
-                                                            sourceBodyName,
-                                                            bodies );
-
-            radiationSourceModel =
+            // Object to update panels from original sources is set by closure of model
+            std::shared_ptr< DynamicallyPaneledRadiationSourceModel > paneledSourceModel =
                     std::make_shared< DynamicallyPaneledRadiationSourceModel >( sourceBody->getShapeModel( ),
-                                                                                std::move( sourcePanelRadiosityModelUpdater ),
+                                                                                nullptr,
                                                                                 radiosityModels,
                                                                                 paneledModelSettings->getNumberOfPanelsPerRing( ),
                                                                                 sourceBodyName );
+            paneledSourceModel->setOriginalSources( getOriginalSourceBodyNames( paneledModelSettings->getPanelRadiosityModelSettings( ) ),
+                                                    paneledModelSettings->getOriginalSourceToSourceOccultingBodies( ) );
+            radiationSourceModel = paneledSourceModel;
             break;
         }
         default:

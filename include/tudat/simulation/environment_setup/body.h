@@ -89,6 +89,18 @@ class VehicleSystems;
 namespace simulation_setup
 {
 
+//! Types of environment models of a body that may require closure (links to environment models of other bodies, or of the
+//! same body), which is applied in the setup layer (see environmentModelClosure.h)
+enum EnvironmentModelClosureType {
+    rotation_model_closure,
+    gravity_field_variations_closure,
+    flight_conditions_closure,
+    aerodynamic_coefficients_closure,
+    vehicle_systems_closure,
+    radiation_source_closure,
+    radiation_pressure_target_closure
+};
+
 //! Body class representing the properties of a celestial body (natural or artificial).
 /*!
  *  Body class representing the properties of a celestial body (natural or artificial). By storing
@@ -832,6 +844,29 @@ public:
         return climateModel_;
     }
 
+    //! Function to register that an environment model (type) of this body requires closure, which is not yet applied
+    void setEnvironmentModelRequiresClosure( const EnvironmentModelClosureType closureType )
+    {
+        environmentModelClosureStates_[ closureType ] = false;
+    }
+
+    //! Function to register that the closure of an environment model (type) of this body has been applied
+    void setEnvironmentModelClosureApplied( const EnvironmentModelClosureType closureType )
+    {
+        if( environmentModelClosureStates_.count( closureType ) == 0 )
+        {
+            throw std::runtime_error( "Error when setting closure of environment model of body " + bodyName_ +
+                                      " as applied, model was not registered as requiring closure" );
+        }
+        environmentModelClosureStates_[ closureType ] = true;
+    }
+
+    //! Function to retrieve the environment models (types) of this body that require closure, and whether it has been applied
+    const std::map< EnvironmentModelClosureType, bool >& getEnvironmentModelClosureStates( ) const
+    {
+        return environmentModelClosureStates_;
+    }
+
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -941,6 +976,9 @@ private:
     std::shared_ptr< environment::ClimateModel > climateModel_;
 
     std::shared_ptr< TimeEphemeris > timeScaleConverter_;
+
+    //! Environment models (types) of this body that require closure, and whether it has been applied
+    std::map< EnvironmentModelClosureType, bool > environmentModelClosureStates_;
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)

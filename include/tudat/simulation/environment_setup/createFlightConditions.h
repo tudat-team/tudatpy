@@ -29,11 +29,28 @@ namespace simulation_setup
 class Body;
 class SystemOfBodies;
 
+//! Function to create an aerodynamic angle calculator from the current states and rotation of the body and central body
+std::shared_ptr< reference_frames::AerodynamicAngleCalculator > createAerodynamicAngleCalculatorFromBodyStates(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyExertingAcceleration );
+
 std::shared_ptr< reference_frames::AerodynamicAngleCalculator > createAerodynamicAngleCalculator(
         const std::shared_ptr< Body > bodyWithFlightConditions,
         const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
+
+//! Function to apply the closure of flight conditions: set the environment models from which they are computed. Returns false if
+//! the closure cannot yet be applied (aerodynamic angle based rotation model of the body not closed).
+bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+                                   const std::string& bodyName,
+                                   const SystemOfBodies& bodies );
+
+//! Function to create flight conditions without closure (atmospheric if the central body has an atmosphere)
+std::shared_ptr< aerodynamics::FlightConditions > createFlightConditionsWithoutClosure( const SystemOfBodies& bodies,
+                                                                                        const std::string& bodyName,
+                                                                                        const std::string& centralBodyName );
 
 //! Function to create an atmospheric flight conditions object
 /*!

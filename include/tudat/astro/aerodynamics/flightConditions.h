@@ -73,8 +73,15 @@ public:
                       const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
                               std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
 
+    //! Constructor for flight conditions without environment models (which are set by the closure of the model)
+    FlightConditions( const std::string& centralBodyName );
+
     //! Destructor
     virtual ~FlightConditions( ) {}
+
+    //! Function to apply the closure of this model: (re)set the environment models from which the flight conditions are computed
+    void applyEnvironmentModelClosure( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                                       const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
     std::string getCentralBody( )
     {
@@ -295,7 +302,7 @@ protected:
     }
 
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
-    const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Name of central body (i.e. body with the atmosphere)
     std::string centralBody_;
@@ -358,6 +365,16 @@ public:
                                  const std::string centralBodyName,
                                  const std::function< double( const std::string& ) > controlSurfaceDeflectionFunction =
                                          std::function< double( const std::string& ) >( ) );
+
+    //! Constructor for flight conditions without environment models (which are set by the closure of the model)
+    AtmosphericFlightConditions( const std::string& centralBodyName ): FlightConditions( centralBodyName ) {}
+
+    //! Function to apply the closure of this model: (re)set the environment models from which the flight conditions are computed
+    void applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
+                                       const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                                       const std::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
+                                       const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+                                       const std::function< double( const std::string& ) > controlSurfaceDeflectionFunction );
 
     //! Function to update all flight conditions.
     /*!

@@ -122,7 +122,67 @@ RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr< elec
     return targetModelType;
 }
 
+bool applyEnvironmentModelClosure( const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies )
+{
+    std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > paneledTargetModel =
+            std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( targetModel );
+    if( paneledTargetModel != nullptr )
+    {
+        std::shared_ptr< system_models::VehicleSystems > vehicleSystems = bodies.at( body )->getVehicleSystems( );
+        if( vehicleSystems == nullptr )
+        {
+            throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body + ", but no system models found" );
+        }
+
+        std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > sortedBodyPanelMap =
+                vehicleSystems->getVehicleExteriorPanels( );
+        if( sortedBodyPanelMap.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body + ", no panels defined" );
+        }
+
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > bodyFixedPanels;
+        std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > segmentFixedPanels;
+        std::map< std::string, std::function< Eigen::Quaterniond( ) > > segmentFixedToBodyFixedRotations;
+        for( auto it : sortedBodyPanelMap )
+        {
+            if( it.first != "" )
+            {
+                segmentFixedPanels[ it.first ] = it.second;
+                segmentFixedToBodyFixedRotations[ it.first ] =
+                        std::bind( &system_models::VehicleSystems::getPartRotationToBaseFrame, vehicleSystems, it.first );
+            }
+            else
+            {
+                bodyFixedPanels = it.second;
+            }
+        }
+        paneledTargetModel->applyEnvironmentModelClosure( bodyFixedPanels,
+                                                          vehicleSystems->getAllPanels( ),
+                                                          segmentFixedPanels,
+                                                          segmentFixedToBodyFixedRotations,
+                                                          vehicleSystems->isPanelGeometryDefined( ) );
+    }
+    return true;
+}
+
 std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > createRadiationPressureTargetModel(
+        const std::shared_ptr< RadiationPressureTargetModelSettings >& modelSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies )
+{
+    std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > targetModels =
+            createRadiationPressureTargetModelWithoutClosure( modelSettings, body, bodies );
+    for( auto targetModel : targetModels )
+    {
+        applyEnvironmentModelClosure( targetModel, body, bodies );
+    }
+    return targetModels;
+}
+
+std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > createRadiationPressureTargetModelWithoutClosure(
         const std::shared_ptr< RadiationPressureTargetModelSettings >& modelSettings,
         const std::string& body,
         const SystemOfBodies& bodies )
@@ -172,32 +232,16 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
                 throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body + ", no panels defined" );
             }
 
-            std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > bodyFixedPanels;
-            std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > segmentFixedPanels;
-            std::map< std::string, std::function< Eigen::Quaterniond( ) > > segmentFixedToBodyFixedRotations;
-
-            for( auto it : sortedBodyPanelMap )
+            // Settings may be of base type (without self-shadowing settings)
+            std::map< std::string, int > maximumNumberOfPixelsPerSource;
+            if( panelledTargetModelSettings != nullptr )
             {
-                if( it.first != "" )
-                {
-                    segmentFixedPanels[ it.first ] = it.second;
-                    segmentFixedToBodyFixedRotations[ it.first ] = std::bind(
-                            &system_models::VehicleSystems::getPartRotationToBaseFrame, bodies.at( body )->getVehicleSystems( ), it.first );
-                }
-                else
-                {
-                    bodyFixedPanels = it.second;
-                }
+                maximumNumberOfPixelsPerSource = panelledTargetModelSettings->getMaximumNumberOfPixelsPerSource( );
             }
 
-            radiationPressureTargetModels.push_back( std::make_shared< PaneledRadiationPressureTargetModel >(
-                    bodyFixedPanels,
-                    bodies.at( body )->getVehicleSystems( )->getAllPanels( ),
-                    segmentFixedPanels,
-                    segmentFixedToBodyFixedRotations,
-                    sourceToTargetOccultingBodies,
-                    panelledTargetModelSettings->getMaximumNumberOfPixelsPerSource( ),
-                    bodies.at( body )->getVehicleSystems( )->isPanelGeometryDefined( ) ) );
+            // Panels are set by closure of model
+            radiationPressureTargetModels.push_back(
+                    std::make_shared< PaneledRadiationPressureTargetModel >( sourceToTargetOccultingBodies, maximumNumberOfPixelsPerSource ) );
             break;
         }
         case RadiationPressureTargetModelType::multi_type_target: {
@@ -216,7 +260,7 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
                     throw std::runtime_error( "Error, cannot have multiple nested multi-type target model settings" );
                 }
                 radiationPressureTargetModels.push_back(
-                        createRadiationPressureTargetModel(
+                        createRadiationPressureTargetModelWithoutClosure(
                                 multiTargetModelSettings->radiationPressureTargetModelSettings_.at( i ), body, bodies )
                                 .at( 0 ) );
             }

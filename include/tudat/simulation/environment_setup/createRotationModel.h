@@ -1018,6 +1018,29 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::string& body,
         const SystemOfBodies& bodies );
 
+//! Function to create a rotation model without closure (links to other environment models). The closure is applied by
+//! applyEnvironmentModelClosure (for instance through closeSystemOfBodies).
+std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModelWithoutClosure(
+        const std::shared_ptr< RotationModelSettings > rotationModelSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies );
+
+//! Function to apply the closure of a rotation model (link it to the environment models it depends on). Returns false if the
+//! closure cannot yet be applied (models it depends on are not yet closed).
+bool applyEnvironmentModelClosure( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies );
+
+//! Function to create a direction calculator (for direction-based rotation models) without closure
+std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculatorWithoutClosure(
+        const std::shared_ptr< InertialDirectionSettings > directionSettings,
+        const std::string& body );
+
+//! Function to apply the closure of a direction calculator (for direction-based rotation models)
+void applyEnvironmentModelClosure( const std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > directionCalculator,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies );
+
 //! @get_docstring(simpleRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings( const std::string& originalFrame,
                                                                              const std::string& targetFrame,

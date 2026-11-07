@@ -25,11 +25,88 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to apply the closure of a tidal gravity field variation: set functions for states, orientation and masses of bodies
+void applyTidalGravityFieldVariationClosure( const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > tidalVariation,
+                                             const std::string& body,
+                                             const SystemOfBodies& bodies,
+                                             const bool isVariationInterpolated )
+{
+    using namespace tudat::gravitation;
+
+    std::vector< std::string > deformingBodies = tidalVariation->getDeformingBodies( );
+    std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyStateFunctions;
+    std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
+    for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+    {
+        if( bodies.count( deformingBodies[ i ] ) == 0 || bodies.at( deformingBodies[ i ] )->getGravityFieldModel( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when applying closure of tidal gravity field variation of body " + body + ", deforming body " +
+                                      deformingBodies[ i ] + " not found, or has no gravity field." );
+        }
+
+        // Create body state functions (depending on whether the variation is calculated directly during propagation, or a priori
+        // by an interpolator
+        if( isVariationInterpolated )
+        {
+            deformingBodyStateFunctions.push_back( std::bind(
+                    &Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( deformingBodies[ i ] ), std::placeholders::_1 ) );
+        }
+        else
+        {
+            deformingBodyStateFunctions.push_back( std::bind( &Body::getState, bodies.at( deformingBodies[ i ] ) ) );
+        }
+        gravitionalParametersOfDeformingBodies.push_back(
+                std::bind( &GravityFieldModel::getGravitationalParameter, bodies.at( deformingBodies[ i ] )->getGravityFieldModel( ) ) );
+    }
+
+    // Set state and orientation functions of perturbed body.
+    std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction;
+    std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
+    if( isVariationInterpolated )
+    {
+        deformedBodyStateFunction =
+                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( body ), std::placeholders::_1 );
+        deformedBodyOrientationFunction = std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
+                                                     bodies.at( body )->getRotationalEphemeris( ),
+                                                     std::placeholders::_1 );
+    }
+    else
+    {
+        deformedBodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
+        deformedBodyOrientationFunction = std::bind( &Body::getCurrentRotationToLocalFrame, bodies.at( body ) );
+    }
+
+    tidalVariation->applyEnvironmentModelClosure(
+            deformedBodyStateFunction,
+            deformedBodyOrientationFunction,
+            deformingBodyStateFunctions,
+            std::bind( &GravityFieldModel::getGravitationalParameter, bodies.at( body )->getGravityFieldModel( ) ),
+            gravitionalParametersOfDeformingBodies );
+}
+
+bool applyEnvironmentModelClosure( const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies )
+{
+    std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > variationObjects = variationSet->getVariationObjects( );
+    for( unsigned int i = 0; i < variationObjects.size( ); i++ )
+    {
+        std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > tidalVariation =
+                std::dynamic_pointer_cast< gravitation::SolidBodyTideGravityFieldVariations >( variationObjects.at( i ) );
+        if( tidalVariation != nullptr )
+        {
+            applyTidalGravityFieldVariationClosure( tidalVariation, body, bodies, variationSet->isVariationInterpolated( i ) );
+        }
+    }
+    return true;
+}
+
 //! Function to create a set of gravity field variations, stored in the associated interface class
 std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
         const std::string& body,
         const SystemOfBodies& bodies,
-        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings,
+        const bool applyClosure )
 {
     using namespace tudat::gravitation;
 
@@ -53,7 +130,8 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
         variationTypes.push_back( gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) );
 
         // Set current variation object in list.
-        variationObjects.push_back( createGravityFieldVariationsModel( gravityFieldVariationSettings.at( i ), body, bodies ) );
+        variationObjects.push_back(
+                createGravityFieldVariationsModel( gravityFieldVariationSettings.at( i ), body, bodies, applyClosure ) );
 
         if( gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) == basic_solid_body )
         {
@@ -101,7 +179,8 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
 std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const std::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
-        const SystemOfBodies& bodies )
+        const SystemOfBodies& bodies,
+        const bool applyClosure )
 {
     using namespace tudat::gravitation;
 
@@ -153,65 +232,27 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                 throw std::runtime_error( "Error, incorrect variation type when making tidal gravity field variation" );
             }
 
-            // Define list of required input.
-            std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction;
-            std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
-            std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyStateFunctions;
-            std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
-
-            // Iterate over all bodies causing tidal perturbation.
+            // Check that deforming bodies exist, and have a gravity field
             for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
             {
-                // Check if perturbing body exists.
                 if( bodies.count( deformingBodies[ i ] ) == 0 )
                 {
                     throw std::runtime_error( "Error when making basic solid body gravity field variation, " + deformingBodies[ i ] +
                                               " deforming body not found." );
                 }
-
-                // Create body state functions (depending on whether the variation is calculated
-                // directly during propagation, or a priori by an interpolator
-                if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
-                {
-                    deformingBodyStateFunctions.push_back( std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                                                      bodies.at( deformingBodies[ i ] ),
-                                                                      std::placeholders::_1 ) );
-                }
-                else
-                {
-                    deformingBodyStateFunctions.push_back( std::bind( &Body::getState, bodies.at( deformingBodies[ i ] ) ) );
-                }
-
-                // Get gravitational parameter of perturbing bodies.
                 if( bodies.at( deformingBodies[ i ] )->getGravityFieldModel( ) == nullptr )
                 {
                     throw std::runtime_error( "Error, could not find gravity field model in body " + deformingBodies[ i ] +
                                               " when making basic sh variation for body " + body );
                 }
-                else
-                {
-                    gravitionalParametersOfDeformingBodies.push_back( std::bind(
-                            &GravityFieldModel::getGravitationalParameter, bodies.at( deformingBodies[ i ] )->getGravityFieldModel( ) ) );
-                }
             }
 
-            // Set state and orientation functions of perturbed body.
-            if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
-            {
-                deformedBodyStateFunction =
-                        std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( body ), std::placeholders::_1 );
-                deformedBodyOrientationFunction = std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                                                             bodies.at( body )->getRotationalEphemeris( ),
-                                                             std::placeholders::_1 );
-            }
-            else
-            {
-                deformedBodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
-                deformedBodyOrientationFunction = std::bind( &Body::getCurrentRotationToLocalFrame, bodies.at( body ) );
-            }
-
-            std::function< double( ) > gravitionalParameterOfDeformedBody =
-                    std::bind( &GravityFieldModel::getGravitationalParameter, bodies.at( body )->getGravityFieldModel( ) );
+            // Functions for states, orientation and masses of bodies are set by closure of variation
+            std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction;
+            std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
+            std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyStateFunctions;
+            std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
+            std::function< double( ) > gravitionalParameterOfDeformedBody;
 
             // Create basic tidal variation object.
             if( gravityFieldVariationSettings->getBodyDeformationType( ) == basic_solid_body )
@@ -245,6 +286,14 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         deformingBodies );
             }
 
+            if( applyClosure )
+            {
+                applyTidalGravityFieldVariationClosure(
+                        std::dynamic_pointer_cast< SolidBodyTideGravityFieldVariations >( gravityFieldVariationModel ),
+                        body,
+                        bodies,
+                        gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr );
+            }
             break;
         }
         case tabulated_variation: {

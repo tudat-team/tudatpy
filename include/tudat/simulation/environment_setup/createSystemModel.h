@@ -504,7 +504,13 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
 
 void addBodyExteriorPanelledShape( const std::shared_ptr< FullPanelledBodySettings > panelSettings,
                                    const std::string& bodyName,
-                                   const simulation_setup::SystemOfBodies& bodies );
+                                   const simulation_setup::SystemOfBodies& bodies,
+                                   const bool applyClosure = true );
+
+//! Function to apply the closure of the vehicle systems of a body (surface normals of panels tracking a body)
+bool applyEnvironmentModelClosure( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems,
+                                   const std::string& bodyName,
+                                   const SystemOfBodies& bodies );
 
 }  // namespace simulation_setup
 

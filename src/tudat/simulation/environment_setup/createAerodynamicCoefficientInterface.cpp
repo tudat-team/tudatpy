@@ -329,7 +329,68 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
 }
 
 //! Function to create and aerodynamic coefficient interface.
+bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies )
+{
+    using namespace aerodynamics;
+
+    bool isClosureApplied = true;
+
+    // Closure of base interface of scaled interface
+    std::shared_ptr< ScaledAerodynamicCoefficientInterface > scaledInterface =
+            std::dynamic_pointer_cast< ScaledAerodynamicCoefficientInterface >( coefficientInterface );
+    if( scaledInterface != nullptr )
+    {
+        isClosureApplied = applyEnvironmentModelClosure( scaledInterface->getBaseCoefficientInterface( ), body, bodies );
+    }
+
+    // Panels of panelled interface from vehicle systems of body
+    std::shared_ptr< PanelledAerodynamicCoefficientInterface > panelledInterface =
+            std::dynamic_pointer_cast< PanelledAerodynamicCoefficientInterface >( coefficientInterface );
+    if( panelledInterface != nullptr )
+    {
+        if( bodies.at( body )->getVehicleSystems( ) == nullptr || !bodies.at( body )->getVehicleSystems( )->isPanelGeometryDefined( ) )
+        {
+            throw std::runtime_error( "Error when applying closure of panelled aerodynamic coefficients of body " + body +
+                                      ", no panelled geometry defined" );
+        }
+        panelledInterface->getGasSurfaceInteractionModel( )->applyEnvironmentModelClosure(
+                bodies.at( body )->getVehicleSystems( )->getAllPanels( ) );
+    }
+
+    // Moment contribution of force requires flight conditions of body to be closed
+    if( coefficientInterface->getAddForceContributionToMoments( ) )
+    {
+        if( bodies.at( body )->getFlightConditions( ) == nullptr ||
+            bodies.at( body )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
+        {
+            return false;
+        }
+        coefficientInterface->applyEnvironmentModelClosure(
+                createMomentContributionInterface( coefficientInterface->getForceCoefficientsFrame( ),
+                                                   coefficientInterface->getMomentCoefficientsFrame( ),
+                                                   bodies.at( body ) ) );
+    }
+    return isClosureApplied;
+}
+
 std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterface(
+        const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies )
+{
+    std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
+            createAerodynamicCoefficientInterfaceWithoutClosure( coefficientSettings, body, bodies );
+    if( !applyEnvironmentModelClosure( coefficientInterface, body, bodies ) )
+    {
+        throw std::runtime_error( "Error when creating aerodynamic coefficient interface of body " + body +
+                                  ", closure could not be applied (moment contribution requires flight conditions)" );
+    }
+    return coefficientInterface;
+}
+
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterfaceWithoutClosure(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body,
         const SystemOfBodies& bodies )
@@ -437,7 +498,7 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
             else
             {
                 std::shared_ptr< AerodynamicCoefficientInterface > baseInterface =
-                        createAerodynamicCoefficientInterface( scaledCoefficientSettings->getBaseSettings( ), body, bodies );
+                        createAerodynamicCoefficientInterfaceWithoutClosure( scaledCoefficientSettings->getBaseSettings( ), body, bodies );
                 coefficientInterface =
                         std::make_shared< ScaledAerodynamicCoefficientInterface >( baseInterface,
                                                                                    scaledCoefficientSettings->getForceScaling( ),
@@ -477,7 +538,7 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
             }
             coefficientInterface = std::make_shared< PanelledAerodynamicCoefficientInterface >(
                     createGasSurfaceInteractionModel( panelledCoefficientSettings->getGasSurfaceInteractionModelType( ),
-                                                      bodies.at( body )->getVehicleSystems( )->getAllPanels( ),
+                                                      std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >( ),
                                                       panelledCoefficientSettings->getReferenceArea( ),
                                                       panelledCoefficientSettings->getMaximumNumberOfPixels( ),
                                                       panelledCoefficientSettings->getOnlyDrag( ) ),
@@ -516,15 +577,10 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
         coefficientInterface->setControlSurfaceIncrements( controlSurfaceIncrementInterfaces );
     }
 
-    std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface;
+    // Moment contribution interface is created by closure of the coefficient interface
     if( coefficientSettings->getAddForceContributionToMoments( ) )
     {
-        if( bodies.count( body ) == 0 )
-        {
-            throw std::runtime_error( "Error when making aerodynamic moment correction interface, no body " + body + " was found." );
-        }
-        momentContributionInterface = createMomentContributionInterface( coefficientSettings, bodies.at( body ) );
-        coefficientInterface->setMomentContributionInterface( momentContributionInterface );
+        coefficientInterface->setAddForceContributionToMoments( true );
     }
 
     return coefficientInterface;

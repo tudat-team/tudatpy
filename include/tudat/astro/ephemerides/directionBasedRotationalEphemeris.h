@@ -42,14 +42,37 @@ public:
         {
             return rotationMatrixToPropagationFrame_( time ) * getDirection( time );
         }
+        else if( directionFrame_.first != inertial_satellite_based_frame )
+        {
+            throw std::runtime_error( "Error in inertial direction calculator, model is not closed (no rotation to propagation frame)" );
+        }
         else
         {
             return getDirection( time );
         }
     }
 
+    //! Function to set the frame in which the direction is defined, and its central body
+    void setDirectionFrame( const std::pair< SatelliteBasedFrames, std::string >& directionFrame )
+    {
+        directionFrame_ = directionFrame;
+    }
+
+    std::pair< SatelliteBasedFrames, std::string > getDirectionFrame( )
+    {
+        return directionFrame_;
+    }
+
+    //! Function to apply the closure of this model: (re)set the rotation from the frame of the direction to the propagation frame
+    void applyEnvironmentModelClosure( const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame )
+    {
+        rotationMatrixToPropagationFrame_ = rotationMatrixToPropagationFrame;
+    }
+
 protected:
     std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame_;
+
+    std::pair< SatelliteBasedFrames, std::string > directionFrame_ = std::make_pair( inertial_satellite_based_frame, "" );
 };
 
 /*!
@@ -153,10 +176,23 @@ public:
         return directionIsOppositeToVector_;
     }
 
+    //! Function to apply the closure of this model: (re)set the function computing the state w.r.t. the central body, and
+    //! the rotation from the frame of the direction to the propagation frame
+    void applyEnvironmentModelClosure( const std::function< void( Eigen::Vector6d& ) > relativeStateFunction,
+                                       const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr )
+    {
+        relativeStateFunction_ = relativeStateFunction;
+        InertialBodyFixedDirectionCalculator::applyEnvironmentModelClosure( rotationMatrixToPropagationFrame );
+    }
+
     virtual void update( const double time )
     {
         if( currentTime_ != time )
         {
+            if( relativeStateFunction_ == nullptr )
+            {
+                throw std::runtime_error( "Error in state-based direction calculator, model is not closed (no relative state function)" );
+            }
             relativeStateFunction_( currentRelativeState_ );
             if( isColinearWithVelocity_ )
             {

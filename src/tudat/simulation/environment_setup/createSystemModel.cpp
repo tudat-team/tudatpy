@@ -131,9 +131,9 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         else if( variableBodyPanelGeometrySettings->bodyToTrack_.first != "" )
         {
             // Tracking a body means setting the surface normal towards the tracked body in the source local frame
+            // (surface normal is set by the closure of the vehicle systems)
             trackedBodyName = variableBodyPanelGeometrySettings->bodyToTrack_.first;
-            localFrameSurfaceNormal = createBodyTrackingSurfaceNormalFunction(
-                    bodies.at( bodyName ), bodies.at( trackedBodyName ), variableBodyPanelGeometrySettings->bodyToTrack_.second );
+            localFrameSurfaceNormal = nullptr;
         }
         else
         {
@@ -195,9 +195,41 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
     return std::make_pair( exteriorPanel, panelFixedFrame );
 }
 
+bool applyEnvironmentModelClosure( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems,
+                                   const std::string& bodyName,
+                                   const SystemOfBodies& bodies )
+{
+    // Surface normals of panels tracking a body
+    for( std::shared_ptr< system_models::VehicleExteriorPanel > panel : vehicleSystems->getAllPanels( ) )
+    {
+        if( panel->getTrackedBody( ) != "" )
+        {
+            if( bodies.count( panel->getTrackedBody( ) ) == 0 )
+            {
+                throw std::runtime_error( "Error when applying closure of exterior panels of body " + bodyName + ", tracked body " +
+                                          panel->getTrackedBody( ) + " not found" );
+            }
+            panel->applyEnvironmentModelClosure( createBodyTrackingSurfaceNormalFunction(
+                    bodies.at( bodyName ), bodies.at( panel->getTrackedBody( ) ), panel->getIsPointingTowardsTrackedBody( ) ) );
+        }
+    }
+
+    // Closure of parameterized thrust magnitude (which depends on flight conditions) is not implemented
+    for( auto engineModel : vehicleSystems->getEngineModels( ) )
+    {
+        if( std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >(
+                    engineModel.second->getThrustMagnitudeWrapper( ) ) != nullptr )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 void addBodyExteriorPanelledShape( const std::shared_ptr< FullPanelledBodySettings > panelSettings,
                                    const std::string& bodyName,
-                                   const simulation_setup::SystemOfBodies& bodies )
+                                   const simulation_setup::SystemOfBodies& bodies,
+                                   const bool applyClosure )
 {
     if( bodies.count( bodyName ) == 0 )
     {
@@ -235,6 +267,10 @@ void addBodyExteriorPanelledShape( const std::shared_ptr< FullPanelledBodySettin
     }
     bodies.at( bodyName )->getVehicleSystems( )->setVehicleExteriorPanels( vehicleExteriorPanels );
     bodies.at( bodyName )->getVehicleSystems( )->setVehiclePartOrientation( vehiclePartOrientation );
+    if( applyClosure )
+    {
+        applyEnvironmentModelClosure( bodies.at( bodyName )->getVehicleSystems( ), bodyName, bodies );
+    }
 }
 
 }  // namespace simulation_setup

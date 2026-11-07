@@ -119,6 +119,7 @@ PaneledRadiationSourceModel::~PaneledRadiationSourceModel( ) = default;
 
 void StaticallyPaneledRadiationSourceModel::updateMembers_( double currentTime )
 {
+    checkEnvironmentModelClosure( );
     sourcePanelRadiosityModelUpdater_->updateMembers( currentTime );
     for( auto& panel : panels_ )
     {
@@ -250,6 +251,7 @@ std::vector< Eigen::Vector7d > DynamicallyPaneledRadiationSourceModel::getCurren
 
 void DynamicallyPaneledRadiationSourceModel::updateMembers_( double currentTime )
 {
+    checkEnvironmentModelClosure( );
     sourcePanelRadiosityModelUpdater_->updateMembers( currentTime );
 }
 

@@ -30,6 +30,7 @@
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/createMetric.h"
+#include "tudat/simulation/environment_setup/environmentModelClosure.h"
 
 namespace tudat
 {
@@ -167,7 +168,7 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         if( orderedBodySettings.at( i ).second->rotationModelSettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setRotationalEphemeris( createRotationModel(
+                    ->setRotationalEphemeris( createRotationModelWithoutClosure(
                             orderedBodySettings.at( i ).second->rotationModelSettings, orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
@@ -178,7 +179,7 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         if( orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_ != nullptr )
         {
             addBodyExteriorPanelledShape(
-                    orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_, orderedBodySettings.at( i ).first, bodyList );
+                    orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_, orderedBodySettings.at( i ).first, bodyList, false );
         }
     }
     std::vector< std::shared_ptr< BodyPanelSettings > > bodyExteriorPanelSettings_;
@@ -204,7 +205,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
                     ->setGravityFieldVariationSet(
                             createGravityFieldModelVariationsSet( orderedBodySettings.at( i ).first,
                                                                   bodyList,
-                                                                  orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
+                                                                  orderedBodySettings.at( i ).second->gravityFieldVariationSettings,
+                                                                  false ) );
         }
     }
 
@@ -226,10 +228,10 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         if( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setAerodynamicCoefficientInterface(
-                            createAerodynamicCoefficientInterface( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
-                                                                   orderedBodySettings.at( i ).first,
-                                                                   bodyList ) );
+                    ->setAerodynamicCoefficientInterface( createAerodynamicCoefficientInterfaceWithoutClosure(
+                            orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
+                            orderedBodySettings.at( i ).first,
+                            bodyList ) );
         }
     }
 
@@ -242,9 +244,10 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
             radiationSourceModelSettings->getRadiationSourceModelType( ) == RadiationSourceModelType::isotropic_point_source )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setRadiationSourceModel( createRadiationSourceModel( orderedBodySettings.at( i ).second->radiationSourceModelSettings,
-                                                                           orderedBodySettings.at( i ).first,
-                                                                           bodyList ) );
+                    ->setRadiationSourceModel(
+                            createRadiationSourceModelWithoutClosure( orderedBodySettings.at( i ).second->radiationSourceModelSettings,
+                                                                      orderedBodySettings.at( i ).first,
+                                                                      bodyList ) );
         }
     }
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
@@ -254,9 +257,10 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
             radiationSourceModelSettings->getRadiationSourceModelType( ) == RadiationSourceModelType::extended_source )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setRadiationSourceModel( createRadiationSourceModel( orderedBodySettings.at( i ).second->radiationSourceModelSettings,
-                                                                           orderedBodySettings.at( i ).first,
-                                                                           bodyList ) );
+                    ->setRadiationSourceModel(
+                            createRadiationSourceModelWithoutClosure( orderedBodySettings.at( i ).second->radiationSourceModelSettings,
+                                                                      orderedBodySettings.at( i ).first,
+                                                                      bodyList ) );
         }
     }
 
@@ -266,10 +270,10 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         if( orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setRadiationPressureTargetModels(
-                            createRadiationPressureTargetModel( orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
-                                                                orderedBodySettings.at( i ).first,
-                                                                bodyList ) );
+                    ->setRadiationPressureTargetModels( createRadiationPressureTargetModelWithoutClosure(
+                            orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
+                            orderedBodySettings.at( i ).first,
+                            bodyList ) );
         }
     }
 
@@ -303,6 +307,12 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
 
+    // Apply closure of environment models (links between models), after which the frames are processed
+    for( auto bodyIterator : bodyList.getMap( ) )
+    {
+        registerEnvironmentModelClosures( bodyIterator.second );
+    }
+    closeSystemOfBodies( bodyList );
     bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
 
     if( spaceTimePropertiesSettings != nullptr && spaceTimePropertiesSettings->getMetricSettings( ) != nullptr )

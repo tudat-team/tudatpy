@@ -242,12 +242,35 @@ public:
             const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {},
             const std::map< std::string, int > maximumNumberOfPixelsPerSource = {},
             bool panelGeometryDefined = false ):
-        RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
-        segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),
-        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource ), allPanels_( allPanels ),
-        panelGeometryDefined_( panelGeometryDefined )
+        RadiationPressureTargetModel( sourceToTargetOccultingBodies ), maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource )
     {
-        totalNumberOfPanels_ = allPanels.size( );
+        applyEnvironmentModelClosure(
+                bodyFixedPanels, allPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, panelGeometryDefined );
+    }
+
+    //! Constructor for model without panels (which are set by the closure of the model)
+    explicit PaneledRadiationPressureTargetModel( const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies,
+                                                  const std::map< std::string, int > maximumNumberOfPixelsPerSource ):
+        RadiationPressureTargetModel( sourceToTargetOccultingBodies ), totalNumberOfPanels_( 0 ),
+        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource ), panelGeometryDefined_( false )
+    {}
+
+    //! Function to apply the closure of this model: (re)set the panels of the target, and the rotations of the vehicle parts to
+    //! which they are fixed
+    void applyEnvironmentModelClosure(
+            const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& bodyFixedPanels,
+            const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels,
+            const std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >& segmentFixedPanels,
+            const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations,
+            const bool panelGeometryDefined )
+    {
+        bodyFixedPanels_ = bodyFixedPanels;
+        allPanels_ = allPanels;
+        segmentFixedPanels_ = segmentFixedPanels;
+        segmentFixedToBodyFixedRotations_ = segmentFixedToBodyFixedRotations;
+        panelGeometryDefined_ = panelGeometryDefined;
+
+        totalNumberOfPanels_ = allPanels_.size( );
         panelForces_.resize( totalNumberOfPanels_ );
         surfacePanelCosines_.resize( totalNumberOfPanels_ );
         surfaceNormals_.resize( totalNumberOfPanels_ );
@@ -260,6 +283,7 @@ public:
             panelTypeIdList_[ i ] = allPanels_[ i ]->getPanelTypeId( );
         }
         // create map of self-shadowing objects per source
+        selfShadowingPerSource_.clear( );
         for( auto it : maximumNumberOfPixelsPerSource_ )
         {
             if( it.second < 0 || it.second == 1 )
@@ -452,7 +476,7 @@ private:
     std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > selfShadowingPerSource_;
     std::vector< std::string > panelTypeIdList_;
     std::vector< double > unityIlluminationFraction_;
-    const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels_;
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels_;
     bool panelGeometryDefined_;
 };
 

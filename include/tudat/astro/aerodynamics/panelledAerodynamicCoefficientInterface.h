@@ -45,6 +45,10 @@ public:
         {
             gasSurfaceInteractionModel_->setAirSpeed( independentVariables[ 3 ] );
         }
+        if( gasSurfaceInteractionModel_->getTotalNumberOfPanels( ) == 0 )
+        {
+            throw std::runtime_error( "Error in panelled aerodynamic coefficient interface, model is not closed (no panels set)" );
+        }
         currentForceCoefficients_ = gasSurfaceInteractionModel_->computeAerodynamicCoefficients( );
 
         referenceArea_ = gasSurfaceInteractionModel_->getReferenceArea( );

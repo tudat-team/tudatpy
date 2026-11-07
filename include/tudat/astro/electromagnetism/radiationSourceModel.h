@@ -381,14 +381,52 @@ public:
         return sourcePanelRadiosityModelUpdater_;
     }
 
+    //! Function to apply the closure of this model: (re)set the object that updates the panels using the original sources
+    void applyEnvironmentModelClosure( std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater )
+    {
+        sourcePanelRadiosityModelUpdater_ = std::move( sourcePanelRadiosityModelUpdater );
+    }
+
+    //! Function to set the original sources of the radiation, and the bodies occulting them as seen from this source, used to
+    //! create the object that updates the panels (by the closure of this model)
+    void setOriginalSources( const std::vector< std::string >& originalSourceBodyNames,
+                             const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodies )
+    {
+        originalSourceBodyNames_ = originalSourceBodyNames;
+        originalSourceToSourceOccultingBodies_ = originalSourceToSourceOccultingBodies;
+    }
+
+    const std::vector< std::string >& getOriginalSourceBodyNames( ) const
+    {
+        return originalSourceBodyNames_;
+    }
+
+    const std::map< std::string, std::vector< std::string > >& getOriginalSourceToSourceOccultingBodies( ) const
+    {
+        return originalSourceToSourceOccultingBodies_;
+    }
+
     virtual std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( )
     {
         return std::vector< Eigen::Vector7d >( );
     }
 
 protected:
+    //! Function to check whether the closure of this model has been applied (throws if not)
+    void checkEnvironmentModelClosure( ) const
+    {
+        if( sourcePanelRadiosityModelUpdater_ == nullptr )
+        {
+            throw std::runtime_error( "Error in paneled radiation source model, model is not closed (no panel updater)" );
+        }
+    }
+
     std::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceBodyShapeModel_;
     std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater_;
+
+    std::vector< std::string > originalSourceBodyNames_;
+
+    std::map< std::string, std::vector< std::string > > originalSourceToSourceOccultingBodies_;
 
 private:
     // For dependent variable

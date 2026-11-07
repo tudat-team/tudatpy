@@ -54,6 +54,10 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
                                                                           const bool resetForces,
                                                                           const std::string sourceName )
 {
+    if( totalNumberOfPanels_ == 0 )
+    {
+        throw std::runtime_error( "Error in paneled radiation pressure target model, model is not closed (no panels set)" );
+    }
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
 
     if( resetForces )

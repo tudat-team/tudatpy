@@ -331,7 +331,9 @@ void Body::setFlightConditions( const std::shared_ptr< aerodynamics::FlightCondi
 {
     aerodynamicFlightConditions_ = aerodynamicFlightConditions;
 
-    if( rotationalEphemeris_ != nullptr &&
+    // Angles w.r.t. body-fixed frame are set from rotation model (if flight conditions are closed)
+    if( rotationalEphemeris_ != nullptr && aerodynamicFlightConditions_ != nullptr &&
+        aerodynamicFlightConditions_->getAerodynamicAngleCalculator( ) != nullptr &&
         std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >( rotationalEphemeris_ ) == nullptr )
     {
         aerodynamicFlightConditions_->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface(

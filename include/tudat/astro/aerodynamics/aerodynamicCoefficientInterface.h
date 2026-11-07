@@ -541,6 +541,29 @@ public:
     void setMomentContributionInterface( const std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface )
     {
         momentContributionInterface_ = momentContributionInterface;
+        if( momentContributionInterface_ != nullptr )
+        {
+            addForceContributionToMoments_ = true;
+        }
+    }
+
+    //! Function to apply the closure of this model: (re)set the interface computing the moment due to the force (w.r.t. the
+    //! center of mass)
+    void applyEnvironmentModelClosure( const std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface )
+    {
+        setMomentContributionInterface( momentContributionInterface );
+    }
+
+    //! Function to set whether the moment due to the force (w.r.t. the center of mass) is to be added to the moment coefficients.
+    //! The interface that computes this contribution is set by the closure of this model.
+    void setAddForceContributionToMoments( const bool addForceContributionToMoments )
+    {
+        addForceContributionToMoments_ = addForceContributionToMoments;
+    }
+
+    bool getAddForceContributionToMoments( )
+    {
+        return addForceContributionToMoments_;
     }
 
 protected:
@@ -631,6 +654,8 @@ protected:
     AerodynamicCoefficientFrames momentCoefficientsFrame_;
 
     std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface_;
+
+    bool addForceContributionToMoments_ = false;
 
     //! List of control surface aerodynamic coefficient interfaces
     std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > > controlSurfaceIncrementInterfaces_;

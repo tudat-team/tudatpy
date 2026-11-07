@@ -26,14 +26,35 @@ namespace aerodynamics
 FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
                                     const std::string& centralBodyName,
                                     const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator ):
-    shapeModel_( shapeModel ), centralBody_( centralBodyName ), aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
-    currentTime_( TUDAT_NAN )
+    FlightConditions( centralBodyName )
 {
-    // Link body-state function.
-    bodyCenteredPseudoBodyFixedStateFunction_ =
-            std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
+    applyEnvironmentModelClosure( shapeModel, aerodynamicAngleCalculator );
+}
+
+FlightConditions::FlightConditions( const std::string& centralBodyName ): centralBody_( centralBodyName ), currentTime_( TUDAT_NAN )
+{
+    scalarFlightConditions_.resize( 14 );
+    isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
+}
+
+void FlightConditions::applyEnvironmentModelClosure(
+        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
+{
+    shapeModel_ = shapeModel;
+    aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
+    currentTime_ = TUDAT_NAN;
+
+    // Link body-state function (if no calculator is set, the flight conditions are not closed).
+    bodyCenteredPseudoBodyFixedStateFunction_ = nullptr;
+    if( aerodynamicAngleCalculator_ != nullptr )
+    {
+        bodyCenteredPseudoBodyFixedStateFunction_ = std::bind(
+                &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
+    }
 
     // Check if given body shape is an oblate spheroid and set geodetic latitude function if so
+    geodeticLatitudeFunction_ = nullptr;
     if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != nullptr )
     {
         geodeticLatitudeFunction_ = std::bind( &basic_astrodynamics::OblateSpheroidBodyShapeModel::getGeodeticLatitude,
@@ -41,8 +62,6 @@ FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::
                                                std::placeholders::_1,
                                                1.0E-4 );
     }
-    scalarFlightConditions_.resize( 14 );
-    isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
 }
 
 //! Function to update all flight conditions.
@@ -50,6 +69,11 @@ void FlightConditions::updateConditions( const double currentTime )
 {
     if( !( currentTime == currentTime_ ) )
     {
+        if( bodyCenteredPseudoBodyFixedStateFunction_ == nullptr )
+        {
+            throw std::runtime_error( "Error in flight conditions w.r.t. " + centralBody_ +
+                                      ", model is not closed (no environment models set)" );
+        }
         currentTime_ = currentTime;
 
         // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
@@ -87,6 +111,23 @@ AtmosphericFlightConditions::AtmosphericFlightConditions(
     }
 }
 
+void AtmosphericFlightConditions::applyEnvironmentModelClosure(
+        const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
+        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+        const std::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
+        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+        const std::function< double( const std::string& ) > controlSurfaceDeflectionFunction )
+{
+    if( aerodynamicAngleCalculator == nullptr )
+    {
+        throw std::runtime_error( "Error when setting environment models of flight conditions, no aerodynamic angle calculator is set" );
+    }
+    FlightConditions::applyEnvironmentModelClosure( shapeModel, aerodynamicAngleCalculator );
+    atmosphereModel_ = atmosphereModel;
+    aerodynamicCoefficientInterface_ = aerodynamicCoefficientInterface;
+    controlSurfaceDeflectionFunction_ = controlSurfaceDeflectionFunction;
+}
+
 //! Function to set custom dependency of aerodynamic coefficients
 void AtmosphericFlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
         const AerodynamicCoefficientsIndependentVariables independentVariable,
@@ -108,6 +149,11 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
 {
     if( !( currentTime == currentTime_ ) )
     {
+        if( bodyCenteredPseudoBodyFixedStateFunction_ == nullptr )
+        {
+            throw std::runtime_error( "Error in flight conditions w.r.t. " + centralBody_ +
+                                      ", model is not closed (no environment models set)" );
+        }
         currentTime_ = currentTime;
 
         // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).

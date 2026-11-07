@@ -220,29 +220,9 @@ std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerody
         throw std::runtime_error( "Error when creating aerodynamic angle based rotation model, body " + body + " not found" );
     }
 
-    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator;
-
-    if( bodies.at( body )->getFlightConditions( ) != nullptr )
-    {
-        angleCalculator = bodies.at( body )->getFlightConditions( )->getAerodynamicAngleCalculator( );
-    }
-    else
-    {
-        if( bodies.count( centralBody ) == 0 )
-        {
-            throw std::runtime_error( "Error when creating aerodynamic angle based rotation model, central body " + centralBody +
-                                      " not found" );
-        }
-
-        angleCalculator =
-                simulation_setup::createAerodynamicAngleCalculator( bodies.at( body ), bodies.at( centralBody ), body, centralBody );
-    }
-
     std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > rotationModel =
-            std::make_shared< ephemerides::AerodynamicAngleRotationalEphemeris >( angleCalculator, originalFrame, targetFrame );
-    angleCalculator->setBodyFixedAngleInterface(
-            std::make_shared< reference_frames::FromAeroEphemerisAerodynamicAngleInterface >( rotationModel ) );
-
+            std::make_shared< ephemerides::AerodynamicAngleRotationalEphemeris >( centralBody, originalFrame, targetFrame );
+    applyEnvironmentModelClosure( rotationModel, body, bodies );
     return rotationModel;
 }
 
@@ -253,18 +233,10 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
     return createInertialDirectionCalculator( directionSettings, body, SystemOfBodies( ) );
 }
 
-std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculator(
+std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculatorWithoutClosure(
         const std::shared_ptr< InertialDirectionSettings > directionSettings,
-        const std::string& body,
-        const SystemOfBodies& bodies )
+        const std::string& body )
 {
-    std::function< Eigen::Matrix3d( const double ) > rotationFunction = nullptr;
-    if( directionSettings->directionFrame_.first != ephemerides::inertial_satellite_based_frame )
-    {
-        rotationFunction = getRotationFunctionFromSatelliteBasedFrame(
-                directionSettings->directionFrame_.first, bodies, body, directionSettings->directionFrame_.second );
-    }
-
     std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > directionCalculator;
     switch( directionSettings->inertialDirectionType_ )
     {
@@ -278,7 +250,7 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
                         "CustomInertialDirectionSettings" );
             }
             directionCalculator = std::make_shared< ephemerides::CustomBodyFixedDirectionCalculator >(
-                    customDirectionSettings->inertialBodyAxisDirectionFunction_, rotationFunction );
+                    customDirectionSettings->inertialBodyAxisDirectionFunction_ );
             break;
         }
         case state_based_inertial_direction: {
@@ -290,38 +262,11 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
                         "Error when making direction calculator for direction-based rotation model, expected type "
                         "StateBasedInertialDirectionSettings" );
             }
-            // Retrieve state function of body for which thrust is to be computed.
-            std::function< Eigen::Vector6d( ) > bodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
-            std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
-
-            // Retrieve state function of central body (or set to zero if inertial)
-            if( stateBasedDirectionSettings->centralBody_ != "SSB" )
-            {
-                // FIXME: add update function.
-                centralBodyStateFunction = std::bind( &Body::getState, bodies.at( stateBasedDirectionSettings->centralBody_ ) );
-                //        magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
-                //                    thrustDirectionFromStateGuidanceSettings->relativeBody_ );
-            }
-            else if( bodies.getFrameOrigin( ) == "SSB" )
-            {
-                centralBodyStateFunction = []( ) { return Eigen::Vector6d::Zero( ); };
-            }
-            else
-            {
-                throw std::runtime_error(
-                        "Error when getting state-direction-based rotation model, requested state w.r.t. SSB, but SSB is not the global "
-                        "origin" );
-            }
-
-            // Define relative state function
-            std::function< void( Eigen::Vector6d& ) > stateFunction =
-                    std::bind( &ephemerides::getRelativeState, std::placeholders::_1, bodyStateFunction, centralBodyStateFunction );
-
             directionCalculator = std::make_shared< ephemerides::StateBasedBodyFixedDirectionCalculator >(
                     stateBasedDirectionSettings->centralBody_,
                     stateBasedDirectionSettings->isColinearWithVelocity_,
                     stateBasedDirectionSettings->directionIsOppositeToVector_,
-                    stateFunction );
+                    nullptr );
             break;
         }
         case bilinear_tangent_inertial_direction: {
@@ -336,6 +281,66 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
             break;
         }
     }
+    directionCalculator->setDirectionFrame( directionSettings->directionFrame_ );
+    return directionCalculator;
+}
+
+void applyEnvironmentModelClosure( const std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > directionCalculator,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies )
+{
+    // Retrieve rotation from frame in which direction is defined (if not inertial)
+    std::pair< ephemerides::SatelliteBasedFrames, std::string > directionFrame = directionCalculator->getDirectionFrame( );
+    std::function< Eigen::Matrix3d( const double ) > rotationFunction = nullptr;
+    if( directionFrame.first != ephemerides::inertial_satellite_based_frame )
+    {
+        rotationFunction = getRotationFunctionFromSatelliteBasedFrame( directionFrame.first, bodies, body, directionFrame.second );
+    }
+
+    std::shared_ptr< ephemerides::StateBasedBodyFixedDirectionCalculator > stateBasedDirectionCalculator =
+            std::dynamic_pointer_cast< ephemerides::StateBasedBodyFixedDirectionCalculator >( directionCalculator );
+    if( stateBasedDirectionCalculator != nullptr )
+    {
+        // Retrieve state function of body for which thrust is to be computed.
+        std::function< Eigen::Vector6d( ) > bodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
+        std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
+
+        // Retrieve state function of central body (or set to zero if inertial)
+        std::string centralBody = stateBasedDirectionCalculator->getCentralBody( );
+        if( centralBody != "SSB" )
+        {
+            centralBodyStateFunction = std::bind( &Body::getState, bodies.at( centralBody ) );
+        }
+        else if( bodies.getFrameOrigin( ) == "SSB" )
+        {
+            centralBodyStateFunction = []( ) { return Eigen::Vector6d::Zero( ); };
+        }
+        else
+        {
+            throw std::runtime_error(
+                    "Error when getting state-direction-based rotation model, requested state w.r.t. SSB, but SSB is not the global "
+                    "origin" );
+        }
+
+        // Define relative state function
+        stateBasedDirectionCalculator->applyEnvironmentModelClosure(
+                std::bind( &ephemerides::getRelativeState, std::placeholders::_1, bodyStateFunction, centralBodyStateFunction ),
+                rotationFunction );
+    }
+    else
+    {
+        directionCalculator->applyEnvironmentModelClosure( rotationFunction );
+    }
+}
+
+std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculator(
+        const std::shared_ptr< InertialDirectionSettings > directionSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies )
+{
+    std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > directionCalculator =
+            createInertialDirectionCalculatorWithoutClosure( directionSettings, body );
+    applyEnvironmentModelClosure( directionCalculator, body, bodies );
     return directionCalculator;
 }
 
@@ -367,30 +372,101 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngl
         const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction )
 {
     std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > rotationModel =
-            createAerodynamicAngleBasedRotationModel( body, centralBody, bodies, originalFrame, targetFrame );
+            std::make_shared< ephemerides::AerodynamicAngleRotationalEphemeris >( centralBody, originalFrame, targetFrame );
+    rotationModel->setIsPitchTrimmed( true, sideslipAndBankAngleFunction );
 
     std::shared_ptr< Body > trimmedBody = bodies.at( body );
     trimmedBody->setRotationalEphemeris( rotationModel );
 
-    //! Function to set the angle of attack to trimmed conditions.
-    std::shared_ptr< aerodynamics::TrimOrientationCalculator > trimCalculator = createTrimCalculator( trimmedBody );
-
+    // Close aerodynamic angle calculator, then flight conditions (using this calculator), then trim conditions
+    applyEnvironmentModelClosure( rotationModel, body, bodies );
     if( trimmedBody->getFlightConditions( ) == nullptr )
     {
         addFlightConditions( bodies, body, centralBody );
     }
+    else if( trimmedBody->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
+    {
+        applyEnvironmentModelClosure( trimmedBody->getFlightConditions( ), body, bodies );
+    }
 
-    std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
-            std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( trimmedBody->getFlightConditions( ) );
-
-    if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( flightConditions ) == nullptr )
+    if( !applyEnvironmentModelClosure( rotationModel, body, bodies ) )
     {
         throw std::runtime_error( "Error, body does not have FlightConditions when setting trim conditions." );
     }
-
-    linkTrimmedConditions( trimCalculator, flightConditions, rotationModel, sideslipAndBankAngleFunction );
-
     return rotationModel;
+}
+
+bool applyEnvironmentModelClosure( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies )
+{
+    using namespace ephemerides;
+
+    std::shared_ptr< SynchronousRotationalEphemeris > synchronousRotationModel =
+            std::dynamic_pointer_cast< SynchronousRotationalEphemeris >( rotationModel );
+    if( synchronousRotationModel != nullptr )
+    {
+        synchronousRotationModel->applyEnvironmentModelClosure(
+                createRelativeStateFunction( bodies, body, synchronousRotationModel->getCentralBodyName( ) ) );
+        return true;
+    }
+
+    std::shared_ptr< AerodynamicAngleRotationalEphemeris > aerodynamicAngleRotationModel =
+            std::dynamic_pointer_cast< AerodynamicAngleRotationalEphemeris >( rotationModel );
+    if( aerodynamicAngleRotationModel != nullptr )
+    {
+        std::string centralBody = aerodynamicAngleRotationModel->getCentralBodyName( );
+        if( aerodynamicAngleRotationModel->getAerodynamicAngleCalculator( ) == nullptr )
+        {
+            // Use aerodynamic angle calculator of existing flight conditions, or create new one
+            std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator;
+            if( bodies.at( body )->getFlightConditions( ) != nullptr &&
+                bodies.at( body )->getFlightConditions( )->getAerodynamicAngleCalculator( ) != nullptr )
+            {
+                angleCalculator = bodies.at( body )->getFlightConditions( )->getAerodynamicAngleCalculator( );
+            }
+            else
+            {
+                if( bodies.count( centralBody ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating aerodynamic angle based rotation model, central body " + centralBody +
+                                              " not found" );
+                }
+                angleCalculator =
+                        createAerodynamicAngleCalculatorFromBodyStates( bodies.at( body ), bodies.at( centralBody ), centralBody );
+            }
+            aerodynamicAngleRotationModel->applyEnvironmentModelClosure( angleCalculator );
+            angleCalculator->setBodyFixedAngleInterface(
+                    std::make_shared< reference_frames::FromAeroEphemerisAerodynamicAngleInterface >( aerodynamicAngleRotationModel ) );
+        }
+
+        // Trimmed angle of attack requires atmospheric flight conditions to be closed
+        if( aerodynamicAngleRotationModel->getIsPitchTrimmed( ) )
+        {
+            std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
+                    std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( bodies.at( body )->getFlightConditions( ) );
+            if( flightConditions == nullptr || flightConditions->getAerodynamicAngleCalculator( ) == nullptr )
+            {
+                return false;
+            }
+            linkTrimmedConditions( createTrimCalculator( bodies.at( body ) ),
+                                   flightConditions,
+                                   aerodynamicAngleRotationModel,
+                                   aerodynamicAngleRotationModel->getTrimSideslipAndBankAngleFunction( ) );
+        }
+        return true;
+    }
+
+    std::shared_ptr< DirectionBasedRotationalEphemeris > directionBasedRotationModel =
+            std::dynamic_pointer_cast< DirectionBasedRotationalEphemeris >( rotationModel );
+    if( directionBasedRotationModel != nullptr )
+    {
+        applyEnvironmentModelClosure( directionBasedRotationModel->getInertialBodyAxisDirectionCalculator( ), body, bodies );
+        return true;
+    }
+
+    // Other rotation models require no closure
+    return true;
 }
 
 //! Function to create a rotation model.
@@ -401,8 +477,39 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
     return createRotationModel( rotationModelSettings, body, SystemOfBodies( ) );
 }
 
-//! Function to create a rotation model.
+//! Function to create a rotation model (with closure applied).
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
+        const std::shared_ptr< RotationModelSettings > rotationModelSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies )
+{
+    std::shared_ptr< PitchTrimRotationSettings > trimRotationSettings =
+            std::dynamic_pointer_cast< PitchTrimRotationSettings >( rotationModelSettings );
+    if( trimRotationSettings != nullptr )
+    {
+        if( rotationModelSettings->getOriginalFrame( ) == "" )
+        {
+            rotationModelSettings->resetOriginalFrame( bodies.getFrameOrientation( ) );
+        }
+        return createTrimmedAerodynamicAngleBasedRotationModel( body,
+                                                                trimRotationSettings->centralBody_,
+                                                                bodies,
+                                                                trimRotationSettings->getOriginalFrame( ),
+                                                                trimRotationSettings->getTargetFrame( ),
+                                                                trimRotationSettings->sideslipAndBankAngleFunction_ );
+    }
+
+    std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel =
+            createRotationModelWithoutClosure( rotationModelSettings, body, bodies );
+    if( !applyEnvironmentModelClosure( rotationModel, body, bodies ) )
+    {
+        throw std::runtime_error( "Error when creating rotation model of body " + body + ", closure could not be applied" );
+    }
+    return rotationModel;
+}
+
+//! Function to create a rotation model, without closure (links to other environment models)
+std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModelWithoutClosure(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body,
         const SystemOfBodies& bodies )
@@ -576,11 +683,10 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                     }
                 }
                 std::shared_ptr< SynchronousRotationalEphemeris > synchronousRotationalEphemeris =
-                        std::make_shared< SynchronousRotationalEphemeris >(
-                                createRelativeStateFunction( bodies, body, synchronousRotationSettings->getCentralBodyName( ) ),
-                                synchronousRotationSettings->getCentralBodyName( ),
-                                synchronousRotationSettings->getOriginalFrame( ),
-                                synchronousRotationSettings->getTargetFrame( ) );
+                        std::make_shared< SynchronousRotationalEphemeris >( nullptr,
+                                                                            synchronousRotationSettings->getCentralBodyName( ),
+                                                                            synchronousRotationSettings->getOriginalFrame( ),
+                                                                            synchronousRotationSettings->getTargetFrame( ) );
 
                 rotationalEphemeris = synchronousRotationalEphemeris;
             }
@@ -615,20 +721,11 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             }
             else
             {
-                // Create and initialize simple rotation model.
-                std::shared_ptr< AerodynamicAngleRotationalEphemeris > angleBasedRotationalEphemeris =
-                        createAerodynamicAngleBasedRotationModel( body,
-                                                                  aerodynamicAngleRotationSettings->centralBody_,
-                                                                  bodies,
-                                                                  aerodynamicAngleRotationSettings->getOriginalFrame( ),
-                                                                  aerodynamicAngleRotationSettings->getTargetFrame( ) );
-
-                if( aerodynamicAngleRotationSettings->aerodynamicAngleFunction_ != nullptr )
-                {
-                    angleBasedRotationalEphemeris->setAerodynamicAngleFunction(
-                            aerodynamicAngleRotationSettings->aerodynamicAngleFunction_ );
-                }
-                rotationalEphemeris = angleBasedRotationalEphemeris;
+                rotationalEphemeris = std::make_shared< AerodynamicAngleRotationalEphemeris >(
+                        aerodynamicAngleRotationSettings->centralBody_,
+                        aerodynamicAngleRotationSettings->getOriginalFrame( ),
+                        aerodynamicAngleRotationSettings->getTargetFrame( ),
+                        aerodynamicAngleRotationSettings->aerodynamicAngleFunction_ );
             }
             break;
         }
@@ -642,14 +739,19 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             }
             else
             {
-                // Create and initialize simple rotation model.
-                rotationalEphemeris =
-                        createTrimmedAerodynamicAngleBasedRotationModel( body,
-                                                                         trimRotationSettings->centralBody_,
-                                                                         bodies,
-                                                                         trimRotationSettings->getOriginalFrame( ),
-                                                                         trimRotationSettings->getTargetFrame( ),
-                                                                         trimRotationSettings->sideslipAndBankAngleFunction_ );
+                std::shared_ptr< AerodynamicAngleRotationalEphemeris > trimmedRotationalEphemeris =
+                        std::make_shared< AerodynamicAngleRotationalEphemeris >( trimRotationSettings->centralBody_,
+                                                                                 trimRotationSettings->getOriginalFrame( ),
+                                                                                 trimRotationSettings->getTargetFrame( ) );
+                trimmedRotationalEphemeris->setIsPitchTrimmed( true, trimRotationSettings->sideslipAndBankAngleFunction_ );
+                rotationalEphemeris = trimmedRotationalEphemeris;
+
+                // Trimmed conditions require flight conditions (closed together with the rotation model)
+                if( bodies.count( body ) > 0 && bodies.at( body )->getFlightConditions( ) == nullptr )
+                {
+                    bodies.at( body )->setFlightConditions(
+                            createFlightConditionsWithoutClosure( bodies, body, trimRotationSettings->centralBody_ ) );
+                }
             }
             break;
         }
@@ -663,8 +765,9 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             }
             else
             {
-                std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator = createInertialDirectionCalculator(
-                        bodyFixedDirectionBasedRotationSettings->inertialDirectionSettings_, body, bodies );
+                std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator =
+                        createInertialDirectionCalculatorWithoutClosure(
+                                bodyFixedDirectionBasedRotationSettings->inertialDirectionSettings_, body );
 
                 // Create and initialize simple rotation model.
                 rotationalEphemeris = std::make_shared< DirectionBasedRotationalEphemeris >(
@@ -686,17 +789,17 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             }
             else
             {
-                // Create and initialize simple rotation model.
-                rotationalEphemeris =
-                        createStateDirectionBasedRotationModel( body,
-                                                                orbitalStateBasedRotationSettings->centralBody_,
-                                                                bodies,
-                                                                Eigen::Vector3d::UnitX( ),
-                                                                orbitalStateBasedRotationSettings->getOriginalFrame( ),
-                                                                orbitalStateBasedRotationSettings->getTargetFrame( ),
-                                                                orbitalStateBasedRotationSettings->isColinearWithVelocity_,
-                                                                orbitalStateBasedRotationSettings->directionIsOppositeToVector_,
-                                                                orbitalStateBasedRotationSettings->freeRotationAngleFunction_ );
+                rotationalEphemeris = std::make_shared< DirectionBasedRotationalEphemeris >(
+                        createInertialDirectionCalculatorWithoutClosure(
+                                std::make_shared< StateBasedInertialDirectionSettings >(
+                                        orbitalStateBasedRotationSettings->centralBody_,
+                                        orbitalStateBasedRotationSettings->isColinearWithVelocity_,
+                                        orbitalStateBasedRotationSettings->directionIsOppositeToVector_ ),
+                                body ),
+                        Eigen::Vector3d::UnitX( ),
+                        orbitalStateBasedRotationSettings->getOriginalFrame( ),
+                        orbitalStateBasedRotationSettings->getTargetFrame( ),
+                        orbitalStateBasedRotationSettings->freeRotationAngleFunction_ );
             }
             break;
         }

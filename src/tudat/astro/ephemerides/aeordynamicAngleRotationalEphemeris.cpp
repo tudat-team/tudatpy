@@ -79,6 +79,11 @@ void AerodynamicAngleRotationalEphemeris::update( const double currentTime )
         {
             if( currentTime == currentTime )
             {
+                if( aerodynamicAngleCalculator_ == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error in aerodynamic angle based rotation model, model is not closed (no aerodynamic angle calculator)" );
+                }
                 currentTime_ = currentTime;
                 aerodynamicAngleCalculator_->update( currentTime, false );
                 updateBodyAngles( );

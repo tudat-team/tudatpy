@@ -2870,6 +2870,12 @@ void checkMultiArcSettingsForMultiThreadedPropagation(
                         {
                             customAccelerationFound = true;
                         }
+                        else if( accelerationSettings->accelerationType_ == basic_astrodynamics::relativistic_acceleration_from_metric )
+                        {
+                            throw std::runtime_error(
+                                    "Error in multi-threaded multi-arc propagation, relativistic acceleration from metric is not "
+                                    "supported (space-time metric is shared between threads)" );
+                        }
                     }
                 }
             }

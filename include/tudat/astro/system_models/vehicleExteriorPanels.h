@@ -121,6 +121,11 @@ public:
     // rotation update function
     void updatePanel( const Eigen::Quaterniond& currentOrientation_ )
     {
+        if( frameFixedSurfaceNormal_ == nullptr )
+        {
+            throw std::runtime_error( "Error in vehicle exterior panel, model is not closed (no surface normal function)" );
+        }
+
         // Functions are captured by value, so that copies of this panel do not use the functions of the original
         std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal = frameFixedSurfaceNormal_;
         std::function< Eigen::Vector3d( ) > frameFixedPositionVector = frameFixedPositionVector_;
@@ -192,7 +197,8 @@ public:
         isPointingTowardsTrackedBody_ = isPointingTowardsTrackedBody;
     }
 
-    void resetFrameFixedSurfaceNormal( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal )
+    //! Function to apply the closure of this model (for panels tracking a body): (re)set the surface normal function
+    void applyEnvironmentModelClosure( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal )
     {
         frameFixedSurfaceNormal_ = frameFixedSurfaceNormal;
     }

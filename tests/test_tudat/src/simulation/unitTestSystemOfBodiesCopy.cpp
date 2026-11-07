@@ -31,6 +31,7 @@
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/environmentModelClosure.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
@@ -64,7 +65,7 @@ std::map< double, Eigen::Vector6d > getKeplerOrbitStates( const Eigen::Vector6d&
 }
 
 // Create bodies, with as many different (types of) environment models as possible, none of which use SPICE
-SystemOfBodies createTestBodies( )
+BodyListSettings getTestBodySettings( )
 {
     BodyListSettings bodySettings( "SSB", "J2000" );
     const double sunGravitationalParameter = 1.32712440018E20;
@@ -244,20 +245,23 @@ SystemOfBodies createTestBodies( )
             { { "SolarArray", simpleRotationModelSettings( "", "SolarArray", Eigen::Quaterniond::Identity( ), initialTime, 2.0E-3 ) } } );
     bodySettings.at( "Vehicle3" )->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettings( );
 
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    // Moment contribution of aerodynamic force (which requires flight conditions to be closed)
+    bodySettings.at( "Vehicle" )->aerodynamicCoefficientSettings->setAddForceContributionToMoments( true );
+
+    return bodySettings;
+}
+
+SystemOfBodies createTestBodies( )
+{
+    SystemOfBodies bodies = createSystemOfBodies( getTestBodySettings( ) );
     addEngineModel( "Vehicle3", "MainEngine", constantThrustMagnitudeSettings( 10.0, 300.0 ), bodies );
 
-    // Tabulated rotation model, flight conditions and aerodynamic moment contribution
+    // Tabulated rotation model, and flight conditions (after which aerodynamic moment contribution is closed)
     bodies.at( "Asteroid" )
             ->setRotationalEphemeris( getTabulatedRotationalEphemeris< double, double >(
                     bodies.at( "Asteroid" )->getRotationalEphemeris( ), initialTime - 3600.0, finalTime + 3600.0, 300.0 ) );
     addAtmosphericFlightConditions( bodies, "Vehicle", "Earth" );
     addFlightConditions( bodies, "Vehicle2", "Moon" );
-    bodies.at( "Vehicle" )
-            ->getAerodynamicCoefficientInterface( )
-            ->setMomentContributionInterface( createMomentContributionInterface( aerodynamics::negative_aerodynamic_frame_coefficients,
-                                                                                 aerodynamics::body_fixed_frame_coefficients,
-                                                                                 bodies.at( "Vehicle" ) ) );
     std::dynamic_pointer_cast< AerodynamicAngleRotationalEphemeris >( bodies.at( "Vehicle" )->getRotationalEphemeris( ) )
             ->setIsBodyInPropagation( true );
 
@@ -433,6 +437,82 @@ std::vector< double > getTestTimes( const unsigned int numberOfTimes )
                          static_cast< double >( ( i * 7919 ) % numberOfTimes ) / numberOfTimes * ( finalTime - initialTime ) );
     }
     return times;
+}
+
+//! Test closure of environment models (links to other models): which models require closure, when it is applied, and that models
+//! without closure cannot be used
+BOOST_AUTO_TEST_CASE( testClosureOfEnvironmentModels )
+{
+    SystemOfBodies bodies = createSystemOfBodies( getTestBodySettings( ) );
+
+    // All closures are applied, except the moment contribution of the aerodynamic force, which requires flight conditions
+    std::map< std::string, std::map< EnvironmentModelClosureType, bool > > expectedClosureStates;
+    expectedClosureStates[ "Earth" ] = { { gravity_field_variations_closure, true }, { radiation_source_closure, true } };
+    expectedClosureStates[ "Moon" ] = { { rotation_model_closure, true } };
+    expectedClosureStates[ "Vehicle" ] = { { rotation_model_closure, true }, { aerodynamic_coefficients_closure, false } };
+    expectedClosureStates[ "Vehicle2" ] = { { rotation_model_closure, true } };
+    expectedClosureStates[ "Vehicle3" ] = { { vehicle_systems_closure, true }, { radiation_pressure_target_closure, true } };
+    for( auto bodyIterator : bodies.getMap( ) )
+    {
+        std::map< EnvironmentModelClosureType, bool > expectedStates;
+        if( expectedClosureStates.count( bodyIterator.first ) > 0 )
+        {
+            expectedStates = expectedClosureStates.at( bodyIterator.first );
+        }
+        BOOST_CHECK( bodyIterator.second->getEnvironmentModelClosureStates( ) == expectedStates );
+    }
+    BOOST_CHECK( bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( )->getMomentContributionInterface( ) == nullptr );
+
+    // Adding flight conditions applies their closure, and that of the moment contribution
+    addAtmosphericFlightConditions( bodies, "Vehicle", "Earth" );
+    BOOST_CHECK_EQUAL( getEnvironmentModelsWithoutClosure( bodies ).size( ), 0 );
+    BOOST_CHECK( bodies.at( "Vehicle" )->getEnvironmentModelClosureStates( ).at( flight_conditions_closure ) );
+    BOOST_CHECK( bodies.at( "Vehicle" )->getEnvironmentModelClosureStates( ).at( aerodynamic_coefficients_closure ) );
+    BOOST_CHECK( bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( )->getMomentContributionInterface( ) != nullptr );
+
+    // Copy requires and applies the same closures
+    SystemOfBodies bodiesCopy = createTestBodiesCopy( bodies, false );
+    for( auto bodyIterator : bodies.getMap( ) )
+    {
+        BOOST_CHECK( bodiesCopy.at( bodyIterator.first )->getEnvironmentModelClosureStates( ) ==
+                     bodyIterator.second->getEnvironmentModelClosureStates( ) );
+    }
+
+    // Models without closure throw an exception when used
+    BOOST_CHECK_THROW( SynchronousRotationalEphemeris( nullptr, "Earth", "J2000", "IAU_Moon" ).getRotationToBaseFrame( initialTime ),
+                       std::runtime_error );
+    AerodynamicAngleRotationalEphemeris aerodynamicAngleRotation( "Earth", "J2000", "VehicleFixed" );
+    aerodynamicAngleRotation.setIsBodyInPropagation( true );
+    BOOST_CHECK_THROW( aerodynamicAngleRotation.getRotationToBaseFrame( initialTime ), std::runtime_error );
+    BOOST_CHECK_THROW( StateBasedBodyFixedDirectionCalculator( "Moon", true, false, nullptr ).update( initialTime ), std::runtime_error );
+    BOOST_CHECK_THROW( FlightConditions( "Earth" ).updateConditions( initialTime ), std::runtime_error );
+    BOOST_CHECK_THROW( AtmosphericFlightConditions( "Earth" ).updateConditions( initialTime ), std::runtime_error );
+    BOOST_CHECK_THROW(
+            PaneledRadiationPressureTargetModel( std::map< std::string, std::vector< std::string > >( ), std::map< std::string, int >( ) )
+                    .updateRadiationPressureForcing( 1361.0, Eigen::Vector3d::UnitX( ), true, "Sun" ),
+            std::runtime_error );
+    BOOST_CHECK_THROW( system_models::VehicleExteriorPanel( std::function< Eigen::Vector3d( ) >( nullptr ), 1.0, "Sun" )
+                               .updatePanel( Eigen::Quaterniond::Identity( ) ),
+                       std::runtime_error );
+
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    loveNumbers[ 2 ] = { 0.3, 0.3, 0.3 };
+    std::shared_ptr< GravityFieldVariations > tidalVariation = createGravityFieldVariationsModel(
+            std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( std::vector< std::string >{ "Moon" }, loveNumbers ),
+            "Earth",
+            bodies,
+            false );
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 5, 5 ), sineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
+    BOOST_CHECK_THROW( tidalVariation->addSphericalHarmonicsCorrections( initialTime, sineCoefficients, cosineCoefficients ),
+                       std::runtime_error );
+
+    std::shared_ptr< electromagnetism::RadiationSourceModel > paneledSource =
+            createRadiationSourceModelWithoutClosure( getTestBodySettings( ).at( "Earth" )->radiationSourceModelSettings, "Earth", bodies );
+    BOOST_CHECK_THROW( paneledSource->updateMembers( initialTime ), std::runtime_error );
+
+    std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface = createAerodynamicCoefficientInterfaceWithoutClosure(
+            getTestBodySettings( ).at( "Vehicle" )->aerodynamicCoefficientSettings, "Vehicle", bodies );
+    BOOST_CHECK_THROW( coefficientInterface->updateFullCurrentCoefficients( { 10.0 }, {}, initialTime ), std::runtime_error );
 }
 
 //! Test which environment models are copied, and which are shared, by the copy
