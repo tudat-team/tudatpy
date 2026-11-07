@@ -132,8 +132,7 @@ void expose_simulator_state_transition_bindings( py::module& m )
          Full amount of parameters w.r.t. which partials have been set up via State Transition and Sensitivity Matrices.
 
          :type: int
-      )doc" )
-            TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::CombinedStateTransitionAndSensitivityMatrixInterface )
+      )doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::CombinedStateTransitionAndSensitivityMatrixInterface )
                     TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::CombinedStateTransitionAndSensitivityMatrixInterface );
 }
 

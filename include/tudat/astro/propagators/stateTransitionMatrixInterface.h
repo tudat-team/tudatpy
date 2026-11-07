@@ -284,9 +284,7 @@ public:
     ~SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Default constructor for deserialization only — not for general use
-    SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ):
-        CombinedStateTransitionAndSensitivityMatrixInterface( )
-    {}
+    SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ): CombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to reset the state transition and sensitivity matrix interpolators
     /*!
@@ -374,8 +372,10 @@ public:
         {
             return false;
         }
-        const bool thisHasInterpolators = ( stateTransitionMatrixInterpolator_ != nullptr ) && ( sensitivityMatrixInterpolator_ != nullptr );
-        const bool rhsHasInterpolators = ( rhs.stateTransitionMatrixInterpolator_ != nullptr ) && ( rhs.sensitivityMatrixInterpolator_ != nullptr );
+        const bool thisHasInterpolators =
+                ( stateTransitionMatrixInterpolator_ != nullptr ) && ( sensitivityMatrixInterpolator_ != nullptr );
+        const bool rhsHasInterpolators =
+                ( rhs.stateTransitionMatrixInterpolator_ != nullptr ) && ( rhs.sensitivityMatrixInterpolator_ != nullptr );
         if( thisHasInterpolators != rhsHasInterpolators )
         {
             return false;

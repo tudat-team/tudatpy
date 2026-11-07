@@ -1108,8 +1108,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     /*!
      * \return Interface object used to propagate the covariance through time (nullptr if not stored).
      */
-    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
-    getStateTransitionAndSensitivityMatrixInterface( ) const
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > getStateTransitionAndSensitivityMatrixInterface( )
+            const
     {
         return stateTransitionAndSensitivityMatrixInterface_;
     }
@@ -1192,8 +1192,10 @@ protected:
                 ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
                 ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
                 ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ ) &&
-                ( ( stateTransitionAndSensitivityMatrixInterface_ == nullptr && rhs.stateTransitionAndSensitivityMatrixInterface_ == nullptr ) ||
-                  ( stateTransitionAndSensitivityMatrixInterface_ != nullptr && rhs.stateTransitionAndSensitivityMatrixInterface_ != nullptr &&
+                ( ( stateTransitionAndSensitivityMatrixInterface_ == nullptr &&
+                    rhs.stateTransitionAndSensitivityMatrixInterface_ == nullptr ) ||
+                  ( stateTransitionAndSensitivityMatrixInterface_ != nullptr &&
+                    rhs.stateTransitionAndSensitivityMatrixInterface_ != nullptr &&
                     *stateTransitionAndSensitivityMatrixInterface_ == *rhs.stateTransitionAndSensitivityMatrixInterface_ ) );
     }
 
