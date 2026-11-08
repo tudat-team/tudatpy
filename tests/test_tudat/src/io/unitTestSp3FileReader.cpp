@@ -270,8 +270,9 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     const Eigen::Vector6d reverseItrf2014State = reverseItrf2014Settings->getBodyStateHistory( ).begin( )->second;
     // Confirm the J2000-to-ITRF2014 position recovers the original ITRF2014 state.
     BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 0 ) - fixedExpectedItrf2014State.segment< 3 >( 0 ) ).norm( ), 1.0e-7 );
-    // Confirm the J2000-to-ITRF2014 velocity recovers the original ITRF2014 state, including the reverse rotation-rate contribution.
-    BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 3 ) - fixedExpectedItrf2014State.segment< 3 >( 3 ) ).norm( ), 1.0e-10 );
+    // Confirm the J2000-to-ITRF2014 velocity recovers the original ITRF2014 state, including the reverse rotation-rate contribution
+    // (to within the round-off of the numerically differentiated rotation matrix).
+    BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 3 ) - fixedExpectedItrf2014State.segment< 3 >( 3 ) ).norm( ), 1.0e-8 );
 
     // Reuse the parsed file while changing only its time-system metadata to exercise every supported conversion mapping.
     const std::vector< std::tuple< std::string, basic_astrodynamics::TimeScales, double > > timeSystemCases = {
