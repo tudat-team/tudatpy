@@ -1,5 +1,11 @@
 # C++ prototype: parallel independent arcs
 
+The native C++ integration is now available separately; see
+[independent_arc_execution.md](../../docs/independent_arc_execution.md) and
+`nativeMultiArc.cpp`. The standalone prototype below remains a historical
+baseline. Its shared Mars setup helpers have moved to `marsArcBenchmark.h`;
+the executor is now a library header with a benchmark compatibility include.
+
 `parallelMultiArc.cpp` is an experimental executable, not a change to Tudat's
 public solver API. It compares the existing native sequential multi-arc solver
 with a C++ thread executor running independently constructed single-arc solvers.
@@ -46,7 +52,7 @@ The executor also checks task coverage and injected exception propagation.
 The standalone executor test can be built independently of Tudat:
 
 ```bash
-c++ -std=c++17 -O2 -pthread -fsanitize=address,undefined \
+c++ -std=c++17 -O2 -pthread -I include -fsanitize=address,undefined \
     benchmarks/cpp/testIsolatedArcExecutor.cpp -o /tmp/tudat-test-arc-executor
 ASAN_OPTIONS=detect_leaks=0 /tmp/tudat-test-arc-executor
 ```

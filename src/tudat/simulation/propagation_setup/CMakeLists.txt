@@ -15,6 +15,7 @@ set(propagation_HEADERS
         dynamicsSimulatorBase.h
         singleArcDynamicsSimulator.h
         multiArcDynamicsSimulator.h
+        independentArcExecutor.h
         hybridArcDynamicsSimulator.h
         createTorqueModel.h
         createStateDerivativeModel.h
@@ -69,6 +70,8 @@ if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
             hybridArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
             )
 endif ()
+
+list(APPEND PUBLIC_LINKS_LIST Threads::Threads)
 
 # Add library.
 TUDAT_ADD_LIBRARY("propagation_setup"

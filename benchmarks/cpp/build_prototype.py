@@ -9,6 +9,8 @@ import subprocess
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--build-dir", type=Path, default=Path("build-parallel-arcs"))
 parser.add_argument("--cereal-include", type=Path, help="directory containing cereal/access.hpp")
+parser.add_argument("--source", type=Path, default=Path("benchmarks/cpp/parallelMultiArc.cpp"))
+parser.add_argument("--name", default="parallel_multi_arc", help="output executable basename")
 stages = parser.add_mutually_exclusive_group()
 stages.add_argument("--compile-only", action="store_true")
 stages.add_argument(
@@ -31,8 +33,11 @@ for line in (target / "flags.make").read_text().splitlines():
 link = shlex.split((target / "link.txt").read_text())
 out = build / "benchmarks"
 out.mkdir(exist_ok=True)
-obj = out / "parallelMultiArc.o"
-binary = out / "parallel_multi_arc"
+source = args.source.resolve()
+if Path(args.name).name != args.name:
+    parser.error("--name must be a basename")
+obj = out / (source.stem + ".o")
+binary = out / args.name
 command = [
     link[0],
     *flags["CXX_DEFINES"],
@@ -41,7 +46,7 @@ command = [
     "-pthread",
     "-g",
     "-c",
-    str(root / "benchmarks/cpp/parallelMultiArc.cpp"),
+    str(source),
     "-o",
     str(obj),
 ]

@@ -124,4 +124,6 @@ De factory-route is getest; vóór C++-wijzigingen moet ook de gebruikte
 bron/buildversie worden vastgesteld. Het Python-script blijft de sequentiële
 referentie. Er is inmiddels een afzonderlijk [C++-threadprototype](cpp/README.md)
 met geïsoleerde omgevingen, vergelijking met de native referentie en instelbaar
-worker-aantal. De publieke Tudat-solver en Python-API zijn nog niet aangepast.
+worker-aantal. Inmiddels is ook een opt-in route in de bestaande C++-solver
+toegevoegd; zie [de native API-documentatie](../docs/independent_arc_execution.md).
+De Python-API heeft hiervoor nog geen bindings.

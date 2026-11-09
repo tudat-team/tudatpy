@@ -3,10 +3,16 @@
 
 import argparse
 import json
+import math
 import os
 import time
 
-from profile_mars_gravity import positive
+
+def positive(value):
+    result = float(value)
+    if not math.isfinite(result) or result <= 0:
+        raise argparse.ArgumentTypeError("must be finite and positive")
+    return result
 
 
 def main():
