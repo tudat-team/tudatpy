@@ -16,6 +16,7 @@
 #include <cmath>
 #include <limits>
 
+#include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
