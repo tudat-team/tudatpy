@@ -347,6 +347,12 @@ void setInstrumentSupplementaryDataInBodies(
         const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >&
                 instrumentSupplementaryData );
 
+//! Create a ground station for every reference point position, or check that an existing one is at the same position.
+void setReferencePointSupplementaryDataInBodies(
+        simulation_setup::SystemOfBodies& bodies,
+        const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::ReferencePointSupplementaryData > > >&
+                referencePointSupplementaryData );
+
 void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bodies,
                                            const std::vector< data::TrackingSupplementaryData >& supplementaryData );
 

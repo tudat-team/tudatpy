@@ -448,7 +448,15 @@ void testObservationPartials(
                 {
                     Eigen::MatrixXd testPartial = ( bodyRotationalStatePartial.block( 0, 0, ObservableSize, 4 ) *
                                                     appliedQuaternionPerturbation.at( j ).segment( 0, 4 ) );
-                    BOOST_CHECK_SMALL( std::fabs( testPartial( 0 ) - changeDueToQuaternionChange( j ) ), 1.0E-4 );
+                    if( observableType == euler_angle_313_observable )
+                    {
+                        // Check all angles [rad], with a tolerance well below their change due to the perturbation
+                        BOOST_CHECK_SMALL( ( testPartial - changeDueToQuaternionChange.col( j ) ).norm( ), 1.0E-9 );
+                    }
+                    else
+                    {
+                        BOOST_CHECK_SMALL( std::fabs( testPartial( 0 ) - changeDueToQuaternionChange( j ) ), 1.0E-4 );
+                    }
                 }
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( bodyRotationalStatePartial.block( 0, 4, ObservableSize, 3 ) ),

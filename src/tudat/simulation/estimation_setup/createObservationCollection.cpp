@@ -1,9 +1,12 @@
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/math/basic/nearestNeighbourSearch.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iterator>
 
@@ -78,41 +81,68 @@ bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancilla
     return ancillarySetting == "Doppler base frequency" || data::isOpticalObservationMetadata( ancillarySetting );
 }
 
-std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
-        const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
+std::vector< double > getTdbPictureEpochs( const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
 {
-    if( rotationFromInertialToCameraFrameHistory.empty( ) )
-    {
-        return nullptr;
-    }
-
-    std::map< double, Eigen::Quaterniond > tdbRotationFromInertialToCameraFrameHistory;
+    std::vector< double > tdbPictureEpochs;
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
             earth_orientation::createDefaultTimeConverter( );
     for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory )
     {
-        tdbRotationFromInertialToCameraFrameHistory[ timeScaleConverter->getCurrentTime< double >(
-                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, rotationEntry.first, Eigen::Vector3d::Zero( ) ) ] =
-                rotationEntry.second;
+        tdbPictureEpochs.push_back( timeScaleConverter->getCurrentTime< double >(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, rotationEntry.first, Eigen::Vector3d::Zero( ) ) );
+    }
+    return tdbPictureEpochs;
+}
+
+std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
+        const std::vector< double >& tdbPictureEpochs,
+        const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
+{
+    if( tdbPictureEpochs.empty( ) )
+    {
+        return nullptr;
     }
 
+    // The same nearest-picture search as Camera::getPictureIndex, so the nominal pointing and the pointing correction always
+    // belong to the same picture.
+    const Eigen::VectorXd pictureEpochs = Eigen::Map< const Eigen::VectorXd >( tdbPictureEpochs.data( ), tdbPictureEpochs.size( ) );
+    std::vector< Eigen::Quaterniond > pictureRotations;
+    for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory )
+    {
+        pictureRotations.push_back( rotationEntry.second );
+    }
     return [ = ]( const double time ) {
-        auto upperIterator = tdbRotationFromInertialToCameraFrameHistory.lower_bound( time );
-        if( upperIterator == tdbRotationFromInertialToCameraFrameHistory.begin( ) )
-        {
-            return upperIterator->second;
-        }
-        if( upperIterator == tdbRotationFromInertialToCameraFrameHistory.end( ) )
-        {
-            return std::prev( upperIterator )->second;
-        }
+        return pictureRotations.at( basic_mathematics::computeNearestNeighborUsingBinarySearch( pictureEpochs, time ) );
+    };
+}
 
-        auto lowerIterator = std::prev( upperIterator );
-        if( std::fabs( time - lowerIterator->first ) <= std::fabs( upperIterator->first - time ) )
-        {
-            return lowerIterator->second;
-        }
-        return upperIterator->second;
+std::function< Eigen::Quaterniond( const double ) > createCameraPointingFunction(
+        const simulation_setup::SystemOfBodies& bodies,
+        const data::CameraInstrumentSupplementaryData& cameraSupplementaryData,
+        const std::vector< double >& tdbPictureEpochs )
+{
+    std::function< Eigen::Quaterniond( const double ) > nearestPointingFunction =
+            createNearestCameraPointingFunction( tdbPictureEpochs, cameraSupplementaryData.getRotationFromInertialToCameraFrameHistory( ) );
+    const std::string& referenceBodyName = cameraSupplementaryData.getPointingReferenceBodyName( );
+    if( referenceBodyName.empty( ) || nearestPointingFunction == nullptr )
+    {
+        return nearestPointingFunction;
+    }
+
+    if( !bodies.doesBodyExist( referenceBodyName ) || bodies.at( referenceBodyName )->getRotationalEphemeris( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when setting camera supplementary data for camera " + cameraSupplementaryData.getCameraId( ) +
+                                  ": pointing is given relative to body " + referenceBodyName +
+                                  ", which does not exist or has no rotation model." );
+    }
+
+    // The stored pointing starts from the body-fixed frame, so the body's rotation completes it from the inertial frame.
+    const std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
+            bodies.at( referenceBodyName )->getRotationalEphemeris( );
+    return [ = ]( const double time ) {
+        return Eigen::Quaterniond( nearestPointingFunction( time ).toRotationMatrix( ) *
+                                   rotationalEphemeris->getRotationToTargetFrame( time ).toRotationMatrix( ) )
+                .normalized( );
     };
 }
 
@@ -684,26 +714,106 @@ void setInstrumentSupplementaryDataInBodies(
                                               " already exists. Overriding camera settings is not allowed." );
                 }
 
-                std::shared_ptr< system_models::PsfCameraProjectionModel > projectionModel =
-                        std::make_shared< system_models::PsfCameraProjectionModel >( cameraSupplementaryData->getFocalLength( ),
-                                                                                     cameraSupplementaryData->getPrincipalPoint( ),
-                                                                                     cameraSupplementaryData->getKMatrix( ),
-                                                                                     cameraSupplementaryData->getDistortionCoefficients( ),
-                                                                                     cameraSupplementaryData->getMountingOffsets( ),
-                                                                                     cameraSupplementaryData->getFieldOfViewBounds( ) );
+                // One projection model per picture, or a single one if the calibration is the same for all pictures.
+                std::vector< data::CameraCalibration > calibrations;
+                for( const auto& rotationEntry : cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) )
+                {
+                    calibrations.push_back( cameraSupplementaryData->getCalibration( rotationEntry.first ) );
+                }
+                if( calibrations.empty( ) )
+                {
+                    calibrations.push_back( cameraSupplementaryData->getCalibration( ) );
+                }
+                else if( std::all_of( calibrations.begin( ), calibrations.end( ), [ & ]( const data::CameraCalibration& calibration ) {
+                             return calibration.isApprox( calibrations.front( ) );
+                         } ) )
+                {
+                    calibrations.resize( 1 );
+                }
+                std::vector< std::shared_ptr< system_models::CameraProjectionModel > > projectionModels;
+                for( const data::CameraCalibration& calibration : calibrations )
+                {
+                    projectionModels.push_back( std::make_shared< system_models::PsfCameraProjectionModel >(
+                            calibration.focalLength_,
+                            calibration.principalPoint_,
+                            calibration.kMatrix_,
+                            cameraSupplementaryData->getDistortionCoefficients( ),
+                            cameraSupplementaryData->getMountingOffsets( ),
+                            calibration.fieldOfViewBounds_ ) );
+                }
 
+                // For a calibration that changes between pictures, the projection model of the first picture is replaced by those of
+                // all pictures in setPictures below.
+                const std::vector< double > tdbPictureEpochs =
+                        getTdbPictureEpochs( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) );
                 std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
                         cameraSupplementaryData->getCameraId( ),
                         Eigen::Vector3d::Zero( ),
-                        projectionModel,
-                        Eigen::Vector3d::Zero( ),
-                        createNearestCameraPointingFunction( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) ) );
+                        projectionModels.at( 0 ),
+                        cameraSupplementaryData->getBodyFixedPosition( ),
+                        createCameraPointingFunction( bodies, *cameraSupplementaryData, tdbPictureEpochs ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
+                const std::shared_ptr< system_models::Camera > camera =
+                        bodies.at( bodyName )->getVehicleSystems( )->getCamera( cameraSupplementaryData->getCameraId( ) );
+                camera->setPointingReferenceBodyName( cameraSupplementaryData->getPointingReferenceBodyName( ) );
+
+                // One pointing correction per picture, with the picture identifiers in time order.
+                camera->setPictures( tdbPictureEpochs,
+                                     cameraSupplementaryData->getPerPictureValues( cameraSupplementaryData->getPictureIdHistory( ),
+                                                                                   "picture identifiers" ),
+                                     projectionModels.size( ) > 1 ? projectionModels : decltype( projectionModels )( ) );
             }
             else
             {
                 throw std::runtime_error( "Error when setting instrument supplementary data in body " + bodyName + ", reference point " +
                                           referencePointName + ": unsupported instrument data type." );
+            }
+        }
+    }
+}
+
+void setReferencePointSupplementaryDataInBodies(
+        simulation_setup::SystemOfBodies& bodies,
+        const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::ReferencePointSupplementaryData > > >&
+                referencePointSupplementaryData )
+{
+    for( auto it = referencePointSupplementaryData.begin( ); it != referencePointSupplementaryData.end( ); ++it )
+    {
+        const std::string& bodyName = it->first.first;
+        const std::string& referencePointName = it->first.second;
+        if( referencePointName.empty( ) )
+        {
+            throw std::runtime_error( "Error when setting reference point supplementary data in body " + bodyName +
+                                      ": reference point name is empty." );
+        }
+        if( !bodies.doesBodyExist( bodyName ) )
+        {
+            throw std::runtime_error( "Error when setting reference point supplementary data: body " + bodyName + " does not exist." );
+        }
+
+        const Eigen::Vector3d position = it->second.at( 0 )->getBodyFixedPosition( );
+        for( const std::shared_ptr< data::ReferencePointSupplementaryData >& currentData : it->second )
+        {
+            if( !currentData->getBodyFixedPosition( ).isApprox( position ) )
+            {
+                throw std::runtime_error( "Error when setting reference point supplementary data in body " + bodyName +
+                                          ": conflicting positions given for reference point " + referencePointName + "." );
+            }
+        }
+
+        std::shared_ptr< simulation_setup::Body > body = bodies.at( bodyName );
+        if( body->getGroundStationMap( ).count( referencePointName ) == 0 )
+        {
+            simulation_setup::createGroundStation( body, referencePointName, position, coordinate_conversions::cartesian_position );
+        }
+        else
+        {
+            const Eigen::Vector3d existingPosition =
+                    body->getGroundStation( referencePointName )->getNominalStationState( )->getNominalCartesianPosition( );
+            if( !existingPosition.isApprox( position ) )
+            {
+                throw std::runtime_error( "Error when setting reference point supplementary data in body " + bodyName +
+                                          ": reference point " + referencePointName + " already exists at a different position." );
             }
         }
     }
@@ -720,6 +830,8 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
             frequencySupplementaryData;
     std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >
             instrumentSupplementaryData;
+    std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::ReferencePointSupplementaryData > > >
+            referencePointSupplementaryData;
 
     for( const data::TrackingSupplementaryData& currentSupplementaryData : supplementaryData )
     {
@@ -757,6 +869,12 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
                                                                      currentFrequencySupplementaryData.end( ) );
         }
 
+        if( currentSupplementaryData.getReferencePointSupplementaryData( ) != nullptr )
+        {
+            referencePointSupplementaryData[ bodyReferencePoint ].push_back(
+                    currentSupplementaryData.getReferencePointSupplementaryData( ) );
+        }
+
         const std::vector< std::shared_ptr< data::InstrumentSupplementaryData > >& currentInstrumentSupplementaryData =
                 currentSupplementaryData.getInstrumentSupplementaryData( );
         if( !currentInstrumentSupplementaryData.empty( ) )
@@ -769,6 +887,7 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
 
     setTranslationalStateSupplementaryDataInBodies( bodies, translationalStateSupplementaryData );
     setRotationalStateSupplementaryDataInBodies( bodies, rotationalStateSupplementaryData );
+    setReferencePointSupplementaryDataInBodies( bodies, referencePointSupplementaryData );
     setFrequencySupplementaryDataInBodies( bodies, frequencySupplementaryData );
     setInstrumentSupplementaryDataInBodies( bodies, instrumentSupplementaryData );
 }

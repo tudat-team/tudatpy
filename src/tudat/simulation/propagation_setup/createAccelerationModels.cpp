@@ -673,15 +673,15 @@ std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > createP
         }
 
         std::function< double( ) > volumeFunction = std::bind( &PolyhedronGravityField::getVolume, polyhedronGravityField );
-        std::function< Eigen::MatrixXd( ) > verticesCoordinatesFunction =
+        std::function< const Eigen::MatrixXd&( ) > verticesCoordinatesFunction =
                 std::bind( &PolyhedronGravityField::getVerticesCoordinates, polyhedronGravityField );
-        std::function< Eigen::MatrixXi( ) > verticesDefiningEachFacetFunction =
+        std::function< const Eigen::MatrixXi&( ) > verticesDefiningEachFacetFunction =
                 std::bind( &PolyhedronGravityField::getVerticesDefiningEachFacet, polyhedronGravityField );
-        std::function< Eigen::MatrixXi( ) > verticesDefiningEachEdgeFunction =
+        std::function< const Eigen::MatrixXi&( ) > verticesDefiningEachEdgeFunction =
                 std::bind( &PolyhedronGravityField::getVerticesDefiningEachEdge, polyhedronGravityField );
-        std::function< std::vector< Eigen::MatrixXd >( ) > facetDyadsFunction =
+        std::function< const std::vector< Eigen::Matrix3d >&( ) > facetDyadsFunction =
                 std::bind( &PolyhedronGravityField::getFacetDyads, polyhedronGravityField );
-        std::function< std::vector< Eigen::MatrixXd >( ) > edgeDyadsFunction =
+        std::function< const std::vector< Eigen::Matrix3d >&( ) > edgeDyadsFunction =
                 std::bind( &PolyhedronGravityField::getEdgeDyads, polyhedronGravityField );
 
         // Create acceleration object.

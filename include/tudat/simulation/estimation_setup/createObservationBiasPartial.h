@@ -354,7 +354,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 
                         if( matchLinkEnds && matchObservationType )
                         {
-                            if( linkEnds.count( observation_models::transmitter2 ) > 0 )
+                            if( linkEnds.count( observation_models::transmitter2 ) > 0 ||
+                                observableType == observation_models::euler_angle_313_observable )
                             {
                                 throw std::runtime_error( "Error, time bias partials not supported for observable " +
                                                           observation_models::getObservableName( observableType ) );
@@ -464,7 +465,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 
                         if( matchLinkEnds && matchObservationType )
                         {
-                            if( linkEnds.count( observation_models::transmitter2 ) > 0 )
+                            if( linkEnds.count( observation_models::transmitter2 ) > 0 ||
+                                observableType == observation_models::euler_angle_313_observable )
                             {
                                 throw std::runtime_error( "Error, time bias partials not supported for observable " +
                                                           observation_models::getObservableName( observableType ) );

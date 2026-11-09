@@ -155,6 +155,9 @@ void expose_parameters_setup_types( py::module& m )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position,
                     R"doc(Estimatable parameter for ground station position.)doc" )
+            .value( "camera_pointing_correction_type",
+                    tep::EstimatebleParametersEnum::camera_pointing_correction,
+                    R"doc(Estimatable parameter for camera pointing correction.)doc" )
             .value( "equivalence_principle_lpi_violation_parameter_type",
                     tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter,
                     R"doc(Estimatable parameter for equivalence principle lpi violation parameter.)doc" )
@@ -2168,6 +2171,65 @@ EstimatableParameterSettings
              Settings for the requested estimatable parameter.
 
       )doc" );
+
+    m.def( "camera_pointing_correction",
+           &tep::cameraPointingCorrection,
+           py::arg( "body" ),
+           py::arg( "camera_name" ),
+           R"doc(
+
+ Function for creating parameter settings for a per-image camera pointing correction.
+
+ Function for creating parameter settings object for the pointing corrections of a camera registered on a
+ body. One correction, with three components, is estimated for each image taken with this camera. The images are
+ known to the camera if it is created from tracking supplementary data, such as SUM or PSF data. Any other camera
+ has a single correction, which applies to all its observations.
+
+ The correction :math:`\boldsymbol{\theta}_{i}` of image :math:`i` modifies the rotation from the inertial frame
+ :math:`I` to the camera frame :math:`C` as follows:
+
+ .. math::
+    \mathbf{R}^{(C/I)}_{i}=\Delta\mathbf{R}_{i}\mathbf{R}^{(C/I)}_{i,0}
+
+ where :math:`\mathbf{R}^{(C/I)}_{i,0}` is the rotation of image :math:`i` without correction. The rotation matrix
+ :math:`\Delta\mathbf{R}_{i}` rotates a position :math:`\mathbf{r}_{C}` in the camera frame by the angle
+ :math:`\alpha_{i}=|\boldsymbol{\theta}_{i}|` about the axis
+ :math:`\mathbf{e}_{i}=\boldsymbol{\theta}_{i}/|\boldsymbol{\theta}_{i}|`, expressed in the camera frame:
+
+ .. math::
+    \Delta\mathbf{R}_{i}\mathbf{r}_{C}=\mathbf{r}_{C}\cos\alpha_{i}+(\mathbf{e}_{i}\times\mathbf{r}_{C})\sin\alpha_{i}+\mathbf{e}_{i}(\mathbf{e}_{i}\cdot\mathbf{r}_{C})(1-\cos\alpha_{i})
+
+ For small corrections, this reduces to :math:`\Delta\mathbf{R}_{i}\mathbf{r}_{C}\approx\mathbf{r}_{C}+\boldsymbol{\theta}_{i}\times\mathbf{r}_{C}`.
+
+ The parameter values are the components of all corrections, in radians, with the :math:`N` images in time order
+ (see :attr:`~tudatpy.dynamics.environment.Camera.picture_epochs`), so that the parameter has size :math:`3N`
+ (with :math:`N=1` for a camera with a single correction):
+
+ .. math::
+    \mathbf{p}=[\theta_{0,x},\theta_{0,y},\theta_{0,z},\ldots,\theta_{N-1,x},\theta_{N-1,y},\theta_{N-1,z}]^{T}
+
+ These values are stored in :attr:`~tudatpy.dynamics.environment.Camera.pointing_correction`, and are zero by default.
+
+ Using it as estimatable parameter requires:
+
+ * The body to carry a ``VehicleSystems`` with the named camera.
+ * At least one pixel-coordinate observation model to rely on the specified camera.
+
+
+ Parameters
+ ----------
+ body : str
+     Body name identifying the body (spacecraft) carrying the camera.
+ camera_name : str
+     Name which identifies the camera whose pointing is corrected.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the camera pointing correction.
+
+
+     )doc" );
 
     // ###############  Tidal Model Parameters
     // ################################
