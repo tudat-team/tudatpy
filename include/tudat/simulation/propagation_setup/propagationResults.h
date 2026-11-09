@@ -998,11 +998,13 @@ public:
         }
     }
 
-    //            void setPropagationIsPerformed( const std::vector< double >& arcStartTimes )
-    //            {
-    //                propagationIsPerformed_ = true;
-    //                arcStartTimes_ = arcStartTimes;
-    //            }
+    //! Function to signal that propagation is finished, with arc times provided directly (e.g. if arcs have no state transition history)
+    void setPropagationIsPerformed( const std::vector< double >& arcStartTimes, const std::vector< double >& arcEndTimes )
+    {
+        propagationIsPerformed_ = true;
+        arcStartTimes_ = arcStartTimes;
+        arcEndTimes_ = arcEndTimes;
+    }
 
     void manuallySetPropagationResults(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > numericalMultiArcSolution )
