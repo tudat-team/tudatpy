@@ -269,13 +269,13 @@ public:
     }
 
     //! Function to return the facet dyads.
-    const std::vector< Eigen::MatrixXd >& getFacetDyads( )
+    const std::vector< Eigen::Matrix3d >& getFacetDyads( )
     {
         return facetDyads_;
     }
 
     //! Function to return the edge dyads.
-    const std::vector< Eigen::MatrixXd >& getEdgeDyads( )
+    const std::vector< Eigen::Matrix3d >& getEdgeDyads( )
     {
         return edgeDyads_;
     }
@@ -340,10 +340,10 @@ private:
     std::vector< Eigen::Vector3d > facetNormalVectors_;
 
     //! Vector with the facet dyad of each facet.
-    std::vector< Eigen::MatrixXd > facetDyads_;
+    std::vector< Eigen::Matrix3d > facetDyads_;
 
     //! Vector with the edge dyad of each edge.
-    std::vector< Eigen::MatrixXd > edgeDyads_;
+    std::vector< Eigen::Matrix3d > edgeDyads_;
 
     //! Polyhedron cache.
     std::shared_ptr< PolyhedronGravityCache > polyhedronGravityCache_;
