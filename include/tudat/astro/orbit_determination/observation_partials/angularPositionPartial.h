@@ -88,7 +88,7 @@ public:
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation,
-                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr );
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
     //! Function to retrieve the scaling factor for specific link end
     /*!
@@ -96,12 +96,12 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }
 
-    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return scalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }
@@ -111,7 +111,7 @@ public:
      * Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial.
      * \return Factor by which the light-time partials should be scaled in one-way observation partial.
      */
-    Eigen::Vector2d getLightTimePartialScalingFactor( )
+    Eigen::Vector2d getLightTimePartialScalingFactor( ) override
     {
         return referenceLightTimeCorrectionScaling_;
     }
@@ -127,9 +127,9 @@ public:
         return getVelocityScalingFactor( linkEndType );
     }
 
-    bool isVelocityScalingNonZero( ) override
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType ) override
     {
-        return !velocityScalingFactor_.isZero( 0.0 );
+        return linkEndType == observation_models::receiver && !velocityScalingFactor_.isZero( 0.0 );
     }
 
     //! Function to get the fixed link end for last computation of update() function.
@@ -137,7 +137,7 @@ public:
      * Fixed link end for last computation of update() function.
      * \return Function to get the fixed link end for last computation of update() function.
      */
-    observation_models::LinkEndType getCurrentLinkEndType( )
+    observation_models::LinkEndType getCurrentLinkEndType( ) override
     {
         return currentLinkEndType_;
     }

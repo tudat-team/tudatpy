@@ -427,7 +427,7 @@ public:
         return observation_models::observed_body;
     }
 
-    virtual bool isVelocityScalingNonZero( )
+    virtual bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType )
     {
         return true;
     }

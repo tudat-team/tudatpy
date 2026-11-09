@@ -160,7 +160,6 @@ Eigen::Vector6d PiecewiseConstantStationMotionModel::getBodyFixedStationMotion(
         const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
         const std::string& targetFrameOrigin )
 {
-    timeLookupScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< double > >( displacementTimes_ );
     Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
     if( !( time < firstDisplacementTime_ ) )
     {
