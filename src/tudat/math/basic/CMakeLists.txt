@@ -24,6 +24,7 @@ set(basic_mathematics_SOURCES
         "coordinateConversions.cpp"
         "linearAlgebra.cpp"
         "leastSquaresEstimation.cpp"
+        "leastSquaresPolynomialFit.cpp"
         "rotationRepresentations.cpp"
         )
 
@@ -47,6 +48,7 @@ set(basic_mathematics_HEADERS
         "linearAlgebra.h"
         "mathematicalConstants.h"
         "leastSquaresEstimation.h"
+        "leastSquaresPolynomialFit.h"
         "rotationRepresentations.h"
         "sphericalHarmonicTransformations.h"
         "wignerDMatrices.h"

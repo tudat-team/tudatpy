@@ -1034,7 +1034,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
                 1.0E-10 );
         BOOST_CHECK_SMALL( podOutput->residuals_.cwiseAbs( ).maxCoeff( ), 1.0E-3 );
         BOOST_CHECK_SMALL( ( podOutput->residuals_ - residualHistory.col( podOutput->bestIteration_ ) ).norm( ), 1.0E-12 );
-        const Eigen::MatrixXd normalizedDesignMatrix = podOutput->getNormalizedDesignMatrix( );
+        const Eigen::MatrixXd normalizedDesignMatrix = std::get< Eigen::MatrixXd >( podOutput->getNormalizedDesignMatrix( ) );
         BOOST_REQUIRE_EQUAL( normalizedDesignMatrix.rows( ), observationsAndTimes->getTotalObservableSize( ) );
         BOOST_REQUIRE_EQUAL( normalizedDesignMatrix.cols( ), originalParameters.rows( ) );
         BOOST_CHECK( normalizedDesignMatrix.allFinite( ) );

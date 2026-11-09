@@ -637,6 +637,16 @@ BOOST_AUTO_TEST_CASE( test_EstimationAndCovariance_WithInterArcContinuity )
     BOOST_CHECK_GT( constrainedCovarianceOutput->getInterArcContinuityCost( ), 0.0 );
     BOOST_REQUIRE_EQUAL( constrainedCovarianceOutput->getInterArcContinuityDiscrepancies( ).size( ), 1u );
 
+    // Repeat the constrained covariance analysis with a sparse design matrix, and compare with the dense results
+    constrainedCovarianceInput->setUseSparseDesignMatrix( true );
+    auto sparseConstrainedCovarianceOutput = orbitDeterminationManager.computeCovariance( constrainedCovarianceInput );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseConstrainedCovarianceOutput->inverseNormalizedCovarianceMatrix_,
+                                       constrainedCovarianceOutput->inverseNormalizedCovarianceMatrix_,
+                                       1.0E-10 );
+    BOOST_CHECK_CLOSE_FRACTION( sparseConstrainedCovarianceOutput->getInterArcContinuityCost( ),
+                                constrainedCovarianceOutput->getInterArcContinuityCost( ),
+                                1.0E-12 );
+
     // Apply unit-aware perturbations to every arc so iterative correction and best-iteration selection are
     // exercised rather than returning the simulation truth immediately.
     Eigen::VectorXd initialEstimate = truthParameters;
@@ -698,6 +708,18 @@ BOOST_AUTO_TEST_CASE( test_EstimationAndCovariance_WithInterArcContinuity )
     BOOST_CHECK_LT( bestIterationStateDiscrepancy.head( 3 ).norm( ), history.front( ).at( 0 ).head( 3 ).norm( ) );
     BOOST_CHECK_LT( linear_algebra::getVectorEntryRootMeanSquare( outputWithConstraint->residuals_ ), 1.0 );
     BOOST_CHECK( std::isfinite( bestIterationStateDiscrepancy.norm( ) ) );
+
+    // Repeat the constrained estimation with a sparse design matrix, and compare with the dense results
+    parametersToEstimate->resetParameterValues( initialEstimate );
+    estimationInputWithConstraint->setUseSparseDesignMatrix( true );
+    auto sparseOutputWithConstraint = orbitDeterminationManager.estimateParameters( estimationInputWithConstraint );
+    // The problem is ill-conditioned, so the dense (SVD) and sparse (QR) solutions are compared relative to the formal errors
+    const Eigen::VectorXd formalErrors = outputWithConstraint->getFormalErrorVector( );
+    for( int i = 0; i < formalErrors.rows( ); i++ )
+    {
+        BOOST_CHECK_SMALL( sparseOutputWithConstraint->parameterEstimate_( i ) - outputWithConstraint->parameterEstimate_( i ),
+                           0.01 * formalErrors( i ) );
+    }
 
     // Preserve the legacy positional constructor contract: the final pre-feature argument remains the propagation
     // exception flag, while continuity diagnostics retain their defaults.

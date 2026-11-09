@@ -11,14 +11,21 @@
 #ifndef TUDAT_PODINPUTOUTPUTTYPES_H
 #define TUDAT_PODINPUTOUTPUTTYPES_H
 
+#include <cstdint>
 #include <map>
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <variant>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
+#include <Eigen/SparseCore>
 
+#include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
@@ -26,6 +33,7 @@
 #include <cereal/types/vector.hpp>
 
 #include "tudat/basics/timeType.h"
+#include "tudat/math/basic/leastSquaresTraits.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
@@ -38,6 +46,10 @@ namespace tudat
 namespace simulation_setup
 {
 
+using linear_algebra::Dense;
+using linear_algebra::MatrixTraits;
+using linear_algebra::Sparse;
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 class CovarianceAnalysisInput
 {
@@ -48,7 +60,7 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
         observationCollection_( observationCollection ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
         considerCovariance_( considerCovariance ), limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
-        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true )
+        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true ), useSparseDesignMatrix_( false )
     {
         //        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
 
@@ -193,6 +205,16 @@ public:
         return considerParametersIncluded_;
     }
 
+    bool getUseSparseDesignMatrix( ) const
+    {
+        return useSparseDesignMatrix_;
+    }
+
+    void setUseSparseDesignMatrix( const bool useSparseDesignMatrix )
+    {
+        useSparseDesignMatrix_ = useSparseDesignMatrix;
+    }
+
     //! Configure soft inter-arc translational state continuity priors.
     /*!
      * Configure soft inter-arc translational state continuity priors for covariance analysis and estimation.
@@ -242,6 +264,9 @@ protected:
 
     //! Boolean denoting whether consider parameters are included in the covariance analysis
     bool considerParametersIncluded_;
+
+    //! Boolean denoting whether to use a sparse design matrix
+    bool useSparseDesignMatrix_;
 
     //! Soft inter-arc translational state continuity priors. Empty by default (feature off).
     std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > > interArcContinuityConstraints_;
@@ -486,15 +511,97 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
                                                              Eigen::VectorXd& normalisationFactors,
                                                              const bool normalise );
 
+using DenseOrSparseOrNoMatrix = std::variant< std::monostate, Eigen::MatrixXd, Eigen::SparseMatrix< double > >;
+
+//! Dense or sparse matrix
+using DenseOrSparseMatrix = std::variant< Eigen::MatrixXd, Eigen::SparseMatrix< double > >;
+
+//! Function to get the number of columns of an optionally saved (dense or sparse) matrix; zero if it is absent
+inline int getNumberOfColumns( const DenseOrSparseOrNoMatrix& matrix )
+{
+    return std::visit(
+            []( const auto& m ) -> int {
+                if constexpr( std::is_same_v< std::decay_t< decltype( m ) >, std::monostate > )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return static_cast< int >( m.cols( ) );
+                }
+            },
+            matrix );
+}
+
+//! Function to compare two optionally saved (dense or sparse) matrices for exact equality of storage type and values
+/*!
+ * Sparse matrices are compared by value, independent of explicitly stored zeros, with the same semantics as the comparison
+ * of dense matrices (NaN entries compare unequal).
+ */
+inline bool areOptionalMatricesEqual( const DenseOrSparseOrNoMatrix& first, const DenseOrSparseOrNoMatrix& second )
+{
+    if( first.index( ) != second.index( ) )
+    {
+        return false;
+    }
+    else if( std::holds_alternative< Eigen::MatrixXd >( first ) )
+    {
+        const Eigen::MatrixXd& firstMatrix = std::get< Eigen::MatrixXd >( first );
+        const Eigen::MatrixXd& secondMatrix = std::get< Eigen::MatrixXd >( second );
+        return firstMatrix.rows( ) == secondMatrix.rows( ) && firstMatrix.cols( ) == secondMatrix.cols( ) && firstMatrix == secondMatrix;
+    }
+    else if( std::holds_alternative< Eigen::SparseMatrix< double > >( first ) )
+    {
+        Eigen::SparseMatrix< double > firstMatrix = std::get< Eigen::SparseMatrix< double > >( first );
+        Eigen::SparseMatrix< double > secondMatrix = std::get< Eigen::SparseMatrix< double > >( second );
+        if( firstMatrix.rows( ) != secondMatrix.rows( ) || firstMatrix.cols( ) != secondMatrix.cols( ) )
+        {
+            return false;
+        }
+
+        // Remove explicitly stored zeros (keeping NaN entries), after which equal matrices have identical compressed storage
+        auto isNotZero = []( const Eigen::Index&, const Eigen::Index&, const double& value ) { return value != 0.0; };
+        firstMatrix.prune( isNotZero );
+        secondMatrix.prune( isNotZero );
+        firstMatrix.makeCompressed( );
+        secondMatrix.makeCompressed( );
+        if( firstMatrix.nonZeros( ) != secondMatrix.nonZeros( ) )
+        {
+            return false;
+        }
+        for( Eigen::Index k = 0; k <= firstMatrix.outerSize( ); k++ )
+        {
+            if( firstMatrix.outerIndexPtr( )[ k ] != secondMatrix.outerIndexPtr( )[ k ] )
+            {
+                return false;
+            }
+        }
+        for( Eigen::Index k = 0; k < firstMatrix.nonZeros( ); k++ )
+        {
+            if( firstMatrix.innerIndexPtr( )[ k ] != secondMatrix.innerIndexPtr( )[ k ] ||
+                !( firstMatrix.valuePtr( )[ k ] == secondMatrix.valuePtr( )[ k ] ) )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    else
+    {
+        // Both absent
+        return true;
+    }
+}
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
     virtual ~CovarianceAnalysisOutput( ) = default;
 
-    CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
+    CovarianceAnalysisOutput( const DenseOrSparseOrNoMatrix& normalizedDesignMatrix,
                               const Eigen::VectorXd& weightsMatrixDiagonal,
                               const Eigen::VectorXd& designMatrixTransformationDiagonal,
                               const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
-                              const Eigen::MatrixXd& normalizedDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+                              const DenseOrSparseOrNoMatrix& normalizedDesignMatrixConsiderParameters = DenseOrSparseOrNoMatrix( ),
                               const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -509,9 +616,12 @@ struct CovarianceAnalysisOutput {
         interArcContinuityCost_( interArcContinuityCost ), interArcContinuityDiscrepancies_( interArcContinuityDiscrepancies ),
         exceptionDuringPropagation_( exceptionDuringPropagation )
     {
-        if( ( normalizedDesignMatrix.rows( ) == 0 ) && ( normalizedDesignMatrix_.cols( ) == 0 ) &&
-            ( normalizedDesignMatrixConsiderParameters.rows( ) == 0 ) && ( normalizedDesignMatrixConsiderParameters.cols( ) == 0 ) &&
-            !( ( weightsMatrixDiagonal.rows( ) == 0 ) && ( inverseNormalizedCovarianceMatrix.rows( ) == 0 ) ) )
+        // There were some extensive checks here to see if the design matrix was non-empty.
+        // The idea was to use the empty matrix `MatrixXd(0, 0)` as a place-holder for
+        // no design matrix being saved. Where we use `std::optional` or `std::variant`
+        // instead, we have an explicit representation for the absence of a saved
+        // design matrix, and the current check should suffice.
+        if( normalizedDesignMatrix_.index( ) == 0 )
         {
             designMatrixSaved_ = false;
         }
@@ -520,7 +630,7 @@ struct CovarianceAnalysisOutput {
             designMatrixSaved_ = true;
         }
         considerParametersIncluded_ = false;
-        if( normalizedDesignMatrixConsiderParameters.size( ) > 0 && considerNormalizationFactors.size( ) > 0 &&
+        if( getNumberOfColumns( normalizedDesignMatrixConsiderParameters ) > 0 && considerNormalizationFactors.size( ) > 0 &&
             considerCovarianceContribution.size( ) > 0 )
         {
             considerParametersIncluded_ = true;
@@ -591,51 +701,84 @@ struct CovarianceAnalysisOutput {
         return unnormalizedCovarianceMatrix_;
     }
 
+    //! Function to retrieve the matrix of normalized partial derivatives in the requested storage
+    /*!
+     * Function to retrieve the matrix of normalized partial derivatives, converted to the storage class `S`
+     * (`Dense` or `Sparse`) if it was saved in the other one.
+     * \return Matrix of normalized partial derivatives
+     */
+    template< typename S >
+    typename MatrixTraits< double, S >::matrix_type getNormalizedDesignMatrixGeneric( ) const
+    {
+        using traits = MatrixTraits< double, S >;
+        if( designMatrixSaved_ && std::holds_alternative< Eigen::MatrixXd >( normalizedDesignMatrix_ ) )
+        {
+            return traits::from_dense( std::get< Eigen::MatrixXd >( normalizedDesignMatrix_ ) );
+        }
+        else if( designMatrixSaved_ && std::holds_alternative< Eigen::SparseMatrix< double > >( normalizedDesignMatrix_ ) )
+        {
+            return traits::from_sparse( std::get< Eigen::SparseMatrix< double > >( normalizedDesignMatrix_ ) );
+        }
+        else
+        {
+            return returnNoDesignMatrixAvailableGeneric< S >( );
+        }
+    }
+
+    template< typename S >
+    typename MatrixTraits< double, S >::matrix_type getUnnormalizedDesignMatrixGeneric( ) const
+    {
+        if( designMatrixSaved_ )
+        {
+            return getNormalizedDesignMatrixGeneric< S >( ) * designMatrixTransformationDiagonal_.asDiagonal( );
+        }
+        else
+        {
+            return returnNoDesignMatrixAvailableGeneric< S >( );
+        }
+    }
+
     //! Function to retrieve the matrix of unnormalized partial derivatives
     /*!
      * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
-     * \return Matrix of unnormalized partial derivatives
+     * \return Matrix of unnormalized partial derivatives, sparse if it was saved as a sparse matrix, dense otherwise
      */
-    Eigen::MatrixXd getUnnormalizedDesignMatrix( )
+    DenseOrSparseMatrix getUnnormalizedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ )
+        if( std::holds_alternative< Eigen::SparseMatrix< double > >( normalizedDesignMatrix_ ) )
         {
-            Eigen::MatrixXd unnormalizedPartialDerivatives =
-                    Eigen::MatrixXd::Zero( normalizedDesignMatrix_.rows( ), normalizedDesignMatrix_.cols( ) );
-
-            for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
-            {
-                unnormalizedPartialDerivatives.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) =
-                        normalizedDesignMatrix_.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) *
-                        designMatrixTransformationDiagonal_( i );
-            }
-            return unnormalizedPartialDerivatives;
+            return getUnnormalizedDesignMatrixGeneric< Sparse >( );
         }
         else
         {
-            return returnNoDesignMatrixAvailable( );
+            return getUnnormalizedDesignMatrixGeneric< Dense >( );
         }
     }
 
-    Eigen::MatrixXd getNormalizedDesignMatrix( )
+    DenseOrSparseMatrix getNormalizedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ )
+        if( std::holds_alternative< Eigen::SparseMatrix< double > >( normalizedDesignMatrix_ ) )
         {
-            return normalizedDesignMatrix_;
+            return getNormalizedDesignMatrixGeneric< Sparse >( );
         }
         else
         {
-            return returnNoDesignMatrixAvailable( );
+            return getNormalizedDesignMatrixGeneric< Dense >( );
         }
     }
 
-    Eigen::MatrixXd getNormalizedWeightedDesignMatrix( )
+    DenseOrSparseMatrix getNormalizedWeightedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ )
+        if( designMatrixSaved_ && std::holds_alternative< Eigen::SparseMatrix< double > >( normalizedDesignMatrix_ ) )
         {
-            Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
-            scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
-            return weightedNormalizedDesignMatrix;
+            return Eigen::SparseMatrix< double >( weightsMatrixDiagonal_.cwiseSqrt( ).asDiagonal( ) *
+                                                  getNormalizedDesignMatrixGeneric< Sparse >( ) );
+        }
+        else if( designMatrixSaved_ )
+        {
+            Eigen::MatrixXd A = getNormalizedDesignMatrixGeneric< Dense >( );
+            scaleDesignMatrixWithWeights( A, weightsMatrixDiagonal_ );
+            return A;
         }
         else
         {
@@ -658,11 +801,16 @@ struct CovarianceAnalysisOutput {
         return unnormalizedCovarianceWithConsiderParameters_;
     }
 
-    Eigen::MatrixXd getNormalizedDesignMatrixConsiderParameters( )
+    //! Function to retrieve the normalized partials w.r.t. consider parameters, sparse if saved as a sparse matrix, dense otherwise
+    DenseOrSparseMatrix getNormalizedDesignMatrixConsiderParameters( )
     {
-        if( designMatrixSaved_ )
+        if( designMatrixSaved_ && std::holds_alternative< Eigen::SparseMatrix< double > >( normalizedDesignMatrixConsiderParameters_ ) )
         {
-            return normalizedDesignMatrixConsiderParameters_;
+            return std::get< Eigen::SparseMatrix< double > >( normalizedDesignMatrixConsiderParameters_ );
+        }
+        else if( designMatrixSaved_ && std::holds_alternative< Eigen::MatrixXd >( normalizedDesignMatrixConsiderParameters_ ) )
+        {
+            return std::get< Eigen::MatrixXd >( normalizedDesignMatrixConsiderParameters_ );
         }
         else
         {
@@ -675,11 +823,16 @@ struct CovarianceAnalysisOutput {
         return considerNormalizationFactors_;
     }
 
-    Eigen::MatrixXd getUnnormalizedWeightedDesignMatrix( )
+    DenseOrSparseMatrix getUnnormalizedWeightedDesignMatrix( )
     {
-        if( designMatrixSaved_ )
+        if( designMatrixSaved_ && std::holds_alternative< Eigen::SparseMatrix< double > >( normalizedDesignMatrix_ ) )
         {
-            Eigen::MatrixXd weightedUnnormalizedDesignMatrix = getUnnormalizedDesignMatrix( );
+            return Eigen::SparseMatrix< double >( weightsMatrixDiagonal_.cwiseSqrt( ).asDiagonal( ) *
+                                                  getUnnormalizedDesignMatrixGeneric< Sparse >( ) );
+        }
+        else if( designMatrixSaved_ )
+        {
+            Eigen::MatrixXd weightedUnnormalizedDesignMatrix = getUnnormalizedDesignMatrixGeneric< Dense >( );
             scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
             return weightedUnnormalizedDesignMatrix;
         }
@@ -724,20 +877,18 @@ struct CovarianceAnalysisOutput {
         return interArcContinuityDiscrepancies_;
     }
 
-    Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
+    //! Function to retrieve the unnormalized partials w.r.t. consider parameters, sparse if saved as a sparse matrix, dense otherwise
+    DenseOrSparseMatrix getUnnormalizedDesignMatrixConsiderParameters( )
     {
-        if( designMatrixSaved_ )
+        if( designMatrixSaved_ && std::holds_alternative< Eigen::SparseMatrix< double > >( normalizedDesignMatrixConsiderParameters_ ) )
         {
-            Eigen::MatrixXd unnormalizedPartials = Eigen::MatrixXd::Zero( normalizedDesignMatrixConsiderParameters_.rows( ),
-                                                                          normalizedDesignMatrixConsiderParameters_.cols( ) );
-
-            for( int i = 0; i < considerNormalizationFactors_.rows( ); i++ )
-            {
-                unnormalizedPartials.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 ) =
-                        normalizedDesignMatrixConsiderParameters_.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 ) *
-                        considerNormalizationFactors_( i );
-            }
-            return unnormalizedPartials;
+            return Eigen::SparseMatrix< double >( std::get< Eigen::SparseMatrix< double > >( normalizedDesignMatrixConsiderParameters_ ) *
+                                                  considerNormalizationFactors_.asDiagonal( ) );
+        }
+        else if( designMatrixSaved_ && std::holds_alternative< Eigen::MatrixXd >( normalizedDesignMatrixConsiderParameters_ ) )
+        {
+            return Eigen::MatrixXd( std::get< Eigen::MatrixXd >( normalizedDesignMatrixConsiderParameters_ ) *
+                                    considerNormalizationFactors_.asDiagonal( ) );
         }
         else
         {
@@ -745,15 +896,23 @@ struct CovarianceAnalysisOutput {
         }
     }
 
-    Eigen::MatrixXd returnNoDesignMatrixAvailable( )
+    template< typename S >
+    typename MatrixTraits< double, S >::matrix_type returnNoDesignMatrixAvailableGeneric( ) const
     {
+        using matrix_t = typename MatrixTraits< double, S >::matrix_type;
         std::cerr << "Warning, returning empty matrix when retrieving design matrix, design matrix is not saved. Returning empty 0x0 "
                      "matrix. Toggle the option to save it using the CovarianceAnalysisInput.define_covariance_settings function"
                   << std::endl;
-        return Eigen::MatrixXd::Zero( 0, 0 );
+        return matrix_t( 0, 0 );
     }
+
+    Eigen::MatrixXd returnNoDesignMatrixAvailable( ) const
+    {
+        return returnNoDesignMatrixAvailableGeneric< Dense >( );
+    }
+
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
-    Eigen::MatrixXd normalizedDesignMatrix_;
+    DenseOrSparseOrNoMatrix normalizedDesignMatrix_;
 
     //! Diagonal of weights matrix used in the estimation
     Eigen::VectorXd weightsMatrixDiagonal_;
@@ -783,7 +942,7 @@ struct CovarianceAnalysisOutput {
     Eigen::MatrixXd unnormalizedCovarianceWithConsiderParameters_;
 
     //! Matrix of observation partials w.r.t. consider parameters (normalized)
-    Eigen::MatrixXd normalizedDesignMatrixConsiderParameters_;
+    DenseOrSparseOrNoMatrix normalizedDesignMatrixConsiderParameters_;
 
     //! Vector of values by which the columns of the unnormalized consider design matrix were divided to normalize its entries.
     Eigen::VectorXd considerNormalizationFactors_;
@@ -831,7 +990,8 @@ protected:
     {
         return ( designMatrixSaved_ == rhs.designMatrixSaved_ ) && ( exceptionDuringPropagation_ == rhs.exceptionDuringPropagation_ ) &&
                 ( considerParametersIncluded_ == rhs.considerParametersIncluded_ ) &&
-                ( normalizedDesignMatrix_ == rhs.normalizedDesignMatrix_ ) && ( weightsMatrixDiagonal_ == rhs.weightsMatrixDiagonal_ ) &&
+                areOptionalMatricesEqual( normalizedDesignMatrix_, rhs.normalizedDesignMatrix_ ) &&
+                ( weightsMatrixDiagonal_ == rhs.weightsMatrixDiagonal_ ) &&
                 ( designMatrixTransformationDiagonal_ == rhs.designMatrixTransformationDiagonal_ ) &&
                 ( inverseNormalizedCovarianceMatrix_ == rhs.inverseNormalizedCovarianceMatrix_ ) &&
                 ( inverseUnnormalizedCovarianceMatrix_ == rhs.inverseUnnormalizedCovarianceMatrix_ ) &&
@@ -840,7 +1000,7 @@ protected:
                 ( considerCovarianceContribution_ == rhs.considerCovarianceContribution_ ) &&
                 ( normalizedCovarianceWithConsiderParameters_ == rhs.normalizedCovarianceWithConsiderParameters_ ) &&
                 ( unnormalizedCovarianceWithConsiderParameters_ == rhs.unnormalizedCovarianceWithConsiderParameters_ ) &&
-                ( normalizedDesignMatrixConsiderParameters_ == rhs.normalizedDesignMatrixConsiderParameters_ ) &&
+                areOptionalMatricesEqual( normalizedDesignMatrixConsiderParameters_, rhs.normalizedDesignMatrixConsiderParameters_ ) &&
                 ( considerNormalizationFactors_ == rhs.considerNormalizationFactors_ ) &&
                 ( considerCovariance_ == rhs.considerCovariance_ ) && ( interArcContinuityCost_ == rhs.interArcContinuityCost_ ) &&
                 ( interArcContinuityDiscrepancies_ == rhs.interArcContinuityDiscrepancies_ );
@@ -849,11 +1009,55 @@ protected:
 private:
     friend class cereal::access;
 
+    // A design matrix is stored as its storage type (0: not saved, 1: dense, 2: sparse), followed by the matrix if it was saved.
+    template< class Archive >
+    static void saveDesignMatrix( Archive& ar, const std::string& name, const DenseOrSparseOrNoMatrix& matrix )
+    {
+        std::uint32_t storage = static_cast< std::uint32_t >( matrix.index( ) );
+        ar( cereal::make_nvp( name + "Storage", storage ) );
+        if( const Eigen::MatrixXd* denseMatrix = std::get_if< Eigen::MatrixXd >( &matrix ) )
+        {
+            ar( cereal::make_nvp( name + "_", *denseMatrix ) );
+        }
+        else if( const Eigen::SparseMatrix< double >* sparseMatrix = std::get_if< Eigen::SparseMatrix< double > >( &matrix ) )
+        {
+            ar( cereal::make_nvp( name + "_", *sparseMatrix ) );
+        }
+    }
+
+    template< class Archive >
+    static void loadDesignMatrix( Archive& ar, const std::string& name, DenseOrSparseOrNoMatrix& matrix )
+    {
+        std::uint32_t storage;
+        ar( cereal::make_nvp( name + "Storage", storage ) );
+        if( storage == 0 )
+        {
+            matrix = std::monostate( );
+        }
+        else if( storage == 1 )
+        {
+            Eigen::MatrixXd denseMatrix;
+            ar( cereal::make_nvp( name + "_", denseMatrix ) );
+            matrix = std::move( denseMatrix );
+        }
+        else if( storage == 2 )
+        {
+            Eigen::SparseMatrix< double > sparseMatrix;
+            ar( cereal::make_nvp( name + "_", sparseMatrix ) );
+            matrix = std::move( sparseMatrix );
+        }
+        else
+        {
+            throw std::runtime_error( "Cannot deserialize CovarianceAnalysisOutput: unknown design matrix storage type " +
+                                      std::to_string( storage ) + "." );
+        }
+    }
+
     template< class Archive >
     void save( Archive& ar, const std::uint32_t version ) const
     {
         static_cast< void >( version );
-        ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
+        saveDesignMatrix( ar, "normalizedDesignMatrix", normalizedDesignMatrix_ );
         ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
         ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
         ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
@@ -863,7 +1067,7 @@ private:
         ar( CEREAL_NVP( considerCovarianceContribution_ ) );
         ar( CEREAL_NVP( normalizedCovarianceWithConsiderParameters_ ) );
         ar( CEREAL_NVP( unnormalizedCovarianceWithConsiderParameters_ ) );
-        ar( CEREAL_NVP( normalizedDesignMatrixConsiderParameters_ ) );
+        saveDesignMatrix( ar, "normalizedDesignMatrixConsiderParameters", normalizedDesignMatrixConsiderParameters_ );
         ar( CEREAL_NVP( considerNormalizationFactors_ ) );
         ar( CEREAL_NVP( considerCovariance_ ) );
         ar( CEREAL_NVP( designMatrixSaved_ ) );
@@ -877,7 +1081,7 @@ private:
     void load( Archive& ar, const std::uint32_t version )
     {
         static_cast< void >( version );
-        ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
+        loadDesignMatrix( ar, "normalizedDesignMatrix", normalizedDesignMatrix_ );
         ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
         ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
         ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
@@ -887,7 +1091,7 @@ private:
         ar( CEREAL_NVP( considerCovarianceContribution_ ) );
         ar( CEREAL_NVP( normalizedCovarianceWithConsiderParameters_ ) );
         ar( CEREAL_NVP( unnormalizedCovarianceWithConsiderParameters_ ) );
-        ar( CEREAL_NVP( normalizedDesignMatrixConsiderParameters_ ) );
+        loadDesignMatrix( ar, "normalizedDesignMatrixConsiderParameters", normalizedDesignMatrixConsiderParameters_ );
         ar( CEREAL_NVP( considerNormalizationFactors_ ) );
         ar( CEREAL_NVP( considerCovariance_ ) );
         ar( CEREAL_NVP( designMatrixSaved_ ) );
@@ -923,7 +1127,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
      */
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                       const Eigen::VectorXd& residuals,
-                      const Eigen::MatrixXd& normalizedDesignMatrix,
+                      const DenseOrSparseOrNoMatrix& normalizedDesignMatrix,
                       const Eigen::VectorXd& weightsMatrixDiagonal,
                       const Eigen::VectorXd& designMatrixTransformationDiagonal,
                       const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
@@ -932,7 +1136,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
                       const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& parameterHistory =
                               std::vector< Eigen::VectorXd >( ),
-                      const Eigen::MatrixXd& normalizedDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const DenseOrSparseOrNoMatrix& normalizedDesignMatrixConsiderParameters = DenseOrSparseOrNoMatrix( ),
                       const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                       const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                       const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -953,7 +1157,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      interArcContinuityDiscrepancies ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
-        exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )
+        exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( getNumberOfColumns( normalizedDesignMatrix ) )
     {}
 
     //! Function to get residual vectors per iteration concatenated into a matrix

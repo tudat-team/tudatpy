@@ -16,6 +16,7 @@
 #include <cmath>
 #include <limits>
 
+#include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
@@ -257,6 +258,14 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
     }
     BOOST_CHECK_LT( correctionNorms.back( ), 1.0E-6 * correctionNorms.front( ) );
 
+    // Repeat the estimation with a sparse design matrix, and compare with the dense results
+    orbitDeterminationManager.resetParameterEstimate( aprioriParameters, true );
+    estimationInput->setUseSparseDesignMatrix( true );
+    const std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+    BOOST_CHECK_EQUAL( sparseEstimationOutput->bestIteration_, estimationOutput->bestIteration_ );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->getParameterHistoryMatrix( ), parameterHistory, 1.0E-10 );
+
     // Repeat from the same perturbed parameters without a prior to provide a numerical reference for its effect.
     orbitDeterminationManager.resetParameterEstimate( aprioriParameters, true );
     const std::shared_ptr< EstimationInput< double, double > > unconstrainedEstimationInput =
@@ -403,6 +412,13 @@ BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
 
     const Eigen::Vector6d totalStateCorrection = initialStateHistory.col( initialStateHistory.cols( ) - 1 ) - initialStateHistory.col( 0 );
     BOOST_CHECK_SMALL( totalStateCorrection( 0 ) + 1000.0 * totalStateCorrection( 4 ), 1.0E-7 );
+
+    // Repeat the constrained estimation with a sparse design matrix, and compare with the dense results
+    orbitDeterminationManager.resetParameterEstimate( perturbedInitialState, true );
+    estimationInput->setUseSparseDesignMatrix( true );
+    const std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->getParameterHistoryMatrix( ), initialStateHistory, 1.0E-10 );
 }
 
 //! This test checks whether the input/output of the estimation (weights, a priori covariance, unscaled covariance) are
