@@ -27,7 +27,7 @@ TUDAT_ADD_TEST_CASE(RungeKuttaVariableStepSizeIntegrator
         PRIVATE_LINKS tudat_test_support tudat_numerical_integrators)
 
 TUDAT_ADD_TEST_CASE(RungeKuttaCoefficients
-        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators)
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators Threads::Threads)
 
 TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg45Integrator
         PRIVATE_LINKS tudat_test_support tudat_numerical_integrators tudat_input_output)
