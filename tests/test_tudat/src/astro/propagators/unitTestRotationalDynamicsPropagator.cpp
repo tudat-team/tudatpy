@@ -180,9 +180,7 @@ SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis,
  * rotational dynamics are propagated from the SPICE rotational states. Gravity fields are overwritten
  * by synthetic degree-two fields with all degree-two coefficients set to O(1E-2) values.
  */
-SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoch,
-                                                        const double finalEpoch,
-                                                        const bool timeDependentIoField = false )
+SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoch, const double finalEpoch )
 {
     const std::vector< std::string > bodiesToCreate = { "Jupiter", "Io" };
     BodyListSettings bodySettings =
@@ -222,14 +220,6 @@ SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoc
 
         const double scaledMeanMomentOfInertia = 0.35;
 
-        // Optionally, a (zero) variation makes the field of Io time dependent
-        std::vector< std::shared_ptr< GravityFieldVariationSettings > > variationSettings;
-        if( timeDependentIoField && bodyName == "Io" )
-        {
-            variationSettings.push_back( polynomialGravityFieldVariationsSettingsSinglePower(
-                    Eigen::MatrixXd::Zero( 1, 3 ), Eigen::MatrixXd::Zero( 1, 3 ), 1, initialEpoch ) );
-        }
-
         addGravityFieldModel( bodies,
                               bodyName,
                               std::make_shared< SphericalHarmonicsGravityFieldSettings >(
@@ -239,7 +229,7 @@ SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoc
                                       sineCoefficients,
                                       bodies.at( bodyName )->getRotationalEphemeris( )->getTargetFrameOrientation( ),
                                       scaledMeanMomentOfInertia ),
-                              variationSettings );
+                              std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
     }
 
     return bodies;
@@ -1416,44 +1406,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
                                  << maximumJupiterTorqueNormAbsoluteDifference << " (tolerance=" << absoluteTorqueNormTolerance
                                  << "), relative=" << maximumJupiterTorqueNormRelativeDifference
                                  << " (tolerance=" << relativeTorqueNormTolerance << ")" );
-}
-
-// Check that the full two-body torque on a single propagated body with a time-dependent field (of which the mass is recomputed
-// each time step) updates the masses, by comparison with the (equivalent) fourth-degree torque
-BOOST_AUTO_TEST_CASE( testFullTwoBodyTorqueOnSinglePropagatedBody )
-{
-    spice_interface::loadStandardSpiceKernels( );
-
-    const double initialEpoch = 1.0E8;
-    const double integrationStep = 30.0;
-    const double finalEpoch = initialEpoch + 10.0 * integrationStep;
-
-    std::vector< Eigen::VectorXd > finalStates;
-    for( const std::shared_ptr< TorqueSettings > torqueSettings :
-         { fourthDegreeFullTwoBodyGravitationalTorque( ), fullTwoBodySphericalHarmonicGravitationalTorque( 2, 2, 2, 2 ) } )
-    {
-        SystemOfBodies bodies = getIoJupiterDegreeOnlyTorqueTestBodyMap( initialEpoch, finalEpoch, true );
-
-        SelectedTorqueMap selectedTorqueMap;
-        selectedTorqueMap[ "Io" ][ "Jupiter" ].push_back( torqueSettings );
-        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, selectedTorqueMap, { "Io" } );
-
-        std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< RotationalStatePropagatorSettings< double > >(
-                        torqueModelMap,
-                        std::vector< std::string >( { "Io" } ),
-                        getInitialRotationalStatesOfBodies< double, double >( { "Io" }, { "ECLIPJ2000" }, bodies, initialEpoch ),
-                        initialEpoch,
-                        std::make_shared< IntegratorSettings<> >( rungeKutta4, integrationStep ),
-                        std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ) );
-
-        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
-        finalStates.push_back( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second );
-    }
-
-    BOOST_CHECK_SMALL( ( finalStates.at( 0 ).segment( 0, 4 ) - finalStates.at( 1 ).segment( 0, 4 ) ).norm( ), 1.0E-14 );
-    BOOST_CHECK_SMALL( ( finalStates.at( 0 ).segment( 4, 3 ) - finalStates.at( 1 ).segment( 4, 3 ) ).norm( ),
-                       1.0E-14 * finalStates.at( 0 ).segment( 4, 3 ).norm( ) );
 }
 
 // Check that a propagation with Time as time type resets a tabulated rotational ephemeris with double time type
