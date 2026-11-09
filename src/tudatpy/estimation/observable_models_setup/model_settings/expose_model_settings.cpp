@@ -923,9 +923,7 @@ Returns
  inertial to the body-fixed frame is :math:`\mathbf{R}=\mathbf{R}_{z}(\alpha)\mathbf{R}_{x}(\beta)\mathbf{R}_{z}(\gamma)`.
 
  The partial derivatives of :math:`\alpha` and :math:`\gamma` w.r.t. the entries of the quaternion that defines the rotation of the ``observed_body`` are singular at :math:`\beta=0` and :math:`\beta=\pi`.
- Closer than :math:`10^{-8}` rad to these values, these partial derivatives are evaluated at :math:`10^{-8}` rad from them. The partial derivatives w.r.t. all estimated parameters that affect the rotation are computed from these.
-
- Time biases cannot be estimated.
+ Closer than :math:`10^{-8}` rad to these values, these partial derivatives are evaluated at :math:`10^{-8}` rad from them. The partial derivatives w.r.t. all estimated parameters that affect the rotation are computed from these. Observation time biases that act on the observation cannot be estimated.
 
 
  Parameters
