@@ -104,6 +104,18 @@ public:
         }
     }
 
+    //! Function to reset the constituent acceleration partial (and its Love number partial interfaces) to the current time
+    void resetCurrentTimeOfMemberObjects( ) override
+    {
+        accelerationPartial_->resetCurrentTime( );
+    }
+
+    //! Function to update the parameter partials of the constituent acceleration partial (and its Love number partial interfaces)
+    void updateParameterPartialsOfMemberObjects( ) override
+    {
+        accelerationPartial_->updateParameterPartials( );
+    }
+
     //! Function for determining if the torque is dependent on a non-rotational integrated state.
     /*!
      *  Function for determining if the torque is dependent on a non-rotational integrated state.
