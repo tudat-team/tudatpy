@@ -600,9 +600,9 @@ void expose_model_settings( py::module& m )
  for a single link definition. The associated observation model creates the observable using the following steps (in the unbiased case):
 
  .. math::
-    \Delta\mathbf{r}&=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})\\
+    \Delta\mathbf{r}&=\mathbf{r}_{T}(t_{T})-\mathbf{r}_{R}(t_{R})\\
     \tan\alpha&=\frac{\Delta r_{y}}{\Delta r_{x}}\\
-    \delta&=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
+    \tan\delta&=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
 
  The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`
  The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
