@@ -957,6 +957,14 @@ protected:
             }
         }
         fullSensitivityMatrixSize_ = arcWiseSensitivityMatrixSize_[ 0 ];
+
+        // By default, all sensitivity matrix columns are propagated in each arc
+        reducedSensitivityMatrixColumns_.resize( arcWiseSensitivityMatrixSize_.size( ) );
+        for( unsigned int arc = 0; arc < arcWiseSensitivityMatrixSize_.size( ); arc++ )
+        {
+            reducedSensitivityMatrixColumns_[ arc ].resize( arcWiseSensitivityMatrixSize_[ arc ] );
+            std::iota( reducedSensitivityMatrixColumns_[ arc ].begin( ), reducedSensitivityMatrixColumns_[ arc ].end( ), 0 );
+        }
     }
 
     void getArcStartTimesPerBody( )

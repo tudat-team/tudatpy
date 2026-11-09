@@ -778,6 +778,8 @@ bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parame
         case normal_velocity_at_wall_ratio:
         case three_coefficient_radiation_pressure_coefficients:
         case shared_observation_bias:
+        case relative_gravitational_parameter_rate:
+        case camera_pointing_correction:
             return false;
     }
     throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
