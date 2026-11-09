@@ -925,7 +925,7 @@ Returns
  The partial derivatives of :math:`\alpha` and :math:`\gamma` w.r.t. the entries of the quaternion that defines the rotation of the ``observed_body`` are singular at :math:`\beta=0` and :math:`\beta=\pi`.
  Closer than :math:`10^{-8}` rad to these values, these partial derivatives are evaluated at :math:`10^{-8}` rad from them. The partial derivatives w.r.t. all estimated parameters that affect the rotation are computed from these.
 
- All observation biases can be estimated, except for time biases (:func:`~tudatpy.estimation.observable_models_setup.biases.time_bias` and :func:`~tudatpy.estimation.observable_models_setup.biases.arcwise_time_bias`).
+ Time biases cannot be estimated.
 
 
  Parameters
