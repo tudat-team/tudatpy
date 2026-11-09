@@ -1002,6 +1002,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         break;
                     case yarkovsky_acceleration:
                         break;
+                    case gravitational_parameter_rate_acceleration:
+                        break;
                     case custom_acceleration:
                         break;
                     case einstein_infeld_hoffmann_acceleration: {

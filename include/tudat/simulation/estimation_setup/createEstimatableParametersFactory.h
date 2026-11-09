@@ -48,6 +48,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/polynomialClockCorrections.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/relativeGravitationalParameterRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/cameraPointingCorrection.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
@@ -244,6 +245,24 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 for( unsigned int i = 0; i < tidalAccelerationModelList.size( ); i++ )
                 {
                     accelerationModelList.push_back( tidalAccelerationModelList.at( i ) );
+                }
+            }
+            break;
+        }
+        // All gravitational parameter rate accelerations exerted by the body
+        case relative_gravitational_parameter_rate: {
+            for( const auto& accelerationsOnBody : accelerationModelMap )
+            {
+                if( accelerationsOnBody.second.count( parameterSettings->parameterType_.second.first ) != 0 )
+                {
+                    for( const auto& accelerationModel : accelerationsOnBody.second.at( parameterSettings->parameterType_.second.first ) )
+                    {
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) ==
+                            basic_astrodynamics::gravitational_parameter_rate_acceleration )
+                        {
+                            accelerationModelList.push_back( accelerationModel );
+                        }
+                    }
                 }
             }
             break;
@@ -1798,6 +1817,22 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
                 doubleParameterToEstimate = std::make_shared< YarkovskyParameter >(
                         associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
+                break;
+            }
+            case relative_gravitational_parameter_rate: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating relative_gravitational_parameter_rate parameter, no propagatorSettings provided." );
+                }
+                std::vector< std::shared_ptr< gravitation::GravitationalParameterRateAcceleration > > rateAccelerations;
+                for( const auto& accelerationModel : getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >(
+                             propagatorSettings, doubleParameterName ) )
+                {
+                    rateAccelerations.push_back(
+                            std::dynamic_pointer_cast< gravitation::GravitationalParameterRateAcceleration >( accelerationModel ) );
+                }
+                doubleParameterToEstimate = std::make_shared< RelativeGravitationalParameterRate >( rateAccelerations, currentBodyName );
                 break;
             }
             case source_direction_radiation_pressure_scaling_factor:

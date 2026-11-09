@@ -134,6 +134,9 @@ void expose_parameters_setup_types( py::module& m )
             .value( "shared_observation_bias_type",
                     tep::EstimatebleParametersEnum::shared_observation_bias,
                     R"doc(Estimatable parameter for shared observation bias.)doc" )
+            .value( "relative_gravitational_parameter_rate_type",
+                    tep::EstimatebleParametersEnum::relative_gravitational_parameter_rate,
+                    R"doc(Estimatable parameter for the relative rate of the gravitational parameter of a body.)doc" )
             .value( "arcwise_constant_additive_observation_bias_type",
                     tep::EstimatebleParametersEnum::arcwise_constant_additive_observation_bias,
                     R"doc(Estimatable parameter for arc-wise constant additive observation bias.)doc" )
@@ -2631,6 +2634,30 @@ Returns
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's radiation pressure coefficient.
 
+
+     )doc" );
+
+    m.def( "relative_gravitational_parameter_rate",
+           &tep::relativeGravitationalParameterRate,
+           py::arg( "body_name" ),
+           R"doc(
+
+ Function for creating parameter settings for the relative rate of the gravitational parameter of a body.
+
+ Function for creating parameter settings for the relative rate :math:`\rho=\dot{\mu}/\mu` [1/s] of the gravitational parameter
+ of a body, in all :func:`~tudatpy.dynamics.propagation_setup.acceleration.gravitational_parameter_rate` accelerations that it
+ exerts :cite:p:`Genova2018`. The rate applies to these accelerations only: the gravitational parameter of the gravity field of the
+ body, used by all other models, remains constant.
+
+ Parameters
+ ----------
+ body_name : str
+     Name of the body exerting the accelerations.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the relative gravitational parameter rate.
 
      )doc" );
 
