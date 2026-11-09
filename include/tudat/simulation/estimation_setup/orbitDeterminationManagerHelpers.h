@@ -382,6 +382,31 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceFromObjects(
     return propagators::propagateCovariance( initialCovariance, stateTransitionInterface, evaluationTimes );
 }
 
+//! Function to propagate the covariance stored in an estimation output through time, in a fresh runtime.
+/*!
+ * Uses the (serializable) state transition and sensitivity matrix interface stored in the estimation output to
+ * propagate the covariance from the output, without access to the OrbitDeterminationManager that produced it.
+ * \param estimationOutput Estimation output containing the stored state transition and sensitivity matrix interface.
+ * \param evaluationTimes Times at which the propagated covariance is to be reported.
+ * \return Propagated covariance matrices at each evaluation time.
+ */
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::map< double, Eigen::MatrixXd > propagateCovarianceFromEstimationOutput(
+        const std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput,
+        const std::vector< double > evaluationTimes )
+{
+    if( estimationOutput == nullptr || !estimationOutput->hasStateTransitionAndSensitivityMatrixInterface( ) )
+    {
+        throw std::runtime_error(
+                "Error when propagating covariance from estimation output: no state transition and sensitivity matrix "
+                "interface is stored in the estimation output." );
+    }
+    return propagateCovarianceFromObjects< ObservationScalarType, TimeType >(
+            estimationOutput, estimationOutput->getStateTransitionAndSensitivityMatrixInterface( ), evaluationTimes );
+}
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

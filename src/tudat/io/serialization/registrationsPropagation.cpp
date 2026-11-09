@@ -23,6 +23,7 @@
  *   - PropagationTerminationDetails hierarchy (propagationTermination.h)
  *   - PropagatorProcessingSettings hierarchy (propagationProcessingSettings.h)
  *   - DependentVariablesInterface hierarchy (dependentVariablesInterface.h)
+ *   - CombinedStateTransitionAndSensitivityMatrixInterface hierarchy (stateTransitionMatrixInterface.h)
  *
  * Consumers should include registrations_propagation.h to retain this translation unit.
  */
@@ -33,6 +34,7 @@
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
+#include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
 
 // =====================================================================
 // SimulationResults hierarchy  (propagationResults.h)
@@ -247,5 +249,17 @@ CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetailsFromHybri
 
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationDetails,
                                       tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
+
+// =====================================================================
+// CombinedStateTransitionAndSensitivityMatrixInterface hierarchy  (stateTransitionMatrixInterface.h)
+// =====================================================================
+
+CEREAL_REGISTER_TYPE( tudat::propagators::ObservationOnlyStateTransitionAndSensitivityMatrixInterface )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface,
+                                      tudat::propagators::ObservationOnlyStateTransitionAndSensitivityMatrixInterface )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface,
+                                      tudat::propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface )
 
 CEREAL_REGISTER_DYNAMIC_INIT( tudat_serialization_propagation )

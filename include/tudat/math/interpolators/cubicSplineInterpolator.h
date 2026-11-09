@@ -18,12 +18,20 @@
 
 #include <cmath>
 #include <Eigen/Core>
+#include <cstdint>
 
 #include <memory>
+
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/math/basic/nearestNeighbourSearch.h"
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -274,6 +282,12 @@ public:
     //! Destructor.
     ~CubicSplineInterpolator( ) {}
 
+    //! Default constructor for deserialization only — not for general use
+    CubicSplineInterpolator( ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( ), numberOfDataPoints_( 0 ),
+        zeroValue_( DependentVariableType( ) )
+    {}
+
     //! Interpolate.
     /*!
      *  Executes interpolation of data at a given target value of the independent variable, to
@@ -413,6 +427,44 @@ private:
 
     //! Zero value of independent variable type
     DependentVariableType zeroValue_;
+
+public:
+    //! Equality operator (used for serialization testing).
+    bool operator==( const CubicSplineInterpolator& rhs ) const
+    {
+        return OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::operator==( rhs ) &&
+                ( zeroValue_ == rhs.zeroValue_ );
+    }
+
+    bool operator!=( const CubicSplineInterpolator& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Save interpolator to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >( this ) );
+        ar( CEREAL_NVP( zeroValue_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >( this ) );
+        ar( CEREAL_NVP( zeroValue_ ) );
+
+        // Rebuild derived data (second derivatives) from the loaded base data.
+        calculateSecondDerivatives( );
+    }
 };
 
 // extern template class CubicSplineInterpolator< double, Eigen::VectorXd >;

@@ -24,6 +24,7 @@
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 #include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
 
 #include <tudat/io/serialization/pybind_helpers.h>
@@ -988,6 +989,28 @@ void expose_estimation_analysis( py::module& m )
          discrepancy has six entries.
 
          :type: list[list[numpy.ndarray[numpy.float64[6, 1]]]]
+      )doc" )
+            .def_property_readonly( "has_state_transition_interface",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::hasStateTransitionAndSensitivityMatrixInterface,
+                                    R"doc(
+
+         **read-only**
+
+         Whether the state transition and sensitivity matrix interface required to propagate the covariance in a
+         fresh runtime is stored in this output.
+
+         :type: bool
+      )doc" )
+            .def_property_readonly( "state_transition_interface",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionAndSensitivityMatrixInterface,
+                                    R"doc(
+
+         **read-only**
+
+         State transition and sensitivity matrix interface stored for covariance propagation. ``None`` if
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.has_state_transition_interface` is ``False``.
+
+         :type: CombinedStateTransitionAndSensitivityMatrixInterface | None
       )doc" ) TUDATPY_DEF_BINARY_IO( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
                     TUDATPY_DEF_PICKLE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_EQ_NE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
@@ -1082,6 +1105,35 @@ void expose_estimation_analysis( py::module& m )
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
      Output times which do not coincide with integration time steps are calculated via interpolation.
+
+ Returns
+ -------
+ dict[float, numpy.ndarray[numpy.float64[m, n]]]
+     Dictionary reporting the propagated covariances at each output time.
+
+
+     )doc" );
+
+    m.def( "propagate_covariance_from_estimation_output",
+           &tss::propagateCovarianceFromEstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "estimation_output" ),
+           py::arg( "output_times" ),
+           R"doc(
+
+ Propagate the covariance stored in an estimation output through time, in a fresh runtime.
+
+ Uses the (serializable) state transition and sensitivity matrix interface stored in the estimation output (see
+ :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.state_transition_interface`) to propagate the
+ covariance from the output, without access to the :class:`~tudatpy.estimation.estimation_analysis.Estimator` that
+ produced it. This allows covariance propagation from a deserialized estimation output.
+
+ Parameters
+ ----------
+ estimation_output : :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`
+     Estimation output containing the stored state transition and sensitivity matrix interface.
+
+ output_times : list[float]
+     Times at which the propagated covariance matrix shall be reported.
 
  Returns
  -------

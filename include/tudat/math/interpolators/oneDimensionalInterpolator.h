@@ -14,16 +14,25 @@
 
 #include <vector>
 #include <iostream>
+#include <cstdint>
 
 #include <boost/lexical_cast.hpp>
 
 #include <memory>
+
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/interpolators/interpolator.h"
 
 #include "tudat/basics/identityElements.h"
 #include "tudat/basics/tudatExceptions.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -448,6 +457,52 @@ protected:
      * Default value to be used for extrapolation.
      */
     std::pair< DependentVariableType, DependentVariableType > defaultExtrapolationValue_;
+
+public:
+    //! Equality operator (used for serialization testing).
+    bool operator==( const OneDimensionalInterpolator& rhs ) const
+    {
+        return ( independentValues_ == rhs.independentValues_ ) && ( dependentValues_ == rhs.dependentValues_ ) &&
+                ( boundaryHandling_ == rhs.boundaryHandling_ ) && ( selectedLookupScheme_ == rhs.selectedLookupScheme_ ) &&
+                ( defaultExtrapolationValue_ == rhs.defaultExtrapolationValue_ );
+    }
+
+    bool operator!=( const OneDimensionalInterpolator& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Save interpolator to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< Interpolator< IndependentVariableType, DependentVariableType > >( this ) );
+        ar( CEREAL_NVP( independentValues_ ) );
+        ar( CEREAL_NVP( dependentValues_ ) );
+        ar( CEREAL_NVP( boundaryHandling_ ) );
+        ar( CEREAL_NVP( selectedLookupScheme_ ) );
+        ar( CEREAL_NVP( defaultExtrapolationValue_ ) );
+        ar( CEREAL_NVP( lookUpScheme_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< Interpolator< IndependentVariableType, DependentVariableType > >( this ) );
+        ar( CEREAL_NVP( independentValues_ ) );
+        ar( CEREAL_NVP( dependentValues_ ) );
+        ar( CEREAL_NVP( boundaryHandling_ ) );
+        ar( CEREAL_NVP( selectedLookupScheme_ ) );
+        ar( CEREAL_NVP( defaultExtrapolationValue_ ) );
+        ar( CEREAL_NVP( lookUpScheme_ ) );
+    }
 };
 
 }  // namespace interpolators

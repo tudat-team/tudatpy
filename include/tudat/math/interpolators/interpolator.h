@@ -13,10 +13,16 @@
 #define TUDAT_INTERPOLATOR_H
 
 #include <vector>
+#include <cstdint>
+
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/identityElements.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -77,6 +83,26 @@ public:
      *  \return Number of independent variables of the interpolation.
      */
     virtual int getNumberOfDimensions( ) = 0;
+
+    //! Save interpolator to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( Interpolator< IndependentVariableType, DependentVariableType > )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        // Base class has no data members to serialize
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        // Base class has no data members to serialize
+    }
 };
 
 // extern template class Interpolator< double, Eigen::VectorXd >;
