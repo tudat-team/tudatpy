@@ -1351,8 +1351,7 @@ AccelerationSettings
  where :math:`\mathbf{r}` is the position of the accelerated body w.r.t. the exerting body, and :math:`\mu` is the gravitational
  parameter of the gravity field of the exerting body, which is its value at :math:`t_{0}`. The acceleration is to be used next to
  a point-mass (or Einstein-Infeld-Hoffmann) acceleration. Only the direct acceleration is implemented: the central body of the
- propagation must be the exerting body or an inertial origin. The rate can be estimated with
- :func:`~tudatpy.dynamics.parameters_setup.relative_gravitational_parameter_rate`.
+ propagation must be the exerting body or an inertial origin.
 
  .. note::
 
