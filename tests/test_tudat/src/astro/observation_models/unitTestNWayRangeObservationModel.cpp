@@ -26,6 +26,7 @@ namespace unit_tests
 
 using namespace tudat;
 using namespace tudat::observation_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
@@ -700,7 +701,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
                 std::make_shared< ObservationAncillarySimulationSettings >( );
 
-        ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+        ancillarySettings->setAncillaryDoubleVectorData(
+                frequency_bands, convertFrequencyBandsToDoubleVector( { FrequencyBands::x_band, FrequencyBands::x_band } ) );
 
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;

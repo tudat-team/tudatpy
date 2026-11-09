@@ -115,7 +115,9 @@ enum EstimatebleParametersEnum {
     tangential_accommodation_coefficient,
     normal_velocity_at_wall_ratio,
     three_coefficient_radiation_pressure_coefficients,
-    shared_observation_bias
+    shared_observation_bias,
+    relative_gravitational_parameter_rate,
+    camera_pointing_correction
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

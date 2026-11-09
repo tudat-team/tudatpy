@@ -159,6 +159,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case yarkovsky_parameter:
             parameterDescription = " Yarkovsky parameter A2 ";
             break;
+        case relative_gravitational_parameter_rate:
+            parameterDescription = " relative gravitational parameter rate ";
+            break;
         case custom_estimated_parameter:
             parameterDescription = " Custom parameter ";
             break;
@@ -245,6 +248,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
             break;
         case arc_wise_exponential_atmosphere_scale_height:
             parameterDescription = "arc-wise scale height of exponential atmosphere model ";
+            break;
+        case camera_pointing_correction:
+            parameterDescription = "camera pointing correction ";
             break;
         default:
             std::string errorMessage =
@@ -407,6 +413,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = true;
             break;
         case yarkovsky_parameter:
+        case relative_gravitational_parameter_rate:
             isDoubleParameter = true;
             break;
         case custom_estimated_parameter:
@@ -489,6 +496,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = false;
             break;
         case arc_wise_exponential_atmosphere_scale_height:
+            isDoubleParameter = false;
+            break;
+        case camera_pointing_correction:
             isDoubleParameter = false;
             break;
         default:
