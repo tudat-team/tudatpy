@@ -31,6 +31,10 @@ namespace gravitation
  * t0, with a constant relative rate rho = (d mu / dt) / mu (Genova et al., 2018, Eq. 11):
  * a = -mu rho (t - t0) r / |r|^3, with r the position of the accelerated body w.r.t. the exerting body. It is to be used next to
  * a point-mass (or EIH) acceleration with the gravitational parameter mu at t0.
+ *
+ * This class introduces the time variation of mu in this acceleration ONLY. The gravitational parameter of the gravity field of
+ * the exerting body remains constant (mu at t0), and that constant value is used by all other models, such as other accelerations
+ * (including the point-mass or EIH acceleration next to this one), light-time corrections and the mass of the body.
  */
 class GravitationalParameterRateAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {

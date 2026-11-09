@@ -2584,7 +2584,8 @@ Returns
 
  Function for creating parameter settings for the relative rate :math:`\rho=\dot{\mu}/\mu` [1/s] of the gravitational parameter
  of a body, in all :func:`~tudatpy.dynamics.propagation_setup.acceleration.gravitational_parameter_rate` accelerations that it
- exerts :cite:p:`Genova2018`.
+ exerts :cite:p:`Genova2018`. The rate applies to these accelerations only: the gravitational parameter of the gravity field of the
+ body, used by all other models, remains constant.
 
  Parameters
  ----------

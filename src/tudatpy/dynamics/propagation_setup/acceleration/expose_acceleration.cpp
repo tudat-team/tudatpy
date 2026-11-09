@@ -358,7 +358,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
                                              R"doc(
 
        `AccelerationSettings`-derived class to define settings for the point-mass acceleration due to a linear variation of the
-       gravitational parameter of the exerting body.
+       gravitational parameter of the exerting body. The variation is introduced in this acceleration only: the gravitational
+       parameter of the gravity field of the exerting body, used by all other models, remains constant.
 
     )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::GravitationalParameterRateAccelerationSettings )
             TUDATPY_DEF_EQ_NE( tss::GravitationalParameterRateAccelerationSettings );
@@ -1352,6 +1353,13 @@ AccelerationSettings
  a point-mass (or Einstein-Infeld-Hoffmann) acceleration. Only the direct acceleration is implemented: the central body of the
  propagation must be the exerting body or an inertial origin. The rate can be estimated with
  :func:`~tudatpy.dynamics.parameters_setup.relative_gravitational_parameter_rate`.
+
+ .. note::
+
+    The time variation of :math:`\mu` is introduced in this acceleration **only**. The gravitational parameter of the gravity field
+    of the exerting body remains constant at its value at :math:`t_{0}`, and that constant value is used by all other models, such
+    as other accelerations (including the point-mass or Einstein-Infeld-Hoffmann acceleration next to this one), light-time
+    corrections and the mass of the body.
 
  Parameters
  ----------
