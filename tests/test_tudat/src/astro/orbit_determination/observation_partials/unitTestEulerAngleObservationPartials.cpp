@@ -24,11 +24,11 @@
 
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
-#include "tudat/astro/orbit_determination/observation_partials/eulerAngleObservablePartials.h"
-#include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
+#include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/support/numericalObservationPartial.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
@@ -78,53 +78,83 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
     }
 }
 
-//! Test all components of the partial w.r.t. the rotational state (rotation to the base frame), for both signs of the quaternion, against
-//! central differences of the observable function.
+//! Test all components of the partial w.r.t. the rotational state, created for the observation model, against central differences of the
+//! observation model, for orientations with all combinations of the Euler angles below, and both signs of the quaternion.
 BOOST_AUTO_TEST_CASE( testEulerAnglePartialWrtRotationalState )
 {
-    const Eigen::Quaterniond rotationToBaseFrame =
-            Eigen::Quaterniond( Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 0.4, Eigen::Vector3d::UnitX( ) ) *
-                                Eigen::AngleAxisd( -1.9, Eigen::Vector3d::UnitZ( ) ) );
+    const double observationTime = 1.1E7;
+    SystemOfBodies bodies =
+            setupEnvironment( std::vector< std::pair< std::string, std::string > >( ), 1.0E7, 1.2E7, observationTime, false, 1.0, true );
+    std::shared_ptr< ConstantRotationalEphemeris > rotationModel =
+            std::dynamic_pointer_cast< ConstantRotationalEphemeris >( bodies.at( "Mars" )->getRotationalEphemeris( ) );
+
+    LinkEnds linkEnds;
+    linkEnds[ observed_body ] = LinkEndId( "Mars" );
+    std::shared_ptr< ObservationModel< 3 > > eulerAngleModel = ObservationModelCreator< 3, double, double >::createObservationModel(
+            std::make_shared< ObservationModelSettings >( euler_angle_313_observable, linkEnds ), bodies );
+
+    // Translational states of Earth and Mars, and rotational state of Mars
+    std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 3 > > > partials =
+            ObservationPartialCreator< 3, double, double >::createObservationPartials(
+                    eulerAngleModel, bodies, createEstimatableParameters( bodies, observationTime, false, true ) )
+                    .first;
+
+    // Only the rotational state of Mars
+    BOOST_CHECK_EQUAL( partials.size( ), 1 );
+    BOOST_CHECK_EQUAL( partials.begin( )->first.second, 7 );
+    std::shared_ptr< ObservationPartial< 3 > > partialObject = partials.begin( )->second;
+    BOOST_CHECK( partialObject->getParameterIdentifier( ).first == initial_rotational_body_state );
+
+    // Quaternion perturbation [-]
     const double perturbation = 1.0E-6;
-
-    for( double sign : { 1.0, -1.0 } )
+    for( double firstAngle : { 0.7, 2.6, -2.2 } )
     {
-        const Eigen::Vector4d state = sign * linear_algebra::convertQuaternionToVectorFormat( rotationToBaseFrame );
-        const Eigen::Quaterniond signedRotation( state( 0 ), state( 1 ), state( 2 ), state( 3 ) );
-
-        EulerAngleObervationPartialWrtCurrentRotationalState partialObject(
-                std::make_pair( initial_rotational_body_state, std::make_pair( "Mars", "" ) ),
-                [ signedRotation ]( const double ) { return signedRotation; } );
-        const Eigen::Matrix< double, 3, Eigen::Dynamic > partial =
-                partialObject
-                        .calculatePartial( std::vector< Eigen::Vector6d >( { Eigen::Vector6d::Zero( ) } ),
-                                           std::vector< double >( { 0.0 } ),
-                                           observed_body )
-                        .at( 0 )
-                        .first;
-
-        // The state is a unit quaternion: compare along each state entry, projected on the tangent space
-        for( int i = 0; i < 4; i++ )
+        for( double secondAngle : { 0.3, 1.4, 2.8 } )
         {
-            Eigen::Vector4d direction = Eigen::Vector4d::Unit( i );
-            direction -= direction.dot( state ) * state;
-
-            const Eigen::Vector4d upperState = ( state + perturbation * direction ).normalized( );
-            const Eigen::Vector4d lowerState = ( state - perturbation * direction ).normalized( );
-            const Eigen::Vector3d upperAngles = basic_mathematics::get313EulerAnglesFromQuaternion(
-                    Eigen::Quaterniond( upperState( 0 ), upperState( 1 ), upperState( 2 ), upperState( 3 ) ).inverse( ) );
-            const Eigen::Vector3d lowerAngles = basic_mathematics::get313EulerAnglesFromQuaternion(
-                    Eigen::Quaterniond( lowerState( 0 ), lowerState( 1 ), lowerState( 2 ), lowerState( 3 ) ).inverse( ) );
-            const Eigen::Vector3d numericalChange = ( upperAngles - lowerAngles ) / ( 2.0 * perturbation );
-            const Eigen::Vector3d analyticalChange = partial.block( 0, 0, 3, 4 ) * direction;
-            for( int j = 0; j < 3; j++ )
+            for( double thirdAngle : { -1.9, 0.5 } )
             {
-                BOOST_CHECK_SMALL( numericalChange( j ) - analyticalChange( j ), 1.0E-8 );
+                for( double sign : { 1.0, -1.0 } )
+                {
+                    Eigen::Vector7d state = Eigen::Vector7d::Zero( );
+                    state.segment( 0, 4 ) = sign *
+                            linear_algebra::convertQuaternionToVectorFormat(
+                                                    Eigen::Quaterniond( Eigen::AngleAxisd( firstAngle, Eigen::Vector3d::UnitZ( ) ) *
+                                                                        Eigen::AngleAxisd( secondAngle, Eigen::Vector3d::UnitX( ) ) *
+                                                                        Eigen::AngleAxisd( thirdAngle, Eigen::Vector3d::UnitZ( ) ) ) );
+                    rotationModel->updateConstantState( state );
+
+                    std::vector< double > linkEndTimes;
+                    std::vector< Eigen::Vector6d > linkEndStates;
+                    const Eigen::Vector3d observation = eulerAngleModel->computeObservationsWithLinkEndData(
+                            observationTime, observed_body, linkEndTimes, linkEndStates );
+                    const Eigen::Matrix< double, 3, Eigen::Dynamic > partial =
+                            partialObject->calculatePartial( linkEndStates, linkEndTimes, observed_body, nullptr, observation )
+                                    .at( 0 )
+                                    .first;
+
+                    // The state is a unit quaternion: compare along each state entry, projected on the tangent space
+                    for( int i = 0; i < 4; i++ )
+                    {
+                        Eigen::Vector7d direction = Eigen::Vector7d::Zero( );
+                        direction( i ) = 1.0;
+                        direction.segment( 0, 4 ) -= state( i ) * state.segment( 0, 4 );
+
+                        rotationModel->updateConstantState( state + perturbation * direction );
+                        const Eigen::Vector3d upperAngles = eulerAngleModel->computeObservations( observationTime, observed_body );
+                        rotationModel->updateConstantState( state - perturbation * direction );
+                        const Eigen::Vector3d lowerAngles = eulerAngleModel->computeObservations( observationTime, observed_body );
+                        rotationModel->updateConstantState( state );
+
+                        const Eigen::Vector3d numericalChange = ( upperAngles - lowerAngles ) / ( 2.0 * perturbation );
+                        const Eigen::Vector3d analyticalChange = partial.block( 0, 0, 3, 4 ) * direction.segment( 0, 4 );
+                        BOOST_CHECK_SMALL( ( numericalChange - analyticalChange ).norm( ), 1.0E-8 );
+                    }
+
+                    // The observable does not depend on the angular velocity
+                    BOOST_CHECK_EQUAL( partial.block( 0, 4, 3, 3 ).norm( ), 0.0 );
+                }
             }
         }
-
-        // The observable does not depend on the angular velocity
-        BOOST_CHECK_EQUAL( partial.block( 0, 4, 3, 3 ).norm( ), 0.0 );
     }
 }
 
@@ -184,45 +214,100 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartialWrtRotationModelParameters )
     }
 }
 
-//! Test the partials w.r.t. the translational state of a synchronously rotating body against central differences of the Euler angles.
+//! Test the partials w.r.t. the translational states of a synchronously rotating body and of its central body, created for the observation
+//! model, against central differences of the observation model, and test their indices for arc-wise translational states.
 BOOST_AUTO_TEST_CASE( testEulerAnglePartialWrtStateForSynchronousRotation )
 {
-    // Relative state of the body w.r.t. its central body (approximately that of the Moon w.r.t. the Earth)
-    Eigen::Vector6d relativeState;
-    relativeState << 3.0E8, -2.0E8, 0.5E8, 600.0, 750.0, -100.0;
-    std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > rotationModel =
-            std::make_shared< ephemerides::SynchronousRotationalEphemeris >(
-                    [ &relativeState ]( const double, bool ) { return relativeState; }, "Earth", "ECLIPJ2000", "IAU_Moon" );
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Constant states of the Earth, at the origin, and the Moon, with approximately their relative state
+    Eigen::Vector6d moonState;
+    moonState << 3.0E8, -2.0E8, 0.5E8, 600.0, 750.0, -100.0;
+    const std::vector< std::string > estimatedBodies = { "Earth", "Moon" };
+    BodyListSettings bodySettings = getDefaultBodySettings( estimatedBodies, "SSB", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
+    bodySettings.at( "Moon" )->ephemerisSettings = constantEphemerisSettings( moonState, "SSB", "ECLIPJ2000" );
+    bodySettings.at( "Moon" )->rotationModelSettings = synchronousRotationModelSettings( "Earth", "ECLIPJ2000", "IAU_Moon" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    LinkEnds linkEnds;
+    linkEnds[ observed_body ] = LinkEndId( "Moon" );
+    std::shared_ptr< ObservationModel< 3 > > eulerAngleModel = ObservationModelCreator< 3, double, double >::createObservationModel(
+            std::make_shared< ObservationModelSettings >( euler_angle_313_observable, linkEnds ), bodies );
+
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > singleArcStates, arcWiseStates;
+    const std::vector< double > arcStartTimes = { 0.0, 1.0E6 };
+    const Eigen::VectorXd arcStates = Eigen::VectorXd::Zero( 12 );
+    const std::vector< std::string > centralBodies = { "SSB", "SSB" };
+    for( const std::string& bodyName : estimatedBodies )
+    {
+        singleArcStates.push_back( std::make_shared< InitialTranslationalStateParameter< double > >(
+                bodyName, bodies.at( bodyName )->getEphemeris( )->getCartesianState( 0.0 ) ) );
+        arcWiseStates.push_back( std::make_shared< ArcWiseInitialTranslationalStateParameter< double > >(
+                bodyName, arcStartTimes, arcStates, centralBodies ) );
+    }
+    const std::vector< std::shared_ptr< EstimatableParameter< double > > > noDoubleParameters;
+    const std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > noVectorParameters;
+
+    // The index in the state transition matrix does not depend on the number of arcs
+    std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 3 > > > arcWisePartials =
+            ObservationPartialCreator< 3, double, double >::createObservationPartials(
+                    eulerAngleModel,
+                    bodies,
+                    std::make_shared< EstimatableParameterSet< double > >( noDoubleParameters, noVectorParameters, arcWiseStates ) )
+                    .first;
+    BOOST_CHECK_EQUAL( arcWisePartials.size( ), 2 );
+    BOOST_CHECK_EQUAL( arcWisePartials.count( std::make_pair( 0, 6 ) ), 1 );
+    BOOST_CHECK_EQUAL( arcWisePartials.count( std::make_pair( 6, 6 ) ), 1 );
+
+    std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 3 > > > partials =
+            ObservationPartialCreator< 3, double, double >::createObservationPartials(
+                    eulerAngleModel,
+                    bodies,
+                    std::make_shared< EstimatableParameterSet< double > >( noDoubleParameters, noVectorParameters, singleArcStates ) )
+                    .first;
+    BOOST_CHECK_EQUAL( partials.size( ), 2 );
 
     const double observationTime = 1.0E7;
-    EulerAngleObservationPartialWrtRotationParameter partialObject(
-            std::make_pair( initial_body_state, std::make_pair( "Moon", "" ) ),
-            std::make_shared< SynchronousRotationMatrixPartialWrtTranslationalState >( rotationModel ),
-            [ rotationModel ]( const double time ) { return rotationModel->getRotationToBaseFrame( time ); } );
-    const Eigen::Matrix< double, 3, Eigen::Dynamic > analyticalPartial =
-            partialObject
-                    .calculatePartial( std::vector< Eigen::Vector6d >( { Eigen::Vector6d::Zero( ) } ),
-                                       std::vector< double >( { observationTime } ),
-                                       observed_body )
-                    .at( 0 )
-                    .first;
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+    const Eigen::Vector3d observation =
+            eulerAngleModel->computeObservationsWithLinkEndData( observationTime, observed_body, linkEndTimes, linkEndStates );
 
-    // Position [m] and velocity [m/s] perturbations
-    const Eigen::Vector6d nominalState = relativeState;
-    for( int i = 0; i < 6; i++ )
+    for( unsigned int bodyIndex = 0; bodyIndex < estimatedBodies.size( ); bodyIndex++ )
     {
-        const double perturbation = ( i < 3 ) ? 10.0 : 1.0E-3;
-        relativeState = nominalState;
-        relativeState( i ) += perturbation;
-        const Eigen::Vector3d upperAngles =
-                basic_mathematics::get313EulerAnglesFromQuaternion( rotationModel->getRotationToTargetFrame( observationTime ) );
-        relativeState( i ) -= 2.0 * perturbation;
-        const Eigen::Vector3d lowerAngles =
-                basic_mathematics::get313EulerAnglesFromQuaternion( rotationModel->getRotationToTargetFrame( observationTime ) );
-        relativeState = nominalState;
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > analyticalPartial =
+                partials.at( std::make_pair( static_cast< int >( 6 * bodyIndex ), 6 ) )
+                        ->calculatePartial( linkEndStates, linkEndTimes, observed_body, nullptr, observation )
+                        .at( 0 )
+                        .first;
 
-        const Eigen::Vector3d numericalPartial = ( upperAngles - lowerAngles ) / ( 2.0 * perturbation );
-        BOOST_CHECK_SMALL( ( analyticalPartial.col( i ) - numericalPartial ).norm( ), 1.0E-6 * numericalPartial.norm( ) );
+        std::shared_ptr< Body > body = bodies.at( estimatedBodies.at( bodyIndex ) );
+        std::shared_ptr< ConstantEphemeris > ephemeris = std::dynamic_pointer_cast< ConstantEphemeris >( body->getEphemeris( ) );
+        const Eigen::Vector6d nominalState = ephemeris->getCartesianState( observationTime );
+
+        // Position [m] and velocity [m/s] perturbations
+        for( int i = 0; i < 6; i++ )
+        {
+            const double perturbation = ( i < 3 ) ? 10.0 : 1.0E-3;
+            Eigen::Vector6d perturbedState = nominalState;
+
+            perturbedState( i ) = nominalState( i ) + perturbation;
+            ephemeris->updateConstantState( perturbedState );
+            body->recomputeStateOnNextCall( );
+            const Eigen::Vector3d upperAngles = eulerAngleModel->computeObservations( observationTime, observed_body );
+
+            perturbedState( i ) = nominalState( i ) - perturbation;
+            ephemeris->updateConstantState( perturbedState );
+            body->recomputeStateOnNextCall( );
+            const Eigen::Vector3d lowerAngles = eulerAngleModel->computeObservations( observationTime, observed_body );
+
+            ephemeris->updateConstantState( nominalState );
+            body->recomputeStateOnNextCall( );
+
+            const Eigen::Vector3d numericalPartial = ( upperAngles - lowerAngles ) / ( 2.0 * perturbation );
+            BOOST_CHECK_SMALL( ( analyticalPartial.col( i ) - numericalPartial ).norm( ), 1.0E-6 * numericalPartial.norm( ) );
+        }
     }
 }
 

@@ -26,6 +26,8 @@
 #include "tudat/astro/orbit_determination/observation_partials/eulerAngleObservablePartials.h"
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
+#include "tudat/simulation/estimation_setup/createClockPartials.h"
+#include "tudat/simulation/estimation_setup/createObservationBiasPartial.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
@@ -115,7 +117,10 @@ std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionParti
                                 parameterName.second.first == observedBody ? 1.0 : -1.0 );
             }
         }
-        currentIndex += initialDynamicalParameters.at( i )->getParameterSize( );
+        // Index in the state transition matrix, which contains the state of a single arc
+        currentIndex += ( parameterName.first == estimatable_parameters::arc_wise_initial_body_state )
+                ? 6
+                : initialDynamicalParameters.at( i )->getParameterSize( );
     }
 
     // Iterate over the estimated rotation model parameters of the observed body
@@ -143,6 +148,21 @@ std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionParti
                             rotationMatrixPartials.at(
                                     std::make_pair( parameterName.first, parameterIterator.second->getSecondaryIdentifier( ) ) ),
                             rotationToBaseFrameFunction );
+        }
+        else if( estimatable_parameters::isParameterObservationLinkProperty( parameterName.first ) )
+        {
+            std::shared_ptr< ObservationPartial< 3 > > biasPartial =
+                    createObservationPartialWrtLinkProperty< 3 >( eulerAngleLinkEnds,
+                                                                  observation_models::euler_angle_313_observable,
+                                                                  parameterIterator.second,
+                                                                  bodies,
+                                                                  isPartialForDifferencedObservable,
+                                                                  isPartialForConcatenatedObservable );
+            if( biasPartial != nullptr )
+            {
+                eulerAnglePartials[ std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) ] =
+                        biasPartial;
+            }
         }
     }
 

@@ -25,7 +25,8 @@ Eigen::Matrix< double, 4, 3 > calculateQuaternionWrtEulerAngle313Partial( const 
 //! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 /*!
  * Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion, with quaternion
- * as input
+ * as input. The partials of the first and third angle are singular at a second angle of 0 and pi rad. Closer than 1.0E-8 rad to these
+ * values, the partials are evaluated at 1.0E-8 rad from them.
  * \param quaternion Quaternion defining rotation at which partials are to be evaluated
  * \return Partial derivative matrix of 3-1-3 Euler angles w.r.t. entries of associated quaternion
  */
