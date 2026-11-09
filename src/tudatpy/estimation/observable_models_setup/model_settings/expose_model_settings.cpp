@@ -915,6 +915,39 @@ Returns
 
      )doc" );
 
+    m.def( "euler_angles_313",
+           &tom::eulerAngle313ObservableSettings,
+           py::arg( "link_ends" ),
+           py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
+           R"doc(
+
+ Function for creating settings for a 3-1-3 Euler angle observable.
+
+ Function for creating observation model settings of 3-1-3 Euler angle type observables, as obtained from e.g. star tracker data.
+ This observable provides the orientation of the ``observed_body`` defined by the `link_ends` input.
+ The observable has size 3, and contains the angles :math:`\alpha`, :math:`\beta` and :math:`\gamma` (in radians), where the rotation matrix from the
+ inertial to the body-fixed frame is :math:`\mathbf{R}=\mathbf{R}_{z}(\alpha)\mathbf{R}_{x}(\beta)\mathbf{R}_{z}(\gamma)`.
+
+ The partial derivatives of :math:`\alpha` and :math:`\gamma` w.r.t. the entries of the quaternion that defines the rotation of the ``observed_body`` are singular at :math:`\beta=0` and :math:`\beta=\pi`.
+ Closer than :math:`10^{-8}` rad to these values, these partial derivatives are evaluated at :math:`10^{-8}` rad from them. The partial derivatives w.r.t. all estimated parameters that affect the rotation are computed from these. Observation time biases that act on the observation cannot be estimated.
+
+
+ Parameters
+ ----------
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+     Set of link ends that define the geometry of the observation. This observable requires that the
+     ``observed_body`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ Returns
+ -------
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the 3-1-3 Euler angle observable.
+
+     )doc" );
+
     m.def( "one_way_doppler_instantaneous",
            &tom::oneWayOpenLoopDoppler,
            py::arg( "link_ends" ),
@@ -1925,11 +1958,6 @@ Returns
 
     //////////////////////////////////////////// DEPRECATED
     ///////////////////////////////////////////////
-
-    m.def( "euler_angles_313",
-           &tom::eulerAngle313ObservableSettings,
-           py::arg( "link_ends" ),
-           py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ) );
 
     m.def( "one_way_open_loop_doppler",
            &tom::oneWayOpenLoopDoppler,
