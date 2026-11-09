@@ -3367,10 +3367,10 @@ bool
                            &tsm::Camera::setPointingCorrection,
                            R"doc(
 
-            Pointing corrections of this camera, as consecutive rotation vectors (axis times angle, in radians) expressed
-            in the camera frame. A camera with a pointing history per image has one correction per image, in time order.
-            Otherwise, it has a single correction. This is the quantity estimated by the
-            :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction` parameter. Defaults to zero.
+            Pointing corrections of this camera in radians, with three components per image, in time order. A camera
+            without images has a single correction. This is the quantity estimated by the
+            :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction` parameter, where the mathematical model
+            of the corrections is given. Defaults to zero.
 
             :type: numpy.ndarray[numpy.float64[m, 1]]
             )doc" )

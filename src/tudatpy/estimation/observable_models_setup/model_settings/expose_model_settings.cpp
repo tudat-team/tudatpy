@@ -781,6 +781,9 @@ void expose_model_settings( py::module& m )
  No lens distortion is modelled. Measured pixel coordinates must therefore be corrected for distortion before they
  are used as observations.
 
+ The rotation to the camera frame includes the pointing correction of the camera, for which the model is given in
+ :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction`.
+
 
  Parameters
  ----------
