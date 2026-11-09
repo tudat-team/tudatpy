@@ -112,7 +112,7 @@ enum EstimatebleParametersEnum {
     normal_velocity_at_wall_ratio,
     three_coefficient_radiation_pressure_coefficients,
     shared_observation_bias,
-    relative_gravitational_parameter_rate
+    relative_gravitational_parameter_rate,
     camera_pointing_correction
 };
 
