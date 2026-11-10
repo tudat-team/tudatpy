@@ -21,6 +21,7 @@
 #include "tudat/basics/basicTypedefs.h"
 
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
+#include "tudat/astro/ground_stations/basicTidalBodyDeformation.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -225,6 +226,108 @@ public:
 private:
     //! Rotation model for body.
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
+};
+
+//! Partial of the state of a point on the surface of a body w.r.t. the displacement Love numbers h_n or Shida numbers l_n of the basic
+//! tidal deformation models of the body. The displacement is linear in these numbers, so that its partial is the displacement computed
+//! with a unit Love or Shida number. The velocity partial is that of the rotation of the body-fixed displacement partial, without the
+//! (much smaller) time variation of the displacement partial itself.
+class CartesianPartialWrtDisplacementLoveNumbers : public CartesianStatePartial
+{
+public:
+    /*!
+     *  \param bodyRotationModel Rotation model of the body
+     *  \param deformationModels Basic tidal deformation models of the body
+     *  \param degrees Degrees of the Love or Shida numbers
+     *  \param useShidaNumbers Whether the partial is w.r.t. the Shida numbers l_n (true) or the Love numbers h_n (false)
+     *  \param nominalPosition Nominal body-fixed position of the point
+     */
+    CartesianPartialWrtDisplacementLoveNumbers(
+            const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
+            const std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > >& deformationModels,
+            const std::vector< int >& degrees,
+            const bool useShidaNumbers,
+            const Eigen::Vector3d& nominalPosition ):
+        bodyRotationModel_( bodyRotationModel ), deformationModels_( deformationModels ), degrees_( degrees ),
+        unitLoveNumber_( useShidaNumbers ? 0.0 : 1.0 ), unitShidaNumber_( useShidaNumbers ? 1.0 : 0.0 ), nominalPosition_( nominalPosition )
+    {}
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
+    {
+        return Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) ) * getBodyFixedPartial( time );
+    }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time )
+    {
+        return bodyRotationModel_->getDerivativeOfRotationToBaseFrame( time ) * getBodyFixedPartial( time );
+    }
+
+private:
+    //! Partial of the body-fixed displacement, with one column per degree, in the order of degrees_
+    Eigen::Matrix< double, 3, Eigen::Dynamic > getBodyFixedPartial( const double time )
+    {
+        Eigen::Matrix< double, 3, Eigen::Dynamic > partial = Eigen::Matrix< double, 3, Eigen::Dynamic >::Zero( 3, degrees_.size( ) );
+        const Eigen::Vector3d siteUnitVector = nominalPosition_.normalized( );
+        for( const auto& model : deformationModels_ )
+        {
+            const Eigen::Vector3d deformedBodyPosition = model->getDeformedBodyStateFunction( )( time ).segment( 0, 3 );
+            const Eigen::Quaterniond deformedBodyRotation = model->getDeformedBodyRotationFunction( )( time );
+            const double deformedBodyGravitationalParameter = model->getGravitionalParameterOfDeformedBody( )( );
+            const double equatorialRadius = model->getDeformedBodyEquatorialRadius( );
+            const std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyStateFunctions =
+                    model->getDeformingBodyStateFunctions( );
+            const std::vector< std::function< double( ) > > deformingBodyGravitationalParameters =
+                    model->getGravitionalParametersOfDeformingBodies( );
+            for( unsigned int j = 0; j < deformingBodyStateFunctions.size( ); j++ )
+            {
+                const Eigen::Vector3d relativeBodyPosition =
+                        deformedBodyRotation * ( deformingBodyStateFunctions.at( j )( time ).segment( 0, 3 ) - deformedBodyPosition );
+                const double gravitationalParameterRatio =
+                        deformingBodyGravitationalParameters.at( j )( ) / deformedBodyGravitationalParameter;
+                for( unsigned int i = 0; i < degrees_.size( ); i++ )
+                {
+                    switch( degrees_.at( i ) )
+                    {
+                        case 2:
+                            partial.col( i ) += basic_astrodynamics::calculateDegreeTwoBasicTidalDisplacement( gravitationalParameterRatio,
+                                                                                                               siteUnitVector,
+                                                                                                               relativeBodyPosition,
+                                                                                                               equatorialRadius,
+                                                                                                               unitLoveNumber_,
+                                                                                                               unitShidaNumber_ );
+                            break;
+                        case 3:
+                            partial.col( i ) +=
+                                    basic_astrodynamics::calculateDegreeThreeBasicTidalDisplacement( gravitationalParameterRatio,
+                                                                                                     siteUnitVector,
+                                                                                                     relativeBodyPosition,
+                                                                                                     equatorialRadius,
+                                                                                                     unitLoveNumber_,
+                                                                                                     unitShidaNumber_ );
+                            break;
+                        default:
+                            throw std::runtime_error(
+                                    "Error, partials of basic tidal displacements of degrees other than 2 or 3 "
+                                    "not implemented" );
+                    }
+                }
+            }
+        }
+        return partial;
+    }
+
+    std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
+
+    std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > > deformationModels_;
+
+    std::vector< int > degrees_;
+
+    //! Love and Shida number for which the displacement is the partial: (1, 0) for h_n, (0, 1) for l_n
+    double unitLoveNumber_;
+
+    double unitShidaNumber_;
+
+    Eigen::Vector3d nominalPosition_;
 };
 
 //! Derived class for scaling three-dimensional position partial to position observable partial

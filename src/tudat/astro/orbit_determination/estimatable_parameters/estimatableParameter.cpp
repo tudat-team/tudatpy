@@ -252,6 +252,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case camera_pointing_correction:
             parameterDescription = "camera pointing correction ";
             break;
+        case displacement_love_number:
+            parameterDescription = "displacement Love numbers ";
+            break;
+        case displacement_shida_number:
+            parameterDescription = "displacement Shida numbers ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -499,6 +505,10 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = false;
             break;
         case camera_pointing_correction:
+            isDoubleParameter = false;
+            break;
+        case displacement_love_number:
+        case displacement_shida_number:
             isDoubleParameter = false;
             break;
         default:
@@ -780,6 +790,8 @@ bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parame
         case shared_observation_bias:
         case relative_gravitational_parameter_rate:
         case camera_pointing_correction:
+        case displacement_love_number:
+        case displacement_shida_number:
             return false;
     }
     throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +

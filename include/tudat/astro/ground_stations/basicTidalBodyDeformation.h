@@ -65,6 +65,48 @@ public:
         return calculateDisplacement( time, stationState->getNominalCartesianPosition( ) );
     }
 
+    //! Function to retrieve the displacement Love and Shida numbers ( h_n, l_n ) per degree n
+    std::map< int, std::pair< double, double > > getDisplacementLoveNumbers( ) const
+    {
+        return displacementLoveNumbers_;
+    }
+
+    //! Function to reset the displacement Love and Shida numbers ( h_n, l_n ) per degree n
+    void setDisplacementLoveNumbers( const std::map< int, std::pair< double, double > >& displacementLoveNumbers )
+    {
+        displacementLoveNumbers_ = displacementLoveNumbers;
+    }
+
+    std::function< Eigen::Vector6d( const double ) > getDeformedBodyStateFunction( ) const
+    {
+        return deformedBodyStateFunction_;
+    }
+
+    std::vector< std::function< Eigen::Vector6d( const double ) > > getDeformingBodyStateFunctions( ) const
+    {
+        return deformingBodyStateFunctions_;
+    }
+
+    std::function< Eigen::Quaterniond( const double ) > getDeformedBodyRotationFunction( ) const
+    {
+        return deformedBodyRotationFunction_;
+    }
+
+    std::function< double( ) > getGravitionalParameterOfDeformedBody( ) const
+    {
+        return gravitionalParameterOfDeformedBody_;
+    }
+
+    std::vector< std::function< double( ) > > getGravitionalParametersOfDeformingBodies( ) const
+    {
+        return gravitionalParametersOfDeformingBodies_;
+    }
+
+    double getDeformedBodyEquatorialRadius( ) const
+    {
+        return deformedBodyEquatorialRadius_;
+    }
+
 protected:
     void updateBodyProperties( const double time );
 

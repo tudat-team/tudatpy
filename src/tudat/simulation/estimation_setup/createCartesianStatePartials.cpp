@@ -11,6 +11,7 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumbers.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 namespace tudat
@@ -224,6 +225,24 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                             // Create partial object.
                             partialMap[ linkEndIterator->first ] =
                                     std::make_shared< CartesianPartialWrtBodyFixedPosition >( currentBody->getRotationalEphemeris( ) );
+                        }
+                        break;
+                    }
+                    case estimatable_parameters::displacement_love_number:
+                    case estimatable_parameters::displacement_shida_number: {
+                        // The parameter affects each point on the surface of the body for which a ground station exists.
+                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) > 0 )
+                        {
+                            std::shared_ptr< estimatable_parameters::DisplacementLoveNumbers > loveNumbers =
+                                    std::dynamic_pointer_cast< estimatable_parameters::DisplacementLoveNumbers >( parameterToEstimate );
+                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtDisplacementLoveNumbers >(
+                                    currentBody->getRotationalEphemeris( ),
+                                    loveNumbers->getDeformationModels( ),
+                                    loveNumbers->getDegrees( ),
+                                    loveNumbers->getUseShidaNumbers( ),
+                                    currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
+                                            ->getNominalStationState( )
+                                            ->getNominalCartesianPosition( ) );
                         }
                         break;
                     }

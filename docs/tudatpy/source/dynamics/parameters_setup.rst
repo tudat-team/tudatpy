@@ -129,6 +129,10 @@ Functions
 
    reference_point_position
 
+   displacement_love_number
+
+   displacement_shida_number
+
    camera_pointing_correction
 
    ppn_parameter_gamma
@@ -291,6 +295,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.ground_station_position
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.reference_point_position
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.displacement_love_number
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.displacement_shida_number
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.camera_pointing_correction
 
