@@ -41,6 +41,16 @@ std::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRota
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector );
 
+//! Function to retrieve the gravitational parameter function of a body with rigid body properties derived from its gravity field
+/*!
+ * Function to retrieve the gravitational parameter function of a body with rigid body properties derived from its gravity field,
+ * in which case its mass and inertia tensor are proportional to its gravitational parameter
+ * \param body Body for which the function is to be retrieved
+ * \return Function returning the gravitational parameter of the body (empty if rigid body properties are not derived from gravity
+ * field)
+ */
+std::function< double( ) > getGravitationalParameterFunctionOfGravityDerivedBody( const std::shared_ptr< Body > body );
+
 //! Function to create a single torque partial derivative object.
 /*!
  *  Function to create a single torque partial derivative object.
@@ -85,10 +95,14 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
             }
             else
             {
-                // Create partial-calculating object.
+                // Create partial-calculating object. The inertia tensor only depends on the gravity field if it is derived from it
+                // (gravitational parameter function is empty otherwise)
+                std::function< double( ) > gravitationalParameterFunction =
+                        getGravitationalParameterFunctionOfGravityDerivedBody( acceleratedBody.second );
                 std::function< double( ) > inertiaTensorNormalizationFunction;
-                if( std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) ) !=
-                    nullptr )
+                if( gravitationalParameterFunction != nullptr &&
+                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) ) !=
+                            nullptr )
                 {
                     inertiaTensorNormalizationFunction = std::bind( &SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
                                                                     std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
@@ -98,7 +112,8 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                         std::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ),
                         inertiaTensorNormalizationFunction,
                         acceleratedBody.first,
-                        acceleratingBody.first );
+                        acceleratingBody.first,
+                        gravitationalParameterFunction );
             }
             break;
         case spherical_harmonic_gravitational_torque:
@@ -124,8 +139,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                                 parametersToEstimate ) ),
                         acceleratedBody.first,
                         acceleratingBody.first,
-                        std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
-                                acceleratingBody.second->getMassProperties( ) ) != nullptr );
+                        getGravitationalParameterFunctionOfGravityDerivedBody( acceleratingBody.second ) != nullptr );
             }
             break;
         case full_two_body_spherical_harmonic_gravitational_torque: {
@@ -153,7 +167,8 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     acceleratedBody.first,
                     acceleratingBody.first,
                     observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
-                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
+                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ),
+                    getGravitationalParameterFunctionOfGravityDerivedBody( acceleratedBody.second ) );
             break;
         }
         case fourth_degree_full_two_body_gravitational_torque:
@@ -176,7 +191,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     acceleratedBody.first,
                     acceleratingBody.first,
                     observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
-                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
+                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ),
+                    getGravitationalParameterFunctionOfGravityDerivedBody( acceleratedBody.second ),
+                    getGravitationalParameterFunctionOfGravityDerivedBody( acceleratingBody.second ) );
             break;
         case radiation_pressure_torque:
             throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );
@@ -186,15 +203,14 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
             std::function< Eigen::Matrix3d( ) > inertiaTensorFunction = std::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
 
-            std::function< double( ) > gravitationalParameterFunction;
-            if( acceleratedBody.second->getGravityFieldModel( ) != nullptr )
-            {
-                gravitationalParameterFunction = std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                                            acceleratedBody.second->getGravityFieldModel( ) );
-            }
+            // The inertia tensor only depends on the gravity field if it is derived from it (gravitational parameter function is empty
+            // otherwise)
+            std::function< double( ) > gravitationalParameterFunction =
+                    getGravitationalParameterFunctionOfGravityDerivedBody( acceleratedBody.second );
 
             std::function< double( ) > inertiaTensorNormalizationFunction;
-            if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+            if( gravitationalParameterFunction != nullptr &&
+                std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                         acceleratedBody.second->getGravityFieldModel( ) ) != nullptr )
             {
                 inertiaTensorNormalizationFunction =

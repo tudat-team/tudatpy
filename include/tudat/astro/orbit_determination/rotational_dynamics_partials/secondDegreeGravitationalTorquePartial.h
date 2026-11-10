@@ -53,13 +53,17 @@ public:
      * \param getInertiaTensorNormalizationFactor Function the inertia tensor normalization factor
      * \param acceleratedBody Name of body undergoing torque
      * \param acceleratingBody Name of body exerting torque
+     * \param bodyGravitationalParameterFunction Function returning gravitational parameter of body undergoing torque, if its inertia
+     * tensor is derived from its gravity field (empty otherwise)
      */
     SecondDegreeGravitationalTorquePartial( const std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel,
                                             const std::function< double( ) > getInertiaTensorNormalizationFactor,
                                             const std::string acceleratedBody,
-                                            const std::string acceleratingBody ):
+                                            const std::string acceleratingBody,
+                                            const std::function< double( ) > bodyGravitationalParameterFunction ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::second_order_gravitational_torque ),
-        torqueModel_( torqueModel ), getInertiaTensorNormalizationFactor_( getInertiaTensorNormalizationFactor )
+        torqueModel_( torqueModel ), getInertiaTensorNormalizationFactor_( getInertiaTensorNormalizationFactor ),
+        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction )
     {
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }
@@ -163,6 +167,10 @@ protected:
      */
     void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& gravitationalParameterPartial );
 
+    //! Function to compute partial of torque w.r.t. gravitational parameter of body undergoing torque (torque is proportional to its
+    //! gravity-derived inertia tensor, and therefore to its gravitational parameter)
+    void wrtGravitationalParameterOfRotatingBody( Eigen::MatrixXd& gravitationalParameterPartial );
+
     //! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
     /*!
      * Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
@@ -193,6 +201,10 @@ protected:
 
     //! Function the inertia tensor normalization factor
     std::function< double( ) > getInertiaTensorNormalizationFactor_;
+
+    //! Function returning gravitational parameter of body undergoing torque, if its inertia tensor is derived from its gravity field
+    //! (empty otherwise)
+    std::function< double( ) > bodyGravitationalParameterFunction_;
 
     //! Current quaternion elements
     Eigen::Vector4d currentQuaternionVector_;

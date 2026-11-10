@@ -143,10 +143,20 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     };
 
     BodyListSettings settings;
-    for( const std::string bodyName : { "Legacy", "FromGravityField", "NoInertia", "Explicit" } )
+    for( const std::string bodyName : { "Legacy", "FromGravityField", "NoInertia", "Explicit", "TimeDependent" } )
     {
         settings.addSettings( bodyName );
     }
+
+    // Body with gravity-derived properties and a time-dependent gravity field (linear drift of C20)
+    std::map< int, Eigen::MatrixXd > cosineAmplitudes;
+    cosineAmplitudes[ 1 ] = Eigen::MatrixXd::Zero( 1, 3 );
+    cosineAmplitudes[ 1 ]( 0, 0 ) = 1.0e-12;
+    settings.at( "TimeDependent" )->gravityFieldSettings = makeGravitySettings( );
+    settings.at( "TimeDependent" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( scaledMeanMomentOfInertia );
+    settings.at( "TimeDependent" )
+            ->gravityFieldVariationSettings.push_back( std::make_shared< PolynomialGravityFieldVariationsSettings >(
+                    cosineAmplitudes, std::map< int, Eigen::MatrixXd >( ), 0.0, 2, 0 ) );
     settings.at( "Legacy" )->gravityFieldSettings = makeGravitySettings( scaledMeanMomentOfInertia );
     settings.at( "FromGravityField" )->gravityFieldSettings = makeGravitySettings( );
     settings.at( "FromGravityField" )->rigidBodyPropertiesSettings =
@@ -227,6 +237,25 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     explicitBody->getMassProperties( )->update( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( explicitBody->getBodyMass( ), explicitMass, 5.0e-15 );
+
+    // Check that the mass of a propagated body with a time-dependent gravity field remains defined after a time reset, when only
+    // its mass distribution is updated (as for a body of which only the rotational state is propagated)
+    const std::shared_ptr< Body > timeDependentBody = bodies.at( "TimeDependent" );
+    BOOST_REQUIRE( std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( timeDependentBody->getMassProperties( ) ) != nullptr );
+    timeDependentBody->getMassProperties( )->setIsBodyInPropagation( true );
+    timeDependentBody->getMassProperties( )->resetCurrentTime( );
+    timeDependentBody->getMassProperties( )->updateMassDistribution( 0.0 );
+    BOOST_CHECK_CLOSE_FRACTION(
+            timeDependentBody->getBodyMass( ), gravitationalParameter / physical_constants::GRAVITATIONAL_CONSTANT, 5.0e-15 );
+
+    // Check that the rotational dynamics update the gravity field only of the body with a time-dependent gravity field
+    // and gravity-derived properties
+    const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentUpdates =
+            propagators::createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
+                    basic_astrodynamics::TorqueModelMap( ), bodies, { "TimeDependent", "FromGravityField" } );
+    BOOST_REQUIRE( environmentUpdates.count( propagators::spherical_harmonic_gravity_field_update ) == 1 );
+    BOOST_CHECK( environmentUpdates.at( propagators::spherical_harmonic_gravity_field_update ) ==
+                 std::vector< std::string >( { "TimeDependent" } ) );
 }
 
 BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )

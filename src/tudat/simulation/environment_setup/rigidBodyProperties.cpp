@@ -365,6 +365,16 @@ void FromGravityFieldRigidBodyProperties::computeMassDistributionFromGravityFiel
         throw std::runtime_error( "Error when deriving rigid body properties from gravity field: gravity field type not recognized." );
     }
 
+    // A scaled mean moment of inertia is only used for a spherical harmonic gravity field with degree two coefficients
+    if( std::isfinite( scaledMeanMomentOfInertia_ ) &&
+        ( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ) == nullptr ||
+          !isInertiaTensorAvailable_ ) )
+    {
+        throw std::runtime_error(
+                "Error when deriving rigid body properties from gravity field: a scaled mean moment of inertia is defined, but the "
+                "gravity field is not a spherical harmonic field with degree two coefficients." );
+    }
+
     isComComputed_ = true;
     isInertiaTensorComputed_ = isInertiaTensorAvailable_;
 }

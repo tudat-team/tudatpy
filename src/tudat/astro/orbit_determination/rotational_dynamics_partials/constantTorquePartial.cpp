@@ -31,11 +31,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartia
         switch( parameter->getParameterName( ).first )
         {
             case gravitational_parameter: {
-                if( ( bodyGravitationalParameterFunction_ == nullptr ) )
+                // Function is only defined if the inertia tensor is derived from the gravity field
+                if( bodyGravitationalParameterFunction_ == nullptr )
                 {
-                    throw std::runtime_error(
-                            "Error when getting partial of inertial torque w.r.t. gravitational parameter, gravitational parameter "
-                            "function not found." );
+                    break;
                 }
 
                 partialFunction =
@@ -83,11 +82,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartia
 
                 if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
                 {
-                    if( ( getInertiaTensorNormalizationFactor_ == nullptr ) )
+                    // Function is only defined if the inertia tensor is derived from the gravity field
+                    if( getInertiaTensorNormalizationFactor_ == nullptr )
                     {
-                        throw std::runtime_error(
-                                "Error when getting partial of 2nd degree grac torque w.r.t. cosine sh parameters, inertia tensor "
-                                "normalization function not found." );
+                        break;
                     }
                     partialFunction =
                             std::make_pair( std::bind( &ConstantTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody,
@@ -112,11 +110,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartia
 
                 if( s21Index >= 0 || s22Index >= 0 )
                 {
-                    if( ( getInertiaTensorNormalizationFactor_ == nullptr ) )
+                    // Function is only defined if the inertia tensor is derived from the gravity field
+                    if( getInertiaTensorNormalizationFactor_ == nullptr )
                     {
-                        throw std::runtime_error(
-                                "Error when getting partial of 2nd degree grac torque w.r.t. sine sh parameters, inertia tensor "
-                                "normalization function not found." );
+                        break;
                     }
                     partialFunction = std::make_pair( std::bind( &ConstantTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody,
                                                                  this,

@@ -11,6 +11,8 @@
 #ifndef TUDAT_CREATEGRAVITYFIELD_H
 #define TUDAT_CREATEGRAVITYFIELD_H
 
+#include <cmath>
+#include <iostream>
 #include <map>
 #include <vector>
 #include <string>
@@ -166,8 +168,10 @@ public:
         GravityFieldSettings( spherical_harmonic ), gravitationalParameter_( gravitationalParameter ), referenceRadius_( referenceRadius ),
         inertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), associatedReferenceFrame_( associatedReferenceFrame ), createTimeDependentField_( 0 ),
-        scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
-    {}
+        scaledMeanMomentOfInertia_( TUDAT_NAN )
+    {
+        setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
+    }
 
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
                                             const double referenceRadius,
@@ -243,6 +247,13 @@ public:
     //! Set the compatibility input that is transferred to rigid-body-property settings.
     void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
     {
+        if( std::isfinite( scaledMeanMomentOfInertia ) )
+        {
+            std::cerr << "Warning, defining the scaled mean moment of inertia in spherical harmonic gravity field settings is deprecated "
+                         "and will be removed in a future version of Tudat. Define it in the rigid body properties settings derived from "
+                         "the gravity field (rigid_body.from_gravity_field) instead."
+                      << std::endl;
+        }
         scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
     }
 

@@ -67,7 +67,8 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque,
-        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque ):
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque,
+        const std::function< double( ) > gravitationalParameterOfBodyUndergoingTorqueFunction ):
     TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::full_two_body_spherical_harmonic_gravitational_torque ),
     torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial ),
     accelerationModel_( torqueModel == nullptr ? nullptr : torqueModel->getAccelerationBetweenBodies( ) ),
@@ -88,7 +89,8 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
     currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_( Eigen::Matrix3d::Zero( ) ), currentDistance_( TUDAT_NAN ),
     currentCosineOfLatitude_( TUDAT_NAN ), currentPreMultiplier_( TUDAT_NAN ), currentBodyUndergoingTorqueMass_( TUDAT_NAN ),
     rotationMatrixPartialsOfBodyUndergoingTorque_( rotationMatrixPartialsOfBodyUndergoingTorque ),
-    rotationMatrixPartialsOfBodyExertingTorque_( rotationMatrixPartialsOfBodyExertingTorque )
+    rotationMatrixPartialsOfBodyExertingTorque_( rotationMatrixPartialsOfBodyExertingTorque ),
+    gravitationalParameterOfBodyUndergoingTorqueFunction_( gravitationalParameterOfBodyUndergoingTorqueFunction )
 {
     if( torqueModel_ == nullptr )
     {
@@ -128,6 +130,23 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
 {
     partialMatrix = torqueModel_->getTorque( ) / accelerationModel_->getCurrentGravitationalParameter( );
+}
+
+void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtGravitationalParameterOfBodyUndergoingTorque(
+        Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix.setZero( 3, 1 );
+    if( accelerationModel_->getIsMutualAttractionUsed( ) )
+    {
+        partialMatrix += torqueModel_->getTorque( ) / accelerationModel_->getCurrentGravitationalParameter( );
+    }
+
+    // Torque is proportional to the mass of the body undergoing torque, which is proportional to its gravitational parameter if
+    // derived from its gravity field
+    if( gravitationalParameterOfBodyUndergoingTorqueFunction_ != nullptr )
+    {
+        partialMatrix += torqueModel_->getTorque( ) / gravitationalParameterOfBodyUndergoingTorqueFunction_( );
+    }
 }
 
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtBodyUndergoingTorqueMass( Eigen::MatrixXd& partialMatrix )
@@ -265,11 +284,20 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunct
     int numberOfRows = 0;
 
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter &&
-        ( parameter->getParameterName( ).second.first == bodyExertingTorque_ ||
-          ( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ && accelerationModel_->getIsMutualAttractionUsed( ) ) ) )
+        parameter->getParameterName( ).second.first == bodyExertingTorque_ )
     {
         partialFunction = std::bind(
                 &FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtGravitationalParameter, this, std::placeholders::_1 );
+        numberOfRows = 1;
+    }
+    else if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter &&
+             parameter->getParameterName( ).second.first == bodyUndergoingTorque_ &&
+             ( accelerationModel_->getIsMutualAttractionUsed( ) || gravitationalParameterOfBodyUndergoingTorqueFunction_ != nullptr ) )
+    {
+        partialFunction =
+                std::bind( &FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtGravitationalParameterOfBodyUndergoingTorque,
+                           this,
+                           std::placeholders::_1 );
         numberOfRows = 1;
     }
     else if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )

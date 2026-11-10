@@ -328,6 +328,15 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 1.0E-6 );
 
+        // Check partial w.r.t. Phobos gravitational parameter, to which its gravity-derived inertia tensor is proportional
+        std::shared_ptr< EstimatableParameter< double > > phobosGravitationalParameterParameter =
+                std::make_shared< GravitationalParameter >( phobos->getGravityFieldModel( ), "Phobos" );
+        const Eigen::Vector3d partialWrtPhobosGravitationalParameter = torquePartial->wrtParameter( phobosGravitationalParameterParameter );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                calculateTorqueWrtParameterPartials( phobosGravitationalParameterParameter, gravitationalTorque, 1.0E2, updateFunction ),
+                partialWrtPhobosGravitationalParameter,
+                1.0E-6 );
+
         // Check derivative of z-component w.r.t. C20 separately: value is slightly non-zero due to rounding error
         BOOST_CHECK_SMALL( std::fabs( testPartialWrtPhobosCosineCoefficients( 2, 2 ) ), 2.0E6 );
         testPartialWrtPhobosCosineCoefficients( 2, 2 ) = 0.0;
@@ -643,6 +652,18 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     {
         BOOST_CHECK_SMALL( std::fabs( partialWrtMeanMomentOfInertia( i, 0 ) - testPartialWrtMeanMomentOfInertia( i, 0 ) ), 1.0E1 );
     }
+
+    // Check that the partials w.r.t. gravity field parameters are zero when the inertia tensor is explicitly defined
+    phobos->setMassProperties( createRigidBodyProperties(
+            constantRigidBodyPropertiesSettings( phobos->getBodyMass( ), Eigen::Vector3d::Zero( ), phobos->getBodyInertiaTensor( ) ),
+            "Phobos",
+            bodies ) );
+    torquePartial =
+            createAnalyticalTorquePartial( inertialTorqueModel, std::make_pair( "Phobos", phobos ), std::make_pair( "Phobos", phobos ) );
+    torquePartial->update( testTime );
+    BOOST_CHECK_EQUAL( torquePartial->wrtParameter( phobosGravitationalParameterParameter ).norm( ), 0.0 );
+    BOOST_CHECK_EQUAL( torquePartial->wrtParameter( phobosCosineCoefficientsParameter ).norm( ), 0.0 );
+    BOOST_CHECK_EQUAL( torquePartial->wrtParameter( phobosSineCoefficientsParameter ).norm( ), 0.0 );
 }
 
 class EffectiveTorqueModel : public basic_astrodynamics::TorqueModel
