@@ -129,6 +129,8 @@ Functions
 
    reference_point_position
 
+   camera_pointing_correction
+
    ppn_parameter_gamma
 
    ppn_parameter_beta
@@ -289,6 +291,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.ground_station_position
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.reference_point_position
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.camera_pointing_correction
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.ppn_parameter_gamma
 

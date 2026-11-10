@@ -43,6 +43,20 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
         scaling( i ) = ( scaling( i ) > 0.0 ) ? 1.0 / scaling( i ) : 1.0;
     }
 
+    // Rows with a zero diagonal (constraints in a KKT system) are scaled by their largest scaled entry: next to strongly weighted normal
+    // equations, they would otherwise fall below the threshold of the decomposition, and the constraint would be silently dropped
+    for( int i = 0; i < scaling.rows( ); i++ )
+    {
+        if( matrixToInvert( i, i ) == 0.0 )
+        {
+            const double largestEntry = matrixToInvert.row( i ).cwiseAbs( ).cwiseProduct( scaling.transpose( ) ).maxCoeff( );
+            if( largestEntry > 0.0 )
+            {
+                scaling( i ) = 1.0 / largestEntry;
+            }
+        }
+    }
+
     Eigen::JacobiSVD< Eigen::MatrixXd, Eigen::ComputeThinU | Eigen::ComputeThinV > svdDecomposition =
             ( scaling.asDiagonal( ) * matrixToInvert * scaling.asDiagonal( ) ).jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
     if( limitConditionNumberForWarning == limitConditionNumberForWarning )

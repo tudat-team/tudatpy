@@ -398,7 +398,8 @@ Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange( const std::funct
     for( int i = 1; i < 4; i++ )
     {
         perturbedState( i ) += commandedQuaternionPerturbation( i );
-        perturbedState( 0 ) = std::sqrt( 1.0 - std::pow( perturbedState.segment( 1, 3 ).norm( ), 2 ) );
+        perturbedState( 0 ) =
+                std::copysign( std::sqrt( 1.0 - std::pow( perturbedState.segment( 1, 3 ).norm( ), 2 ) ), originalRotationalState( 0 ) );
 
         appliedQuaternionPerturbation[ i ] = perturbedState.segment( 0, 4 ).normalized( ) - originalRotationalState.segment( 0, 4 );
 

@@ -50,6 +50,9 @@ public:
      *  \param estimatedDoubleParameters List of double parameters that are estimated.
      *  \param estimatedVectorParameters List of vector parameters that are estimated.
      *  \param estimateInitialStateParameters List of initial dynamical states that are to be estimated.
+     *  \param considerParameters Set of consider parameters.
+     *  \param reduceSensitivityMatrixColumns Boolean denoting whether sensitivity matrix columns that are zero in a propagation
+     *  arc are to be omitted (see setReduceSensitivityMatrixColumns).
      */
     EstimatableParameterSet(
             const std::vector< std::shared_ptr< EstimatableParameter< double > > >& estimatedDoubleParameters,
@@ -58,8 +61,9 @@ public:
                     estimateInitialStateParameters =
                             ( std::vector< std::shared_ptr<
                                       EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ),
-            const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr ):
-        considerParameters_( considerParameters )
+            const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr,
+            const bool reduceSensitivityMatrixColumns = false ):
+        considerParameters_( considerParameters ), reduceSensitivityMatrixColumns_( reduceSensitivityMatrixColumns )
     {
         // Initialize total number of parameters to 0.
         estimatedParameterSetSize_ = 0;
@@ -844,6 +848,30 @@ public:
         return utilities::createVectorFromMapKeys( bodiesToEstimatePerArc_ );
     }
 
+    //! Function to set whether the sensitivity matrix columns that are zero in a propagation arc are to be omitted
+    /*!
+     * Function to set whether the sensitivity matrix columns that are zero in a propagation arc are to be omitted when
+     * propagating the variational equations. Parameters that cannot influence the dynamics (e.g. observation biases), or
+     * parameter entries that only influence the dynamics outside of the propagation interval (e.g. arc-wise parameters),
+     * are then not propagated. The full sensitivity matrix is reconstructed when retrieving the variational equations
+     * results.
+     * \param reduceSensitivityMatrixColumns True if zero sensitivity matrix columns are to be omitted from the propagation
+     */
+    void setReduceSensitivityMatrixColumns( const bool reduceSensitivityMatrixColumns )
+    {
+        reduceSensitivityMatrixColumns_ = reduceSensitivityMatrixColumns;
+    }
+
+    //! Function to retrieve whether the sensitivity matrix columns that are zero in a propagation arc are to be omitted
+    /*!
+     * Function to retrieve whether the sensitivity matrix columns that are zero in a propagation arc are to be omitted
+     * \return True if zero sensitivity matrix columns are to be omitted from the propagation
+     */
+    bool getReduceSensitivityMatrixColumns( ) const
+    {
+        return reduceSensitivityMatrixColumns_;
+    }
+
 protected:
     //! Total size of all initial dynamical states that are to be estimated.
     int initialDynamicalStateParameterSize_;
@@ -898,6 +926,9 @@ protected:
     std::map< double,
               std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
             multiArcInitialStateParametersPerArc_;
+
+    //! Boolean denoting whether sensitivity matrix columns that are zero in a propagation arc are omitted
+    bool reduceSensitivityMatrixColumns_;
 };
 
 //! Function to create a subset of all estimated parameters, with either only single-arc or multi-arc initial state parameter
@@ -913,20 +944,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarTyp
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
         const bool getSingleArcParameters )
 {
-    if( getSingleArcParameters )
-    {
-        return std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
-                parametersToEstimate->getEstimatedDoubleParameters( ),
-                parametersToEstimate->getEstimatedVectorParameters( ),
-                parametersToEstimate->getEstimatedSingleArcInitialStateParameters( ) );
-    }
-    else
-    {
-        return std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
-                parametersToEstimate->getEstimatedDoubleParameters( ),
-                parametersToEstimate->getEstimatedVectorParameters( ),
-                parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ) );
-    }
+    return std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
+            parametersToEstimate->getEstimatedDoubleParameters( ),
+            parametersToEstimate->getEstimatedVectorParameters( ),
+            getSingleArcParameters ? parametersToEstimate->getEstimatedSingleArcInitialStateParameters( )
+                                   : parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ),
+            nullptr,
+            parametersToEstimate->getReduceSensitivityMatrixColumns( ) );
 }
 
 //! Function to constrain the correction to the single-arc initial translational state in a parameter set (see
@@ -1653,7 +1677,11 @@ void getParametersToEstimatePerArcTest(
 
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > arcWiseEstimatableParamatersSet =
                 std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
-                        doubleParameters, vectorParameters, arcWiseStatesParameters );
+                        doubleParameters,
+                        vectorParameters,
+                        arcWiseStatesParameters,
+                        nullptr,
+                        parametersToEstimate->getReduceSensitivityMatrixColumns( ) );
 
         arcWiseParametersToEstimate.push_back( arcWiseEstimatableParamatersSet );
     }
