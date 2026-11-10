@@ -86,9 +86,13 @@ public:
     /*!
      * Constructor.
      * \param gravitationalParameterOfBodyUndergoingTorqueFunction Function returning the gravitational parameter of the body
-     * undergoing torque, if its rigid body properties are derived from its gravity field (empty otherwise)
+     * undergoing torque (required if its rigid body properties are derived from its gravity field)
      * \param gravitationalParameterOfBodyExertingTorqueFunction Function returning the gravitational parameter of the body
-     * exerting torque, if its rigid body properties are derived from its gravity field (empty otherwise)
+     * exerting torque (required if its rigid body properties are derived from its gravity field)
+     * \param rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived Boolean denoting whether the mass and inertia tensor of the
+     * body undergoing torque are derived from its gravity field
+     * \param rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived Boolean denoting whether the mass and inertia tensor of the
+     * body exerting torque are derived from its gravity field
      */
     FourthDegreeFullTwoBodyGravitationalTorquePartial(
             const std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > torqueModel,
@@ -101,7 +105,9 @@ public:
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque =
                     observation_partials::RotationMatrixPartialNamedList( ),
             const std::function< double( ) > gravitationalParameterOfBodyUndergoingTorqueFunction = std::function< double( ) >( ),
-            const std::function< double( ) > gravitationalParameterOfBodyExertingTorqueFunction = std::function< double( ) >( ) );
+            const std::function< double( ) > gravitationalParameterOfBodyExertingTorqueFunction = std::function< double( ) >( ),
+            const bool rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived = false,
+            const bool rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived = false );
 
     ~FourthDegreeFullTwoBodyGravitationalTorquePartial( ) {}
 
@@ -232,10 +238,13 @@ private:
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBodyUndergoingTorque_;
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBodyExertingTorque_;
 
-    //! Functions returning the gravitational parameters of the bodies, if their rigid body properties are derived from their
-    //! gravity fields (empty otherwise)
+    //! Functions returning the gravitational parameters of the bodies
     std::function< double( ) > gravitationalParameterOfBodyUndergoingTorqueFunction_;
     std::function< double( ) > gravitationalParameterOfBodyExertingTorqueFunction_;
+
+    //! Booleans denoting whether the mass and inertia tensor of the bodies are derived from their gravity fields
+    bool rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived_;
+    bool rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived_;
 };
 
 }  // namespace acceleration_partials
