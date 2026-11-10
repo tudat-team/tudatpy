@@ -287,12 +287,12 @@ void expose_time_representation( py::module& m )
 
  Class to convert between different time scales (TAI, TT, TDB, UTC, UT1)
 
- Class to convert between different time scales (TAI, TT, TDB, UTC, UT1), as per algorithms described in (for instance) IERS 2010 Conventions and USNO circular no. 179.
+ Class to convert between different time scales (TAI, TT, TDB, UTC, UT1), as per algorithms described in (for instance) the IERS 2010 Conventions :cite:p:`Petit2010` and USNO circular no. 179 :cite:p:`Kaplan2006`. An overview of time scales and their conversion in Tudat is given in the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/times-and-dates.html#conversion-between-time-scales>`__.
  The algorithms used for the conversion are (where there is any choice in models):
 
  * Conversion between TDB and TT uses the SOFA function ``iauDtdb`` function (equivalently to :func:`TT_to_TDB` and :func:`TDB_to_TT`)
- * Conversion between UTC and UT1 applies (semi-)diurnal and daily measured variations depending on settings during object creation (typically as per :func:`~default_time_scale_converter`)
- * Leap seconds as per the latest SOFA package
+ * Conversion between UTC and UT1 applies (semi-)diurnal and daily measured variations, as described in :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs`
+ * Leap seconds as per the latest SOFA package :cite:p:`sofa_ts_c`
 
  )doc" )
             .def( "convert_time",
@@ -1702,14 +1702,7 @@ datetime.datetime
            &teo::createDefaultTimeConverterPy,
            R"doc(
 
- Function to create a time-scale converter object with default settings. In particular, it uses default settings for conversion between UT1 and UTC:
-
- * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1b of IERS Conventions 2010
- * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.2a and 8.2b of the IERS Conventions 2010
- * For epoch 01-01-1962 and later: linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for UTC-UT1 from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory. After the end of the file, the last value is used
- * For epochs before 01-01-1962, where UTC-UT1 is not available from these files, we compute :math:`UT1 = TT - \Delta T`, with :math:`\Delta T = TT-UT1` from cubic spline interpolation of the historicalDeltaT.txt file in the tudat-resources directory, as a function of :math:`2000 + (TT - J2000)/(365.25 \text{ days})`. The tabulated values are: from the IERS EOP C01 series (:math:`32.184\text{ s} - (UT1-TAI)`, every 0.05 year) between 1956 and 1962, from the Astronomical Almanac (yearly) between 1948 and 1956, and from the spline of :cite:t:`Stephenson2016`, as updated by :cite:t:`Morrison2021`, before 1948 (yearly, back to 720 BC, and its long-term parabola before that). The value at 01-01-1962 is taken from the EOP file, so that UT1 is continuous. The file header and the script that generated it document the sources. In this period, we set the approximation UTC=UT1
-
- See :class:`~TimeScaleConverter` for specific functionality and options for time-scale conversions.
+ Function to create a time-scale converter object with default settings. See :class:`~TimeScaleConverter` for a description of the algorithms, and for specific functionality and options for time-scale conversions.
 
  Returns
  -------
