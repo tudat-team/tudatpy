@@ -49,6 +49,11 @@ public:
         return 3;
     }
 
+    std::shared_ptr< ground_stations::LinearStationMotionModel > getMotionModel( ) const
+    {
+        return motionModel_;
+    }
+
 private:
     std::shared_ptr< ground_stations::LinearStationMotionModel > motionModel_;
 };

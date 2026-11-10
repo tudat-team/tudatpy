@@ -152,12 +152,12 @@ void expose_parameters_setup_types( py::module& m )
             .value( "ppn_parameter_beta_type",
                     tep::EstimatebleParametersEnum::ppn_parameter_beta,
                     R"doc(Estimatable parameter for PPN parameter beta.)doc" )
-            .value( "ground_station_linear_velocity_type",
-                    tep::EstimatebleParametersEnum::ground_station_linear_velocity,
-                    R"doc(Estimatable parameter for the body-fixed velocity of the linear motion of a ground station.)doc" )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position,
                     R"doc(Estimatable parameter for ground station position.)doc" )
+            .value( "ground_station_linear_velocity_type",
+                    tep::EstimatebleParametersEnum::ground_station_linear_velocity,
+                    R"doc(Estimatable parameter for the body-fixed velocity of the linear motion of a ground station.)doc" )
             .value( "camera_pointing_correction_type",
                     tep::EstimatebleParametersEnum::camera_pointing_correction,
                     R"doc(Estimatable parameter for camera pointing correction.)doc" )
@@ -2159,23 +2159,28 @@ EstimatableParameterSettings
            py::arg( "ground_station_name" ),
            R"doc(
 
-         Configure estimation of the body-fixed velocity (in m/s) of the linear motion of ground station ``ground_station_name``.
+ Function for creating parameter settings for ground station linear velocity.
 
-         The station must have a :func:`~tudatpy.dynamics.environment_setup.ground_station.linear_station_motion` model.
+ Function for creating parameter settings object for the body-fixed Cartesian velocity (in m/s) of a ground station's linear motion model.
+ Using the ground station linear velocity as estimatable parameter requires:
 
-         Parameters
-         ----------
-         body : str
-             Name of the body on which the ground station is located.
-         ground_station_name : str
-             Name of the ground station.
+ * The ground station to have a linear motion model (see :func:`~tudatpy.dynamics.environment_setup.ground_station.linear_station_motion`)
+ * At least one observation model to rely on the specified ground station
 
-         Returns
-         -------
-         EstimatableParameterSettings
-             Settings for the requested estimatable parameter.
 
-      )doc" );
+ Parameters
+ ----------
+ body : str
+     Body name identifying the body, with which the ground station is associated.
+ ground_station_name : str
+     Name which identifies the ground station with the linear motion model.
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified ground station's linear velocity.
+
+
+     )doc" );
 
     m.def( "reference_point_position",
            &tep::referencePointPosition,

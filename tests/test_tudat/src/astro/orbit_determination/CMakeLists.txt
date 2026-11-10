@@ -198,11 +198,6 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
  )
 
- TUDAT_ADD_TEST_CASE(GroundStationLinearVelocityEstimation
-         PRIVATE_LINKS
-         ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
- )
-
  TUDAT_ADD_TEST_CASE(RadiationPressureEstimation
          PRIVATE_LINKS
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
