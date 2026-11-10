@@ -986,13 +986,21 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTorquePartialWrtLoveNumberAfterTimeRe
     std::shared_ptr< EstimatableParameterSet< double > > parameterSet = createParametersToEstimate( parameterNames, bodies );
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > loveNumber = parameterSet->getEstimatedVectorParameters( ).at( 0 );
 
-    // Evaluate one partial at two times, one week apart, with a time reset in between
+    // Create both partials before any evaluation, since creating a partial resets the Legendre cache shared with the torque model
     std::shared_ptr< TorquePartial > reusedPartial = createAnalyticalTorquePartial( torqueModel,
                                                                                     std::make_pair( "Moon", moon ),
                                                                                     std::make_pair( "Earth", earth ),
                                                                                     SingleBodyTorqueModelMap( ),
                                                                                     bodies,
                                                                                     parameterSet );
+    std::shared_ptr< TorquePartial > newPartial = createAnalyticalTorquePartial( torqueModel,
+                                                                                 std::make_pair( "Moon", moon ),
+                                                                                 std::make_pair( "Earth", earth ),
+                                                                                 SingleBodyTorqueModelMap( ),
+                                                                                 bodies,
+                                                                                 parameterSet );
+
+    // Evaluate one partial at two times, one week apart, with a time reset in between
     const double testTime = 1.0E7 + 7.0 * 86400.0;
     Eigen::Vector3d partialOfReusedObject;
     for( const double time : { 1.0E7, testTime } )
@@ -1006,12 +1014,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTorquePartialWrtLoveNumberAfterTimeRe
     }
 
     // Compare with a partial that has only been evaluated at the last time, which cannot contain results from the earlier time
-    std::shared_ptr< TorquePartial > newPartial = createAnalyticalTorquePartial( torqueModel,
-                                                                                 std::make_pair( "Moon", moon ),
-                                                                                 std::make_pair( "Earth", earth ),
-                                                                                 SingleBodyTorqueModelMap( ),
-                                                                                 bodies,
-                                                                                 parameterSet );
     newPartial->update( testTime );
     const Eigen::Vector3d partialOfNewObject = newPartial->wrtParameter( loveNumber );
 
