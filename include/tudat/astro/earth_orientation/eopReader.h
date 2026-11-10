@@ -13,6 +13,7 @@
 #define TUDAT_EOPREADER_H
 
 #include <map>
+#include <memory>
 #include <string>
 #include <Eigen/Core>
 
@@ -87,8 +88,9 @@ public:
 
     //! Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file.
     /*!
-     *  Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file.
-     *  \return Data of CIP in ITRS correction (polar motion), as provided in the EOP file.
+     *  Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file. For C04 files, the
+     *  IERS EOP C01 polar motion is added for the epochs before the start of the file (back to 1846).
+     *  \return Data of CIP in ITRS correction (polar motion), as provided in the EOP file, extended with C01 data for C04 files.
      */
     std::map< double, Eigen::Vector2d > getCipInItrsMapRaw( )
     {
@@ -144,6 +146,13 @@ private:
     //! Corrections to LOD, read from file
     std::map< double, double > lengthOfDayOffset;
 };
+
+//! Function to retrieve the EOPReader for the default EOP file, which is read only once.
+inline std::shared_ptr< EOPReader > getDefaultEOPReader( )
+{
+    static const std::shared_ptr< EOPReader > defaultEopReader = std::make_shared< EOPReader >( );
+    return defaultEopReader;
+}
 
 }  // namespace earth_orientation
 

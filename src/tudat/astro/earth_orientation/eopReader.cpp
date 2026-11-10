@@ -9,8 +9,6 @@
  *
  */
 
-#include <filesystem>
-
 #include "tudat/astro/earth_orientation/eopReader.h"
 #include "tudat/astro/earth_orientation/readEarthOrientationData.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -59,19 +57,18 @@ EOPReader::EOPReader( const std::string& eopFile, const std::string& format, con
     }
 
     // Before the start of the C04 data (1962), use the polar motion of the IERS EOP C01 series (from 1846). Not used for finals2000A
-    // data, which start in 1973. The file is skipped if it is not available in the resources.
+    // data, which start in 1973.
     const std::string c01PolarMotionFile =
             std::string( TUDAT_TEMPORARY_EARTH_ORIENTATION_DATA_PATH ) + "/eopc01_polar_motion_1846-1961.txt";
-    if( fileFormat == EarthOrientationFormat::c04 && std::filesystem::exists( c01PolarMotionFile ) )
+    if( fileFormat == EarthOrientationFormat::c04 )
     {
         const double firstModifiedJulianDate = cipInItrs.begin( )->first;
         for( const auto& [ modifiedJulianDate, polarMotion ] :
-             input_output::readStlVectorMapFromFile< double, double >( c01PolarMotionFile, " ", "#" ) )
+             input_output::readEigenVectorMapFromFile< Eigen::Vector2d >( c01PolarMotionFile, " ", "#" ) )
         {
             if( modifiedJulianDate < firstModifiedJulianDate )
             {
-                cipInItrs[ modifiedJulianDate ] =
-                        unit_conversions::convertArcSecondsToRadians( Eigen::Vector2d( polarMotion.at( 0 ), polarMotion.at( 1 ) ) );
+                cipInItrs[ modifiedJulianDate ] = unit_conversions::convertArcSecondsToRadians( polarMotion );
             }
         }
     }

@@ -117,8 +117,8 @@ public:
         utcIntroductionEpochInTai_ = ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
                 physical_constants::JULIAN_DAY;
 
-        // Read historical Delta T values
-        std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
+        // Read historical Delta T values (only once)
+        static const std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
                 std::string( TUDAT_TEMPORARY_EARTH_ORIENTATION_DATA_PATH ) + "/historicalDeltaT.txt", ",", "#" );
 
         historicalDeltaTInterpolator_ =
@@ -579,7 +579,7 @@ private:
  * \return Default Earth time scales conversion object
  */
 std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter(
-        const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
+        const std::shared_ptr< EOPReader > eopReader = getDefaultEOPReader( ) );
 
 // static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
 

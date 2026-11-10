@@ -264,8 +264,7 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
     BOOST_CHECK_EQUAL( ut1CorrectionPostC04 == 0, false );
 
     // Check if UT1 is continuous at the start of the c04 file, where it switches from historical Delta T to the EOP data
-    const double startC04InTai = ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-            physical_constants::JULIAN_DAY;
+    const double startC04InTai = dateTimeStartC04.epoch< double >( );
     const double ut1BeforeStartC04 =
             timeScaleConverter->getCurrentTime( basic_astrodynamics::tai_scale, basic_astrodynamics::ut1_scale, startC04InTai - 1.0 );
     const double ut1AfterStartC04 =
