@@ -243,6 +243,19 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         ParameterVectorType parameterAddition = ( leastSquaresOutput.first.cwiseQuotient( estimatedParameterNormalizationTerms ) )
                                                         .template cast< ObservationScalarType >( );
 
+        if( estimationInput->iterationCallback_ )
+        {
+            // Constraints add extra rows: invert first, then keep only the estimated parameters' covariance.
+            const Eigen::MatrixXd normalizedCovariance = leastSquaresOutput.second.inverse( );
+            estimationInput->iterationCallback_(
+                    numberOfIterations,
+                    residuals.template cast< double >( ),
+                    normaliseUnnormaliseCovarianceMatrix(
+                            normalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ),
+                            normalizationTerms.segment( 0, numberEstimatedParameters_ ),
+                            false ) );
+        }
+
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
         if( considerParametersIncluded_ )
