@@ -984,7 +984,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTorquePartialWrtLoveNumberAfterTimeRe
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Moon", 2, "Earth", false ) );
     std::shared_ptr< EstimatableParameterSet< double > > parameterSet = createParametersToEstimate( parameterNames, bodies );
-    std::shared_ptr< EstimatableParameter< double > > loveNumber = parameterSet->getEstimatedDoubleParameters( ).at( 0 );
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > loveNumber = parameterSet->getEstimatedVectorParameters( ).at( 0 );
 
     // Evaluate one partial at two times, one week apart, with a time reset in between
     std::shared_ptr< TorquePartial > reusedPartial = createAnalyticalTorquePartial( torqueModel,
