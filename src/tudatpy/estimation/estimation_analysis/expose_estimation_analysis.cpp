@@ -524,9 +524,11 @@ void expose_estimation_analysis( py::module& m )
                             R"doc(
 
          Function called in each iteration of the estimation, after the normal equations are solved, as
-         ``f(iteration, residuals, covariance)``: the iteration number (from 0), the residuals of this iteration (ordered as in
-         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`) and the covariance matrix of the
-         estimated parameters. It can be used to monitor a long estimation while it runs. Empty (the default): not used.
+         ``f(iteration, residuals, inverse_covariance)``: the iteration number (from 0), the residuals of this iteration (ordered as in
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`) and the unnormalized inverse covariance
+         matrix of this iteration (as in
+         :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.inverse_covariance` for the best iteration).
+         It can be used to monitor a long estimation while it runs. Default is ``None`` (no callback).
 
          :type: Callable[[int, numpy.ndarray, numpy.ndarray], None]
       )doc" )

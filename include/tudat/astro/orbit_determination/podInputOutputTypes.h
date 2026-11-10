@@ -447,7 +447,7 @@ public:
     }
 
     //! Function called in each iteration, after the normal equations are solved, with the iteration number, the residuals and
-    //! the covariance of the estimated parameters; empty if not used.
+    //! the unnormalized inverse covariance; empty if not used.
     std::function< void( const int, const Eigen::VectorXd&, const Eigen::MatrixXd& ) > iterationCallback_;
 
     //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
