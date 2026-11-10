@@ -259,8 +259,8 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
     std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< ObservationScalarType, TimeType > >( observationsAndTimes );
 
-    // Retain the propagation results of each iteration, without the variational results (the default).
-    estimationInput->defineEstimationSettings( true, true, true, true, true, true );
+    // Retain the propagation results of each iteration, without the variational results.
+    estimationInput->defineEstimationSettings( true, true, true, true, true, true, 1.0E8, true, false );
 
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );

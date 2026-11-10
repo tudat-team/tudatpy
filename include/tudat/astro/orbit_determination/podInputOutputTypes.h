@@ -345,7 +345,7 @@ public:
             const bool resetParametersToBestIteration = false ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
-        saveVariationalResultsForEachIteration_( false ), convergenceChecker_( convergenceChecker ),
+        saveVariationalResultsForEachIteration_( true ), convergenceChecker_( convergenceChecker ),
         considerParametersDeviations_( considerParametersDeviations ), conditionNumberWarningEachIteration_( true ),
         applyFinalParameterCorrection_( applyFinalParameterCorrection ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation ),
         resetParametersToBestIteration_( resetParametersToBestIteration )
@@ -401,7 +401,7 @@ public:
                                    const bool saveStateHistoryForEachIteration = 0,
                                    const double limitConditionNumberForWarning = 1.0E8,
                                    const bool conditionNumberWarningEachIteration = true,
-                                   const bool saveVariationalResultsForEachIteration = 0 )
+                                   const bool saveVariationalResultsForEachIteration = 1 )
     {
         this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
         this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;

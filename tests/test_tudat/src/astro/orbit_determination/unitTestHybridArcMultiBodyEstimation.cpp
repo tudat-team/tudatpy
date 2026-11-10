@@ -1010,7 +1010,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         //                parametersToEstimate,
         //                                                                       arcStartTimes, true, false, true );
 
-        podInput->defineEstimationSettings( false, false, true, true, true, true );
+        podInput->defineEstimationSettings( false, false, true, true, true, true, 1.0E8, true, false );
         std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
         BOOST_REQUIRE( podOutput != nullptr );
         auto iterationResults = std::dynamic_pointer_cast< HybridArcSimulationResults< SingleArcSimulationResults, double, double > >(
