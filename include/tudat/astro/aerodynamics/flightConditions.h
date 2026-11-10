@@ -21,7 +21,6 @@
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/basics/basicTypedefs.h"
-#include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
 namespace tudat
@@ -283,7 +282,7 @@ protected:
     {
         if( currentTime_ == currentTime_ )
         {
-            scalarFlightConditions_[ utc_time_flight_condition ] = sofa_interface::getApproximateUtcFromTdb( currentTime_ );
+            scalarFlightConditions_[ utc_time_flight_condition ] = spice_interface::getApproximateUtcFromTdb( currentTime_ );
             isScalarFlightConditionComputed_[ utc_time_flight_condition ] = true;
         }
         else

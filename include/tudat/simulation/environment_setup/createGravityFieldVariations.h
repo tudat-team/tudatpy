@@ -27,11 +27,6 @@
 namespace tudat
 {
 
-namespace gravitation
-{
-class SolidBodyTideGravityFieldVariations;
-}  // namespace gravitation
-
 namespace simulation_setup
 {
 
@@ -1156,12 +1151,6 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
         const std::string body,
         const SystemOfBodies& bodies,
         const bool applyClosure = true );
-
-//! Function to apply the closure of a tidal gravity field variation: set functions for states, orientation and masses of bodies
-void applyTidalGravityFieldVariationClosure( const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > tidalVariation,
-                                             const std::string& body,
-                                             const SystemOfBodies& bodies,
-                                             const bool isVariationInterpolated );
 
 //! Function to apply the closure of a set of gravity field variations (tidal variations are linked to the bodies involved)
 bool applyEnvironmentModelClosure( const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet,

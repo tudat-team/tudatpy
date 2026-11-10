@@ -660,8 +660,9 @@ BOOST_AUTO_TEST_CASE( testProgressiveComplexityDiagnostic )
         auto metricSet = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
                 L.bodyNames, std::vector< std::string >( ), L.metricShOrders, std::vector< std::string >( ), false );
         auto baseMetric = createSpaceTimeMetric( metricSet, bodiesDirect );
-        evaluatedMetricObjects.clear( );
-        evaluatedMetricObjects[ std::make_pair( "Earth", stationName ) ] = baseMetric->Clone( );
+        bodiesDirect.getSpaceTimeProperties( )->getEvaluatedMetricObjects( ).clear( );
+        bodiesDirect.getSpaceTimeProperties( )->getEvaluatedMetricObjects( )[ std::make_pair( "Earth", stationName ) ] =
+                baseMetric->Clone( );
 
         auto directFromMetricSettings = std::make_shared< DirectRelativisticTimePropagatorSettings< double, double > >(
                 std::make_pair( "Earth", stationName ), initialEphemerisTime, intSetD, terminationSettings );
@@ -833,8 +834,8 @@ BOOST_AUTO_TEST_CASE( testDirectFromMetricVsChainedPnEquatorOneYearEarthMoonSun 
                                                                                   std::vector< std::string >( ),
                                                                                   false );
     auto baseMetric = createSpaceTimeMetric( metricSettings, bodiesDirect );
-    evaluatedMetricObjects.clear( );
-    evaluatedMetricObjects[ std::make_pair( "Earth", stationName ) ] = baseMetric->Clone( );
+    bodiesDirect.getSpaceTimeProperties( )->getEvaluatedMetricObjects( ).clear( );
+    bodiesDirect.getSpaceTimeProperties( )->getEvaluatedMetricObjects( )[ std::make_pair( "Earth", stationName ) ] = baseMetric->Clone( );
 
     auto directFromMetricSettings = std::make_shared< DirectRelativisticTimePropagatorSettings< double, double > >(
             std::make_pair( "Earth", stationName ), initialEphemerisTime, integratorSettingsDirect, terminationSettings );
@@ -1123,8 +1124,9 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
         auto metricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
                 bodyNames, std::vector< std::string >( ), scenario.metricShOrders, std::vector< std::string >( ), false );
         auto baseMetric = createSpaceTimeMetric( metricSettings, bodiesDirect );
-        evaluatedMetricObjects.clear( );
-        evaluatedMetricObjects[ std::make_pair( scenario.centralBody, stationName ) ] = baseMetric->Clone( );
+        bodiesDirect.getSpaceTimeProperties( )->getEvaluatedMetricObjects( ).clear( );
+        bodiesDirect.getSpaceTimeProperties( )->getEvaluatedMetricObjects( )[ std::make_pair( scenario.centralBody, stationName ) ] =
+                baseMetric->Clone( );
 
         auto directFromMetricSettings = std::make_shared< DirectRelativisticTimePropagatorSettings< double, double > >(
                 std::make_pair( scenario.centralBody, stationName ), initialEphemerisTime, intSetDirect, terminationSettings );

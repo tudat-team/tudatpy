@@ -328,7 +328,7 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
             coefficientSettings->getForceCoefficientsFrame( ), coefficientSettings->getMomentCoefficientsFrame( ), body );
 }
 
-//! Function to create and aerodynamic coefficient interface.
+//! Function to apply the closure of an aerodynamic coefficient interface (panels, and moment contribution of the force)
 bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface,
                                    const std::string& body,
                                    const SystemOfBodies& bodies )
@@ -375,6 +375,7 @@ bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::Aerodyna
     return isClosureApplied;
 }
 
+//! Function to create and aerodynamic coefficient interface.
 std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterface(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body,

@@ -349,6 +349,11 @@ void setEstrackWeatherDataInGroundStationSettings(
         const std::string groundStation,
         std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
 
+//! Function to apply the closure of a ground station (link to the rotation model, deformation and states of bodies)
+bool applyEnvironmentModelClosure( const std::shared_ptr< ground_stations::GroundStation > groundStation,
+                                   const std::shared_ptr< Body > body,
+                                   const SystemOfBodies& bodies );
+
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 /*!
  * Function to create a ground station from pre-defined station state object, and add it to a Body object
@@ -356,11 +361,6 @@ void setEstrackWeatherDataInGroundStationSettings(
  * \param groundStationName Name of ground station that is to be created
  * \param groundStationState Object defining the state of the ground-station in a body-fixed frame
  */
-//! Function to apply the closure of a ground station (link to the rotation model, deformation and states of bodies)
-bool applyEnvironmentModelClosure( const std::shared_ptr< ground_stations::GroundStation > groundStation,
-                                   const std::shared_ptr< Body > body,
-                                   const SystemOfBodies& bodies );
-
 void createGroundStation( const std::shared_ptr< Body > body,
                           const std::string groundStationName,
                           const std::shared_ptr< ground_stations::GroundStationState > groundStationState );

@@ -58,6 +58,16 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
     cachedInterpolationSolarLongitude_( 0.0 ), coefficientMatricesSized_( false ), cachedLatitude_( 0.0 ), cachedLongitude_( 0.0 ),
     cachedFinalWindVector_( Eigen::Vector3d::Zero( ) ), interpolationPoint2D_( 2 ), interpolationPoint1D_( 1 )
 {
+    if( !comaModel_ )
+    {
+        throw std::invalid_argument( "ComaWindModel: ComaModel must be provided" );
+    }
+
+    if( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
+    {
+        throw std::invalid_argument( "ComaWindModel: All state functions must be provided" );
+    }
+
     if( xPolyDataset_->getNumFiles( ) == 0 || yPolyDataset_->getNumFiles( ) == 0 || zPolyDataset_->getNumFiles( ) == 0 )
     {
         throw std::invalid_argument( "ComaWindModel: All PolyDatasets must contain at least one file" );
@@ -70,10 +80,7 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
 
     // Share the ComaModel's calculator; the grow-only resize logic
     // in calculateSurfaceSphericalHarmonics ensures the cache never shrinks.
-    if( comaModel_ != nullptr )
-    {
-        sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
-    }
+    sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
 
     // Pre-allocate coefficient matrices based on maximum degree/order from dataset
     const int maxDegreeAvailable = xPolyDataset_->getMaxDegreeSH( 0 );
@@ -144,6 +151,16 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
     cachedLatitude_( 0.0 ), cachedLongitude_( 0.0 ), cachedFinalWindVector_( Eigen::Vector3d::Zero( ) ), interpolationPoint2D_( 2 ),
     interpolationPoint1D_( 1 )
 {
+    if( !comaModel_ )
+    {
+        throw std::invalid_argument( "ComaWindModel: ComaModel must be provided" );
+    }
+
+    if( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
+    {
+        throw std::invalid_argument( "ComaWindModel: All state functions must be provided" );
+    }
+
     if( xStokesDataset_->nFiles( ) == 0 || yStokesDataset_->nFiles( ) == 0 || zStokesDataset_->nFiles( ) == 0 )
     {
         throw std::invalid_argument( "ComaWindModel: All StokesDatasets must contain at least one file" );
@@ -156,10 +173,7 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
 
     // Share the ComaModel's calculator; the grow-only resize logic
     // in calculateSurfaceSphericalHarmonics ensures the cache never shrinks.
-    if( comaModel_ != nullptr )
-    {
-        sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
-    }
+    sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
 
     // Pre-allocate coefficient matrices based on nmax from dataset
     const int nmax = xStokesDataset_->nmax( );

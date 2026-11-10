@@ -1344,6 +1344,7 @@ bool
             .def( "set_control_surface_increments",
                   &ta::AerodynamicCoefficientInterface::setControlSurfaceIncrements,
                   py::arg( "control_surface_list" ),
+                  py::arg( "print_overwrite_warning" ) = true,
                   R"doc(
 
          Set the aerodynamic coefficient increment models for the control surfaces.
@@ -1354,6 +1355,8 @@ bool
          ----------
          control_surface_list : dict[str, ControlSurfaceIncrementAerodynamicInterface]
              Dictionary mapping each control surface name to its aerodynamic coefficient increment model.
+         print_overwrite_warning : bool, default = True
+             Boolean denoting whether a warning is printed if existing control surface increment models are overwritten.
 
       )doc" )
             .def( "update_coefficients",

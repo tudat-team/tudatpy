@@ -58,6 +58,11 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     sphericalHarmonicsCalculator_( std::make_shared< SurfaceSphericalHarmonicsCalculator >( ) )
 {
     // Validate input parameters
+    if( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
+    {
+        throw std::invalid_argument( "ComaModel: All state functions must be provided" );
+    }
+
     if( polyDataset_->getNumFiles( ) == 0 )
     {
         throw std::invalid_argument( "ComaModel: PolyDataset must contain at least one file" );
@@ -123,6 +128,11 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     sphericalHarmonicsCalculator_( std::make_shared< SurfaceSphericalHarmonicsCalculator >( ) )
 {
     // Validate input parameters
+    if( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
+    {
+        throw std::invalid_argument( "ComaModel: All state functions must be provided" );
+    }
+
     if( stokesDataset_->nFiles( ) == 0 )
     {
         throw std::invalid_argument( "ComaModel: StokesDataset must contain at least one file" );

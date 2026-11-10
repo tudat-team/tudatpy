@@ -1158,11 +1158,11 @@ private:
         int numSinTerms;
     };
 
-    // Thread-safe cache using static local variable (initialized on first use)
+    // Thread-safe cache using thread-local static variable (initialized on first use in each thread)
     static const FrequencyCache& getFrequencyCache( const int numFrequencyTerms )
     {
-        // Static map to cache frequency arrays for different numFrequencyTerms values
-        static std::unordered_map< int, FrequencyCache > cache;
+        // Static map (one per thread) to cache frequency arrays for different numFrequencyTerms values
+        static thread_local std::unordered_map< int, FrequencyCache > cache;
 
         // Check if already cached
         auto it = cache.find( numFrequencyTerms );

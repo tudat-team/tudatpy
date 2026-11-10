@@ -55,6 +55,10 @@ void addVariableDirectionEngineModel( const std::string& bodyName,
     }
 }
 
+namespace
+{
+
+//! Function to create the surface normal (in body-fixed frame) of a panel that points towards (or away from) a body
 std::function< Eigen::Vector3d( ) > createBodyTrackingSurfaceNormalFunction( const std::shared_ptr< Body > panelledBody,
                                                                              const std::shared_ptr< Body > trackedBody,
                                                                              const bool isPointingTowardsTrackedBody )
@@ -71,6 +75,8 @@ std::function< Eigen::Vector3d( ) > createBodyTrackingSurfaceNormalFunction( con
         return surfaceNormal;
     };
 }
+
+}  // namespace
 
 std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string > createBodyExteriorPanel(
         const std::shared_ptr< BodyPanelSettings > panelSettings,
@@ -219,7 +225,8 @@ bool applyEnvironmentModelClosure( const std::shared_ptr< system_models::Vehicle
     for( auto engineModel : vehicleSystems->getEngineModels( ) )
     {
         std::shared_ptr< propulsion::ParameterizedThrustMagnitudeWrapper > parameterizedThrustMagnitude =
-                std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >( engineModel.second->getThrustMagnitudeWrapper( ) );
+                std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >(
+                        engineModel.second->getThrustMagnitudeWrapper( ) );
         if( parameterizedThrustMagnitude != nullptr )
         {
             std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodies.at( bodyName )->getFlightConditions( );

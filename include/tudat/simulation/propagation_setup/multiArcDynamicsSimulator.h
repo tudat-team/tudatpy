@@ -281,8 +281,11 @@ public:
                 {
                     threadBodies_.push_back( simulation_setup::createSystemOfBodiesCopy< StateScalarType, TimeType >( bodies, i == 0 ) );
                 }
+                // Arc settings are cloned, so that the models in the settings provided to this object remain linked to the
+                // original bodies
                 for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
                 {
+                    singleArcSettings.at( i ) = singleArcSettings.at( i )->clone( );
                     singleArcSettings.at( i )->resetIntegratedStateModels( threadBodies_.at( getArcThreadIndex( i ) ) );
                 }
             }
@@ -517,10 +520,11 @@ public:
         return threadBodies_;
     }
 
-    //! Function to retrieve the index of the thread (and of its copy of the bodies in getThreadBodies) that propagates an arc
+    //! Function to retrieve the index of the thread (and of its copy of the bodies in getThreadBodies) that propagates an arc (0 for
+    //! single-threaded propagation)
     unsigned int getArcThreadIndex( const unsigned int arcIndex )
     {
-        return arcIndex % threadBodies_.size( );
+        return threadBodies_.size( ) == 0 ? 0 : arcIndex % threadBodies_.size( );
     }
 
     //! Function to set whether the integrated states are also set in the bodies of each thread after propagation (default false)

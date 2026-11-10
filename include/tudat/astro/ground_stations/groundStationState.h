@@ -387,7 +387,15 @@ public:
         centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
         useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
         scaleToTdbCompatibleCoordinates_( scaleToTdbCompatibleCoordinates )
-    { }
+    {
+        if( useGeneralRelativisticCorrection &&
+            ( centralBodyGravitationalParameterFunction == nullptr || centralBodyBarycentricPositionFunction == nullptr ) )
+        {
+            throw std::runtime_error(
+                    "Error wen creating body- to barycentric station position conversion, GR correction requested, but required functions "
+                    "not provided" );
+        }
+    }
 
     ~BodyCentricToBarycentricRelativisticStationMotion( ) {}
 

@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <iostream>
+
 #include "tudat/simulation/environment_setup/environmentModelClosure.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/aerodynamics/comaWindModel.h"
@@ -69,20 +71,13 @@ namespace simulation_setup
 namespace
 {
 
-template< typename ModelType, typename BaseType >
-bool isModelOfType( const std::shared_ptr< BaseType > model )
-{
-    return std::dynamic_pointer_cast< ModelType >( model ) != nullptr;
-}
-
 void throwUnknownModelTypeError( const std::string& modelType )
 {
     throw std::runtime_error( "Error when determining whether " + modelType +
                               " requires closure, type of model is not known (add it in environmentModelClosure.cpp)" );
 }
 
-}  // namespace
-
+//! Function to determine whether a rotation model requires closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel )
 {
     using namespace ephemerides;
@@ -118,6 +113,7 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< ephemerides::Rot
     return false;
 }
 
+//! Function to determine whether a set of gravity field variations requires closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet )
 {
     using namespace gravitation;
@@ -144,11 +140,13 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< gravitation::Gra
     return requiresClosure;
 }
 
+//! Function to determine whether flight conditions require closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< aerodynamics::FlightConditions > flightConditions )
 {
     return flightConditions != nullptr;
 }
 
+//! Function to determine whether an aerodynamic coefficient interface requires closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface )
 {
     using namespace aerodynamics;
@@ -177,6 +175,7 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< aerodynamics::Ae
     return false;
 }
 
+//! Function to determine whether vehicle systems require closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems )
 {
     if( vehicleSystems == nullptr )
@@ -200,6 +199,7 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< system_models::V
     return false;
 }
 
+//! Function to determine whether a radiation source model requires closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel )
 {
     using namespace electromagnetism;
@@ -216,6 +216,7 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< electromagnetism
     return false;
 }
 
+//! Function to determine whether a radiation pressure target model requires closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel )
 {
     using namespace electromagnetism;
@@ -232,6 +233,8 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< electromagnetism
     return false;
 }
 
+//! Function to determine whether an atmosphere model (including its wind model) requires closure (does not check whether it has
+//! been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
 {
     using namespace aerodynamics;
@@ -284,12 +287,14 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< aerodynamics::At
     return false;
 }
 
+//! Function to determine whether a ground station requires closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< ground_stations::GroundStation > groundStation )
 {
     // Pointing angles calculator is linked to the rotation model of the body
     return groundStation != nullptr;
 }
 
+//! Function to determine whether a body deformation model requires closure (does not check whether it has been applied)
 bool doesEnvironmentModelRequireClosure( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel )
 {
     using namespace basic_astrodynamics;
@@ -307,59 +312,10 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< basic_astrodynam
     return false;
 }
 
-void registerEnvironmentModelClosures( const std::shared_ptr< Body > body )
-{
-    if( doesEnvironmentModelRequireClosure( body->getRotationalEphemeris( ) ) )
-    {
-        body->setEnvironmentModelRequiresClosure( rotation_model_closure );
-    }
-    if( doesEnvironmentModelRequireClosure( body->getGravityFieldVariationSet( ) ) )
-    {
-        body->setEnvironmentModelRequiresClosure( gravity_field_variations_closure );
-    }
-    if( doesEnvironmentModelRequireClosure( body->getFlightConditions( ) ) )
-    {
-        body->setEnvironmentModelRequiresClosure( flight_conditions_closure );
-    }
-    if( doesEnvironmentModelRequireClosure( body->getAerodynamicCoefficientInterface( ) ) )
-    {
-        body->setEnvironmentModelRequiresClosure( aerodynamic_coefficients_closure );
-    }
-    if( doesEnvironmentModelRequireClosure( body->getVehicleSystems( ) ) )
-    {
-        body->setEnvironmentModelRequiresClosure( vehicle_systems_closure );
-    }
-    if( doesEnvironmentModelRequireClosure( body->getRadiationSourceModel( ) ) )
-    {
-        body->setEnvironmentModelRequiresClosure( radiation_source_closure );
-    }
-    for( auto targetModel : body->getRadiationPressureTargetModels( ) )
-    {
-        if( doesEnvironmentModelRequireClosure( targetModel ) )
-        {
-            body->setEnvironmentModelRequiresClosure( radiation_pressure_target_closure );
-        }
-    }
-    if( doesEnvironmentModelRequireClosure( body->getAtmosphereModel( ) ) )
-    {
-        body->setEnvironmentModelRequiresClosure( atmosphere_closure );
-    }
-    for( auto groundStation : body->getGroundStationMap( ) )
-    {
-        if( doesEnvironmentModelRequireClosure( groundStation.second ) )
-        {
-            body->setEnvironmentModelRequiresClosure( ground_stations_closure );
-        }
-    }
-    for( auto deformationModel : body->getBodyDeformationModels( ) )
-    {
-        if( doesEnvironmentModelRequireClosure( deformationModel ) )
-        {
-            body->setEnvironmentModelRequiresClosure( body_deformation_closure );
-        }
-    }
-}
+}  // namespace
 
+//! Function to apply the closure of a single type of environment model of a body. Returns false if the closure cannot yet be
+//! applied (environment models it depends on are not yet closed).
 bool applyEnvironmentModelClosure( const EnvironmentModelClosureType closureType,
                                    const std::string& bodyName,
                                    const SystemOfBodies& bodies )
@@ -417,6 +373,59 @@ bool applyEnvironmentModelClosure( const EnvironmentModelClosureType closureType
     }
 }
 
+void registerEnvironmentModelClosures( const std::shared_ptr< Body > body )
+{
+    if( doesEnvironmentModelRequireClosure( body->getRotationalEphemeris( ) ) )
+    {
+        body->setEnvironmentModelRequiresClosure( rotation_model_closure );
+    }
+    if( doesEnvironmentModelRequireClosure( body->getGravityFieldVariationSet( ) ) )
+    {
+        body->setEnvironmentModelRequiresClosure( gravity_field_variations_closure );
+    }
+    if( doesEnvironmentModelRequireClosure( body->getFlightConditions( ) ) )
+    {
+        body->setEnvironmentModelRequiresClosure( flight_conditions_closure );
+    }
+    if( doesEnvironmentModelRequireClosure( body->getAerodynamicCoefficientInterface( ) ) )
+    {
+        body->setEnvironmentModelRequiresClosure( aerodynamic_coefficients_closure );
+    }
+    if( doesEnvironmentModelRequireClosure( body->getVehicleSystems( ) ) )
+    {
+        body->setEnvironmentModelRequiresClosure( vehicle_systems_closure );
+    }
+    if( doesEnvironmentModelRequireClosure( body->getRadiationSourceModel( ) ) )
+    {
+        body->setEnvironmentModelRequiresClosure( radiation_source_closure );
+    }
+    for( auto targetModel : body->getRadiationPressureTargetModels( ) )
+    {
+        if( doesEnvironmentModelRequireClosure( targetModel ) )
+        {
+            body->setEnvironmentModelRequiresClosure( radiation_pressure_target_closure );
+        }
+    }
+    if( doesEnvironmentModelRequireClosure( body->getAtmosphereModel( ) ) )
+    {
+        body->setEnvironmentModelRequiresClosure( atmosphere_closure );
+    }
+    for( auto groundStation : body->getGroundStationMap( ) )
+    {
+        if( doesEnvironmentModelRequireClosure( groundStation.second ) )
+        {
+            body->setEnvironmentModelRequiresClosure( ground_stations_closure );
+        }
+    }
+    for( auto deformationModel : body->getBodyDeformationModels( ) )
+    {
+        if( doesEnvironmentModelRequireClosure( deformationModel ) )
+        {
+            body->setEnvironmentModelRequiresClosure( body_deformation_closure );
+        }
+    }
+}
+
 std::map< std::string, std::vector< EnvironmentModelClosureType > > getEnvironmentModelsWithoutClosure( const SystemOfBodies& bodies )
 {
     std::map< std::string, std::vector< EnvironmentModelClosureType > > modelsWithoutClosure;
@@ -433,7 +442,8 @@ std::map< std::string, std::vector< EnvironmentModelClosureType > > getEnvironme
     return modelsWithoutClosure;
 }
 
-std::map< std::string, std::vector< EnvironmentModelClosureType > > closeSystemOfBodies( const SystemOfBodies& bodies )
+std::map< std::string, std::vector< EnvironmentModelClosureType > > closeSystemOfBodies( const SystemOfBodies& bodies,
+                                                                                         const bool printWarnings )
 {
     bool isAnyClosureApplied = true;
     while( isAnyClosureApplied )
@@ -451,7 +461,33 @@ std::map< std::string, std::vector< EnvironmentModelClosureType > > closeSystemO
             }
         }
     }
-    return getEnvironmentModelsWithoutClosure( bodies );
+
+    std::map< std::string, std::vector< EnvironmentModelClosureType > > modelsWithoutClosure = getEnvironmentModelsWithoutClosure( bodies );
+    if( printWarnings )
+    {
+        // Names of closure types, in order of EnvironmentModelClosureType
+        const std::vector< std::string > closureTypeNames = { "rotation model",
+                                                              "gravity field variations",
+                                                              "flight conditions",
+                                                              "aerodynamic coefficients",
+                                                              "vehicle systems",
+                                                              "radiation source model",
+                                                              "radiation pressure target model",
+                                                              "atmosphere model",
+                                                              "ground stations",
+                                                              "body deformation models" };
+        for( auto bodyModelsWithoutClosure : modelsWithoutClosure )
+        {
+            for( EnvironmentModelClosureType closureType : bodyModelsWithoutClosure.second )
+            {
+                std::cerr << "Warning, closure of " << closureTypeNames.at( closureType ) << " of body " << bodyModelsWithoutClosure.first
+                          << " could not (yet) be applied: links to other environment models are missing (for instance, flight "
+                             "conditions that are yet to be created). The model cannot be used until its closure is applied."
+                          << std::endl;
+            }
+        }
+    }
+    return modelsWithoutClosure;
 }
 
 }  // namespace simulation_setup

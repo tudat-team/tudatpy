@@ -174,7 +174,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
     return windModel;
 }
 
-//! Function to create an atmosphere model.
+//! Function to apply the closure of an atmosphere model (links of coma and coma wind models to the states and rotation of bodies)
 bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
                                    const std::string& body,
                                    const SystemOfBodies& bodies )
@@ -185,7 +185,8 @@ bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::Atmosphe
     }
     std::function< Eigen::Vector6d( ) > sunStateFunction = std::bind( &Body::getState, bodies.at( "Sun" ) );
     std::function< Eigen::Vector6d( ) > bodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
-    std::function< Eigen::Matrix3d( ) > bodyOrientationFunction = std::bind( &Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
+    std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
+            std::bind( &Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
 
     std::shared_ptr< aerodynamics::ComaModel > comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
     if( comaModel != nullptr )
@@ -207,6 +208,7 @@ bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::Atmosphe
     return true;
 }
 
+//! Function to create an atmosphere model.
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& bodyName,
                                                                         const SystemOfBodies& bodies )

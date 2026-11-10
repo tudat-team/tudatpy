@@ -85,19 +85,13 @@ public:
         return aerodynamicAngleCalculator_;
     }
 
-    //! Function to apply the closure of this model: (re)set the aerodynamic angle calculator, and (if not nullptr) the function
-    //! returning the aerodynamic angles (e.g. for trimmed conditions)
-    void applyEnvironmentModelClosure( const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
-                                       const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr )
+    //! Function to apply the closure of this model: (re)set the aerodynamic angle calculator
+    void applyEnvironmentModelClosure( const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
     {
         aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
         if( aerodynamicAngleCalculator_ != nullptr )
         {
             aerodynamicAngleCalculator_->setAerodynamicAngleClosureIsIncomplete( );
-        }
-        if( aerodynamicAngleFunction != nullptr )
-        {
-            aerodynamicAngleFunction_ = aerodynamicAngleFunction;
         }
     }
 

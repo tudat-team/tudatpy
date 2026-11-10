@@ -15,6 +15,7 @@
 #include "tudat/paths.hpp"
 
 #include <math.h>
+#include <mutex>
 
 namespace tudat
 {
@@ -55,6 +56,10 @@ double convertJulianDateToEphemerisTime( const double julianDate )
 
 double getApproximateUtcFromTdb( const double ephemerisTime )
 {
+    // SPICE is not thread-safe; this function is called by flight conditions during (multi-threaded) propagation
+    static std::mutex spiceMutex;
+    std::lock_guard< std::mutex > lock( spiceMutex );
+
     ensureSpiceErrorHandling( );
 
     double timeOffset = TUDAT_NAN;

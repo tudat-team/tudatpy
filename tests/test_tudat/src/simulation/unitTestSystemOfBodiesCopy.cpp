@@ -130,7 +130,7 @@ BodyListSettings getTestBodySettings( )
             std::vector< std::string >{ "Sun" },
             earthLoveNumbers,
             std::make_shared< ModelInterpolationSettings >( initialTime - 1800.0, finalTime + 1800.0, 600.0 ) ) );
-    // Tabulated atmosphere (NRLMSISE00 would require flight conditions to call SPICE for UTC time, which is not thread-safe)
+    // Tabulated atmosphere
     bodySettings.at( "Earth" )->atmosphereSettings =
             tabulatedAtmosphereSettings( paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     bodySettings.at( "Earth" )->shapeModelSettings = oblateSphericalBodyShapeSettings( 6378137.0, 1.0 / 298.257 );

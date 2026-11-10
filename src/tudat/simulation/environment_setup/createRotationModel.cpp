@@ -233,6 +233,10 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
     return createInertialDirectionCalculator( directionSettings, body, SystemOfBodies( ) );
 }
 
+namespace
+{
+
+//! Function to create a direction calculator (for direction-based rotation models) without closure
 std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculatorWithoutClosure(
         const std::shared_ptr< InertialDirectionSettings > directionSettings,
         const std::string& body )
@@ -285,6 +289,9 @@ std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInert
     return directionCalculator;
 }
 
+}  // namespace
+
+//! Function to apply the closure of a direction calculator (for direction-based rotation models)
 void applyEnvironmentModelClosure( const std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > directionCalculator,
                                    const std::string& body,
                                    const SystemOfBodies& bodies )

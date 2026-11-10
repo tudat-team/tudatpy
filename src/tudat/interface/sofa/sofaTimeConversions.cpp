@@ -20,16 +20,6 @@ namespace tudat
 namespace sofa_interface
 {
 
-//! Function to compute an approximation of UTC from TDB (without SPICE), with the approximation of TDB-TT used by SPICE (deltet_c)
-double getApproximateUtcFromTdb( const double tdb )
-{
-    // Approximation of TDB - TT, with the constants used by deltet_c
-    const double meanAnomaly = 6.239996 + 1.99096871E-7 * tdb;
-    const double eccentricAnomaly = meanAnomaly + 1.671E-2 * std::sin( meanAnomaly );
-    const double tt = tdb - 1.657E-3 * std::sin( eccentricAnomaly );
-    return convertTTtoUTC< double >( tt );
-}
-
 //! Function to calculate number of leap seconds from UTC input
 double getDeltaAtFromUtc( const double utcInJulianDays )
 {

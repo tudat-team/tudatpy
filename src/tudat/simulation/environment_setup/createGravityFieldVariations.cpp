@@ -25,6 +25,9 @@ namespace tudat
 namespace simulation_setup
 {
 
+namespace
+{
+
 //! Function to apply the closure of a tidal gravity field variation: set functions for states, orientation and masses of bodies
 void applyTidalGravityFieldVariationClosure( const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > tidalVariation,
                                              const std::string& body,
@@ -83,6 +86,8 @@ void applyTidalGravityFieldVariationClosure( const std::shared_ptr< gravitation:
             std::bind( &GravityFieldModel::getGravitationalParameter, bodies.at( body )->getGravityFieldModel( ) ),
             gravitionalParametersOfDeformingBodies );
 }
+
+}  // namespace
 
 bool applyEnvironmentModelClosure( const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet,
                                    const std::string& body,

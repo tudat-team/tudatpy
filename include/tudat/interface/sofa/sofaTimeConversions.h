@@ -29,15 +29,6 @@ namespace tudat
 namespace sofa_interface
 {
 
-//! Function to compute an approximation of UTC from TDB (without SPICE), with the approximation of TDB-TT used by SPICE (deltet_c)
-/*!
- *  Function to compute an approximation of UTC from TDB, using the same approximation of TDB - TT (periodic term depending on the
- *  mean anomaly of the Earth-Moon barycenter) as SPICE function deltet_c, and the leap seconds of SOFA.
- *  \param tdb Time in TDB (in seconds since J2000).
- *  \return Time in UTC (in seconds since J2000).
- */
-double getApproximateUtcFromTdb( const double tdb );
-
 //! Function to calculate number of leap seconds from UTC input
 /*!
  *  Function to calculate number of leap seconds from UTC (Universal Coordinated Time) input.
