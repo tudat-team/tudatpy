@@ -33,7 +33,7 @@
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
-#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumbers.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
 
 namespace tudat
 {
@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
     }
 }
 
-//! Test partial derivatives of the position and velocity of a ground station w.r.t. the displacement Love and Shida numbers of the
+//! Test partial derivatives of the position and velocity of a ground station w.r.t. the displacement Love and Shida number of the
 //! basic tidal deformation of its body
 BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
 {
@@ -262,11 +262,11 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
                     initialEphemerisTime,
                     2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ),
             "Earth" ) );
-    std::map< int, std::pair< double, double > > displacementLoveNumbers;
-    displacementLoveNumbers[ 2 ] = std::make_pair( 0.6, 0.08 );
-    displacementLoveNumbers[ 3 ] = std::make_pair( 0.29, 0.015 );
+    std::map< int, std::pair< double, double > > loveAndShidaNumberPerDegree;
+    loveAndShidaNumberPerDegree[ 2 ] = std::make_pair( 0.6, 0.08 );
+    loveAndShidaNumberPerDegree[ 3 ] = std::make_pair( 0.29, 0.015 );
     bodies.at( "Earth" )->addBodyDeformationModel( createBodyDeformationModel(
-            basicTidalBodyShapeDeformation( { "Moon", "Sun" }, displacementLoveNumbers, 6378137.0 ), "Earth", bodies ) );
+            basicTidalBodyShapeDeformation( { "Moon", "Sun" }, loveAndShidaNumberPerDegree, 6378137.0 ), "Earth", bodies ) );
 
     // Create ground station, of which the position includes the tidal displacement
     createGroundStation( bodies.at( "Earth" ),
@@ -294,11 +294,11 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
     double receptionTime = 1.1E7;
     Eigen::Vector6d currentState = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( receptionTime );
 
-    // Compare analytical and numerical partials w.r.t. the Love numbers h_2, h_3 and the Shida numbers l_2, l_3
-    for( const bool useShidaNumbers : { false, true } )
+    // Compare analytical and numerical partials w.r.t. the Love number h_n and the Shida number l_n, of degrees 2 and 3
+    for( const bool useShidaNumber : { false, true } )
     {
-        std::shared_ptr< DisplacementLoveNumbers > loveNumberParameter =
-                std::make_shared< DisplacementLoveNumbers >( deformationModels, std::vector< int >( { 2, 3 } ), useShidaNumbers, "Earth" );
+        std::shared_ptr< DisplacementLoveNumber > loveNumberParameter =
+                std::make_shared< DisplacementLoveNumber >( deformationModels, std::vector< int >( { 2, 3 } ), useShidaNumber, "Earth" );
         BOOST_CHECK_EQUAL( loveNumberParameter->getParameterSize( ), 2 );
 
         std::shared_ptr< CartesianStatePartial > partialObject =
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
         Eigen::MatrixXd partialOfPosition = partialObject->calculatePartialOfPosition( currentState, receptionTime );
         Eigen::MatrixXd partialOfVelocity = partialObject->calculatePartialOfVelocity( currentState, receptionTime );
 
-        // The displacement is linear in the Love and Shida numbers, so that a large perturbation can be used
+        // The displacement is linear in the Love and Shida number, so that a large perturbation can be used
         Eigen::VectorXd perturbation = Eigen::VectorXd::Constant( 2, 1.0 );
         Eigen::MatrixXd numericalPartial = calculateNumericalObservationParameterPartial(
                 loveNumberParameter, perturbation, observationFunctionAtReception, receptionTime );

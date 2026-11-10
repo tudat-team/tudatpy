@@ -11,7 +11,7 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
-#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumbers.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 namespace tudat
@@ -233,13 +233,19 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                         // The parameter affects each point on the surface of the body for which a ground station exists.
                         if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) > 0 )
                         {
-                            std::shared_ptr< estimatable_parameters::DisplacementLoveNumbers > loveNumbers =
-                                    std::dynamic_pointer_cast< estimatable_parameters::DisplacementLoveNumbers >( parameterToEstimate );
-                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtDisplacementLoveNumbers >(
+                            std::shared_ptr< estimatable_parameters::DisplacementLoveNumber > loveNumberParameter =
+                                    std::dynamic_pointer_cast< estimatable_parameters::DisplacementLoveNumber >( parameterToEstimate );
+                            if( loveNumberParameter == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when making cartesian state partial w.r.t. displacement Love or Shida number, parameter "
+                                        "type is incompatible" );
+                            }
+                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtDisplacementLoveNumber >(
                                     currentBody->getRotationalEphemeris( ),
-                                    loveNumbers->getDeformationModels( ),
-                                    loveNumbers->getDegrees( ),
-                                    loveNumbers->getUseShidaNumbers( ),
+                                    loveNumberParameter->getDeformationModels( ),
+                                    loveNumberParameter->getDegrees( ),
+                                    loveNumberParameter->getUseShidaNumber( ),
                                     currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
                                             ->getNominalStationState( )
                                             ->getNominalCartesianPosition( ) );

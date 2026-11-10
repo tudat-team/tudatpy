@@ -1612,34 +1612,34 @@ inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition( c
     return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
 }
 
-//! Class for settings of the displacement Love numbers h_n or Shida numbers l_n of the basic tidal deformation of a body
-class DisplacementLoveNumbersEstimatableParameterSettings : public EstimatableParameterSettings
+//! Class for settings of the displacement Love number h_n or Shida number l_n of the basic tidal deformation of a body
+class DisplacementLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
 public:
-    DisplacementLoveNumbersEstimatableParameterSettings( const std::string& associatedBody,
-                                                         const std::vector< int >& degrees,
-                                                         const bool useShidaNumbers ):
-        EstimatableParameterSettings( associatedBody, useShidaNumbers ? displacement_shida_number : displacement_love_number ),
-        degrees_( degrees ), useShidaNumbers_( useShidaNumbers )
+    DisplacementLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                        const std::vector< int >& degrees,
+                                                        const bool useShidaNumber ):
+        EstimatableParameterSettings( associatedBody, useShidaNumber ? displacement_shida_number : displacement_love_number ),
+        degrees_( degrees ), useShidaNumber_( useShidaNumber )
     {}
 
-    //! Degrees of the estimated numbers
+    //! Degree of each estimated number
     std::vector< int > degrees_;
 
-    //! Whether the Shida numbers l_n (true) or the Love numbers h_n (false) are estimated
-    bool useShidaNumbers_;
+    //! Whether the Shida number l_n (true) or the Love number h_n (false) is estimated
+    bool useShidaNumber_;
 };
 
-//! Function to create settings for the displacement Love numbers h_n of the given degrees of a body
+//! Function to create settings for the displacement Love number h_n of each of the given degrees of a body
 inline std::shared_ptr< EstimatableParameterSettings > displacementLoveNumber( const std::string& body, const std::vector< int >& degrees )
 {
-    return std::make_shared< DisplacementLoveNumbersEstimatableParameterSettings >( body, degrees, false );
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, false );
 }
 
-//! Function to create settings for the displacement Shida numbers l_n of the given degrees of a body
+//! Function to create settings for the displacement Shida number l_n of each of the given degrees of a body
 inline std::shared_ptr< EstimatableParameterSettings > displacementShidaNumber( const std::string& body, const std::vector< int >& degrees )
 {
-    return std::make_shared< DisplacementLoveNumbersEstimatableParameterSettings >( body, degrees, true );
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, true );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > cameraPointingCorrection( const std::string& body, const std::string& cameraName )

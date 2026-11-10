@@ -253,10 +253,10 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
             parameterDescription = "camera pointing correction ";
             break;
         case displacement_love_number:
-            parameterDescription = "displacement Love numbers ";
+            parameterDescription = "displacement Love number ";
             break;
         case displacement_shida_number:
-            parameterDescription = "displacement Shida numbers ";
+            parameterDescription = "displacement Shida number ";
             break;
         default:
             std::string errorMessage =

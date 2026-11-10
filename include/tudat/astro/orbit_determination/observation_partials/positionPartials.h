@@ -228,28 +228,28 @@ private:
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
 };
 
-//! Partial of the state of a point on the surface of a body w.r.t. the displacement Love numbers h_n or Shida numbers l_n of the basic
-//! tidal deformation models of the body. The displacement is linear in these numbers, so that its partial is the displacement computed
+//! Partial of the state of a point on the surface of a body w.r.t. the displacement Love number h_n or Shida number l_n of the basic
+//! tidal deformation models of the body. The displacement is linear in this number, so that its partial is the displacement computed
 //! with a unit Love or Shida number. The velocity partial is that of the rotation of the body-fixed displacement partial, without the
 //! (much smaller) time variation of the displacement partial itself.
-class CartesianPartialWrtDisplacementLoveNumbers : public CartesianStatePartial
+class CartesianPartialWrtDisplacementLoveNumber : public CartesianStatePartial
 {
 public:
     /*!
      *  \param bodyRotationModel Rotation model of the body
      *  \param deformationModels Basic tidal deformation models of the body
-     *  \param degrees Degrees of the Love or Shida numbers
-     *  \param useShidaNumbers Whether the partial is w.r.t. the Shida numbers l_n (true) or the Love numbers h_n (false)
+     *  \param degrees Degree of each Love or Shida number
+     *  \param useShidaNumber Whether the partial is w.r.t. the Shida number l_n (true) or the Love number h_n (false)
      *  \param nominalPosition Nominal body-fixed position of the point
      */
-    CartesianPartialWrtDisplacementLoveNumbers(
+    CartesianPartialWrtDisplacementLoveNumber(
             const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
             const std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > >& deformationModels,
             const std::vector< int >& degrees,
-            const bool useShidaNumbers,
+            const bool useShidaNumber,
             const Eigen::Vector3d& nominalPosition ):
         bodyRotationModel_( bodyRotationModel ), deformationModels_( deformationModels ), degrees_( degrees ),
-        unitLoveNumber_( useShidaNumbers ? 0.0 : 1.0 ), unitShidaNumber_( useShidaNumbers ? 1.0 : 0.0 ), nominalPosition_( nominalPosition )
+        unitLoveNumber_( useShidaNumber ? 0.0 : 1.0 ), unitShidaNumber_( useShidaNumber ? 1.0 : 0.0 ), nominalPosition_( nominalPosition )
     {}
 
     Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )

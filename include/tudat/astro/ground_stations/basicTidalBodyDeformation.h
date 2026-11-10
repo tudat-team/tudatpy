@@ -65,16 +65,16 @@ public:
         return calculateDisplacement( time, stationState->getNominalCartesianPosition( ) );
     }
 
-    //! Function to retrieve the displacement Love and Shida numbers ( h_n, l_n ) per degree n
-    std::map< int, std::pair< double, double > > getDisplacementLoveNumbers( ) const
+    //! Function to retrieve the displacement Love and Shida number ( h_n, l_n ) of each degree n
+    std::map< int, std::pair< double, double > > getDisplacementLoveNumberPerDegree( ) const
     {
         return displacementLoveNumbers_;
     }
 
-    //! Function to reset the displacement Love and Shida numbers ( h_n, l_n ) per degree n
-    void setDisplacementLoveNumbers( const std::map< int, std::pair< double, double > >& displacementLoveNumbers )
+    //! Function to reset the displacement Love and Shida number ( h_n, l_n ) of each degree n
+    void setDisplacementLoveNumberPerDegree( const std::map< int, std::pair< double, double > >& displacementLoveNumberPerDegree )
     {
-        displacementLoveNumbers_ = displacementLoveNumbers;
+        displacementLoveNumbers_ = displacementLoveNumberPerDegree;
     }
 
     std::function< Eigen::Vector6d( const double ) > getDeformedBodyStateFunction( ) const
