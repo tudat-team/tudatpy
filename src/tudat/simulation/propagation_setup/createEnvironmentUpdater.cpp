@@ -306,6 +306,32 @@ void addSolidBodyTideEnvironmentUpdates(
     addEnvironmentUpdates( environmentModelsToUpdate, tideUpdateNeeds );
 }
 
+//! Function that adds the gravity field updates required by the mass distribution updates of bodies with rigid body properties
+//! derived from a time-dependent spherical harmonic gravity field
+void addGravityDerivedMassDistributionEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( environmentModelsToUpdate.count( body_mass_distribution_update ) == 0 )
+    {
+        return;
+    }
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > gravityFieldUpdateNeeds;
+    for( const std::string& bodyName : environmentModelsToUpdate.at( body_mass_distribution_update ) )
+    {
+        // A center of mass and inertia tensor derived from a time-dependent gravity field require the current coefficients
+        const std::shared_ptr< simulation_setup::Body > body = bodies.at( bodyName );
+        if( std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( body->getMassProperties( ) ) != nullptr &&
+            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( body->getGravityFieldModel( ) ) !=
+                    nullptr )
+        {
+            gravityFieldUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( bodyName );
+        }
+    }
+    addEnvironmentUpdates( environmentModelsToUpdate, gravityFieldUpdateNeeds );
+}
+
 //! Function that adds the ephemeris origins between updated bodies and a propagated body to the updated environment variables
 void addEphemerisOriginsOfUpdatedStates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
@@ -354,15 +380,6 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( bodiesToIntegrate.at( i ) );
-
-        // An inertia tensor derived from a time-dependent gravity field requires the current coefficients
-        const std::shared_ptr< simulation_setup::Body > body = bodies.at( bodiesToIntegrate.at( i ) );
-        if( std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( body->getMassProperties( ) ) != nullptr &&
-            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( body->getGravityFieldModel( ) ) !=
-                    nullptr )
-        {
-            singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( bodiesToIntegrate.at( i ) );
-        }
     }
     addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
 

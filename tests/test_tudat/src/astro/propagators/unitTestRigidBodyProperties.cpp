@@ -248,11 +248,11 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     BOOST_CHECK_CLOSE_FRACTION(
             timeDependentBody->getBodyMass( ), gravitationalParameter / physical_constants::GRAVITATIONAL_CONSTANT, 5.0e-15 );
 
-    // Check that the rotational dynamics update the gravity field only of the body with a time-dependent gravity field
+    // Check that a mass distribution update adds a gravity field update only for the body with a time-dependent gravity field
     // and gravity-derived properties
-    const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentUpdates =
-            propagators::createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-                    basic_astrodynamics::TorqueModelMap( ), bodies, { "TimeDependent", "FromGravityField" } );
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentUpdates;
+    environmentUpdates[ propagators::body_mass_distribution_update ] = { "TimeDependent", "FromGravityField" };
+    propagators::addGravityDerivedMassDistributionEnvironmentUpdates( environmentUpdates, bodies );
     BOOST_REQUIRE( environmentUpdates.count( propagators::spherical_harmonic_gravity_field_update ) == 1 );
     BOOST_CHECK( environmentUpdates.at( propagators::spherical_harmonic_gravity_field_update ) ==
                  std::vector< std::string >( { "TimeDependent" } ) );
