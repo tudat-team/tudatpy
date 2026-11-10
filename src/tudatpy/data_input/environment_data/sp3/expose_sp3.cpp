@@ -161,7 +161,7 @@ legacy ``ccc`` tag is stored as ``GPS``.
 
 State history of each satellite, with the satellite ID (for instance ``G01``) as the first key, and the epoch as the
 second key. Epochs are in seconds since :attr:`reference_julian_day`, in the time scale :attr:`time_scale`. Each state is a
-Cartesian state, with position in metres and velocity in metres per second, in the frame :attr:`frame_name`. Missing values
+Cartesian state, with position in meters and velocity in meters per second, in the frame :attr:`frame_name`. Missing values
 are NaN.
 
 :type: dict[str, dict[float, numpy.ndarray[numpy.float64[6, 1]]]]
@@ -186,7 +186,7 @@ Returns
 -------
 dict[float, numpy.ndarray[numpy.float64[6, 1]]]
     State history of the satellite. Keys are epochs in seconds since :attr:`reference_julian_day`, in the time scale
-    :attr:`time_scale`. Values are Cartesian states, with position in metres and velocity in metres per second, in the
+    :attr:`time_scale`. Values are Cartesian states, with position in meters and velocity in meters per second, in the
     frame :attr:`frame_name`.
 )doc" );
 
@@ -198,8 +198,8 @@ dict[float, numpy.ndarray[numpy.float64[6, 1]]]
 Read an SP3 precise-orbit file.
 
 Epochs are expressed in seconds since ``reference_julian_day`` in the time
-scale declared by the file. Positions and velocities are converted to metres
-and metres per second, respectively. For position-only files, velocities are
+scale declared by the file. Positions and velocities are converted to meters
+and meters per second, respectively. For position-only files, velocities are
 reconstructed with second-order three-point finite differences, which requires
 at least three epochs. SP3-a through SP3-d and the GPS, GLO, GAL, BDT, TAI, UTC,
 IRN, and QZS time-system tags are supported. Reference-frame and time-system tags

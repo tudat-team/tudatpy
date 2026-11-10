@@ -167,9 +167,9 @@ BOOST_AUTO_TEST_CASE( testVelocityFileMetadataAndState )
     const Eigen::Vector6d& firstState = contents->satelliteStates.at( "G01" ).begin( )->second;
     Eigen::Vector6d expectedFirstState;
     expectedFirstState << -11044805.8, -10475672.35, 21929418.2, 2029.8880364, -1846.2044804, 138.1387685;
-    // Confirm all position components are converted from SP3 kilometres to metres.
+    // Confirm all position components are converted from SP3 kilometers to meters.
     BOOST_CHECK_SMALL( ( firstState.segment< 3 >( 0 ) - expectedFirstState.segment< 3 >( 0 ) ).norm( ), 5.0e-9 );
-    // Confirm all velocity components are converted from SP3 decimetres per second to metres per second.
+    // Confirm all velocity components are converted from SP3 decimeters per second to meters per second.
     BOOST_CHECK_SMALL( ( firstState.segment< 3 >( 3 ) - expectedFirstState.segment< 3 >( 3 ) ).norm( ), 1.0e-12 );
 
     std::filesystem::remove( path );
