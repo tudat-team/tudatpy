@@ -599,9 +599,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
     LinkEnds twoWayLinkEnds = { { transmitter, linkEnds.at( transmitter ) },
                                 { reflector1, linkEnds.at( receiver ) },
                                 { receiver, linkEnds.at( transmitter ) } };
-    bodies.at( spacecraftName )->getVehicleSystems( )->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+    bodies.at( spacecraftName )->getVehicleSystems( )->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
     const double observationTime = initialTime + 6.0 * 3600.0;
-    const double downlinkFrequency = frequency * getDsnDefaultTurnaroundRatios( s_band, ka_band );
+    const double downlinkFrequency = frequency * system_models::getDsnDefaultTurnaroundRatios( s_band, ka_band );
 
     // Expected shift (in Hz at the downlink frequency): range-rate of the delay, scaled from the 2295 MHz reference
     // frequency to the uplink and downlink frequencies (1/f^2) and summed over both legs

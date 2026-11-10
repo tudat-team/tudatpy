@@ -498,7 +498,10 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 if( currentObservableType == dsn_n_way_averaged_doppler )
                 {
                     ancillarySettings = getDsnNWayAveragedDopplerAncillarySettings(
-                            std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, integrationTime );
+                            std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                            FrequencyBands::x_band,
+                            7.0e9,
+                            integrationTime );
                 }
                 else if( isDifferencedObservable )
                 {
@@ -993,7 +996,11 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         {
             std::vector< double > delays = std::vector< double >( { 1.0e-3 } );
             ancillarySettings = getDsnNWayAveragedDopplerAncillarySettings(
-                    std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, integrationTime, delays );
+                    std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                    FrequencyBands::x_band,
+                    7.0e9,
+                    integrationTime,
+                    delays );
         }
         else if( currentObservable == n_way_differenced_range )
         {

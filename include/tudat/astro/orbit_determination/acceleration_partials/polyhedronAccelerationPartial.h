@@ -230,10 +230,10 @@ private:
     std::shared_ptr< gravitation::PolyhedronGravityCache > polyhedronCache_;
 
     //! Polyhedron facets dyads.
-    std::vector< Eigen::MatrixXd > facetDyads_;
+    std::vector< Eigen::Matrix3d > facetDyads_;
 
     //! Polyhedron edge dyads.
-    std::vector< Eigen::MatrixXd > edgeDyads_;
+    std::vector< Eigen::Matrix3d > edgeDyads_;
 
     //! Function returning position of body undergoing acceleration.
     std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratedBody_;

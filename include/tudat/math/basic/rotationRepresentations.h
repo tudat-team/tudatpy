@@ -12,6 +12,8 @@
 #ifndef TUDAT_ROTATIONREPRESENTATIONS_H
 #define TUDAT_ROTATIONREPRESENTATIONS_H
 
+#include <limits>
+
 #include <Eigen/Geometry>
 
 namespace tudat
@@ -25,7 +27,8 @@ Eigen::Matrix< double, 4, 3 > calculateQuaternionWrtEulerAngle313Partial( const 
 //! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 /*!
  * Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion, with quaternion
- * as input
+ * as input. The partials of the first and third angle are singular at a second angle of 0 and pi rad. Closer than 1.0E-8 rad to these
+ * values, the partials are evaluated at 1.0E-8 rad from them.
  * \param quaternion Quaternion defining rotation at which partials are to be evaluated
  * \return Partial derivative matrix of 3-1-3 Euler angles w.r.t. entries of associated quaternion
  */
@@ -84,6 +87,27 @@ Eigen::Vector3d get313EulerAnglesFromQuaternion( const Eigen::Quaterniond& quate
  * \return Euler angles x,y,z (about 3, 1 and 3 axes, respectively).
  */
 Eigen::Vector3d get313EulerAnglesFromRotationMatrix( const Eigen::Matrix3d& rotationMatrix );
+
+//! Get quaternion from associated rotation vector (exponential map of SO(3))
+/*!
+ * Get quaternion q from a rotation vector, i.e. a vector whose direction defines the rotation axis and
+ * whose norm defines the rotation angle (in radians). This is the exponential map Exp: so(3) -> SO(3),
+ * and is the representation used for small attitude corrections that are to be estimated, since it is
+ * free of the constraints and singularities of quaternion/Euler-angle parameterizations near zero.
+ * For a vanishing rotation angle, the identity quaternion is returned.
+ * \param rotationVector Rotation vector for which the equivalent quaternion is to be computed.
+ * \return Quaternion defining same rotation as rotation vector
+ */
+inline Eigen::Quaterniond getQuaternionFromRotationVector( const Eigen::Vector3d& rotationVector )
+{
+    const double rotationAngle = rotationVector.norm( );
+    if( rotationAngle <= std::numeric_limits< double >::epsilon( ) )
+    {
+        return Eigen::Quaterniond::Identity( );
+    }
+    return Eigen::Quaterniond( Eigen::AngleAxisd( rotationAngle, rotationVector / rotationAngle ) );
+}
+
 }  // namespace basic_mathematics
 
 }  // namespace tudat

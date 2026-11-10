@@ -17,6 +17,7 @@ set(system_models_HEADERS
         "panelGeometryUtils.h"
         "selfShadowing.h"
         "camera.h"
+        "transponderTurnaroundRatios.h"
         )
 
 set(system_models_SOURCES
@@ -25,6 +26,7 @@ set(system_models_SOURCES
         "selfShadowing.cpp"
         "panelGeometryUtils.cpp"
         "camera.cpp"
+        "transponderTurnaroundRatios.cpp"
         )
 
 TUDAT_ADD_LIBRARY("system_models"

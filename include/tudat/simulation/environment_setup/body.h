@@ -270,11 +270,32 @@ public:
      * global-to-ephemeris-frame function.  It calls the setStateFromEphemeris state, resetting the currentState_ /
      * currentLongState_ variables, and returning the state with the requested precision
      * \param time Time at which to evaluate states.
+     * \tparam setStateInBody Boolean denoting whether the computed state is set as the current state of the body. If false, the
+     * current state of this body is not changed (that of the body w.r.t. which its ephemeris is defined may be)
      * \return State at requested time
      */
-    template< typename StateScalarType = double, typename TimeType = double >
+    template< typename StateScalarType = double, typename TimeType = double, bool setStateInBody = true >
     Eigen::Matrix< StateScalarType, 6, 1 > getStateInBaseFrameFromEphemeris( const TimeType time )
     {
+        if constexpr( !setStateInBody )
+        {
+            if( bodyEphemeris_ == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting state from ephemeris of body " + bodyName_ + ", body has no ephemeris" );
+            }
+            else if( bodyIsGlobalFrameOrigin_ == 1 )
+            {
+                return Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
+            }
+            else if( bodyIsGlobalFrameOrigin_ == 0 )
+            {
+                return bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                        ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time );
+            }
+            throw std::runtime_error( "Error when requesting state from ephemeris of body " + bodyName_ +
+                                      ", global origin not yet defined." );
+        }
+
         setStateFromEphemeris< StateScalarType, TimeType >( time );
         if( sizeof( StateScalarType ) == 8 )
         {
@@ -286,10 +307,10 @@ public:
         }
     }
 
-    template< typename StateScalarType = double, typename TimeType = double >
+    template< typename StateScalarType = double, typename TimeType = double, bool setStateInBody = true >
     Eigen::Matrix< StateScalarType, 3, 1 > getPositionInBaseFrameFromEphemeris( const TimeType time )
     {
-        return getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >( time ).segment( 0, 3 );
+        return getStateInBaseFrameFromEphemeris< StateScalarType, TimeType, setStateInBody >( time ).segment( 0, 3 );
     }
 
     //! Templated function to get the current berycentric state of the body from its ephemeris andcglobal-to-ephemeris-frame

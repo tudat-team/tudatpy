@@ -90,6 +90,27 @@ public:
         return 3 * numberOfDeltaVBlocks_;
     }
 
+    //! Function to retrieve the time intervals in which each parameter entry can influence the dynamics
+    /*!
+     *  Function to retrieve the time intervals in which each parameter entry can influence the dynamics: each deltaV
+     *  only influences the dynamics during its associated desaturation maneuver.
+     *  \return Start and end time of the maneuver associated with each parameter entry
+     */
+    std::vector< std::pair< double, double > > getTimeIntervalsOfInfluencePerEntry( ) override
+    {
+        std::vector< double > thrustStartTimes = accelerationModel_->getThrustStartTimes( );
+        std::vector< std::pair< double, double > > timeIntervals;
+        for( int i = 0; i < numberOfDeltaVBlocks_; i++ )
+        {
+            for( int j = 0; j < 3; j++ )
+            {
+                timeIntervals.push_back( std::make_pair( thrustStartTimes.at( i ),
+                                                         thrustStartTimes.at( i ) + accelerationModel_->getTotalManeuverTime( ) ) );
+            }
+        }
+        return timeIntervals;
+    }
+
 protected:
 private:
     //! Momentum wheel desaturation thrust acceleration.

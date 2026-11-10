@@ -16,6 +16,7 @@
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/gravitation/gravitationalParameterRateAcceleration.h"
 
 #include <cmath>
 #include <limits>
@@ -58,6 +59,33 @@ BOOST_AUTO_TEST_CASE( testWrapperClassPotentialAndAcceleration )
     const Eigen::Vector3d expectedAcceleration = -gravitationalParameter / std::pow( position.norm( ), 3.0 ) * position;
     // Check if expected result matches computed result.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAcceleration, earthGravity->getAcceleration( ), std::numeric_limits< double >::epsilon( ) );
+}
+
+//! Test the gravitational parameter rate acceleration against the difference of point-mass accelerations with mu( t ) and mu( t0 ).
+BOOST_AUTO_TEST_CASE( testGravitationalParameterRateAcceleration )
+{
+    using namespace gravitation;
+
+    const double gravitationalParameter = 1.32712440018e20;
+    const double relativeRate = -1.0e-10;
+    const double referenceEpoch = 1.0e8;
+    const double currentTime = 2.0e8;
+    const Eigen::Vector3d acceleratedBodyPosition( 1.2e11, -0.7e11, 0.3e11 );
+    const Eigen::Vector3d exertingBodyPosition( 1.0e9, 2.0e9, -3.0e9 );
+
+    GravitationalParameterRateAcceleration rateAcceleration( [ & ]( ) { return acceleratedBodyPosition; },
+                                                             [ & ]( ) { return exertingBodyPosition; },
+                                                             [ & ]( ) { return gravitationalParameter; },
+                                                             relativeRate,
+                                                             referenceEpoch );
+    rateAcceleration.updateMembers( currentTime );
+
+    const double currentGravitationalParameter = gravitationalParameter * ( 1.0 + relativeRate * ( currentTime - referenceEpoch ) );
+    const Eigen::Vector3d expectedAcceleration =
+            computeGravitationalAcceleration( acceleratedBodyPosition, currentGravitationalParameter, exertingBodyPosition ) -
+            computeGravitationalAcceleration( acceleratedBodyPosition, gravitationalParameter, exertingBodyPosition );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAcceleration, rateAcceleration.getAcceleration( ), 1.0e-12 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
