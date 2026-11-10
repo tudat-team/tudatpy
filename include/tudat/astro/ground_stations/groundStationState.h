@@ -472,17 +472,9 @@ public:
         return motion;
     }
 
-    //! Linear motion model among the combined models (nullptr if there is none).
-    std::shared_ptr< LinearStationMotionModel > getLinearStationMotionModel( ) const
+    std::vector< std::shared_ptr< StationMotionModel > > getModelList( ) const
     {
-        for( const auto& model : modelList_ )
-        {
-            if( auto linearModel = std::dynamic_pointer_cast< LinearStationMotionModel >( model ) )
-            {
-                return linearModel;
-            }
-        }
-        return nullptr;
+        return modelList_;
     }
 
 protected:

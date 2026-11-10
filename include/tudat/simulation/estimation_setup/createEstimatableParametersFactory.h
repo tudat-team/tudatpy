@@ -2356,15 +2356,26 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 std::shared_ptr< ground_stations::CombinedStationMotionModel > combinedModel =
                         std::dynamic_pointer_cast< ground_stations::CombinedStationMotionModel >(
                                 currentBody->getGroundStation( stationName )->getNominalStationState( )->getStationMotionModel( ) );
-                std::shared_ptr< ground_stations::LinearStationMotionModel > linearModel =
-                        combinedModel == nullptr ? nullptr : combinedModel->getLinearStationMotionModel( );
-                if( linearModel == nullptr )
+                std::vector< std::shared_ptr< ground_stations::LinearStationMotionModel > > linearModels;
+                if( combinedModel != nullptr )
                 {
-                    throw std::runtime_error( "Error, requested linear velocity of ground station " + stationName +
-                                              ", which has no linear motion model" );
+                    for( const std::shared_ptr< ground_stations::StationMotionModel >& motionModel : combinedModel->getModelList( ) )
+                    {
+                        std::shared_ptr< ground_stations::LinearStationMotionModel > linearModel =
+                                std::dynamic_pointer_cast< ground_stations::LinearStationMotionModel >( motionModel );
+                        if( linearModel != nullptr )
+                        {
+                            linearModels.push_back( linearModel );
+                        }
+                    }
+                }
+                if( linearModels.size( ) != 1 )
+                {
+                    throw std::runtime_error( "Error, requested linear velocity of ground station " + stationName + ", which has " +
+                                              std::to_string( linearModels.size( ) ) + " linear motion models; exactly one is required" );
                 }
                 vectorParameterToEstimate = std::make_shared< GroundStationLinearVelocity >(
-                        linearModel, vectorParameterName->parameterType_.second.first, stationName );
+                        linearModels.at( 0 ), vectorParameterName->parameterType_.second.first, stationName );
                 break;
             }
             case reference_point_position: {
