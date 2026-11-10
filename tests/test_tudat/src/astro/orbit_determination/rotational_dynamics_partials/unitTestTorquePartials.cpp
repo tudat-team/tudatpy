@@ -962,6 +962,70 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scaledPartialWrtPhobosSineCoefficients, partialWrtPhobosSineCoefficients, 1.0E-9 );
 }
 
+//! Test that a spherical harmonic torque partial w.r.t. a tidal Love number is recomputed after a time reset, by comparing a partial that
+//! was first evaluated at an earlier time with a newly created one.
+BOOST_AUTO_TEST_CASE( testSphericalHarmonicTorquePartialWrtLoveNumberAfterTimeReset )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create the Earth and a Moon with a degree-two gravity field and the tide raised by the Earth
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, "SSB", "ECLIPJ2000" );
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    cosineCoefficients( 2, 0 ) = -9.09E-5;
+    cosineCoefficients( 2, 2 ) = 3.47E-5;
+    bodySettings.at( "Moon" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            4.9028E12, 1738.0E3, cosineCoefficients, Eigen::MatrixXd::Zero( 3, 3 ), "IAU_Moon" );
+    bodySettings.at( "Moon" )->gravityFieldVariationSettings.push_back( std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+            std::vector< std::string >( { "Earth" } ),
+            std::map< int, std::vector< std::complex< double > > >( { { 2, { 0.024, 0.024, 0.024 } } } ) ) );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    std::shared_ptr< Body > earth = bodies.at( "Earth" );
+    std::shared_ptr< Body > moon = bodies.at( "Moon" );
+
+    std::shared_ptr< TorqueModel > torqueModel = createSphericalHarmonicGravitationalTorqueModel(
+            moon, earth, std::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ), "Moon", "Earth" );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Moon", 2, "Earth", false ) );
+    std::shared_ptr< EstimatableParameterSet< double > > parameterSet = createParametersToEstimate( parameterNames, bodies );
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > loveNumber = parameterSet->getEstimatedVectorParameters( ).at( 0 );
+
+    // Create both partials before any evaluation, since creating a partial resets the Legendre cache shared with the torque model
+    std::shared_ptr< TorquePartial > reusedPartial = createAnalyticalTorquePartial( torqueModel,
+                                                                                    std::make_pair( "Moon", moon ),
+                                                                                    std::make_pair( "Earth", earth ),
+                                                                                    SingleBodyTorqueModelMap( ),
+                                                                                    bodies,
+                                                                                    parameterSet );
+    std::shared_ptr< TorquePartial > newPartial = createAnalyticalTorquePartial( torqueModel,
+                                                                                 std::make_pair( "Moon", moon ),
+                                                                                 std::make_pair( "Earth", earth ),
+                                                                                 SingleBodyTorqueModelMap( ),
+                                                                                 bodies,
+                                                                                 parameterSet );
+
+    // Evaluate one partial at two times, one week apart, with a time reset in between
+    const double testTime = 1.0E7 + 7.0 * 86400.0;
+    Eigen::Vector3d partialOfReusedObject;
+    for( const double time : { 1.0E7, testTime } )
+    {
+        earth->setStateFromEphemeris( time );
+        moon->setStateFromEphemeris( time );
+        moon->setCurrentRotationalStateToLocalFrameFromEphemeris( time );
+        reusedPartial->resetCurrentTime( );
+        reusedPartial->update( time );
+        partialOfReusedObject = reusedPartial->wrtParameter( loveNumber );
+    }
+
+    // Compare with a partial that has only been evaluated at the last time, which cannot contain results from the earlier time
+    newPartial->update( testTime );
+    const Eigen::Vector3d partialOfNewObject = newPartial->wrtParameter( loveNumber );
+
+    BOOST_CHECK_GT( partialOfNewObject.norm( ), 0.0 );
+    BOOST_CHECK_SMALL( ( partialOfReusedObject - partialOfNewObject ).norm( ) / partialOfNewObject.norm( ), 1.0E-12 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
