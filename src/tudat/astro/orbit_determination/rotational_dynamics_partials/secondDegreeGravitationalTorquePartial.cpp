@@ -52,6 +52,13 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravitat
                 std::bind( &SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralBody, this, std::placeholders::_1 ),
                 1 );
     }
+    else if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter &&
+             parameter->getParameterName( ).second.first == bodyUndergoingTorque_ && bodyGravitationalParameterFunction_ != nullptr )
+    {
+        partialFunctionPair = std::make_pair(
+                std::bind( &SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfRotatingBody, this, std::placeholders::_1 ),
+                1 );
+    }
     else
     {
         partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
@@ -83,11 +90,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravitat
 
                 if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
                 {
-                    if( ( getInertiaTensorNormalizationFactor_ == nullptr ) )
+                    // Function is only defined if the inertia tensor is derived from the gravity field
+                    if( getInertiaTensorNormalizationFactor_ == nullptr )
                     {
-                        throw std::runtime_error(
-                                "Error when getting partial of 2nd degree grac torque w.r.t. cosine sh parameters, inertia tensor "
-                                "normalization function not found." );
+                        break;
                     }
                     partialFunction = std::make_pair(
                             std::bind( &SecondDegreeGravitationalTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody,
@@ -112,11 +118,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravitat
 
                 if( s21Index >= 0 || s22Index >= 0 )
                 {
+                    // Function is only defined if the inertia tensor is derived from the gravity field
                     if( getInertiaTensorNormalizationFactor_ == nullptr )
                     {
-                        throw std::runtime_error(
-                                "Error when getting partial of 2nd degree grac torque w.r.t. sine sh parameters, inertia tensor "
-                                "normalization function not found." );
+                        break;
                     }
                     partialFunction = std::make_pair(
                             std::bind( &SecondDegreeGravitationalTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody,
@@ -189,6 +194,12 @@ void SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralB
         throw std::runtime_error( "Error when calculating partial of SecondDegreeGravitationalTorquePartial w.r.t. mu: mu=0." );
     }
     gravitationalParameterPartial = torqueModel_->getTorque( ) / torqueModel_->getCurrentGravitationalParameterOfAttractingBody( );
+}
+
+//! Function to compute partial of torque w.r.t. gravitational parameter of body undergoing torque
+void SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfRotatingBody( Eigen::MatrixXd& gravitationalParameterPartial )
+{
+    gravitationalParameterPartial = torqueModel_->getTorque( ) / bodyGravitationalParameterFunction_( );
 }
 
 //! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients

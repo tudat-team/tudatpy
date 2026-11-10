@@ -10,7 +10,9 @@
 
 #define BOOST_TEST_MAIN
 
+#include <cmath>
 #include <limits>
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
@@ -568,6 +570,171 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 13 ) - truthParameters( 13 ) ), 1.0E-10 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 14 ) - truthParameters( 14 ) ), 1.0E-11 );
+}
+
+//! Create settings to propagate Phobos, spinning at 5 times its mean motion around its axis of largest inertia. This keeps the second 3-1-3
+//! Euler angle close to its initial value of 0.9 rad, away from the singularities of the partials at 0 and pi rad.
+std::shared_ptr< RotationalStatePropagatorSettings< double > > getSpinningPhobosPropagatorSettings( const SystemOfBodies& bodies,
+                                                                                                    const double finalTime )
+{
+    const double meanMotion = std::sqrt( getBodyGravitationalParameter( "Mars" ) / std::pow( 9376.0E3, 3.0 ) );
+    Eigen::VectorXd initialState = Eigen::VectorXd::Zero( 7 );
+    initialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+            Eigen::Quaterniond( Eigen::AngleAxisd( 1.1, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 0.9, Eigen::Vector3d::UnitX( ) ) *
+                                Eigen::AngleAxisd( 0.4, Eigen::Vector3d::UnitZ( ) ) ) );
+    initialState( 6 ) = 5.0 * meanMotion;
+
+    SelectedTorqueMap torqueMap;
+    torqueMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+    std::vector< std::string > bodiesToIntegrate = { "Phobos" };
+
+    return std::make_shared< RotationalStatePropagatorSettings< double > >(
+            createTorqueModelsMap( bodies, torqueMap, bodiesToIntegrate ),
+            bodiesToIntegrate,
+            initialState,
+            0.0,
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, 60.0 ),
+            std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
+}
+
+//! Create observation times, every 600 s from 1800 s after the start to 1800 s before the end of the propagation
+std::vector< double > getEulerAngleObservationTimes( const double finalTime )
+{
+    std::vector< double > observationTimes;
+    for( double currentTime = 1800.0; currentTime < finalTime - 1800.0; currentTime += 600.0 )
+    {
+        observationTimes.push_back( currentTime );
+    }
+    return observationTimes;
+}
+
+//! Test the Euler angle design matrix of the orbit determination, w.r.t. the initial rotational state and the observation bias, against
+//! central differences of the re-propagated observations. This tests the combination of the partials with the state transition matrix.
+BOOST_AUTO_TEST_CASE( test_EulerAngleDesignMatrix )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double finalTime = 2.0 * 86400.0;
+    SystemOfBodies bodies = getTestBodyMap( 9376.0E3, 0 );
+    std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+            getSpinningPhobosPropagatorSettings( bodies, finalTime );
+
+    LinkDefinition linkEnds;
+    linkEnds[ observed_body ] = LinkEndId( "Phobos" );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+    parameterNames.push_back(
+            std::make_shared< ConstantObservationBiasEstimatableParameterSettings >( linkEnds, euler_angle_313_observable, true ) );
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate( parameterNames, bodies );
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+            euler_angle_313_observable,
+            linkEnds,
+            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+            std::make_shared< ConstantObservationBiasSettings >( Eigen::VectorXd::Zero( 3 ), true ) ) );
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
+    std::shared_ptr< ObservationManagerBase< double, double > > observationManager =
+            orbitDeterminationManager.getObservationManager( euler_angle_313_observable );
+
+    const std::vector< double > observationTimes = getEulerAngleObservationTimes( finalTime );
+    Eigen::VectorXd nominalObservations;
+    Eigen::MatrixXd designMatrix;
+    observationManager->computeObservationsWithPartials(
+            observationTimes, linkEnds.linkEnds_, observed_body, nullptr, nominalObservations, designMatrix );
+
+    // Perturbations of quaternion entries [-], angular velocity [rad/s] and biases [rad]
+    const Eigen::VectorXd nominalParameters = parametersToEstimate->template getFullParameterValues< double >( );
+    Eigen::VectorXd perturbations = Eigen::VectorXd::Constant( nominalParameters.rows( ), 1.0E-6 );
+    perturbations.segment( 4, 3 ).setConstant( 1.0E-9 );
+    BOOST_CHECK_EQUAL( nominalParameters.rows( ), 10 );
+
+    for( int i = 0; i < nominalParameters.rows( ); i++ )
+    {
+        // The state is a unit quaternion: compare along each of its entries, projected on the tangent space
+        Eigen::VectorXd direction = Eigen::VectorXd::Unit( nominalParameters.rows( ), i );
+        if( i < 4 )
+        {
+            direction.segment( 0, 4 ) -= nominalParameters( i ) * nominalParameters.segment( 0, 4 );
+        }
+
+        Eigen::VectorXd upperObservations, lowerObservations;
+        Eigen::MatrixXd unusedPartials;
+        orbitDeterminationManager.resetParameterEstimate( nominalParameters + perturbations( i ) * direction, false );
+        observationManager->computeObservationsWithPartials(
+                observationTimes, linkEnds.linkEnds_, observed_body, nullptr, upperObservations, unusedPartials, true, false );
+        orbitDeterminationManager.resetParameterEstimate( nominalParameters - perturbations( i ) * direction, false );
+        observationManager->computeObservationsWithPartials(
+                observationTimes, linkEnds.linkEnds_, observed_body, nullptr, lowerObservations, unusedPartials, true, false );
+
+        // The first and third Euler angle are periodic
+        Eigen::VectorXd observationDifference = upperObservations - lowerObservations;
+        for( int j = 0; j < observationDifference.rows( ); j++ )
+        {
+            if( j % 3 != 1 )
+            {
+                observationDifference( j ) = std::remainder( observationDifference( j ), 2.0 * mathematical_constants::PI );
+            }
+        }
+
+        const Eigen::VectorXd numericalPartial = observationDifference / ( 2.0 * perturbations( i ) );
+        BOOST_CHECK_SMALL( ( designMatrix * direction - numericalPartial ).norm( ), 1.0E-4 * numericalPartial.norm( ) );
+    }
+}
+
+//! Test if the initial rotational state is recovered from Euler angles over multiple rotations, which also requires the wrapping of the
+//! residuals of the first and third Euler angle.
+BOOST_AUTO_TEST_CASE( test_EulerAngleEstimation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double finalTime = 2.0 * 86400.0;
+    SystemOfBodies bodies = getTestBodyMap( 9376.0E3, 0 );
+    std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+            getSpinningPhobosPropagatorSettings( bodies, finalTime );
+
+    LinkDefinition linkEnds;
+    linkEnds[ observed_body ] = LinkEndId( "Phobos" );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate( parameterNames, bodies );
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( euler_angle_313_observable, linkEnds ) );
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
+
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
+            euler_angle_313_observable, linkEnds, getEulerAngleObservationTimes( finalTime ), observed_body ) );
+    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+    // Perturb quaternion entries [-] and angular velocity [rad/s]
+    const Eigen::VectorXd truthParameters = parametersToEstimate->template getFullParameterValues< double >( );
+    Eigen::VectorXd initialParameterEstimate = truthParameters;
+    initialParameterEstimate.segment( 0, 4 ) += ( Eigen::Vector4d( ) << 1.0E-4, -1.0E-4, 2.0E-4, 1.0E-4 ).finished( );
+    initialParameterEstimate.segment( 0, 4 ).normalize( );
+    initialParameterEstimate.segment( 4, 3 ) += ( Eigen::Vector3d( ) << 1.0E-8, -1.0E-8, 1.0E-8 ).finished( );
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
+
+    std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( observationsAndTimes );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 6 ) );
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+
+    // Residuals [rad], quaternion entries [-] and angular velocity [rad/s]
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->residualStandardDeviation_ ), 1.0E-8 );
+    const Eigen::VectorXd finalParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );
+    BOOST_CHECK_SMALL( ( finalParameterEstimate - truthParameters ).segment( 0, 4 ).norm( ), 1.0E-9 );
+    BOOST_CHECK_SMALL( ( finalParameterEstimate - truthParameters ).segment( 4, 3 ).norm( ), 1.0E-13 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

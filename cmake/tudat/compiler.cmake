@@ -410,6 +410,22 @@
 
  tudat_apply_optimization_policy()
 
+ # Profiling symbols: added as compile options so the optimization level stays untouched.
+ if (TUDAT_BUILD_WITH_PROFILING_SYMBOLS)
+     if (TUDAT_BUILD_MSVC OR TUDAT_BUILD_CLANG_CL)
+         # /Z7 embeds debug info in the object files, matching the embedded
+         # debug information format used for Debug/RelWithDebInfo.
+         add_compile_options(/Z7)
+         add_link_options(/DEBUG)
+     else ()
+         add_compile_options(-g -fno-omit-frame-pointer)
+         if (NOT APPLE)
+             add_compile_options(-mno-omit-leaf-frame-pointer)
+         endif ()
+     endif ()
+     message(STATUS "TUDAT_BUILD_WITH_PROFILING_SYMBOLS=ON: adding debug symbols and frame pointers (optimization unchanged).")
+ endif ()
+
  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 

@@ -65,7 +65,8 @@ SystemOfBodies createTwoBodyTorquePartialTestSystem( const double testTime,
                                                      const std::string& bodyUndergoingTorqueName,
                                                      const std::string& bodyExertingTorqueName,
                                                      const bool useArbitraryRotationStates,
-                                                     const bool useZeroScaledMeanMomentOfInertia = false )
+                                                     const bool useZeroScaledMeanMomentOfInertia = false,
+                                                     const double quaternionSign = 1.0 )
 {
     SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
     bodies.createEmptyBody( bodyUndergoingTorqueName );
@@ -182,6 +183,8 @@ SystemOfBodies createTwoBodyTorquePartialTestSystem( const double testTime,
                         Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitX( ) ) * Eigen::AngleAxisd( 0.45, Eigen::Vector3d::UnitY( ) ) *
                         Eigen::AngleAxisd( -0.5, Eigen::Vector3d::UnitZ( ) ) ) );
 
+        arbitraryRotationStateOfBodyUndergoingTorque.segment( 0, 4 ) *= quaternionSign;
+        arbitraryRotationStateOfBodyExertingTorque.segment( 0, 4 ) *= quaternionSign;
         bodyUndergoingTorque->setCurrentRotationalStateToLocalFrame( arbitraryRotationStateOfBodyUndergoingTorque );
         bodyExertingTorque->setCurrentRotationalStateToLocalFrame( arbitraryRotationStateOfBodyExertingTorque );
     }
@@ -229,14 +232,14 @@ Eigen::Matrix< double, 6, 1 > getAuxiliaryFunctionVector(
     return auxiliaryFunctionVector;
 }
 
-void updateBodyMassDistributions( const std::shared_ptr< Body >& bodyUndergoingTorque,
-                                  const std::shared_ptr< Body >& bodyExertingTorque,
-                                  const double testTime )
+void updateBodyMassProperties( const std::shared_ptr< Body >& bodyUndergoingTorque,
+                               const std::shared_ptr< Body >& bodyExertingTorque,
+                               const double testTime )
 {
     bodyUndergoingTorque->getMassProperties( )->resetCurrentTime( );
     bodyExertingTorque->getMassProperties( )->resetCurrentTime( );
-    bodyUndergoingTorque->updateMassDistribution( testTime );
-    bodyExertingTorque->updateMassDistribution( testTime );
+    bodyUndergoingTorque->getMassProperties( )->update( testTime );
+    bodyExertingTorque->getMassProperties( )->update( testTime );
 }
 
 void applyGravityFieldVariation( const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField,
@@ -525,7 +528,7 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
                                                                   emptyFunction,
                                                                   testTime );
             const std::function< void( ) > updateFunction =
-                    std::bind( &updateBodyMassDistributions, bodyUndergoingTorque, bodyExertingTorque, testTime );
+                    std::bind( &updateBodyMassProperties, bodyUndergoingTorque, bodyExertingTorque, testTime );
 
             const Eigen::MatrixXd numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque =
                     calculateTorqueWrtParameterPartials( cosineCoefficientsOfBodyUndergoingTorqueParameter,
@@ -741,8 +744,33 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
                                         1.0E-10,
                                         "Schutz sine coefficients body exerting" );
 
+            // Verify gravitational parameter partials for gravity-derived mass and inertia tensors against finite differences, which
+            // recompute the mass properties after each perturbation
+            const Eigen::MatrixXd analyticalPartialWrtGravityDerivedGravitationalParameterOfBodyUndergoingTorque =
+                    torquePartial->wrtParameter( gravitationalParameterOfBodyUndergoingTorque );
+            const Eigen::MatrixXd analyticalPartialWrtGravityDerivedGravitationalParameterOfBodyExertingTorque =
+                    torquePartial->wrtParameter( gravitationalParameterOfBodyExertingTorque );
+            checkMatrixClosePerElement(
+                    analyticalPartialWrtGravityDerivedGravitationalParameterOfBodyUndergoingTorque,
+                    calculateTorqueWrtParameterPartials(
+                            gravitationalParameterOfBodyUndergoingTorque, torqueModel, 1.0E-2, updateFunction, testTime ),
+                    1.0E-9,
+                    "Schutz gravity-derived GM body undergoing" );
+            checkMatrixClosePerElement( analyticalPartialWrtGravityDerivedGravitationalParameterOfBodyExertingTorque,
+                                        calculateTorqueWrtParameterPartials(
+                                                gravitationalParameterOfBodyExertingTorque, torqueModel, 1.0E-2, updateFunction, testTime ),
+                                        1.0E-9,
+                                        "Schutz gravity-derived GM body exerting" );
+
+            // Decouple mass properties from gravity fields, and recreate partial for these mass properties
             makeBodyMassIndependentOfGravityField( bodyUndergoingTorque );
             makeBodyMassIndependentOfGravityField( bodyExertingTorque );
+            torquePartial = createAnalyticalTorquePartial( torqueModel,
+                                                           std::make_pair( bodyUndergoingTorqueName, bodyUndergoingTorque ),
+                                                           std::make_pair( bodyExertingTorqueName, bodyExertingTorque ),
+                                                           basic_astrodynamics::SingleBodyTorqueModelMap( ),
+                                                           bodies,
+                                                           parameterSet );
             torqueModel->resetCurrentTime( );
             torquePartial->resetCurrentTime( );
             torqueModel->updateMembers( testTime );
@@ -871,7 +899,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyTorqueRotationModelParameterPartials )
                                            const std::shared_ptr< TorquePartial >& torquePartial ) {
         bodyUndergoingTorque->setCurrentRotationToLocalFrameFromEphemeris( testTime );
         bodyExertingTorque->setCurrentRotationToLocalFrameFromEphemeris( testTime );
-        updateBodyMassDistributions( bodyUndergoingTorque, bodyExertingTorque, testTime );
+        updateBodyMassProperties( bodyUndergoingTorque, bodyExertingTorque, testTime );
         torqueModel->resetCurrentTime( );
         torquePartial->resetCurrentTime( );
         torqueModel->updateMembers( testTime );
@@ -889,7 +917,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyTorqueRotationModelParameterPartials )
                 rotationRateParameter, torqueModel, 1.0E-6, emptyFunction, testTime, [ & ]( const double currentTime ) {
                     bodyUndergoingTorque->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
                     bodyExertingTorque->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
-                    updateBodyMassDistributions( bodyUndergoingTorque, bodyExertingTorque, currentTime );
+                    updateBodyMassProperties( bodyUndergoingTorque, bodyExertingTorque, currentTime );
                 } );
         updateRotationsAndTorque( torqueModel, torquePartial );
         checkMatrixClosePerElement( analyticalPartial, numericalPartial, 1.0E-5, label );
@@ -901,17 +929,17 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyTorqueRotationModelParameterPartials )
                                            const std::string& label ) {
         updateRotationsAndTorque( torqueModel, torquePartial );
         const Eigen::MatrixXd analyticalPartial = torquePartial->wrtParameter( polePositionParameter );
-        const Eigen::MatrixXd numericalPartial = calculateTorqueWrtParameterPartials(
-                polePositionParameter,
-                torqueModel,
-                Eigen::VectorXd::Constant( polePositionParameter->getParameterSize( ), 3.0E-5 ),
-                emptyFunction,
-                testTime,
-                [ & ]( const double currentTime ) {
-                    bodyUndergoingTorque->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
-                    bodyExertingTorque->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
-                    updateBodyMassDistributions( bodyUndergoingTorque, bodyExertingTorque, currentTime );
-                } );
+        const Eigen::MatrixXd numericalPartial =
+                calculateTorqueWrtParameterPartials( polePositionParameter,
+                                                     torqueModel,
+                                                     Eigen::VectorXd::Constant( polePositionParameter->getParameterSize( ), 3.0E-5 ),
+                                                     emptyFunction,
+                                                     testTime,
+                                                     [ & ]( const double currentTime ) {
+                                                         bodyUndergoingTorque->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                                                         bodyExertingTorque->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                                                         updateBodyMassProperties( bodyUndergoingTorque, bodyExertingTorque, currentTime );
+                                                     } );
         updateRotationsAndTorque( torqueModel, torquePartial );
         checkMatrixClosePerElement( analyticalPartial, numericalPartial, 1.0E-5, label );
     };
@@ -960,10 +988,12 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
     const std::string bodyExertingTorqueName = "BodyB";
     const double testTime = 1250.0;
 
-    for( const bool useArbitraryRotationStates : { false, true } )
+    // Aligned and arbitrary orientations, the latter also with the negatives of the quaternions of both bodies
+    for( const double quaternionSign : { 0.0, 1.0, -1.0 } )
     {
+        const bool useArbitraryRotationStates = ( quaternionSign != 0.0 );
         SystemOfBodies bodies = createTwoBodyTorquePartialTestSystem(
-                testTime, bodyUndergoingTorqueName, bodyExertingTorqueName, useArbitraryRotationStates );
+                testTime, bodyUndergoingTorqueName, bodyExertingTorqueName, useArbitraryRotationStates, false, quaternionSign );
         std::shared_ptr< Body > bodyUndergoingTorque = bodies.at( bodyUndergoingTorqueName );
         std::shared_ptr< Body > bodyExertingTorque = bodies.at( bodyExertingTorqueName );
 
@@ -1315,8 +1345,36 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
                                     1.0E-8,
                                     "dmr sine coefficients body exerting" );
 
+        // Verify gravitational parameter partials for gravity-derived masses against finite differences, which recompute the mass
+        // properties after each perturbation
+        const std::function< void( ) > updateMassPropertiesFunction =
+                std::bind( &updateBodyMassProperties, bodyUndergoingTorque, bodyExertingTorque, testTime );
+        const Eigen::MatrixXd analyticalPartialWrtGravityDerivedGravitationalParameterOfBodyUndergoingTorque =
+                torquePartial->wrtParameter( gravitationalParameterOfBodyUndergoingTorque );
+        const Eigen::MatrixXd analyticalPartialWrtGravityDerivedGravitationalParameterOfBodyExertingTorque =
+                torquePartial->wrtParameter( gravitationalParameterOfBodyExertingTorque );
+        checkMatrixClosePerElement(
+                analyticalPartialWrtGravityDerivedGravitationalParameterOfBodyUndergoingTorque,
+                calculateTorqueWrtParameterPartials(
+                        gravitationalParameterOfBodyUndergoingTorque, torqueModel, 1.0E-2, updateMassPropertiesFunction, testTime ),
+                1.0E-9,
+                "dmr gravity-derived GM body undergoing" );
+        checkMatrixClosePerElement(
+                analyticalPartialWrtGravityDerivedGravitationalParameterOfBodyExertingTorque,
+                calculateTorqueWrtParameterPartials(
+                        gravitationalParameterOfBodyExertingTorque, torqueModel, 1.0E-2, updateMassPropertiesFunction, testTime ),
+                1.0E-9,
+                "dmr gravity-derived GM body exerting" );
+
+        // Decouple mass properties from gravity fields, and recreate partial for these mass properties
         makeBodyMassIndependentOfGravityField( bodyUndergoingTorque );
         makeBodyMassIndependentOfGravityField( bodyExertingTorque );
+        torquePartial = createAnalyticalTorquePartial( torqueModel,
+                                                       std::make_pair( bodyUndergoingTorqueName, bodyUndergoingTorque ),
+                                                       std::make_pair( bodyExertingTorqueName, bodyExertingTorque ),
+                                                       basic_astrodynamics::SingleBodyTorqueModelMap( ),
+                                                       bodies,
+                                                       parameterSet );
         torqueModel->resetCurrentTime( );
         torquePartial->resetCurrentTime( );
         torqueModel->updateMembers( testTime );

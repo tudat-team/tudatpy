@@ -71,6 +71,7 @@ set(gravitation_HEADERS
         "fourthDegreeFullTwoBodyGravitationalTorque.h"
         "secondDegreeGravitationalTorque.h"
         "directTidalDissipationAcceleration.h"
+        "gravitationalParameterRateAcceleration.h"
         "sphericalHarmonicGravitationalTorque.h"
         "periodicGravityFieldVariations.h"
         "polynomialGravityFieldVariations.h"

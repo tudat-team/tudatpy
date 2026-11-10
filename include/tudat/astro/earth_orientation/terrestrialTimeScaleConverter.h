@@ -117,8 +117,8 @@ public:
         utcIntroductionEpochInTai_ = ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
                 physical_constants::JULIAN_DAY;
 
-        // Read historical Delta T values
-        std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
+        // Read historical Delta T values (only once)
+        static const std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
                 paths::getEarthOrientationDataFilesPath( ) + "/historicalDeltaT.txt", ",", "#" );
 
         historicalDeltaTInterpolator_ =
@@ -398,6 +398,12 @@ public:
         if( dailyUtcUt1CorrectionInterpolator_ == nullptr )
         {
             throw std::runtime_error( "Error when getting UT1 correction: UTC to UT1 interpolator was not provided." );
+        }
+
+        // Before the introduction of UTC, UTC is set equal to UT1 (see calculateUniversalTimes)
+        if( getCurrentTime( inputScale, basic_astrodynamics::tai_scale, inputTimeValue, currentPosition ) < utcIntroductionEpochInTai_ )
+        {
+            return 0.0;
         }
 
         try
