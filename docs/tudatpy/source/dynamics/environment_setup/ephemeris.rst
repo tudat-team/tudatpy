@@ -114,6 +114,10 @@ Functions
 
    scaled_by_vector_function
 
+   sp3_from_file_name
+
+   sp3_from_file_contents
+
    tabulated
 
    tabulated_from_existing
@@ -149,6 +153,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.scaled_by_vector
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.scaled_by_vector_function
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.sp3_from_file_name
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.sp3_from_file_contents
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.jpl_horizons_from_query
 
