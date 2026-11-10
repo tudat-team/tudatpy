@@ -54,6 +54,7 @@ double getScaledMeanMomentOfInertiaWithDeprecatedFallback( const double scaledMe
                                                       : getDeprecatedScaledMeanMomentOfInertia( gravityFieldSettings );
 }
 
+//! Function to determine the settings from which the rigid body properties of a body are to be created
 std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSettings( const std::shared_ptr< BodySettings >& bodySettings )
 {
     const std::shared_ptr< RigidBodyPropertiesSettings > explicitSettings = bodySettings->rigidBodyPropertiesSettings;

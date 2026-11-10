@@ -15,6 +15,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -51,10 +52,11 @@ public:
             const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial,
             const std::string acceleratedBody,
             const std::string acceleratingBody,
-            const bool perturberMassIsGravityDerived ):
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyExertingTorque ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravitational_torque ),
         torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial ),
-        perturberMassIsGravityDerived_( perturberMassIsGravityDerived )
+        perturberMassIsGravityDerived_( std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                                                rigidBodyPropertiesOfBodyExertingTorque ) != nullptr )
     {
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }

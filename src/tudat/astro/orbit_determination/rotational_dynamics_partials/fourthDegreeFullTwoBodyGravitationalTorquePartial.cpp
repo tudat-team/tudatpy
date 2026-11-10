@@ -695,10 +695,8 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
         const std::string& acceleratingBody,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque,
-        const std::function< double( ) > gravitationalParameterOfBodyUndergoingTorqueFunction,
-        const std::function< double( ) > gravitationalParameterOfBodyExertingTorqueFunction,
-        const bool rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived,
-        const bool rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived ):
+        const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyExertingTorque ):
     TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::fourth_degree_full_two_body_gravitational_torque ),
     torqueModel_( torqueModel ), gravityFieldOfBodyUndergoingTorque_( gravityFieldOfBodyUndergoingTorque ),
     gravityFieldOfBodyExertingTorque_( gravityFieldOfBodyExertingTorque ),
@@ -718,10 +716,16 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
     currentInertiaTensorOfBodyExertingTorque_( Eigen::Matrix3d::Zero( ) ),
     rotationMatrixPartialsOfBodyUndergoingTorque_( rotationMatrixPartialsOfBodyUndergoingTorque ),
     rotationMatrixPartialsOfBodyExertingTorque_( rotationMatrixPartialsOfBodyExertingTorque ),
-    gravitationalParameterOfBodyUndergoingTorqueFunction_( gravitationalParameterOfBodyUndergoingTorqueFunction ),
-    gravitationalParameterOfBodyExertingTorqueFunction_( gravitationalParameterOfBodyExertingTorqueFunction ),
-    rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived_( rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived ),
-    rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived_( rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived )
+    gravitationalParameterOfBodyUndergoingTorqueFunction_(
+            simulation_setup::getGravitationalParameterFunctionOfGravityDerivedProperties( rigidBodyPropertiesOfBodyUndergoingTorque ) ),
+    gravitationalParameterOfBodyExertingTorqueFunction_(
+            simulation_setup::getGravitationalParameterFunctionOfGravityDerivedProperties( rigidBodyPropertiesOfBodyExertingTorque ) ),
+    rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived_(
+            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                    rigidBodyPropertiesOfBodyUndergoingTorque ) != nullptr ),
+    rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived_(
+            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( rigidBodyPropertiesOfBodyExertingTorque ) !=
+            nullptr )
 {
     if( torqueModel_ == nullptr )
     {

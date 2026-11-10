@@ -68,7 +68,7 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
         const std::string& acceleratingBody,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque,
-        const std::function< double( ) > gravitationalParameterOfBodyUndergoingTorqueFunction ):
+        const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyUndergoingTorque ):
     TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::full_two_body_spherical_harmonic_gravitational_torque ),
     torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial ),
     accelerationModel_( torqueModel == nullptr ? nullptr : torqueModel->getAccelerationBetweenBodies( ) ),
@@ -90,7 +90,8 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
     currentCosineOfLatitude_( TUDAT_NAN ), currentPreMultiplier_( TUDAT_NAN ), currentBodyUndergoingTorqueMass_( TUDAT_NAN ),
     rotationMatrixPartialsOfBodyUndergoingTorque_( rotationMatrixPartialsOfBodyUndergoingTorque ),
     rotationMatrixPartialsOfBodyExertingTorque_( rotationMatrixPartialsOfBodyExertingTorque ),
-    gravitationalParameterOfBodyUndergoingTorqueFunction_( gravitationalParameterOfBodyUndergoingTorqueFunction )
+    gravitationalParameterOfBodyUndergoingTorqueFunction_(
+            simulation_setup::getGravitationalParameterFunctionOfGravityDerivedProperties( rigidBodyPropertiesOfBodyUndergoingTorque ) )
 {
     if( torqueModel_ == nullptr )
     {

@@ -14,6 +14,7 @@
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -34,8 +35,8 @@ public:
     //! Constructor.
     /*!
      * Constructor.
-     * \param gravitationalParameterOfBodyUndergoingTorqueFunction Function returning the gravitational parameter of the body
-     * undergoing torque, if its mass is derived from its gravity field (empty otherwise)
+     * \param rigidBodyPropertiesOfBodyUndergoingTorque Rigid body properties of the body undergoing torque (mass depends on its
+     * gravitational parameter only if these are derived from its gravity field)
      */
     FullTwoBodySphericalHarmonicGravitationalTorquePartial(
             const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel,
@@ -46,7 +47,7 @@ public:
                     observation_partials::RotationMatrixPartialNamedList( ),
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque =
                     observation_partials::RotationMatrixPartialNamedList( ),
-            const std::function< double( ) > gravitationalParameterOfBodyUndergoingTorqueFunction = std::function< double( ) >( ) );
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyUndergoingTorque = nullptr );
 
     ~FullTwoBodySphericalHarmonicGravitationalTorquePartial( ) {}
 

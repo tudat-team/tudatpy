@@ -162,6 +162,12 @@ public:
     //! Reset the gravity field from which these properties are derived
     void resetGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
 
+    //! Return the gravity field from which these properties are derived
+    std::shared_ptr< gravitation::GravityFieldModel > getGravityFieldModel( ) const
+    {
+        return gravityFieldModel_;
+    }
+
     //! Return the scaled mean moment of inertia (I_xx + I_yy + I_zz) / ( 3 M R^2 )
     double getScaledMeanMomentOfInertia( ) const;
 
@@ -186,6 +192,28 @@ protected:
     //! Inertia tensor per unit mass of (homogeneous) polyhedron
     Eigen::Matrix3d polyhedronInertiaTensorPerUnitMass_;
 };
+
+//! Function to retrieve the gravitational parameter function of rigid body properties derived from a gravity field
+/*!
+ * Function to retrieve the gravitational parameter function of rigid body properties derived from a gravity field, in which case
+ * the mass and inertia tensor are proportional to the gravitational parameter
+ * \param rigidBodyProperties Rigid body properties for which the function is to be retrieved
+ * \return Function returning the gravitational parameter (empty if the properties are not derived from a gravity field)
+ */
+std::function< double( ) > getGravitationalParameterFunctionOfGravityDerivedProperties(
+        const std::shared_ptr< RigidBodyProperties > rigidBodyProperties );
+
+//! Function to retrieve the inertia tensor normalization function of rigid body properties derived from a spherical harmonic
+//! gravity field
+/*!
+ * Function to retrieve the inertia tensor normalization function of rigid body properties derived from a spherical harmonic gravity
+ * field, in which case the inertia tensor depends on the degree two gravity field coefficients
+ * \param rigidBodyProperties Rigid body properties for which the function is to be retrieved
+ * \return Function returning the inertia tensor normalization factor (empty if the properties are not derived from a spherical
+ * harmonic gravity field)
+ */
+std::function< double( ) > getInertiaTensorNormalizationFunctionOfGravityDerivedProperties(
+        const std::shared_ptr< RigidBodyProperties > rigidBodyProperties );
 
 }  // namespace simulation_setup
 

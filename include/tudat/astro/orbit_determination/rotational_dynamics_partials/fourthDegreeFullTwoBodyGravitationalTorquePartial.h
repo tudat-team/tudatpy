@@ -16,6 +16,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -85,14 +86,10 @@ public:
     //! Constructor.
     /*!
      * Constructor.
-     * \param gravitationalParameterOfBodyUndergoingTorqueFunction Function returning the gravitational parameter of the body
-     * undergoing torque (required if its rigid body properties are derived from its gravity field)
-     * \param gravitationalParameterOfBodyExertingTorqueFunction Function returning the gravitational parameter of the body
-     * exerting torque (required if its rigid body properties are derived from its gravity field)
-     * \param rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived Boolean denoting whether the mass and inertia tensor of the
-     * body undergoing torque are derived from its gravity field
-     * \param rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived Boolean denoting whether the mass and inertia tensor of the
-     * body exerting torque are derived from its gravity field
+     * \param rigidBodyPropertiesOfBodyUndergoingTorque Rigid body properties of the body undergoing torque (mass and inertia tensor
+     * depend on its gravity field only if these are derived from it)
+     * \param rigidBodyPropertiesOfBodyExertingTorque Rigid body properties of the body exerting torque (mass and inertia tensor
+     * depend on its gravity field only if these are derived from it)
      */
     FourthDegreeFullTwoBodyGravitationalTorquePartial(
             const std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > torqueModel,
@@ -104,10 +101,8 @@ public:
                     observation_partials::RotationMatrixPartialNamedList( ),
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque =
                     observation_partials::RotationMatrixPartialNamedList( ),
-            const std::function< double( ) > gravitationalParameterOfBodyUndergoingTorqueFunction = std::function< double( ) >( ),
-            const std::function< double( ) > gravitationalParameterOfBodyExertingTorqueFunction = std::function< double( ) >( ),
-            const bool rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived = false,
-            const bool rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived = false );
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyUndergoingTorque = nullptr,
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyExertingTorque = nullptr );
 
     ~FourthDegreeFullTwoBodyGravitationalTorquePartial( ) {}
 

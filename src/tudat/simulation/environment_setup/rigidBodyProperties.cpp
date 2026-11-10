@@ -311,20 +311,12 @@ void FromGravityFieldRigidBodyProperties::resetGravityFieldModel(
         throw std::runtime_error( "Error when creating gravity-linked rigid body properties: gravity field is null." );
     }
 
-    const bool gravityFieldChanged = gravityFieldModel_ != gravityFieldModel;
     gravityFieldModel_ = gravityFieldModel;
     modelIsTimeDependent_ =
             ( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ ) != nullptr );
-    if( gravityFieldChanged )
-    {
-        if( const auto polyhedronGravityField = std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ ) )
-        {
-            // The shape is fixed. Integrate over the facets only when linking a new model;
-            // subsequent mass changes only scale this tensor per unit mass.
-            polyhedronInertiaTensorPerUnitMass_ = basic_astrodynamics::computePolyhedronInertiaTensor(
-                    polyhedronGravityField->getVerticesCoordinates( ), polyhedronGravityField->getVerticesDefiningEachFacet( ), 1.0, 1.0 );
-        }
-    }
+
+    // Polyhedron inertia tensor per unit mass is recomputed for the new gravity field
+    polyhedronInertiaTensorPerUnitMass_.setConstant( TUDAT_NAN );
     computeMassFromGravityField( );
     computeMassDistributionFromGravityField( );
 }
@@ -347,8 +339,15 @@ void FromGravityFieldRigidBodyProperties::computeMassDistributionFromGravityFiel
                                                   currentInertiaTensor_,
                                                   isInertiaTensorAvailable_ );
     }
-    else if( std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ ) != nullptr )
+    else if( const auto polyhedronGravityField = std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ ) )
     {
+        // The shape is fixed, so the integration over the facets is only done once per gravity field; mass changes only scale this
+        // tensor per unit mass.
+        if( !polyhedronInertiaTensorPerUnitMass_.allFinite( ) )
+        {
+            polyhedronInertiaTensorPerUnitMass_ = basic_astrodynamics::computePolyhedronInertiaTensor(
+                    polyhedronGravityField->getVerticesCoordinates( ), polyhedronGravityField->getVerticesDefiningEachFacet( ), 1.0, 1.0 );
+        }
         currentCenterOfMass_.setZero( );
         currentInertiaTensor_ = currentMass_ * polyhedronInertiaTensorPerUnitMass_;
         isInertiaTensorAvailable_ = true;
@@ -388,6 +387,43 @@ void FromGravityFieldRigidBodyProperties::setScaledMeanMomentOfInertia( const do
 {
     scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
     computeMassDistributionFromGravityField( );
+}
+
+//! Function to retrieve the gravitational parameter function of rigid body properties derived from a gravity field
+std::function< double( ) > getGravitationalParameterFunctionOfGravityDerivedProperties(
+        const std::shared_ptr< RigidBodyProperties > rigidBodyProperties )
+{
+    std::function< double( ) > gravitationalParameterFunction;
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityDerivedProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( rigidBodyProperties );
+    if( gravityDerivedProperties != nullptr )
+    {
+        gravitationalParameterFunction =
+                std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, gravityDerivedProperties->getGravityFieldModel( ) );
+    }
+    return gravitationalParameterFunction;
+}
+
+//! Function to retrieve the inertia tensor normalization function of rigid body properties derived from a spherical harmonic
+//! gravity field
+std::function< double( ) > getInertiaTensorNormalizationFunctionOfGravityDerivedProperties(
+        const std::shared_ptr< RigidBodyProperties > rigidBodyProperties )
+{
+    std::function< double( ) > inertiaTensorNormalizationFunction;
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityDerivedProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( rigidBodyProperties );
+    if( gravityDerivedProperties != nullptr )
+    {
+        const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
+                std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                        gravityDerivedProperties->getGravityFieldModel( ) );
+        if( sphericalHarmonicsGravityField != nullptr )
+        {
+            inertiaTensorNormalizationFunction = std::bind(
+                    &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor, sphericalHarmonicsGravityField );
+        }
+    }
+    return inertiaTensorNormalizationFunction;
 }
 
 }  // namespace simulation_setup
