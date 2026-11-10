@@ -35,6 +35,12 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
 
 {
+    if( considerParametersIncluded_ && parametersToEstimate_->getConstraintSize( ) > 0 )
+    {
+        throw std::runtime_error(
+                "Error when estimating parameters, linear parameter constraints cannot be combined with consider parameters" );
+    }
+
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
     // Get number of observations

@@ -185,6 +185,23 @@ void expose_parameters( py::module& m )
 
          :type: numpy.ndarray[m, 1] with the configured state scalar dtype (float64 or longdouble)
       )doc" )
+            .def_property( "reduce_sensitivity_matrix_columns",
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getReduceSensitivityMatrixColumns,
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::setReduceSensitivityMatrixColumns,
+                           R"doc(
+
+         Boolean denoting whether sensitivity matrix columns that are zero in a propagation arc are omitted when propagating the
+         variational equations (default false). If true, parameters that cannot influence the dynamics (e.g. observation biases), and
+         parameter entries that only influence the dynamics outside of a propagation arc (e.g. arc-wise empirical accelerations in other
+         arcs) are not propagated, which can substantially reduce the computational cost and memory use for large (multi-arc)
+         estimations. The time interval of each propagation arc is only used if it is known before the propagation (time-based
+         termination). The full sensitivity matrix is reconstructed when it is retrieved. This setting must be set before the
+         variational equations solver (or estimator) is created. The propagated columns are selected at that point: if a propagation
+         time interval used for this selection is extended afterwards (by changing the initial time or termination settings), or is
+         no longer known before the propagation, an error is thrown when propagating the variational equations.
+
+         :type: bool
+      )doc" )
             .def_property_readonly( "consider_parameters",
                                     &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getConsiderParameters,
                                     R"doc(
@@ -376,6 +393,91 @@ void expose_parameters( py::module& m )
 
 
 
+
+     )doc" );
+
+    m.def( "set_parameter_correction_constraint",
+           &tep::setParameterCorrectionConstraint,
+           py::arg( "parameter" ),
+           py::arg( "constraint_direction" ),
+           R"doc(
+
+ Function to constrain the correction to an estimated parameter to be orthogonal to a given direction.
+
+ Function to constrain the correction :math:`\Delta\mathbf{x}` to an estimated parameter to be orthogonal to a given direction
+ :math:`\mathbf{g}`, by imposing :math:`\mathbf{g}^{T}\Delta\mathbf{x}=0` (using Lagrange multipliers) in each iteration of the
+ estimation. For instance, when :math:`\mathbf{g}` is the weak direction of the covariance of an initial state from an
+ unconstrained solution, this can be used to compute points along the line of variations :cite:p:`milani2005`.
+ Any constraint previously set on the parameter is replaced; it can be removed with
+ :func:`~tudatpy.dynamics.parameters.remove_parameter_correction_constraint`.
+ Estimations and covariance analyses with a constraint raise an error if the parameter set includes consider parameters.
+ A constraint set on an initial rotational state is not applied (a warning is given), as this parameter only uses its
+ quaternion norm constraint.
+ With a constraint, the covariance in the estimation or covariance analysis output has one additional row and column per
+ constraint; the parameter covariance is the top-left block with the size of the parameter vector. This block is the one used by
+ :func:`~tudatpy.estimation.estimation_analysis.propagate_covariance_from_analysis_objects`.
+
+ Parameters
+ ----------
+ parameter : :class:`~tudatpy.dynamics.parameters.EstimatableParameter`
+     Estimated parameter, as retrieved from the parameter set with
+     :meth:`~tudatpy.dynamics.parameters.EstimatableParameterSet.parameters_for_parameter_type`.
+ constraint_direction : numpy.ndarray[numpy.float64[n, 1]]
+     Finite, non-zero direction (of the same size as the parameter) to which the parameter correction is to be orthogonal.
+
+     )doc" );
+
+    m.def( "set_initial_state_correction_constraint",
+           &tep::setInitialStateCorrectionConstraint< STATE_SCALAR_TYPE >,
+           py::arg( "parameter_set" ),
+           py::arg( "constraint_direction" ),
+           R"doc(
+
+ Function to constrain the correction to the initial state in a parameter set to be orthogonal to a given direction.
+
+ Function that applies :func:`~tudatpy.dynamics.parameters.set_parameter_correction_constraint` to the single-arc initial
+ translational state in the parameter set. The parameter set must contain exactly one such parameter.
+
+ Parameters
+ ----------
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Parameter set containing exactly one single-arc initial translational state.
+ constraint_direction : numpy.ndarray[numpy.float64[6, 1]]
+     Direction to which the correction to the initial state is to be orthogonal.
+
+     )doc" );
+
+    m.def( "remove_parameter_correction_constraint",
+           &tep::removeParameterCorrectionConstraint,
+           py::arg( "parameter" ),
+           R"doc(
+
+ Function to remove the constraint on the correction to an estimated parameter.
+
+ Function to remove the constraint set with :func:`~tudatpy.dynamics.parameters.set_parameter_correction_constraint`,
+ so that subsequent estimations and covariance analyses are unconstrained.
+
+ Parameters
+ ----------
+ parameter : :class:`~tudatpy.dynamics.parameters.EstimatableParameter`
+     Estimated parameter from which the constraint is removed.
+
+     )doc" );
+
+    m.def( "remove_parameter_correction_constraints",
+           &tep::removeParameterCorrectionConstraints< STATE_SCALAR_TYPE >,
+           py::arg( "parameter_set" ),
+           R"doc(
+
+ Function to remove the constraints on the corrections to all parameters in a parameter set.
+
+ Function that applies :func:`~tudatpy.dynamics.parameters.remove_parameter_correction_constraint` to all estimated
+ parameters in the parameter set.
+
+ Parameters
+ ----------
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Parameter set from which all constraints are removed.
 
      )doc" );
 }

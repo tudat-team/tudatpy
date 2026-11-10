@@ -176,7 +176,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                                                   deformingBodies.at( i ) );
                     }
 
-                    deformingBodyEphemerides.push_back( std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
+                    deformingBodyEphemerides.push_back( std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double, false >,
                                                                    bodyMap.at( deformingBodies.at( i ) ),
                                                                    std::placeholders::_1 ) );
 
@@ -217,7 +217,9 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                 }
 
                 bodyDeformationModel = std::make_shared< basic_astrodynamics::BasicTidalBodyDeformation >(
-                        std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( body ), std::placeholders::_1 ),
+                        std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double, false >,
+                                   bodyMap.at( body ),
+                                   std::placeholders::_1 ),
                         deformingBodyEphemerides,
                         std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
                                    bodyMap.at( body )->getRotationalEphemeris( ),

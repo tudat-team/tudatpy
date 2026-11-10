@@ -13,6 +13,7 @@ set(environment_HEADERS
         createAerodynamicCoefficientInterface.h
         createBodyShapeModel.h
         createEphemeris.h
+        createSp3Ephemeris.h
         createGravityField.h
         createAerodynamicControlSurfaces.h
         createRotationModel.h
@@ -47,6 +48,7 @@ set(environment_HEADERS
 # Add header files.
 set(environment_SOURCES
         createEphemeris.cpp
+        createSp3Ephemeris.cpp
         createRotationModel.cpp
         createRotationModelEarthOrientation.cpp
         createGravityFieldVariations.cpp

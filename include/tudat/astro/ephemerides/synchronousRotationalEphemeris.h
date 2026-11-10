@@ -193,7 +193,8 @@ public:
         return longitudeLibrationCalculator_;
     }
 
-    std::string getCentralBodyName( )
+    //! Function to retrieve the name of the central body, w.r.t. which the rotation is synchronous
+    std::string getCentralBodyName( ) const
     {
         return centralBodyName_;
     }
@@ -204,18 +205,12 @@ public:
         relativeStateFunction_ = relativeStateFunction;
     }
 
-    bool isRelativeStateFunctionSet( )
-    {
-        return relativeStateFunction_ != nullptr;
-    }
-
     Eigen::Vector6d getRelativeCartesianState( const double time )
     {
         return computeRelativeState( time );
     }
 
 private:
-    //! Function returning the current state of the body relative to the central body, in the base frame
     //! Function to compute the state of the body w.r.t. the central body (throws if the model is not closed)
     Eigen::Vector6d computeRelativeState( const double time )
     {
@@ -226,6 +221,7 @@ private:
         return relativeStateFunction_( time, isBodyInPropagation_ );
     }
 
+    //! Function returning the current state of the body relative to the central body, in the base frame
     std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction_;
 
     //!  Boolean defining whether the body is currently being propagated, or not
