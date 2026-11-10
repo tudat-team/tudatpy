@@ -62,13 +62,21 @@ void TerrestrialTimeScaleConverter::setCurrentGroundStation< Time >( const Eigen
 }
 
 //! Function to create the default Earth time scales conversion object
-std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader )
+std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader,
+                                                                             const bool reuseExistingConverter )
 {
+    if( reuseExistingConverter && eopReader == nullptr )
+    {
+        static std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( nullptr, false );
+        return defaultTimeConverter;
+    }
+
+    std::shared_ptr< EOPReader > eopReaderToUse = ( eopReader == nullptr ) ? std::make_shared< EOPReader >( ) : eopReader;
     std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > shortPeriodUt1CorrectionCalculator =
             getDefaultUT1CorrectionCalculator( );
     std::shared_ptr< interpolators::JumpDataLinearInterpolator< double, double > > ut1MinusUtcInterpolator =
             std::make_shared< interpolators::JumpDataLinearInterpolator< double, double > >(
-                    eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ),
+                    eopReaderToUse->getUt1MinusUtcMapInSecondsSinceJ2000( ),
                     0.5,
                     1.0,
                     interpolators::huntingAlgorithm,

@@ -5,8 +5,8 @@ import pytest
 
 # Load Tudatpy modules
 from tudatpy.dynamics import environment, environment_setup
-from tudatpy.data import (
-    read_solar_activity_data,
+from tudatpy.data_input.environment_data.space_weather import read_solar_activity_data
+from tudatpy.data_input.resource_paths import (
     get_space_weather_path,
     get_atmosphere_tables_path,
 )

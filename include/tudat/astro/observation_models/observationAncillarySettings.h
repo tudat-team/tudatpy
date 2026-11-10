@@ -17,11 +17,12 @@
 #include <map>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
@@ -275,6 +276,30 @@ public:
         return name;
     }
 
+    ObservationAncillarySimulationVariable getAncillaryVariableFromString( const std::string& name )
+    {
+        std::map< std::string, ObservationAncillarySimulationVariable > ancillaryVariableFromStringMap = {
+            { "link ends time delays", link_ends_delays },
+            { "frequency bands", frequency_bands },
+            { "Doppler observable integration time", doppler_integration_time },
+            { "DSN Doppler reference frequency", doppler_reference_frequency },
+            { "DSN reference frequency band at reception", reception_reference_frequency_band },
+            { "DSN sequential range lowest ranging component", sequential_range_lowest_ranging_component },
+            { "DSN range conversion factor from RU to meter", range_conversion_factor }
+        };
+
+        const auto it = ancillaryVariableFromStringMap.find( name );
+        if( it == ancillaryVariableFromStringMap.end( ) )
+        {
+            std::string validAncillaryVariableStrings;
+            for( const auto& entry : ancillaryVariableFromStringMap )
+                validAncillaryVariableStrings += ( validAncillaryVariableStrings.empty( ) ? "" : ", " ) + entry.first;
+            throw std::runtime_error( "Error when converting ancillary setting key " + name +
+                                      ", ancillary variable not recognised. Valid options are: " + validAncillaryVariableStrings + "." );
+        }
+        return it->second;
+    }
+
     void setIntermediateDoubleData( const ObservationIntermediateSimulationVariable& variableType, const double variable )
     {
         switch( variableType )
@@ -426,25 +451,27 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getCustomPositi
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayRangeAncillarySettings(
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands = std::vector< basic_astrodynamics::FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayAveragedDopplerAncillarySettings(
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands = std::vector< basic_astrodynamics::FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancillarySettings;
 }
 
@@ -461,8 +488,8 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getTwoWayAverag
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands,
-        const FrequencyBands receptionReferenceFrequencyBand,
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands,
+        const basic_astrodynamics::FrequencyBands receptionReferenceFrequencyBand,
         const double referenceFrequency,
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
@@ -473,16 +500,17 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAvera
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, referenceFrequency );
     ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band,
-                                               convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
+                                               basic_astrodynamics::convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRangeAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands,
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands,
         const double lowestRangingComponent,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 
@@ -492,19 +520,21 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRange
 
     ancillarySettings->setAncillaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDopplerMeasuredFrequencyAncillarySettings(
-        const std::vector< FrequencyBands >& frequencyBands )
+        const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
 
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                     basic_astrodynamics::convertFrequencyBandsToDoubleVector( frequencyBands ) );
 
     return ancillarySettings;
 }
@@ -525,6 +555,47 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDefaultAncil
             break;
     }
     return ancillarySettings;
+}
+
+inline std::vector< ObservationAncillarySimulationVariable > getListRequiredAncillaryVariables(
+        const observation_models::ObservableType observableType )
+{
+    switch( observableType )
+    {
+        case observation_models::one_way_differenced_range:
+        case observation_models::n_way_differenced_range:
+            return { doppler_integration_time };
+        case observation_models::dsn_n_way_averaged_doppler:
+            return { doppler_integration_time, doppler_reference_frequency, reception_reference_frequency_band, frequency_bands };
+        case observation_models::dsn_n_way_range:
+            return { sequential_range_lowest_ranging_component, frequency_bands };
+        case observation_models::doppler_measured_frequency:
+        case observation_models::one_way_doppler_measured_frequency:
+            return { frequency_bands };
+        default:
+            return {};
+    }
+}
+
+inline void checkTrackingDataAncillarySettings( const observation_models::ObservableType observableType,
+                                                const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+{
+    // Extract ancillary data
+    const auto doubleData = ancillarySettings->getDoubleData( );
+    const auto doubleVectorData = ancillarySettings->getDoubleVectorData( );
+
+    std::vector< ObservationAncillarySimulationVariable > requiredAncillaryVariables = getListRequiredAncillaryVariables( observableType );
+
+    for( const ObservationAncillarySimulationVariable requiredAncillary : requiredAncillaryVariables )
+    {
+        bool ancillaryVariableDetected = doubleData.count( requiredAncillary ) > 0 || doubleVectorData.count( requiredAncillary ) > 0;
+        if( !ancillaryVariableDetected )
+        {
+            throw std::runtime_error( "Error when checking ancillary settings consistency: observable '" +
+                                      observation_models::getObservableName( observableType ) + "' requires ancillary setting '" +
+                                      ancillarySettings->getAncillaryDataName( requiredAncillary ) + "', which was not provided." );
+        }
+    }
 }
 
 }  // namespace observation_models

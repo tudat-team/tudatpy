@@ -46,7 +46,7 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
             linkEndString = "receiver_2";
             break;
         case observed_body:
-            linkEndString = "observed body";
+            linkEndString = "observed_body";
             break;
         case transmitter2:
             linkEndString = "transmitter_2";
@@ -59,6 +59,33 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
             throw std::runtime_error( errorMessage );
     }
     return linkEndString;
+}
+
+//! Function to get a link end type from a string identifier
+LinkEndType getLinkEndTypeFromString( const std::string& linkEndName )
+{
+    static const std::map< std::string, LinkEndType > linkEndTypeFromStringMap = {
+        { "transmitter", transmitter },    { "reflector_1", reflector1 }, { "reflector_2", reflector2 }, { "reflector_3", reflector3 },
+        { "reflector_4", reflector4 },     { "receiver", receiver },      { "receiver_2", receiver2 },   { "observed_body", observed_body },
+        { "transmitter_2", transmitter2 }, { "observer", observer }
+    };
+
+    // Retrieve link end type from string
+    const auto it = linkEndTypeFromStringMap.find( linkEndName );
+
+    // Check validity of the link end type
+    if( it == linkEndTypeFromStringMap.end( ) )
+    {
+        // Concatenate valid link ends strings
+        std::string validLinkEndsStrings;
+        for( const auto& entry : linkEndTypeFromStringMap )
+        {
+            validLinkEndsStrings += ( validLinkEndsStrings.empty( ) ? "" : ", " ) + entry.first;
+        }
+        throw std::runtime_error( "Error when converting link-end type '" + linkEndName +
+                                  "' from string: unknown link-end type. Valid link ends strings are: " + validLinkEndsStrings + "." );
+    }
+    return it->second;
 }
 
 //! Function to get a string identifier for a set of link ends

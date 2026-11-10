@@ -102,7 +102,7 @@ std::vector< LightTimeCorrectionSourceIndex > resolveLightTimeCorrectionSourceIn
 //! Retrieve the light-time calculator(s) of the leg from the originating to the receiving link end of the settings
 //! (two calculators, for start and end of the integration interval, for integrated observables).
 const std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > >& getLegLightTimeCalculators(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+        const std::shared_ptr< ObservationDependentVariableSettings >& variableSettings,
         const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
                         std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >& legLightTimeCalculators )
 {

@@ -48,6 +48,7 @@ dependencies:
   # Pip
   - pip
   - pip:
+     - iau-ades
      - nbsphinx
      - sphinxcontrib-napoleon
      - sphinx_rtd_theme
@@ -56,4 +57,5 @@ dependencies:
      - furo
      - sphinx_copybutton
      - git+https://github.com/NASA-PDS/PyTrk234.git
+     - git+https://github.com/ashokverma24/atdf2ascii.git
      - pre-commit

@@ -369,6 +369,17 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         std::cout << "Cost function from best iteration: " << bestCostFunction << std::endl;
     }
 
+    // Reset parameters to the best iteration (residuals in the observation collection are already from the best iteration). Note
+    // that the environment (e.g. ephemerides of propagated bodies) is not reset, and corresponds to the last propagation.
+    if( estimationInput->resetParametersToBestIteration_ )
+    {
+        if( bestIteration >= 0 )
+        {
+            parametersToEstimate_->template resetParameterValues< ObservationScalarType >( bestParameterEstimate );
+            currentParameterEstimate_ = bestParameterEstimate;
+        }
+    }
+
     // Create estimation output object
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput =
             std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >( bestParameterEstimate,

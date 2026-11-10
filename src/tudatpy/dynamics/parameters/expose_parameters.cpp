@@ -164,23 +164,43 @@ void expose_parameters( py::module& m )
 
          :type: int
       )doc" )
-            .def_property( "parameter_vector",
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithoutConsiderParameters< double >,
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithoutConsiderParameters< double >,
-                           R"doc(
+            .def_property(
+                    "parameter_vector",
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithoutConsiderParameters<
+                            STATE_SCALAR_TYPE >,
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithoutConsiderParameters< STATE_SCALAR_TYPE >,
+                    R"doc(
 
          Vector containing the parameter values of all parameters in the set (excluding consider parameters).
 
-         :type: numpy.ndarray[numpy.float64[m, 1]]
+         :type: numpy.ndarray[m, 1] with the configured state scalar dtype (float64 or longdouble)
       )doc" )
-            .def_property( "estimated_and_consider_parameter_vector",
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithConsiderParameters< double >,
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithConsiderParameters< double >,
-                           R"doc(
+            .def_property(
+                    "estimated_and_consider_parameter_vector",
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithConsiderParameters< STATE_SCALAR_TYPE >,
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithConsiderParameters< STATE_SCALAR_TYPE >,
+                    R"doc(
 
          Vector containing the parameter values of all parameters in the set (including consider parameters; concatenated after estimated parameters).
 
-         :type: numpy.ndarray[numpy.float64[m, 1]]
+         :type: numpy.ndarray[m, 1] with the configured state scalar dtype (float64 or longdouble)
+      )doc" )
+            .def_property( "reduce_sensitivity_matrix_columns",
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getReduceSensitivityMatrixColumns,
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::setReduceSensitivityMatrixColumns,
+                           R"doc(
+
+         Boolean denoting whether sensitivity matrix columns that are zero in a propagation arc are omitted when propagating the
+         variational equations (default false). If true, parameters that cannot influence the dynamics (e.g. observation biases), and
+         parameter entries that only influence the dynamics outside of a propagation arc (e.g. arc-wise empirical accelerations in other
+         arcs) are not propagated, which can substantially reduce the computational cost and memory use for large (multi-arc)
+         estimations. The time interval of each propagation arc is only used if it is known before the propagation (time-based
+         termination). The full sensitivity matrix is reconstructed when it is retrieved. This setting must be set before the
+         variational equations solver (or estimator) is created. The propagated columns are selected at that point: if a propagation
+         time interval used for this selection is extended afterwards (by changing the initial time or termination settings), or is
+         no longer known before the propagation, an error is thrown when propagating the variational equations.
+
+         :type: bool
       )doc" )
             .def_property_readonly( "consider_parameters",
                                     &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getConsiderParameters,

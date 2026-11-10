@@ -69,7 +69,7 @@ int computeNearestLeftNeighborUsingBinarySearch( const std::map< double, Eigen::
  *  neighbour is to be determined.
  */
 template< typename IndependentVariableType >
-int computeNearestLeftNeighborUsingBinarySearch( const std::vector< IndependentVariableType > vectorOfSortedData,
+int computeNearestLeftNeighborUsingBinarySearch( const std::vector< IndependentVariableType >& vectorOfSortedData,
                                                  const IndependentVariableType targetValueInVectorOfSortedData )
 {
     // Declare local variables.

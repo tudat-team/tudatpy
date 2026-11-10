@@ -26,6 +26,7 @@
 #include <tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
 #include <tudat/astro/aerodynamics/flightConditions.h>
 #include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
+#include <tudat/astro/basic_astro/frequencyBands.h>
 #include <tudat/astro/aerodynamics/nrlmsise00Atmosphere.h>
 #include <tudat/astro/basic_astro/ionosphereModel.h>
 #include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
@@ -56,6 +57,7 @@
 
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/system_models/camera.h"
+#include "tudat/astro/system_models/transponderTurnaroundRatios.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
@@ -71,7 +73,6 @@ namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace tsm = tudat::system_models;
-namespace tom = tudat::observation_models;
 namespace tem = tudat::electromagnetism;
 
 namespace tudat
@@ -184,6 +185,16 @@ void expose_environment( py::module& m )
                     m,
                     "TransmittingFrequencyCalculator",
                     R"doc(Interface for evaluating a ground station's transmitted frequency at an epoch.)doc" );
+
+    py::enum_< tba::FrequencyBands >( m, "FrequencyBands", R"doc(
+        Enumeration of frequency bands.
+
+        This enum lists common frequency bands used in deep space navigation.
+        )doc" )
+            .value( "s_band", tba::FrequencyBands::s_band )
+            .value( "x_band", tba::FrequencyBands::x_band )
+            .value( "ka_band", tba::FrequencyBands::ka_band )
+            .value( "ku_band", tba::FrequencyBands::ku_band );
 
     /*!
      **************   EPHEMERIDES  ******************
@@ -1094,7 +1105,7 @@ bool
          Parameters
          ----------
          solar_activity_data : dict[float, SolarActivityData]
-             Solar activity data for a range of epochs, as produced by :func:`~tudatpy.data.read_solar_activity_data`.
+             Solar activity data for a range of epochs, as produced by :func:`~tudatpy.data_input.environment_data.space_weather.read_solar_activity_data`.
          use_ideal_gas_law : bool, default = True
              Whether to use the ideal gas law to compute the pressure and speed of sound.
          use_storm_conditions : bool, default = False
@@ -1690,22 +1701,33 @@ bool
 
      )doc" )
             .def( "set_transponder_turnaround_ratio",
-                  py::overload_cast< std::map< std::pair< tom::FrequencyBands, tom::FrequencyBands >, double >& >(
+                  py::overload_cast< const std::map< std::pair< tba::FrequencyBands, tba::FrequencyBands >, double >& >(
                           &tsm::VehicleSystems::setTransponderTurnaroundRatio ),
                   py::arg( "transponder_ratio_per_uplink_and_downlink_"
                            "frequency_band" ),
                   R"doc(
-
-         Set the transponder turnaround ratios for the supported frequency band combinations.
-
-         The turnaround ratio is the transmitted downlink frequency divided by the received uplink frequency.
+         Set the transponder turnaround ratio of the vehicle from a dictionary of uplink/downlink frequency band combinations.
 
          Parameters
          ----------
-         transponder_ratio_per_uplink_and_downlink_frequency_band : dict[tuple[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands, tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands], float]
-             Dictionary mapping an uplink and downlink frequency band pair to its turnaround ratio.
+         transponder_ratio_per_uplink_and_downlink_frequency_band : dict[tuple[FrequencyBands, FrequencyBands], float]
+             Turnaround ratio for each (uplink band, downlink band) combination. Requesting the turnaround ratio for a
+             combination that is not in the table raises an error.
+     )doc" )
+            .def( "set_transponder_turnaround_ratio",
+                  py::overload_cast< std::function< double( tba::FrequencyBands, tba::FrequencyBands ) > >(
+                          &tsm::VehicleSystems::setTransponderTurnaroundRatio ),
+                  py::arg( "transponder_ratio_function" ),
+                  R"doc(
+         Set the transponder turnaround ratio of the vehicle as a function of the uplink and downlink frequency band.
 
-      )doc" )
+         Parameters
+         ----------
+         transponder_ratio_function : Callable[[FrequencyBands, FrequencyBands], float]
+             Function returning the turnaround ratio for a given uplink and downlink band, for instance
+             :func:`~tudatpy.dynamics.environment.dsn_default_turnaround_ratios` or
+             :func:`~tudatpy.dynamics.environment.cassini_turnaround_ratios`.
+     )doc" )
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
                   R"doc(Retrieve standard, DSN turnaround ratios based on the frequency bands of the link)doc" )
@@ -1876,6 +1898,51 @@ bool
          and the camera object the value of the dictionary.
 
          :type: dict[str, Camera]
+        )doc" );
+
+    m.def( "dsn_default_turnaround_ratios",
+           &tsm::getDsnDefaultTurnaroundRatios,
+           py::arg( "uplink_band" ),
+           py::arg( "downlink_band" ),
+           R"doc(
+
+        Get the default DSN turnaround ratio for given uplink and downlink bands, according to :cite:p:`moyer2005`, table 13-1.
+
+        Parameters
+        ----------
+        uplink_band : FrequencyBands
+            Uplink frequency band.
+        downlink_band : FrequencyBands
+            Downlink frequency band.
+
+        Returns
+        -------
+        float
+            The turnaround ratio.
+        )doc" );
+
+    m.def( "cassini_turnaround_ratios",
+           &tsm::getCassiniTurnaroundRatio,
+           py::arg( "uplink_band" ),
+           py::arg( "downlink_band" ),
+           R"doc(
+
+        Get the Cassini turnaround ratio for given uplink and downlink bands.
+
+        This function returns the specific Ka-band turnaround ratio for Cassini if both bands are Ka-band,
+        otherwise it falls back to the DSN default turnaround ratios (:cite:p:`moyer2005`, section 13.2.2).
+
+        Parameters
+        ----------
+        uplink_band : FrequencyBands
+            Uplink frequency band.
+        downlink_band : FrequencyBands
+            Downlink frequency band.
+
+        Returns
+        -------
+        float
+            The turnaround ratio.
         )doc" );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(
@@ -3135,46 +3202,146 @@ bool
 
          :type: str
          )doc" )
-            .def_property_readonly( "optical_center", &tsm::Camera::getOpticalCenter, R"doc(
-
-         **read-only**
-
-         Optical center of the camera, typically expressed in pixel coordinates.
-
-         :type: numpy.ndarray[numpy.float64[2, 1]]
-         )doc" )
-            .def_property_readonly( "focal_lengths", &tsm::Camera::getFocalLengthsMatrix, R"doc(
-
-            **read-only**
-
-            Diagonal Matrix representing the camera's focal lengths on the x and y axis.
-
-            :type:: numpy.ndarray[numpy.float64[2, 2]]
-            )doc" )
-            .def( "calculateObservableBodyFixedPosition",
-                  &tsm::Camera::calculateObservableFromBodyFixed,
-                  py::arg( "body_fixed_observable_position" ),
+            .def( "get_optical_center",
+                  &tsm::Camera::getOpticalCenter,
+                  py::arg( "time" ) = TUDAT_NAN,
                   R"doc(
 
-         Function to compute the observable position of a point in the camera frame.
-
-         Function to compute the observable position of a point in the camera frame, given its position in the body-fixed frame. The observable position is defined as the projection of the point onto the camera's sensor plane, and is typically expressed in pixel coordinates. The calculation takes into account the camera's orientation (given by :attr:`~Camera.quat`) and any other relevant properties of the camera.
+         Function to get the optical center of the camera at a given time, typically expressed in pixel coordinates.
 
          Parameters
          ----------
-         body_fixed_observable_position : numpy.ndarray[numpy.float64[3, 1]]
-             Cartesian position of the point to be observed, expressed in the body-fixed frame.
+         time : float, default=nan
+             Time at which the optical center is retrieved. Only required when the calibration changes between pictures.
 
          Returns
          -------
          numpy.ndarray[numpy.float64[2, 1]]
-             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
+             Optical center of the camera.
+         )doc" )
+            .def( "get_focal_lengths",
+                  &tsm::Camera::getFocalLengthsMatrix,
+                  py::arg( "time" ) = TUDAT_NAN,
+                  R"doc(
+
+         Function to get the focal lengths of the camera on the x and y axis at a given time.
+
+         Parameters
+         ----------
+         time : float, default=nan
+             Time at which the focal lengths are retrieved. Only required when the calibration changes between pictures.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 2]]
+             Diagonal matrix of the focal lengths of the camera.
+         )doc" )
+            .def_property_readonly(
+                    "optical_center",
+                    []( const tsm::Camera& self ) {
+                        tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.environment.Camera.optical_center",
+                                                                   "tudatpy.dynamics.environment.Camera.get_optical_center" );
+                        return self.getOpticalCenter( );
+                    },
+                    R"doc(Deprecated. Use :meth:`~Camera.get_optical_center` instead.)doc" )
+            .def_property_readonly(
+                    "focal_lengths",
+                    []( const tsm::Camera& self ) {
+                        tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.environment.Camera.focal_lengths",
+                                                                   "tudatpy.dynamics.environment.Camera.get_focal_lengths" );
+                        return self.getFocalLengthsMatrix( );
+                    },
+                    R"doc(Deprecated. Use :meth:`~Camera.get_focal_lengths` instead.)doc" )
+            .def( "calculate_observable_body_fixed_position",
+                  &tsm::Camera::calculateObservableFromBodyFixed,
+                  py::arg( "body_fixed_observable_position" ),
+                  py::arg( "time" ) = TUDAT_NAN,
+                  R"doc(
+
+         Function to compute the pixel coordinates of a point, for a camera fixed to its host body.
+
+         Function to compute the pixel coordinates of a point, given its position relative to the camera in the body-fixed frame of
+         the camera's host body. The position is rotated to the camera frame using the camera orientation w.r.t. its host body (given
+         by :attr:`~Camera.quaternion`) and the pointing correction at the given time (see :attr:`~Camera.pointing_correction`), and
+         projected with the calibration of the camera at that time. Not available for a camera whose orientation is given directly
+         w.r.t. the inertial frame (such as a camera created from SUM or PSF data); use
+         :meth:`~Camera.calculate_observable_inertial_position` instead.
+
+         Parameters
+         ----------
+         body_fixed_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed relative to the camera, expressed in the body-fixed frame of the camera's
+             host body.
+         time : float, default=nan
+             Time at which the pixel coordinates are computed. Only required for a camera with several pictures.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Pixel coordinates of the point.
         )doc" )
+            .def(
+                    "calculate_observable_inertial_position",
+                    []( const tsm::Camera& self,
+                        const Eigen::Vector3d& inertialObservablePosition,
+                        const Eigen::Vector4d& rotationFromInertialToBodyFixed,
+                        const double time ) {
+                        return self.calculateObservableFromInertial( inertialObservablePosition,
+                                                                     Eigen::Quaterniond( rotationFromInertialToBodyFixed( 0 ),
+                                                                                         rotationFromInertialToBodyFixed( 1 ),
+                                                                                         rotationFromInertialToBodyFixed( 2 ),
+                                                                                         rotationFromInertialToBodyFixed( 3 ) ),
+                                                                     time );
+                    },
+                    py::arg( "inertial_observable_position" ),
+                    py::arg( "rotation_from_inertial_to_body_fixed" ),
+                    py::arg( "time" ) = TUDAT_NAN,
+                    R"doc(
+
+         Function to compute the pixel coordinates of a point, given its position relative to the camera in the inertial frame.
+
+         Function to compute the pixel coordinates of a point, given its position relative to the camera in the inertial frame. The
+         position is rotated to the camera frame using the camera orientation and the pointing correction at the given time (see
+         :attr:`~Camera.pointing_correction`), and projected with the calibration of the camera at that time. For a camera fixed to
+         its host body, the orientation is composed from the given inertial-to-body-fixed rotation and the camera orientation w.r.t.
+         its host body (given by :attr:`~Camera.quaternion`). For a camera whose orientation is given directly w.r.t. the inertial
+         frame (such as a camera created from SUM or PSF data), the given rotation is not used.
+
+         Parameters
+         ----------
+         inertial_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed relative to the camera, expressed in the inertial frame.
+
+         rotation_from_inertial_to_body_fixed : numpy.ndarray[numpy.float64[4, 1]]
+             Quaternion [w, x, y, z] rotating vectors from the inertial frame to the camera host body's body-fixed frame.
+
+         time : float, default=nan
+             Time at which the pixel coordinates are computed. Only required for a camera with several pictures, or whose
+             orientation is given directly w.r.t. the inertial frame.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Pixel coordinates of the point.
+        )doc" )
+            .def(
+                    "calculateObservableBodyFixedPosition",
+                    []( const tsm::Camera& self, const Eigen::Vector3d& bodyFixedObservablePosition ) {
+                        tudat::utilities::printDeprecationWarning(
+                                "tudatpy.dynamics.environment.Camera.calculateObservableBodyFixedPosition",
+                                "tudatpy.dynamics.environment.Camera.calculate_observable_body_fixed_position" );
+                        return self.calculateObservableFromBodyFixed( bodyFixedObservablePosition );
+                    },
+                    py::arg( "body_fixed_observable_position" ),
+                    R"doc(Deprecated. Use :meth:`~Camera.calculate_observable_body_fixed_position` instead.)doc" )
             .def(
                     "calculateObservableInertialPosition",
                     []( const tsm::Camera& self,
                         const Eigen::Vector3d& inertialObservablePosition,
                         const Eigen::Vector4d& rotationFromInertialToBodyFixed ) {
+                        tudat::utilities::printDeprecationWarning(
+                                "tudatpy.dynamics.environment.Camera.calculateObservableInertialPosition",
+                                "tudatpy.dynamics.environment.Camera.calculate_observable_inertial_position" );
                         return self.calculateObservableFromInertial( inertialObservablePosition,
                                                                      Eigen::Quaterniond( rotationFromInertialToBodyFixed( 0 ),
                                                                                          rotationFromInertialToBodyFixed( 1 ),
@@ -3183,25 +3350,7 @@ bool
                     },
                     py::arg( "inertial_observable_position" ),
                     py::arg( "rotation_from_inertial_to_body_fixed" ),
-                    R"doc(
-
-         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame.
-
-         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame. This function first converts the inertial position to body-fixed frame using the provided inertial-to-body-fixed rotation quaternion, and then computes the observable position as in :func:`~Camera.calculateObservableFromBodyFixed`.
-
-         Parameters
-         ----------
-         inertial_observable_position : numpy.ndarray[numpy.float64[3, 1]]
-             Cartesian position of the point to be observed, expressed in the inertial frame.
-
-         rotation_from_inertial_to_body_fixed : numpy.ndarray[numpy.float64[4, 1]]
-             Quaternion [w, x, y, z] rotating vectors from the inertial frame to the camera host body's body-fixed frame.
-
-         Returns
-         -------
-         numpy.ndarray[numpy.float64[2, 1]]
-             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
-        )doc" )
+                    R"doc(Deprecated. Use :meth:`~Camera.calculate_observable_inertial_position` instead.)doc" )
             .def_property_readonly(
                     "quaternion",
                     []( const tsm::Camera& self ) -> Eigen::Vector4d {
@@ -3212,7 +3361,53 @@ bool
             **read-only**
 
             Orientation of the camera. Returns a 4x1 numpy array [w, x, y, z].
-            )doc" );
+            )doc" )
+            .def_property( "pointing_correction",
+                           py::overload_cast<>( &tsm::Camera::getPointingCorrection, py::const_ ),
+                           &tsm::Camera::setPointingCorrection,
+                           R"doc(
+
+            Pointing corrections of this camera in radians, with three components per image, in time order. A camera
+            without images has a single correction. This is the quantity estimated by the
+            :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction` parameter, where the mathematical model
+            of the corrections is given. Defaults to zero.
+
+            :type: numpy.ndarray[numpy.float64[m, 1]]
+            )doc" )
+            .def_property_readonly( "picture_ids", &tsm::Camera::getPictureIds, R"doc(
+
+            **read-only**
+
+            Identifier of each picture taken by the camera, in time order. Empty if the pictures have no identifier.
+
+            :type: list[str]
+            )doc" )
+            .def_property_readonly( "picture_epochs", &tsm::Camera::getPictureEpochs, R"doc(
+
+            **read-only**
+
+            Epoch (TDB) of each picture taken by the camera, in time order. Empty for a camera without pictures.
+
+            :type: numpy.ndarray[numpy.float64[m, 1]]
+            )doc" )
+            .def( "get_picture_index",
+                  &tsm::Camera::getPictureIndex,
+                  py::arg( "time" ),
+                  R"doc(
+
+         Function to get the picture closest in time to a given time.
+
+         Parameters
+         ----------
+         time : float
+             Time, for example the epoch of an observation made with this camera.
+
+         Returns
+         -------
+         int
+             Index of the closest picture in :attr:`~Camera.picture_ids` and :attr:`~Camera.picture_epochs` (0 for a
+             camera without pictures).
+        )doc" );
     /*
      **************   GROUND STATION FUNCTIONALITY
      *******************
@@ -3677,16 +3872,6 @@ bool
             True if the ground station has a frequency calculator, False otherwise.
 
      )doc" )
-            //            .def( "set_water_vapor_partial_pressure_function",
-            //                  &tgs::GroundStation::setWaterVaporPartialPressureFunction,
-            //                  py::arg( "water_vapor_partial_pressure_function" ) )
-            //            .def( "set_temperature_function",
-            //            &tgs::GroundStation::setTemperatureFunction, py::arg(
-            //            "temperature_function" ) ) .def( "set_pressure_function",
-            //            &tgs::GroundStation::setPressureFunction, py::arg( "pressure_function" ) )
-            //            .def( "set_relative_humidity_function",
-            //                  &tgs::GroundStation::setRelativeHumidityFunction,
-            //                  py::arg( "relative_humidity_function" ) )
             .def_property( "transmitting_frequency_calculator",
                            &tgs::GroundStation::getTransmittingFrequencyCalculator,
                            &tgs::GroundStation::setTransmittingFrequencyCalculator,
