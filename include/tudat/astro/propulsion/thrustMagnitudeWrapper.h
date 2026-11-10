@@ -621,7 +621,8 @@ public:
         if( thrustInputVariableFunctions.size( ) != thrustIndependentVariables_.size( ) ||
             specificImpulseInputVariableFunctions.size( ) != specificImpulseDependentVariables_.size( ) )
         {
-            throw std::runtime_error( "Error when applying closure of parameterized thrust magnitude, number of input functions is inconsistent" );
+            throw std::runtime_error(
+                    "Error when applying closure of parameterized thrust magnitude, number of input functions is inconsistent" );
         }
         thrustInputVariableFunctions_ = thrustInputVariableFunctions;
         specificImpulseInputVariableFunctions_ = specificImpulseInputVariableFunctions;

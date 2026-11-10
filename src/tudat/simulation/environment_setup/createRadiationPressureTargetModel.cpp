@@ -240,8 +240,8 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
             }
 
             // Panels are set by closure of model
-            radiationPressureTargetModels.push_back(
-                    std::make_shared< PaneledRadiationPressureTargetModel >( sourceToTargetOccultingBodies, maximumNumberOfPixelsPerSource ) );
+            radiationPressureTargetModels.push_back( std::make_shared< PaneledRadiationPressureTargetModel >(
+                    sourceToTargetOccultingBodies, maximumNumberOfPixelsPerSource ) );
             break;
         }
         case RadiationPressureTargetModelType::multi_type_target: {
