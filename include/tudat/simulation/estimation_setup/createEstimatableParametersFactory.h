@@ -1541,6 +1541,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                 "Error, body rigid-body properties are not gravity-derived when making mean moment of "
                                 "inertia parameter." );
                     }
+                    if( !std::isfinite( rigidBodyProperties->getScaledMeanMomentOfInertia( ) ) ||
+                        !rigidBodyProperties->isInertiaTensorAvailable( ) )
+                    {
+                        throw std::runtime_error( "Error when making mean moment of inertia parameter of " + currentBodyName +
+                                                  ": no scaled mean moment of inertia is defined, or no inertia tensor is available from "
+                                                  "the gravity field. Define it with rigid_body.from_gravity_field." );
+                    }
                     doubleParameterToEstimate = std::make_shared< MeanMomentOfInertiaParameter >(
                             std::bind( &simulation_setup::FromGravityFieldRigidBodyProperties::getScaledMeanMomentOfInertia,
                                        rigidBodyProperties ),

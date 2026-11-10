@@ -256,6 +256,38 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     BOOST_REQUIRE( environmentUpdates.count( propagators::spherical_harmonic_gravity_field_update ) == 1 );
     BOOST_CHECK( environmentUpdates.at( propagators::spherical_harmonic_gravity_field_update ) ==
                  std::vector< std::string >( { "TimeDependent" } ) );
+
+    // Check that the inertia tensor follows the linear drift of C20 during a rotational propagation
+    const std::vector< std::string > bodiesToIntegrate = { "TimeDependent" };
+    Eigen::VectorXd initialRotationalState = Eigen::VectorXd::Zero( 7 );
+    initialRotationalState( 0 ) = 1.0;
+    initialRotationalState( 6 ) = 1.0E-4;
+    propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+            bodies,
+            std::make_shared< propagators::RotationalStatePropagatorSettings< double > >(
+                    createTorqueModelsMap( bodies, SelectedTorqueMap( ), bodiesToIntegrate ),
+                    bodiesToIntegrate,
+                    initialRotationalState,
+                    0.0,
+                    std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 1.0E4 ),
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( 1.0E5 ),
+                    propagators::quaternions,
+                    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > >(
+                            { propagators::inertiaTensorVariableSaveSettings( "TimeDependent" ) } ) ) );
+    const std::map< double, Eigen::VectorXd >& inertiaTensorHistory = dynamicsSimulator.getDependentVariableHistory( );
+    const Eigen::Matrix3d initialInertiaTensor =
+            propagators::getMatrixFromVectorRotationRepresentation( inertiaTensorHistory.begin( )->second );
+    BOOST_CHECK( inertiaTensorHistory.size( ) > 2 );
+    for( const auto& inertiaTensorEntry : inertiaTensorHistory )
+    {
+        // Change of unnormalized C20 is sqrt(5) times that of normalized C20 (1.0E-12 per second)
+        const Eigen::Matrix3d expectedInertiaTensor = initialInertiaTensor +
+                gravitationalParameter / physical_constants::GRAVITATIONAL_CONSTANT * referenceRadius * referenceRadius * std::sqrt( 5.0 ) *
+                        1.0E-12 * ( inertiaTensorEntry.first - inertiaTensorHistory.begin( )->first ) / 3.0 *
+                        Eigen::Vector3d( 1.0, 1.0, -2.0 ).asDiagonal( ).toDenseMatrix( );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                propagators::getMatrixFromVectorRotationRepresentation( inertiaTensorEntry.second ), expectedInertiaTensor, 1.0E-13 );
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )

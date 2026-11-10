@@ -349,7 +349,8 @@ void FromGravityFieldRigidBodyProperties::computeMassDistributionFromGravityFiel
                     polyhedronGravityField->getVerticesCoordinates( ), polyhedronGravityField->getVerticesDefiningEachFacet( ), 1.0, 1.0 );
         }
         currentCenterOfMass_.setZero( );
-        currentInertiaTensor_ = currentMass_ * polyhedronInertiaTensorPerUnitMass_;
+        currentInertiaTensor_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT *
+                polyhedronInertiaTensorPerUnitMass_;
         isInertiaTensorAvailable_ = true;
     }
     else if( std::dynamic_pointer_cast< gravitation::RingGravityField >( gravityFieldModel_ ) != nullptr ||

@@ -173,6 +173,12 @@ public:
         setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
     }
 
+    // Deprecated constructor, computing the degree two coefficients and scaled mean moment of inertia from an inertia tensor.
+    /*
+     *  Deprecated constructor, computing the degree two coefficients and scaled mean moment of inertia from an inertia tensor. Instead,
+     *  compute these with gravitation::getDegreeTwoSphericalHarmonicCoefficients, and define the scaled mean moment of inertia in the
+     *  rigid body properties settings derived from the gravity field.
+     */
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
                                             const double referenceRadius,
                                             const Eigen::Matrix3d& inertiaTensor,
@@ -189,6 +195,12 @@ public:
         cosineCoefficients_.block( 2, 0, 1, 3 ) = std::get< 0 >( degreeTwoField ).block( 2, 0, 1, 3 );
         sineCoefficients_.block( 2, 1, 1, 2 ) = std::get< 1 >( degreeTwoField ).block( 2, 1, 1, 2 );
         scaledMeanMomentOfInertia_ = std::get< 2 >( degreeTwoField );
+
+        std::cerr << "Warning, defining spherical harmonic gravity field settings from an inertia tensor is deprecated and will be removed "
+                     "in a future version of Tudat. Compute the degree two coefficients and scaled mean moment of inertia from the inertia "
+                     "tensor, and define the scaled mean moment of inertia in the rigid body properties settings derived from the gravity "
+                     "field (rigid_body.from_gravity_field) instead."
+                  << std::endl;
     }
 
     virtual ~SphericalHarmonicsGravityFieldSettings( ) {}
@@ -864,6 +876,8 @@ inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings
             gravitationalParameter, referenceRadius, normalizedCosineCoefficients, normalizedSineCoefficients, associatedReferenceFrame );
 }
 
+//! Deprecated function to create spherical harmonic gravity field settings from an inertia tensor (see corresponding
+//! SphericalHarmonicsGravityFieldSettings constructor)
 inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings(
         const double gravitationalParameter,
         const double referenceRadius,
