@@ -227,6 +227,20 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                         }
                         break;
                     }
+                    case estimatable_parameters::ground_station_linear_velocity: {
+                        if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
+                        {
+                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtStationLinearVelocity >(
+                                    currentBody->getRotationalEphemeris( ),
+                                    std::dynamic_pointer_cast< ground_stations::CombinedStationMotionModel >(
+                                            currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
+                                                    ->getNominalStationState( )
+                                                    ->getStationMotionModel( ) )
+                                            ->getLinearStationMotionModel( )
+                                            ->getReferenceEpoch( ) );
+                        }
+                        break;
+                    }
                     case estimatable_parameters::reference_point_position: {
                         // Check if current link end station is same station as that of which position is to be estimated.
                         if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
