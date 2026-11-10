@@ -129,8 +129,10 @@ void SphericalHarmonicGravitationalTorquePartial::update( const double currentTi
         currentBodyFixedPotentialGradientCrossProductMatrix_ = linear_algebra::getCrossProductMatrix( currentBodyFixedPotentialGradient_ );
         currentMass_ = torqueModel_->perturberMassFunction( )( );
 
-        currentQuaternionVector_ =
-                linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToBodyFixedFrame_.transpose( ) ) );
+        // Quaternion of the current (propagated) rotational state, not recomputed from the rotation matrix: the partials w.r.t. the
+        // quaternion entries change sign with the quaternion, while q and -q give the same rotation matrix
+        currentQuaternionVector_ = linear_algebra::convertQuaternionToVectorFormat(
+                torqueModel_->getSphericalHarmonicAcceleration( )->getCurrentRotationToIntegrationFrame( ) );
         linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion( currentQuaternionVector_,
                                                                                currentRotationMatrixDerivativesWrtQuaternion_ );
 

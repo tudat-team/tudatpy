@@ -26,6 +26,7 @@ namespace ephemeris
 
 void expose_ephemeris_types( py::module& m );
 
+//! Expose ephemeris settings factories, including environment-level SP3 ephemeris creation.
 void expose_ephemeris_setup( py::module& m );
 
 }  // namespace ephemeris

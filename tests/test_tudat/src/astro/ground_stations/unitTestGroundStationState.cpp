@@ -214,9 +214,11 @@ Eigen::Vector3d getBodyFixedSpecialRelativisticDisplacementFunction( const doubl
     // Spatial part of IERS Conventions 2010 Eq. (11.19), without the terms that depend on the Earth's acceleration
     Eigen::Quaterniond bodyFixedToInertial = bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( time );
     Eigen::Vector3d inertialStationPosition = bodyFixedToInertial * nominalStationState;
-    Eigen::Vector6d earthBarycentricState = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( time );
+    Eigen::Vector6d earthBarycentricState = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< double, double, false >( time );
     double sunPotential = bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) /
-            ( earthBarycentricState.segment( 0, 3 ) - bodies.at( "Sun" )->getPositionInBaseFrameFromEphemeris( time ) ).norm( );
+            ( earthBarycentricState.segment( 0, 3 ) -
+              bodies.at( "Sun" )->getPositionInBaseFrameFromEphemeris< double, double, false >( time ) )
+                    .norm( );
     double lc = 1.48082686741E-8;
 
     return bodyFixedToInertial.inverse( ) *
@@ -324,6 +326,14 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             {
                 deformationModels = bodies.at( "Earth" )->getBodyDeformationModels( );
             }
+
+            // Set current states of the bodies, which must not be changed by evaluating station motion and deformation
+            std::map< std::string, Eigen::Vector6d > currentBodyStates;
+            for( const std::string& bodyName : bodyNames )
+            {
+                bodies.at( bodyName )->setStateFromEphemeris< double, double >( 1.0E5 );
+                currentBodyStates[ bodyName ] = bodies.at( bodyName )->getState( );
+            }
             if( i == 0 )
             {
                 for( unsigned int j = 0; j < testTimes.size( ); j++ )
@@ -429,6 +439,11 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-6 );
                     }
                 }
+            }
+
+            for( const std::string& bodyName : bodyNames )
+            {
+                BOOST_CHECK( bodies.at( bodyName )->getState( ) == currentBodyStates.at( bodyName ) );
             }
         }
     }

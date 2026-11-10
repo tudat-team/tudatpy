@@ -59,8 +59,12 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    for( int torqueModelTest = 0; torqueModelTest < 2; torqueModelTest++ )
+    // Second-degree and spherical harmonic torque, with the rotational state given by a quaternion and by its negative
+    for( int test = 0; test < 4; test++ )
     {
+        const int torqueModelTest = test % 2;
+        const double quaternionSign = ( test < 2 ) ? 1.0 : -1.0;
+
         // Create bodies
         SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
         bodies.createEmptyBody( "Mars", false );
@@ -144,6 +148,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         phobosRotationalState.segment( 0, 4 ) = tudat::linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond(
                 Eigen::AngleAxisd( 0.4343, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 2.4354, Eigen::Vector3d::UnitX( ) ) *
                 Eigen::AngleAxisd( 1.2434, Eigen::Vector3d::UnitY( ) ) ) );
+        phobosRotationalState.segment( 0, 4 ) *= quaternionSign;
         phobos->setCurrentRotationalStateToLocalFrame( phobosRotationalState );
 
         // Create torque due to mars on phobos.

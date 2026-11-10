@@ -19,6 +19,7 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/gravitation/gravitationalParameterRateAcceleration.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 
 namespace tudat
@@ -601,6 +602,15 @@ std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAccele
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
+
+//! Function to create the point-mass acceleration due to a linear variation of the gravitational parameter of the exerting body
+std::shared_ptr< gravitation::GravitationalParameterRateAcceleration > createGravitationalParameterRateAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
         const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create acceleration model object.

@@ -5,6 +5,10 @@ from urllib.error import HTTPError, URLError
 import pytest
 import requests
 
+# Since JPL Horizons version 5.00 (2026-11-09), CSV vector tables do not contain the state columns.
+# Set to False once JPL has fixed this, to run the tests marked with horizons_vectors again.
+SKIP_HORIZONS_VECTOR_TESTS = True
+
 _REMOTE_SERVICE_UNAVAILABLE_STATUSES = (502, 503, 504)
 _JPL_HORIZONS_OUTAGE_SIGNATURES = (
     "wldini(): missing required file LTKERNL",
@@ -73,6 +77,10 @@ def pytest_configure(config):
         "remote_data(required_env=(), service='remote-data'): mark a test as requiring "
         "internet access and, optionally, environment variables containing credentials",
     )
+    config.addinivalue_line(
+        "markers",
+        "horizons_vectors: mark a test as retrieving state vectors from JPL Horizons",
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -80,6 +88,12 @@ def pytest_collection_modifyitems(config, items):
     missing_credentials_by_service = {}
 
     for item in items:
+        if SKIP_HORIZONS_VECTOR_TESTS and item.get_closest_marker("horizons_vectors") is not None:
+            item.add_marker(
+                pytest.mark.skip(reason="JPL Horizons CSV vector tables lack state columns")
+            )
+            continue
+
         remote_data_marker = item.get_closest_marker("remote_data")
         if remote_data_marker is None:
             continue

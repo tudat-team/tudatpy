@@ -77,7 +77,7 @@ void VariationalEquations::setBodyStatePartialMatrix( )
 
     if( dynamicalStatesToEstimate_.count( propagators::rotational_state ) > 0 )
     {
-        Eigen::VectorXd rotationalStates = currentStatesPerTypeInConventionalRepresentation_.at( propagators::rotational_state );
+        const Eigen::VectorXd& rotationalStates = currentStatesPerTypeInConventionalRepresentation_.at( propagators::rotational_state );
 
         int startIndex = stateTypeStartIndices_.at( propagators::rotational_state );
         for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::rotational_state ).size( ); i++ )

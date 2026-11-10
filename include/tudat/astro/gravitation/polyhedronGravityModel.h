@@ -75,8 +75,8 @@ public:
             const Eigen::MatrixXd& aVerticesCoordinatesMatrix,
             const Eigen::MatrixXi& aVerticesDefiningEachFacetMatrix,
             const Eigen::MatrixXi& aVerticesDefiningEachEdgeMatrix,
-            const std::vector< Eigen::MatrixXd >& aFacetDyadsVector,
-            const std::vector< Eigen::MatrixXd >& aEdgeDyadsVector,
+            const std::vector< Eigen::Matrix3d >& aFacetDyadsVector,
+            const std::vector< Eigen::Matrix3d >& aEdgeDyadsVector,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                     []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
@@ -85,11 +85,15 @@ public:
             const bool updateGravitationalPotential = false,
             const bool updateLaplacianOfGravitationalPotential = false ):
         subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
-        gravitationalParameterFunction_( [ = ]( ) { return aGravitationalParameter; } ), volumeFunction_( [ = ]( ) { return aVolume; } ),
-        getVerticesCoordinates_( [ = ]( ) { return aVerticesCoordinatesMatrix; } ),
-        getVerticesDefiningEachFacet_( [ = ]( ) { return aVerticesDefiningEachFacetMatrix; } ),
-        getVerticesDefiningEachEdge_( [ = ]( ) { return aVerticesDefiningEachEdgeMatrix; } ),
-        getFacetDyads_( [ = ]( ) { return aFacetDyadsVector; } ), getEdgeDyads_( [ = ]( ) { return aEdgeDyadsVector; } ),
+        gravitationalParameterFunction_( [ aGravitationalParameter ]( ) { return aGravitationalParameter; } ),
+        volumeFunction_( [ aVolume ]( ) { return aVolume; } ),
+        getVerticesCoordinates_( [ aVerticesCoordinatesMatrix ]( ) -> const Eigen::MatrixXd& { return aVerticesCoordinatesMatrix; } ),
+        getVerticesDefiningEachFacet_(
+                [ aVerticesDefiningEachFacetMatrix ]( ) -> const Eigen::MatrixXi& { return aVerticesDefiningEachFacetMatrix; } ),
+        getVerticesDefiningEachEdge_(
+                [ aVerticesDefiningEachEdgeMatrix ]( ) -> const Eigen::MatrixXi& { return aVerticesDefiningEachEdgeMatrix; } ),
+        getFacetDyads_( [ aFacetDyadsVector ]( ) -> const std::vector< Eigen::Matrix3d >& { return aFacetDyadsVector; } ),
+        getEdgeDyads_( [ aEdgeDyadsVector ]( ) -> const std::vector< Eigen::Matrix3d >& { return aEdgeDyadsVector; } ),
         sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         isMutualAttractionUsed_( isMutualAttractionUsed ),
@@ -129,11 +133,11 @@ public:
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const std::function< double( ) > gravitationalParameterFunction,
             const std::function< double( ) > volumeFunction,
-            const std::function< Eigen::MatrixXd( ) > verticesCoordinatesFunction,
-            const std::function< Eigen::MatrixXi( ) > verticesDefiningEachFacetFunction,
-            const std::function< Eigen::MatrixXi( ) > verticesDefiningEachEdgeFunction,
-            const std::function< std::vector< Eigen::MatrixXd >( ) > facetDyadsFunction,
-            const std::function< std::vector< Eigen::MatrixXd >( ) > edgeDyadsFunction,
+            const std::function< const Eigen::MatrixXd&( ) > verticesCoordinatesFunction,
+            const std::function< const Eigen::MatrixXi&( ) > verticesDefiningEachFacetFunction,
+            const std::function< const Eigen::MatrixXi&( ) > verticesDefiningEachEdgeFunction,
+            const std::function< const std::vector< Eigen::Matrix3d >&( ) > facetDyadsFunction,
+            const std::function< const std::vector< Eigen::Matrix3d >&( ) > edgeDyadsFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                     []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
@@ -252,13 +256,13 @@ public:
     }
 
     //! Function to return the function returning the facet dyads.
-    std::function< std::vector< Eigen::MatrixXd >( ) > getFacetDyadsFunction( )
+    std::function< const std::vector< Eigen::Matrix3d >&( ) > getFacetDyadsFunction( )
     {
         return getFacetDyads_;
     }
 
     //! Function to return the function returning the facet dyads.
-    std::function< std::vector< Eigen::MatrixXd >( ) > getEdgeDyadsFunction( )
+    std::function< const std::vector< Eigen::Matrix3d >&( ) > getEdgeDyadsFunction( )
     {
         return getEdgeDyads_;
     }
@@ -348,19 +352,19 @@ private:
     const std::function< double( ) > volumeFunction_;
 
     //! Pointer to function returning the vertices coordinates
-    const std::function< Eigen::MatrixXd( ) > getVerticesCoordinates_;
+    const std::function< const Eigen::MatrixXd&( ) > getVerticesCoordinates_;
 
     //! Pointer to function returning the vertices defining each facet
-    const std::function< Eigen::MatrixXi( ) > getVerticesDefiningEachFacet_;
+    const std::function< const Eigen::MatrixXi&( ) > getVerticesDefiningEachFacet_;
 
     //! Pointer to function returning the vertices defining each edge
-    const std::function< Eigen::MatrixXi( ) > getVerticesDefiningEachEdge_;
+    const std::function< const Eigen::MatrixXi&( ) > getVerticesDefiningEachEdge_;
 
     //! Pointer to function returning the facet dyads
-    const std::function< std::vector< Eigen::MatrixXd >( ) > getFacetDyads_;
+    const std::function< const std::vector< Eigen::Matrix3d >&( ) > getFacetDyads_;
 
     //! Pointer to function returning the edge dyads
-    const std::function< std::vector< Eigen::MatrixXd >( ) > getEdgeDyads_;
+    const std::function< const std::vector< Eigen::Matrix3d >&( ) > getEdgeDyads_;
 
     //! Pointer to function returning position of body exerting acceleration.
     const StateFunction sourcePositionFunction_;

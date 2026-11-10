@@ -48,7 +48,9 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/polynomialClockCorrections.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/relativeGravitationalParameterRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/cameraPointingCorrection.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/rtgForceVector.h"
@@ -243,6 +245,24 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 for( unsigned int i = 0; i < tidalAccelerationModelList.size( ); i++ )
                 {
                     accelerationModelList.push_back( tidalAccelerationModelList.at( i ) );
+                }
+            }
+            break;
+        }
+        // All gravitational parameter rate accelerations exerted by the body
+        case relative_gravitational_parameter_rate: {
+            for( const auto& accelerationsOnBody : accelerationModelMap )
+            {
+                if( accelerationsOnBody.second.count( parameterSettings->parameterType_.second.first ) != 0 )
+                {
+                    for( const auto& accelerationModel : accelerationsOnBody.second.at( parameterSettings->parameterType_.second.first ) )
+                    {
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) ==
+                            basic_astrodynamics::gravitational_parameter_rate_acceleration )
+                        {
+                            accelerationModelList.push_back( accelerationModel );
+                        }
+                    }
                 }
             }
             break;
@@ -1807,6 +1827,22 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                         associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
                 break;
             }
+            case relative_gravitational_parameter_rate: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating relative_gravitational_parameter_rate parameter, no propagatorSettings provided." );
+                }
+                std::vector< std::shared_ptr< gravitation::GravitationalParameterRateAcceleration > > rateAccelerations;
+                for( const auto& accelerationModel : getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >(
+                             propagatorSettings, doubleParameterName ) )
+                {
+                    rateAccelerations.push_back(
+                            std::dynamic_pointer_cast< gravitation::GravitationalParameterRateAcceleration >( accelerationModel ) );
+                }
+                doubleParameterToEstimate = std::make_shared< RelativeGravitationalParameterRate >( rateAccelerations, currentBodyName );
+                break;
+            }
             case source_direction_radiation_pressure_scaling_factor:
             case source_perpendicular_direction_radiation_pressure_scaling_factor: {
                 if( propagatorSettings == nullptr )
@@ -2331,6 +2367,31 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::make_shared< ReferencePointPosition >( currentBody->getVehicleSystems( ),
                                                                         vectorParameterName->parameterType_.second.first,
                                                                         vectorParameterName->parameterType_.second.second );
+                }
+                break;
+            }
+            case camera_pointing_correction: {
+                if( currentBody->getVehicleSystems( ) == nullptr )
+                {
+                    std::string errorMessage = "Error, requested camera pointing correction parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                            " , but no system models found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( currentBody->getVehicleSystems( )->getCameraMap( ).count( vectorParameterName->parameterType_.second.second ) ==
+                         0 )
+                {
+                    std::string errorMessage = "Error, requested camera pointing correction parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                            " , but camera was not found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate =
+                            std::make_shared< CameraPointingCorrection >( currentBody->getVehicleSystems( ),
+                                                                          vectorParameterName->parameterType_.second.first,
+                                                                          vectorParameterName->parameterType_.second.second );
                 }
                 break;
             }
@@ -3328,6 +3389,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             doubleParametersToEstimate.push_back( createDoubleParameterToEstimate< InitialStateParameterType, TimeType >(
                     parameterNames[ i ], bodies, propagatorSettings ) );
+            checkParameterTimeIntervalsOfInfluence( doubleParametersToEstimate.back( ) );
             if( vectorParameterIsFound == true && parameterOrderWarningPrinted == false )
             {
                 if( printParameterOrderWarning == true )
@@ -3349,6 +3411,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             vectorParametersToEstimate.push_back( createVectorParameterToEstimate< InitialStateParameterType, TimeType >(
                     parameterNames[ i ], bodies, propagatorSettings ) );
+            checkParameterTimeIntervalsOfInfluence( vectorParametersToEstimate.back( ) );
             vectorParameterIsFound = true;
         }
         else
