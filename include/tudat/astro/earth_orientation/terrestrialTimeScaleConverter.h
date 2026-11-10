@@ -400,6 +400,12 @@ public:
             throw std::runtime_error( "Error when getting UT1 correction: UTC to UT1 interpolator was not provided." );
         }
 
+        // Before the introduction of UTC, UTC is set equal to UT1 (see calculateUniversalTimes)
+        if( getCurrentTime( inputScale, basic_astrodynamics::tai_scale, inputTimeValue, currentPosition ) < utcIntroductionEpochInTai_ )
+        {
+            return 0.0;
+        }
+
         try
         {
             return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +

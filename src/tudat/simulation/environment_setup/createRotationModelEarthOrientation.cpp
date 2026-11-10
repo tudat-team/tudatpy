@@ -29,7 +29,8 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
                                                               gcrsToItrsRotationSettings->getEopFileFormat( ),
                                                               gcrsToItrsRotationSettings->getNutationTheory( ) );
 
-    // Load polar motion corrections (held at the first and last values outside the data, i.e. before 1846 and after the data end)
+    // Load polar motion corrections (held at the first and last values outside the data, e.g. before 1846 for C04 files, which are
+    // extended with C01 data, and before 1973 for finals2000A files)
     std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
                     eopReader->getCipInItrsMapInSecondsSinceJ2000( ), interpolators::huntingAlgorithm, interpolators::use_boundary_value );

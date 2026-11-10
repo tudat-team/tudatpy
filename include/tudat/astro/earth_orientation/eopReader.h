@@ -39,7 +39,8 @@ class EOPReader
 public:
     //! Constructor
     /*!
-     * Constructor
+     * Constructor. For C04 files, the polar motion before the start of the file is taken from the IERS EOP C01 series
+     * (eopc01_polar_motion_1846-1961.txt, from 1846), which must be available.
      * \param eopFile Name of EOP file that is to be used
      * \param format Identifier for file format that is provided: "C04" (14 C04 or 20 C04 series) or "finals2000A"
      * \param nutationTheory Nutation theory w.r.t. which the EOP data is given.
@@ -99,7 +100,8 @@ public:
 
     //! Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000
     /*!
-     *  Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000
+     *  Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000. For C04 files, the
+     *  IERS EOP C01 polar motion is added for the epochs before the start of the file (back to 1846).
      *  \return Data of CIP in ITRS correction (polar motion), with map key seconds since J2000
      */
     std::map< double, Eigen::Vector2d > getCipInItrsMapInSecondsSinceJ2000( )

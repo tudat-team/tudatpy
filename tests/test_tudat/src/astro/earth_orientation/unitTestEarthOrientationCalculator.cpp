@@ -246,6 +246,12 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
             polarMotionInterpolator->interpolate( dateTimeStartC04.epoch< double >( ) - physical_constants::JULIAN_DAY );
     BOOST_CHECK_SMALL( ( polarMotionBeforeStartC04 - polarMotionPostC04 ).norm( ), unit_conversions::convertArcSecondsToRadians( 0.03 ) );
 
+    // Check polar motion against a verbatim C01 entry (eopc01_polar_motion_1846-1961.txt, line 1883: 37628.280 -0.062867 0.288391)
+    const Eigen::Vector2d polarMotionC01 = polarMotionInterpolator->interpolate( basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
+            basic_astrodynamics::convertModifiedJulianDayToJulianDay( 37628.280 ) ) );
+    BOOST_CHECK_SMALL( ( polarMotionC01 - unit_conversions::convertArcSecondsToRadians( Eigen::Vector2d( -0.062867, 0.288391 ) ) ).norm( ),
+                       1.0E-12 );
+
     BOOST_CHECK_EQUAL( polarMotionPostC04( 0 ) == 0, false );
     BOOST_CHECK_EQUAL( polarMotionPostC04( 1 ) == 0, false );
 
@@ -270,6 +276,14 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
     const double ut1AfterStartC04 =
             timeScaleConverter->getCurrentTime( basic_astrodynamics::tai_scale, basic_astrodynamics::ut1_scale, startC04InTai + 1.0 );
     BOOST_CHECK_SMALL( std::fabs( ut1AfterStartC04 - ut1BeforeStartC04 - 2.0 ), 1.0E-3 );
+
+    // Check Delta T = TT - UT1 against a verbatim table entry (historicalDeltaT.txt, line 2756: 1900,-1.9770)
+    const double ttAtYear1900 = -100.0 * physical_constants::JULIAN_YEAR;
+    BOOST_CHECK_SMALL(
+            std::fabs( ttAtYear1900 -
+                       timeScaleConverter->getCurrentTime( basic_astrodynamics::tt_scale, basic_astrodynamics::ut1_scale, ttAtYear1900 ) -
+                       ( -1.9770 ) ),
+            1.0E-5 );
 
     // Check if polar motion and UT1-UTC are held at their last values after the end of the c04 file
     const double epochAfterC04 = polarMotionInterpolator->getIndependentValues( ).back( ) + physical_constants::JULIAN_YEAR;
