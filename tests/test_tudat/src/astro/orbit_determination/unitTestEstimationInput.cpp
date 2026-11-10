@@ -435,6 +435,47 @@ BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
 
     const Eigen::Vector6d totalStateCorrection = initialStateHistory.col( initialStateHistory.cols( ) - 1 ) - initialStateHistory.col( 0 );
     BOOST_CHECK_SMALL( totalStateCorrection( 0 ) + 1000.0 * totalStateCorrection( 4 ), 1.0E-7 );
+
+    // Repeat for a regular initial state parameter, constrained with setInitialStateCorrectionConstraint
+    const std::shared_ptr< EstimatableParameterSet< double > > regularParametersToEstimate = createParametersToEstimate< double, double >(
+            getInitialStateParameterSettings< double, double >( propagatorSettings, bodies ), bodies, propagatorSettings );
+    OrbitDeterminationManager< double, double > regularOrbitDeterminationManager(
+            bodies, regularParametersToEstimate, observationModelSettings, propagatorSettings );
+
+    Eigen::Vector6d constraintDirection;
+    constraintDirection << 1.0, -2.0, 1.0, 1000.0, 1000.0, -1000.0;
+    setInitialStateCorrectionConstraint( regularParametersToEstimate, constraintDirection );
+    BOOST_CHECK_EQUAL( regularParametersToEstimate->getConstraintSize( ), 1 );
+
+    // Check that correction in each iteration is orthogonal to constraint direction
+    regularOrbitDeterminationManager.resetParameterEstimate( perturbedInitialState, true );
+    const Eigen::MatrixXd regularStateHistory =
+            regularOrbitDeterminationManager.estimateParameters( estimationInput )->getParameterHistoryMatrix( );
+    for( int iteration = 1; iteration < regularStateHistory.cols( ); iteration++ )
+    {
+        const Eigen::Vector6d stateCorrection = regularStateHistory.col( iteration ) - regularStateHistory.col( iteration - 1 );
+        BOOST_CHECK_SMALL( constraintDirection.dot( stateCorrection ),
+                           std::max( 1.0E-7, 1.0E-9 * constraintDirection.cwiseProduct( stateCorrection ).cwiseAbs( ).maxCoeff( ) ) );
+    }
+    BOOST_CHECK_GT( ( regularStateHistory.col( regularStateHistory.cols( ) - 1 ) - regularStateHistory.col( 0 ) ).norm( ), 1.0 );
+
+    // Check that covariance has no component along constraint direction
+    const Eigen::MatrixXd constrainedCovariance =
+            regularOrbitDeterminationManager.computeCovariance( estimationInput )->getUnnormalizedCovarianceMatrix( ).topLeftCorner( 6, 6 );
+    BOOST_CHECK_SMALL(
+            ( constrainedCovariance * constraintDirection ).norm( ) / ( constrainedCovariance.norm( ) * constraintDirection.norm( ) ),
+            1.0E-6 );
+
+    // Check that initial state error is removed when estimating without constraint
+    removeParameterCorrectionConstraints( regularParametersToEstimate );
+    BOOST_CHECK_EQUAL( regularParametersToEstimate->getConstraintSize( ), 0 );
+    regularOrbitDeterminationManager.resetParameterEstimate( perturbedInitialState, true );
+    const Eigen::MatrixXd unconstrainedStateHistory =
+            regularOrbitDeterminationManager.estimateParameters( estimationInput )->getParameterHistoryMatrix( );
+    const Eigen::Vector6d unconstrainedStateError =
+            unconstrainedStateHistory.col( unconstrainedStateHistory.cols( ) - 1 ) - trueInitialState;
+    BOOST_CHECK_SMALL( unconstrainedStateError.segment( 0, 3 ).norm( ), 0.1 );
+    BOOST_CHECK_SMALL( unconstrainedStateError.segment( 3, 3 ).norm( ), 1.0E-4 );
 }
 
 //! This test checks whether the input/output of the estimation (weights, a priori covariance, unscaled covariance) are

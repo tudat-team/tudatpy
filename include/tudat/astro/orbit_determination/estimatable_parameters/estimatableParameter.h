@@ -378,7 +378,7 @@ public:
      */
     virtual int getConstraintSize( )
     {
-        return 0;
+        return constraintStateMultiplier_.rows( );
     }
 
     //! Function to retrieve multiplier for parameter linear constraint
@@ -388,7 +388,7 @@ public:
      */
     virtual Eigen::MatrixXd getConstraintStateMultipler( )
     {
-        return Eigen::MatrixXd::Zero( 0, 0 );
+        return constraintStateMultiplier_;
     }
 
     //! Function to retrieve right-hand side for parameter linear constraint
@@ -398,7 +398,31 @@ public:
      */
     virtual Eigen::VectorXd getConstraintRightHandSide( )
     {
-        return Eigen::VectorXd::Zero( 0 );
+        return Eigen::VectorXd::Zero( constraintStateMultiplier_.rows( ) );
+    }
+
+    //! Function to set multiplier G of linear constraint G * dx = 0 on parameter correction dx (one constraint per row)
+    void setConstraintStateMultiplier( const Eigen::MatrixXd& constraintStateMultiplier )
+    {
+        if( constraintStateMultiplier.rows( ) > 0 )
+        {
+            if( constraintStateMultiplier.cols( ) != getParameterSize( ) )
+            {
+                throw std::runtime_error( "Error when setting parameter correction constraint, size (" +
+                                          std::to_string( constraintStateMultiplier.cols( ) ) + ") is not equal to parameter size (" +
+                                          std::to_string( getParameterSize( ) ) + ")" );
+            }
+            if( !constraintStateMultiplier.allFinite( ) || ( constraintStateMultiplier.rowwise( ).norm( ).array( ) == 0.0 ).any( ) )
+            {
+                throw std::runtime_error( "Error when setting parameter correction constraint, constraint must be finite and non-zero" );
+            }
+            if( parameterName_.first == initial_rotational_body_state )
+            {
+                std::cerr << "Warning when setting parameter correction constraint on " << getParameterDescription( )
+                          << " Constraint is not applied, only the quaternion norm constraint is used for this parameter." << std::endl;
+            }
+        }
+        constraintStateMultiplier_ = constraintStateMultiplier;
     }
 
     virtual void throwExceptionIfNotFullyDefined( ) {}
@@ -455,6 +479,9 @@ protected:
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
 
+    //! Multiplier G of linear constraint G * dx = 0 on parameter correction dx (no constraint by default)
+    Eigen::MatrixXd constraintStateMultiplier_;
+
     void checkCustomPartialSettings( )
     {
         for( unsigned int i = 0; i < customPartialSettings_.size( ); i++ )
@@ -475,6 +502,27 @@ protected:
         }
     }
 };
+
+//! Function to constrain the correction to an estimated parameter to be orthogonal to a given direction
+/*!
+ * Function to constrain the correction to an estimated parameter to be orthogonal to a given direction, for instance the weak
+ * direction of the covariance of an initial state, to compute points along the line of variations (Milani et al., 2005).
+ * Any constraint previously set on the parameter is replaced. Constraints cannot be combined with consider parameters, and
+ * are not applied to an initial rotational state (a warning is given), which only uses its quaternion norm constraint.
+ * \param parameter Parameter to constrain
+ * \param constraintDirection Direction to which the parameter correction is to be orthogonal
+ */
+inline void setParameterCorrectionConstraint( const std::shared_ptr< EstimatableParameterBase > parameter,
+                                              const Eigen::VectorXd& constraintDirection )
+{
+    parameter->setConstraintStateMultiplier( constraintDirection.transpose( ) );
+}
+
+//! Function to remove the constraint set by setParameterCorrectionConstraint
+inline void removeParameterCorrectionConstraint( const std::shared_ptr< EstimatableParameterBase > parameter )
+{
+    parameter->setConstraintStateMultiplier( Eigen::MatrixXd::Zero( 0, 0 ) );
+}
 
 //! Function to check whether the time intervals of influence of a parameter are consistent with its type
 /*!
