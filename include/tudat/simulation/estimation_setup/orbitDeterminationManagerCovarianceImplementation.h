@@ -32,6 +32,12 @@ std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
+    if( considerParametersIncluded_ && parametersToEstimate_->getConstraintSize( ) > 0 )
+    {
+        throw std::runtime_error(
+                "Error when computing covariance, linear parameter constraints cannot be combined with consider parameters" );
+    }
+
     // Get total number of observations
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
