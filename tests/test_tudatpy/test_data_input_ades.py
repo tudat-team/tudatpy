@@ -6,25 +6,27 @@ import pytest
 from astropy.table import Table
 import numpy as np
 from numpy.testing import assert_equal
-from pathlib import Path
 
-test_data_dir = Path(__file__).resolve().parent / "data" / "ades"
+
+@pytest.fixture
+def ades_dir(data_dir):
+    return data_dir / "ades"
 
 
 # define the path of the file to be saved
 @pytest.fixture
-def file_path_xml():
-    return f"{test_data_dir}/obs_2.xml"
+def file_path_xml(ades_dir):
+    return str(ades_dir / "obs_2.xml")
 
 
 @pytest.fixture
-def file_path_psv():
-    return f"{test_data_dir}/obs_1.psv"
+def file_path_psv(ades_dir):
+    return str(ades_dir / "obs_1.psv")
 
 
 @pytest.fixture
-def file_path_xml_radar():
-    return f"{test_data_dir}/obs_radar.xml"
+def file_path_xml_radar(ades_dir):
+    return str(ades_dir / "obs_radar.xml")
 
 
 # define a dataframe with observations equal to file obs_1.psv

@@ -1,9 +1,25 @@
 import os
 import socket
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 
 import pytest
 import requests
+
+_TESTS_DIR = Path(__file__).resolve().parent
+
+
+@pytest.fixture(scope="session")
+def data_dir() -> Path:
+    """Return the tudatpy test data directory, ``tests/test_tudatpy/data``."""
+    return _TESTS_DIR / "data"
+
+
+@pytest.fixture(scope="session")
+def tudat_data_dir() -> Path:
+    """Return the shared Tudat (C++) test data directory, ``tests/test_tudat/data``."""
+    return _TESTS_DIR.parent / "test_tudat" / "data"
+
 
 # Since JPL Horizons version 5.00 (2026-11-09), CSV vector tables do not contain the state columns.
 # Set to False once JPL has fixed this, to run the tests marked with horizons_vectors again.

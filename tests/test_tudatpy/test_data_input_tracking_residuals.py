@@ -58,18 +58,14 @@ from tudatpy.estimation.observations_setup import (
 )
 from tudatpy.data_input.environment_data import spice
 
-APOPHIS_FIGURE2_RADAR_FIXTURE_PATH = (
-    Path(__file__).resolve().parent / "data" / "mpc_radar_apophis_figure2_horizons_fixtures.json"
-)
 APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL = 6.0
 
 
-def _tudat_test_data_path() -> Path:
-    return Path(__file__).resolve().parents[1] / "test_tudat" / "data"
-
-
-def _tudatpy_test_data_path() -> Path:
-    return Path(__file__).resolve().parent / "data"
+@pytest.fixture
+def apophis_figure2_radar_fixture_cases(data_dir):
+    """Return the frozen Apophis Figure 2 radar cases with their Horizons states."""
+    with (data_dir / "mpc_radar_apophis_figure2_horizons_fixtures.json").open() as fixture_file:
+        return json.load(fixture_file)["cases"]
 
 
 def _create_mex_bodies(test_data_path: Path):
@@ -542,11 +538,6 @@ def _create_apophis_radar_bodies_from_fixture(case):
     return environment_setup.create_system_of_bodies(body_settings)
 
 
-def _load_apophis_figure2_radar_fixture_cases():
-    with APOPHIS_FIGURE2_RADAR_FIXTURE_PATH.open() as fixture_file:
-        return json.load(fixture_file)["cases"]
-
-
 def _compute_apophis_fixture_radar_residual(case):
     parsed_table = parse_80cols_data(case["mpc_80col_records"])
     radar_table = radar_data_from_table(parsed_table)
@@ -679,8 +670,8 @@ def _simulate_pixel_coordinates(observation_collection, bodies):
     return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
 
 
-def test_ifms_mex_residuals_are_millihertz_level():
-    test_data_path = _tudat_test_data_path()
+def test_ifms_mex_residuals_are_millihertz_level(tudat_data_dir):
+    test_data_path = tudat_data_dir
     bodies = _create_mex_bodies(test_data_path)
 
     tracking_data, supplementary_data = read_ifms_data(
@@ -720,13 +711,13 @@ def test_ifms_mex_residuals_are_millihertz_level():
     assert abs(np.mean(residuals)) < 1.0e-3
 
 
-def test_odf_grail_short_arc_residuals_are_millihertz_level():
+def test_odf_grail_short_arc_residuals_are_millihertz_level(data_dir):
     # Public PDS source files (the kernels are trimmed, see grail/trimming.md):
     # https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/grail_0201/odf/gralugf2012_101_0235smmmv1.odf
     # https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/grail_0201/ancillary/tro/grxlugf2012_092_2012_122.tro
     # https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/grail_0201/ancillary/ion/gralugf2012_092_2012_122.ion
     # https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-3-cdr-v1/grail_0101/level_1b/2012_04_10/vgs1b_2012_04_10_a_04.asc
-    grail_data_path = _tudatpy_test_data_path() / "grail"
+    grail_data_path = data_dir / "grail"
     odf_file = grail_data_path / "gralugf2012_101_0235smmmv1.odf"
     troposphere_file = grail_data_path / "grxlugf2012_092_2012_122.tro"
     ionosphere_file = grail_data_path / "gralugf2012_092_2012_122.ion"
@@ -777,10 +768,10 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
 
 
-def test_tnf_mro_short_arc_residuals_are_low_after_compression():
+def test_tnf_mro_short_arc_residuals_are_low_after_compression(data_dir, tudat_data_dir):
     """Read one hour of MRO radio data and verify the calculated frequencies match closely."""
-    tudat_test_data_path = _tudat_test_data_path()
-    mro_test_data_path = _tudatpy_test_data_path() / "mro"
+    tudat_test_data_path = tudat_data_dir
+    mro_test_data_path = data_dir / "mro"
     # This smaller test file contains complete records from the following public source,
     # including all earlier transmitter-frequency changes needed for this one-hour interval:
     # https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/tnf/mromagr2012_076_0840xmmmv1.tnf
@@ -882,9 +873,9 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
 
 
-def test_sum_lmk_ingestion_and_pixel_residuals():
+def test_sum_lmk_ingestion_and_pixel_residuals(tudat_data_dir):
     """Load SUM/LMK files and process their cameras, landmarks, epochs and pixels."""
-    data_directory = _tudat_test_data_path() / "sum_lmk"
+    data_directory = tudat_data_dir / "sum_lmk"
     tracking_data, supplementary_data = read_sum_lmk_data(
         {"Camera": [str(data_directory / "sample.sum")]},
         [str(data_directory / "LMK0001.lmk"), str(data_directory / "LMK0002.lmk")],
@@ -941,8 +932,8 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
     )
 
 
-def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
-    test_data_path = _tudat_test_data_path()
+def test_psf_voyager_triton_pixel_line_residuals_are_subpixel(tudat_data_dir):
+    test_data_path = tudat_data_dir
     psf_file = test_data_path / "psf" / "psf_vgr2_neptune.txt"
     spice.load_standard_kernels([])
     spice.load_kernel(str(test_data_path / "spice" / "vgr2_nep097.bsp"))
@@ -999,8 +990,8 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
     assert np.max(np.linalg.norm(residuals, axis=1)) < 1.0
 
 
-def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
-    test_data_path = _tudat_test_data_path()
+def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level(tudat_data_dir):
+    test_data_path = tudat_data_dir
     bodies = _create_juice_bodies(test_data_path)
 
     tracking_data, supplementary_data = read_fdets_data(
@@ -1096,11 +1087,13 @@ def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
     assert np.max(normalized_residuals) < 3.5
 
 
-def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
+def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states(
+    apophis_figure2_radar_fixture_cases,
+):
     """Check Apophis Figure 2 radar residuals against frozen Horizons states."""
     # Check MPC radar parsing and observation modelling against a reproducible
     # set of frozen target states spanning the published Apophis data arc.
-    fixture_cases = _load_apophis_figure2_radar_fixture_cases()
+    fixture_cases = apophis_figure2_radar_fixture_cases
 
     # The fixture must retain the complete 50-observation regression data set.
     assert len(fixture_cases) == 50
