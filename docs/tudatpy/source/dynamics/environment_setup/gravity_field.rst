@@ -47,10 +47,10 @@ In Tudat, the gravity field itself is not directly responsible for providing the
 
 * Point-mass gravity field: mass computed from gravitational parameter; no inertia tensor, and center of mass at origin of body-fixed frame
 * Spherical harmonic gravity field: mass computed from gravitational parameter, center of mass computed from degree 1 gravity field coefficients, inertia tensor computed from degree 2 gravity field coefficients (only if a scaled mean moment of inertia is set using :func:`~tudatpy.dynamics.environment_setup.rigid_body.from_gravity_field`)
-* Polyhedron gravity field: mass computed from gravitational parameter, center of mass and inertia tensor computed from homogeneous mas distribution inside body
+* Polyhedron gravity field: mass computed from gravitational parameter, center of mass at origin of body-fixed frame, and inertia tensor computed from homogeneous mass distribution inside body (with respect to the origin of the body-fixed frame)
 * Ring gravity field model: mass computed from gravitational parameter; no inertia tensor, and center of mass at origin of body-fixed frame
 
-These rigid body properties are recomputed from the gravity field whenever they are updated (for instance at each time step of a propagation), so that changes in the gravity field (for instance due to gravity field variations, or during an estimation) are reflected in them.
+These rigid body properties are recomputed from the gravity field whenever they are updated (for instance at each time step of a propagation, for time-varying fields), so that changes in the gravity field (for instance due to gravity field variations, or during an estimation) are reflected in them.
 
 
 
@@ -85,6 +85,8 @@ Functions
 
    from_file_spherical_harmonic
 
+   from_shadr_file
+
    predefined_spherical_harmonic
 
    polyhedron_from_mu
@@ -109,6 +111,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.sh_triaxial_ellipsoid_from_gravitational_parameter
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic
+
+.. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.from_shadr_file
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.predefined_spherical_harmonic
 

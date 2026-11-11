@@ -277,9 +277,11 @@ private:
 };
 
 //! @get_docstring(sphericalHarmonicAcceleration)
-inline std::shared_ptr< AccelerationSettings > sphericalHarmonicAcceleration( const int maximumDegree, const int maximumOrder )
+inline std::shared_ptr< AccelerationSettings > sphericalHarmonicAcceleration( const int maximumDegree,
+                                                                              const int maximumOrder,
+                                                                              const bool removePointMass = false )
 {
-    return std::make_shared< SphericalHarmonicAccelerationSettings >( maximumDegree, maximumOrder );
+    return std::make_shared< SphericalHarmonicAccelerationSettings >( maximumDegree, maximumOrder, removePointMass );
 }
 
 // Class for providing acceleration settings for mutual spherical harmonics acceleration model.
@@ -307,13 +309,15 @@ public:
                                                  const int maximumDegreeOfBodyUndergoingAcceleration,
                                                  const int maximumOrderOfBodyUndergoingAcceleration,
                                                  const int maximumDegreeOfCentralBody = 0,
-                                                 const int maximumOrderOfCentralBody = 0 ):
+                                                 const int maximumOrderOfCentralBody = 0,
+                                                 const bool removePointMassOfBodyExertingAcceleration = false ):
         AccelerationSettings( basic_astrodynamics::mutual_spherical_harmonic_gravity ),
         maximumDegreeOfBodyExertingAcceleration_( maximumDegreeOfBodyExertingAcceleration ),
         maximumOrderOfBodyExertingAcceleration_( maximumOrderOfBodyExertingAcceleration ),
         maximumDegreeOfBodyUndergoingAcceleration_( maximumDegreeOfBodyUndergoingAcceleration ),
         maximumOrderOfBodyUndergoingAcceleration_( maximumOrderOfBodyUndergoingAcceleration ),
-        maximumDegreeOfCentralBody_( maximumDegreeOfCentralBody ), maximumOrderOfCentralBody_( maximumOrderOfCentralBody )
+        maximumDegreeOfCentralBody_( maximumDegreeOfCentralBody ), maximumOrderOfCentralBody_( maximumOrderOfCentralBody ),
+        removePointMassOfBodyExertingAcceleration_( removePointMassOfBodyExertingAcceleration )
     {}
 
     // Maximum degree of body exerting acceleration.
@@ -333,6 +337,10 @@ public:
 
     // Maximum order of central body (only releveant for 3rd body acceleration).
     int maximumOrderOfCentralBody_;
+
+    // Whether the central term of the field of the body exerting the acceleration is excluded (e.g. when its point mass is part
+    // of another acceleration model); that of the body undergoing the acceleration is always excluded.
+    bool removePointMassOfBodyExertingAcceleration_ = false;
 
 protected:
     // Default constructor for serialization
@@ -356,7 +364,8 @@ protected:
                 maximumDegreeOfBodyUndergoingAcceleration_ == rhs->maximumDegreeOfBodyUndergoingAcceleration_ &&
                 maximumOrderOfBodyUndergoingAcceleration_ == rhs->maximumOrderOfBodyUndergoingAcceleration_ &&
                 maximumDegreeOfCentralBody_ == rhs->maximumDegreeOfCentralBody_ &&
-                maximumOrderOfCentralBody_ == rhs->maximumOrderOfCentralBody_;
+                maximumOrderOfCentralBody_ == rhs->maximumOrderOfCentralBody_ &&
+                removePointMassOfBodyExertingAcceleration_ == rhs->removePointMassOfBodyExertingAcceleration_;
     }
 
 private:
@@ -372,6 +381,7 @@ private:
         ar( CEREAL_NVP( maximumOrderOfBodyUndergoingAcceleration_ ) );
         ar( CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
         ar( CEREAL_NVP( maximumOrderOfCentralBody_ ) );
+        ar( CEREAL_NVP( removePointMassOfBodyExertingAcceleration_ ) );
     }
 
     template< class Archive >
@@ -384,23 +394,27 @@ private:
         ar( CEREAL_NVP( maximumOrderOfBodyUndergoingAcceleration_ ) );
         ar( CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
         ar( CEREAL_NVP( maximumOrderOfCentralBody_ ) );
+        ar( CEREAL_NVP( removePointMassOfBodyExertingAcceleration_ ) );
     }
 };
 
 //! @get_docstring(mutualSphericalHarmonicAcceleration)
-inline std::shared_ptr< AccelerationSettings > mutualSphericalHarmonicAcceleration( const int maximumDegreeOfBodyExertingAcceleration,
-                                                                                    const int maximumOrderOfBodyExertingAcceleration,
-                                                                                    const int maximumDegreeOfBodyUndergoingAcceleration,
-                                                                                    const int maximumOrderOfBodyUndergoingAcceleration,
-                                                                                    const int maximumDegreeOfCentralBody = 0,
-                                                                                    const int maximumOrderOfCentralBody = 0 )
+inline std::shared_ptr< AccelerationSettings > mutualSphericalHarmonicAcceleration(
+        const int maximumDegreeOfBodyExertingAcceleration,
+        const int maximumOrderOfBodyExertingAcceleration,
+        const int maximumDegreeOfBodyUndergoingAcceleration,
+        const int maximumOrderOfBodyUndergoingAcceleration,
+        const int maximumDegreeOfCentralBody = 0,
+        const int maximumOrderOfCentralBody = 0,
+        const bool removePointMassOfBodyExertingAcceleration = false )
 {
     return std::make_shared< MutualSphericalHarmonicAccelerationSettings >( maximumDegreeOfBodyExertingAcceleration,
                                                                             maximumOrderOfBodyExertingAcceleration,
                                                                             maximumDegreeOfBodyUndergoingAcceleration,
                                                                             maximumOrderOfBodyUndergoingAcceleration,
                                                                             maximumDegreeOfCentralBody,
-                                                                            maximumOrderOfCentralBody );
+                                                                            maximumOrderOfCentralBody,
+                                                                            removePointMassOfBodyExertingAcceleration );
 }
 
 std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getExtendedSinglePointMassInteractions(
@@ -800,6 +814,68 @@ private:
 inline std::shared_ptr< AccelerationSettings > yarkovskyAcceleration( const double yarkovskyParameter )
 {
     return std::make_shared< YarkovskyAccelerationSettings >( yarkovskyParameter );
+}
+
+// Class to define settings for the point-mass acceleration due to a linear variation of the gravitational parameter of the
+// exerting body (see GravitationalParameterRateAcceleration)
+//! @get_docstring(GravitationalParameterRateAccelerationSettings.__docstring__)
+class GravitationalParameterRateAccelerationSettings : public AccelerationSettings
+{
+public:
+    // Constructor
+    /*
+     * Constructor
+     * \param relativeGravitationalParameterRate Relative rate (d mu / dt) / mu of the gravitational parameter [1/s]
+     * \param referenceEpoch Epoch at which the gravitational parameter equals that of the gravity field of the exerting body
+     */
+    GravitationalParameterRateAccelerationSettings( const double relativeGravitationalParameterRate = 0.0,
+                                                    const double referenceEpoch = 0.0 ):
+        AccelerationSettings( basic_astrodynamics::gravitational_parameter_rate_acceleration ),
+        relativeGravitationalParameterRate_( relativeGravitationalParameterRate ), referenceEpoch_( referenceEpoch )
+    {}
+
+    // Relative rate (d mu / dt) / mu of the gravitational parameter [1/s]
+    double relativeGravitationalParameterRate_;
+
+    // Epoch at which the gravitational parameter equals that of the gravity field of the exerting body
+    double referenceEpoch_;
+
+protected:
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const GravitationalParameterRateAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && relativeGravitationalParameterRate_ == rhs->relativeGravitationalParameterRate_ &&
+                referenceEpoch_ == rhs->referenceEpoch_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( relativeGravitationalParameterRate_ ), CEREAL_NVP( referenceEpoch_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( relativeGravitationalParameterRate_ ), CEREAL_NVP( referenceEpoch_ ) );
+    }
+};
+
+//! @get_docstring(gravitationalParameterRateAcceleration)
+inline std::shared_ptr< AccelerationSettings > gravitationalParameterRateAcceleration( const double relativeGravitationalParameterRate,
+                                                                                       const double referenceEpoch = 0.0 )
+{
+    return std::make_shared< GravitationalParameterRateAccelerationSettings >( relativeGravitationalParameterRate, referenceEpoch );
 }
 
 // Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in

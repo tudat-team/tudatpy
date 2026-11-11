@@ -67,8 +67,9 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPositio
         {
             throw std::runtime_error( "Error when getting angular position partial scaling for normalized observable; incompatible input" );
         }
-        double rightAscension = currentObservation( 0 );
-        double declination = currentObservation( 1 );
+        // The normalized observable is the right ascension times the cosine of the declination
+        const double declination = currentObservation( 1 );
+        const double rightAscension = currentObservation( 0 ) / std::cos( declination );
         Eigen::Matrix< double, 2, 3 > normalizedAngularPositionPartial = angularPositionPartial;
 
         normalizedAngularPositionPartial.block( 0, 0, 1, 3 ) = std::cos( declination ) * angularPositionPartial.block( 0, 0, 1, 3 ) -
@@ -92,8 +93,36 @@ void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkE
     Eigen::Vector3d normalizedRelativeRangeVector = relativeRangeVector.normalized( );
 
     // Compute common scaling factor
-    scalingFactor_ =
-            calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVector, true, normalizeRightAscension_, currentObservation );
+    velocityScalingFactor_.setZero( );
+    if( ancillarySettings != nullptr &&
+        ( ancillarySettings->hasAncillaryIntData( observation_models::position_angle_reference_frame ) ||
+          ancillarySettings->hasAncillaryIntData( observation_models::position_angle_use_stellar_aberration ) ) )
+    {
+        // Chain rule through the (aberrated) direction, rotated to the selected celestial frame
+        const Eigen::Vector3d relativePosition = -relativeRangeVector;
+        const Eigen::Vector3d receiverVelocity = linkEndStates[ 1 ].segment( 3, 3 );
+        Eigen::Matrix3d directionPartialWrtPosition = Eigen::Matrix3d::Identity( );
+        Eigen::Matrix3d directionPartialWrtVelocity = Eigen::Matrix3d::Zero( );
+        if( observation_models::getPositionAngleUseStellarAberration( ancillarySettings ) )
+        {
+            observation_models::calculateStellarAberrationPartials(
+                    relativePosition, receiverVelocity, directionPartialWrtPosition, directionPartialWrtVelocity );
+        }
+        const Eigen::Matrix3d rotation =
+                observation_models::getPositionAngleReferenceFrameRotationFromJ2000( times[ 1 ], ancillarySettings ) *
+                j2000ToGlobalFrameTransformation_.transpose( );
+        const Eigen::Vector3d direction = observation_models::getAngularPositionDirectionInSelectedFrame(
+                relativePosition, receiverVelocity, times[ 1 ], j2000ToGlobalFrameTransformation_, ancillarySettings );
+        const Eigen::Matrix< double, 2, 3 > partialWrtReceiverToDirection =
+                calculatePartialOfAngularPositionWrtLinkEndPosition( -direction, true, normalizeRightAscension_, currentObservation );
+        scalingFactor_ = partialWrtReceiverToDirection * rotation * directionPartialWrtPosition;
+        velocityScalingFactor_ = -partialWrtReceiverToDirection * rotation * directionPartialWrtVelocity;
+    }
+    else
+    {
+        scalingFactor_ = calculatePartialOfAngularPositionWrtLinkEndPosition(
+                relativeRangeVector, true, normalizeRightAscension_, currentObservation );
+    }
 
     // Compute scaling for receiver reference
     if( fixedLinkEnd == observation_models::receiver )

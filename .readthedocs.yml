@@ -16,6 +16,9 @@ build:
   tools:
     python: "miniconda-latest"
   jobs:
+    post_checkout:
+    # ensure tags are fetched from a detached commit
+      - git fetch --force --tags origin
     post_create_environment:
       - conda list
     pre_install:

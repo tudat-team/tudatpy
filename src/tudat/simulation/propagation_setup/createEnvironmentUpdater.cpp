@@ -10,6 +10,7 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
+#include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
@@ -269,6 +270,102 @@ void removePropagatedStatesFomEnvironmentUpdates(
     }
 }
 
+//! Function that adds the environment updates required by the solid-body tide variations of updated gravity fields
+void addSolidBodyTideEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( environmentModelsToUpdate.count( spherical_harmonic_gravity_field_update ) == 0 )
+    {
+        return;
+    }
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > tideUpdateNeeds;
+    for( const std::string& bodyName : environmentModelsToUpdate.at( spherical_harmonic_gravity_field_update ) )
+    {
+        const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet =
+                bodies.at( bodyName )->getGravityFieldVariationSet( );
+        if( variationSet != nullptr )
+        {
+            for( const std::shared_ptr< gravitation::GravityFieldVariations >& variation : variationSet->getVariationObjects( ) )
+            {
+                const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > tideVariation =
+                        std::dynamic_pointer_cast< gravitation::SolidBodyTideGravityFieldVariations >( variation );
+                if( tideVariation != nullptr )
+                {
+                    tideUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
+                    tideUpdateNeeds[ body_rotational_state_update ].push_back( bodyName );
+                    for( const std::string& deformingBody : tideVariation->getDeformingBodies( ) )
+                    {
+                        tideUpdateNeeds[ body_translational_state_update ].push_back( deformingBody );
+                    }
+                }
+            }
+        }
+    }
+    addEnvironmentUpdates( environmentModelsToUpdate, tideUpdateNeeds );
+}
+
+//! Function that adds the gravity field updates required by the mass distribution updates of bodies with rigid body properties
+//! derived from a time-dependent spherical harmonic gravity field
+void addGravityDerivedMassDistributionEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( environmentModelsToUpdate.count( body_mass_distribution_update ) == 0 )
+    {
+        return;
+    }
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > gravityFieldUpdateNeeds;
+    for( const std::string& bodyName : environmentModelsToUpdate.at( body_mass_distribution_update ) )
+    {
+        // A center of mass and inertia tensor derived from a time-dependent gravity field require the current coefficients
+        const std::shared_ptr< simulation_setup::Body > body = bodies.at( bodyName );
+        if( std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( body->getMassProperties( ) ) != nullptr &&
+            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( body->getGravityFieldModel( ) ) !=
+                    nullptr )
+        {
+            gravityFieldUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( bodyName );
+        }
+    }
+    addEnvironmentUpdates( environmentModelsToUpdate, gravityFieldUpdateNeeds );
+}
+
+//! Function that adds the ephemeris origins between updated bodies and a propagated body to the updated environment variables
+void addEphemerisOriginsOfUpdatedStates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( integratedStateList.count( translational_state ) == 0 || environmentModelsToUpdate.count( body_translational_state_update ) == 0 )
+    {
+        return;
+    }
+
+    std::map< std::string, std::string > ephemerisOrigins = simulation_setup::getEphemerisOrigins( bodies );
+    std::map< std::string, std::string > ephemerisDependentBodies = ephemerides::getEphemerisDependentBodies(
+            ephemerisOrigins, utilities::getFirstTupleEntryVector( integratedStateList.at( translational_state ) ) );
+
+    // The state of these origins depends on the propagated state, so it must be recomputed at each update (not only at each new time)
+    std::vector< std::string >& bodiesToUpdate = environmentModelsToUpdate.at( body_translational_state_update );
+    for( unsigned int i = 0; i < bodiesToUpdate.size( ); i++ )
+    {
+        if( ephemerisDependentBodies.count( bodiesToUpdate.at( i ) ) > 0 )
+        {
+            std::string currentOrigin = ephemerisOrigins.at( bodiesToUpdate.at( i ) );
+            while( currentOrigin != ephemerisDependentBodies.at( bodiesToUpdate.at( i ) ) )
+            {
+                if( std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), currentOrigin ) == bodiesToUpdate.end( ) )
+                {
+                    bodiesToUpdate.push_back( currentOrigin );
+                }
+                currentOrigin = ephemerisOrigins.at( currentOrigin );
+            }
+        }
+    }
+}
+
 //! Get list of required environment model update settings from torque models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
         const basic_astrodynamics::TorqueModelMap& torqueModels,
@@ -283,31 +380,6 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( bodiesToIntegrate.at( i ) );
-
-        // Inertia tensor (derivative) derived from time-dependent gravity field requires gravity field update
-        std::shared_ptr< simulation_setup::Body > currentBody = bodies.at( bodiesToIntegrate.at( i ) );
-        if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( currentBody->getGravityFieldModel( ) ) !=
-                    nullptr &&
-            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( currentBody->getMassProperties( ) ) !=
-                    nullptr )
-        {
-            singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( bodiesToIntegrate.at( i ) );
-
-            // Tidal gravity field variations require states of deformed and deforming bodies
-            if( currentBody->getGravityFieldVariationSet( ) != nullptr )
-            {
-                for( auto tidalVariation : currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariations( ) )
-                {
-                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( bodiesToIntegrate.at( i ) );
-                    for( auto deformingBody :
-                         std::dynamic_pointer_cast< gravitation::SolidBodyTideGravityFieldVariations >( tidalVariation )
-                                 ->getDeformingBodies( ) )
-                    {
-                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( deformingBody );
-                    }
-                }
-            }
-        }
     }
     addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
 
@@ -341,6 +413,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                         singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
                         singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( torqueModelIterator->first );
                         singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
                         singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( torqueModelIterator->first );
                         singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( acceleratedBodyIterator->first );
                         break;
@@ -992,6 +1066,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                     case momentum_wheel_desaturation_acceleration:
                         break;
                     case yarkovsky_acceleration:
+                        break;
+                    case gravitational_parameter_rate_acceleration:
                         break;
                     case custom_acceleration:
                         break;

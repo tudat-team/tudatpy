@@ -105,10 +105,29 @@ void expose_rigid_body_setup( py::module& m )
  Function for creating rigid body properties derived from the body's gravity field.
 
  Function for creating rigid body properties (mass, center of mass, inertia tensor) derived from the body's gravity field.
- The mass is computed from the gravitational parameter. For a spherical harmonic gravity field, the center of mass is computed from the
- degree 1 coefficients, and the inertia tensor from the degree 2 coefficients and the scaled mean moment of inertia (if this is not set, no inertia tensor is defined).
- For a polyhedron gravity field, the inertia tensor is computed from the homogeneous mass distribution inside the polyhedron.
- These properties are recomputed from the gravity field whenever they are updated (for instance at each time step of a propagation), so that changes in the gravity field (for instance due to gravity field variations, or during an estimation) are reflected in these properties.
+ The mass :math:`M` is computed from the gravitational parameter :math:`\mu`:
+
+ .. math::
+    M = \frac{\mu}{G}
+
+ For a spherical harmonic gravity field with reference radius :math:`R` and unnormalized coefficients :math:`C_{lm}`, :math:`S_{lm}`
+ (geodesy-normalized coefficients are converted to these first), the center of mass is computed from the degree 1 coefficients:
+
+ .. math::
+    \mathbf{r}_{CM} = R\begin{pmatrix} C_{11} \\ S_{11} \\ C_{10} \end{pmatrix}
+
+ and the inertia tensor from the degree 2 coefficients and the scaled mean moment of inertia
+ :math:`\bar{I} = (I_{xx}+I_{yy}+I_{zz})/(3MR^{2})`:
+
+ .. math::
+    \mathbf{I} = MR^{2}\left(\begin{pmatrix} \frac{C_{20}}{3} - 2C_{22} & -2S_{22} & -C_{21} \\
+    -2S_{22} & \frac{C_{20}}{3} + 2C_{22} & -S_{21} \\
+    -C_{21} & -S_{21} & -\frac{2C_{20}}{3} \end{pmatrix} + \bar{I}\,\mathbf{1}_{3\times3}\right)
+
+ If the scaled mean moment of inertia is not set, no inertia tensor is defined.
+ For a polyhedron gravity field, the inertia tensor is computed from the homogeneous mass distribution inside the polyhedron,
+ using the equations in section 5 of :cite:t:`Dobrovolskis1996`.
+ These properties are recomputed from the gravity field whenever they are updated (for instance at each time step of a propagation, for time-varying fields), so that changes in the gravity field (for instance due to gravity field variations, or during an estimation) are reflected in these properties.
  If no rigid body properties are specified for a body that has a gravity field, these settings (without a scaled mean moment of inertia) are used by default.
 
 
@@ -162,6 +181,7 @@ void expose_rigid_body_setup( py::module& m )
            py::arg( "mass_function" ),
            py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
            py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
+           py::arg_v( "inertia_tensor_derivative_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -179,6 +199,9 @@ void expose_rigid_body_setup( py::module& m )
      Function returning the center of mass as a function of time in seconds since J2000 TDB, to be used during the propagation.
  inertia_tensor_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
      Function returning the inertia tensor as a function of time in seconds since J2000 TDB, to be used during the propagation.
+ inertia_tensor_derivative_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
+     Function returning the time derivative of the inertia tensor as a function of time in seconds since J2000 TDB. If defined, the
+     term :math:`-\dot{\mathbf{I}}\boldsymbol{\omega}` is included in the inertial torque. Requires an inertia tensor function.
  Returns
  -------
  RigidBodyPropertiesSettings
@@ -196,6 +219,7 @@ void expose_rigid_body_setup( py::module& m )
            py::arg( "mass" ),
            py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
            py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
+           py::arg_v( "inertia_tensor_derivative_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -212,6 +236,10 @@ void expose_rigid_body_setup( py::module& m )
      Function returning the center of mass as a function of mass (to be used during the propagation)
  inertia_tensor_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
      Function returning the inertia tensor as a function of mass (to be used during the propagation)
+ inertia_tensor_derivative_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
+     Function returning the time derivative of the inertia tensor as a function of time in seconds since J2000 TDB (including the
+     effect of the mass rate). If defined, the term :math:`-\dot{\mathbf{I}}\boldsymbol{\omega}` is included in the inertial torque.
+     Requires an inertia tensor function.
  Returns
  -------
  RigidBodyPropertiesSettings

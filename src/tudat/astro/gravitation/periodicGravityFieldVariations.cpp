@@ -33,23 +33,26 @@ PeriodicGravityFieldVariations::PeriodicGravityFieldVariations( const std::vecto
     sineShAmplitudesCosineTime_( sineShAmplitudesCosineTime ), sineShAmplitudesSineTime_( sineShAmplitudesSineTime ),
     frequencies_( frequencies ), referenceEpoch_( referenceEpoch )
 {
-    checkAmplitudes( cosineShAmplitudesCosineTime_ );
-    checkAmplitudes( cosineShAmplitudesSineTime_ );
-    checkAmplitudes( sineShAmplitudesCosineTime_ );
-    checkAmplitudes( sineShAmplitudesSineTime_ );
+    checkAmplitudes( cosineShAmplitudesCosineTime_, "C_lm * cos time" );
+    checkAmplitudes( cosineShAmplitudesSineTime_, "C_lm * sin time" );
+    checkAmplitudes( sineShAmplitudesCosineTime_, "S_lm * cos time" );
+    checkAmplitudes( sineShAmplitudesSineTime_, "S_lm * sin time" );
 }
 
-void PeriodicGravityFieldVariations::checkAmplitudes( const std::vector< Eigen::MatrixXd >& amplitudes ) const
+void PeriodicGravityFieldVariations::checkAmplitudes( const std::vector< Eigen::MatrixXd >& amplitudes,
+                                                      const std::string& amplitudeType ) const
 {
     if( amplitudes.size( ) != frequencies_.size( ) )
     {
-        throw std::runtime_error( "Error configuring periodic gravity variations: amplitude and frequency counts differ." );
+        throw std::runtime_error( "Error configuring periodic gravity variations: amplitude (" + amplitudeType +
+                                  ") and frequency counts differ." );
     }
     for( const auto& amplitude : amplitudes )
     {
         if( amplitude.rows( ) != numberOfDegrees_ || amplitude.cols( ) != numberOfOrders_ )
         {
-            throw std::runtime_error( "Error configuring periodic gravity variations: amplitude block dimensions differ." );
+            throw std::runtime_error( "Error configuring periodic gravity variations: amplitude (" + amplitudeType +
+                                      ") block dimensions differ." );
         }
     }
 }

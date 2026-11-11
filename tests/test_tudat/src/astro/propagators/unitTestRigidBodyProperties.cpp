@@ -148,10 +148,20 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     };
 
     BodyListSettings settings;
-    for( const std::string bodyName : { "Legacy", "FromGravityField", "NoInertia", "Explicit" } )
+    for( const std::string bodyName : { "Legacy", "FromGravityField", "NoInertia", "Explicit", "TimeDependent" } )
     {
         settings.addSettings( bodyName );
     }
+
+    // Body with gravity-derived properties and a time-dependent gravity field (linear drift of C20)
+    std::map< int, Eigen::MatrixXd > cosineAmplitudes;
+    cosineAmplitudes[ 1 ] = Eigen::MatrixXd::Zero( 1, 3 );
+    cosineAmplitudes[ 1 ]( 0, 0 ) = 1.0e-12;
+    settings.at( "TimeDependent" )->gravityFieldSettings = makeGravitySettings( );
+    settings.at( "TimeDependent" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( scaledMeanMomentOfInertia );
+    settings.at( "TimeDependent" )
+            ->gravityFieldVariationSettings.push_back( std::make_shared< PolynomialGravityFieldVariationsSettings >(
+                    cosineAmplitudes, std::map< int, Eigen::MatrixXd >( ), 0.0, 2, 0 ) );
     settings.at( "Legacy" )->gravityFieldSettings = makeGravitySettings( scaledMeanMomentOfInertia );
     settings.at( "FromGravityField" )->gravityFieldSettings = makeGravitySettings( );
     settings.at( "FromGravityField" )->rigidBodyPropertiesSettings =
@@ -232,6 +242,57 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     explicitBody->getMassProperties( )->update( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitBody->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( explicitBody->getBodyMass( ), explicitMass, 5.0e-15 );
+
+    // Check that the mass of a propagated body with a time-dependent gravity field remains defined after a time reset, when only
+    // its mass distribution is updated (as for a body of which only the rotational state is propagated)
+    const std::shared_ptr< Body > timeDependentBody = bodies.at( "TimeDependent" );
+    BOOST_REQUIRE( std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( timeDependentBody->getMassProperties( ) ) != nullptr );
+    timeDependentBody->getMassProperties( )->setIsBodyInPropagation( true );
+    timeDependentBody->getMassProperties( )->resetCurrentTime( );
+    timeDependentBody->getMassProperties( )->updateMassDistribution( 0.0 );
+    BOOST_CHECK_CLOSE_FRACTION(
+            timeDependentBody->getBodyMass( ), gravitationalParameter / physical_constants::GRAVITATIONAL_CONSTANT, 5.0e-15 );
+
+    // Check that a mass distribution update adds a gravity field update only for the body with a time-dependent gravity field
+    // and gravity-derived properties
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentUpdates;
+    environmentUpdates[ propagators::body_mass_distribution_update ] = { "TimeDependent", "FromGravityField" };
+    propagators::addGravityDerivedMassDistributionEnvironmentUpdates( environmentUpdates, bodies );
+    BOOST_REQUIRE( environmentUpdates.count( propagators::spherical_harmonic_gravity_field_update ) == 1 );
+    BOOST_CHECK( environmentUpdates.at( propagators::spherical_harmonic_gravity_field_update ) ==
+                 std::vector< std::string >( { "TimeDependent" } ) );
+
+    // Check that the inertia tensor follows the linear drift of C20 during a rotational propagation
+    const std::vector< std::string > bodiesToIntegrate = { "TimeDependent" };
+    Eigen::VectorXd initialRotationalState = Eigen::VectorXd::Zero( 7 );
+    initialRotationalState( 0 ) = 1.0;
+    initialRotationalState( 6 ) = 1.0E-4;
+    propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+            bodies,
+            std::make_shared< propagators::RotationalStatePropagatorSettings< double > >(
+                    createTorqueModelsMap( bodies, SelectedTorqueMap( ), bodiesToIntegrate ),
+                    bodiesToIntegrate,
+                    initialRotationalState,
+                    0.0,
+                    std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 1.0E4 ),
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( 1.0E5 ),
+                    propagators::quaternions,
+                    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > >(
+                            { propagators::inertiaTensorVariableSaveSettings( "TimeDependent" ) } ) ) );
+    const std::map< double, Eigen::VectorXd >& inertiaTensorHistory = dynamicsSimulator.getDependentVariableHistory( );
+    const Eigen::Matrix3d initialInertiaTensor =
+            propagators::getMatrixFromVectorRotationRepresentation( inertiaTensorHistory.begin( )->second );
+    BOOST_CHECK( inertiaTensorHistory.size( ) > 2 );
+    for( const auto& inertiaTensorEntry : inertiaTensorHistory )
+    {
+        // Change of unnormalized C20 is sqrt(5) times that of normalized C20 (1.0E-12 per second)
+        const Eigen::Matrix3d expectedInertiaTensor = initialInertiaTensor +
+                gravitationalParameter / physical_constants::GRAVITATIONAL_CONSTANT * referenceRadius * referenceRadius * std::sqrt( 5.0 ) *
+                        1.0E-12 * ( inertiaTensorEntry.first - inertiaTensorHistory.begin( )->first ) / 3.0 *
+                        Eigen::Vector3d( 1.0, 1.0, -2.0 ).asDiagonal( ).toDenseMatrix( );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                propagators::getMatrixFromVectorRotationRepresentation( inertiaTensorEntry.second ), expectedInertiaTensor, 1.0E-13 );
+    }
 }
 
 //! Test inertia tensor derivative from linearly varying degree two coefficients against numerical derivatives, and its contribution to
@@ -306,6 +367,58 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative 
         // Check that the inertial torque includes -dI/dt * omega
         BOOST_REQUIRE_GT( expectedDerivativeTorque.norm( ), 0.0 );
         BOOST_CHECK_SMALL( ( derivativeTorque - expectedDerivativeTorque ).norm( ) / expectedDerivativeTorque.norm( ), 1.0e-13 );
+    }
+}
+
+//! Test conservation of inertial angular momentum in torque-free rotational motion, for a body with a time-varying inertia tensor (and
+//! its time derivative) defined by rigid body properties settings
+BOOST_AUTO_TEST_CASE( testAngularMomentumConservationWithInertiaTensorDerivative )
+{
+    using namespace simulation_setup;
+    using namespace propagators;
+
+    // Create body with linearly varying inertia tensor
+    const Eigen::Matrix3d initialInertiaTensor = Eigen::Vector3d( 1000.0, 1200.0, 1500.0 ).asDiagonal( );
+    const Eigen::Matrix3d inertiaTensorDerivative = ( Eigen::Matrix3d( ) << -1.0, 0.1, 0.0, 0.1, -2.0, 0.2, 0.0, 0.2, -1.5 ).finished( );
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" )->rigidBodyPropertiesSettings = fromFunctionRigidBodyPropertiesSettings(
+            []( const double ) { return 100.0; },
+            nullptr,
+            [ = ]( const double time ) -> Eigen::Matrix3d { return initialInertiaTensor + inertiaTensorDerivative * time; },
+            [ = ]( const double ) -> Eigen::Matrix3d { return inertiaTensorDerivative; } );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Propagate torque-free rotational motion (inertial torque only)
+    const std::vector< std::string > bodiesToIntegrate = { "Vehicle" };
+    Eigen::VectorXd initialRotationalState = Eigen::VectorXd::Zero( 7 );
+    initialRotationalState( 0 ) = 1.0;
+    initialRotationalState.segment( 4, 3 ) << 1.0E-2, -2.0E-2, 1.5E-2;
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+            bodies,
+            std::make_shared< RotationalStatePropagatorSettings< double > >(
+                    createTorqueModelsMap( bodies, SelectedTorqueMap( ), bodiesToIntegrate ),
+                    bodiesToIntegrate,
+                    initialRotationalState,
+                    0.0,
+                    std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 0.5 ),
+                    std::make_shared< PropagationTimeTerminationSettings >( 100.0 ),
+                    quaternions,
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >(
+                            { inertialToBodyFixedRotationMatrixVariable( "Vehicle" ),
+                              inertiaTensorVariableSaveSettings( "Vehicle" ) } ) ) );
+
+    // Check that inertial angular momentum is conserved (it changes by about 10 % without the inertia tensor derivative)
+    const std::map< double, Eigen::VectorXd >& stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    const std::map< double, Eigen::VectorXd >& dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+    const Eigen::Vector3d initialAngularMomentum = initialInertiaTensor * initialRotationalState.segment( 4, 3 );
+    for( const auto& stateEntry : stateHistory )
+    {
+        const Eigen::VectorXd& dependentVariables = dependentVariableHistory.at( stateEntry.first );
+        const Eigen::Vector3d inertialAngularMomentum =
+                getMatrixFromVectorRotationRepresentation( dependentVariables.segment( 0, 9 ) ).transpose( ) *
+                getMatrixFromVectorRotationRepresentation( dependentVariables.segment( 9, 9 ) ) * stateEntry.second.segment( 4, 3 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertialAngularMomentum, initialAngularMomentum, 1.0E-8 );
     }
 }
 

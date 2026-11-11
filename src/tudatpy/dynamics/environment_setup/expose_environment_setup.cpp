@@ -77,6 +77,10 @@ void expose_environment_setup_types( py::module& m )
 
     auto space_time_setup = m.def_submodule( "space_time" );
     space_time::expose_space_time_types( space_time_setup );
+
+    // Exposed before the environment module, which uses the Tle class
+    auto ephemeris_setup = m.def_submodule( "ephemeris" );
+    ephemeris::expose_ephemeris_types( ephemeris_setup );
 }
 
 std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > directRelativisticTimeConverterSettings(
@@ -452,7 +456,7 @@ void expose_environment_setup( py::module& m )
  .. note::
 
      Before using this function, make sure to have the appropriate set of SPICE kernels loaded.
-     Typically, this is done through the :func:`~tudatpy.interface.spice.load_standard_kernels` function.
+     Typically, this is done through the :func:`~tudatpy.data_input.environment_data.spice.load_standard_kernels` function.
 
 
  Parameters

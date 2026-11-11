@@ -86,17 +86,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
             else
             {
                 // Create partial-calculating object.
-                std::function< double( ) > inertiaTensorNormalizationFunction;
-                if( std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) ) !=
-                    nullptr )
-                {
-                    inertiaTensorNormalizationFunction = std::bind( &SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
-                                                                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
-                                                                            acceleratedBody.second->getGravityFieldModel( ) ) );
-                }
                 torquePartial = std::make_shared< SecondDegreeGravitationalTorquePartial >(
                         std::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ),
-                        inertiaTensorNormalizationFunction,
+                        acceleratedBody.second->getMassProperties( ),
                         acceleratedBody.first,
                         acceleratingBody.first );
             }
@@ -124,8 +116,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                                 parametersToEstimate ) ),
                         acceleratedBody.first,
                         acceleratingBody.first,
-                        std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
-                                acceleratingBody.second->getMassProperties( ) ) != nullptr );
+                        acceleratingBody.second->getMassProperties( ) );
             }
             break;
         case full_two_body_spherical_harmonic_gravitational_torque: {
@@ -153,7 +144,8 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     acceleratedBody.first,
                     acceleratingBody.first,
                     observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
-                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
+                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ),
+                    acceleratedBody.second->getMassProperties( ) );
             break;
         }
         case fourth_degree_full_two_body_gravitational_torque:
@@ -176,7 +168,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     acceleratedBody.first,
                     acceleratingBody.first,
                     observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
-                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
+                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ),
+                    acceleratedBody.second->getMassProperties( ),
+                    acceleratingBody.second->getMassProperties( ) );
             break;
         case radiation_pressure_torque:
             throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );
@@ -184,36 +178,21 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
         case inertial_torque: {
             std::function< Eigen::Vector3d( ) > angularVelocityFunction =
                     std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
-            std::function< Eigen::Matrix3d( ) > inertiaTensorFunction = std::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
-
-            std::function< double( ) > gravitationalParameterFunction;
-            if( acceleratedBody.second->getGravityFieldModel( ) != nullptr )
-            {
-                gravitationalParameterFunction = std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                                            acceleratedBody.second->getGravityFieldModel( ) );
-            }
-
-            std::function< double( ) > inertiaTensorNormalizationFunction;
-            if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                        acceleratedBody.second->getGravityFieldModel( ) ) != nullptr )
-            {
-                inertiaTensorNormalizationFunction =
-                        std::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
-                                   std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                                           acceleratedBody.second->getGravityFieldModel( ) ) );
-            }
+            // Use same rigid body properties as torque model
+            std::shared_ptr< RigidBodyProperties > rigidBodyProperties = acceleratedBody.second->getMassProperties( );
+            std::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
+                    std::bind( &RigidBodyProperties::getCurrentInertiaTensor, rigidBodyProperties );
 
             // Inertia tensor derivative is included in partial if it is included in the torque model
             std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction;
             if( std::dynamic_pointer_cast< InertialTorqueModel >( torqueModel )->isInertiaTensorDerivativeIncluded( ) )
             {
-                inertiaTensorDerivativeFunction = std::bind( &Body::getBodyInertiaTensorDerivative, acceleratedBody.second );
+                inertiaTensorDerivativeFunction = std::bind( &RigidBodyProperties::getCurrentDerivativeInertiaTensor, rigidBodyProperties );
             }
 
             torquePartial = std::make_shared< acceleration_partials::InertialTorquePartial >( angularVelocityFunction,
                                                                                               inertiaTensorFunction,
-                                                                                              inertiaTensorNormalizationFunction,
-                                                                                              gravitationalParameterFunction,
+                                                                                              rigidBodyProperties,
                                                                                               acceleratedBody.first,
                                                                                               inertiaTensorDerivativeFunction );
             break;

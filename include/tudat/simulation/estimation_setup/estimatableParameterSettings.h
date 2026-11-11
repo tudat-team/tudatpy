@@ -1612,6 +1612,11 @@ inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition( c
     return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > cameraPointingCorrection( const std::string& body, const std::string& cameraName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, camera_pointing_correction, cameraName );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime( const std::string& body,
                                                                                       const std::vector< std::string >& deformingBodies )
 {
@@ -1740,6 +1745,11 @@ inline std::shared_ptr< EstimatableParameterSettings > scaledLongitudeLibrationA
 inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const std::string bodyName, const std::string centralBodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > relativeGravitationalParameterRate( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, relative_gravitational_parameter_rate );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetDirectionScaling( const std::string targetName,

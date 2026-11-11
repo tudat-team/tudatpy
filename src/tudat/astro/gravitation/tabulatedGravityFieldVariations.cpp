@@ -96,15 +96,12 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator( const std::m
     variationInterpolator_ =
             interpolators::createOneDimensionalInterpolator< double, Eigen::MatrixXd >( sineCosinePairMap, interpolatorType_ );
 
-    canComputeTimeDerivative_ = variationInterpolator_->getInterpolatorType( ) == interpolators::linear_interpolator;
+    // Time derivative only computed for linear interpolation with at least one interval
+    canComputeTimeDerivative_ =
+            variationInterpolator_->getInterpolatorType( ) == interpolators::linear_interpolator && sineCosinePairMap.size( ) > 1;
     derivativeInterpolator_.reset( );
     if( canComputeTimeDerivative_ )
     {
-        if( sineCosinePairMap.size( ) < 2 )
-        {
-            throw std::runtime_error( "Error when creating tabulated gravity variations: linear interpolation needs at least two epochs." );
-        }
-
         // Differentiate each linear segment once, when the table is installed.
         std::map< double, Eigen::MatrixXd > coefficientRates;
         for( auto lower = sineCosinePairMap.begin( ), upper = std::next( lower ); upper != sineCosinePairMap.end( ); ++lower, ++upper )

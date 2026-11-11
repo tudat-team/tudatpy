@@ -21,7 +21,7 @@
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/observation_models/dsnNWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/orbit_determination/observation_partials/dsnNWayRangePartial.h"
 
 namespace tudat
@@ -31,7 +31,7 @@ namespace observation_partials
 {
 
 double getDsnNWayRangeScalingFactor(
-        const std::function< double( std::vector< observation_models::FrequencyBands >, double ) > transmittedFrequencyFunction,
+        const std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, double ) > transmittedFrequencyFunction,
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
         const std::vector< double >& linkEndTimes,
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
@@ -43,10 +43,10 @@ double getDsnNWayRangeScalingFactor(
                 "settings found. " );
     }
 
-    std::vector< observation_models::FrequencyBands > frequencyBands;
+    std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
     try
     {
-        frequencyBands = observation_models::convertDoubleVectorToFrequencyBands(
+        frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
                 ancillarySettings->getAncillaryDoubleVectorData( observation_models::frequency_bands ) );
     }
     catch( std::runtime_error& caughtException )

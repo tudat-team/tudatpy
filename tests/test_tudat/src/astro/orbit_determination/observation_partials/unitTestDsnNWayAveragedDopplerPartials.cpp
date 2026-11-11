@@ -22,8 +22,8 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/io/readOdfFile.h"
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/io/preProcessOdfFile.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
@@ -42,6 +42,7 @@ namespace unit_tests
 using namespace tudat::gravitation;
 using namespace tudat::ephemerides;
 using namespace tudat::observation_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::simulation_setup;
 using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
@@ -76,23 +77,22 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
     double finalEphemerisTime = 544869060.0;
     double stateEvaluationTime = initialEphemerisTime + 8.0e3;
 
-    // Read ODF file - used just for the automatic creation of ground station ramp frequency calculator
-    std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
-            std::make_shared< OdfRawFileContents >( tudat::paths::getTudatTestDataPath( ) + "mromagr2017_097_1335xmmmv1.odf" );
+    // Odf file - used just for the automatic creation of ground station ramp frequency calculator
+    std::string odfFile = tudat::paths::getTudatTestDataPath( ) + "mromagr2017_097_1335xmmmv1.odf";
 
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
         SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime, finalEphemerisTime, stateEvaluationTime, true );
 
-        // Process ODF file
-        std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-                std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfFileContents, "MSL", true );
+        // Load ODF file
+        std::vector< std::shared_ptr< data::TrackingSupplementaryData > > supplementaryData =
+                loadOdfFile( { odfFile }, "MSL", "Earth" ).second;
         // Create ground stations
-        setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
+        setTrackingSupplementaryDataInBodies( bodies, supplementaryData );
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setVehicleSystems( vehicleSystems );
 
         // Set link ends for observation model
@@ -117,22 +117,23 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, stateEvaluationTime );
 
-        testObservationPartials< 1 >( dsnNWayAveragedDopplerModel,
-                                      bodies,
-                                      fullEstimatableParameterSet,
-                                      linkEnds,
-                                      dsn_n_way_averaged_doppler,
-                                      1.0E-4,
-                                      true,
-                                      true,
-                                      1000.0,
-                                      parameterPerturbationMultipliers,
-                                      getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
-                                                                                  x_band,
-                                                                                  7.0e9,
-                                                                                  60.0,
-                                                                                  getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                                      stateEvaluationTime );
+        testObservationPartials< 1 >(
+                dsnNWayAveragedDopplerModel,
+                bodies,
+                fullEstimatableParameterSet,
+                linkEnds,
+                dsn_n_way_averaged_doppler,
+                1.0E-4,
+                true,
+                true,
+                1000.0,
+                parameterPerturbationMultipliers,
+                getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                                                            FrequencyBands::x_band,
+                                                            7.0e9,
+                                                            60.0,
+                                                            getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                stateEvaluationTime );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -140,14 +141,14 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         // Create environment
         SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime, finalEphemerisTime, stateEvaluationTime, true );
 
-        // Process ODF file
-        std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-                std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfFileContents, "MSL", true );
+        // Load ODF file
+        std::vector< std::shared_ptr< data::TrackingSupplementaryData > > supplementaryData =
+                loadOdfFile( { odfFile }, "MSL", "Earth" ).second;
         // Create ground stations
-        setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
+        setTrackingSupplementaryDataInBodies( bodies, supplementaryData );
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setVehicleSystems( vehicleSystems );
 
         // Set link ends for observation model
@@ -172,22 +173,23 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, stateEvaluationTime );
 
-        testObservationPartials< 1 >( dsnNWayAveragedDopplerModel,
-                                      bodies,
-                                      fullEstimatableParameterSet,
-                                      linkEnds,
-                                      dsn_n_way_averaged_doppler,
-                                      1.0E-4,
-                                      false,
-                                      true,
-                                      1000.0,
-                                      parameterPerturbationMultipliers,
-                                      getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
-                                                                                  x_band,
-                                                                                  7.0e9,
-                                                                                  60.0,
-                                                                                  getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                                      stateEvaluationTime );
+        testObservationPartials< 1 >(
+                dsnNWayAveragedDopplerModel,
+                bodies,
+                fullEstimatableParameterSet,
+                linkEnds,
+                dsn_n_way_averaged_doppler,
+                1.0E-4,
+                false,
+                true,
+                1000.0,
+                parameterPerturbationMultipliers,
+                getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                                                            FrequencyBands::x_band,
+                                                            7.0e9,
+                                                            60.0,
+                                                            getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                stateEvaluationTime );
     }
 }
 
