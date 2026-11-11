@@ -474,6 +474,17 @@ void checkModelIsCopied( const std::shared_ptr< ModelType > model, const std::sh
     }
 }
 
+// Check that a model exists in the copy if, and only if, it exists in the original, and that it is of the same type
+template< typename ModelType >
+void checkModelTypeIsEqual( const std::shared_ptr< ModelType > model, const std::shared_ptr< ModelType > modelCopy )
+{
+    BOOST_CHECK_EQUAL( model == nullptr, modelCopy == nullptr );
+    if( model != nullptr && modelCopy != nullptr )
+    {
+        BOOST_CHECK( typeid( *model ) == typeid( *modelCopy ) );
+    }
+}
+
 //! Test closure of environment models (links to other models): which models require closure, when it is applied, and that models
 //! without closure cannot be used
 BOOST_AUTO_TEST_CASE( testClosureOfEnvironmentModels )
@@ -577,16 +588,10 @@ BOOST_AUTO_TEST_CASE( testCopiedAndSharedModels )
         if( body->getGravityFieldModel( ) != nullptr )
         {
             BOOST_CHECK_EQUAL( body->getGravityFieldModel( ) == bodyCopy->getGravityFieldModel( ), isGravityFieldShared );
-            BOOST_CHECK( typeid( *body->getGravityFieldModel( ) ) == typeid( *bodyCopy->getGravityFieldModel( ) ) );
         }
-        if( body->getEphemeris( ) != nullptr )
-        {
-            BOOST_CHECK( typeid( *body->getEphemeris( ) ) == typeid( *bodyCopy->getEphemeris( ) ) );
-        }
-        if( body->getRotationalEphemeris( ) != nullptr )
-        {
-            BOOST_CHECK( typeid( *body->getRotationalEphemeris( ) ) == typeid( *bodyCopy->getRotationalEphemeris( ) ) );
-        }
+        checkModelTypeIsEqual( body->getGravityFieldModel( ), bodyCopy->getGravityFieldModel( ) );
+        checkModelTypeIsEqual( body->getEphemeris( ), bodyCopy->getEphemeris( ) );
+        checkModelTypeIsEqual( body->getRotationalEphemeris( ), bodyCopy->getRotationalEphemeris( ) );
 
         // Models with data that changes during propagation are copied
         checkModelIsCopied( body->getAtmosphereModel( ), bodyCopy->getAtmosphereModel( ) );
@@ -604,7 +609,7 @@ BOOST_AUTO_TEST_CASE( testCopiedAndSharedModels )
     }
 
     // Variation objects of time-dependent gravity fields are copied, and are those used by the copied gravity field
-    for( const std::string& bodyName : { "Earth", "Moon" } )
+    for( const std::string bodyName : { "Earth", "Moon" } )
     {
         std::vector< std::shared_ptr< GravityFieldVariations > > variations =
                 bodies.at( bodyName )->getGravityFieldVariationSet( )->getVariationObjects( );
@@ -615,7 +620,7 @@ BOOST_AUTO_TEST_CASE( testCopiedAndSharedModels )
         for( unsigned int i = 0; i < variations.size( ); i++ )
         {
             BOOST_CHECK( variations.at( i ) != variationsCopy.at( i ) );
-            BOOST_CHECK( typeid( *variations.at( i ) ) == typeid( *variationsCopy.at( i ) ) );
+            checkModelTypeIsEqual( variations.at( i ), variationsCopy.at( i ) );
         }
     }
 
@@ -1044,7 +1049,7 @@ BOOST_AUTO_TEST_CASE( testCopyOfComaModel )
     std::vector< double > times = { 490708800.0 + 1000.0, 490708800.0 + 50000.0 };
     for( const SystemOfBodies& currentBodies : { bodies, bodiesCopy } )
     {
-        for( const std::string& bodyName : { "Sun", "Comet" } )
+        for( const std::string bodyName : { "Sun", "Comet" } )
         {
             currentBodies.at( bodyName )->setStateFromEphemeris< double, double >( times.at( 0 ) );
         }
@@ -1063,7 +1068,7 @@ BOOST_AUTO_TEST_CASE( testCopyOfComaModel )
     // copied models would give equal results)
     for( const SystemOfBodies& currentBodies : { bodies, bodiesCopy } )
     {
-        for( const std::string& bodyName : { "Sun", "Comet" } )
+        for( const std::string bodyName : { "Sun", "Comet" } )
         {
             currentBodies.at( bodyName )->setStateFromEphemeris< double, double >( times.at( 1 ) );
         }

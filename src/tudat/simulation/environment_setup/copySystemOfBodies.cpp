@@ -422,7 +422,12 @@ std::shared_ptr< gravitation::GravityFieldModel > copyGravityFieldModel(
     using namespace gravitation;
 
     // Point-mass field has no data that changes during propagation, and is shared
-    if( gravityFieldModel == nullptr || typeid( *gravityFieldModel ) == typeid( GravityFieldModel ) )
+    if( gravityFieldModel == nullptr )
+    {
+        return gravityFieldModel;
+    }
+    const GravityFieldModel& gravityField = *gravityFieldModel;
+    if( typeid( gravityField ) == typeid( GravityFieldModel ) )
     {
         return gravityFieldModel;
     }
@@ -488,7 +493,7 @@ void copyGravityFieldVariations( const std::shared_ptr< Body > body,
 
         // Tidal variations are recreated without closure (their copy constructor would keep functions bound to the original
         // object), and are linked to the bodies in the copy by closure of the copied system of bodies
-        if( typeid( *variation ) == typeid( BasicSolidBodyTideGravityFieldVariations ) )
+        if( isModelOfType< BasicSolidBodyTideGravityFieldVariations >( variation ) )
         {
             std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > tidalVariation =
                     std::static_pointer_cast< BasicSolidBodyTideGravityFieldVariations >( variation );
@@ -499,7 +504,7 @@ void copyGravityFieldVariations( const std::shared_ptr< Body > body,
                                                               tidalVariation->getMeanForcingSineTerms( ) );
             variationCopy = createGravityFieldVariationsModel( tidalVariationSettings, bodyName, bodiesCopy, false );
         }
-        else if( typeid( *variation ) == typeid( ModeCoupledSolidBodyTideGravityFieldVariations ) )
+        else if( isModelOfType< ModeCoupledSolidBodyTideGravityFieldVariations >( variation ) )
         {
             std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > tidalVariation =
                     std::static_pointer_cast< ModeCoupledSolidBodyTideGravityFieldVariations >( variation );

@@ -226,7 +226,7 @@ public:
     // Using statement to prevent compiler warning.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
-    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > clone( ) const override
+    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > clone( ) const
     {
         std::shared_ptr< LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > > clonedInterpolator =
                 std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >( *this );

@@ -274,7 +274,7 @@ public:
     //! Destructor.
     ~CubicSplineInterpolator( ) {}
 
-    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > clone( ) const override
+    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > clone( ) const
     {
         std::shared_ptr< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > > clonedInterpolator =
                 std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >( *this );
