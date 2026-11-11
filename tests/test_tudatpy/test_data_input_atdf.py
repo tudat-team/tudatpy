@@ -32,7 +32,7 @@ EARTH = "Earth"
 
 # ``atdf2ascii`` output for PDS file 9066071a.tdf (Mars Global Surveyor, March
 # 1999), taken from ``atdf2ascii/Examples``
-FIXTURE_DIR = Path(resource_paths.get_test_data_path()) / "atdf"
+FIXTURE_DIR = Path(__file__).resolve().parent / "data" / "atdf"
 FIXTURE_STEM = "9066071a"
 
 # Row counts of the fixture's ``.msr`` table per "Data Type", and of its``.ramp`` table per station

@@ -8,23 +8,23 @@ import numpy as np
 from numpy.testing import assert_equal
 from pathlib import Path
 
-current_dir = Path(__file__).resolve().parent
+test_data_dir = Path(__file__).resolve().parent / "data" / "ades"
 
 
 # define the path of the file to be saved
 @pytest.fixture
 def file_path_xml():
-    return f"{current_dir}/obs_2.xml"
+    return f"{test_data_dir}/obs_2.xml"
 
 
 @pytest.fixture
 def file_path_psv():
-    return f"{current_dir}/obs_1.psv"
+    return f"{test_data_dir}/obs_1.psv"
 
 
 @pytest.fixture
 def file_path_xml_radar():
-    return f"{current_dir}/obs_radar.xml"
+    return f"{test_data_dir}/obs_radar.xml"
 
 
 # define a dataframe with observations equal to file obs_1.psv

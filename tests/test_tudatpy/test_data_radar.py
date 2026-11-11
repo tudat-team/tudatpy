@@ -272,7 +272,9 @@ def test_real_radar_record_parses_and_converts():
     """Parse and convert a published record whose blank bounce point means centre of mass."""
     # Check the column layout against a published, non-synthetic MPC radar pair.
     # Published 80-column record from https://projectpluto.com/radar/99942.htm.
-    lines = (Path(__file__).parent / "fixtures" / "mpc_radar_sample.txt").read_text().splitlines()
+    lines = (
+        (Path(__file__).resolve().parent / "data" / "mpc_radar_sample.txt").read_text().splitlines()
+    )
     table = _parsed_radar(lines)
 
     # The real pair contains both a delay and a Doppler measurement, and neither
