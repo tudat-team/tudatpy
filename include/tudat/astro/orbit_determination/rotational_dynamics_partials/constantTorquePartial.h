@@ -14,6 +14,7 @@
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -60,6 +61,12 @@ public:
     //! Destructor
     ~ConstantTorquePartial( ) {}
 
+    //! Function to set the inertial torque partial of the body, used for the dependency of the tidal part of the inertia tensor
+    void setInertialTorquePartial( const std::shared_ptr< InertialTorquePartial > inertialTorquePartial )
+    {
+        inertialTorquePartial_ = inertialTorquePartial;
+    }
+
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
      *  Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -94,7 +101,19 @@ public:
                                           const bool addContribution = 1,
                                           const int startRow = 0,
                                           const int startColumn = 0 )
-    {}
+    {
+        // Inertia tensor depends on orientation only through tidal gravity field variations: partial is -dI/dq I^-1 T
+        if( inertialTorquePartial_ != nullptr )
+        {
+            const std::vector< Eigen::Matrix3d >& inertiaTensorPartials =
+                    inertialTorquePartial_->getCurrentTidalInertiaTensorPartialsWrtQuaternion( );
+            for( unsigned int i = 0; i < inertiaTensorPartials.size( ); i++ )
+            {
+                partialMatrix.block( startRow, startColumn + i, 3, 1 ) += ( addContribution ? -1.0 : 1.0 ) * inertiaTensorPartials.at( i ) *
+                        currentInverseInertiaTensor_ * currentTotalTorque_;
+            }
+        }
+    }
 
     //! Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body.
     /*!
@@ -143,6 +162,39 @@ public:
     }
 
 protected:
+    //! Function to add the dependency of the tidal part of the inertia tensor on a parameter to a partial function
+    /*!
+     * Function to add the dependency of the tidal part of the inertia tensor on a parameter to a partial function (if any)
+     * \param parameter Parameter w.r.t. which partial is to be taken.
+     * \param partialFunction Partial function and number of columns, modified to include the tidal dependency (returned by reference)
+     */
+    template< typename ParameterType >
+    void addTidalInertiaTensorPartialFunction(
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameter,
+            std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& partialFunction );
+
+    //! Function to update the parameter partials of the inertial torque partial, used for the tidal part of the inertia tensor
+    void updateParameterPartialsOfMemberObjects( ) override
+    {
+        if( inertialTorquePartial_ != nullptr )
+        {
+            inertialTorquePartial_->updateParameterPartials( );
+        }
+    }
+
+    //! Function to compute partial of torque w.r.t. a parameter, including the dependency of the tidal part of the inertia tensor
+    /*!
+     * Function to compute partial of torque w.r.t. a parameter, including the dependency of the tidal part of the inertia tensor
+     * (term -dI/dp I^-1 T)
+     * \param partialMatrix Computed partial of torque w.r.t. parameter (returned by reference)
+     * \param nonTidalPartialFunction Function computing partial of torque w.r.t. parameter, without tidal contribution (empty if
+     * none)
+     * \param tidalPartialFunction Function computing partials of tidal part of inertia tensor (and its derivative) w.r.t. parameter
+     */
+    void wrtParameterThroughTidalInertiaTensor( Eigen::MatrixXd& partialMatrix,
+                                                const std::function< void( Eigen::MatrixXd& ) > nonTidalPartialFunction,
+                                                const InertialTorquePartial::TidalInertiaTensorPartialFunction tidalPartialFunction );
+
     //! Function to compute partial of torque w.r.t. mean moment of inertia
     /*!
      * Function to compute partial of torque w.r.t. mean moment of inertia
@@ -215,6 +267,9 @@ protected:
 
     //! Current inertia tensor normalization
     double currentInertiaTensorNormalizationFactor_;
+
+    //! Inertial torque partial of the body, providing partials of the tidal part of the inertia tensor (nullptr if not set)
+    std::shared_ptr< InertialTorquePartial > inertialTorquePartial_;
 };
 
 }  // namespace acceleration_partials

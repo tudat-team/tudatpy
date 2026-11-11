@@ -729,16 +729,65 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithInertiaTensorDerivative )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRotationalVelocity, partialWrtRotationalVelocity, 1.0E-8 );
 }
 
-//! Test partials of inertial torque w.r.t. rotational state, tidal Love number and gravitational parameters, for a body with an
-//! inertia tensor (and its derivative) varying due to tidal gravity field variations, by comparing with numerical partials
-BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithTidalInertiaTensorDerivative )
+//! Function to retrieve analytical partials of the inertial torque, and of the tidal part of the inertia tensor and of its time
+//! derivative, w.r.t. the entries of a parameter. For the gravitational parameter of the deformed body, the part of the inertia tensor
+//! and its derivative that is proportional to this parameter is added, so that the full partials are returned.
+template< typename ParameterType >
+void addTidalInertialTorqueParameterPartials( const std::shared_ptr< EstimatableParameter< ParameterType > > parameter,
+                                              const std::shared_ptr< InertialTorquePartial > torquePartial,
+                                              const std::shared_ptr< Body > deformedBody,
+                                              const std::string& deformedBodyName,
+                                              std::vector< Eigen::Vector3d >& torquePartials,
+                                              std::vector< Eigen::Matrix3d >& inertiaTensorPartials,
+                                              std::vector< Eigen::Matrix3d >& inertiaTensorDerivativePartials,
+                                              std::vector< bool >& isDeformedBodyGravitationalParameter )
 {
-    // Create Mars, and Phobos with gravity-derived inertia tensor and tidal gravity field variations due to Mars
+    Eigen::MatrixXd torquePartialMatrix = torquePartial->wrtParameter( parameter );
+
+    std::pair< InertialTorquePartial::TidalInertiaTensorPartialFunction, int > tidalPartialFunction =
+            torquePartial->getTidalInertiaTensorPartialFunction( parameter );
+    BOOST_REQUIRE_EQUAL( tidalPartialFunction.second, parameter->getParameterSize( ) );
+    std::vector< Eigen::Matrix3d > currentInertiaTensorPartials, currentInertiaTensorDerivativePartials;
+    tidalPartialFunction.first( currentInertiaTensorPartials, currentInertiaTensorDerivativePartials );
+
+    const bool isCurrentParameterDeformedBodyGravitationalParameter = parameter->getParameterName( ).first == gravitational_parameter &&
+            parameter->getParameterName( ).second.first == deformedBodyName;
+    if( isCurrentParameterDeformedBodyGravitationalParameter )
+    {
+        const double gravitationalParameter = deformedBody->getGravityFieldModel( )->getGravitationalParameter( );
+        currentInertiaTensorPartials.at( 0 ) += deformedBody->getBodyInertiaTensor( ) / gravitationalParameter;
+        currentInertiaTensorDerivativePartials.at( 0 ) += deformedBody->getBodyInertiaTensorDerivative( ) / gravitationalParameter;
+    }
+
+    for( int i = 0; i < parameter->getParameterSize( ); i++ )
+    {
+        torquePartials.push_back( torquePartialMatrix.block( 0, i, 3, 1 ) );
+        inertiaTensorPartials.push_back( currentInertiaTensorPartials.at( i ) );
+        inertiaTensorDerivativePartials.push_back( currentInertiaTensorDerivativePartials.at( i ) );
+        isDeformedBodyGravitationalParameter.push_back( isCurrentParameterDeformedBodyGravitationalParameter );
+    }
+}
+
+//! Function to test partials of the inertial torque on Phobos w.r.t. its rotational state and the given parameters, for an inertia
+//! tensor (and its derivative) derived from a gravity field with the given tidal variations (caused by Mars and/or a second body), by
+//! comparing with numerical partials. The partials of the inertia tensor and of its derivative w.r.t. the quaternion and the parameters
+//! are each compared with numerical partials, and the contributions of both to the torque partials are checked to be significant.
+void testTidalInertialTorquePartials( const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings,
+                                      const std::vector< std::shared_ptr< EstimatableParameterSettings > >& parameterNames )
+{
+    // Create Mars, a second body causing tidal deformation (with a gravitational parameter and position such that its tidal effect is
+    // significant), and Phobos with gravity-derived inertia tensor and tidal gravity field variations
     const double marsGravitationalParameter = 4.282837E13;
     BodyListSettings bodySettings( "SSB", "ECLIPJ2000" );
     bodySettings.addSettings( "Mars" );
     bodySettings.at( "Mars" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ) );
     bodySettings.at( "Mars" )->gravityFieldSettings = centralGravitySettings( marsGravitationalParameter );
+
+    bodySettings.addSettings( "Perturber" );
+    Eigen::Vector6d perturberState = Eigen::Vector6d::Zero( );
+    perturberState.segment( 0, 3 ) << 2.0E7, -1.5E7, 1.0E7;
+    bodySettings.at( "Perturber" )->ephemerisSettings = constantEphemerisSettings( perturberState );
+    bodySettings.at( "Perturber" )->gravityFieldSettings = centralGravitySettings( 0.2 * marsGravitationalParameter );
 
     bodySettings.addSettings( "Phobos" );
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
@@ -755,8 +804,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithTidalInertiaTensorDerivative
     cosineCoefficients( 2, 2 ) = 0.02;
     bodySettings.at( "Phobos" )->gravityFieldSettings =
             sphericalHarmonicsGravitySettings( 7.11E5, 11.27E3, cosineCoefficients, Eigen::MatrixXd::Zero( 3, 3 ), "Phobos_Fixed" );
-    bodySettings.at( "Phobos" )
-            ->gravityFieldVariationSettings.push_back( fixedSingleDegreeLoveNumberGravityFieldVariationSettings( "Mars", 0.1, 2 ) );
+    bodySettings.at( "Phobos" )->gravityFieldVariationSettings = gravityFieldVariationSettings;
     bodySettings.at( "Phobos" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( 0.4 );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     std::shared_ptr< Body > phobos = bodies.at( "Phobos" );
@@ -764,6 +812,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithTidalInertiaTensorDerivative
     // Set states of bodies, and update gravity field (and inertia tensor derivative) of Phobos
     const double testTime = 1000.0;
     bodies.at( "Mars" )->setStateFromEphemeris( testTime );
+    bodies.at( "Perturber" )->setStateFromEphemeris( testTime );
     phobos->setStateFromEphemeris( testTime );
     Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
     rotationalState.segment( 0, 4 ) = tudat::linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond(
@@ -784,36 +833,58 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithTidalInertiaTensorDerivative
     inertialTorqueModel->updateMembers( testTime );
     const Eigen::Matrix3d inertiaTensor = phobos->getBodyInertiaTensor( );
     const Eigen::Matrix3d inertiaTensorDerivative = phobos->getBodyInertiaTensorDerivative( );
+    const Eigen::Vector3d angularVelocity = rotationalState.segment( 4, 3 );
+    const Eigen::Matrix3d angularVelocityCrossProductMatrix = tudat::linear_algebra::getCrossProductMatrix( angularVelocity );
 
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Phobos", 2, "Mars", false ) );
-    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
-    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Phobos", gravitational_parameter ) );
     std::shared_ptr< EstimatableParameterSet< double > > parameterSet = createParametersToEstimate( parameterNames, bodies );
-    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > loveNumberParameter = parameterSet->getEstimatedVectorParameters( ).at( 0 );
-    std::shared_ptr< EstimatableParameter< double > > marsGravitationalParameterParameter =
-            parameterSet->getEstimatedDoubleParameters( ).at( 0 );
-    std::shared_ptr< EstimatableParameter< double > > phobosGravitationalParameterParameter =
-            parameterSet->getEstimatedDoubleParameters( ).at( 1 );
+    std::shared_ptr< InertialTorquePartial > torquePartial =
+            std::dynamic_pointer_cast< InertialTorquePartial >( createAnalyticalTorquePartial( inertialTorqueModel,
+                                                                                               std::make_pair( "Phobos", phobos ),
+                                                                                               std::make_pair( "Phobos", phobos ),
+                                                                                               SingleBodyTorqueModelMap( ),
+                                                                                               bodies,
+                                                                                               parameterSet ) );
+    BOOST_REQUIRE( torquePartial != nullptr );
 
-    std::shared_ptr< TorquePartial > torquePartial = createAnalyticalTorquePartial( inertialTorqueModel,
-                                                                                    std::make_pair( "Phobos", phobos ),
-                                                                                    std::make_pair( "Phobos", phobos ),
-                                                                                    SingleBodyTorqueModelMap( ),
-                                                                                    bodies,
-                                                                                    parameterSet );
-
-    // Calculate analytical partials
+    // Calculate analytical partials w.r.t. rotational state, and partials of tidal part of inertia tensor w.r.t. quaternion
     torquePartial->update( testTime );
     Eigen::MatrixXd partialWrtOrientation = Eigen::MatrixXd::Zero( 3, 4 );
     torquePartial->wrtOrientationOfAcceleratedBody( partialWrtOrientation.block( 0, 0, 3, 4 ) );
     Eigen::MatrixXd partialWrtRotationalVelocity = Eigen::Matrix3d::Zero( );
     torquePartial->wrtRotationalVelocityOfAcceleratedBody( partialWrtRotationalVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
-    Eigen::Vector3d partialWrtLoveNumber = torquePartial->wrtParameter( loveNumberParameter );
-    Eigen::Vector3d partialWrtMarsGravitationalParameter = torquePartial->wrtParameter( marsGravitationalParameterParameter );
-    Eigen::Vector3d partialWrtPhobosGravitationalParameter = torquePartial->wrtParameter( phobosGravitationalParameterParameter );
+    const std::vector< Eigen::Matrix3d > inertiaTensorPartialsWrtQuaternion =
+            torquePartial->getCurrentTidalInertiaTensorPartialsWrtQuaternion( );
+    BOOST_REQUIRE_EQUAL( static_cast< int >( inertiaTensorPartialsWrtQuaternion.size( ) ), 4 );
 
-    // Calculate numerical partials (updating the tidal gravity field variations and inertia tensor at each evaluation)
+    // Calculate analytical partials w.r.t. parameters, per parameter entry (double parameters precede vector parameters)
+    std::vector< Eigen::Vector3d > torquePartialsWrtParameters;
+    std::vector< Eigen::Matrix3d > inertiaTensorPartialsWrtParameters, inertiaTensorDerivativePartialsWrtParameters;
+    std::vector< bool > isDeformedBodyGravitationalParameter;
+    for( std::shared_ptr< EstimatableParameter< double > > parameter : parameterSet->getEstimatedDoubleParameters( ) )
+    {
+        addTidalInertialTorqueParameterPartials( parameter,
+                                                 torquePartial,
+                                                 phobos,
+                                                 "Phobos",
+                                                 torquePartialsWrtParameters,
+                                                 inertiaTensorPartialsWrtParameters,
+                                                 inertiaTensorDerivativePartialsWrtParameters,
+                                                 isDeformedBodyGravitationalParameter );
+    }
+    for( std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > parameter : parameterSet->getEstimatedVectorParameters( ) )
+    {
+        addTidalInertialTorqueParameterPartials( parameter,
+                                                 torquePartial,
+                                                 phobos,
+                                                 "Phobos",
+                                                 torquePartialsWrtParameters,
+                                                 inertiaTensorPartialsWrtParameters,
+                                                 inertiaTensorDerivativePartialsWrtParameters,
+                                                 isDeformedBodyGravitationalParameter );
+    }
+
+    // Calculate numerical partials w.r.t. rotational state (updating the tidal gravity field variations and inertia tensor at each
+    // evaluation)
     std::function< void( Eigen::Vector7d ) > rotationalStateSetFunction =
             std::bind( &Body::setCurrentRotationalStateToLocalFrame, phobos, std::placeholders::_1 );
     Eigen::Matrix3d testPartialWrtRotationalVelocity = calculateTorqueWrtRotationalStatePartials( rotationalStateSetFunction,
@@ -834,18 +905,22 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithTidalInertiaTensorDerivative
                                                                                        updateFunction,
                                                                                        testTime );
 
-    Eigen::Vector3d testPartialWrtLoveNumber = calculateTorqueWrtParameterPartials(
-            loveNumberParameter, inertialTorqueModel, Eigen::VectorXd::Constant( 1, 1.0E-3 ), updateFunction, testTime );
-    Eigen::Vector3d testPartialWrtMarsGravitationalParameter = calculateTorqueWrtParameterPartials(
-            marsGravitationalParameterParameter, inertialTorqueModel, 1.0E8, updateFunction, testTime );
-    Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateTorqueWrtParameterPartials(
-            phobosGravitationalParameterParameter, inertialTorqueModel, 10.0, updateFunction, testTime );
+    // Calculate changes in inertia tensor due to the same quaternion perturbations
+    std::vector< Eigen::Matrix3d > inertiaTensorDeviations;
+    for( int index = 1; index < 4; index++ )
+    {
+        Eigen::Vector7d perturbedRotationalState = rotationalState;
+        perturbedRotationalState.segment( 0, 4 ) += appliedQuaternionPerturbation[ index ];
+        phobos->setCurrentRotationalStateToLocalFrame( perturbedRotationalState );
+        updateFunction( );
+        inertiaTensorDeviations.push_back( phobos->getBodyInertiaTensor( ) - inertiaTensor );
+    }
+    phobos->setCurrentRotationalStateToLocalFrame( rotationalState );
+    updateFunction( );
 
     // Compare partial w.r.t. angular velocity with numerical partial, and check that the tidal contribution (through the
     // dependency of the inertia tensor derivative on angular velocity) is significant
-    const Eigen::Vector3d angularVelocity = rotationalState.segment( 4, 3 );
-    const Eigen::Matrix3d nonTidalPartialWrtRotationalVelocity =
-            -tudat::linear_algebra::getCrossProductMatrix( angularVelocity ) * inertiaTensor +
+    const Eigen::Matrix3d nonTidalPartialWrtRotationalVelocity = -angularVelocityCrossProductMatrix * inertiaTensor +
             tudat::linear_algebra::getCrossProductMatrix( inertiaTensor * angularVelocity ) - inertiaTensorDerivative;
     BOOST_CHECK_SMALL(
             ( partialWrtRotationalVelocity - testPartialWrtRotationalVelocity ).norm( ) / testPartialWrtRotationalVelocity.norm( ),
@@ -853,25 +928,135 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithTidalInertiaTensorDerivative
     BOOST_CHECK_GT( ( partialWrtRotationalVelocity - nonTidalPartialWrtRotationalVelocity ).norm( ),
                     1.0E-2 * inertiaTensorDerivative.norm( ) );
 
-    // Compare partial w.r.t. orientation with numerical partial
+    // Compare partials of torque and inertia tensor w.r.t. orientation with numerical partials, and check that the contributions of the
+    // inertia tensor partial and of the inertia tensor derivative partial (remainder) to the torque partial are both significant
     for( int index = 1; index < 4; index++ )
     {
-        Eigen::Vector3d analyticalChangeInTorque = partialWrtOrientation.block( 0, 0, 3, 1 ) * appliedQuaternionPerturbation[ index ]( 0 ) +
-                partialWrtOrientation.block( 0, index, 3, 1 ) * appliedQuaternionPerturbation[ index ]( index );
-        BOOST_CHECK_GT( analyticalChangeInTorque.norm( ), 0.0 );
+        const Eigen::Vector4d& quaternionPerturbation = appliedQuaternionPerturbation[ index ];
+        Eigen::Vector3d analyticalChangeInTorque = partialWrtOrientation.block( 0, 0, 3, 1 ) * quaternionPerturbation( 0 ) +
+                partialWrtOrientation.block( 0, index, 3, 1 ) * quaternionPerturbation( index );
+        Eigen::Matrix3d analyticalChangeInInertiaTensor = inertiaTensorPartialsWrtQuaternion.at( 0 ) * quaternionPerturbation( 0 ) +
+                inertiaTensorPartialsWrtQuaternion.at( index ) * quaternionPerturbation( index );
+        Eigen::Vector3d inertiaTensorContribution = -angularVelocityCrossProductMatrix * analyticalChangeInInertiaTensor * angularVelocity;
+
         BOOST_CHECK_SMALL(
                 ( analyticalChangeInTorque - torqueDeviations.block( 0, index - 1, 3, 1 ) ).norm( ) / analyticalChangeInTorque.norm( ),
                 1.0E-5 );
+        BOOST_CHECK_SMALL( ( analyticalChangeInInertiaTensor - inertiaTensorDeviations.at( index - 1 ) ).norm( ) /
+                                   analyticalChangeInInertiaTensor.norm( ),
+                           1.0E-5 );
+        BOOST_CHECK_GT( inertiaTensorContribution.norm( ), 1.0E-2 * analyticalChangeInTorque.norm( ) );
+        BOOST_CHECK_GT( ( analyticalChangeInTorque - inertiaTensorContribution ).norm( ), 1.0E-2 * analyticalChangeInTorque.norm( ) );
     }
 
-    // Compare partials w.r.t. Love number and gravitational parameters with numerical partials
-    BOOST_CHECK_SMALL( ( partialWrtLoveNumber - testPartialWrtLoveNumber ).norm( ) / testPartialWrtLoveNumber.norm( ), 1.0E-6 );
-    BOOST_CHECK_SMALL( ( partialWrtMarsGravitationalParameter - testPartialWrtMarsGravitationalParameter ).norm( ) /
-                               testPartialWrtMarsGravitationalParameter.norm( ),
-                       1.0E-6 );
-    BOOST_CHECK_SMALL( ( partialWrtPhobosGravitationalParameter - testPartialWrtPhobosGravitationalParameter ).norm( ) /
-                               testPartialWrtPhobosGravitationalParameter.norm( ),
-                       1.0E-6 );
+    // Compare partials of torque, inertia tensor and inertia tensor derivative w.r.t. each parameter entry with numerical partials, and
+    // check that the contributions of the inertia tensor and of its derivative to the torque partial are both significant. The inertia
+    // tensor derivative is due to the tidal variations only, which do not depend on the gravitational parameter of the deformed body (as
+    // the tidal corrections are inversely proportional to it), so that its partial w.r.t. this parameter is zero.
+    const Eigen::VectorXd nominalParameters = parameterSet->getFullParameterValues< double >( );
+    BOOST_REQUIRE_EQUAL( static_cast< int >( torquePartialsWrtParameters.size( ) ), nominalParameters.rows( ) );
+    for( int i = 0; i < nominalParameters.rows( ); i++ )
+    {
+        // Torque and inertia tensor are linear in the parameters, so that the perturbation only needs to be small w.r.t. the nominal value
+        // to limit round-off errors
+        const double perturbation = std::max( 1.0E-5 * std::fabs( nominalParameters( i ) ), 1.0E-3 );
+        std::vector< Eigen::Vector3d > perturbedTorques;
+        std::vector< Eigen::Matrix3d > perturbedInertiaTensors, perturbedInertiaTensorDerivatives;
+        for( double perturbationSign : { 1.0, -1.0 } )
+        {
+            Eigen::VectorXd perturbedParameters = nominalParameters;
+            perturbedParameters( i ) += perturbationSign * perturbation;
+            parameterSet->resetParameterValues( perturbedParameters );
+            updateFunction( );
+            inertialTorqueModel->resetCurrentTime( );
+            perturbedTorques.push_back( basic_astrodynamics::updateAndGetTorque( inertialTorqueModel, testTime ) );
+            perturbedInertiaTensors.push_back( phobos->getBodyInertiaTensor( ) );
+            perturbedInertiaTensorDerivatives.push_back( phobos->getBodyInertiaTensorDerivative( ) );
+        }
+        parameterSet->resetParameterValues( nominalParameters );
+        updateFunction( );
+
+        Eigen::Vector3d testTorquePartial = ( perturbedTorques.at( 0 ) - perturbedTorques.at( 1 ) ) / ( 2.0 * perturbation );
+        Eigen::Matrix3d testInertiaTensorPartial =
+                ( perturbedInertiaTensors.at( 0 ) - perturbedInertiaTensors.at( 1 ) ) / ( 2.0 * perturbation );
+        Eigen::Matrix3d testInertiaTensorDerivativePartial =
+                ( perturbedInertiaTensorDerivatives.at( 0 ) - perturbedInertiaTensorDerivatives.at( 1 ) ) / ( 2.0 * perturbation );
+
+        BOOST_CHECK_SMALL( ( torquePartialsWrtParameters.at( i ) - testTorquePartial ).norm( ) / testTorquePartial.norm( ), 1.0E-6 );
+        BOOST_CHECK_SMALL(
+                ( inertiaTensorPartialsWrtParameters.at( i ) - testInertiaTensorPartial ).norm( ) / testInertiaTensorPartial.norm( ),
+                1.0E-6 );
+        BOOST_CHECK_GT( ( angularVelocityCrossProductMatrix * inertiaTensorPartialsWrtParameters.at( i ) * angularVelocity ).norm( ),
+                        1.0E-2 * testTorquePartial.norm( ) );
+        if( isDeformedBodyGravitationalParameter.at( i ) )
+        {
+            const double inertiaTensorDerivativePartialScale = inertiaTensorDerivative.norm( ) / nominalParameters( i );
+            BOOST_CHECK_SMALL( inertiaTensorDerivativePartialsWrtParameters.at( i ).norm( ),
+                               1.0E-10 * inertiaTensorDerivativePartialScale );
+            BOOST_CHECK_SMALL( testInertiaTensorDerivativePartial.norm( ), 1.0E-6 * inertiaTensorDerivativePartialScale );
+        }
+        else
+        {
+            BOOST_CHECK_SMALL( ( inertiaTensorDerivativePartialsWrtParameters.at( i ) - testInertiaTensorDerivativePartial ).norm( ) /
+                                       testInertiaTensorDerivativePartial.norm( ),
+                               1.0E-6 );
+            BOOST_CHECK_GT( ( inertiaTensorDerivativePartialsWrtParameters.at( i ) * angularVelocity ).norm( ),
+                            1.0E-2 * testTorquePartial.norm( ) );
+        }
+    }
+}
+
+//! Test partials of inertial torque w.r.t. rotational state, tidal Love numbers and gravitational parameters, for a body with an
+//! inertia tensor (and its derivative) varying due to tidal gravity field variations, by comparing with numerical partials
+BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithTidalInertiaTensorDerivative )
+{
+    // Degree two tide raised by Mars and a second body, with equal Love numbers for all orders
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    loveNumbers[ 2 ] = std::vector< std::complex< double > >( 3, std::complex< double >( 0.1, 0.0 ) );
+    std::shared_ptr< GravityFieldVariationSettings > basicTideSettings = std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+            std::vector< std::string >( { "Mars", "Perturber" } ), loveNumbers );
+
+    // Full-degree (real) Love number, and gravitational parameters of the deformed body and of both bodies causing deformation
+    testTidalInertialTorquePartials( { basicTideSettings },
+                                     { std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                                               "Phobos", 2, std::vector< std::string >( { "Mars", "Perturber" } ), false ),
+                                       std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ),
+                                       std::make_shared< EstimatableParameterSettings >( "Perturber", gravitational_parameter ),
+                                       std::make_shared< EstimatableParameterSettings >( "Phobos", gravitational_parameter ) } );
+
+    // Complex Love numbers for orders one and two (real and imaginary part per order), for a tide with order-dependent complex Love numbers
+    std::map< int, std::vector< std::complex< double > > > complexLoveNumbers;
+    complexLoveNumbers[ 2 ] = { std::complex< double >( 0.1, 0.0 ),
+                                std::complex< double >( 0.12, 0.01 ),
+                                std::complex< double >( 0.09, -0.02 ) };
+    testTidalInertialTorquePartials(
+            { std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( std::vector< std::string >( { "Mars", "Perturber" } ),
+                                                                               complexLoveNumbers ) },
+            { std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                    "Phobos", 2, std::vector< int >( { 1, 2 } ), std::vector< std::string >( { "Mars", "Perturber" } ), true ) } );
+
+    // Mode-coupled Love numbers due to Mars, including degree three forcing producing a degree two response (Love numbers chosen such
+    // that this contribution is comparable to that of the degree two forcing), combined with the degree two tide. The gravitational
+    // parameter partials include the contributions of both tides.
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > modeCoupledLoveNumbers;
+    modeCoupledLoveNumbers[ std::make_pair( 2, 0 ) ][ std::make_pair( 2, 0 ) ] = 0.05;
+    modeCoupledLoveNumbers[ std::make_pair( 3, 0 ) ][ std::make_pair( 2, 0 ) ] = 500.0;
+    modeCoupledLoveNumbers[ std::make_pair( 3, 1 ) ][ std::make_pair( 2, 1 ) ] = 500.0;
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > modeCoupledLoveNumberIndices;
+    for( auto forcingIterator : modeCoupledLoveNumbers )
+    {
+        for( auto responseIterator : forcingIterator.second )
+        {
+            modeCoupledLoveNumberIndices[ forcingIterator.first ].push_back( responseIterator.first );
+        }
+    }
+    testTidalInertialTorquePartials( { basicTideSettings,
+                                       std::make_shared< ModeCoupledSolidBodyGravityFieldVariationSettings >(
+                                               std::vector< std::string >( { "Mars" } ), modeCoupledLoveNumbers ) },
+                                     { std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
+                                               "Phobos", modeCoupledLoveNumberIndices, std::vector< std::string >( { "Mars" } ), false ),
+                                       std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ),
+                                       std::make_shared< EstimatableParameterSettings >( "Phobos", gravitational_parameter ) } );
 }
 
 class EffectiveTorqueModel : public basic_astrodynamics::TorqueModel

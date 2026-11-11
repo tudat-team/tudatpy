@@ -9,6 +9,9 @@
  */
 
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
+
+#include <map>
+
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
@@ -246,8 +249,7 @@ Eigen::Vector3d SolidBodyTideGravityFieldVariations::updateSphericalHarmonicsCac
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariations::calculateTimeDerivativeOfCorrections(
         const double time,
         const std::vector< int >& bodyIndices,
-        const int maximumDegree,
-        const int angularVelocityComponent )
+        const int maximumDegree )
 {
     Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
@@ -272,17 +274,12 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
         const Eigen::Vector3d bodyFixedPosition = bodyFixedRelativeState.segment( 0, 3 );
         const double currentMassRatio = deformingBodyMasses_[ bodyIndex ]( ) / deformedBodyMass;
 
-        // The time derivatives are linear in the body-fixed velocity, of which the part due to the rotation of the deformed body
-        // is -omega x r. The partial w.r.t. an angular velocity component is obtained by replacing the velocity with its partial.
-        const Eigen::Vector3d bodyFixedVelocity = ( angularVelocityComponent >= 0 )
-                ? Eigen::Vector3d( bodyFixedPosition.cross( Eigen::Vector3d::Unit( angularVelocityComponent ) ) )
-                : Eigen::Vector3d( bodyFixedRelativeState.segment( 3, 3 ) );
-
         // Update spherical harmonics cache, and premultiply velocity by transpose of spherical-to-Cartesian gradient matrix, once for
         // all degrees and orders
         const Eigen::Vector3d sphericalPosition = updateSphericalHarmonicsCache( bodyFixedPosition );
         const Eigen::Vector3d sphericalVelocity =
-                coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition ).transpose( ) * bodyFixedVelocity;
+                coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition ).transpose( ) *
+                bodyFixedRelativeState.segment( 3, 3 );
 
         addTidalCorrectionTimeDerivatives(
                 [ & ]( const int degree, const int order ) {
@@ -326,103 +323,70 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeD
 }
 
 //! Function for calculating partials of time derivatives of coefficient corrections w.r.t. angular velocity of deformed body
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
+std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > >
 SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtAngularVelocity(
         const double time,
-        const int angularVelocityComponent,
         const int maximumDegree )
 {
-    std::vector< int > bodyIndices;
-    if( rotationDerivativeFunction_ != nullptr )
-    {
-        for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
-        {
-            bodyIndices.push_back( i );
-        }
-    }
-    return calculateTimeDerivativeOfCorrections( time, bodyIndices, maximumDegree, angularVelocityComponent );
-}
-
-//! Function to compute the partial of the time derivative of the tidal forcing w.r.t. the body-fixed position of the deforming body
-std::complex< double > SolidBodyTideGravityFieldVariations::calculateTidalForcingTimeDerivativePartialWrtPosition(
-        const int degree,
-        const int order,
-        const double deformingBodyMassRatio,
-        const Eigen::Vector6d& bodyFixedRelativeState,
-        const Eigen::Vector3d& bodyFixedPositionVariation,
-        const std::function< Eigen::Matrix3d( const int, const int, const bool, const Eigen::Vector3d& ) >& forcingHessianFunction )
-{
-    // The time derivative is the gradient of the single spherical harmonic forcing term, multiplied by the body-fixed velocity. Its
-    // partial w.r.t. position is obtained from the Hessian of this term.
-    const Eigen::Vector3d bodyFixedPosition = bodyFixedRelativeState.segment( 0, 3 );
-    const Eigen::Matrix3d cosineTermHessian = forcingHessianFunction( degree, order, true, bodyFixedPosition );
-    const Eigen::Matrix3d sineTermHessian = forcingHessianFunction( degree, order, false, bodyFixedPosition );
-    return deformingBodyMassRatio / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
-            std::complex< double >( ( cosineTermHessian * bodyFixedPositionVariation ).dot( bodyFixedRelativeState.segment( 3, 3 ) ),
-                                    -( sineTermHessian * bodyFixedPositionVariation ).dot( bodyFixedRelativeState.segment( 3, 3 ) ) );
-}
-
-//! Function for calculating partials of coefficient corrections w.r.t. orientation of deformed body
-std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > >
-SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsPartialWrtOrientation(
-        const double time,
-        const std::vector< Eigen::Matrix3d >& rotationToBodyFixedFramePartials,
-        const int maximumDegree )
-{
-    std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > correctionPartials(
-            rotationToBodyFixedFramePartials.size( ),
-            std::make_pair( Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ),
-                            Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ) ) );
     if( rotationDerivativeFunction_ == nullptr )
     {
-        return correctionPartials;
+        throw std::runtime_error(
+                "Error when computing partial of tidal coefficient rates w.r.t. angular velocity, no rotation matrix derivative function "
+                "is defined" );
     }
 
+    std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > correctionRatePartials(
+            3,
+            std::make_pair( Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ),
+                            Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ) ) );
     for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
     {
         const Eigen::Vector3d bodyFixedPosition = getBodyFixedRelativeState( i, time ).segment( 0, 3 );
-        const Eigen::Vector3d inertialRelativePosition =
-                ( deformingBodyStateFunctions_[ i ]( time ) - deformedBodyStateFunction_( time ) ).segment( 0, 3 );
         const double currentMassRatio = deformingBodyMasses_[ i ]( ) / deformedBodyMass_( );
         const Eigen::Vector3d sphericalPosition = updateSphericalHarmonicsCache( bodyFixedPosition );
         const Eigen::Matrix3d gradientMatrixTranspose =
                 coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition ).transpose( );
 
-        // The corrections are linear in the forcing, of which the partial w.r.t. body-fixed position is given by its gradient. The
-        // partial w.r.t. orientation is therefore obtained from the time derivative, with the velocity replaced by the position partial
-        for( unsigned int j = 0; j < rotationToBodyFixedFramePartials.size( ); j++ )
+        // The time derivatives are linear in the body-fixed velocity, of which the part due to the rotation of the deformed body
+        // is -omega x r. The partial w.r.t. an angular velocity component is obtained by replacing the velocity with its partial.
+        for( unsigned int j = 0; j < 3; j++ )
         {
-            const Eigen::Vector3d sphericalPositionPartial =
-                    gradientMatrixTranspose * ( rotationToBodyFixedFramePartials.at( j ) * inertialRelativePosition );
+            const Eigen::Vector3d sphericalVelocityPartial =
+                    gradientMatrixTranspose * Eigen::Vector3d( bodyFixedPosition.cross( Eigen::Vector3d::Unit( j ) ) );
             addTidalCorrectionTimeDerivatives(
                     [ & ]( const int degree, const int order ) {
                         return calculateTidalForcingTimeDerivative(
-                                degree, order, currentMassRatio, sphericalPosition, sphericalPositionPartial );
+                                degree, order, currentMassRatio, sphericalPosition, sphericalVelocityPartial );
                     },
-                    correctionPartials.at( j ).first,
-                    correctionPartials.at( j ).second,
+                    correctionRatePartials.at( j ).first,
+                    correctionRatePartials.at( j ).second,
                     maximumDegree );
         }
     }
-    return correctionPartials;
+    return correctionRatePartials;
 }
 
-//! Function for calculating partials of time derivatives of coefficient corrections w.r.t. orientation of deformed body
-std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > >
-SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivativePartialWrtOrientation(
+//! Function for calculating partials of coefficient corrections and their time derivatives w.r.t. orientation of deformed body
+void SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsAndTimeDerivativesPartialWrtOrientation(
         const double time,
         const std::vector< Eigen::Matrix3d >& rotationToBodyFixedFramePartials,
         const std::function< Eigen::Matrix3d( const int, const int, const bool, const Eigen::Vector3d& ) >& forcingHessianFunction,
-        const int maximumDegree )
+        const int maximumDegree,
+        std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > >& correctionPartials,
+        std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > >& correctionRatePartials )
 {
-    std::vector< std::pair< Eigen::MatrixXd, Eigen::MatrixXd > > correctionRatePartials(
-            rotationToBodyFixedFramePartials.size( ),
-            std::make_pair( Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ),
-                            Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ) ) );
     if( rotationDerivativeFunction_ == nullptr )
     {
-        return correctionRatePartials;
+        throw std::runtime_error(
+                "Error when computing partial of tidal coefficients and rates w.r.t. orientation, no rotation matrix derivative function "
+                "is defined" );
     }
+    correctionPartials.assign( rotationToBodyFixedFramePartials.size( ),
+                               std::make_pair( Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ),
+                                               Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ) ) );
+    correctionRatePartials.assign( rotationToBodyFixedFramePartials.size( ),
+                                   std::make_pair( Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ),
+                                                   Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ ) ) );
 
     // Partial of rotation matrix derivative w.r.t. orientation, for constant angular velocity: dR/dt = -[omega x] R = ( dR/dt R^T ) R
     const Eigen::Matrix3d rotationToBodyFixedFrame = deformedBodyOrientationFunction_( time ).toRotationMatrix( );
@@ -437,29 +401,61 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeD
         const Eigen::Vector3d sphericalPosition = updateSphericalHarmonicsCache( bodyFixedPosition );
         const Eigen::Matrix3d gradientMatrixTranspose =
                 coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition ).transpose( );
+        const Eigen::Vector3d bodyFixedVelocity = bodyFixedRelativeState.segment( 3, 3 );
+
+        // Hessians of (cosine, sine) forcing terms multiplied by body-fixed velocity, per degree and order (computed once for all
+        // orientation parameters)
+        std::map< std::pair< int, int >, std::pair< Eigen::Vector3d, Eigen::Vector3d > > hessiansTimesVelocity;
 
         for( unsigned int j = 0; j < rotationToBodyFixedFramePartials.size( ); j++ )
         {
             // Partials of body-fixed position and velocity of body causing deformation w.r.t. orientation
             const Eigen::Vector3d positionPartial = rotationToBodyFixedFramePartials.at( j ) * inertialRelativeState.segment( 0, 3 );
+            const Eigen::Vector3d sphericalPositionPartial = gradientMatrixTranspose * positionPartial;
             const Eigen::Vector3d sphericalVelocityPartial = gradientMatrixTranspose *
                     ( rotationToBodyFixedFramePartials.at( j ) * inertialRelativeState.segment( 3, 3 ) +
                       angularVelocityMatrix * positionPartial );
 
-            // Time derivative of forcing is linear in velocity, and depends on position through the gradient of the forcing
+            // The corrections are linear in the forcing, of which the partial w.r.t. body-fixed position is given by its gradient. The
+            // partial w.r.t. orientation is therefore obtained from the time derivative, with the velocity replaced by the position partial
             addTidalCorrectionTimeDerivatives(
                     [ & ]( const int degree, const int order ) {
                         return calculateTidalForcingTimeDerivative(
+                                degree, order, currentMassRatio, sphericalPosition, sphericalPositionPartial );
+                    },
+                    correctionPartials.at( j ).first,
+                    correctionPartials.at( j ).second,
+                    maximumDegree );
+
+            // Time derivative of forcing is linear in velocity, and depends on position through the gradient of the forcing. The
+            // partial of this gradient w.r.t. position is the (symmetric) Hessian H, so that ( H dr ) . v = dr . ( H v )
+            addTidalCorrectionTimeDerivatives(
+                    [ & ]( const int degree, const int order ) {
+                        auto hessianIterator = hessiansTimesVelocity.find( std::make_pair( degree, order ) );
+                        if( hessianIterator == hessiansTimesVelocity.end( ) )
+                        {
+                            hessianIterator =
+                                    hessiansTimesVelocity
+                                            .emplace( std::make_pair( degree, order ),
+                                                      std::make_pair( Eigen::Vector3d( forcingHessianFunction(
+                                                                                               degree, order, true, bodyFixedPosition ) *
+                                                                                       bodyFixedVelocity ),
+                                                                      Eigen::Vector3d( forcingHessianFunction(
+                                                                                               degree, order, false, bodyFixedPosition ) *
+                                                                                       bodyFixedVelocity ) ) )
+                                            .first;
+                        }
+                        return calculateTidalForcingTimeDerivative(
                                        degree, order, currentMassRatio, sphericalPosition, sphericalVelocityPartial ) +
-                                calculateTidalForcingTimeDerivativePartialWrtPosition(
-                                        degree, order, currentMassRatio, bodyFixedRelativeState, positionPartial, forcingHessianFunction );
+                                currentMassRatio / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
+                                std::complex< double >( positionPartial.dot( hessianIterator->second.first ),
+                                                        -positionPartial.dot( hessianIterator->second.second ) );
                     },
                     correctionRatePartials.at( j ).first,
                     correctionRatePartials.at( j ).second,
                     maximumDegree );
         }
     }
-    return correctionRatePartials;
 }
 
 //! Function for calculating partials of coefficient corrections w.r.t. gravitational parameter of a body causing deformation

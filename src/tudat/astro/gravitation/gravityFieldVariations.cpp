@@ -608,6 +608,19 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
     return directTidalVariations;
 }
 
+//! Function to check whether a variation object of this set is evaluated through an interpolator
+bool GravityFieldVariationsSet::isVariationInterpolated( const std::shared_ptr< GravityFieldVariations > variation )
+{
+    for( unsigned int i = 0; i < variationObjects_.size( ); i++ )
+    {
+        if( variationObjects_[ i ] == variation )
+        {
+            return createInterpolator_.count( i ) > 0;
+        }
+    }
+    throw std::runtime_error( "Error when checking interpolation of gravity field variation, variation not found in set" );
+}
+
 }  // namespace gravitation
 
 }  // namespace tudat

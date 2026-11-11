@@ -470,6 +470,14 @@ public:
      */
     std::vector< std::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariations( );
 
+    //! Function to check whether a variation object of this set is evaluated through an interpolator
+    /*!
+     * Function to check whether a variation object of this set is evaluated through an interpolator
+     * \param variation Variation object (must be part of this set)
+     * \return True if the corrections of the variation object are interpolated
+     */
+    bool isVariationInterpolated( const std::shared_ptr< GravityFieldVariations > variation );
+
 private:
     //! List of GravityFieldVariations objects denoting the complete set of variations to take nto account.
     /*!

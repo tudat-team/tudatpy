@@ -17,6 +17,28 @@ namespace tudat
 namespace acceleration_partials
 {
 
+//! Function to add the dependency of the tidal part of the inertia tensor on a parameter to a partial function
+template< typename ParameterType >
+void ConstantTorquePartial::addTidalInertiaTensorPartialFunction(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameter,
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& partialFunction )
+{
+    if( inertialTorquePartial_ != nullptr )
+    {
+        std::pair< InertialTorquePartial::TidalInertiaTensorPartialFunction, int > tidalPartialFunction =
+                inertialTorquePartial_->getTidalInertiaTensorPartialFunction( parameter );
+        if( tidalPartialFunction.second > 0 )
+        {
+            partialFunction = std::make_pair( std::bind( &ConstantTorquePartial::wrtParameterThroughTidalInertiaTensor,
+                                                         this,
+                                                         std::placeholders::_1,
+                                                         partialFunction.first,
+                                                         tidalPartialFunction.first ),
+                                              tidalPartialFunction.second );
+        }
+    }
+}
+
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
@@ -56,6 +78,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartia
                 break;
         }
     }
+    addTidalInertiaTensorPartialFunction( parameter, partialFunction );
     return partialFunction;
 }
 
@@ -129,7 +152,31 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartia
                 break;
         }
     }
+    addTidalInertiaTensorPartialFunction( parameter, partialFunction );
     return partialFunction;
+}
+
+//! Function to compute partial of torque w.r.t. a parameter, including the dependency of the tidal part of the inertia tensor
+void ConstantTorquePartial::wrtParameterThroughTidalInertiaTensor(
+        Eigen::MatrixXd& partialMatrix,
+        const std::function< void( Eigen::MatrixXd& ) > nonTidalPartialFunction,
+        const InertialTorquePartial::TidalInertiaTensorPartialFunction tidalPartialFunction )
+{
+    std::vector< Eigen::Matrix3d > inertiaTensorPartials, inertiaTensorDerivativePartials;
+    tidalPartialFunction( inertiaTensorPartials, inertiaTensorDerivativePartials );
+    if( nonTidalPartialFunction != nullptr )
+    {
+        nonTidalPartialFunction( partialMatrix );
+    }
+    else
+    {
+        partialMatrix.setZero( 3, inertiaTensorPartials.size( ) );
+    }
+
+    for( unsigned int i = 0; i < inertiaTensorPartials.size( ); i++ )
+    {
+        partialMatrix.block( 0, i, 3, 1 ) -= inertiaTensorPartials.at( i ) * currentInverseInertiaTensor_ * currentTotalTorque_;
+    }
 }
 
 //! Function to compute partial of torque w.r.t. mean moment of inertia

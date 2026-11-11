@@ -38,6 +38,7 @@
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 
 namespace tudat
 {
@@ -1213,6 +1214,209 @@ BOOST_AUTO_TEST_CASE( testRotationalVariationalEquationsWithInertiaTensorDerivat
     // tensor derivative on the state (which an error in the inertia tensor derivative contribution to this partial would produce)
     BOOST_CHECK_SMALL( 1.0E6 * timeVaryingInertiaResults.first.block( 0, 7, 7, 1 ).norm( ),
                        1.0E-8 * ( timeVaryingInertiaResults.second - constantInertiaResults.second ).norm( ) );
+}
+
+//! Function to propagate the rotational dynamics and variational equations of Phobos, with only the inertial torque acting on it, for
+//! an inertia tensor (and its derivative) derived from a gravity field with degree two tidal variations due to Mars. If a rotational state
+//! history is provided, the tidal variations are interpolated, using a tabulated rotation model created from this history, so that they
+//! do not depend on the propagated rotational state. The state transition and sensitivity matrix (w.r.t. the initial rotational state,
+//! the gravitational parameter of Mars and the Love number) at the test time, and the propagated rotational state history, are returned.
+std::pair< Eigen::MatrixXd, std::map< double, Eigen::VectorXd > > propagateRotationWithTidalInertia(
+        const Eigen::Vector7d& initialRotationalState,
+        const double loveNumber,
+        const double marsGravitationalParameter,
+        const std::map< double, Eigen::Vector7d >& rotationHistoryForInterpolatedTides = std::map< double, Eigen::Vector7d >( ) )
+{
+    const double initialTime = 0.0;
+    const double finalTime = 3600.0;
+    const double testTime = 3000.0;
+
+    BodyListSettings bodySettings( "SSB", "ECLIPJ2000" );
+    bodySettings.addSettings( "Mars" );
+    bodySettings.at( "Mars" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ) );
+    bodySettings.at( "Mars" )->gravityFieldSettings = centralGravitySettings( marsGravitationalParameter );
+
+    // Orbit of Phobos uses a fixed gravitational parameter, so that it does not change when that of Mars is perturbed
+    bodySettings.addSettings( "Phobos" );
+    Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
+    phobosKeplerElements( 0 ) = 9376.0E3;
+    phobosKeplerElements( 1 ) = 0.015;
+    phobosKeplerElements( 2 ) = 0.02;
+    bodySettings.at( "Phobos" )->ephemerisSettings =
+            keplerEphemerisSettings( phobosKeplerElements, 0.0, 4.282837E13, "Mars", "ECLIPJ2000" );
+
+    std::shared_ptr< ModelInterpolationSettings > tideInterpolationSettings;
+    if( rotationHistoryForInterpolatedTides.size( ) > 0 )
+    {
+        bodySettings.at( "Phobos" )->rotationModelSettings =
+                tabulatedRotationSettings( rotationHistoryForInterpolatedTides, "ECLIPJ2000", "Phobos_Fixed" );
+        tideInterpolationSettings = std::make_shared< ModelInterpolationSettings >(
+                initialTime, finalTime, 60.0, std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) );
+    }
+    else
+    {
+        bodySettings.at( "Phobos" )->rotationModelSettings =
+                constantRotationModelSettings( "ECLIPJ2000", "Phobos_Fixed", Eigen::Quaterniond::Identity( ) );
+    }
+
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    cosineCoefficients( 2, 0 ) = -0.05;
+    cosineCoefficients( 2, 2 ) = 0.02;
+    bodySettings.at( "Phobos" )->gravityFieldSettings =
+            sphericalHarmonicsGravitySettings( 7.11E5, 11.27E3, cosineCoefficients, Eigen::MatrixXd::Zero( 3, 3 ), "Phobos_Fixed" );
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    loveNumbers[ 2 ] = std::vector< std::complex< double > >( 3, std::complex< double >( loveNumber, 0.0 ) );
+    bodySettings.at( "Phobos" )
+            ->gravityFieldVariationSettings.push_back( std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                    std::vector< std::string >( { "Mars" } ), loveNumbers, tideInterpolationSettings ) );
+    bodySettings.at( "Phobos" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( 0.4 );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Create torque models (inertial torque only), and propagation settings
+    SelectedTorqueMap torqueMap;
+    torqueMap[ "Phobos" ];
+    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, torqueMap, { "Phobos" } );
+
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< IntegratorSettings< double > >( rungeKutta4, 10.0 );
+    std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< RotationalStatePropagatorSettings< double > >(
+                    torqueModelMap,
+                    std::vector< std::string >( { "Phobos" } ),
+                    initialRotationalState,
+                    initialTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+            "Phobos", initialRotationalState, "ECLIPJ2000" ) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
+    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Phobos", 2, "Mars", false ) );
+    std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate( parameterNames, bodies );
+
+    // Propagate dynamics and variational equations
+    SingleArcVariationalEquationsSolver< double, double > variationalEquationsSolver(
+            bodies, propagatorSettings, parametersToEstimate, true );
+
+    return std::make_pair(
+            variationalEquationsSolver.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix( testTime ),
+            variationalEquationsSolver.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( ) );
+}
+
+//! Test state transition and sensitivity matrices of the rotational dynamics of a body with an inertia tensor (and its derivative)
+//! derived from a gravity field with tidal variations, by comparing them with numerical partials w.r.t. the initial orientation and
+//! angular velocity, the gravitational parameter of the body causing deformation, and the Love number. The state transition matrix is
+//! tested both for tides evaluated during propagation, which depend on the propagated rotational state, and for interpolated tides,
+//! which do not.
+BOOST_AUTO_TEST_CASE( testRotationalVariationalEquationsWithTidalInertiaTensor )
+{
+    const double testTime = 3000.0;
+    const double loveNumber = 0.1;
+    const double marsGravitationalParameter = 4.282837E13;
+
+    const Eigen::Quaterniond initialOrientation =
+            Eigen::Quaterniond( Eigen::AngleAxisd( 0.3, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 1.2, Eigen::Vector3d::UnitX( ) ) );
+    Eigen::Vector7d initialRotationalState = Eigen::Vector7d::Zero( );
+    initialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( initialOrientation );
+    initialRotationalState.segment( 4, 3 ) << 2.0E-4, -1.0E-4, 5.0E-4;
+
+    // Propagate with tides evaluated during propagation, and with tides interpolated from a rotation model that reproduces this
+    // propagation (so that the nominal dynamics are equal, but the interpolated tides do not depend on the propagated rotational state)
+    std::pair< Eigen::MatrixXd, std::map< double, Eigen::VectorXd > > directTideResults =
+            propagateRotationWithTidalInertia( initialRotationalState, loveNumber, marsGravitationalParameter );
+    std::map< double, Eigen::Vector7d > rotationHistory;
+    for( auto stateIterator : directTideResults.second )
+    {
+        rotationHistory[ stateIterator.first ] = stateIterator.second;
+    }
+    std::pair< Eigen::MatrixXd, std::map< double, Eigen::VectorXd > > interpolatedTideResults =
+            propagateRotationWithTidalInertia( initialRotationalState, loveNumber, marsGravitationalParameter, rotationHistory );
+
+    // Define perturbed initial states: rotations about the body-fixed axes (which keep the quaternion normalized), and perturbations of the
+    // angular velocity
+    const double rotationAnglePerturbation = 1.0E-6;
+    const double angularVelocityPerturbation = 1.0E-8;
+    std::vector< std::pair< Eigen::Vector7d, Eigen::Vector7d > > perturbedInitialStates;
+    for( int i = 0; i < 3; i++ )
+    {
+        Eigen::Vector7d upPerturbedState = initialRotationalState;
+        Eigen::Vector7d downPerturbedState = initialRotationalState;
+        upPerturbedState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                initialOrientation * Eigen::Quaterniond( Eigen::AngleAxisd( rotationAnglePerturbation, Eigen::Vector3d::Unit( i ) ) ) );
+        downPerturbedState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                initialOrientation * Eigen::Quaterniond( Eigen::AngleAxisd( -rotationAnglePerturbation, Eigen::Vector3d::Unit( i ) ) ) );
+        perturbedInitialStates.push_back( std::make_pair( upPerturbedState, downPerturbedState ) );
+    }
+    for( int i = 0; i < 3; i++ )
+    {
+        Eigen::Vector7d upPerturbedState = initialRotationalState;
+        Eigen::Vector7d downPerturbedState = initialRotationalState;
+        upPerturbedState( 4 + i ) += angularVelocityPerturbation;
+        downPerturbedState( 4 + i ) -= angularVelocityPerturbation;
+        perturbedInitialStates.push_back( std::make_pair( upPerturbedState, downPerturbedState ) );
+    }
+
+    // Compare changes in state at test time due to the perturbations of the initial state, as obtained from the state transition matrix
+    // and by numerical propagation. For the perturbations of the orientation, check that the dependency of the tides on the propagated
+    // rotational state changes the state transition matrix well above the tolerance of this comparison, so that it would fail if this
+    // dependency was (incorrectly) included for the interpolated tides.
+    for( unsigned int j = 0; j < perturbedInitialStates.size( ); j++ )
+    {
+        const Eigen::Vector7d initialStateDifference = perturbedInitialStates.at( j ).first - perturbedInitialStates.at( j ).second;
+        for( bool useInterpolatedTides : { false, true } )
+        {
+            const std::map< double, Eigen::Vector7d > currentRotationHistory =
+                    useInterpolatedTides ? rotationHistory : std::map< double, Eigen::Vector7d >( );
+            const Eigen::VectorXd numericalStateDifference =
+                    propagateRotationWithTidalInertia(
+                            perturbedInitialStates.at( j ).first, loveNumber, marsGravitationalParameter, currentRotationHistory )
+                            .second.at( testTime ) -
+                    propagateRotationWithTidalInertia(
+                            perturbedInitialStates.at( j ).second, loveNumber, marsGravitationalParameter, currentRotationHistory )
+                            .second.at( testTime );
+            const Eigen::MatrixXd& stateTransitionMatrix = useInterpolatedTides ? interpolatedTideResults.first : directTideResults.first;
+            const Eigen::VectorXd analyticalStateDifference = stateTransitionMatrix.block( 0, 0, 7, 7 ) * initialStateDifference;
+            BOOST_CHECK_SMALL( ( analyticalStateDifference - numericalStateDifference ).norm( ) / numericalStateDifference.norm( ),
+                               1.0E-5 );
+
+            if( j < 3 && !useInterpolatedTides )
+            {
+                const Eigen::VectorXd interpolatedTideStateDifference =
+                        interpolatedTideResults.first.block( 0, 0, 7, 7 ) * initialStateDifference;
+                BOOST_CHECK_GT( ( analyticalStateDifference - interpolatedTideStateDifference ).norm( ) / numericalStateDifference.norm( ),
+                                1.0E-3 );
+            }
+        }
+    }
+
+    // Compare sensitivities to gravitational parameter of Mars (column 7) and Love number (column 8) with numerical partials, for tides
+    // evaluated during propagation
+    const double gravitationalParameterPerturbation = 1.0E-6 * marsGravitationalParameter;
+    const Eigen::VectorXd numericalGravitationalParameterPartial =
+            ( propagateRotationWithTidalInertia(
+                      initialRotationalState, loveNumber, marsGravitationalParameter + gravitationalParameterPerturbation )
+                      .second.at( testTime ) -
+              propagateRotationWithTidalInertia(
+                      initialRotationalState, loveNumber, marsGravitationalParameter - gravitationalParameterPerturbation )
+                      .second.at( testTime ) ) /
+            ( 2.0 * gravitationalParameterPerturbation );
+    BOOST_CHECK_SMALL( ( directTideResults.first.block( 0, 7, 7, 1 ) - numericalGravitationalParameterPartial ).norm( ) /
+                               numericalGravitationalParameterPartial.norm( ),
+                       1.0E-5 );
+
+    const double loveNumberPerturbation = 1.0E-5;
+    const Eigen::VectorXd numericalLoveNumberPartial =
+            ( propagateRotationWithTidalInertia( initialRotationalState, loveNumber + loveNumberPerturbation, marsGravitationalParameter )
+                      .second.at( testTime ) -
+              propagateRotationWithTidalInertia( initialRotationalState, loveNumber - loveNumberPerturbation, marsGravitationalParameter )
+                      .second.at( testTime ) ) /
+            ( 2.0 * loveNumberPerturbation );
+    BOOST_CHECK_SMALL(
+            ( directTideResults.first.block( 0, 8, 7, 1 ) - numericalLoveNumberPartial ).norm( ) / numericalLoveNumberPartial.norm( ),
+            1.0E-5 );
 }
 
 BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )

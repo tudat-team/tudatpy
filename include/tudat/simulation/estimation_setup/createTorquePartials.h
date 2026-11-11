@@ -20,6 +20,7 @@
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/secondDegreeGravitationalTorquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/constantTorquePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 
@@ -187,6 +188,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
             // tidal contributions on the rotational state and tidal parameters
             std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction;
             std::vector< std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > > tidalGravityFieldVariations;
+            std::vector< bool > isTidalGravityFieldVariationInterpolated;
             std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces;
             std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberRatePartialInterfaces;
             if( std::dynamic_pointer_cast< InertialTorqueModel >( torqueModel )->isInertiaTensorDerivativeIncluded( ) )
@@ -199,6 +201,13 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                             utilities::dynamicCastSVectorToTVector< gravitation::GravityFieldVariations,
                                                                     gravitation::SolidBodyTideGravityFieldVariations >(
                                     acceleratedBody.second->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariations( ) );
+                    for( unsigned int i = 0; i < tidalGravityFieldVariations.size( ); i++ )
+                    {
+                        isTidalGravityFieldVariationInterpolated.push_back(
+                                acceleratedBody.second->getGravityFieldVariationSet( )->isVariationInterpolated(
+                                        tidalGravityFieldVariations.at( i ) ) );
+                    }
+                    // Love number partial interfaces require the bodies (not provided if partial is created without them)
                     if( bodies.count( acceleratedBody.first ) > 0 )
                     {
                         tidalLoveNumberPartialInterfaces = createTidalLoveNumberInterfaces( bodies, acceleratedBody.first, false );
@@ -214,6 +223,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     acceleratedBody.first,
                     inertiaTensorDerivativeFunction,
                     tidalGravityFieldVariations,
+                    isTidalGravityFieldVariationInterpolated,
                     tidalLoveNumberPartialInterfaces,
                     tidalLoveNumberRatePartialInterfaces,
                     std::bind( &Body::getCurrentRotationToGlobalFrame, acceleratedBody.second ) );
@@ -276,8 +286,11 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
 
                     // Declare list of torque partials of current body.
                     std::vector< std::shared_ptr< orbit_determination::StateDerivativePartial > > torquePartialVector;
-                    torquePartialVector.push_back( createConstantTorqueRotationalDynamicsPartial(
-                            std::make_pair( acceleratedBody, acceleratedBodyObject ), torqueVector ) );
+                    std::shared_ptr< acceleration_partials::ConstantTorquePartial > constantTorquePartial =
+                            std::dynamic_pointer_cast< acceleration_partials::ConstantTorquePartial >(
+                                    createConstantTorqueRotationalDynamicsPartial( std::make_pair( acceleratedBody, acceleratedBodyObject ),
+                                                                                   torqueVector ) );
+                    torquePartialVector.push_back( constantTorquePartial );
 
                     // Iterate over all torque models and generate their partial-calculating objects.
                     for( basic_astrodynamics::SingleBodyTorqueModelMap::iterator innerTorqueIterator = torqueVector.begin( );
@@ -304,6 +317,14 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                                                                    parametersToEstimate );
 
                             torquePartialVector.push_back( currentTorquePartial );
+
+                            // Inertia tensor partials due to tidal variations are computed by inertial torque partial
+                            if( std::dynamic_pointer_cast< acceleration_partials::InertialTorquePartial >( currentTorquePartial ) !=
+                                nullptr )
+                            {
+                                constantTorquePartial->setInertialTorquePartial(
+                                        std::dynamic_pointer_cast< acceleration_partials::InertialTorquePartial >( currentTorquePartial ) );
+                            }
                         }
                     }
 

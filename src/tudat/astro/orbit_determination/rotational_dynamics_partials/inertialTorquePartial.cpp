@@ -9,6 +9,9 @@
  */
 
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h"
+
+#include <algorithm>
+
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicPartialFunctions.h"
 
@@ -27,6 +30,9 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartia
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
             std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
+    // Retrieve dependency of tidal part of inertia tensor (and its derivative) on parameter
+    std::pair< TidalInertiaTensorPartialFunction, int > tidalPartialFunction = getTidalInertiaTensorPartialFunction( parameter );
+
     if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
     {
         switch( parameter->getParameterName( ).first )
@@ -37,8 +43,11 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartia
                 {
                     break;
                 }
-                partialFunction =
-                        std::make_pair( std::bind( &InertialTorquePartial::wrtGravitationalParameter, this, std::placeholders::_1 ), 1 );
+                partialFunction = std::make_pair( std::bind( &InertialTorquePartial::wrtGravitationalParameter,
+                                                             this,
+                                                             std::placeholders::_1,
+                                                             tidalPartialFunction.first ),
+                                                  1 );
 
                 break;
             }
@@ -58,30 +67,13 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartia
                 break;
         }
     }
-    else if( parameter->getParameterName( ).first == gravitational_parameter && inertiaTensorDerivativeFunction_ != nullptr )
+    else if( tidalPartialFunction.second > 0 )
     {
-        // Check if parameter is gravitational parameter of body causing tidal deformation
-        std::vector< std::pair< int, int > > variationAndBodyIndices;
-        for( unsigned int i = 0; i < tidalGravityFieldVariations_.size( ); i++ )
-        {
-            std::vector< std::string > deformingBodies = tidalGravityFieldVariations_.at( i )->getDeformingBodies( );
-            for( unsigned int j = 0; j < deformingBodies.size( ); j++ )
-            {
-                if( deformingBodies.at( j ) == parameter->getParameterName( ).second.first )
-                {
-                    variationAndBodyIndices.push_back( std::make_pair( i, j ) );
-                }
-            }
-        }
-
-        if( variationAndBodyIndices.size( ) > 0 )
-        {
-            partialFunction = std::make_pair( std::bind( &InertialTorquePartial::wrtGravitationalParameterOfDeformingBody,
-                                                         this,
-                                                         std::placeholders::_1,
-                                                         variationAndBodyIndices ),
-                                              1 );
-        }
+        partialFunction = std::make_pair( std::bind( &InertialTorquePartial::wrtParameterThroughTidalInertiaTensor,
+                                                     this,
+                                                     std::placeholders::_1,
+                                                     tidalPartialFunction.first ),
+                                          tidalPartialFunction.second );
     }
     return partialFunction;
 }
@@ -154,9 +146,19 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartia
             }
             case full_degree_tidal_love_number:
             case single_degree_variable_tidal_love_number:
-            case mode_coupled_tidal_love_numbers:
-                partialFunction = getTidalLoveNumberPartialFunction( parameter );
+            case mode_coupled_tidal_love_numbers: {
+                std::pair< TidalInertiaTensorPartialFunction, int > tidalPartialFunction =
+                        getTidalInertiaTensorPartialFunction( parameter );
+                if( tidalPartialFunction.second > 0 )
+                {
+                    partialFunction = std::make_pair( std::bind( &InertialTorquePartial::wrtParameterThroughTidalInertiaTensor,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 tidalPartialFunction.first ),
+                                                      tidalPartialFunction.second );
+                }
                 break;
+            }
             default:
                 break;
         }
@@ -172,42 +174,91 @@ void InertialTorquePartial::wrtMeanMomentOfInertia( Eigen::MatrixXd& momentOfIne
 }
 
 //! Function to compute partial of torque w.r.t. gravitational parameter
-void InertialTorquePartial::wrtGravitationalParameter( Eigen::MatrixXd& gravitationalParameterPartial )
+void InertialTorquePartial::wrtGravitationalParameter( Eigen::MatrixXd& gravitationalParameterPartial,
+                                                       const TidalInertiaTensorPartialFunction& tidalPartialFunction )
 {
+    // Inertia tensor and its derivative are proportional to the gravitational parameter, apart from tidal contributions
     gravitationalParameterPartial.block( 0, 0, 3, 1 ) = -currentAngularVelocityCrossProductMatrix_ * currentInertiaTensor_ *
             currentAngularVelocityVector_ / currentGravitationalParameter_;
-
-    // The contribution of the tidal forcing to the inertia tensor is independent of the gravitational parameter (mass ratio is
-    // inversely proportional to it), so it is removed from the above
-    for( unsigned int i = 0; i < tidalGravityFieldVariations_.size( ); i++ )
-    {
-        for( unsigned int j = 0; j < tidalGravityFieldVariations_.at( i )->getDeformingBodies( ).size( ); j++ )
-        {
-            std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientPartials =
-                    tidalGravityFieldVariations_.at( i )
-                            ->calculateSphericalHarmonicsCorrectionsPartialWrtDeformingBodyGravitationalParameter( currentTidalPartialTime_,
-                                                                                                                   j );
-            gravitationalParameterPartial.block( 0, 0, 3, 1 ) -=
-                    tidalGravityFieldVariations_.at( i )->getDeformingBodyMasses( ).at( j )( ) *
-                    getTorquePartialFromDegreeTwoCoefficients( coefficientPartials.first, coefficientPartials.second ) /
-                    currentGravitationalParameter_;
-        }
-    }
-
-    // Add contribution of inertia tensor derivative. The tidal contribution is independent of the gravitational parameter, while
-    // the other contributions are proportional to it.
     if( inertiaTensorDerivativeFunction_ != nullptr )
     {
-        Eigen::Vector3d nonTidalInertiaTensorDerivativeTorque = -inertiaTensorDerivativeFunction_( ) * currentAngularVelocityVector_;
+        gravitationalParameterPartial.block( 0, 0, 3, 1 ) -=
+                inertiaTensorDerivativeFunction_( ) * currentAngularVelocityVector_ / currentGravitationalParameter_;
+    }
+
+    // Correct for tidal contributions
+    if( tidalPartialFunction != nullptr )
+    {
+        Eigen::MatrixXd tidalPartial;
+        wrtParameterThroughTidalInertiaTensor( tidalPartial, tidalPartialFunction );
+        gravitationalParameterPartial.block( 0, 0, 3, 1 ) += tidalPartial;
+    }
+}
+
+//! Function to compute partial of torque w.r.t. a parameter, through the tidal part of the inertia tensor and its derivative
+void InertialTorquePartial::wrtParameterThroughTidalInertiaTensor( Eigen::MatrixXd& partialMatrix,
+                                                                   const TidalInertiaTensorPartialFunction& tidalPartialFunction )
+{
+    std::vector< Eigen::Matrix3d > inertiaTensorPartials, inertiaTensorDerivativePartials;
+    tidalPartialFunction( inertiaTensorPartials, inertiaTensorDerivativePartials );
+
+    // Partial of torque -omega x ( I omega ) - dI/dt omega
+    partialMatrix.setZero( 3, inertiaTensorPartials.size( ) );
+    for( unsigned int i = 0; i < inertiaTensorPartials.size( ); i++ )
+    {
+        partialMatrix.block( 0, i, 3, 1 ) =
+                -currentAngularVelocityCrossProductMatrix_ * inertiaTensorPartials.at( i ) * currentAngularVelocityVector_ -
+                inertiaTensorDerivativePartials.at( i ) * currentAngularVelocityVector_;
+    }
+}
+
+//! Function to retrieve a function computing partials of the tidal part of the inertia tensor w.r.t. a double parameter
+std::pair< InertialTorquePartial::TidalInertiaTensorPartialFunction, int > InertialTorquePartial::getTidalInertiaTensorPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+{
+    std::pair< TidalInertiaTensorPartialFunction, int > partialFunction = std::make_pair( TidalInertiaTensorPartialFunction( ), 0 );
+    if( tidalGravityFieldVariations_.size( ) == 0 ||
+        parameter->getParameterName( ).first != estimatable_parameters::gravitational_parameter )
+    {
+        return partialFunction;
+    }
+
+    if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
+    {
+        partialFunction = std::make_pair( std::bind( &InertialTorquePartial::tidalInertiaTensorPartialsWrtGravitationalParameter,
+                                                     this,
+                                                     std::placeholders::_1,
+                                                     std::placeholders::_2 ),
+                                          1 );
+    }
+    else
+    {
+        // Check if parameter is gravitational parameter of body causing tidal deformation
+        std::vector< std::pair< int, int > > variationAndBodyIndices;
         for( unsigned int i = 0; i < tidalGravityFieldVariations_.size( ); i++ )
         {
-            std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientRates =
-                    tidalGravityFieldVariations_.at( i )->calculateSphericalHarmonicsCorrectionsTimeDerivative( currentTidalPartialTime_ );
-            nonTidalInertiaTensorDerivativeTorque -=
-                    getTorquePartialFromDegreeTwoCoefficientRates( coefficientRates.first, coefficientRates.second );
+            std::vector< std::string > deformingBodies = tidalGravityFieldVariations_.at( i )->getDeformingBodies( );
+            for( unsigned int j = 0; j < deformingBodies.size( ); j++ )
+            {
+                if( deformingBodies.at( j ) == parameter->getParameterName( ).second.first )
+                {
+                    variationAndBodyIndices.push_back( std::make_pair( i, j ) );
+                }
+            }
         }
-        gravitationalParameterPartial.block( 0, 0, 3, 1 ) += nonTidalInertiaTensorDerivativeTorque / currentGravitationalParameter_;
+
+        if( variationAndBodyIndices.size( ) > 0 )
+        {
+            partialFunction =
+                    std::make_pair( std::bind( &InertialTorquePartial::tidalInertiaTensorPartialsWrtDeformingBodyGravitationalParameter,
+                                               this,
+                                               std::placeholders::_1,
+                                               std::placeholders::_2,
+                                               variationAndBodyIndices ),
+                                    1 );
+        }
     }
+    return partialFunction;
 }
 
 //! Function to compute the Hessian of the potential of a single spherical harmonic tidal forcing term
@@ -255,15 +306,9 @@ Eigen::Matrix3d InertialTorquePartial::getInertiaTensorPartialWrtDegreeTwoCoeffi
             unscaledInertiaTensorPartial;
 }
 
-//! Function to compute partial of the inertia tensor derivative contribution to the torque w.r.t. a degree two coefficient rate
-Eigen::Vector3d InertialTorquePartial::getTorquePartialWrtDegreeTwoCoefficientRate( const int order, const bool isCosineCoefficient )
-{
-    return -getInertiaTensorPartialWrtDegreeTwoCoefficient( order, isCosineCoefficient ) * currentAngularVelocityVector_;
-}
-
-//! Function to compute the partial of the torque due to (partials of) degree two coefficients, through the inertia tensor
-Eigen::Vector3d InertialTorquePartial::getTorquePartialFromDegreeTwoCoefficients( const Eigen::MatrixXd& cosineCoefficientPartials,
-                                                                                  const Eigen::MatrixXd& sineCoefficientPartials )
+//! Function to compute the (partial of the) inertia tensor due to (partials of) degree two coefficients
+Eigen::Matrix3d InertialTorquePartial::getInertiaTensorPartialFromDegreeTwoCoefficients( const Eigen::MatrixXd& cosineCoefficientPartials,
+                                                                                         const Eigen::MatrixXd& sineCoefficientPartials )
 {
     Eigen::Matrix3d inertiaTensorPartial = Eigen::Matrix3d::Zero( );
     for( int order = 0; order < std::min( 3, static_cast< int >( cosineCoefficientPartials.cols( ) ) ); order++ )
@@ -271,28 +316,26 @@ Eigen::Vector3d InertialTorquePartial::getTorquePartialFromDegreeTwoCoefficients
         inertiaTensorPartial += getInertiaTensorPartialWrtDegreeTwoCoefficient( order, true ) * cosineCoefficientPartials( 0, order ) +
                 getInertiaTensorPartialWrtDegreeTwoCoefficient( order, false ) * sineCoefficientPartials( 0, order );
     }
-    return -currentAngularVelocityCrossProductMatrix_ * inertiaTensorPartial * currentAngularVelocityVector_;
+    return inertiaTensorPartial;
 }
 
-//! Function to compute the inertia tensor derivative contribution to the torque (or its partial) from degree two coefficient rates
-Eigen::Vector3d InertialTorquePartial::getTorquePartialFromDegreeTwoCoefficientRates( const Eigen::MatrixXd& cosineCoefficientRates,
-                                                                                      const Eigen::MatrixXd& sineCoefficientRates )
-{
-    Eigen::Vector3d torquePartial = Eigen::Vector3d::Zero( );
-    for( int order = 0; order < std::min( 3, static_cast< int >( cosineCoefficientRates.cols( ) ) ); order++ )
-    {
-        torquePartial += getTorquePartialWrtDegreeTwoCoefficientRate( order, true ) * cosineCoefficientRates( 0, order ) +
-                getTorquePartialWrtDegreeTwoCoefficientRate( order, false ) * sineCoefficientRates( 0, order );
-    }
-    return torquePartial;
-}
-
-//! Function to create a function computing partial of torque w.r.t. tidal Love numbers (through the inertia tensor derivative)
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartial::getTidalLoveNumberPartialFunction(
+//! Function to retrieve a function computing partials of the tidal part of the inertia tensor w.r.t. a vector parameter
+std::pair< InertialTorquePartial::TidalInertiaTensorPartialFunction, int > InertialTorquePartial::getTidalInertiaTensorPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
-            std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::pair< TidalInertiaTensorPartialFunction, int > partialFunction = std::make_pair( TidalInertiaTensorPartialFunction( ), 0 );
+    if( parameter->getParameterName( ).second.first != bodyUndergoingTorque_ ||
+        ( parameter->getParameterName( ).first != estimatable_parameters::full_degree_tidal_love_number &&
+          parameter->getParameterName( ).first != estimatable_parameters::single_degree_variable_tidal_love_number &&
+          parameter->getParameterName( ).first != estimatable_parameters::mode_coupled_tidal_love_numbers ) )
+    {
+        return partialFunction;
+    }
+
+    // Degree two coefficients are needed. For mode-coupled Love numbers, forcing at higher degree may produce a degree two response
+    std::shared_ptr< estimatable_parameters::ModeCoupledTidalLoveNumber > modeCoupledLoveNumber =
+            std::dynamic_pointer_cast< estimatable_parameters::ModeCoupledTidalLoveNumber >( parameter );
+    const int maximumDegree = ( modeCoupledLoveNumber != nullptr ) ? std::max( 2, modeCoupledLoveNumber->getMaximumForcingDegree( ) ) : 2;
 
     // Retrieve partials of degree two coefficients and their rates w.r.t. parameter from all relevant tidal variations
     std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > > coefficientPartialFunctions;
@@ -304,7 +347,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartia
         for( unsigned int i = 0; i < loveNumberInterfaces.size( ); i++ )
         {
             std::pair< int, std::pair< int, int > > currentTidalPartialOutput =
-                    loveNumberInterfaces.at( i )->setParameterPartialFunction( parameter, 2, 2 );
+                    loveNumberInterfaces.at( i )->setParameterPartialFunction( parameter, maximumDegree, maximumDegree );
             if( currentTidalPartialOutput.first > 0 )
             {
                 ( computeRates ? coefficientRatePartialFunctions : coefficientPartialFunctions )
@@ -318,26 +361,26 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartia
 
     if( coefficientPartialFunctions.size( ) > 0 || coefficientRatePartialFunctions.size( ) > 0 )
     {
-        if( parameter->getParameterName( ).first == estimatable_parameters::mode_coupled_tidal_love_numbers )
+        if( modeCoupledLoveNumber != nullptr )
         {
-            std::shared_ptr< estimatable_parameters::ModeCoupledTidalLoveNumber > tidalLoveNumber =
-                    std::dynamic_pointer_cast< estimatable_parameters::ModeCoupledTidalLoveNumber >( parameter );
-            partialFunction.first = std::bind( &InertialTorquePartial::wrtModeCoupledTidalLoveNumbers,
+            partialFunction.first = std::bind( &InertialTorquePartial::tidalInertiaTensorPartialsWrtModeCoupledLoveNumbers,
                                                this,
                                                std::placeholders::_1,
+                                               std::placeholders::_2,
                                                coefficientPartialFunctions,
                                                coefficientRatePartialFunctions,
-                                               tidalLoveNumber->getResponseIndices( ),
-                                               tidalLoveNumber->getResponseDegreeOrders( ),
+                                               modeCoupledLoveNumber->getResponseIndices( ),
+                                               modeCoupledLoveNumber->getResponseDegreeOrders( ),
                                                parameter->getParameterSize( ) );
         }
         else
         {
             std::shared_ptr< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd > > tidalLoveNumber =
                     std::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd > >( parameter );
-            partialFunction.first = std::bind( &InertialTorquePartial::wrtTidalLoveNumbers,
+            partialFunction.first = std::bind( &InertialTorquePartial::tidalInertiaTensorPartialsWrtLoveNumbers,
                                                this,
                                                std::placeholders::_1,
+                                               std::placeholders::_2,
                                                coefficientPartialFunctions,
                                                coefficientRatePartialFunctions,
                                                tidalLoveNumber->getOrders( ),
@@ -349,59 +392,61 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartia
     return partialFunction;
 }
 
-//! Function to compute partial of torque w.r.t. (non-mode coupled) tidal Love numbers
-void InertialTorquePartial::wrtTidalLoveNumbers(
-        Eigen::MatrixXd& partialMatrix,
+//! Function to compute partials of tidal part of inertia tensor (and its derivative) w.r.t. non-mode coupled tidal Love numbers
+void InertialTorquePartial::tidalInertiaTensorPartialsWrtLoveNumbers(
+        std::vector< Eigen::Matrix3d >& inertiaTensorPartials,
+        std::vector< Eigen::Matrix3d >& inertiaTensorDerivativePartials,
         const std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >& coefficientPartialFunctions,
         const std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >& coefficientRatePartialFunctions,
         const std::vector< int >& orders,
         const bool sumOrders,
         const int parameterSize )
 {
-    partialMatrix = Eigen::MatrixXd::Zero( 3, parameterSize );
+    inertiaTensorPartials.assign( parameterSize, Eigen::Matrix3d::Zero( ) );
+    inertiaTensorDerivativePartials.assign( parameterSize, Eigen::Matrix3d::Zero( ) );
 
-    // Add contributions through inertia tensor (computeRates = 0) and its time derivative (computeRates = 1)
+    // Add contributions to inertia tensor (computeRates = 0) and its time derivative (computeRates = 1)
     for( int computeRates = 0; computeRates < 2; computeRates++ )
     {
         const std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >& partialFunctions =
                 computeRates ? coefficientRatePartialFunctions : coefficientPartialFunctions;
+        std::vector< Eigen::Matrix3d >& partials = computeRates ? inertiaTensorDerivativePartials : inertiaTensorPartials;
         for( unsigned int i = 0; i < partialFunctions.size( ); i++ )
         {
             std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > partialsPerOrder = partialFunctions.at( i )( );
             for( unsigned int j = 0; j < orders.size( ); j++ )
             {
                 const int singleOrderPartialSize = partialsPerOrder.at( j ).cols( );
-                Eigen::MatrixXd cosineCoefficientPartials = Eigen::MatrixXd::Zero( 1, 3 );
-                Eigen::MatrixXd sineCoefficientPartials = Eigen::MatrixXd::Zero( 1, 3 );
                 for( int k = 0; k < singleOrderPartialSize; k++ )
                 {
-                    cosineCoefficientPartials( 0, orders.at( j ) ) = partialsPerOrder.at( j )( 0, k );
-                    sineCoefficientPartials( 0, orders.at( j ) ) = partialsPerOrder.at( j )( 1, k );
-                    partialMatrix.block( 0, ( sumOrders ? 0 : j * singleOrderPartialSize ) + k, 3, 1 ) += computeRates
-                            ? getTorquePartialFromDegreeTwoCoefficientRates( cosineCoefficientPartials, sineCoefficientPartials )
-                            : getTorquePartialFromDegreeTwoCoefficients( cosineCoefficientPartials, sineCoefficientPartials );
+                    partials.at( ( sumOrders ? 0 : j * singleOrderPartialSize ) + k ) +=
+                            getInertiaTensorPartialWrtDegreeTwoCoefficient( orders.at( j ), true ) * partialsPerOrder.at( j )( 0, k ) +
+                            getInertiaTensorPartialWrtDegreeTwoCoefficient( orders.at( j ), false ) * partialsPerOrder.at( j )( 1, k );
                 }
             }
         }
     }
 }
 
-//! Function to compute partial of torque w.r.t. mode-coupled tidal Love numbers
-void InertialTorquePartial::wrtModeCoupledTidalLoveNumbers(
-        Eigen::MatrixXd& partialMatrix,
+//! Function to compute partials of tidal part of inertia tensor (and its derivative) w.r.t. mode-coupled tidal Love numbers
+void InertialTorquePartial::tidalInertiaTensorPartialsWrtModeCoupledLoveNumbers(
+        std::vector< Eigen::Matrix3d >& inertiaTensorPartials,
+        std::vector< Eigen::Matrix3d >& inertiaTensorDerivativePartials,
         const std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >& coefficientPartialFunctions,
         const std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >& coefficientRatePartialFunctions,
         const std::vector< int >& responseIndices,
         const std::vector< std::pair< int, int > >& responseDegreeOrders,
         const int parameterSize )
 {
-    partialMatrix = Eigen::MatrixXd::Zero( 3, parameterSize );
+    inertiaTensorPartials.assign( parameterSize, Eigen::Matrix3d::Zero( ) );
+    inertiaTensorDerivativePartials.assign( parameterSize, Eigen::Matrix3d::Zero( ) );
 
-    // Add contributions through inertia tensor (computeRates = 0) and its time derivative (computeRates = 1)
+    // Add contributions to inertia tensor (computeRates = 0) and its time derivative (computeRates = 1)
     for( int computeRates = 0; computeRates < 2; computeRates++ )
     {
         const std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >& partialFunctions =
                 computeRates ? coefficientRatePartialFunctions : coefficientPartialFunctions;
+        std::vector< Eigen::Matrix3d >& partials = computeRates ? inertiaTensorDerivativePartials : inertiaTensorPartials;
         for( unsigned int i = 0; i < partialFunctions.size( ); i++ )
         {
             std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > forcingPartials = partialFunctions.at( i )( );
@@ -411,39 +456,70 @@ void InertialTorquePartial::wrtModeCoupledTidalLoveNumbers(
                 const std::pair< int, int > responseDegreeOrder = responseDegreeOrders.at( responseIndices.at( j ) );
                 if( responseDegreeOrder.first == 2 )
                 {
-                    Eigen::MatrixXd cosineCoefficientPartials = Eigen::MatrixXd::Zero( 1, 3 );
-                    Eigen::MatrixXd sineCoefficientPartials = Eigen::MatrixXd::Zero( 1, 3 );
-                    cosineCoefficientPartials( 0, responseDegreeOrder.second ) = forcingPartials.at( j )( 0 );
-                    sineCoefficientPartials( 0, responseDegreeOrder.second ) = forcingPartials.at( j )( 1 );
-                    partialMatrix.block( 0, j, 3, 1 ) += computeRates
-                            ? getTorquePartialFromDegreeTwoCoefficientRates( cosineCoefficientPartials, sineCoefficientPartials )
-                            : getTorquePartialFromDegreeTwoCoefficients( cosineCoefficientPartials, sineCoefficientPartials );
+                    partials.at( j ) += getInertiaTensorPartialWrtDegreeTwoCoefficient( responseDegreeOrder.second, true ) *
+                                    forcingPartials.at( j )( 0 ) +
+                            getInertiaTensorPartialWrtDegreeTwoCoefficient( responseDegreeOrder.second, false ) *
+                                    forcingPartials.at( j )( 1 );
                 }
             }
         }
     }
 }
 
-//! Function to compute partial of torque w.r.t. gravitational parameter of a body causing tidal deformation
-void InertialTorquePartial::wrtGravitationalParameterOfDeformingBody( Eigen::MatrixXd& gravitationalParameterPartial,
-                                                                      const std::vector< std::pair< int, int > >& variationAndBodyIndices )
+//! Function to compute partials of tidal part of inertia tensor (and its derivative) w.r.t. gravitational parameter of the body
+void InertialTorquePartial::tidalInertiaTensorPartialsWrtGravitationalParameter(
+        std::vector< Eigen::Matrix3d >& inertiaTensorPartials,
+        std::vector< Eigen::Matrix3d >& inertiaTensorDerivativePartials )
+{
+    inertiaTensorPartials.assign( 1, Eigen::Matrix3d::Zero( ) );
+    inertiaTensorDerivativePartials.assign( 1, Eigen::Matrix3d::Zero( ) );
+    for( unsigned int i = 0; i < tidalGravityFieldVariations_.size( ); i++ )
+    {
+        // Tidal part of inertia tensor, from the (linear) dependency of the corrections on the gravitational parameters of the bodies
+        // causing deformation
+        for( unsigned int j = 0; j < tidalGravityFieldVariations_.at( i )->getDeformingBodies( ).size( ); j++ )
+        {
+            std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientPartials =
+                    tidalGravityFieldVariations_.at( i )
+                            ->calculateSphericalHarmonicsCorrectionsPartialWrtDeformingBodyGravitationalParameter( currentTime_, j );
+            inertiaTensorPartials.at( 0 ) -= tidalGravityFieldVariations_.at( i )->getDeformingBodyMasses( ).at( j )( ) *
+                    getInertiaTensorPartialFromDegreeTwoCoefficients( coefficientPartials.first, coefficientPartials.second ) /
+                    currentGravitationalParameter_;
+        }
+
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientRates =
+                tidalGravityFieldVariations_.at( i )->calculateSphericalHarmonicsCorrectionsTimeDerivative( currentTime_ );
+        inertiaTensorDerivativePartials.at( 0 ) -=
+                getInertiaTensorPartialFromDegreeTwoCoefficients( coefficientRates.first, coefficientRates.second ) /
+                currentGravitationalParameter_;
+    }
+}
+
+//! Function to compute partials of tidal part of inertia tensor (and its derivative) w.r.t. gravitational parameter of a body
+//! causing tidal deformation
+void InertialTorquePartial::tidalInertiaTensorPartialsWrtDeformingBodyGravitationalParameter(
+        std::vector< Eigen::Matrix3d >& inertiaTensorPartials,
+        std::vector< Eigen::Matrix3d >& inertiaTensorDerivativePartials,
+        const std::vector< std::pair< int, int > >& variationAndBodyIndices )
 {
     // Tidal forcing due to a single body is proportional to its gravitational parameter
-    gravitationalParameterPartial.block( 0, 0, 3, 1 ).setZero( );
+    inertiaTensorPartials.assign( 1, Eigen::Matrix3d::Zero( ) );
+    inertiaTensorDerivativePartials.assign( 1, Eigen::Matrix3d::Zero( ) );
     for( unsigned int i = 0; i < variationAndBodyIndices.size( ); i++ )
     {
         std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > tidalVariation =
                 tidalGravityFieldVariations_.at( variationAndBodyIndices.at( i ).first );
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientRates =
                 tidalVariation->calculateSphericalHarmonicsCorrectionsTimeDerivativeDueToBody(
-                        currentTidalPartialTime_, variationAndBodyIndices.at( i ).second, 2 );
+                        currentTime_, variationAndBodyIndices.at( i ).second, 2 );
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientPartials =
                 tidalVariation->calculateSphericalHarmonicsCorrectionsPartialWrtDeformingBodyGravitationalParameter(
-                        currentTidalPartialTime_, variationAndBodyIndices.at( i ).second );
-        gravitationalParameterPartial.block( 0, 0, 3, 1 ) +=
-                getTorquePartialFromDegreeTwoCoefficientRates( coefficientRates.first, coefficientRates.second ) /
-                        tidalVariation->getDeformingBodyMasses( ).at( variationAndBodyIndices.at( i ).second )( ) +
-                getTorquePartialFromDegreeTwoCoefficients( coefficientPartials.first, coefficientPartials.second );
+                        currentTime_, variationAndBodyIndices.at( i ).second );
+        inertiaTensorDerivativePartials.at( 0 ) +=
+                getInertiaTensorPartialFromDegreeTwoCoefficients( coefficientRates.first, coefficientRates.second ) /
+                tidalVariation->getDeformingBodyMasses( ).at( variationAndBodyIndices.at( i ).second )( );
+        inertiaTensorPartials.at( 0 ) +=
+                getInertiaTensorPartialFromDegreeTwoCoefficients( coefficientPartials.first, coefficientPartials.second );
     }
 }
 
