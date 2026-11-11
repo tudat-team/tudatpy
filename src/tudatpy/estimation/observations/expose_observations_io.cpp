@@ -21,9 +21,7 @@
 #include "scalarTypes.h"
 
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
-#include "tudat/simulation/estimation_setup/processPsfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
-#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
@@ -82,7 +80,7 @@ void expose_observations_io_bindings( py::module& m )
 
         Returns
         -------
-        list[tudatpy.data.OdfDataType]
+        list[tudatpy.data_input.tracking_data.odf.OdfDataType]
             List of ignored ODF observable type IDs.
         )doc" )
             .def_property_readonly( "ignored_ground_stations",
@@ -100,7 +98,7 @@ void expose_observations_io_bindings( py::module& m )
 
         Returns
         -------
-        list[tudatpy.data.OdfRawFileContents]
+        list[tudatpy.data_input.tracking_data.odf.RawOdfFileContents]
             List of raw ODF data objects.
         )doc" )
             .def( "define_antenna_id",
@@ -110,52 +108,6 @@ void expose_observations_io_bindings( py::module& m )
                   py::arg( "antenna_name" ),
                   R"doc(
         Define the antenna ID for a given spacecraft.
-        )doc" );
-
-    py::class_< tom::PsfFileObservationConversionSettings >( m, "PsfFileObservationConversionSettings", R"doc(
-        Settings for converting a PSF optical imaging file to Tudat pixel-coordinate observations and camera models.
-        )doc" )
-            .def( py::init< const std::string&, const std::map< std::string, std::string >& >( ),
-                  py::arg( "receiver_body_name" ),
-                  py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ) )
-            .def_readwrite( "receiver_body_name", &tom::PsfFileObservationConversionSettings::receiverBodyName_ )
-            .def_readwrite( "image_name_to_body_name", &tom::PsfFileObservationConversionSettings::imageNameToBodyName_ )
-            .def_readwrite( "use_raw_image_name_as_body_name_if_unmapped",
-                            &tom::PsfFileObservationConversionSettings::useRawImageNameAsBodyNameIfUnmapped_ )
-            .def_readwrite( "use_corrected_pixel_line", &tom::PsfFileObservationConversionSettings::useCorrectedPixelLine_ )
-            .def_readwrite( "use_mid_exposure_time", &tom::PsfFileObservationConversionSettings::useMidExposureTime_ )
-            .def_readwrite( "include_deleted_pictures", &tom::PsfFileObservationConversionSettings::includeDeletedPictures_ )
-            .def_readwrite( "include_end_marker_records", &tom::PsfFileObservationConversionSettings::includeEndMarkerRecords_ )
-            .def_readwrite( "filter_by_use_flag", &tom::PsfFileObservationConversionSettings::filterByUseFlag_ )
-            .def_readwrite( "required_use_flag", &tom::PsfFileObservationConversionSettings::requiredUseFlag_ )
-            .def_readwrite( "body_fixed_camera_position", &tom::PsfFileObservationConversionSettings::bodyFixedCameraPosition_ )
-            .def_readwrite( "use_picture_pointing", &tom::PsfFileObservationConversionSettings::usePicturePointing_ );
-
-    m.def(
-            "add_psf_cameras_to_bodies",
-            []( const std::string& psfFile,
-                tss::SystemOfBodies& bodies,
-                const tom::PsfFileObservationConversionSettings& conversionSettings ) {
-                const auto trackingData = tudat::input_output::psf::readPsfFile< STATE_SCALAR_TYPE, TIME_TYPE >(
-                        psfFile,
-                        conversionSettings.receiverBodyName_,
-                        conversionSettings.imageNameToBodyName_,
-                        conversionSettings.useRawImageNameAsBodyNameIfUnmapped_,
-                        conversionSettings.useCorrectedPixelLine_,
-                        conversionSettings.useMidExposureTime_,
-                        conversionSettings.includeDeletedPictures_,
-                        conversionSettings.includeEndMarkerRecords_,
-                        conversionSettings.filterByUseFlag_,
-                        conversionSettings.requiredUseFlag_ );
-                tom::setTrackingSupplementaryDataInBodies( bodies, trackingData.second );
-            },
-            py::arg( "psf_file" ),
-            py::arg( "bodies" ),
-            py::arg( "conversion_settings" ),
-            R"doc(
-        Add PSF-calibrated camera models to the receiver body in a system of bodies.
-
-        One camera is added for each $CAM block in the PSF file. If enabled in the conversion settings, the camera model uses the picture-specific RA/DEC/TWIST values as a direct inertial-to-camera pointing source.
         )doc" );
 
     m.def( "process_odf_data_multiple_files",
@@ -185,7 +137,7 @@ void expose_observations_io_bindings( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
+        tudatpy.estimation.observations.ProcessedOdfFileContents
             Processed ODF file contents.
         )doc" );
 
@@ -214,7 +166,7 @@ void expose_observations_io_bindings( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
+        tudatpy.estimation.observations.ProcessedOdfFileContents
             Processed ODF file contents.
         )doc" );
 
@@ -235,7 +187,7 @@ void expose_observations_io_bindings( py::module& m )
 
         Parameters
         ----------
-        processed_odf_file : tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
+        processed_odf_file : tudatpy.estimation.observations.ProcessedOdfFileContents
             Processed ODF file contents.
         bodies : tudatpy.dynamics.environment.SystemOfBodies
             System of bodies.
@@ -521,55 +473,61 @@ void expose_observations_io_bindings( py::module& m )
             Observation collection.
         )doc" );
 
-    m.def( "create_compressed_doppler_collection",
-           &tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_collection" ),
+    m.def( "create_compressed_doppler_dataset",
+           &tom::createCompressedDopplerDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_dataset" ),
            py::arg( "compression_ratio" ),
            py::arg( "minimum_number_of_observations" ) = 10,
            py::arg( "max_arc_gap" ) = 300.0,
            py::arg_v( "earth_fixed_ground_station_positions",
-                      tss::getApproximateDsnGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
            R"doc(
-        Create a compressed Doppler observation collection.
+        Create a compressed Doppler observation dataset.
 
-        This function takes a collection of Doppler observations, splits them into arcs, and compresses each arc by averaging observations.
+        This function takes a dataset of Doppler observations, splits them into arcs, and compresses each arc by averaging
+        observations. Arcs with fewer than ``minimum_number_of_observations`` observations are not included in the compressed
+        dataset. Observation sets of other observable types are copied without modification.
 
         Parameters
         ----------
-        original_observation_collection : tudatpy.estimation.observations.ObservationCollection
-            The original observation collection containing Doppler data.
+        original_observation_dataset : tudatpy.estimation.observations.ObservationDataset
+            The original observation dataset containing Doppler data.
         compression_ratio : int
             The number of observations to average into a single compressed observation.
         minimum_number_of_observations : int, optional
             The minimum number of observations required in an arc to be considered for compression, by default 10.
         max_arc_gap : float, optional
             Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+        earth_fixed_ground_station_positions : dict[str, numpy.ndarray[numpy.float64[3, 1]]], optional
+            Approximate Earth-fixed positions (in meters) of the ground stations, used for the time scale conversions of the
+            compressed observation times. By default, the positions given by
+            :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` are used.
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationCollection
-            A new observation collection with compressed Doppler data.
+        tudatpy.estimation.observations.ObservationDataset
+            A new observation dataset with compressed Doppler data.
         )doc" );
 
-    m.def( "create_count_time_compressed_doppler_collection",
-           &tom::createCountTimeCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_collection" ),
+    m.def( "create_count_time_compressed_doppler_dataset",
+           &tom::createCountTimeCompressedDopplerDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_dataset" ),
            py::arg( "bodies" ),
            py::arg( "target_count_time" ),
            py::arg( "minimum_number_of_observations" ) = 10,
            py::arg( "max_arc_gap" ) = 300.0,
            R"doc(
-        Create a Doppler observation collection compressed to a target count time.
+        Create a Doppler observation dataset compressed to a target count time.
 
-        Same as :func:`create_compressed_doppler_collection`, but with the number of observations to average determined
+        Same as :func:`create_compressed_doppler_dataset`, but with the number of observations to average determined
         separately for each observation set, from its count time and the ``target_count_time``. The ground station
         positions used for the time scale conversions are taken from the ground stations on Earth in ``bodies``.
 
         Parameters
         ----------
-        original_observation_collection : tudatpy.estimation.observations.ObservationCollection
-            The original observation collection containing Doppler data.
+        original_observation_dataset : tudatpy.estimation.observations.ObservationDataset
+            The original observation dataset containing Doppler data.
         bodies : tudatpy.dynamics.environment.SystemOfBodies
             System of bodies, containing the Earth with the ground stations of the Doppler observations.
         target_count_time : float
@@ -582,65 +540,9 @@ void expose_observations_io_bindings( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationCollection
-            A new observation collection with compressed Doppler data.
+        tudatpy.estimation.observations.ObservationDataset
+            A new observation dataset with compressed Doppler data.
         )doc" );
-
-    m.def( "create_compressed_doppler_dataset",
-           &tom::createCompressedDopplerDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_dataset" ),
-           py::arg( "compression_ratio" ),
-           py::arg( "minimum_number_of_observations" ) = 10,
-           py::arg( "max_arc_gap" ) = 300.0,
-           py::arg_v( "earth_fixed_ground_station_positions",
-                      tss::getCombinedApproximateGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
-           R"doc(
-Create a compressed Doppler observation dataset.
-
-The input observations are split into arcs using ``max_arc_gap``. Each arc is
-then compressed by averaging groups of ``compression_ratio`` observations;
-arcs shorter than ``minimum_number_of_observations`` are omitted.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    A new dataset containing the compressed Doppler observations.
-)doc" );
-
-    m.def( "create_count_time_compressed_doppler_dataset",
-           &tom::createCountTimeCompressedDopplerDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_dataset" ),
-           py::arg( "bodies" ),
-           py::arg( "target_count_time" ),
-           py::arg( "minimum_number_of_observations" ) = 10,
-           py::arg( "max_arc_gap" ) = 300.0,
-           R"doc(
-Create a Doppler observation dataset compressed to a target count time.
-
-Same as :func:`create_compressed_doppler_dataset`, but with the number of observations to average determined
-separately for each observation set, from its count time and the ``target_count_time``. The ground station
-positions used for the time scale conversions are taken from the ground stations on Earth in ``bodies``.
-
-Parameters
-----------
-original_observation_dataset : tudatpy.estimation.observations.ObservationDataset
-    The original observation dataset containing Doppler data.
-bodies : tudatpy.dynamics.environment.SystemOfBodies
-    System of bodies, containing the Earth with the ground stations of the Doppler observations.
-target_count_time : float
-    Count time (in seconds) of the compressed observations, which must be an integer multiple of the count time of each
-    observation set.
-minimum_number_of_observations : int, optional
-    The minimum number of observations required in an arc to be considered for compression, by default 10.
-max_arc_gap : float, optional
-    Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    A new dataset containing the compressed Doppler observations.
-)doc" );
 }
 
 }  // namespace observations

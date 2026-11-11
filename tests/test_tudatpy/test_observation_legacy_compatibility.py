@@ -3,7 +3,7 @@ import pytest
 
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import estimation_analysis, observations
-from tudatpy.estimation.observable_models_setup import model_settings
+from tudatpy.estimation.observable_models_setup import links, model_settings
 from tudatpy.estimation.observations_setup import observations_dependent_variables as dependent
 from tudatpy.estimation.observations_setup import observations_simulation_settings as simulation
 
@@ -16,24 +16,24 @@ def test_legacy_residual_computation_updates_original_sets():
             np.array([x, 0, 0, 0, 0, 0]), "SSB", "J2000"
         )
     bodies = environment_setup.create_system_of_bodies(body_settings)
-    definition = observations.LinkDefinition(_link_ends("Earth"))
+    definition = links.LinkDefinition(_link_ends("Earth"))
     settings = simulation.tabulated_simulation_settings(
-        observations.one_way_range, definition, [1.0, 2.0]
+        model_settings.one_way_range_type, definition, [1.0, 2.0]
     )
     settings.add_dependent_variables(
         [
             dependent.target_range_between_link_ends_dependent_variable(
-                observations.transmitter, observations.receiver
+                links.transmitter, links.receiver
             )
         ]
     )
     sets = [
         observations.SingleObservationSet(
-            observations.one_way_range,
+            model_settings.one_way_range_type,
             definition,
             [[1005.0 + i]],
             [1.0 + i],
-            observations.receiver,
+            links.receiver,
             dependent_variable_bookkeeping=settings.dependent_variable_bookkeeping,
         )
         for i in range(2)
@@ -61,8 +61,8 @@ def test_legacy_residual_computation_updates_original_sets():
 
 def _link_ends(receiver_body):
     return {
-        observations.transmitter: observations.LinkEndId("Probe", ""),
-        observations.receiver: observations.LinkEndId(receiver_body, ""),
+        links.transmitter: links.LinkEndId("Probe", ""),
+        links.receiver: links.LinkEndId(receiver_body, ""),
     }
 
 
@@ -70,10 +70,10 @@ def _new_dataset_single_set(observable_type, receiver_body, observation_values, 
     dataset = observations.ObservationDataset()
     dataset.add_observation_set(
         observable_type,
-        observations.LinkDefinition(_link_ends(receiver_body)),
+        links.LinkDefinition(_link_ends(receiver_body)),
         [np.asarray(value, dtype=float) for value in observation_values],
         times,
-        observations.receiver,
+        links.receiver,
     )
     return dataset
 
@@ -81,7 +81,7 @@ def _new_dataset_single_set(observable_type, receiver_body, observation_values, 
 @pytest.fixture
 def sample_dataset():
     dataset = _new_dataset_single_set(
-        observations.one_way_range,
+        model_settings.one_way_range_type,
         "Earth",
         [[10.0], [20.0], [30.0]],
         [1.0, 2.0, 4.0],
@@ -92,7 +92,7 @@ def sample_dataset():
     )
 
     angular_dataset = _new_dataset_single_set(
-        observations.angular_position,
+        model_settings.angular_position_type,
         "Mars",
         [[1.0, 2.0], [3.0, 4.0]],
         [3.0, 5.0],
@@ -131,34 +131,14 @@ def test_retained_input_weight_alias_updates_source_and_diagonal_is_readonly(
         input_settings.weight_matrix_diagonal = np.ones(sample_dataset.total_scalar_size)
 
 
-def test_older_deprecated_observation_and_input_apis_remain_removed():
-    assert not hasattr(observations, "single_observation_set")
-    assert not hasattr(observations.SingleObservationSet, "ancilliary_settings")
-    for input_class in (
-        estimation_analysis.CovarianceAnalysisInput,
-        estimation_analysis.EstimationInput,
-    ):
-        for name in (
-            "set_weights_from_observation_collection",
-            "set_constant_single_observable_weight",
-            "set_constant_single_observable_vector_weight",
-            "set_constant_single_observable_and_link_end_weight",
-            "set_constant_single_observable_and_link_end_vector_weight",
-            "set_total_single_observable_and_link_end_vector_weight",
-            "set_constant_weight_per_observable",
-            "set_constant_vector_weight_per_observable",
-        ):
-            assert not hasattr(input_class, name)
-
-
 def test_legacy_single_observation_set_conversion_matches_dataset():
     """Verify legacy single-set conversion preserves dataset values and metadata."""
     observation_set = observations.create_single_observation_set(
-        observations.angular_position,
+        model_settings.angular_position_type,
         _link_ends("Mars"),
         [np.array([1.0, 2.0]), np.array([3.0, 4.0])],
         [3.0, 5.0],
-        observations.receiver,
+        links.receiver,
     )
     dataset = observations.create_observation_dataset_from_single_observation_set(observation_set)
 
@@ -172,11 +152,11 @@ def test_legacy_single_observation_set_conversion_matches_dataset():
 def test_dataset_add_observation_set_accepts_single_observation_set_object():
     """Verify a legacy single-set object can be added directly to a dataset."""
     observation_set = observations.create_single_observation_set(
-        observations.angular_position,
+        model_settings.angular_position_type,
         _link_ends("Mars"),
         [np.array([1.0, 2.0]), np.array([3.0, 4.0])],
         [3.0, 5.0],
-        observations.receiver,
+        links.receiver,
     )
 
     dataset = observations.ObservationDataset()
@@ -191,18 +171,18 @@ def test_dataset_add_observation_set_accepts_single_observation_set_object():
 
 def test_dataset_add_observation_set_component_shape_matches_keyword_construction():
     """Verify positional and keyword dataset construction preserve component shape."""
-    link_definition = observations.LinkDefinition(_link_ends("Earth"))
+    link_definition = links.LinkDefinition(_link_ends("Earth"))
     observation_values = [np.array([20.0]), np.array([10.0])]
     observation_times = [2.0, 1.0]
 
     positional_dataset = observations.ObservationDataset()
     assert (
         positional_dataset.add_observation_set(
-            observations.one_way_range,
+            model_settings.one_way_range_type,
             link_definition,
             observation_values,
             observation_times,
-            observations.receiver,
+            links.receiver,
         )
         == 0
     )
@@ -210,38 +190,27 @@ def test_dataset_add_observation_set_component_shape_matches_keyword_constructio
     keyword_dataset = observations.ObservationDataset()
     assert (
         keyword_dataset.add_observation_set(
-            observable_type=observations.one_way_range,
+            observable_type=model_settings.one_way_range_type,
             link_definition=link_definition,
             observations=observation_values,
             times=observation_times,
-            reference_link_end=observations.receiver,
+            reference_link_end=links.receiver,
         )
         == 0
     )
 
     np.testing.assert_allclose(
-        positional_dataset.ordered_observation_vector_data().observation_vector,
-        keyword_dataset.ordered_observation_vector_data().observation_vector,
+        positional_dataset.observation_vector_data(True).observation_vector,
+        keyword_dataset.observation_vector_data(True).observation_vector,
     )
     np.testing.assert_allclose(
-        positional_dataset.ordered_observation_vector_data().times,
-        keyword_dataset.ordered_observation_vector_data().times,
+        positional_dataset.observation_vector_data(True).times,
+        keyword_dataset.observation_vector_data(True).times,
     )
     np.testing.assert_allclose(
         [float(time) for time in positional_dataset.observation_times_for_set(0)],
         observation_times,
     )
-
-
-def test_dataset_add_observation_set_wrong_shape_names_accepted_signatures():
-    """Verify invalid add-observation-set calls report both supported signatures."""
-    with pytest.raises(TypeError) as exception_info:
-        observations.ObservationDataset().add_observation_set(object())
-
-    error_message = str(exception_info.value)
-    assert "single_observation_set" in error_message
-    assert "observable_type" in error_message
-    assert "link_definition" in error_message
 
 
 @pytest.mark.parametrize("container", [list, lambda values: np.array(values, dtype=object)])
@@ -251,7 +220,7 @@ def test_dataset_preserves_precise_time_objects(container):
 
     epoch = Time(1000000, 0.000000001)
     dataset = _new_dataset_single_set(
-        observations.one_way_range, "Earth", [[10.0]], container([epoch])
+        model_settings.one_way_range_type, "Earth", [[10.0]], container([epoch])
     )
     stored = dataset.observation_times_for_set(0)[0]
     assert stored == epoch

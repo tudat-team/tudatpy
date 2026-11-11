@@ -22,9 +22,6 @@
 
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
-#include <cereal/types/map.hpp>
-#include <cereal/types/utility.hpp>
-#include <cereal/types/vector.hpp>
 
 #include "tudat/io/observationWeightSettings.h"
 
@@ -95,7 +92,7 @@ public:
         return diagonal;
     }
 
-    //! Replace the selected principal block by a diagonal, without allocating a dense block.
+    //! Replace the selected principal block by a diagonal.
     void setDiagonal( const std::vector< Index >& indices, const Eigen::VectorXd& diagonal )
     {
         const auto selected = indexMap( indices );
@@ -227,7 +224,7 @@ public:
         {
             throw std::runtime_error( "Copied observation weights have an inconsistent scalar size." );
         }
-        // A value snapshot also makes copying within the same object well defined.
+        // Copying the source first also makes copying within the same object well defined.
         const ObservationWeights snapshot( source );
         setDiagonal( targetIndices, snapshot.diagonalVector( ) );
         for( const auto& entry : snapshot.offDiagonal_ )
@@ -244,7 +241,7 @@ public:
         return result;
     }
 
-    //! Materialize the complete symmetric sparse weight matrix.
+    //! Return the complete symmetric sparse weight matrix.
     Eigen::SparseMatrix< double > sparseMatrix( ) const
     {
         Eigen::SparseMatrix< double > result( size( ), size( ) );
@@ -264,36 +261,6 @@ public:
         }
         result.setFromTriplets( entries.begin( ), entries.end( ) );
         return result;
-    }
-
-    //! Compare the effective compact weight storage for exact equality.
-    bool operator==( const ObservationWeights& other ) const
-    {
-        return diagonal_ == other.diagonal_ && offDiagonal_ == other.offDiagonal_;
-    }
-
-    //! Serialize compact diagonal and upper-triangular weight storage.
-    template< class Archive >
-    void save( Archive& archive ) const
-    {
-        archive( diagonal_, offDiagonal_ );
-    }
-
-    //! Deserialize and validate compact observation-weight storage.
-    template< class Archive >
-    void load( Archive& archive )
-    {
-        ObservationWeights loaded;
-        archive( loaded.diagonal_, loaded.offDiagonal_ );
-        validateDiagonal( loaded.diagonalVector( ) );
-        for( const auto& entry : loaded.offDiagonal_ )
-        {
-            if( entry.first.first >= entry.first.second || entry.first.second >= loaded.size( ) || !std::isfinite( entry.second ) )
-            {
-                throw std::runtime_error( "Serialized observation weights have invalid sparse entries." );
-            }
-        }
-        *this = std::move( loaded );
     }
 
 private:

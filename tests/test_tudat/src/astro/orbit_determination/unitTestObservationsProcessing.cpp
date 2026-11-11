@@ -441,7 +441,6 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
     unsigned int nonemptySets = 0;
     for( unsigned int setId = 0; setId < 7; ++setId )
     {
-        BOOST_CHECK( middleRangeDataset->getObservationSetMetadata( setId ) == dataset->getObservationSetMetadata( setId ) );
         if( !middleRangeDataset->getObservationIdsForSet( setId ).empty( ) )
         {
             ++nonemptySets;

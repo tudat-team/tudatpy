@@ -25,37 +25,6 @@ namespace observation_models
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-ObservationVectorData< ObservationScalarType, TimeType >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationVectorData( const bool includeRejected ) const
-{
-    return createObservationVectorDataFromObservationIds(
-            resolveObservationIds( ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
-                                   ObservationOrdering::estimation,
-                                   includeRejected ),
-            true );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-ObservationVectorData< ObservationScalarType, TimeType >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createComputationObservationVectorData( const bool includeRejected ) const
-{
-    return createObservationVectorDataFromObservationIds( getAllObservationIds( ), includeRejected );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-ObservationVectorData< ObservationScalarType, TimeType >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createOrderedObservationVectorData( const bool includeInactive ) const
-{
-    return createObservationVectorData( includeInactive );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSetIdsInObservationVectorOrder( ) const
 {
     std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > setIdsByObservableAndLinkEnds;
@@ -81,48 +50,15 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::size_t ObservationDataset< ObservationScalarType, TimeType, Dummy >::getStructuralVersion( ) const
-{
-    return structuralVersion_;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::resetLinkDefinitionForSet( const unsigned int setId,
-                                                                                              const LinkDefinition& linkDefinition )
-{
-    setMetadata_.at( setId ).linkDefinitionId_ = registerLinkDefinition( linkDefinition );
-    ++structuralVersion_;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setLinkEndReferencePoint(
         const std::string& bodyName,
         const std::string& referencePointName,
         const LinkEndType linkEndType,
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
-    for( unsigned int setId = 0; setId < getNumberOfObservationSets( ); ++setId )
+    const std::vector< unsigned int > matchingSetIds = getSetIds( condition );
+    for( const unsigned int setId : std::set< unsigned int >( matchingSetIds.begin( ), matchingSetIds.end( ) ) )
     {
-        const std::vector< unsigned int >& observationIds = getObservationIdsForSet( setId );
-        bool setMatchesCondition = false;
-        for( const unsigned int observationId : observationIds )
-        {
-            if( condition( *this, observationId ) )
-            {
-                setMatchesCondition = true;
-                break;
-            }
-        }
-
-        if( !setMatchesCondition )
-        {
-            continue;
-        }
-
         std::map< LinkEndType, LinkEndId > linkEnds = getLinkDefinition( setMetadata_.at( setId ).linkDefinitionId_ ).linkEnds_;
         typename std::map< LinkEndType, LinkEndId >::iterator linkEndIterator = linkEnds.find( linkEndType );
         if( linkEndIterator == linkEnds.end( ) || linkEndIterator->second.bodyName_ != bodyName ||
@@ -160,7 +96,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::resetDependen
             }
         }
     }
-    setMetadata_.at( setId ).dependentVariableLayoutId_ = registerDependentVariableLayout( dependentVariableBookkeeping );
+    setMetadata_.at( setId ).dependentVariableLayoutId_ = registerEntry( dependentVariableLayoutRegistry_, dependentVariableBookkeeping );
     ++structuralVersion_;
 }
 
@@ -197,12 +133,10 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 ObservationVectorData< ObservationScalarType, TimeType >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationVectorDataFromObservationIds(
-        const std::vector< unsigned int >& selectedObservationIds,
-        const bool includeInactive ) const
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationVectorData( const bool includeRejected ) const
 {
     ObservationVectorData< ObservationScalarType, TimeType > result;
-    result.source_ = getLifetimeToken( );
+    result.source_ = lifetimeToken_;
     result.structuralVersion_ = structuralVersion_;
     result.vectorDataVersion_ = vectorDataVersion_;
     result.uniqueObservationIdsBySet_.resize( setMetadata_.size( ) );
@@ -222,15 +156,8 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationV
         completeWeightData_ = std::move( data );
     }
     result.completeWeightData_ = completeWeightData_;
-    std::vector< unsigned int > selected;
-    for( const unsigned int id : selectedObservationIds )
-    {
-        const auto& row = getObservationRow( id );
-        if( includeInactive || row.isActive_ )
-        {
-            selected.push_back( id );
-        }
-    }
+    const std::vector< unsigned int > selected = resolveObservationIds(
+            ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ), ObservationOrdering::estimation, includeRejected );
     result.scalarComponentIds_ = getScalarComponentIdsForObservationSelection( selected, {} );
     const auto weights = observationWeights_.restricted( result.scalarComponentIds_ );
     result.weights_ = weights.diagonalVector( );
@@ -263,7 +190,6 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationV
                     row.setId_, ancillary ? std::make_shared< ObservationAncillarySimulationSettings >( *ancillary ) : nullptr );
         }
         group.push_back( id );
-        result.dependentVariables_.emplace( id, row.dependentVariableValues_ );
         for( unsigned int component = 0; component < row.scalarSize_; ++component, ++first )
         {
             const unsigned int scalar = row.firstScalarComponent_ + component;
@@ -275,77 +201,6 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationV
         }
     }
     return result;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetIdsForObservableType(
-        const ObservableType observableType ) const
-{
-    std::vector< unsigned int > setIds;
-    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
-    {
-        if( getObservationSetMetadata( setId ).observableType_ == observableType )
-        {
-            setIds.push_back( setId );
-        }
-    }
-    return setIds;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::size_t ObservationDataset< ObservationScalarType, TimeType, Dummy >::getTotalScalarSizeForObservableType(
-        const ObservableType observableType ) const
-{
-    std::size_t totalSize = 0;
-    for( const unsigned int setId : getObservationSetIdsForObservableType( observableType ) )
-    {
-        totalSize += getTotalScalarSizeForSet( setId );
-    }
-    return totalSize;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSingleLinkObservations( const ObservableType observableType,
-                                                                                         const LinkDefinition& linkDefinition ) const
-{
-    return getSingleLinkObservationsAndTimes( observableType, linkDefinition ).first;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< TimeType > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSingleLinkTimes(
-        const ObservableType observableType,
-        const LinkDefinition& linkDefinition ) const
-{
-    return getSingleLinkObservationsAndTimes( observableType, linkDefinition ).second;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSingleLinkObservationsAndTimes(
-        const ObservableType observableType,
-        const LinkDefinition& linkDefinition ) const
-{
-    const ObservationSelectionCondition< ObservationScalarType, TimeType > condition =
-            ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( observableType ) &&
-            ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition( linkDefinition );
-    const ObservationVectorData< ObservationScalarType, TimeType > observationVectorData =
-            createObservationVectorDataFromObservationIds( getObservationIdsMatchingCondition( condition ), true );
-    if( observationVectorData.getObservationVector( ).size( ) == 0 )
-    {
-        throw std::runtime_error( "Error when getting single-link observations from dataset, no matching observations found." );
-    }
-    return std::make_pair( observationVectorData.getObservationVector( ), observationVectorData.getTimes( ) );
 }
 
 }  // namespace observation_models

@@ -46,9 +46,9 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
                                                  "CarpinoOutlierRejectionSettings",
                                                  R"doc(
 
-         Class for defining the settings of the outlier rejection algorithm of Carpino et al. (2003).
+         Class for defining the settings of the outlier rejection algorithm of :cite:t:`carpino2003`.
 
-         Class for defining the settings of the outlier rejection algorithm of Carpino et al. (2003). Objects of this
+         Class for defining the settings of the outlier rejection algorithm of :cite:t:`carpino2003`. Objects of this
          class are typically created through the
          :func:`~tudatpy.estimation.estimation_analysis.carpino_outlier_rejection_settings` function.
 
@@ -102,26 +102,30 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
            py::arg( "first_iteration_with_rejection" ) = 1,
            R"doc(
 
- Function for creating settings for the outlier rejection algorithm of Carpino et al. (2003).
+ Function for creating settings for the outlier rejection algorithm of :cite:t:`carpino2003`.
 
- Function for creating settings for the outlier rejection algorithm of Carpino et al. (2003). This algorithm rejects and recovers
-outliers based on the :math:`\chi^2` value of the residual:
+ Function for creating settings for the outlier rejection algorithm of :cite:t:`carpino2003`. This algorithm rejects and
+ recovers outliers based on the :math:`\chi^2` value of the residual:
 
  .. math::
         \chi^2 = \xi_i \gamma^{-1}_{\xi_i} \xi_i^T
 
-where :math:`\xi_i` is the residual and, :math:`\gamma_{\xi_i}` is the covariance matrix of the residuals. For a scalar observable, this
-simply becomes the ratio of the residual value to its uncertainty. For a vector observable, it is the Mahalanobis distance of the residual.
-Note that :math:`\gamma_{\xi_i}` is **not** equal to the observation covariance/uncertainty. The residual covariance also takes into account
-whether an observation was included in the least-squares inversion or not.
+ where :math:`\xi_i` is the residual and :math:`\gamma_{\xi_i}` is the covariance matrix of the residuals. For a scalar
+ observable, this is the square of the ratio of the residual value to its uncertainty. For a vector observable, it is the
+ squared Mahalanobis distance of the residual. Note that :math:`\gamma_{\xi_i}` is **not** equal to the observation
+ covariance/uncertainty. The residual covariance also takes into account whether an observation was included in the
+ least-squares inversion or not.
 
-When the :math:`\chi^2` value of the observation exceeds the rejection threshold, the observation is marked as an outlier and excluded
-from the next iteration. If a rejected observation has a :math:`\chi^2` below the recovery threshold, it is no longer an outlier, and is
-included in the next iteration of the least-squares fit again. Seperate recovery and rejection threshold are adopted to avoid observations
-from jumping between rejected and recovered in the later iterations.
+ When the :math:`\chi^2` value of an observation exceeds the rejection threshold, the observation is marked as an outlier
+ and excluded from the next iteration. The rejection threshold used by the algorithm is increased when the largest
+ :math:`\chi^2` value of the observations that are not rejected is large, or when few of these observations remain. If a
+ rejected observation has a :math:`\chi^2` value below the recovery threshold, it is no longer an outlier, and is included
+ in the next iteration of the least-squares fit again. Separate recovery and rejection thresholds are used to prevent
+ observations from being alternately rejected and recovered in the later iterations.
 
-Note that this algorithm requires that the observation covariance (or the inverse weight matrix) is compatible with the true errors. If no
-weights are set on the observations, the algorithm will throw an error. If inaccurate weights are set, it may produce unexpected results.
+ Note that this algorithm requires that the observation covariance (or the inverse weight matrix) is compatible with the
+ true errors. If no weights are set on the observations (all weights equal to 1), the algorithm will throw an error. If
+ inaccurate weights are set, it may produce unexpected results.
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.
@@ -214,10 +218,10 @@ weights are set on the observations, the algorithm will throw an error. If inacc
 
  Function for creating settings for the simple outlier rejection algorithm.
 
-Function for creating settings for the simple outlier rejection algorithm. This algorithm decides the rejection status of an observation
-based on the absolute residual value of the observation (or the largest element in the residual vector in case of vector observations).
-If it exceeds the threshold, it will be excluded from the next iteration. If ``allow_restore`` is true, it can be recovered again in a later
-iteration. One threshold is used for all observable types in the estimation (in SI units).
+ Function for creating settings for the simple outlier rejection algorithm. This algorithm decides the rejection status of an
+ observation based on the absolute residual value of the observation (or the largest element in the residual vector in case of
+ vector observations). If it exceeds the threshold, it will be excluded from the next iteration. If ``allow_restore`` is true,
+ it can be recovered again in a later iteration. One threshold is used for all observable types in the estimation (in SI units).
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.
@@ -250,11 +254,12 @@ iteration. One threshold is used for all observable types in the estimation (in 
 
  Function for creating settings for the simple outlier rejection algorithm.
 
-Function for creating settings for the simple outlier rejection algorithm. This algorithm decides the rejection status of an observation
-based on the absolute residual value of the observation (or the largest element in the residual vector in case of vector observations).
-If it exceeds the threshold, it will be excluded from the next iteration. If ``allow_restore`` is true, it can be recovered again in a later
-iteration. A dictionary containing the residual threshold for each observable type used in the estimation must be provided. In case an
-observable type is used in the estimation, but missing from the dict, an error will be thrown.
+ Function for creating settings for the simple outlier rejection algorithm. This algorithm decides the rejection status of an
+ observation based on the absolute residual value of the observation (or the largest element in the residual vector in case of
+ vector observations). If it exceeds the threshold, it will be excluded from the next iteration. If ``allow_restore`` is true,
+ it can be recovered again in a later iteration. A dictionary containing the residual threshold for each observable type used in
+ the estimation must be provided. In case an observable type is used in the estimation, but missing from the dictionary, an
+ error will be thrown.
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.

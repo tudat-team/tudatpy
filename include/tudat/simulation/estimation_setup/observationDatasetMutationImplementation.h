@@ -19,34 +19,6 @@ namespace tudat
 namespace observation_models
 {
 
-namespace observation_dataset_detail
-{
-
-template< typename ObservationScalarType >
-Eigen::VectorXd accumulateResidualStatistic( const unsigned int observableSize,
-                                             const std::size_t numberOfObservations,
-                                             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
-                                             const bool rootMeanSquare )
-{
-    Eigen::VectorXd statistic = Eigen::VectorXd::Zero( observableSize );
-    for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
-    {
-        for( std::size_t observationIndex = 0; observationIndex < numberOfObservations; ++observationIndex )
-        {
-            const double residual = static_cast< double >( residuals.at( observationIndex )( componentIndex, 0 ) );
-            statistic[ componentIndex ] += rootMeanSquare ? residual * residual : residual;
-        }
-        statistic[ componentIndex ] /= static_cast< double >( numberOfObservations );
-        if( rootMeanSquare )
-        {
-            statistic[ componentIndex ] = std::sqrt( statistic[ componentIndex ] );
-        }
-    }
-    return statistic;
-}
-
-}  // namespace observation_dataset_detail
-
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
@@ -193,7 +165,7 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
                 removeEntries( preparedResiduals, indicesToRemove );
             }
             std::cerr << "[WARNING] Detected and removed " << beforeCount - preparedObservations.size( )
-                      << "duplicate observations when creating observation dataset" << std::endl;
+                      << " duplicate observations when creating observation dataset" << std::endl;
         }
     }
 
@@ -202,9 +174,9 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         ObservationWeights::validateDiagonal( weight );
     }
 
-    const unsigned int linkDefinitionId = registerLinkDefinition( linkDefinition );
-    const unsigned int ancillarySettingsId = registerAncillarySettings( ancillarySettings );
-    const unsigned int dependentVariableLayoutId = registerDependentVariableLayout( dependentVariableBookkeeping );
+    const unsigned int linkDefinitionId = registerEntry( linkDefinitionRegistry_, linkDefinition );
+    const unsigned int ancillarySettingsId = registerEntry( ancillarySettingsRegistry_, ancillarySettings );
+    const unsigned int dependentVariableLayoutId = registerEntry( dependentVariableLayoutRegistry_, dependentVariableBookkeeping );
 
     const unsigned int setId = setMetadata_.size( );
     setMetadata_.push_back(
@@ -327,7 +299,7 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
                                                   residuals,
                                                   sortObservations );
     observationWeights_.copyBlock( weights, getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) );
-    // Creation from settings (including TrackingData) never enters the later cross-set update path.
+    // Set the weight structure of the new set from the type of weight settings, which never correlate different sets.
     using WeightsBlockType = ObservationWeightSettings::WeightsBlockType;
     switch( weightSettings.type_ )
     {
@@ -354,7 +326,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setObservatio
 {
     const std::vector< unsigned int >& observationIds = observationIdsBySet_.at( setId );
 
-    // The replacement is row-for-row; structural changes go through add/remove/rebuild helpers.
+    // The number of observations in the set cannot be changed by this function.
     if( observations.size( ) != observationIds.size( ) )
     {
         throw std::runtime_error( "Error when setting dataset observations, number of observations is inconsistent." );
@@ -385,7 +357,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setResidualsF
 {
     const std::vector< unsigned int >& observationIds = observationIdsBySet_.at( setId );
 
-    // The replacement is row-for-row; structural changes go through add/remove/rebuild helpers.
+    // The number of observations in the set cannot be changed by this function.
     if( residuals.size( ) != observationIds.size( ) )
     {
         throw std::runtime_error( "Error when setting dataset residuals, number of observations is inconsistent." );
@@ -466,53 +438,6 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservatio
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeObservationsFromSet( const unsigned int setId,
-                                                                                              std::vector< unsigned int > indicesToRemove )
-{
-    const auto& ids = observationIdsBySet_.at( setId );
-    std::unordered_set< unsigned int > removed;
-    for( std::size_t i = 0; i < indicesToRemove.size( ); ++i )
-    {
-        const unsigned int index = indicesToRemove.at( i );
-        if( index >= ids.size( ) )
-        {
-            throw std::runtime_error( "Observation removal index is out of bounds." );
-        }
-        if( i > 0 && index <= indicesToRemove.at( i - 1 ) )
-        {
-            throw std::runtime_error( "Observation removal indices must be strictly increasing and unique." );
-        }
-        removed.insert( ids.at( index ) );
-    }
-    std::vector< unsigned int > retained;
-    for( const auto& row : observationRows_ )
-    {
-        if( !removed.count( row.observationId_ ) )
-        {
-            retained.push_back( row.observationId_ );
-        }
-    }
-    retainObservationRows( retained );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::pair< TimeType, TimeType > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getTimeBoundsForSet(
-        const unsigned int setId ) const
-{
-    const std::vector< TimeType > observationTimes = getObservationTimesForSet( setId );
-    if( observationTimes.empty( ) )
-    {
-        return std::make_pair( TUDAT_NAN, TUDAT_NAN );
-    }
-    return std::make_pair( *std::min_element( observationTimes.begin( ), observationTimes.end( ) ),
-                           *std::max_element( observationTimes.begin( ), observationTimes.end( ) ) );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::pair< TimeType, TimeType > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getTimeBounds( ) const
 {
     if( observationRows_.empty( ) )
@@ -533,123 +458,6 @@ std::pair< TimeType, TimeType > ObservationDataset< ObservationScalarType, TimeT
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getComputedObservationsForSet( const unsigned int setId ) const
-{
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = getObservationsForSet( setId );
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = getResidualsForSet( setId );
-
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedObservations;
-    computedObservations.reserve( observations.size( ) );
-    for( std::size_t i = 0; i < observations.size( ); ++i )
-    {
-        computedObservations.push_back( observations.at( i ) - residuals.at( i ) );
-    }
-    return computedObservations;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getRmsResidualsForSet( const unsigned int setId ) const
-{
-    const unsigned int observableSize = getObservationSetMetadata( setId ).observableSize_;
-    const std::size_t numberOfObservations = getNumberOfObservationsForSet( setId );
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = getResidualsForSet( setId );
-    return observation_dataset_detail::accumulateResidualStatistic( observableSize, numberOfObservations, residuals, true );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getMeanResidualsForSet( const unsigned int setId ) const
-{
-    const unsigned int observableSize = getObservationSetMetadata( setId ).observableSize_;
-    const std::size_t numberOfObservations = getNumberOfObservationsForSet( setId );
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = getResidualsForSet( setId );
-    return observation_dataset_detail::accumulateResidualStatistic( observableSize, numberOfObservations, residuals, false );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::size_t ObservationDataset< ObservationScalarType, TimeType, Dummy >::getNumberOfObservationSets( ) const
-{
-    return setMetadata_.size( );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::size_t ObservationDataset< ObservationScalarType, TimeType, Dummy >::getNumberOfObservations( ) const
-{
-    return observationRows_.size( );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::size_t ObservationDataset< ObservationScalarType, TimeType, Dummy >::getTotalScalarSize( ) const
-{
-    return observedValues_.size( );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-const std::vector< ObservationSetMetadata< ObservationScalarType, TimeType > >&
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetMetadata( ) const
-{
-    return setMetadata_;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-const ObservationSetMetadata< ObservationScalarType, TimeType >&
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetMetadata( const unsigned int setId ) const
-{
-    return setMetadata_.at( setId );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-const std::vector< ObservationDatasetRow< TimeType > >& ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationRows( )
-        const
-{
-    return observationRows_;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-const ObservationDatasetRow< TimeType >& ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationRow(
-        const unsigned int observationId ) const
-{
-    return observationRows_.at( rowPositionById_.at( observationId ) );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< ObservationScalarComponentRow > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getScalarComponentRows( ) const
-{
-    std::vector< ObservationScalarComponentRow > result;
-    result.reserve( getTotalScalarSize( ) );
-    for( const auto& row : observationRows_ )
-    {
-        for( unsigned int component = 0; component < row.scalarSize_; ++component )
-        {
-            result.push_back( { row.observationId_, component } );
-        }
-    }
-    return result;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 ObservationScalarComponentRow ObservationDataset< ObservationScalarType, TimeType, Dummy >::getScalarComponentRow(
         const unsigned int scalarComponentId ) const
 {
@@ -664,15 +472,6 @@ ObservationScalarComponentRow ObservationDataset< ObservationScalarType, TimeTyp
             []( unsigned int scalar, const ObservationDatasetRow< TimeType >& row ) { return scalar < row.firstScalarComponent_; } );
     const auto& row = *std::prev( next );
     return { row.observationId_, scalarComponentId - row.firstScalarComponent_ };
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-const std::vector< unsigned int >& ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationIdsForSet(
-        const unsigned int setId ) const
-{
-    return observationIdsBySet_.at( setId );
 }
 
 template< typename ObservationScalarType,
@@ -722,14 +521,6 @@ std::vector< TimeType > ObservationDataset< ObservationScalarType, TimeType, Dum
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-TimeType ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationTime( const unsigned int observationId ) const
-{
-    return getObservationRow( observationId ).time_;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getWeightsForSet(
         const unsigned int setId ) const
 {
@@ -739,36 +530,6 @@ std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > ObservationDataset< Ob
         weights.push_back( getWeightValue( observationId ) );
     }
     return weights;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getWeightValue(
-        const unsigned int observationId ) const
-{
-    return observationWeights_.getDiagonal( getScalarComponentIdsForObservationSelection( { observationId }, {} ) );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::MatrixXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getWeightMatrixForObservation(
-        const unsigned int observationId ) const
-{
-    return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( { observationId }, {} ) )
-            .sparseMatrix( )
-            .toDense( );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::MatrixXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getWeightMatrixForSet( const unsigned int setId ) const
-{
-    return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) )
-            .sparseMatrix( )
-            .toDense( );
 }
 
 template< typename ObservationScalarType,
@@ -819,45 +580,6 @@ std::vector< Eigen::VectorXd > ObservationDataset< ObservationScalarType, TimeTy
         dependentVariables.push_back( dependentVariable );
     }
     return hasNonEmptyDependentVariables ? dependentVariables : std::vector< Eigen::VectorXd >( );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getDependentVariables(
-        const unsigned int observationId ) const
-{
-    return getObservationRow( observationId ).dependentVariableValues_;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::MatrixXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSingleDependentVariableForSet(
-        const unsigned int setId,
-        const std::pair< int, int >& dependentVariableIndexAndSize ) const
-{
-    const std::vector< Eigen::VectorXd > observationsDependentVariables = getDependentVariablesForSet( setId );
-    if( observationsDependentVariables.empty( ) )
-    {
-        throw std::runtime_error(
-                "Error when retrieving single observation dependent variable, the set has no dependent-variable values." );
-    }
-    Eigen::MatrixXd singleDependentVariable =
-            Eigen::MatrixXd::Zero( getNumberOfObservationsForSet( setId ), dependentVariableIndexAndSize.second );
-    for( unsigned int i = 0; i < observationsDependentVariables.size( ); ++i )
-    {
-        if( dependentVariableIndexAndSize.first + dependentVariableIndexAndSize.second > observationsDependentVariables.at( i ).size( ) )
-        {
-            throw std::runtime_error(
-                    "Error when retrieving single observation dependent variable, required index and size incompatible with dependent "
-                    "variables size." );
-        }
-        Eigen::VectorXd singleDependentVariableVector =
-                observationsDependentVariables.at( i ).segment( dependentVariableIndexAndSize.first, dependentVariableIndexAndSize.second );
-        singleDependentVariable.block( i, 0, 1, dependentVariableIndexAndSize.second ) = singleDependentVariableVector.transpose( );
-    }
-    return singleDependentVariable;
 }
 
 }  // namespace observation_models

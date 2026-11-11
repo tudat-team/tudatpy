@@ -158,7 +158,7 @@ std::shared_ptr< ObservationDataset< double, double > > createResidualDataset( c
  */
 struct TestIterationData {
     TestIterationData( const std::shared_ptr< ObservationDataset< double, double > >& dataset, const int numberOfParameters = 2 ):
-        flattenedData_( dataset->createOrderedObservationVectorData( true ) ), residuals_( flattenedData_.getResidualVector( ) ),
+        flattenedData_( dataset->createObservationVectorData( true ) ), residuals_( flattenedData_.getResidualVector( ) ),
         designMatrix_( Eigen::MatrixXd::Zero( residuals_.rows( ), numberOfParameters ) ),
         parameterCovariance_( Eigen::MatrixXd::Zero( numberOfParameters, numberOfParameters ) ),
         parameterCorrection_( Eigen::VectorXd::Zero( numberOfParameters ) )
@@ -274,7 +274,6 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionCreation )
             createOutlierRejection< double, double >( carpinoOutlierRejectionSettings( ), dataset );
     BOOST_REQUIRE( outlierRejection != nullptr );
     BOOST_CHECK( ( std::dynamic_pointer_cast< CarpinoOutlierRejection< double, double > >( outlierRejection ) != nullptr ) );
-    BOOST_CHECK( ( outlierRejection->getOutlierRejectionType( ) == OutlierRejectionType::carpino_outlier_rejection ) );
 
     // All observations start out as accepted, since none of them is rejected in the dataset
     BOOST_CHECK_EQUAL( outlierRejection->getRejectionStatus( ).size( ), dataset->getNumberOfObservations( ) );
@@ -292,7 +291,7 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionStatusIsAppliedToDataset )
 {
     const std::shared_ptr< ObservationDataset< double, double > > dataset = createTestDataset( );
 
-    const ObservationVectorData< double, double > flattenedData = dataset->createOrderedObservationVectorData( true );
+    const ObservationVectorData< double, double > flattenedData = dataset->createObservationVectorData( true );
     const Eigen::VectorXd residuals = flattenedData.getResidualVector( );
     const Eigen::MatrixXd designMatrix = Eigen::MatrixXd::Ones( residuals.rows( ), 2 );
     const Eigen::MatrixXd parameterCovariance = Eigen::MatrixXd::Identity( 2, 2 );
@@ -312,8 +311,8 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionStatusIsAppliedToDataset )
 
     // The rejected observations must be excluded from the data used in the estimation. The rejected angular position
     // observation removes two rows, since both of its components are rejected.
-    BOOST_CHECK_EQUAL( dataset->createOrderedObservationVectorData( false ).getObservationVector( ).size( ), 4 );
-    BOOST_CHECK_EQUAL( dataset->createOrderedObservationVectorData( true ).getObservationVector( ).size( ), 7 );
+    BOOST_CHECK_EQUAL( dataset->createObservationVectorData( false ).getObservationVector( ).size( ), 4 );
+    BOOST_CHECK_EQUAL( dataset->createObservationVectorData( true ).getObservationVector( ).size( ), 7 );
 
     // Rejected observations must be provided to the algorithm, so that they can be recovered
     outlierRejection.updateRejectionStatus( outlierRejectionInput );
@@ -324,7 +323,7 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionStatusIsAppliedToDataset )
     recoveringOutlierRejection.updateRejectionStatus( outlierRejectionInput );
 
     BOOST_CHECK_EQUAL( recoveringOutlierRejection.getNumberOfRejectedObservations( ), 0 );
-    BOOST_CHECK_EQUAL( dataset->createOrderedObservationVectorData( false ).getObservationVector( ).size( ), 7 );
+    BOOST_CHECK_EQUAL( dataset->createObservationVectorData( false ).getObservationVector( ).size( ), 7 );
 }
 
 //! Check that outlier rejection retrieves per-observation covariance from the complete structured weight snapshot.
@@ -341,7 +340,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCovariance )
             ( Eigen::Vector2d( ) << 2.0, 8.0 ).finished( ) );
 
     {
-        const ObservationVectorData< double, double > flattenedData = dataset->createOrderedObservationVectorData( true );
+        const ObservationVectorData< double, double > flattenedData = dataset->createObservationVectorData( true );
 
         // The input stores references only, so the data it refers to must outlive it and cannot be a temporary.
         const OutlierRejectionInput< double, double > input(
@@ -365,7 +364,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCovariance )
         weightBlock << 4.0, 1.0, 1.0, 4.0;
         dataset->setWeightBlock( { 0, 1 }, { 0, 1 }, weightBlock );
 
-        const ObservationVectorData< double, double > flattenedData = dataset->createOrderedObservationVectorData( true );
+        const ObservationVectorData< double, double > flattenedData = dataset->createObservationVectorData( true );
         const OutlierRejectionInput< double, double > input(
                 0, flattenedData, flattenedData.getResidualVector( ), emptyMatrix, emptyMatrix, emptyVector );
 
@@ -387,8 +386,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationObservationRowExtraction )
     dataset->rejectObservations( ObservationSelectionCondition< double, double >::timeGreaterThan( 1.0 ) &&
                                  ObservationSelectionCondition< double, double >::timeLessThan( 4.5 ) );
 
-    const ObservationVectorData< double, double > computationData = dataset->createOrderedObservationVectorData( true );
-    const ObservationVectorData< double, double > estimationData = dataset->createOrderedObservationVectorData( false );
+    const ObservationVectorData< double, double > computationData = dataset->createObservationVectorData( true );
+    const ObservationVectorData< double, double > estimationData = dataset->createObservationVectorData( false );
 
     // Observations 1, 2 and 3 are rejected, so 3 of the 7 rows remain
     BOOST_REQUIRE_EQUAL( computationData.getObservationVector( ).size( ), 7 );
@@ -479,7 +478,7 @@ BOOST_AUTO_TEST_CASE( test_FirstIterationWithRejection )
 
     const std::shared_ptr< ObservationDataset< double, double > > dataset = createTestDataset( );
 
-    const ObservationVectorData< double, double > flattenedData = dataset->createOrderedObservationVectorData( true );
+    const ObservationVectorData< double, double > flattenedData = dataset->createObservationVectorData( true );
     const Eigen::VectorXd residuals = flattenedData.getResidualVector( );
 
     const int numberOfParameters = 2;
@@ -804,7 +803,6 @@ BOOST_AUTO_TEST_CASE( test_SimpleOutlierRejectionCreation )
             createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0 ), dataset );
     BOOST_REQUIRE( outlierRejection != nullptr );
     BOOST_CHECK( ( std::dynamic_pointer_cast< SimpleOutlierRejection< double, double > >( outlierRejection ) != nullptr ) );
-    BOOST_CHECK( ( outlierRejection->getOutlierRejectionType( ) == OutlierRejectionType::simple_outlier_rejection ) );
 
     BOOST_CHECK_EQUAL( outlierRejection->getRejectionStatus( ).size( ), dataset->getNumberOfObservations( ) );
     BOOST_CHECK_EQUAL( outlierRejection->getNumberOfRejectedObservations( ), 0 );

@@ -4,10 +4,9 @@
 ===========================
 
 This module contains functionality to compute and apply several observation corrections.
-These corrections are computed once and applied on an existing observation dataset before
-handing them to the estimation. As such, a reasonably accurate a priori ephemeris of the
-object should be known to accurately compute the corrections. These can be retrieved from
-e.g. JPL Horizons.
+These corrections are computed once, and applied to an existing observation dataset before it
+is used in the estimation. Consequently, a reasonably accurate a priori ephemeris of the observed
+object is required to compute the corrections accurately (e.g. retrieved from JPL Horizons).
 
 
 Functions

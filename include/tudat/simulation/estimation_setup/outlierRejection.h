@@ -184,16 +184,10 @@ public:
         applyRejectionStatusToObservationDataset( );
     }
 
-    //! Return rejection status in the order of getObservationIds().
+    //! Return rejection status, in order of increasing observation id.
     const std::vector< bool >& getRejectionStatus( ) const
     {
         return isRejected_;
-    }
-
-    //! Return the observation ids corresponding to entries in getRejectionStatus().
-    const std::vector< unsigned int >& getObservationIds( ) const
-    {
-        return observationIds_;
     }
 
     //! Return the number of observations that are currently rejected.
@@ -210,11 +204,6 @@ public:
         return numberOfRejectedObservations;
     }
 
-    OutlierRejectionType getOutlierRejectionType( ) const
-    {
-        return outlierRejectionType_;
-    }
-
 protected:
     //! A method that must update the isRejected_ member of OutlierRejection
     virtual void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) = 0;
@@ -229,7 +218,10 @@ protected:
                     return isRejected_.at( indexByObservationId_.at( observationId ) );
                 } );
 
-        observationDataset_->rejectObservations( isRejectedCondition, getOutlierRejectionTypeString( outlierRejectionType_ ) );
+        // Only reject active observations, so that already rejected ones (e.g. by the user) keep their rejection reason.
+        observationDataset_->rejectObservations(
+                isRejectedCondition && observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::active( ),
+                getOutlierRejectionTypeString( outlierRejectionType_ ) );
         observationDataset_->restoreObservations( !isRejectedCondition );
     }
 
@@ -284,15 +276,14 @@ public:
 
         // If the weights of the observation dataset are all equal to 1 (i.e. default), they are not meaningful and the Carpino outlier
         // rejection algorithm produces garbage results
-        ObservationVectorData< ObservationScalarType, TimeType > flattenedData =
-                observationDataset->createComputationObservationVectorData( );
+        ObservationVectorData< ObservationScalarType, TimeType > flattenedData = observationDataset->createObservationVectorData( true );
         const Eigen::VectorXd& observationWeightVector = flattenedData.getWeightVector( );
         const bool hasOffDiagonalWeights = flattenedData.hasOffDiagonalWeights( );
         const bool hasDefaultWeights = ( observationWeightVector.array( ) == 1.0 ).all( );
         if( !hasOffDiagonalWeights && hasDefaultWeights )
         {
             throw std::runtime_error(
-                    "Error in outlier rejection: Carpino algorithm expects observation weights to be compatible with the"
+                    "Error in outlier rejection: Carpino algorithm expects observation weights to be compatible with the "
                     "per-observation uncertainty, but default weights were found on the ObservationDataset" );
         }
     }
@@ -353,7 +344,7 @@ protected:
      * that were already rejected and are still rejected during this iteration.
      *
      * \param newRejectionStatus Rejection status for the next iteration, modified in place by this function.
-     * \param chiSquaredPerObservation Chi-squared value of each observation, in getObservationIds() order.
+     * \param chiSquaredPerObservation Chi-squared value of each observation, in order of increasing observation id.
      */
     void applyMaximumRejectedFraction( std::vector< bool >& newRejectionStatus,
                                        const std::vector< double >& chiSquaredPerObservation ) const
@@ -459,7 +450,7 @@ protected:
         }
         else
         {
-            std::cerr << "Warning: in Carpino outlier rejection, one or more chi-squared values are negative/NaN. Leaving rejection flag"
+            std::cerr << "Warning: in Carpino outlier rejection, one or more chi-squared values are negative/NaN. Leaving rejection flag "
                       << "unchanged" << std::endl;
         }
         return isCurrentlyRejected;  // Return unchanged
@@ -474,8 +465,7 @@ protected:
                               const bool isRejected ) const
     {
         // Get linear approximation of post-fit residuals
-        Eigen::VectorXd residualsVectorPostFit;
-        residualsVectorPostFit = residualVector - partialsForObservation * parameterCorrection;
+        const Eigen::VectorXd residualsVectorPostFit = residualVector - partialsForObservation * parameterCorrection;
 
         // Residual covariance. Note this is different from pure observation covariance
         Eigen::MatrixXd residualCovariance;
@@ -491,10 +481,7 @@ protected:
         }
 
         // Chi-squared value
-        double chiSquared;
-        chiSquared = ( residualsVectorPostFit.transpose( ) * residualCovariance.inverse( ) * residualsVectorPostFit ).value( );
-
-        return chiSquared;
+        return ( residualsVectorPostFit.transpose( ) * residualCovariance.inverse( ) * residualsVectorPostFit ).value( );
     }
 
     //! Settings defining the thresholds of the algorithm.

@@ -29,7 +29,6 @@ using ObservableType = tudat::observation_models::ObservableType;
 enum class OutlierRejectionType {
     carpino_outlier_rejection,
     simple_outlier_rejection,
-
 };
 
 inline std::string getOutlierRejectionTypeString( const OutlierRejectionType outlierRejectionType )

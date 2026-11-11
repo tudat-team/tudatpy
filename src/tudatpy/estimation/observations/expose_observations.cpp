@@ -11,7 +11,6 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 #include "expose_observations.h"
-#include "expose_observations_bindings.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -20,8 +19,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <cmath>
-#include <iostream>
 #include <map>
 
 #include "scalarTypes.h"
@@ -31,9 +28,11 @@
 #include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 #include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"
+#include "expose_observations_bindings.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -46,7 +45,6 @@ namespace
 
 using InspectionDataset = tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >;
 using InspectionCondition = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >;
-using InspectionIndices = tom::detail::ObservationSelectionIndices< STATE_SCALAR_TYPE, TIME_TYPE >;
 
 std::vector< Eigen::VectorXd > evaluateTrackingDataAngularCorrections(
         const std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > >& trackingData,
@@ -177,7 +175,7 @@ py::dict inspectionMetadata( const InspectionDataset::InspectionMetadata& metada
         value[ "ancillary_settings_id" ] = set.ancillarySettingsId_;
         value[ "dependent_variable_layout_id" ] = set.dependentVariableLayoutId_;
         value[ "link_definition" ] = py::cast( std::get< 1 >( entry.second ), py::return_value_policy::copy );
-        // These settings were cloned by extraction; shared pointers own detached objects.
+        // These settings are copies, so that modifying them does not change the dataset.
         value[ "ancillary_settings" ] = py::cast( std::get< 2 >( entry.second ) );
         value[ "dependent_variable_layout" ] = py::cast( std::get< 3 >( entry.second ) );
         result[ py::int_( entry.first ) ] = std::move( value );
@@ -191,7 +189,7 @@ py::dict inspectionData( const InspectionDataset& dataset,
                          const std::string& ordering )
 {
     const auto order = inspectionOrdering( ordering );
-    // Validate before evaluating the condition or copying any payload.
+    // Check the requested fields before retrieving any data.
     const std::set< std::string > supported = { "times",   "observations",        "residuals",         "observation_ids", "set_ids",
                                                 "rows",    "dependent_variables", "scalar_components", "weight_diagonal", "weight_matrix",
                                                 "metadata" };
@@ -207,134 +205,55 @@ py::dict inspectionData( const InspectionDataset& dataset,
             throw py::value_error( "Duplicate observation field: " + field );
         }
     }
-    const InspectionIndices indices( dataset, condition, order );
     py::dict result;
     for( const auto& field : fields )
     {
         if( field == "times" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getTimes( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getTimes( condition, order ) );
         }
         else if( field == "observations" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getObservations( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getObservations( condition, order ) );
         }
         else if( field == "residuals" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getResiduals( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getResiduals( condition, order ) );
         }
         else if( field == "observation_ids" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getObservationIds( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getObservationIds( condition, order ) );
         }
         else if( field == "set_ids" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getSetIds( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getSetIds( condition, order ) );
         }
         else if( field == "rows" )
         {
-            result[ py::str( field ) ] = inspectionRows( indices.getRows( dataset ) );
+            result[ py::str( field ) ] = inspectionRows( dataset.getRows( condition, order ) );
         }
         else if( field == "dependent_variables" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getDependentVariableValues( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getDependentVariableValues( condition, order ) );
         }
         else if( field == "scalar_components" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getScalarComponents( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getScalarComponents( condition, order ) );
         }
         else if( field == "weight_diagonal" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getWeightDiagonal( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getWeightDiagonal( condition, order ) );
         }
         else if( field == "weight_matrix" )
         {
-            result[ py::str( field ) ] = py::cast( indices.getWeightMatrix( dataset ) );
+            result[ py::str( field ) ] = py::cast( dataset.getWeightMatrix( condition, order ) );
         }
         else if( field == "metadata" )
         {
-            result[ py::str( field ) ] = inspectionMetadata( indices.getMetadata( dataset ) );
+            result[ py::str( field ) ] = inspectionMetadata( dataset.getMetadata( condition, order ) );
         }
     }
     return result;
-}
-
-void setDatasetReferencePoints( InspectionDataset& dataset,
-                                tss::SystemOfBodies& bodies,
-                                const std::map< double, Eigen::Vector3d >& referencePointHistory,
-                                const std::string& spacecraftName,
-                                const tom::LinkEndType linkEndType )
-{
-    if( referencePointHistory.size( ) < 2 )
-    {
-        throw std::runtime_error( "Reference-point history must contain at least two epochs." );
-    }
-    if( dataset.getNumberOfObservations( ) == 0 )
-    {
-        return;
-    }
-
-    const std::pair< TIME_TYPE, TIME_TYPE > observationTimeBounds = dataset.getTimeBounds( );
-    if( referencePointHistory.begin( )->first > observationTimeBounds.first ||
-        referencePointHistory.rbegin( )->first < observationTimeBounds.second )
-    {
-        throw std::runtime_error( "Reference-point history does not cover the observation time interval." );
-    }
-
-    std::map< double, std::string > referencePointNames;
-    unsigned int referencePointCounter = 0;
-    for( const auto& historyEntry : referencePointHistory )
-    {
-        const auto existingReferencePoints = bodies.at( spacecraftName )->getVehicleSystems( )->getFixedReferencePoints( );
-        for( const auto& referencePoint : existingReferencePoints )
-        {
-            if( referencePoint.second->getCartesianState( ).segment( 0, 3 ) == historyEntry.second )
-            {
-                referencePointNames[ historyEntry.first ] = referencePoint.first;
-                break;
-            }
-        }
-        if( referencePointNames.count( historyEntry.first ) == 0 )
-        {
-            const std::string name = "Antenna" + std::to_string( ++referencePointCounter );
-            bodies.at( spacecraftName )->getVehicleSystems( )->setReferencePointPosition( name, historyEntry.second );
-            referencePointNames[ historyEntry.first ] = name;
-        }
-    }
-
-    std::vector< double > switchTimes;
-    switchTimes.reserve( referencePointHistory.size( ) );
-    for( const auto& historyEntry : referencePointHistory )
-    {
-        switchTimes.push_back( historyEntry.first );
-    }
-
-    InspectionDataset updatedDataset;
-    for( unsigned int interval = 0; interval + 1 < switchTimes.size( ); ++interval )
-    {
-        InspectionCondition intervalCondition = InspectionCondition::timeLessEqual( switchTimes.at( interval + 1 ) );
-        intervalCondition = intervalCondition &&
-                ( interval == 0 ? InspectionCondition::timeGreaterEqual( switchTimes.at( interval ) )
-                                : InspectionCondition::timeGreaterThan( switchTimes.at( interval ) ) );
-        const std::shared_ptr< InspectionDataset > intervalDataset = dataset.createNewAndKeep( intervalCondition );
-        const auto intervalVectorData = intervalDataset->createObservationVectorData( true );
-        if( intervalVectorData.getObservationVector( ).size( ) == 0 )
-        {
-            continue;
-        }
-        intervalDataset->setLinkEndReferencePoint( spacecraftName, referencePointNames.at( switchTimes.at( interval ) ), linkEndType );
-        for( const unsigned int setId : intervalVectorData.getSetIdsInRowOrder( ) )
-        {
-            updatedDataset.addObservationSetFromDataset( *intervalDataset, setId );
-        }
-    }
-    // Regrouping only removes weight entries; nonzero counts do not depend on row order.
-    const auto originalNonzeroWeights = dataset.getWeightMatrix( ).nonZeros( );
-    if( updatedDataset.getWeightMatrix( ).nonZeros( ) < originalNonzeroWeights )
-    {
-        std::cerr << "Warning: antenna switching discarded nonzero observation weights between resulting sets." << std::endl;
-    }
-    dataset = std::move( updatedDataset );
 }
 
 void computeDatasetResiduals(
@@ -403,24 +322,7 @@ std::vector< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > castObservationVec
             result.push_back( observation );
             return result;
         }
-        else if( buffer.ndim == 2 )
-        {
-            const auto rowCount = static_cast< int >( buffer.shape.at( 0 ) );
-            const auto columnCount = static_cast< int >( buffer.shape.at( 1 ) );
-            const ScalarType* data = static_cast< const ScalarType* >( buffer.ptr );
-            result.reserve( rowCount );
-            for( int i = 0; i < rowCount; ++i )
-            {
-                Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > observation( columnCount );
-                for( int j = 0; j < columnCount; ++j )
-                {
-                    observation( j ) = data[ i * columnCount + j ];
-                }
-                result.push_back( observation );
-            }
-            return result;
-        }
-        else if( buffer.ndim == 3 && buffer.shape.at( 2 ) == 1 )
+        else if( buffer.ndim == 2 || ( buffer.ndim == 3 && buffer.shape.at( 2 ) == 1 ) )
         {
             const auto rowCount = static_cast< int >( buffer.shape.at( 0 ) );
             const auto columnCount = static_cast< int >( buffer.shape.at( 1 ) );
@@ -531,124 +433,255 @@ void expose_observations( py::module& m )
     py::class_< tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
                                                                                "ObservationSetMetadata",
                                                                                R"doc(
-Metadata describing one logical observation set stored in an :class:`ObservationDataset`.
+Class holding the properties that are shared by all observations in an observation set.
 
-The metadata identifies the observable type, link definition, reference link end,
-observable size and the registered ancillary/dependent-variable layouts used by
-all observations in the set.
+Objects of this class are retrieved from an :class:`~tudatpy.estimation.observations.ObservationDataset`, using its
+:attr:`~tudatpy.estimation.observations.ObservationDataset.observation_set_metadata` attribute or its
+:meth:`~tudatpy.estimation.observations.ObservationDataset.get_observation_set_metadata` function. The link definition,
+ancillary settings and dependent variable settings of the set are stored in the dataset, and are identified here by an
+integer id.
 )doc" )
-            .def_readonly(
-                    "observable_type",
-                    &tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE >::observableType_,
-                    R"doc(tudatpy.estimation.observable_models_setup.model_settings.ObservableType: Observable type stored in this set.)doc" )
+            .def_readonly( "observable_type",
+                           &tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE >::observableType_,
+                           R"doc(
+**read-only**
+
+Observable type of the observations in the set.
+
+:type: tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+)doc" )
             .def_readonly( "link_definition_id",
                            &tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE >::linkDefinitionId_,
-                           R"doc(int: Index of the link definition in the dataset link-definition registry.)doc" )
-            .def_readonly(
-                    "reference_link_end",
-                    &tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE >::referenceLinkEnd_,
-                    R"doc(tudatpy.estimation.observable_models_setup.links.LinkEndType: Reference link end used for all observations in this set.)doc" )
+                           R"doc(
+**read-only**
+
+Id of the link definition of the set, which can be retrieved with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.link_definition`.
+
+:type: int
+)doc" )
+            .def_readonly( "reference_link_end",
+                           &tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE >::referenceLinkEnd_,
+                           R"doc(
+**read-only**
+
+Link end at which the observation times of the set are defined.
+
+:type: tudatpy.estimation.observable_models_setup.links.LinkEndType
+)doc" )
             .def_readonly( "observable_size",
                            &tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE >::observableSize_,
-                           R"doc(int: Number of scalar components in one observation of this set.)doc" )
+                           R"doc(
+**read-only**
+
+Number of components of a single observation in the set (e.g. 1 for range, 2 for angular position).
+
+:type: int
+)doc" )
             .def_readonly( "ancillary_settings_id",
                            &tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE >::ancillarySettingsId_,
-                           R"doc(int: Index of the ancillary settings in the dataset registry.)doc" )
+                           R"doc(
+**read-only**
+
+Id of the ancillary settings of the set, which can be retrieved with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.ancillary_settings`.
+
+:type: int
+)doc" )
             .def_readonly( "dependent_variable_layout_id",
                            &tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE >::dependentVariableLayoutId_,
-                           R"doc(int: Index of the dependent-variable bookkeeping layout in the dataset registry.)doc" );
+                           R"doc(
+**read-only**
+
+Id of the object defining the dependent variables stored for the set, which can be retrieved with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.dependent_variable_bookkeeping`.
+
+:type: int
+)doc" );
 
     py::class_< tom::ObservationDatasetRow< TIME_TYPE > >( m,
                                                            "ObservationDatasetRow",
                                                            R"doc(
-Row-level storage metadata for one observation inside an :class:`ObservationDataset`.
+Class holding the properties of a single observation in an :class:`~tudatpy.estimation.observations.ObservationDataset`.
 
-Each row points to the first scalar value of the observation in the dataset-wide
-scalar-value storage and records the observation time, owning set and index
-within that set.
+Objects of this class are retrieved with :meth:`~tudatpy.estimation.observations.ObservationDataset.observation_row`
+and :attr:`~tudatpy.estimation.observations.ObservationDataset.observation_rows`.
 )doc" )
             .def_readonly( "observation_id", &tom::ObservationDatasetRow< TIME_TYPE >::observationId_ )
             .def_readonly( "time",
                            &tom::ObservationDatasetRow< TIME_TYPE >::time_,
-                           R"doc(tudatpy.astro.time_representation.Time or float: Observation time.)doc" )
-            .def_readonly(
-                    "set_id", &tom::ObservationDatasetRow< TIME_TYPE >::setId_, R"doc(int: Identifier of the owning observation set.)doc" )
+                           R"doc(
+**read-only**
+
+Time of the observation, in seconds since J2000 (TDB), defined at the reference link end of its observation set.
+
+:type: tudatpy.astro.time_representation.Time
+)doc" )
+            .def_readonly( "set_id", &tom::ObservationDatasetRow< TIME_TYPE >::setId_, R"doc(
+**read-only**
+
+Id of the observation set to which the observation belongs.
+
+:type: int
+)doc" )
             .def_readonly( "first_scalar_component",
                            &tom::ObservationDatasetRow< TIME_TYPE >::firstScalarComponent_,
-                           R"doc(int: Index of this observation's first scalar value in the dataset-wide scalar-value storage.)doc" )
+                           R"doc(
+**read-only**
+
+Index of the first component of the observation in the storage of all observation components in the dataset
+(see :meth:`~tudatpy.estimation.observations.ObservationDataset.scalar_component_row`).
+
+:type: int
+)doc" )
             .def_readonly( "scalar_size",
                            &tom::ObservationDatasetRow< TIME_TYPE >::scalarSize_,
-                           R"doc(int: Observable size of this observation: the number of scalar values it contributes.)doc" )
+                           R"doc(
+**read-only**
+
+Number of components of the observation.
+
+:type: int
+)doc" )
             .def_readonly( "index_in_set",
                            &tom::ObservationDatasetRow< TIME_TYPE >::indexInSet_,
-                           R"doc(int: Index of this observation within its observation set.)doc" )
+                           R"doc(
+**read-only**
+
+Index of the observation within its observation set.
+
+:type: int
+)doc" )
             .def_readonly( "is_active",
                            &tom::ObservationDatasetRow< TIME_TYPE >::isActive_,
-                           R"doc(bool: Whether this row is active in observation vector data.)doc" )
+                           R"doc(
+**read-only**
+
+Whether the observation is used in the estimation (``False`` if the observation is rejected).
+
+:type: bool
+)doc" )
             .def_readonly( "rejection_reason",
                            &tom::ObservationDatasetRow< TIME_TYPE >::rejectionReason_,
-                           R"doc(str: Optional text describing why this observation was rejected.)doc" );
+                           R"doc(
+**read-only**
+
+Reason provided when the observation was rejected (empty if no reason was provided, or if the observation is not
+rejected).
+
+:type: str
+)doc" );
 
     py::class_< tom::ObservationScalarComponentRow >( m,
                                                       "ObservationScalarComponentRow",
                                                       R"doc(
-Storage metadata for one scalar component of an observation.
+Class identifying a single component of an observation in an :class:`~tudatpy.estimation.observations.ObservationDataset`.
 
-The row records the owning observation and component index inside that
-observation.
+Objects of this class are retrieved with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.scalar_component_row`.
 )doc" )
             .def_readonly( "observation_id",
                            &tom::ObservationScalarComponentRow::observationId_,
-                           R"doc(int: Identifier of the owning observation.)doc" )
+                           R"doc(
+**read-only**
+
+Id of the observation to which the component belongs.
+
+:type: int
+)doc" )
             .def_readonly( "component_index",
                            &tom::ObservationScalarComponentRow::componentIndex_,
-                           R"doc(int: Component index within the owning vector-valued observation.)doc" );
+                           R"doc(
+**read-only**
+
+Index of the component within the observation (e.g. 0 for the right ascension and 1 for the declination of an
+angular position observation).
+
+:type: int
+)doc" );
 
     {
         py::class_< tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
                                                                                   "ObservationVectorData",
                                                                                   R"doc(
-Scalar-aligned vector data created from an :class:`ObservationDataset`.
+Class holding the concatenated observations, residuals and weights of an observation dataset, as used in the estimation.
 
-This object contains the concatenated observation, residual and weight vectors,
-together with the scalar-component provenance needed to map each entry back to
-a dataset observation row and observation set. The diagonal weights are always
-available through :attr:`weight_vector`. The full matrix is returned as a sparse
-matrix and is only needed when off-diagonal terms are present.
+Objects of this class are created with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.observation_vector_data`. Each entry of the vectors in this
+object is a single component of an observation, with the observations in the ``"estimation"`` order (see
+:class:`~tudatpy.estimation.observations.ObservationDataset`). For each entry, the attributes :attr:`observation_ids`, :attr:`set_ids` and :attr:`times` give
+the observation, observation set and time to which it belongs. The data in this object is a copy, which is not updated
+when the dataset is modified.
 )doc" )
                 .def_property_readonly( "observation_vector",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationVector,
-                                        R"doc(numpy.ndarray: Concatenated vector of observed values.)doc" )
+                                        R"doc(
+**read-only**
+
+Concatenated vector of all observation components.
+
+:type: numpy.ndarray[numpy.float64[m, 1]]
+)doc" )
                 .def_property_readonly( "residual_vector",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualVector,
-                                        R"doc(numpy.ndarray: Concatenated vector of residual values.)doc" )
+                                        R"doc(
+**read-only**
+
+Concatenated vector of the residuals, in the same order as :attr:`observation_vector`.
+
+:type: numpy.ndarray[numpy.float64[m, 1]]
+)doc" )
                 .def_property_readonly( "weight_vector",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightVector,
-                                        R"doc(numpy.ndarray: Concatenated vector of scalar observation weights.)doc" )
+                                        R"doc(
+**read-only**
+
+Diagonal of the weight matrix, in the same order as :attr:`observation_vector`.
+
+:type: numpy.ndarray[numpy.float64[m, 1]]
+)doc" )
                 .def_property_readonly( "sparse_weight_matrix",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSparseWeightMatrix,
                                         R"doc(
-scipy.sparse.spmatrix: Sparse weight matrix in the same row order as :attr:`observation_vector`.
+**read-only**
 
-For diagonal-only observation vector data, prefer :attr:`weight_vector`; requesting this
-property materializes the sparse diagonal matrix.
+Full weight matrix, with rows and columns in the same order as :attr:`observation_vector`. If
+:attr:`has_off_diagonal_weights` is ``False``, this matrix is diagonal, and contains the same information as
+:attr:`weight_vector`.
+
+:type: scipy.sparse.csc_matrix
 )doc" )
-                .def_property_readonly( "is_diagonal_weight_only",
-                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::isDiagonalWeightOnly,
-                                        R"doc(bool: True when the weight matrix contains no off-diagonal entries.)doc" )
                 .def( "inverse_weight_matrix_for_observation",
                       &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getInverseWeightMatrixForObservation,
                       py::arg( "observation_id" ),
                       py::return_value_policy::copy,
-                      R"doc(Return the measurement covariance for one stable observation ID.
+                      R"doc(
+Function to retrieve the covariance matrix (inverse of the weight matrix) of a single observation.
 
-For correlated observations, this returns the observation's diagonal block of
-the inverse complete set weight matrix, including rejected observations. The
-existing covariance calculation and cache are reused. Weights between different
-sets and non-positive-definite weights are unsupported.)doc" )
+If the observation is correlated with other observations in its set, this is the block of the inverse of the weight
+matrix of the complete set (including rejected observations) that corresponds to the observation. All weights must
+be positive. Correlations between observations in different sets are not supported.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation, which may be any observation in the dataset at the time this object was created
+    (including rejected observations).
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, m]]
+    Covariance matrix of the observation, with one row and column per observation component.
+)doc" )
                 .def_property_readonly( "has_off_diagonal_weights",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::hasOffDiagonalWeights,
-                                        R"doc(bool: True when the weight matrix contains off-diagonal entries.)doc" )
+                                        R"doc(
+**read-only**
+
+Whether the weight matrix contains off-diagonal entries (correlations between observation components).
+
+:type: bool
+)doc" )
                 .def_property_readonly(
                         "times",
                         []( const tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >& observationVectorData ) {
@@ -661,222 +694,417 @@ sets and non-positive-definite weights are unsupported.)doc" )
                             }
                             return convertedTimes;
                         },
-                        R"doc(list[float]: Observation time associated with each scalar component, in seconds since J2000 TDB.)doc" )
+                        R"doc(
+**read-only**
+
+Observation time of each entry of :attr:`observation_vector`, in seconds since J2000 (TDB).
+
+:type: list[float]
+)doc" )
                 .def_property_readonly( "observation_ids",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIds,
-                                        R"doc(list[int]: Observation row identifier associated with each scalar component.)doc" )
+                                        R"doc(
+**read-only**
+
+Id of the observation to which each entry of :attr:`observation_vector` belongs.
+
+:type: list[int]
+)doc" )
                 .def_property_readonly( "set_ids",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIds,
-                                        R"doc(list[int]: Observation set identifier associated with each scalar component.)doc" )
+                                        R"doc(
+**read-only**
+
+Id of the observation set to which each entry of :attr:`observation_vector` belongs.
+
+:type: list[int]
+)doc" )
                 .def_property_readonly( "link_definition_ids",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkDefinitionIds,
-                                        R"doc(list[int]: Link-definition identifier associated with each scalar component.)doc" )
+                                        R"doc(
+**read-only**
+
+Id of the link definition (see :meth:`~tudatpy.estimation.observations.ObservationDataset.link_definition`) of each
+entry of :attr:`observation_vector`.
+
+:type: list[int]
+)doc" )
                 .def_property_readonly( "scalar_component_ids",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentIds,
-                                        R"doc(list[int]: Scalar-component row identifier for each observation vector entry.)doc" )
+                                        R"doc(
+**read-only**
+
+Index of each entry of :attr:`observation_vector` in the storage of all observation components in the dataset. The
+corresponding observation id and component index are given by
+:meth:`~tudatpy.estimation.observations.ObservationDataset.scalar_component_row`.
+
+:type: list[int]
+)doc" )
                 .def_property_readonly( "set_ids_in_row_order",
                                         &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIdsInRowOrder,
-                                        R"doc(list[int]: Unique observation set identifiers in the order in which they first appear.)doc" )
+                                        R"doc(
+**read-only**
+
+Ids of the observation sets in this object, in the order in which they first appear in :attr:`observation_vector`.
+
+:type: list[int]
+)doc" )
                 .def( "unique_observation_ids_for_set",
                       &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getUniqueObservationIdsForSetInRowOrder,
                       py::arg( "set_id" ),
-                      R"doc(Return unique observation row identifiers for one set in observation-vector row order.)doc" )
+                      R"doc(
+Function to retrieve the ids of the observations of one observation set, in the order in which they appear in
+:attr:`observation_vector`.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[int]
+    Ids of the observations of the set.
+)doc" )
                 .def( "vector_row",
                       &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getVectorRow,
                       py::arg( "observation_id" ),
                       py::arg( "component_index" ),
-                      R"doc(Return the scalar vector row for one observation row and component index.
+                      R"doc(
+Function to retrieve the index in :attr:`observation_vector` of a single component of an observation.
 
-``component_index``: Scalar component index inside the vector-valued observation.)doc" );
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+component_index : int
+    Index of the component within the observation.
+
+Returns
+-------
+int
+    Index of the entry in :attr:`observation_vector`.
+)doc" );
     }
 
-    py::enum_< tom::ObservationSelectionConditionType >(
-            m, "ObservationSelectionConditionType", R"doc(Type of an observation-selection condition node.)doc" )
-            .value( "all", tom::ObservationSelectionConditionType::all )
-            .value( "observable_type", tom::ObservationSelectionConditionType::observable_type )
-            .value( "link_definition", tom::ObservationSelectionConditionType::link_definition )
-            .value( "link_end_type", tom::ObservationSelectionConditionType::link_end_type )
-            .value( "link_end", tom::ObservationSelectionConditionType::link_end )
-            .value( "set_id", tom::ObservationSelectionConditionType::set_id )
-            .value( "time_bounds", tom::ObservationSelectionConditionType::time_bounds )
-            .value( "time_greater_equal", tom::ObservationSelectionConditionType::time_greater_equal )
-            .value( "time_greater_than", tom::ObservationSelectionConditionType::time_greater_than )
-            .value( "time_less_equal", tom::ObservationSelectionConditionType::time_less_equal )
-            .value( "time_less_than", tom::ObservationSelectionConditionType::time_less_than )
-            .value( "active", tom::ObservationSelectionConditionType::active )
-            .value( "residual_absolute_value_greater_than", tom::ObservationSelectionConditionType::residual_absolute_value_greater_than )
-            .value( "observation_absolute_value_greater_than",
-                    tom::ObservationSelectionConditionType::observation_absolute_value_greater_than )
-            .value( "dependent_variable_greater_than", tom::ObservationSelectionConditionType::dependent_variable_greater_than )
-            .value( "and_condition", tom::ObservationSelectionConditionType::and_condition )
-            .value( "or_condition", tom::ObservationSelectionConditionType::or_condition )
-            .value( "not_condition", tom::ObservationSelectionConditionType::not_condition )
-            .value( "custom", tom::ObservationSelectionConditionType::custom );
+    py::class_< InspectionCondition >( m,
+                                       "ObservationSelectionCondition",
+                                       R"doc(
+Class defining a condition that selects observations in an :class:`~tudatpy.estimation.observations.ObservationDataset`.
 
-    py::class_< tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
-                                                                                      "ObservationSelectionCondition",
-                                                                                      R"doc(
-Composable row-level condition used to select observations in an ObservationDataset.
-
-Conditions operate on individual observation rows, not complete observation
-sets. Combine conditions with ``&`` and ``|`` and negate them with ``~``. The
-condition stores an inspectable query tree for conditions created through the
-public builders.
+A condition is evaluated for each individual observation (not for complete observation sets). Conditions are normally
+created with :data:`~tudatpy.estimation.observations.observation_query`, but can also be created with the static
+functions of this class. Conditions can be combined with ``&`` (and) and ``|`` (or), and negated with ``~``.
 )doc" )
-            .def( py::init<>( ), R"doc(Create a condition that selects all observations.)doc" )
-            .def_property_readonly( "condition_type",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getConditionType,
-                                    R"doc(Type of this condition node.)doc" )
-            .def_property_readonly( "condition_type_string",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getConditionTypeString,
-                                    R"doc(String name of this condition node type.)doc" )
-            .def_property_readonly( "child_conditions",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getChildConditions,
-                                    py::return_value_policy::reference_internal,
-                                    R"doc(Child conditions for logical AND, OR and NOT nodes.)doc" )
-            .def_property_readonly( "observable_type_value",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,
-                                    R"doc(Observable type stored by observable-type condition nodes.)doc" )
-            .def_property_readonly( "link_definition_value",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkDefinition,
-                                    R"doc(Link definition stored by link-definition condition nodes.)doc" )
-            .def_property_readonly( "link_end_type_value",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkEndType,
-                                    R"doc(Link-end type stored by link-end condition nodes.)doc" )
-            .def_property_readonly( "link_end_id_value",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkEndId,
-                                    R"doc(Link-end identifier stored by link-end condition nodes.)doc" )
-            .def_property_readonly( "set_id_value",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getSetId,
-                                    R"doc(Set identifier stored by set-id condition nodes.)doc" )
-            .def_property_readonly( "time_bounds_value",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBounds,
-                                    R"doc(Inclusive time bounds stored by time-bound condition nodes.)doc" )
-            .def_property_readonly( "time_value",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeValue,
-                                    R"doc(Time value stored by one-sided time-comparison condition nodes.)doc" )
-            .def_property_readonly( "vector_limit",
-                                    &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getVectorLimit,
-                                    R"doc(Component limit stored by value-threshold condition nodes.)doc" )
-            .def_static( "all",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all,
-                         R"doc(Return a condition that selects all observations.)doc" )
+            .def( py::init<>( ), R"doc(Class constructor, creating a condition that selects all observations.)doc" )
+            .def_static( "all", &InspectionCondition::all, R"doc(
+Function to create a condition that selects all observations.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting all observations.
+)doc" )
             .def_static( "observable_type",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::observableType,
+                         &InspectionCondition::observableType,
                          py::arg( "observable_type" ),
-                         R"doc(Return a condition selecting observations of one observable type.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations of a given observable type.
+
+Parameters
+----------
+observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+    Observable type of the observations to select.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations of the given observable type.
+)doc" )
             .def_static( "link_definition",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::linkDefinition,
+                         &InspectionCondition::linkDefinition,
                          py::arg( "link_definition" ),
-                         R"doc(Return a condition selecting observations with a matching link definition.)doc" )
-            .def_static( "link_end_type",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::linkEndType,
-                         py::arg( "link_end_type" ),
-                         R"doc(Return a condition selecting observations whose link definition contains a link-end type.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations with a given link definition.
+
+Parameters
+----------
+link_definition : tudatpy.estimation.observable_models_setup.links.LinkDefinition
+    Link definition (all link ends) of the observations to select.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with the given link definition.
+)doc" )
             .def_static( "link_end",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::linkEnd,
+                         &InspectionCondition::linkEnd,
                          py::arg( "link_end_type" ),
                          py::arg( "link_end_id" ),
-                         R"doc(Return a condition selecting observations with a specific link end.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations with a given link end.
+
+Parameters
+----------
+link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType
+    Role of the link end in the observation (e.g. receiver or transmitter).
+link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId
+    Body and reference point of the link end.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with the given link end.
+)doc" )
             .def_static( "set_id",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::setId,
+                         &InspectionCondition::setId,
                          py::arg( "set_id" ),
-                         R"doc(Return a condition selecting observations from one observation set.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations of a given observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations of the given observation set.
+)doc" )
             .def_static( "time_bounds",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::timeBounds,
+                         &InspectionCondition::timeBounds,
                          py::arg( "start_time" ),
                          py::arg( "end_time" ),
-                         R"doc(Return a condition selecting rows with start_time <= observation_time <= end_time.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations with a time between (and including) two bounds.
+
+Parameters
+----------
+start_time : tudatpy.astro.time_representation.Time
+    Lower bound of the observation time, in seconds since J2000 (TDB).
+end_time : tudatpy.astro.time_representation.Time
+    Upper bound of the observation time, in seconds since J2000 (TDB).
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations within the time bounds.
+)doc" )
             .def_static( "time_greater_equal",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::timeGreaterEqual,
+                         &InspectionCondition::timeGreaterEqual,
                          py::arg( "time" ),
-                         R"doc(Return a condition selecting rows with observation_time >= time.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations with a time greater than or equal to a given value.
+
+Parameters
+----------
+time : tudatpy.astro.time_representation.Time
+    Limit of the observation time, in seconds since J2000 (TDB).
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with a time greater than or equal to ``time``.
+)doc" )
             .def_static( "time_greater_than",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::timeGreaterThan,
+                         &InspectionCondition::timeGreaterThan,
                          py::arg( "time" ),
-                         R"doc(Return a condition selecting rows with observation_time > time.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations with a time greater than a given value.
+
+Parameters
+----------
+time : tudatpy.astro.time_representation.Time
+    Limit of the observation time, in seconds since J2000 (TDB).
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with a time greater than ``time``.
+)doc" )
             .def_static( "time_less_equal",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::timeLessEqual,
+                         &InspectionCondition::timeLessEqual,
                          py::arg( "time" ),
-                         R"doc(Return a condition selecting rows with observation_time <= time.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations with a time less than or equal to a given value.
+
+Parameters
+----------
+time : tudatpy.astro.time_representation.Time
+    Limit of the observation time, in seconds since J2000 (TDB).
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with a time less than or equal to ``time``.
+)doc" )
             .def_static( "time_less_than",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::timeLessThan,
+                         &InspectionCondition::timeLessThan,
                          py::arg( "time" ),
-                         R"doc(Return a condition selecting rows with observation_time < time.)doc" )
-            .def_static( "active",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::active,
-                         R"doc(Return a condition selecting active observations.)doc" )
-            .def_static( "rejected",
-                         &tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::rejected,
-                         R"doc(Return a condition selecting rejected observations.)doc" )
+                         R"doc(
+Function to create a condition that selects the observations with a time less than a given value.
+
+Parameters
+----------
+time : tudatpy.astro.time_representation.Time
+    Limit of the observation time, in seconds since J2000 (TDB).
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with a time less than ``time``.
+)doc" )
+            .def_static( "active", &InspectionCondition::active, R"doc(
+Function to create a condition that selects the observations that are not rejected.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations that are not rejected.
+)doc" )
+            .def_static( "rejected", &InspectionCondition::rejected, R"doc(
+Function to create a condition that selects the rejected observations.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the rejected observations.
+)doc" )
             .def_static(
                     "residual_absolute_value_greater_than",
                     []( const py::object& limit ) {
-                        return tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::residualAbsoluteValueGreaterThan(
+                        return InspectionCondition::residualAbsoluteValueGreaterThan(
                                 castObservationSelectionConditionVectorLimit( limit ) );
                     },
                     py::arg( "limit" ),
-                    R"doc(Return a condition selecting rows where any residual component exceeds the supplied absolute limit.)doc" )
+                    R"doc(
+Function to create a condition that selects the observations for which the absolute value of any component of the
+residual is larger than a limit.
+
+Parameters
+----------
+limit : float or numpy.ndarray[numpy.float64[m, 1]]
+    Limit on the absolute value of the residual, either as a single value for all components, or with one value per
+    observation component.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with a residual larger than the limit.
+)doc" )
             .def_static(
                     "observation_absolute_value_greater_than",
                     []( const py::object& limit ) {
-                        return tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::observationAbsoluteValueGreaterThan(
+                        return InspectionCondition::observationAbsoluteValueGreaterThan(
                                 castObservationSelectionConditionVectorLimit( limit ) );
                     },
                     py::arg( "limit" ),
-                    R"doc(Return a condition selecting rows where any observation component exceeds the supplied absolute limit.)doc" )
+                    R"doc(
+Function to create a condition that selects the observations for which the absolute value of any component of the
+observation is larger than a limit.
+
+Parameters
+----------
+limit : float or numpy.ndarray[numpy.float64[m, 1]]
+    Limit on the absolute value of the observation, either as a single value for all components, or with one value
+    per observation component.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with a value larger than the limit.
+)doc" )
             .def_static(
                     "dependent_variable_greater_than",
                     []( const std::shared_ptr< tss::ObservationDependentVariableSettings >& dependentVariableSettings,
                         const py::object& limit,
                         const bool returnFirstCompatibleSettings ) {
-                        return tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::dependentVariableGreaterThan(
-                                dependentVariableSettings,
-                                castObservationSelectionConditionVectorLimit( limit ),
-                                returnFirstCompatibleSettings );
+                        return InspectionCondition::dependentVariableGreaterThan( dependentVariableSettings,
+                                                                                  castObservationSelectionConditionVectorLimit( limit ),
+                                                                                  returnFirstCompatibleSettings );
                     },
                     py::arg( "dependent_variable_settings" ),
                     py::arg( "limit" ),
                     py::arg( "return_first_compatible_settings" ) = false,
-                    R"doc(Return a condition selecting rows where any compatible dependent-variable component is greater than the signed limit.)doc" )
+                    R"doc(
+Function to create a condition that selects the observations for which any component of a dependent variable is
+larger than a limit.
+
+Parameters
+----------
+dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+    Settings of the dependent variable. Observations in sets for which no compatible dependent variable is stored
+    are not selected.
+limit : float or numpy.ndarray[numpy.float64[m, 1]]
+    Limit on the (signed) value of the dependent variable, either as a single value for all components, or with one
+    value per dependent variable component.
+return_first_compatible_settings : bool, default = False
+    Whether to use the first compatible dependent variable if a set contains several dependent variables that are
+    compatible with ``dependent_variable_settings``. If ``False``, an error is raised in this case.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with a dependent variable larger than the limit.
+)doc" )
             .def(
                     "__and__",
-                    []( const tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >& lhs,
-                        const tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >& rhs ) { return lhs && rhs; },
+                    []( const InspectionCondition& lhs, const InspectionCondition& rhs ) { return lhs && rhs; },
                     py::is_operator( ),
-                    R"doc(Return the logical AND of two conditions.)doc" )
+                    R"doc(Returns a condition that selects the observations selected by both conditions (used through ``&``).)doc" )
             .def(
                     "__or__",
-                    []( const tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >& lhs,
-                        const tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >& rhs ) { return lhs || rhs; },
+                    []( const InspectionCondition& lhs, const InspectionCondition& rhs ) { return lhs || rhs; },
                     py::is_operator( ),
-                    R"doc(Return the logical OR of two conditions.)doc" )
+                    R"doc(Returns a condition that selects the observations selected by either condition (used through ``|``).)doc" )
             .def(
                     "__invert__",
-                    []( const tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >& condition ) { return !condition; },
+                    []( const InspectionCondition& condition ) { return !condition; },
                     py::is_operator( ),
-                    R"doc(Return the logical negation of a condition.)doc" )
+                    R"doc(Returns a condition that selects the observations not selected by this condition (used through ``~``).)doc" )
             .def(
                     "__bool__",
-                    []( const tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >& ) {
+                    []( const InspectionCondition& ) {
                         throw py::type_error(
                                 "ObservationSelectionCondition objects cannot be converted to bool. Use &, |, and ~ to combine conditions, "
                                 "not and/or/not." );
                     },
-                    R"doc(Always raise; use &, | and ~ instead of and/or/not.)doc" );
+                    R"doc(Raises an error, since conditions cannot be converted to a boolean: combine them with ``&``, ``|`` and ``~`` instead of ``and``, ``or`` and ``not``.)doc" );
 
     {
         py::class_< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
                     std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
                                                                                                   "ObservationDataset",
                                                                                                   R"doc(
-Backend storage object for observation data.
+Class holding a set of observations and associated data, for use in an estimation.
 
-An ``ObservationDataset`` stores observation values, residuals, weights,
-dependent variables, set metadata and link/ancillary registries in a single
-dataset-centric representation.
+An observation dataset stores observations together with their times, residuals, weights and dependent variables. Each
+observation is a measurement at a single time, which may have several components (e.g. right ascension and declination).
+Observations with the same observable type, link ends, reference link end and ancillary settings are grouped into
+observation sets. Observations and observation sets are identified by integer ids, which do not change when
+observations are sorted, rejected or removed. When using simulated data, objects of this class are created with
+:func:`~tudatpy.estimation.observations.simulate_observation_dataset`; real data is loaded with
+:func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
+
+Most functions of this class act on the observations selected by a ``condition``, created with
+:data:`~tudatpy.estimation.observations.observation_query`. Observations can be rejected (see
+:meth:`reject_observations`): rejected observations remain in the dataset, but are not used in the estimation. The
+weights may be diagonal, or may contain correlations between the components of an observation, between observations
+in a set, or between observations in different sets.
+
+Functions that retrieve data take an ``ordering`` input, which is one of:
+
+* ``"internal"``: the order in which the observations were added to the dataset;
+* ``"estimation"``: the order used in the estimation (and in :meth:`observation_vector_data`), in which the observations
+  are sorted by observable type, then by link ends, then by observation set, and then by their order within the set.
+
+The data returned by these functions is a copy, so that modifying it does not change the dataset.
+
+This class replaces the (deprecated) :class:`~tudatpy.estimation.observations.ObservationCollection` and
+:class:`~tudatpy.estimation.observations.SingleObservationSet` classes.
 )doc" )
-                .def( py::init<>( ), R"doc(Create an empty observation dataset.)doc" )
+                .def( py::init<>( ), R"doc(Class constructor, creating an empty observation dataset.)doc" )
                 .def(
                         "get_times",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -884,12 +1112,22 @@ dataset-centric representation.
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return a list of Time values, one per selected event, without conversion to float.
+                        R"doc(
+Function to retrieve the times of the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+list[tudatpy.astro.time_representation.Time]
+    Time of each selected observation, in seconds since J2000 (TDB).
+)doc" )
                 .def(
                         "get_observations",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -897,12 +1135,22 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return a list of owning observation arrays, one per event. Array lengths may differ between observable types.
+                        R"doc(
+Function to retrieve the values of the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+list[numpy.ndarray[numpy.float64[m, 1]]]
+    Value of each selected observation, with one entry per observation component.
+)doc" )
                 .def(
                         "get_residuals",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -910,12 +1158,22 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return a list of owning residual arrays, one per event. Omitted residuals retain their stored zeros.
+                        R"doc(
+Function to retrieve the residuals of the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+list[numpy.ndarray[numpy.float64[m, 1]]]
+    Residual of each selected observation, with one entry per observation component (zero if not computed).
+)doc" )
                 .def(
                         "get_observation_ids",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -923,12 +1181,22 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return stable observation IDs, one per event, without renumbering.
+                        R"doc(
+Function to retrieve the ids of the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+list[int]
+    Id of each selected observation.
+)doc" )
                 .def(
                         "get_set_ids",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -936,12 +1204,22 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return set IDs, one per event, including repeats.
+                        R"doc(
+Function to retrieve the observation set ids of the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+list[int]
+    Id of the observation set of each selected observation.
+)doc" )
                 .def(
                         "get_rows",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -949,12 +1227,24 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return a list of mutable row dictionaries, one per event, including copied times, dependent variables and rejection status. first_scalar_component records the original dataset offset; use get_scalar_components for output alignment.
+                        R"doc(
+Function to retrieve the properties of the selected observations, as dictionaries.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+list[dict]
+    Dictionary for each selected observation, with the keys ``observation_id``, ``time``, ``set_id``,
+    ``first_scalar_component``, ``scalar_size``, ``index_in_set``, ``dependent_variables``, ``is_active`` and
+    ``rejection_reason`` (see :class:`~tudatpy.estimation.observations.ObservationDatasetRow`).
+)doc" )
                 .def(
                         "get_dependent_variables",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -962,12 +1252,23 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return a list of dependent-variable arrays, one per event. Missing values are empty arrays; get_metadata provides layouts.
+                        R"doc(
+Function to retrieve the dependent variables of the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+list[numpy.ndarray[numpy.float64[m, 1]]]
+    Dependent variables of each selected observation (empty if none are stored). The content of these vectors is
+    given by the ``dependent_variable_layout`` entry of :meth:`get_metadata`.
+)doc" )
                 .def(
                         "get_scalar_components",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -975,12 +1276,23 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return scalar-aligned (observation_id, component_index) tuples. This is the alignment of weight_diagonal and both weight_matrix axes.
+                        R"doc(
+Function to retrieve the observation id and component index of each component of the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+list[tuple[int, int]]
+    Observation id and component index of each component. This is the order of the entries of
+    :meth:`get_weight_diagonal`, and of the rows and columns of :meth:`get_weight_matrix`.
+)doc" )
                 .def(
                         "get_weight_diagonal",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -988,12 +1300,22 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return the effective weight diagonal as an owning scalar-aligned array. Does not construct the full matrix.
+                        R"doc(
+Function to retrieve the diagonal of the weight matrix of the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, 1]]
+    Weight of each component of the selected observations, in the order given by :meth:`get_scalar_components`.
+)doc" )
                 .def(
                         "get_weight_matrix",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -1001,12 +1323,22 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return the full effective selected principal weight matrix as a detached scipy sparse matrix, preserving correlations and permuting both axes.
+                        R"doc(
+Function to retrieve the weight matrix of the selected observations, including the correlations between them.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+
+Returns
+-------
+scipy.sparse.csc_matrix
+    Weight matrix, with rows and columns in the order given by :meth:`get_scalar_components`.
+)doc" )
                 .def(
                         "get_metadata",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
@@ -1014,31 +1346,53 @@ membership. Only this field is copied; memory scales with the requested data.)do
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
-                        R"doc(Return a dictionary keyed by selected set IDs. Values contain set attributes, a copied link_definition, cloned ancillary_settings, and dependent_variable_layout mapping (start, size) to cloned settings. Missing ancillary settings are None; missing layouts are empty dictionaries.
+                        R"doc(
+Function to retrieve the properties of the observation sets that contain the selected observations.
 
-The result is an independent, modifiable snapshot in both directions, usable after
-dataset mutation or destruction. Rejected observations are included unless condition
-excludes them. ordering is "internal" (default) or "estimation" and does not affect
-membership. Only this field is copied; memory scales with the requested data.)doc" )
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+ordering : str, default = "internal"
+    Not used by this function, since the result is sorted by set id.
+
+Returns
+-------
+dict[int, dict]
+    Dictionary with the set id as key and, as value, a dictionary with the keys ``observable_type``,
+    ``reference_link_end``, ``observable_size``, ``link_definition_id``, ``ancillary_settings_id``,
+    ``dependent_variable_layout_id`` (see :class:`~tudatpy.estimation.observations.ObservationSetMetadata`),
+    ``link_definition``, ``ancillary_settings`` (``None`` if the set has none) and ``dependent_variable_layout``. The
+    latter is a dictionary with, for each dependent variable, its start index and size in the dependent variable vector
+    as key and its settings as value.
+)doc" )
                 .def( "get_data",
                       &inspectionData,
                       py::arg( "condition" ) = InspectionCondition::all( ),
                       py::arg( "fields" ) = std::vector< std::string >{ "times", "observations" },
                       py::arg( "ordering" ) = "internal",
-                      R"doc(Return a dictionary of detached fields after resolving selection and ordering once.
+                      R"doc(
+Function to retrieve several types of data of the selected observations at once.
 
-fields may contain times, observations, residuals, observation_ids, set_ids, rows,
-dependent_variables (event-aligned); scalar_components, weight_diagonal, weight_matrix
-(scalar-aligned, both matrix axes); and metadata (keyed by selected set ID).
-Observations and residuals are lists of arrays to support mixed dimensions. Times
-retain Time precision. Omitted residuals are stored as zeros, missing dependent values are empty
-arrays. Unknown or duplicate fields and invalid ordering raise ValueError.
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
+    all observations are selected, including rejected observations.
+fields : list[str], default = ["times", "observations"]
+    Data to retrieve, each given by the name of a ``get_...`` function of this class without the ``get_`` prefix:
+    ``"times"``, ``"observations"``, ``"residuals"``, ``"observation_ids"``, ``"set_ids"``, ``"rows"``,
+    ``"dependent_variables"``, ``"scalar_components"``, ``"weight_diagonal"``, ``"weight_matrix"`` or ``"metadata"``.
+    Each field may be given only once.
+ordering : str, default = "internal"
+    Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
 
-All nested values are independent of the dataset in both directions and remain usable
-after its destruction. The snapshot can itself be modified. Rejected events are
-included by default; use condition to exclude them. ordering is "internal" (default)
-or "estimation"; it changes sequence only. Copies allocate memory for requested
-fields, and no unrequested observation-vector payload is constructed.)doc" )
+Returns
+-------
+dict[str, object]
+    Dictionary with the requested fields as keys, and the output of the corresponding ``get_...`` function as values.
+)doc" )
                 .def(
                         "add_observation_set",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
@@ -1082,14 +1436,44 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                         py::arg( "residuals" ) = py::list( ),
                         py::arg( "sort_observations" ) = false,
                         py::arg( "erase_duplicate_observations" ) = false,
-                        R"doc(Add a logical observation set and return its dataset set identifier.
+                        R"doc(
+Function to add an observation set to the dataset.
 
-``reference_link_end``: Link end at which the observation time is defined.
-``dependent_variable_bookkeeping``: Bookkeeping that describes the dependent-variable vector layout.
-``weights``: Per-observation scalar-component weight vectors.
-``residuals``: Residual vectors, one entry per observation event.
-``sort_observations``: Whether observations should be sorted by time after insertion.
-``erase_duplicate_observations``: Whether duplicate times in the new set should be removed.)doc" )
+Parameters
+----------
+observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+    Observable type of the observations.
+link_definition : tudatpy.estimation.observable_models_setup.links.LinkDefinition
+    Link ends of the observations.
+observations : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
+    Values of the observations, as a list with one vector per observation, or as an array with one row per
+    observation. For an observable with a single component, a one-dimensional array with one value per observation
+    may also be used.
+times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n, 1]]
+    Times of the observations, in seconds since J2000 (TDB).
+reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
+    Link end at which the observation times are defined.
+dependent_variables : list[numpy.ndarray[numpy.float64[k, 1]]], default = []
+    Dependent variables, with one vector per observation (empty if none are provided).
+dependent_variable_bookkeeping : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableBookkeeping, default = None
+    Object defining which dependent variables are stored in ``dependent_variables``.
+ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, default = None
+    Ancillary settings of the observations.
+weights : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
+    Weights, with one vector per observation, containing the weight of each observation component. If empty, all
+    weights are set to 1.
+residuals : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
+    Residuals, with one vector per observation. If empty, all residuals are set to 0.
+sort_observations : bool, default = False
+    Whether to sort the observations by time.
+erase_duplicate_observations : bool, default = False
+    Whether to remove observations with the same time as a preceding observation in the set.
+
+Returns
+-------
+int
+    Id of the new observation set.
+)doc" )
                 .def(
                         "add_observation_set",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
@@ -1097,12 +1481,43 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                             return tom::addSingleObservationSetToDataset( self, set );
                         },
                         py::arg( "single_observation_set" ).none( false ),
-                        R"doc(Add a (deprecated) single observation set to this dataset, and return its dataset set identifier.)doc" )
+                        R"doc(
+Function to add a copy of a (deprecated) :class:`~tudatpy.estimation.observations.SingleObservationSet` to the dataset,
+as a new observation set.
+
+Parameters
+----------
+single_observation_set : tudatpy.estimation.observations.SingleObservationSet
+    Observation set to add.
+
+Returns
+-------
+int
+    Id of the new observation set.
+)doc" )
                 .def( "add_observation_set_from_dataset",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addObservationSetFromDataset,
                       py::arg( "source_dataset" ),
                       py::arg( "source_set_id" ),
-                      R"doc(Copy one observation set from another dataset.)doc" )
+                      R"doc(
+Function to add a copy of an observation set of another dataset to this dataset.
+
+The observations are copied together with their weights (including correlations within the set), residuals, dependent
+variables, rejection status and numerical metadata, and receive new observation ids. Correlations with observations in
+other sets are not copied.
+
+Parameters
+----------
+source_dataset : tudatpy.estimation.observations.ObservationDataset
+    Dataset from which the observation set is copied.
+source_set_id : int
+    Id of the observation set in ``source_dataset``.
+
+Returns
+-------
+int
+    Id of the new observation set in this dataset.
+)doc" )
                 .def(
                         "add_observation_set_with_weights",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
@@ -1140,12 +1555,41 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                         py::arg( "dependent_variable_bookkeeping" ) = nullptr,
                         py::arg( "ancillary_settings" ) = nullptr,
                         py::arg( "residuals" ) = py::list( ),
-                        R"doc(Add a logical observation set and initialize its weights from settings.
+                        R"doc(
+Function to add an observation set to the dataset, with weights defined by weight settings.
 
-``reference_link_end``: Link end at which the observation time is defined.
-``weight_settings``: Scalar, per-observation diagonal or matrix, or full-set matrix weights.
-``dependent_variable_bookkeeping``: Bookkeeping that describes the dependent-variable vector layout.
-``residuals``: Residual vectors, one entry per observation event.)doc" )
+Same as :meth:`add_observation_set`, but with the weights (which may include correlations between the components of an
+observation, or between the observations in the set) defined by an
+:class:`~tudatpy.data_input.tracking_data.ObservationWeightSettings` object.
+
+Parameters
+----------
+observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+    Observable type of the observations.
+link_definition : tudatpy.estimation.observable_models_setup.links.LinkDefinition
+    Link ends of the observations.
+observations : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
+    Values of the observations (see :meth:`add_observation_set`).
+times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n, 1]]
+    Times of the observations, in seconds since J2000 (TDB).
+reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
+    Link end at which the observation times are defined.
+weight_settings : tudatpy.data_input.tracking_data.ObservationWeightSettings
+    Settings defining the weights of the observations.
+dependent_variables : list[numpy.ndarray[numpy.float64[k, 1]]], default = []
+    Dependent variables, with one vector per observation (empty if none are provided).
+dependent_variable_bookkeeping : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableBookkeeping, default = None
+    Object defining which dependent variables are stored in ``dependent_variables``.
+ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, default = None
+    Ancillary settings of the observations.
+residuals : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
+    Residuals, with one vector per observation. If empty, all residuals are set to 0.
+
+Returns
+-------
+int
+    Id of the new observation set.
+)doc" )
                 .def(
                         "set_observations_for_set",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
@@ -1158,7 +1602,16 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                         },
                         py::arg( "set_id" ),
                         py::arg( "observations" ),
-                        R"doc(Replace all observation vectors in one set.)doc" )
+                        R"doc(
+Function to replace the values of all observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+observations : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
+    New values of the observations, in their order within the set (see :meth:`add_observation_set`).
+)doc" )
                 .def(
                         "set_residuals_for_set",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
@@ -1170,62 +1623,147 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                         },
                         py::arg( "set_id" ),
                         py::arg( "residuals" ),
-                        R"doc(Replace all residual vectors in one set.
+                        R"doc(
+Function to replace the residuals of all observations in an observation set.
 
-``residuals``: Residual vectors, one entry per observation event.)doc" )
-                .def( "set_constant_single_observation_scalar_weight_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationScalarWeightForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "weight" ),
-                      R"doc(Set one scalar weight for every scalar component in an observation set.)doc" )
-                .def( "set_constant_single_observation_diagonal_weight_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationDiagonalWeightForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "weight" ),
-                      R"doc(Set one diagonal weight vector for every observation in a set.)doc" )
-                .def( "set_constant_single_observation_matrix_weight_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationMatrixWeightForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "weight" ),
-                      R"doc(Set one dense observable-size weight matrix for every observation in a set.)doc" )
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+residuals : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
+    New residuals of the observations, in their order within the set.
+)doc" )
                 .def( "set_constant_single_observation_scalar_weight",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationScalarWeight,
                       py::arg( "condition" ),
                       py::arg( "weight" ),
-                      R"doc(Set one scalar weight for all observations matching a condition.)doc" )
+                      R"doc(
+Function to set the same weight for all components of the selected observations.
+
+Correlations between the components of a selected observation are removed; correlations between different
+observations are retained.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations.
+weight : float
+    Weight of each observation component.
+)doc" )
                 .def( "set_constant_single_observation_diagonal_weight",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationDiagonalWeight,
                       py::arg( "condition" ),
                       py::arg( "weight" ),
-                      R"doc(Set one diagonal weight vector for all observations matching a condition.)doc" )
+                      R"doc(
+Function to set the same diagonal weights for all selected observations.
+
+Correlations between the components of a selected observation are removed; correlations between different
+observations are retained.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations.
+weight : numpy.ndarray[numpy.float64[m, 1]]
+    Weight of each observation component; its size must be equal to the number of components of the selected
+    observations.
+)doc" )
                 .def( "set_constant_single_observation_matrix_weight",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationMatrixWeight,
                       py::arg( "condition" ),
                       py::arg( "weight" ),
-                      R"doc(Set one dense observable-size weight matrix for all observations matching a condition.)doc" )
+                      R"doc(
+Function to set the same weight matrix for all selected observations.
+
+The weight matrix defines the weights of, and the correlations between, the components of each selected
+observation. Correlations between different observations are retained.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations.
+weight : numpy.ndarray[numpy.float64[m, m]]
+    Symmetric weight matrix, with one row and column per observation component.
+)doc" )
                 .def( "set_weight_vector_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightVectorForSet,
                       py::arg( "set_id" ),
                       py::arg( "weight_vector" ),
-                      R"doc(Replace the selected set principal block by a diagonal weight vector, preserving correlations with other sets.)doc" )
+                      R"doc(
+Function to set diagonal weights for all observations in an observation set.
+
+Correlations between the observations in the set are removed; correlations with observations in other sets are
+retained.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+weight_vector : numpy.ndarray[numpy.float64[m, 1]]
+    Weight of each component of each observation in the set, concatenated in the order of the observations within
+    the set.
+)doc" )
                 .def( "set_weight_matrix_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightMatrixForSet,
                       py::arg( "set_id" ),
                       py::arg( "weight_matrix" ),
-                      R"doc(Store one full dense set-level weight matrix.)doc" )
+                      R"doc(
+Function to set the weight matrix of an observation set, including the correlations between its observations.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+weight_matrix : numpy.ndarray[numpy.float64[m, m]]
+    Symmetric weight matrix, with one row and column per component of each observation in the set (in the order of
+    the observations within the set).
+)doc" )
                 .def( "has_weight_matrix_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasWeightMatrixForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return whether the effective set block contains off-diagonal weights.)doc" )
+                      R"doc(
+Function to check whether the weight matrix of an observation set contains correlations (off-diagonal entries).
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+bool
+    Whether the weight matrix of the set contains off-diagonal entries.
+)doc" )
                 .def( "set_weight_matrix_for_observation",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightMatrixForObservation,
                       py::arg( "observation_id" ),
                       py::arg( "weight_matrix" ),
-                      R"doc(Store one dense observable-size weight matrix for an observation row.)doc" )
+                      R"doc(
+Function to set the weight matrix of a single observation, including the correlations between its components.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+weight_matrix : numpy.ndarray[numpy.float64[m, m]]
+    Symmetric weight matrix, with one row and column per observation component.
+)doc" )
                 .def( "has_weight_matrix_for_observation",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasWeightMatrixForObservation,
                       py::arg( "observation_id" ),
-                      R"doc(Return whether the effective observation block contains off-diagonal weights.)doc" )
+                      R"doc(
+Function to check whether the weight matrix of a single observation contains correlations (off-diagonal entries).
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+bool
+    Whether the weight matrix of the observation contains off-diagonal entries.
+)doc" )
                 .def( "set_weight_block",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightBlock,
                       py::arg( "row_observation_ids" ),
@@ -1233,13 +1771,38 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                       py::arg( "weight_block" ),
                       py::arg( "row_components" ) = std::vector< unsigned int >( ),
                       py::arg( "column_components" ) = std::vector< unsigned int >( ),
-                      R"doc(Assign a block and its transpose. Overlapping or permuted selections must agree on symmetric entries; duplicate selectors are rejected.
+                      R"doc(
+Function to set a block of the weight matrix, for instance to define correlations between observations in
+different sets.
 
-``row_components``: Component indices selected from each row observation. Empty selects all components.
-``column_components``: Component indices selected from each column observation. Empty selects all components.)doc" )
+The block defines the weights between the components of the observations in ``row_observation_ids`` (rows) and
+those of the observations in ``column_observation_ids`` (columns). The transposed block is set as well, so that the
+weight matrix remains symmetric; where the rows and columns overlap, the block must be consistent with this. Each
+observation id may be given only once in each list.
+
+Parameters
+----------
+row_observation_ids : list[int]
+    Ids of the observations corresponding to the rows of the block.
+column_observation_ids : list[int]
+    Ids of the observations corresponding to the columns of the block.
+weight_block : numpy.ndarray[numpy.float64[m, n]]
+    Block of the weight matrix, with one row (column) per selected component of each row (column) observation.
+row_components : list[int], default = []
+    Indices of the components of each row observation that are included in the block. If empty, all components
+    are included.
+column_components : list[int], default = []
+    Same as ``row_components``, for the column observations.
+)doc" )
                 .def_property_readonly( "has_extra_weight_blocks",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasExtraWeightBlocks,
-                                        R"doc(True when the dataset stores advanced scalar-component weight blocks.)doc" )
+                                        R"doc(
+**read-only**
+
+Whether the weight matrix of the dataset contains any off-diagonal entries (correlations).
+
+:type: bool
+)doc" )
                 .def(
                         "add_observations_to_set",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
@@ -1268,234 +1831,540 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                         py::arg( "weights" ) = py::list( ),
                         py::arg( "residuals" ) = py::list( ),
                         py::arg( "sort_observations" ) = true,
-                        R"doc(Append observations to an existing set.
+                        R"doc(
+Function to add observations to an existing observation set.
 
-``weights``: Per-observation scalar-component weight vectors.
-``residuals``: Residual vectors, one entry per observation event.
-``sort_observations``: Whether observations should be sorted by time after insertion.)doc" )
-                .def( "remove_observations_from_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeObservationsFromSet,
-                      py::arg( "set_id" ),
-                      py::arg( "indices_to_remove" ),
-                      R"doc(Remove observations from one set by index.
-
-``indices_to_remove``: Indices within the selected observation set to remove.)doc" )
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+observations : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
+    Values of the new observations (see :meth:`add_observation_set`).
+times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n, 1]]
+    Times of the new observations, in seconds since J2000 (TDB).
+dependent_variables : list[numpy.ndarray[numpy.float64[k, 1]]], default = []
+    Dependent variables of the new observations. These must be provided if, and only if, dependent variables are
+    stored for the observations already in the set.
+weights : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
+    Weights of the new observations, with one vector per observation. If empty, all weights are set to 1.
+residuals : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
+    Residuals of the new observations. If empty, all residuals are set to 0.
+sort_observations : bool, default = True
+    Whether to sort the observations in the set by time after adding the new observations.
+)doc" )
                 .def( "remove_observations",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeObservations,
                       py::arg( "condition" ),
-                      R"doc(Physically remove selected observations.)doc" )
+                      R"doc(
+Function to remove the selected observations from the dataset.
+
+Unlike :meth:`reject_observations`, this permanently removes the observations, together with their weights and
+numerical metadata. The ids of the remaining observations do not change.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations to remove.
+)doc" )
                 .def( "delete_rejected_observations",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::deleteRejectedObservations,
-                      R"doc(Remove rejected rows permanently, preserving surviving identities and their weight submatrix.)doc" )
-                .def( "remove_rejected_observations",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeRejectedObservations,
-                      R"doc(Physically remove all currently rejected observations.)doc" )
-                .def( "time_bounds_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsForSet,
-                      py::arg( "set_id" ),
-                      R"doc(Return the minimum and maximum observation time in one set.)doc" )
+                      R"doc(
+Function to permanently remove all rejected observations from the dataset.
+
+The ids and weights of the remaining observations do not change.
+)doc" )
                 .def_property_readonly( "observation_time_bounds",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBounds,
-                                        R"doc(tuple[Time, Time]: Minimum and maximum observation time in the dataset.)doc" )
-                .def( "computed_observations_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservationsForSet,
-                      py::arg( "set_id" ),
-                      R"doc(Return computed observations for one set, defined as observed values minus residuals.)doc" )
-                .def( "computed_observation_vector_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservationVectorForSet,
-                      py::arg( "set_id" ),
-                      R"doc(Return computed observations for one set as a concatenated vector.)doc" )
-                .def( "rms_residuals_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResidualsForSet,
-                      py::arg( "set_id" ),
-                      R"doc(Return root-mean-square residuals for one set.)doc" )
-                .def( "mean_residuals_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getMeanResidualsForSet,
-                      py::arg( "set_id" ),
-                      R"doc(Return mean residuals for one set.)doc" )
+                                        R"doc(
+**read-only**
+
+Earliest and latest observation time in the dataset, in seconds since J2000 (TDB). Both are NaN if the dataset
+contains no observations.
+
+:type: tuple[tudatpy.astro.time_representation.Time, tudatpy.astro.time_representation.Time]
+)doc" )
                 .def_property_readonly( "number_of_observation_sets",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfObservationSets,
-                                        R"doc(Number of logical observation sets stored in the dataset.)doc" )
+                                        R"doc(
+**read-only**
+
+Number of observation sets in the dataset.
+
+:type: int
+)doc" )
                 .def_property_readonly( "number_of_observations",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfObservations,
-                                        R"doc(Number of observation rows stored in the dataset.)doc" )
+                                        R"doc(
+**read-only**
+
+Number of observations in the dataset, including rejected observations.
+
+:type: int
+)doc" )
                 .def_property_readonly( "total_scalar_size",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getTotalScalarSize,
-                                        R"doc(Number of scalar observation components stored in the dataset.)doc" )
+                                        R"doc(
+**read-only**
+
+Total number of observation components in the dataset, including those of rejected observations.
+
+:type: int
+)doc" )
                 .def_property_readonly(
                         "observation_set_metadata",
                         py::overload_cast<>( &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationSetMetadata,
                                              py::const_ ),
                         py::return_value_policy::copy,
-                        R"doc(List of metadata entries for all observation sets.)doc" )
+                        R"doc(
+**read-only**
+
+Properties of each observation set in the dataset, ordered by set id.
+
+:type: list[tudatpy.estimation.observations.ObservationSetMetadata]
+)doc" )
                 .def( "get_observation_set_metadata",
                       py::overload_cast< const unsigned int >(
                               &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationSetMetadata, py::const_ ),
                       py::return_value_policy::copy,
                       py::arg( "set_id" ),
-                      R"doc(Return metadata for one observation set.)doc" )
+                      R"doc(
+Function to retrieve the properties of an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationSetMetadata
+    Properties of the observation set.
+)doc" )
                 .def_property_readonly( "observation_rows",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationRows,
                                         py::return_value_policy::copy,
-                                        R"doc(Row metadata for all observations.)doc" )
+                                        R"doc(
+**read-only**
+
+Properties of each observation in the dataset, in the ``"internal"`` order (see :class:`ObservationDataset`).
+
+:type: list[tudatpy.estimation.observations.ObservationDatasetRow]
+)doc" )
                 .def( "observation_row",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationRow,
                       py::return_value_policy::copy,
                       py::arg( "observation_id" ),
-                      R"doc(Return row metadata for one observation.)doc" )
-                .def_property_readonly( "scalar_component_rows",
-                                        &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentRows,
-                                        R"doc(Row metadata for all scalar components.)doc" )
+                      R"doc(
+Function to retrieve the properties of a single observation.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDatasetRow
+    Properties of the observation.
+)doc" )
                 .def( "scalar_component_row",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentRow,
                       py::arg( "scalar_component_id" ),
-                      R"doc(Return metadata for one scalar component.
+                      R"doc(
+Function to retrieve the observation and component corresponding to an index in the storage of all observation
+components in the dataset.
 
-``scalar_component_id``: Scalar-component row identifier.)doc" )
+Parameters
+----------
+scalar_component_id : int
+    Index of the component in the storage of the dataset (see
+    :attr:`ObservationVectorData.scalar_component_ids` and :attr:`ObservationDatasetRow.first_scalar_component`).
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationScalarComponentRow
+    Observation id and component index.
+)doc" )
                 .def( "observation_ids_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIdsForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return observation row identifiers belonging to one set.)doc" )
+                      R"doc(
+Function to retrieve the ids of the observations in an observation set, in their order within the set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[int]
+    Ids of the observations in the set.
+)doc" )
                 .def( "add_numerical_observation_metadata",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addNumericalObservationMetadata,
                       py::arg( "key" ),
                       py::arg( "observation_ids" ),
                       py::arg( "values" ),
-                      R"doc(Attach one numerical value per supplied stable observation ID under a user-defined key.
+                      R"doc(
+Function to store a user-defined numerical value for a number of observations, under a given name.
 
-All IDs must exist and the two vectors must have the same length. Values for the
-supplied IDs are added or replaced; other values under the same key are retained.
-Metadata does not affect observation models or weights.)doc" )
+These values (e.g. the scan angle of Gaia observations) are stored with the observations, but are not used by the
+observation models or the estimation. If values are already stored under the same name, the values of the given
+observations are replaced, and those of the other observations are retained.
+
+Parameters
+----------
+key : str
+    Name under which the values are stored.
+observation_ids : list[int]
+    Ids of the observations.
+values : list[float]
+    Value for each observation in ``observation_ids``.
+)doc" )
                 .def( "get_numerical_observation_metadata",
                       py::overload_cast< const std::string&, const std::vector< unsigned int >& >(
                               &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalObservationMetadata, py::const_ ),
                       py::arg( "key" ),
                       py::arg( "observation_ids" ),
-                      R"doc(Return a numerical metadata vector in the supplied observation-ID order.
+                      R"doc(
+Function to retrieve user-defined numerical values (see :meth:`add_numerical_observation_metadata`) for a number of
+observations.
 
-A missing key or a missing value for any requested ID raises IndexError; missing
-values are never replaced by zero. Rejected observations retain their metadata.)doc" )
+Parameters
+----------
+key : str
+    Name under which the values are stored.
+observation_ids : list[int]
+    Ids of the observations, for instance retrieved with :meth:`get_observation_ids`.
+
+Returns
+-------
+list[float]
+    Value for each observation in ``observation_ids``. An ``IndexError`` is raised if no value is stored for one of
+    the observations.
+)doc" )
                 .def_property_readonly(
                         "numerical_observation_metadata",
                         py::overload_cast<>( &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalObservationMetadata,
                                              py::const_ ),
                         py::return_value_policy::copy,
-                        "A detached dictionary mapping each metadata key to {stable observation ID: numerical value}." )
+                        R"doc(
+**read-only**
+
+All user-defined numerical values stored in the dataset (see :meth:`add_numerical_observation_metadata`), with the
+name of the values as key and, as value, a dictionary with the observation id as key and the numerical value as value.
+
+:type: dict[str, dict[int, float]]
+)doc" )
                 .def( "observations_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return all observation vectors in one set.)doc" )
+                      R"doc(
+Function to retrieve the values of all observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[numpy.ndarray[numpy.float64[m, 1]]]
+    Value of each observation, in their order within the set.
+)doc" )
                 .def( "observation_vector_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationVectorForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return all observations in one set as a concatenated vector.)doc" )
+                      R"doc(
+Function to retrieve the values of all observations in an observation set, concatenated into a single vector.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, 1]]
+    Concatenated values of the observations, in their order within the set.
+)doc" )
                 .def( "observation_value",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationValue,
                       py::arg( "observation_id" ),
-                      R"doc(Return the vector-valued observation for one observation row.)doc" )
+                      R"doc(
+Function to retrieve the value of a single observation.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, 1]]
+    Value of the observation, with one entry per observation component.
+)doc" )
                 .def( "observation_times_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimesForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return all observation times in one set.)doc" )
+                      R"doc(
+Function to retrieve the times of all observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[tudatpy.astro.time_representation.Time]
+    Time of each observation (in seconds since J2000, TDB), in their order within the set.
+)doc" )
                 .def( "observation_time",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTime,
                       py::arg( "observation_id" ),
-                      R"doc(Return the time of one observation row.)doc" )
+                      R"doc(
+Function to retrieve the time of a single observation.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+tudatpy.astro.time_representation.Time
+    Time of the observation, in seconds since J2000 (TDB).
+)doc" )
                 .def( "weights_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return all per-observation weight vectors in one set.)doc" )
-                .def( "weight_vector_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightVectorForSet,
-                      py::arg( "set_id" ),
-                      R"doc(Return all scalar-component weights in one set as a concatenated vector.)doc" )
+                      R"doc(
+Function to retrieve the diagonal weights of all observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[numpy.ndarray[numpy.float64[m, 1]]]
+    Diagonal of the weight matrix of each observation, in their order within the set.
+)doc" )
                 .def( "weight_matrix_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrixForSet,
                       py::arg( "set_id" ),
-                      R"doc(Materialize the effective principal weight submatrix for one set, including correlations.)doc" )
+                      R"doc(
+Function to retrieve the weight matrix of an observation set, including the correlations between its observations.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, m]]
+    Weight matrix, with one row and column per component of each observation in the set.
+)doc" )
                 .def( "weight_value",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightValue,
                       py::arg( "observation_id" ),
-                      R"doc(Return the scalar-component weight vector for one observation row.)doc" )
+                      R"doc(
+Function to retrieve the diagonal weights of a single observation.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, 1]]
+    Diagonal of the weight matrix of the observation.
+)doc" )
                 .def( "weight_matrix_for_observation",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrixForObservation,
                       py::arg( "observation_id" ),
-                      R"doc(Return the dense observable-size weight matrix for one observation row.)doc" )
+                      R"doc(
+Function to retrieve the weight matrix of a single observation, including the correlations between its components.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, m]]
+    Weight matrix, with one row and column per observation component.
+)doc" )
                 .def( "residuals_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return all residual vectors in one set.)doc" )
+                      R"doc(
+Function to retrieve the residuals of all observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[numpy.ndarray[numpy.float64[m, 1]]]
+    Residual of each observation, in their order within the set.
+)doc" )
                 .def( "residual_vector_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualVectorForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return all residuals in one set as a concatenated vector.)doc" )
+                      R"doc(
+Function to retrieve the residuals of all observations in an observation set, concatenated into a single vector.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, 1]]
+    Concatenated residuals of the observations, in their order within the set.
+)doc" )
                 .def( "residual_value",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualValue,
                       py::arg( "observation_id" ),
-                      R"doc(Return the residual vector for one observation row.)doc" )
+                      R"doc(
+Function to retrieve the residual of a single observation.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, 1]]
+    Residual of the observation, with one entry per observation component.
+)doc" )
                 .def( "dependent_variables_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariablesForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return all dependent-variable vectors stored for one set.)doc" )
+                      R"doc(
+Function to retrieve the dependent variables of all observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[numpy.ndarray[numpy.float64[k, 1]]]
+    Dependent variables of each observation, in their order within the set (empty if no dependent variables are
+    stored).
+)doc" )
                 .def( "dependent_variables",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariables,
                       py::arg( "observation_id" ),
-                      R"doc(Return the dependent-variable vector for one observation row.)doc" )
-                .def( "single_dependent_variable_for_set",
-                      py::overload_cast< const unsigned int,
-                                         const std::shared_ptr< tss::ObservationDependentVariableSettings >&,
-                                         const bool >(
-                              &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleDependentVariableForSet, py::const_ ),
-                      py::arg( "set_id" ),
-                      py::arg( "dependent_variable_settings" ),
-                      py::arg( "return_first_compatible_settings" ) = false,
-                      R"doc(Return values of one dependent variable stored for one set.
+                      R"doc(
+Function to retrieve the dependent variables of a single observation.
 
-``return_first_compatible_settings``: Whether to use the first compatible stored dependent variable.)doc" )
-                .def( "single_dependent_variable_for_set_by_index",
-                      py::overload_cast< const unsigned int, const std::pair< int, int >& >(
-                              &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleDependentVariableForSet, py::const_ ),
-                      py::arg( "set_id" ),
-                      py::arg( "dependent_variable_index_and_size" ),
-                      R"doc(Return dependent-variable values by stored index and size.
+Parameters
+----------
+observation_id : int
+    Id of the observation.
 
-``dependent_variable_index_and_size``: Pair containing the stored dependent-variable start index and size.)doc" )
-                .def( "compatible_dependent_variable_settings_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getCompatibleDependentVariableSettingsForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "dependent_variable_settings" ),
-                      R"doc(Return compatible dependent-variable settings in one set.)doc" )
-                .def( "all_compatible_dependent_variables_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getAllCompatibleDependentVariablesForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "dependent_variable_settings" ),
-                      R"doc(Return all compatible dependent-variable values in one set.)doc" )
+Returns
+-------
+numpy.ndarray[numpy.float64[k, 1]]
+    Dependent variables of the observation (empty if none are stored).
+)doc" )
                 .def( "set_dependent_variables_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setDependentVariablesForSet,
                       py::arg( "set_id" ),
                       py::arg( "dependent_variables" ),
-                      R"doc(Replace all dependent-variable vectors in one set.)doc" )
-                .def( "clear_dependent_variables_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::clearDependentVariablesForSet,
-                      py::arg( "set_id" ),
-                      R"doc(Clear all dependent-variable vectors in one set.)doc" )
+                      R"doc(
+Function to replace the dependent variables of all observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+dependent_variables : list[numpy.ndarray[numpy.float64[k, 1]]]
+    Dependent variables of each observation, in their order within the set. An empty list removes the dependent
+    variables of the set.
+)doc" )
                 .def( "add_dependent_variable",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addDependentVariableToSets,
                       py::arg( "dependent_variable_settings" ),
                       py::arg( "condition" ) = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ),
-                      R"doc(Add a dependent-variable setting to every compatible observation set selected by a condition.)doc" )
+                      R"doc(
+Function to add a dependent variable to the observation sets that contain the selected observations.
+
+The dependent variable is added to each of these sets for which it is compatible with the observable type and link
+ends. Its values are not computed by this function, but by
+:func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables`. A dependent variable cannot be
+added to a set for which dependent variable values are already stored.
+
+Parameters
+----------
+dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+    Settings of the dependent variable to add.
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations; the dependent variable is added to each set that contains at least one
+    selected observation.
+)doc" )
                 .def( "number_of_observations_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfObservationsForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return the number of observation rows in one set.)doc" )
+                      R"doc(
+Function to retrieve the number of observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+int
+    Number of observations in the set, including rejected observations.
+)doc" )
                 .def( "total_scalar_size_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getTotalScalarSizeForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return the number of scalar components in one set.)doc" )
+                      R"doc(
+Function to retrieve the total number of observation components in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+int
+    Number of observations in the set, multiplied by the number of components per observation.
+)doc" )
                 .def( "link_definition",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkDefinition,
                       py::arg( "link_definition_id" ),
-                      R"doc(Return a link definition from the dataset registry.)doc" )
+                      R"doc(
+Function to retrieve a link definition from its id (see :attr:`ObservationSetMetadata.link_definition_id`).
+
+Parameters
+----------
+link_definition_id : int
+    Id of the link definition.
+
+Returns
+-------
+tudatpy.estimation.observable_models_setup.links.LinkDefinition
+    Link definition.
+)doc" )
                 .def( "set_link_end_reference_point",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setLinkEndReferencePoint,
                       py::arg( "body_name" ),
@@ -1503,19 +2372,25 @@ values are never replaced by zero. Rejected observations retain their metadata.)
                       py::arg( "link_end_type" ),
                       py::arg( "condition" ) = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ),
                       R"doc(
-Replace a link-end reference point in matching observation sets.
+Function to change the reference point of a link end, in the observation sets that contain the selected
+observations.
 
-The condition selects observation rows. Every set containing at least one
-matching row is updated. This method changes dataset link metadata only; create
-the corresponding reference point in the system of bodies separately.
+In each of these sets, the reference point of the link end of type ``link_end_type`` is set to
+``reference_point_name``, if this link end is on the body ``body_name``. Only the link definition stored in the
+dataset is changed: the reference point (e.g. a ground station) must be created separately in the system of bodies.
+
+Parameters
+----------
+body_name : str
+    Name of the body of the link end.
+reference_point_name : str
+    Name of the new reference point.
+link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType
+    Role of the link end in the observations (e.g. receiver or transmitter).
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+    Condition selecting the observations; the link end is changed in each set that contains at least one selected
+    observation.
 )doc" )
-                .def( "set_reference_points",
-                      &setDatasetReferencePoints,
-                      py::arg( "bodies" ),
-                      py::arg( "reference_point_history" ),
-                      py::arg( "spacecraft_name" ),
-                      py::arg( "link_end_type" ),
-                      R"doc(Set time-varying fixed-frame reference points and split observation sets at each switch epoch.)doc" )
                 .def(
                         "link_definitions_for_observable",
                         []( const InspectionDataset& dataset, const tom::ObservableType observableType ) {
@@ -1538,68 +2413,177 @@ the corresponding reference point in the system of bodies separately.
                             return result;
                         },
                         py::arg( "observable_type" ),
-                        R"doc(Return the distinct link definitions used by nonempty sets of one observable type.)doc" )
-                .def_property_readonly( "number_of_link_definitions",
-                                        &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfLinkDefinitions,
-                                        R"doc(Number of unique link definitions registered in the dataset.)doc" )
+                        R"doc(
+Function to retrieve the link definitions of the observation sets of a given observable type.
+
+Parameters
+----------
+observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+    Observable type of the observation sets.
+
+Returns
+-------
+list[tudatpy.estimation.observable_models_setup.links.LinkDefinition]
+    Link definitions of the (non-empty) observation sets of the given observable type, each given once.
+)doc" )
                 .def( "ancillary_settings",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettings,
                       py::arg( "ancillary_settings_id" ),
-                      R"doc(Return ancillary settings from the dataset registry.)doc" )
+                      R"doc(
+Function to retrieve ancillary settings from their id (see :attr:`ObservationSetMetadata.ancillary_settings_id`).
+
+Parameters
+----------
+ancillary_settings_id : int
+    Id of the ancillary settings.
+
+Returns
+-------
+tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings
+    Ancillary settings (``None`` if the id corresponds to sets without ancillary settings).
+)doc" )
                 .def( "ancillary_settings_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsForSet,
                       py::arg( "set_id" ),
-                      R"doc(Return the ancillary settings associated with one observation set.)doc" )
+                      R"doc(
+Function to retrieve the ancillary settings of an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings
+    Ancillary settings of the set (``None`` if the set has none).
+)doc" )
                 .def( "dependent_variable_bookkeeping",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableBookkeeping,
                       py::arg( "dependent_variable_layout_id" ),
-                      R"doc(Return dependent-variable bookkeeping from the dataset registry.)doc" )
-                .def( "observation_ids_matching_condition",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIdsMatchingCondition,
-                      py::arg( "condition" ),
-                      R"doc(Return observation row identifiers selected by a condition.)doc" )
+                      R"doc(
+Function to retrieve the object defining which dependent variables are stored for an observation set, from its id
+(see :attr:`ObservationSetMetadata.dependent_variable_layout_id`).
+
+Parameters
+----------
+dependent_variable_layout_id : int
+    Id of the object.
+
+Returns
+-------
+tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableBookkeeping
+    Object defining the dependent variables (``None`` if the id corresponds to sets without dependent variables).
+)doc" )
                 .def( "create_new_and_keep",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createNewAndKeep,
                       py::arg( "condition" ),
-                      R"doc(Create an independent filtered dataset, preserving surviving row and metadata identities.)doc" )
+                      R"doc(
+Function to create a new dataset that contains only the selected observations.
+
+The selected observations keep their ids, set ids, weights and rejection status. This dataset is not modified.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations to keep.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    New dataset containing the selected observations.
+)doc" )
                 .def( "create_new_and_drop",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createNewAndDrop,
                       py::arg( "condition" ),
-                      R"doc(Create an independent dataset without the selected rows, preserving surviving identities.)doc" )
+                      R"doc(
+Function to create a new dataset that contains all observations except the selected ones.
+
+The remaining observations keep their ids, set ids, weights and rejection status. This dataset is not modified.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations to leave out.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    New dataset containing the observations that are not selected.
+)doc" )
                 .def( "reject_observations",
                       py::overload_cast< const InspectionCondition&, const std::string& >(
                               &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::rejectObservations ),
                       py::arg( "condition" ),
                       py::arg( "reason" ) = "",
-                      R"doc(Mark selected observations as rejected.)doc" )
+                      R"doc(
+Function to reject the selected observations.
+
+Rejected observations remain in the dataset, but are not used in the estimation. They can be used again after
+calling :meth:`restore_observations`.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations to reject.
+reason : str, default = ""
+    Reason for the rejection, stored with each rejected observation (see
+    :attr:`ObservationDatasetRow.rejection_reason`).
+)doc" )
                 .def( "reject_observations",
                       py::overload_cast< const InspectionCondition&, const double, const std::string& >(
                               &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::rejectObservations ),
                       py::arg( "condition" ),
                       py::arg( "sigma_limit" ),
                       py::arg( "reason" ) = "",
-                      R"doc(Reject active selected observations if any residual component exceeds sigma_limit times its measurement uncertainty.
+                      R"doc(
+Function to reject the selected observations for which a residual is larger than a multiple of the observation
+uncertainty.
 
-Uncertainties come from the complete inverse weight matrix, including correlated
-and rejected observations in the same set. Stored residuals and weights are not
-modified. sigma_limit must be finite and positive. Previously rejected rows
-remain rejected. Weights between different sets are unsupported.)doc" )
+A selected observation is rejected if the absolute value of any component of its residual is larger than
+``sigma_limit`` times the standard deviation of that component. The standard deviations are computed from the
+weights, as described for :meth:`ObservationVectorData.inverse_weight_matrix_for_observation`. The residuals must
+be computed beforehand, for instance with :func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables`.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations to check. Observations that are already rejected remain rejected.
+sigma_limit : float
+    Maximum ratio of the absolute value of a residual component and its standard deviation (must be positive).
+reason : str, default = ""
+    Reason for the rejection, stored with each rejected observation.
+)doc" )
                 .def( "restore_observations",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::restoreObservations,
                       py::arg( "condition" ),
-                      R"doc(Restore selected rows, retaining their identities, weights and last rejection reason.)doc" )
-                .def( "ordered_observation_vector_data",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createOrderedObservationVectorData,
-                      py::arg( "include_inactive" ) = true,
-                      R"doc(Return observation vector data in ordered output order.)doc" )
+                      R"doc(
+Function to restore the selected (rejected) observations, so that they are used in the estimation again.
+
+The rejection reason of the restored observations is cleared.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations to restore.
+)doc" )
                 .def( "observation_vector_data",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createObservationVectorData,
                       py::arg( "include_rejected" ) = false,
-                      R"doc(Create scalar-aligned data in observable/link/set/event/component order. Rejected rows are excluded by default.)doc" )
-                .def( "computation_observation_vector_data",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createComputationObservationVectorData,
-                      py::arg( "include_rejected" ) = true,
-                      R"doc(Return observation vector data for recomputation.)doc" );
+                      R"doc(
+Function to create an object holding the concatenated observations, residuals and weights of the dataset, as used
+in the estimation.
+
+Parameters
+----------
+include_rejected : bool, default = False
+    Whether to include the rejected observations.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationVectorData
+    Concatenated data, in the ``"estimation"`` order (see :class:`ObservationDataset`).
+)doc" );
     }
 
     m.def( "create_observation_dataset_from_tracking_data",
@@ -1608,36 +2592,33 @@ remain rejected. Weights between different sets are unsupported.)doc" )
            py::arg( "bodies" ),
            py::arg( "apply_corrections" ) = false,
            R"doc(
-Create an observation dataset from source-loaded tracking data.
+Function to create an observation dataset from a list of tracking data objects.
 
-Each input tracking-data object becomes one logical set in the returned dataset.
-Ground-station positions in ``bodies`` are used when converting observation epochs
-to TDB. When requested, stored numerical corrections are applied and angular
-correction settings are evaluated using the reference ephemerides in ``bodies``.
-The source observations are not modified.
+Each entry of ``tracking_data`` (as produced e.g. by :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data`,
+:func:`~tudatpy.data_input.tracking_data.fdets.read_fdets_data`, or a custom reader) is converted into an observation
+set, with the observations sorted by time. The observation times are converted to TDB, using the position of the
+ground station in ``bodies`` (if available) for the time scale conversion. The weights and numerical metadata stored
+in the tracking data are transferred to the dataset.
 
 Parameters
 ----------
-tracking_data : list[tudatpy.data_input.tracking_data.TrackingData]
-    Tracking-data objects to convert.
-bodies : tudatpy.dynamics.environment.SystemOfBodies
-    Bodies used for time conversion and for evaluating requested angular corrections.
-apply_corrections : bool, optional
-    Apply stored numerical corrections and evaluate requested angular corrections.
-    Defaults to ``False``.
+tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
+    List of tracking data objects to convert.
+bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+    System of bodies, used to retrieve the ground station positions for the time scale conversions, and to compute the
+    angular corrections (see ``apply_corrections``).
+apply_corrections : bool, default = False
+    Whether to apply the corrections stored in the tracking data to the observation values. If ``True``, the
+    corrections requested with
+    :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_observation_correction_settings` (light deflection and
+    photocenter offset) are also computed and applied, using the environment in ``bodies``. The tracking data objects
+    are not modified.
 
 Returns
 -------
 tudatpy.estimation.observations.ObservationDataset
-    Dataset containing one logical observation set per input object.
+    Dataset containing one observation set per tracking data object.
 )doc" );
-
-    m.def( "set_tracking_supplementary_data_in_bodies",
-           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
-                   &tom::setTrackingSupplementaryDataInBodies ),
-           py::arg( "bodies" ),
-           py::arg( "supplementary_data" ),
-           R"doc(Apply source-loaded tracking supplementary data to a system of bodies.)doc" );
 
     // SINGLE OBSERVATION SET
 
@@ -3393,13 +4374,34 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                     TUDATPY_DEF_EQ_NE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_BINARY_IO( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > );
 
+    tudatpy::estimation::observations::expose_observations_io_bindings( m );
+    tudatpy::estimation::observations::expose_observations_simulation_bindings( m );
+
     m.def(
             "create_observation_dataset_from_single_observation_set",
             []( const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >& observationSet ) {
                 return tom::createObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >( observationSet );
             },
             py::arg( "observation_set" ),
-            R"doc(Create an :class:`ObservationDataset` from a (deprecated) :class:`SingleObservationSet`.)doc" );
+            R"doc(
+Function to create an observation dataset from a (deprecated) single observation set.
+
+The :class:`~tudatpy.estimation.observations.SingleObservationSet` and
+:class:`~tudatpy.estimation.observations.ObservationCollection` classes are deprecated, and replaced by
+:class:`~tudatpy.estimation.observations.ObservationDataset`. This function copies the observations, times, weights, residuals, dependent variables and
+ancillary settings of the observation set into a new dataset. Observations that were filtered out of the set are not
+included.
+
+Parameters
+----------
+observation_set : tudatpy.estimation.observations.SingleObservationSet
+    Observation set to convert.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing a single observation set.
+)doc" );
 
     m.def(
             "create_observation_dataset_from_collection",
@@ -3407,7 +4409,26 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                 return tom::createObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >( observationCollection );
             },
             py::arg( "observation_collection" ),
-            R"doc(Create an :class:`ObservationDataset` from a (deprecated) :class:`ObservationCollection`, with one dataset set per single observation set.)doc" );
+            R"doc(
+Function to create an observation dataset from a (deprecated) observation collection.
+
+The :class:`~tudatpy.estimation.observations.SingleObservationSet` and
+:class:`~tudatpy.estimation.observations.ObservationCollection` classes are deprecated, and replaced by
+:class:`~tudatpy.estimation.observations.ObservationDataset`. This function copies the observations, times, weights, residuals, dependent variables and
+ancillary settings of each single observation set in the collection (in the order of
+:meth:`~tudatpy.estimation.observations.ObservationCollection.get_single_observation_sets`) into an observation set
+of a new dataset. Observations that were filtered out of the collection are not included.
+
+Parameters
+----------
+observation_collection : tudatpy.estimation.observations.ObservationCollection
+    Observation collection to convert.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing one observation set per single observation set of the collection.
+)doc" );
 
     m.def(
             "create_single_observation_set_from_dataset",
@@ -3417,7 +4438,27 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             },
             py::arg( "observation_dataset" ),
             py::arg( "set_id" ) = 0,
-            R"doc(Create a (deprecated) :class:`SingleObservationSet` from one set of an :class:`ObservationDataset`, which may not contain rejected observations. Off-diagonal weights are dropped.)doc" );
+            R"doc(
+Function to create a (deprecated) single observation set from an observation set in an observation dataset.
+
+The :class:`~tudatpy.estimation.observations.SingleObservationSet` and
+:class:`~tudatpy.estimation.observations.ObservationCollection` classes are deprecated, and replaced by
+:class:`~tudatpy.estimation.observations.ObservationDataset`. Only the diagonal of the weight matrix is transferred, so that any correlations are lost.
+The conversion is not possible if the observation set contains rejected observations; these can be removed with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.delete_rejected_observations`.
+
+Parameters
+----------
+observation_dataset : tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the observation set.
+set_id : int, default = 0
+    Id of the observation set to convert.
+
+Returns
+-------
+tudatpy.estimation.observations.SingleObservationSet
+    Single observation set containing a copy of the observations.
+)doc" );
 
     m.def(
             "create_observation_collection_from_dataset",
@@ -3425,7 +4466,25 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                 return tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( observationDataset );
             },
             py::arg( "observation_dataset" ),
-            R"doc(Create a (deprecated) :class:`ObservationCollection` from an :class:`ObservationDataset`, which may not contain rejected observations. Off-diagonal weights are dropped.)doc" );
+            R"doc(
+Function to create a (deprecated) observation collection from an observation dataset.
+
+The :class:`~tudatpy.estimation.observations.SingleObservationSet` and
+:class:`~tudatpy.estimation.observations.ObservationCollection` classes are deprecated, and replaced by
+:class:`~tudatpy.estimation.observations.ObservationDataset`. Only the diagonal of the weight matrix is transferred, so that any correlations are lost.
+The conversion is not possible if the dataset contains rejected observations; these can be removed with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.delete_rejected_observations`.
+
+Parameters
+----------
+observation_dataset : tudatpy.estimation.observations.ObservationDataset
+    Dataset to convert.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationCollection
+    Observation collection containing one single observation set per observation set of the dataset.
+)doc" );
 
     m.def(
             "create_observation_collection_from_tracking_data",
@@ -3460,6 +4519,24 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
         -------
         tudatpy.estimation.observations.ObservationCollection
             An `ObservationCollection` containing one observation set per input `TrackingData` object.
+        )doc" );
+
+    m.def( "set_tracking_supplementary_data_in_bodies",
+           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
+                   &tom::setTrackingSupplementaryDataInBodies ),
+           py::arg( "bodies" ),
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+        Sets tracking supplementary data (e.g. ground station frequency ramps) in the bodies.
+
+        Parameters
+        ----------
+        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+            System of bodies in which the supplementary data is set.
+        supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+            List of tracking supplementary data objects, as produced e.g. by
+            :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data` or a custom reader.
         )doc" );
 
     m.def(
@@ -3497,21 +4574,53 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
            &tss::getObservationSimulationSettingsFromObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_dataset" ),
            py::arg( "bodies" ),
-           R"doc(Create observation simulation settings from a dataset.)doc" );
+           R"doc(
+Function to create observation simulation settings matching the observable types, link ends and times of the
+observations in an observation dataset.
+
+One set of (tabulated) observation simulation settings is created per observation set in the dataset, with the
+same observation times, reference link end, ancillary settings and dependent variables. These settings can be used
+to simulate observations at the times of (real) observations, for instance with
+:func:`~tudatpy.estimation.observations.simulate_observation_dataset`.
+
+Parameters
+----------
+observation_dataset : tudatpy.estimation.observations.ObservationDataset
+    Dataset defining the observable types, link ends and observation times.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    System of bodies defining the physical environment.
+
+Returns
+-------
+list[ObservationSimulationSettings]
+    Observation simulation settings, one per observation set in the dataset.
+)doc" );
 
     m.def( "compute_residuals_and_dependent_variables",
            &computeDatasetResiduals,
            py::arg( "observation_dataset" ),
            py::arg( "observation_simulators" ),
            py::arg( "bodies" ),
-           R"doc(Compute simulated observations, residuals and dependent variables for a dataset.)doc" );
+           R"doc(
+Computes residuals and dependent variables for a given observation dataset.
 
-    m.def( "compute_residuals_and_dependent_variables_for_dataset",
-           &computeDatasetResiduals,
-           py::arg( "observation_dataset" ),
-           py::arg( "observation_simulators" ),
-           py::arg( "bodies" ),
-           R"doc(Compute simulated observations, residuals and dependent variables for a dataset.)doc" );
+This function simulates observations based on the settings of the input ``observation_dataset`` (which typically
+contains real data), see :func:`~tudatpy.estimation.observations.observation_simulation_settings_from_dataset`. It
+then computes the residuals by subtracting the simulated observations from the original observations. The computed
+residuals, and the dependent variables defined for each observation set (see
+:meth:`~tudatpy.estimation.observations.ObservationDataset.add_dependent_variable`), are then stored in the input
+``observation_dataset``. Residuals are computed for all observations, including rejected observations.
+
+Parameters
+----------
+observation_dataset : tudatpy.estimation.observations.ObservationDataset
+    The dataset of observations for which to compute residuals and dependent variables. This object is modified
+    in-place.
+observation_simulators : list[tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator]
+    List of observation simulators to be used for computing the observations.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    The system of bodies required for the observation simulation.
+)doc" );
 
     m.def( "create_filtered_observation_set",
            py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -3717,8 +4826,70 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             A new observation collection containing the selected subset of observation sets.
         )doc" );
 
-    expose_observations_io_bindings( m );
-    expose_observations_simulation_bindings( m );
+    m.def( "create_compressed_doppler_collection",
+           &tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "compression_ratio" ),
+           py::arg( "minimum_number_of_observations" ) = 10,
+           py::arg( "max_arc_gap" ) = 300.0,
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
+           R"doc(
+        Create a compressed Doppler observation collection.
+
+        This function takes a collection of Doppler observations, splits them into arcs, and compresses each arc by averaging observations.
+
+        Parameters
+        ----------
+        original_observation_collection : tudatpy.estimation.observations.ObservationCollection
+            The original observation collection containing Doppler data.
+        compression_ratio : int
+            The number of observations to average into a single compressed observation.
+        minimum_number_of_observations : int, optional
+            The minimum number of observations required in an arc to be considered for compression, by default 10.
+        max_arc_gap : float, optional
+            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationCollection
+            A new observation collection with compressed Doppler data.
+        )doc" );
+
+    m.def( "create_count_time_compressed_doppler_collection",
+           &tom::createCountTimeCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "bodies" ),
+           py::arg( "target_count_time" ),
+           py::arg( "minimum_number_of_observations" ) = 10,
+           py::arg( "max_arc_gap" ) = 300.0,
+           R"doc(
+        Create a Doppler observation collection compressed to a target count time.
+
+        Same as :func:`create_compressed_doppler_collection`, but with the number of observations to average determined
+        separately for each observation set, from its count time and the ``target_count_time``. The ground station
+        positions used for the time scale conversions are taken from the ground stations on Earth in ``bodies``.
+
+        Parameters
+        ----------
+        original_observation_collection : tudatpy.estimation.observations.ObservationCollection
+            The original observation collection containing Doppler data.
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
+            System of bodies, containing the Earth with the ground stations of the Doppler observations.
+        target_count_time : float
+            Count time (in seconds) of the compressed observations, which must be an integer multiple of the count time of each
+            observation set.
+        minimum_number_of_observations : int, optional
+            The minimum number of observations required in an arc to be considered for compression, by default 10.
+        max_arc_gap : float, optional
+            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationCollection
+            A new observation collection with compressed Doppler data.
+        )doc" );
 }
 
 }  // namespace observations

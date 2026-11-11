@@ -138,99 +138,66 @@ void wrapObservationResiduals(
     residuals.block( observableResidualStartAndSize.first, 0, residualBlockSize, 1 ) = currentResidualBlock;
 }
 
-//! Calculate residuals using an explicit dataset vector mapping.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateResiduals(
-        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
-        const observation_models::ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
         const std::map< observation_models::ObservableType,
                         std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
                 observationSimulator,
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
-    observationDataset->validateObservationVectorData( observationVectorData );
-    residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( observationVectorData.getObservationVector( ).size( ), 1 );
+    residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( observationsCollection->getTotalObservableSize( ), 1 );
 
-    for( const unsigned int setId : observationVectorData.getSetIdsInRowOrder( ) )
+    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations =
+            observationsCollection->getObservationsSets( );
+
+    // Iterate over all observable types in observationsAndTimes
+    for( auto observablesIterator : sortedObservations )
     {
-        const std::vector< unsigned int >& setObservationIds = observationVectorData.getUniqueObservationIdsForSetInRowOrder( setId );
-        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
-                observationVectorData.getSetMetadata( setId );
-        const observation_models::ObservableType currentObservableType = metadata.observableType_;
-        const observation_models::LinkEnds currentLinkEnds = observationVectorData.getLinkDefinitionForSet( setId ).linkEnds_;
-        const unsigned int observableSize = metadata.observableSize_;
-        const int currentObservationSize = static_cast< int >( setObservationIds.size( ) * observableSize );
+        observation_models::ObservableType currentObservableType = observablesIterator.first;
+        const bool wrapResiduals = observation_models::isResidualWrappingRequired( currentObservableType );
 
-        if( currentObservationSize > 0 )
+        // Iterate over all link ends for current observable type in observationsAndTimes
+        for( auto dataIterator : observablesIterator.second )
         {
-            std::vector< TimeType > times;
-            times.reserve( setObservationIds.size( ) );
-            for( const unsigned int observationId : setObservationIds )
+            observation_models::LinkEnds currentLinkEnds = dataIterator.first;
+            observation_models::ResidualWrappingSettings residualWrappingSettings;
+            if( wrapResiduals )
             {
-                times.push_back( observationVectorData.getTimes( ).at( observationVectorData.getVectorRow( observationId, 0 ) ) );
+                residualWrappingSettings = observationSimulator.at( currentObservableType )->getResidualWrappingSettings( currentLinkEnds );
             }
+            for( unsigned int i = 0; i < dataIterator.second.size( ); i++ )
+            {
+                std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations =
+                        dataIterator.second.at( i );
+                std::pair< int, int > observationIndices =
+                        observationsCollection->getObservationSetStartAndSize( ).at( currentObservableType ).at( currentLinkEnds ).at( i );
 
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
-            observationSimulator.at( currentObservableType )
-                    ->computeObservations( times,
-                                           currentLinkEnds,
-                                           metadata.referenceLinkEnd_,
-                                           observationVectorData.getAncillarySettingsForSet( setId ),
-                                           observationsVector );
+                // Compute estimated ranges and range partials from current parameter estimate.
+                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
+                observationSimulator.at( currentObservableType )
+                        ->computeObservations( currentObservations->getObservationTimes( ),
+                                               currentLinkEnds,
+                                               currentObservations->getReferenceLinkEnd( ),
+                                               currentObservations->getAncillarySettings( ),
+                                               observationsVector );
 
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualBlock =
-                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( currentObservationSize );
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observedObservationBlock =
-                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( currentObservationSize );
-            for( std::size_t observationIndex = 0; observationIndex < setObservationIds.size( ); ++observationIndex )
-            {
-                const unsigned int observationId = setObservationIds.at( observationIndex );
-                for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
+                residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) =
+                        ( currentObservations->getObservationsVector( ) - observationsVector );
+
+                if( wrapResiduals )
                 {
-                    const int sourceRow = static_cast< int >( observationIndex * observableSize + componentIndex );
-                    const int targetRow = observationVectorData.getVectorRow( observationId, componentIndex );
-                    observedObservationBlock( sourceRow ) = observationVectorData.getObservationVector( )( targetRow );
-                    residualBlock( sourceRow ) = observedObservationBlock( sourceRow ) - observationsVector( sourceRow );
-                }
-            }
-            if( observation_models::isResidualWrappingRequired( currentObservableType ) )
-            {
-                wrapObservationResiduals< ObservationScalarType >(
-                        residualBlock,
-                        std::make_pair( 0, currentObservationSize ),
-                        currentObservableType,
-                        observedObservationBlock,
-                        observationSimulator.at( currentObservableType )->getResidualWrappingSettings( currentLinkEnds ) );
-            }
-            for( std::size_t observationIndex = 0; observationIndex < setObservationIds.size( ); ++observationIndex )
-            {
-                const unsigned int observationId = setObservationIds.at( observationIndex );
-                for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
-                {
-                    const int sourceRow = static_cast< int >( observationIndex * observableSize + componentIndex );
-                    const int targetRow = observationVectorData.getVectorRow( observationId, componentIndex );
-                    residuals( targetRow ) = residualBlock( sourceRow );
+                    wrapObservationResiduals< ObservationScalarType >( residuals,
+                                                                       observationIndices,
+                                                                       currentObservableType,
+                                                                       currentObservations->getObservationsVector( ),
+                                                                       residualWrappingSettings );
                 }
             }
         }
     }
-}
-
-//! Calculate residuals for the dataset's computation vector data.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void calculateResiduals(
-        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
-        const std::map< observation_models::ObservableType,
-                        std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-                observationSimulator,
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
-{
-    calculateResiduals< ObservationScalarType, TimeType >(
-            observationDataset, observationDataset->createComputationObservationVectorData( true ), observationSimulator, residuals );
 }
 
 //! Function to retrieve the weights of a set of observations, checking their size against the number of observations
@@ -328,7 +295,6 @@ EigenType extractEstimationObservationRows(
  *  \param residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
  *  observables w.r.t. parameter vector (return by reference).
  */
-//! Calculate design-matrix rows and residuals using a dataset-derived vector mapping.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -352,6 +318,7 @@ void calculateDesignMatrixAndResiduals(
     }
 
     const int totalObservationSize = static_cast< int >( observationVectorData.getObservationVector( ).size( ) );
+    // Initialize return data.
     if( calculatePartials )
     {
         designMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalNumberParameters );
@@ -362,6 +329,7 @@ void calculateDesignMatrixAndResiduals(
         residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservationSize, 1 );
     }
 
+    // Iterate over all observation sets; the entries of each set are contiguous in the observation vector data
     for( const unsigned int setId : observationVectorData.getSetIdsInRowOrder( ) )
     {
         const std::vector< unsigned int >& setObservationIds = observationVectorData.getUniqueObservationIdsForSetInRowOrder( setId );
@@ -369,150 +337,59 @@ void calculateDesignMatrixAndResiduals(
                 observationVectorData.getSetMetadata( setId );
         const observation_models::ObservableType currentObservableType = metadata.observableType_;
         const observation_models::LinkEnds currentLinkEnds = observationVectorData.getLinkDefinitionForSet( setId ).linkEnds_;
-        const unsigned int observableSize = metadata.observableSize_;
-        const int currentObservationSize = static_cast< int >( setObservationIds.size( ) * observableSize );
-
-        if( currentObservationSize > 0 )
+        const std::pair< int, int > observationIndices =
+                std::make_pair( observationVectorData.getVectorRow( setObservationIds.front( ), 0 ),
+                                static_cast< int >( setObservationIds.size( ) * metadata.observableSize_ ) );
+        if( observationVectorData.getVectorRow( setObservationIds.back( ), 0 ) + static_cast< int >( metadata.observableSize_ ) !=
+            observationIndices.first + observationIndices.second )
         {
-            std::vector< TimeType > times;
-            times.reserve( setObservationIds.size( ) );
-            for( const unsigned int observationId : setObservationIds )
-            {
-                times.push_back( observationVectorData.getTimes( ).at( observationVectorData.getVectorRow( observationId, 0 ) ) );
-            }
+            throw std::runtime_error( "Error when computing design matrix and residuals, observation set is not contiguous." );
+        }
 
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
-            Eigen::MatrixXd partialsMatrix;
-            observationManagers.at( currentObservableType )
-                    ->computeObservationsWithPartials( times,
-                                                       currentLinkEnds,
-                                                       metadata.referenceLinkEnd_,
-                                                       observationVectorData.getAncillarySettingsForSet( setId ),
-                                                       observationsVector,
-                                                       partialsMatrix,
-                                                       calculateResiduals,
-                                                       calculatePartials );
+        std::vector< TimeType > times;
+        for( const unsigned int observationId : setObservationIds )
+        {
+            times.push_back( observationVectorData.getTimes( ).at( observationVectorData.getVectorRow( observationId, 0 ) ) );
+        }
 
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualBlock;
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observedObservationBlock;
-            if( calculateResiduals )
-            {
-                residualBlock = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( currentObservationSize );
-                observedObservationBlock = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( currentObservationSize );
-            }
+        // Compute estimated ranges and range partials from current parameter estimate.
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
+        Eigen::MatrixXd partialsMatrix;
+        observationManagers.at( currentObservableType )
+                ->computeObservationsWithPartials( times,
+                                                   currentLinkEnds,
+                                                   metadata.referenceLinkEnd_,
+                                                   observationVectorData.getAncillarySettingsForSet( setId ),
+                                                   observationsVector,
+                                                   partialsMatrix,
+                                                   calculateResiduals,
+                                                   calculatePartials );
 
-            for( std::size_t observationIndex = 0; observationIndex < setObservationIds.size( ); ++observationIndex )
-            {
-                const unsigned int observationId = setObservationIds.at( observationIndex );
-                for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
-                {
-                    const int sourceRow = static_cast< int >( observationIndex * observableSize + componentIndex );
-                    const int targetRow = observationVectorData.getVectorRow( observationId, componentIndex );
-                    if( calculatePartials )
-                    {
-                        designMatrix.row( targetRow ) = partialsMatrix.row( sourceRow );
-                    }
-                    if( calculateResiduals )
-                    {
-                        observedObservationBlock( sourceRow ) = observationVectorData.getObservationVector( )( targetRow );
-                        residualBlock( sourceRow ) = observedObservationBlock( sourceRow ) - observationsVector( sourceRow );
-                    }
-                }
-            }
+        if( calculatePartials )
+        {
+            // Set current observation partials in matrix of all partials
+            designMatrix.block( observationIndices.first, 0, observationIndices.second, totalNumberParameters ) = partialsMatrix;
+        }
 
-            if( calculateResiduals )
+        // Compute residuals for current link ends and observable type.
+        if( calculateResiduals )
+        {
+            const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observedObservations =
+                    observationVectorData.getObservationVector( ).segment( observationIndices.first, observationIndices.second );
+            residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) = ( observedObservations - observationsVector );
+
+            if( observation_models::isResidualWrappingRequired( currentObservableType ) )
             {
-                if( observation_models::isResidualWrappingRequired( currentObservableType ) )
-                {
-                    wrapObservationResiduals< ObservationScalarType >( residualBlock,
-                                                                       std::make_pair( 0, currentObservationSize ),
-                                                                       currentObservableType,
-                                                                       observedObservationBlock,
-                                                                       observationManagers.at( currentObservableType )
-                                                                               ->getObservationSimulator( )
-                                                                               ->getResidualWrappingSettings( currentLinkEnds ) );
-                }
-                for( std::size_t observationIndex = 0; observationIndex < setObservationIds.size( ); ++observationIndex )
-                {
-                    const unsigned int observationId = setObservationIds.at( observationIndex );
-                    for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
-                    {
-                        const int sourceRow = static_cast< int >( observationIndex * observableSize + componentIndex );
-                        const int targetRow = observationVectorData.getVectorRow( observationId, componentIndex );
-                        residuals( targetRow ) = residualBlock( sourceRow );
-                    }
-                }
+                wrapObservationResiduals< ObservationScalarType >( residuals,
+                                                                   observationIndices,
+                                                                   currentObservableType,
+                                                                   observedObservations,
+                                                                   observationManagers.at( currentObservableType )
+                                                                           ->getObservationSimulator( )
+                                                                           ->getResidualWrappingSettings( currentLinkEnds ) );
             }
         }
     }
-}
-
-//! Calculate design-matrix rows and residuals for an observation dataset.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void calculateDesignMatrixAndResiduals(
-        std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
-        const std::map< observation_models::ObservableType,
-                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
-                observationManagers,
-        const int totalNumberParameters,
-        const int totalObservationSize,
-        Eigen::MatrixXd& designMatrix,
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
-        const bool calculateResiduals = true,
-        const bool calculatePartials = true )
-{
-    const observation_models::ObservationVectorData< ObservationScalarType, TimeType > observationVectorData =
-            observationDataset->createObservationVectorData( !calculatePartials );
-    if( observationVectorData.getObservationVector( ).size( ) != totalObservationSize )
-    {
-        throw std::runtime_error(
-                "Error when computing observation partials, requested size is inconsistent with observation vector data size." );
-    }
-    calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationDataset,
-                                                                          observationVectorData,
-                                                                          observationManagers,
-                                                                          totalNumberParameters,
-                                                                          designMatrix,
-                                                                          residuals,
-                                                                          calculateResiduals,
-                                                                          calculatePartials );
-}
-
-//! Calculate a design matrix for an observation dataset.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void calculateDesignMatrix(
-        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
-        const std::map< observation_models::ObservableType,
-                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
-                observationManagers,
-        const int totalNumberParameters,
-        const int totalObservationSize,
-        Eigen::MatrixXd& designMatrix )
-{
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > dummyVector;
-    calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
-            observationDataset, observationManagers, totalNumberParameters, totalObservationSize, designMatrix, dummyVector, false, true );
-}
-
-//! Calculate residuals with observation managers for an observation dataset.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void calculateResiduals(
-        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
-        const std::map< observation_models::ObservableType,
-                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
-                observationManagers,
-        const int totalObservationSize,
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
-{
-    Eigen::MatrixXd dummyMatrix;
-    calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
-            observationDataset, observationManagers, 0, totalObservationSize, dummyMatrix, residuals, true, false );
 }
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times

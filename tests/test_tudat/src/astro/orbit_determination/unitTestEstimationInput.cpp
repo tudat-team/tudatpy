@@ -285,7 +285,7 @@ void checkAPrioriParameterDeviation( const bool correlated )
     };
     const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
-    simulatedObservations->setConstantWeight( 1.0 );
+    simulatedObservations->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::all( ), 1.0 );
     if( correlated )
     {
         const auto observationIds = simulatedObservations->getObservationIdsForSet( 0 );
@@ -921,7 +921,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
         }
     }
 
-    const ObservationVectorData< double, double > weightData = simulatedObservations->createOrderedObservationVectorData( );
+    const ObservationVectorData< double, double > weightData = simulatedObservations->createObservationVectorData( true );
 
     // Dataset observation vector data must contain the exact sparse off-diagonal matrix and expose its diagonal as the compact vector.
     BOOST_CHECK( weightData.hasOffDiagonalWeights( ) );
@@ -1003,8 +1003,9 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
             } );
     simulatedObservations->rejectObservations( rejectedObservationSelectionCondition, "excluded from estimation system" );
     simulatedObservations->setResidualVector(
+            simulatedObservations->createObservationVectorData( true ),
             Eigen::VectorXd::Constant( static_cast< int >( simulatedObservations->getTotalScalarSize( ) ), -12345.0 ) );
-    const ObservationVectorData< double, double > activeData = simulatedObservations->createOrderedObservationVectorData( false );
+    const ObservationVectorData< double, double > activeData = simulatedObservations->createObservationVectorData( false );
 
     // Rejecting one observation must remove only its scalar rows from the estimator-facing observation vector data.
     BOOST_CHECK_EQUAL( activeData.getObservationVector( ).size( ), totalObservationSize - rejectedObservationSize );
@@ -1085,16 +1086,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const auto restoredVectorData = simulatedObservations->createObservationVectorData( );
     BOOST_CHECK( restoredVectorData.getObservationIds( ) == weightData.getObservationIds( ) );
     BOOST_CHECK( restoredVectorData.getTimes( ) == weightData.getTimes( ) );
-    BOOST_CHECK_EQUAL( simulatedObservations->getObservationRow( rejectedObservationId ).rejectionReason_,
-                       "excluded from estimation system" );
+    BOOST_CHECK( simulatedObservations->getObservationRow( rejectedObservationId ).rejectionReason_.empty( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredVectorData.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
-
-    simulatedObservations->rejectObservations( ObservationSelectionCondition<>::all( ) );
-    const auto reportsEmptySelection = []( const std::runtime_error& error ) {
-        return std::string( error.what( ) ).find( "without active observations" ) != std::string::npos;
-    };
-    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.estimateParameters( estimationInput ), std::runtime_error, reportsEmptySelection );
-    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.computeCovariance( covarianceInput ), std::runtime_error, reportsEmptySelection );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

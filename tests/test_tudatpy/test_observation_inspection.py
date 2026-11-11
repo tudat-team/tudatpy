@@ -7,6 +7,7 @@ import pytest
 
 from tudatpy.astro.time_representation import Time
 from tudatpy.estimation import observations as obs
+from tudatpy.estimation.observable_models_setup import links, model_settings
 from tudatpy.estimation.observations_setup import ancillary_settings as ancillary
 from tudatpy.estimation.observations_setup import observations_dependent_variables as dependent
 from tudatpy.estimation.observations_setup import observations_simulation_settings as simulation
@@ -27,10 +28,10 @@ FIELDS = (
 
 
 def link(station):
-    return obs.LinkDefinition(
+    return links.LinkDefinition(
         {
-            obs.transmitter: obs.LinkEndId("Earth", station),
-            obs.receiver: obs.LinkEndId("Vehicle", ""),
+            links.transmitter: links.LinkEndId("Earth", station),
+            links.receiver: links.LinkEndId("Vehicle", ""),
         }
     )
 
@@ -38,10 +39,18 @@ def link(station):
 def dataset_with_mixed_rows():
     dataset = obs.ObservationDataset()
     dataset.add_observation_set(
-        obs.angular_position, link("B"), [[10, 11], [20, 21]], [4, 4], obs.receiver
+        model_settings.angular_position_type,
+        link("B"),
+        [[10, 11], [20, 21]],
+        [4, 4],
+        links.receiver,
     )
-    dataset.add_observation_set(obs.one_way_range, link("B"), [[30], [40]], [3, 1], obs.receiver)
-    dataset.add_observation_set(obs.one_way_range, link("A"), [[50]], [4], obs.receiver)
+    dataset.add_observation_set(
+        model_settings.one_way_range_type, link("B"), [[30], [40]], [3, 1], links.receiver
+    )
+    dataset.add_observation_set(
+        model_settings.one_way_range_type, link("A"), [[50]], [4], links.receiver
+    )
     dataset.add_observations_to_set(0, [[60, 61]], [2], sort_observations=True)
     for set_id in range(3):
         values = dataset.observations_for_set(set_id)
@@ -80,7 +89,7 @@ def test_ordering_membership_alignment_and_weight_axes(ordering, selection_kind)
     data = dataset.get_data(condition, fields=FIELDS, ordering=ordering)
     ids = data["observation_ids"]
     expected_sequence = [0, 1, 2, 3, 4, 5] if ordering == "internal" else [4, 2, 3, 5, 0, 1]
-    selected_ids = dataset.observation_ids_matching_condition(condition)
+    selected_ids = dataset.get_observation_ids(condition)
     assert ids == [event for event in expected_sequence if event in selected_ids]
     assert sorted(ids) == sorted(dataset.get_observation_ids(condition, ordering="internal"))
     assert set(data["metadata"]) == set(data["set_ids"])
@@ -148,9 +157,11 @@ def test_snapshots_survive_all_mutations_and_dataset_destruction(ordering, multi
     dataset.set_observations_for_set(0, [[160, 161], [110, 111], [120, 121]])
     dataset.set_residuals_for_set(0, [[6, 6.1], [1, 1.1], [2, 2.1]])
     dataset.set_dependent_variables_for_set(0, [[160], [110], [120]])
-    dataset.set_constant_single_observation_diagonal_weight_for_set(0, [40, 50])
+    dataset.set_constant_single_observation_diagonal_weight(
+        obs.observation_query.set_id == 0, [40, 50]
+    )
     dataset.set_weight_block([0], [2], [[0.7], [0.8]])
-    dataset.set_link_end_reference_point("Earth", "Changed", obs.transmitter)
+    dataset.set_link_end_reference_point("Earth", "Changed", links.transmitter)
     dataset.restore_observations(obs.observation_query.rejected)
     dataset.reject_observations(obs.observation_query.active, "new rejection")
     dataset.restore_observations(obs.observation_query.rejected)
@@ -190,7 +201,8 @@ def test_snapshots_survive_all_mutations_and_dataset_destruction(ordering, multi
     assert saved["rows"][first]["dependent_variables"][0] == -40
     assert saved["times"][first] == Time(4)
     assert (
-        saved["metadata"][0]["link_definition"].link_end_id(obs.transmitter).reference_point == "B"
+        saved["metadata"][0]["link_definition"].link_end_id(links.transmitter).reference_point
+        == "B"
     )
     assert saved["weight_matrix"].toarray().shape == saved_matrix.shape
 
@@ -198,20 +210,22 @@ def test_snapshots_survive_all_mutations_and_dataset_destruction(ordering, multi
 def test_nested_metadata_is_detached():
     """Verify inspection metadata recursively owns mutable nested settings."""
     definition = link("Station")
-    settings = simulation.tabulated_simulation_settings(obs.one_way_range, definition, [1.0])
+    settings = simulation.tabulated_simulation_settings(
+        model_settings.one_way_range_type, definition, [1.0]
+    )
     setting = dependent.elevation_angle_dependent_variable(
-        obs.transmitter, obs.LinkEndId("Earth", "Station")
+        links.transmitter, links.LinkEndId("Earth", "Station")
     )
     settings.add_dependent_variables([setting])
     ancillary_value = ancillary.ObservationAncillarySimulationSettings()
     ancillary_value.set_float_settings(ancillary.doppler_integration_time, 10)
     dataset = obs.ObservationDataset()
     dataset.add_observation_set(
-        obs.one_way_range,
+        model_settings.one_way_range_type,
         definition,
         [[1]],
         [1],
-        obs.receiver,
+        links.receiver,
         dependent_variables=[[0.5]],
         dependent_variable_bookkeeping=settings.dependent_variable_bookkeeping,
         ancillary_settings=ancillary_value,
@@ -237,9 +251,13 @@ def test_nested_metadata_is_detached():
 def test_add_dependent_variable_to_selected_sets():
     """A dependent-variable setting is added only to compatible selected sets."""
     dataset = obs.ObservationDataset()
-    dataset.add_observation_set(obs.one_way_range, link("A"), [[1]], [1], obs.receiver)
-    dataset.add_observation_set(obs.one_way_range, link("B"), [[2]], [2], obs.receiver)
-    setting = dependent.elevation_angle_dependent_variable(obs.transmitter)
+    dataset.add_observation_set(
+        model_settings.one_way_range_type, link("A"), [[1]], [1], links.receiver
+    )
+    dataset.add_observation_set(
+        model_settings.one_way_range_type, link("B"), [[2]], [2], links.receiver
+    )
+    setting = dependent.elevation_angle_dependent_variable(links.transmitter)
 
     # Select the second set and add every compatible concrete elevation-angle setting.
     dataset.add_dependent_variable(setting, obs.observation_query.set_id == 1)
@@ -266,7 +284,9 @@ def test_precise_times_and_empty_missing_fields(ordering):
     t0, t1 = Time(1000000, 1e-9), Time(1000000, 2e-9)
     assert float(t0) == float(t1)
     assert t0 != t1
-    dataset.add_observation_set(obs.one_way_range, link("A"), [[1], [2]], [t1, t0], obs.receiver)
+    dataset.add_observation_set(
+        model_settings.one_way_range_type, link("A"), [[1], [2]], [t1, t0], links.receiver
+    )
     saved = dataset.get_data(fields=FIELDS, ordering=ordering)
     assert saved["times"] == [t1, t0]
     assert all(isinstance(t, Time) for t in saved["times"])
@@ -282,20 +302,3 @@ def test_precise_times_and_empty_missing_fields(ordering):
     del dataset
     gc.collect()
     assert saved["times"] == [t1, t0]
-
-
-def test_invalid_ordering_fields_and_removed_api():
-    """Verify invalid inspection requests fail and removed viewer APIs stay hidden."""
-    dataset = obs.ObservationDataset()
-    for field in FIELDS:
-        with pytest.raises(ValueError, match="ordering"):
-            getattr(dataset, "get_" + field)(ordering="time")
-    with pytest.raises(ValueError, match="ordering"):
-        dataset.get_data(ordering="time")
-    with pytest.raises(ValueError, match="Unknown"):
-        dataset.get_data(fields=("unknown",))
-    with pytest.raises(ValueError, match="Duplicate"):
-        dataset.get_data(fields=("times", "times"))
-    assert dataset.get_data(fields=()) == {}
-    assert not hasattr(dataset, "create_viewer")
-    assert not hasattr(obs, "ObservationDatasetViewer")

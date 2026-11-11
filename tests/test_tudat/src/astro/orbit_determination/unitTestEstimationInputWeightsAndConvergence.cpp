@@ -497,7 +497,10 @@ BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
             nullptr,
             [ &disabledObservationId, &rejectedObservationId ]( const std::shared_ptr< Dataset >& dataset,
                                                                 const std::shared_ptr< Input >& input ) {
-                const unsigned int angularSetId = dataset->getObservationSetIdsForObservableType( angular_position ).at( 0 );
+                const unsigned int angularSetId =
+                        dataset->getSetIds( ObservationSelectionCondition< double, double >::observableType( angular_position ),
+                                            ObservationOrdering::estimation )
+                                .at( 0 );
                 const std::vector< unsigned int >& angularObservationIds = dataset->getObservationIdsForSet( angularSetId );
                 disabledObservationId = angularObservationIds.at( 0 );
                 rejectedObservationId = angularObservationIds.at( 1 );
@@ -508,10 +511,9 @@ BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
                         } );
                 dataset->rejectObservations( initiallyInactive, "disabled before estimation" );
 
-                Eigen::VectorXd angularObservations = dataset->getObservationVectorForSet( angularSetId );
-                const unsigned int angularSize = dataset->getObservationRow( rejectedObservationId ).scalarSize_;
-                angularObservations.segment( angularSize, angularSize ).array( ) += 1.0;
-                dataset->setObservationVectorForSet( angularSetId, angularObservations );
+                std::vector< Eigen::VectorXd > angularObservations = dataset->getObservationsForSet( angularSetId );
+                angularObservations.at( 1 ).array( ) += 1.0;
+                dataset->setObservationsForSet( angularSetId, angularObservations );
 
                 const std::map< ObservableType, double > thresholds = { { one_way_range, 1.0E12 },
                                                                         { one_way_doppler, 1.0E12 },
@@ -520,7 +522,7 @@ BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
             } );
 
     const ObservationVectorData< double, double > rejectedFullData =
-            rejectedPodData.second->getObservationDataset( )->createOrderedObservationVectorData( true );
+            rejectedPodData.second->getObservationDataset( )->createObservationVectorData( true );
     const Eigen::MatrixXd rejectedResidualHistory = rejectedPodData.first->getResidualHistoryMatrix( );
     const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags = rejectedPodData.first->getActiveFlagsPerIterationMatrix( );
 

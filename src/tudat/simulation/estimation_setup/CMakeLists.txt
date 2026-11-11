@@ -81,7 +81,6 @@ set(estimation_HEADERS
         observationDatasetInspectionImplementation.h
         observationDatasetWeightsImplementation.h
         observationCollectionConversion.h
-        observationLegacyParserAdapter.h
         observationWeights.h
         simulateObservationsLegacy.h
         )

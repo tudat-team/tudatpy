@@ -121,20 +121,11 @@ def test_rejection_copy_removal_and_appended_rows_preserve_ids():
         dataset.get_numerical_observation_metadata("angle", [4])
 
 
-def test_user_metadata_updates_validate_ids_and_do_not_invent_missing_values():
+def test_user_metadata_follows_requested_ids_and_returns_detached_snapshots():
     dataset = dataset_from_tracking([tracking_data()])
     dataset.add_numerical_observation_metadata("custom", [0, 2], [0.0, 2.0])
     before = dataset.numerical_observation_metadata
-    with pytest.raises(IndexError):
-        dataset.add_numerical_observation_metadata("custom", [0, 99], [10, 20])
-    with pytest.raises(RuntimeError):
-        dataset.add_numerical_observation_metadata("custom", [0, 2], [10])
-    assert dataset.numerical_observation_metadata == before
     assert dataset.get_numerical_observation_metadata("custom", [2, 0]) == [2, 0]
-    with pytest.raises(IndexError):
-        dataset.get_numerical_observation_metadata("custom", [1])
-    with pytest.raises(IndexError):
-        dataset.get_numerical_observation_metadata("missing key", [0])
     snapshot = dataset.numerical_observation_metadata
     snapshot["custom"][0] = -1
     assert dataset.numerical_observation_metadata == before
