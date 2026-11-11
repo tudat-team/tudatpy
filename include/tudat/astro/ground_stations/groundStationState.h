@@ -77,6 +77,12 @@ public:
 
     virtual ~GroundStationState( ) {}
 
+    //! Function to retrieve the motion model of the station (nullptr if it has none).
+    std::shared_ptr< StationMotionModel > getStationMotionModel( ) const
+    {
+        return stationMotionModel_;
+    }
+
     //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.
     /*!
      *  Function to obtain the Cartesian state of the ground station in the local frame (body-fixed, not topocentric) at a
@@ -311,6 +317,21 @@ public:
 
     ~LinearStationMotionModel( ) {}
 
+    Eigen::Vector3d getLinearVelocity( ) const
+    {
+        return linearVelocity_;
+    }
+
+    void setLinearVelocity( const Eigen::Vector3d& linearVelocity )
+    {
+        linearVelocity_ = linearVelocity;
+    }
+
+    double getReferenceEpoch( ) const
+    {
+        return referenceEpoch_;
+    }
+
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
                                                const std::string& targetFrameOrigin = "" )
@@ -449,6 +470,11 @@ public:
             motion += modelList_.at( i )->getBodyFixedStationMotion( time, groundStationState, targetFrameOrigin );
         }
         return motion;
+    }
+
+    std::vector< std::shared_ptr< StationMotionModel > > getModelList( ) const
+    {
+        return modelList_;
     }
 
 protected:

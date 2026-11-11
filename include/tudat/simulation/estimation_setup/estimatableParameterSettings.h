@@ -1612,6 +1612,12 @@ inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition( c
     return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > groundStationLinearVelocity( const std::string& body,
+                                                                                    const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, ground_station_linear_velocity, groundStationName );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > cameraPointingCorrection( const std::string& body, const std::string& cameraName )
 {
     return std::make_shared< EstimatableParameterSettings >( body, camera_pointing_correction, cameraName );

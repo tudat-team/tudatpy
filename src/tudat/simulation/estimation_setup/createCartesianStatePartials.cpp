@@ -11,6 +11,7 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 namespace tudat
@@ -224,6 +225,27 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                             // Create partial object.
                             partialMap[ linkEndIterator->first ] =
                                     std::make_shared< CartesianPartialWrtBodyFixedPosition >( currentBody->getRotationalEphemeris( ) );
+                        }
+                        break;
+                    }
+                    case estimatable_parameters::ground_station_linear_velocity: {
+                        if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
+                        {
+                            if( currentBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error, body's rotation model is not found in body " + currentBodyName +
+                                                          " when making position w.r.t. ground station linear velocity partial" );
+                            }
+                            std::shared_ptr< estimatable_parameters::GroundStationLinearVelocity > velocityParameter =
+                                    std::dynamic_pointer_cast< estimatable_parameters::GroundStationLinearVelocity >( parameterToEstimate );
+                            if( velocityParameter == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when making position w.r.t. ground station linear velocity partial, parameter type is "
+                                        "incompatible" );
+                            }
+                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtStationLinearVelocity >(
+                                    currentBody->getRotationalEphemeris( ), velocityParameter->getMotionModel( )->getReferenceEpoch( ) );
                         }
                         break;
                     }
