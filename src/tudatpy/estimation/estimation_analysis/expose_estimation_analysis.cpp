@@ -663,6 +663,19 @@ void expose_estimation_analysis( py::module& m )
 
          :type: :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings`
       )doc" )
+            .def_readwrite( "iteration_callback",
+                            &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::iterationCallback_,
+                            R"doc(
+
+         Function called in each iteration of the estimation, after the normal equations are solved, as
+         ``f(iteration, residuals, inverse_covariance)``: the iteration number (from 0), the residuals of this iteration (ordered as in
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`) and the unnormalized inverse covariance
+         matrix of this iteration (as in
+         :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.inverse_covariance`).
+         It can be used to monitor a long estimation while it runs. Default is ``None`` (no callback).
+
+         :type: Callable[[int, numpy.ndarray, numpy.ndarray], None]
+      )doc" )
             .def( "define_estimation_settings",
                   &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,

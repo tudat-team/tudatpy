@@ -1408,6 +1408,45 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
                                  << " (tolerance=" << relativeTorqueNormTolerance << ")" );
 }
 
+// Check that a propagation with Time as time type resets a tabulated rotational ephemeris with double time type
+BOOST_AUTO_TEST_CASE( testRotationalEphemerisResetWithOtherTimeType )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Phobos has a TabulatedRotationalEphemeris< double, double >; torque-free rotation about the body-fixed z-axis
+    SystemOfBodies bodies = getTestBodyMap( 9376.0E3 );
+    std::vector< std::string > bodiesToIntegrate = { "Phobos" };
+    double initialEphemerisTime = 1.0E7;
+    double rotationRate = 1.0E-4;
+    Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
+    systemInitialState( 0 ) = 1.0;
+    systemInitialState( 6 ) = rotationRate;
+
+    std::shared_ptr< RotationalStatePropagatorSettings< double, Time > > propagatorSettings =
+            std::make_shared< RotationalStatePropagatorSettings< double, Time > >(
+                    createTorqueModelsMap( bodies, SelectedTorqueMap( ), bodiesToIntegrate ),
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    Time( initialEphemerisTime ),
+                    rungeKuttaFixedStepSettings< Time >( 60.0, rungeKuttaFehlberg78 ),
+                    std::make_shared< PropagationTimeTerminationSettings >( initialEphemerisTime + 86400.0 ) );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+    SingleArcDynamicsSimulator< double, Time > dynamicsSimulator( bodies, propagatorSettings, true );
+
+    double testTime = initialEphemerisTime + 43230.0;
+    Eigen::Matrix3d expectedRotationToBaseFrame =
+            Eigen::AngleAxisd( rotationRate * ( testTime - initialEphemerisTime ), Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
+    Eigen::Matrix3d rotationToBaseFrame =
+            bodies.at( "Phobos" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( rotationToBaseFrame( i, j ) - expectedRotationToBaseFrame( i, j ) ), 1.0E-10 );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

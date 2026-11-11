@@ -38,6 +38,12 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
 
 {
+    if( considerParametersIncluded_ && parametersToEstimate_->getConstraintSize( ) > 0 )
+    {
+        throw std::runtime_error(
+                "Error when estimating parameters, linear parameter constraints cannot be combined with consider parameters" );
+    }
+
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
     const auto observationDataset = estimationInput->getObservationDataset( );
@@ -348,6 +354,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                     normalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ),
                     normalizationTerms.segment( 0, numberEstimatedParameters_ ),
                     false );
+        }
+
+        if( estimationInput->iterationCallback_ )
+        {
+            estimationInput->iterationCallback_(
+                    numberOfIterations,
+                    residuals.template cast< double >( ),
+                    normaliseUnnormaliseInverseCovarianceMatrix( leastSquaresOutput.second, normalizationTerms, false ) );
         }
 
         // Compute contribution consider parameters

@@ -246,7 +246,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 if( bodies.getFrameOrigin( ) == "SSB" )
                 {
                     bodyBarycentricStateFunction =
-                            std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, body, std::placeholders::_1 );
+                            std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double, false >, body, std::placeholders::_1 );
                 }
                 else
                 {
@@ -270,7 +270,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
                 }
                 else if( relativisticStationMotionSettings->useGeneralRelativisticCorrection_ )
                 {
-                    centralBodyBarycentricPositionFunction = std::bind( &Body::getPositionInBaseFrameFromEphemeris< double, double >,
+                    centralBodyBarycentricPositionFunction = std::bind( &Body::getPositionInBaseFrameFromEphemeris< double, double, false >,
                                                                         bodies.at( relativisticStationMotionSettings->centralBodyName_ ),
                                                                         std::placeholders::_1 );
                     if( bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )

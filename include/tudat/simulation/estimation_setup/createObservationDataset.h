@@ -115,7 +115,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
         for( const std::string& band : it.second )
         {
             bandDoubles.push_back(
-                    observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( band ) ) );
+                    basic_astrodynamics::convertFrequencyBandToDouble( basic_astrodynamics::getFrequencyBandFromString( band ) ) );
         }
 
         // Set frequency bands as double vector
@@ -143,7 +143,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
         // Convert reference frequency band (string) to double and set it
         ancillarySettings->setAncillaryDoubleData(
                 ancillaryVariable,
-                observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( it.second ) ) );
+                basic_astrodynamics::convertFrequencyBandToDouble( basic_astrodynamics::getFrequencyBandFromString( it.second ) ) );
     }
 
     if( ancillarySettings->getDoubleData( ).empty( ) && ancillarySettings->getDoubleVectorData( ).empty( ) )
@@ -420,6 +420,12 @@ void setInstrumentSupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >&
                 instrumentSupplementaryData );
+
+//! Create a ground station for every reference point position, or check that an existing one is at the same position.
+void setReferencePointSupplementaryDataInBodies(
+        simulation_setup::SystemOfBodies& bodies,
+        const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::ReferencePointSupplementaryData > > >&
+                referencePointSupplementaryData );
 
 //! Apply value-based tracking supplementary data to a body system.
 void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bodies,

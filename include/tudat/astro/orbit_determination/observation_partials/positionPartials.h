@@ -227,6 +227,32 @@ private:
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
 };
 
+//! Partial of the state of a ground station w.r.t. the body-fixed velocity of its linear motion model.
+class CartesianPartialWrtStationLinearVelocity : public CartesianStatePartial
+{
+public:
+    CartesianPartialWrtStationLinearVelocity( const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
+                                              const double referenceEpoch ):
+        bodyRotationModel_( bodyRotationModel ), referenceEpoch_( referenceEpoch )
+    {}
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
+    {
+        return Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) ) * ( time - referenceEpoch_ );
+    }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time )
+    {
+        return bodyRotationModel_->getDerivativeOfRotationToBaseFrame( time ) * ( time - referenceEpoch_ ) +
+                Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) );
+    }
+
+private:
+    std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
+
+    double referenceEpoch_;
+};
+
 //! Derived class for scaling three-dimensional position partial to position observable partial
 /*!
  *  Derived class for scaling three-dimensional position partial to position observable partial. Although the implementation
@@ -427,7 +453,7 @@ public:
         return observation_models::observed_body;
     }
 
-    virtual bool isVelocityScalingNonZero( )
+    virtual bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType )
     {
         return true;
     }

@@ -11,6 +11,7 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 namespace tudat
@@ -91,11 +92,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
-                    std::make_shared< RotationMatrixPartialWrtRotationalState >(
-                            std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrame,
-                                       currentBody->getRotationalEphemeris( ),
-                                       std::placeholders::_1 ) ),
-                    groundStationPositionFunction );
+                    createObservationRotationMatrixPartialWrtRotationalState( currentBody ), groundStationPositionFunction );
         }
     }
 
@@ -231,6 +228,27 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                         }
                         break;
                     }
+                    case estimatable_parameters::ground_station_linear_velocity: {
+                        if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
+                        {
+                            if( currentBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error, body's rotation model is not found in body " + currentBodyName +
+                                                          " when making position w.r.t. ground station linear velocity partial" );
+                            }
+                            std::shared_ptr< estimatable_parameters::GroundStationLinearVelocity > velocityParameter =
+                                    std::dynamic_pointer_cast< estimatable_parameters::GroundStationLinearVelocity >( parameterToEstimate );
+                            if( velocityParameter == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when making position w.r.t. ground station linear velocity partial, parameter type is "
+                                        "incompatible" );
+                            }
+                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtStationLinearVelocity >(
+                                    currentBody->getRotationalEphemeris( ), velocityParameter->getMotionModel( )->getReferenceEpoch( ) );
+                        }
+                        break;
+                    }
                     case estimatable_parameters::reference_point_position: {
                         // Check if current link end station is same station as that of which position is to be estimated.
                         if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
@@ -267,6 +285,14 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         }
     }
     return partialMap;
+}
+
+//! Function to create partial object of rotation matrix wrt the rotational state of a body, for use in observation partials
+std::shared_ptr< RotationMatrixPartial > createObservationRotationMatrixPartialWrtRotationalState(
+        const std::shared_ptr< simulation_setup::Body > currentBody )
+{
+    return std::make_shared< RotationMatrixPartialWrtRotationalState >( std::bind(
+            &ephemerides::RotationalEphemeris::getRotationToBaseFrame, currentBody->getRotationalEphemeris( ), std::placeholders::_1 ) );
 }
 
 //! Function to create partial object(s) of rotation matrix wrt translational state

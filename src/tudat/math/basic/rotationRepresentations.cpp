@@ -47,21 +47,42 @@ Eigen::Matrix< double, 4, 3 > calculateQuaternionWrtEulerAngle313Partial( const 
 //! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartial( const Eigen::Quaterniond& quaternion )
 {
-    double termsSquared1 = ( quaternion.z( ) * quaternion.z( ) + quaternion.w( ) * quaternion.w( ) );
-    double termsSquared2 = ( quaternion.x( ) * quaternion.x( ) + quaternion.y( ) * quaternion.y( ) );
+    double w = quaternion.w( );
+    double x = quaternion.x( );
+    double y = quaternion.y( );
+    double z = quaternion.z( );
+
+    // Closer than 1.0E-8 rad to a singularity (second Euler angle of 0 or pi rad), evaluate the partials at 1.0E-8 rad from it. The entries
+    // that go to zero there have norm sin( theta / 2 ) or cos( theta / 2 ): only this norm is changed, retaining their signs and ratio.
+    const double minimumNorm = std::sin( 0.5E-8 );
+    if( x * x + y * y < minimumNorm * minimumNorm )
+    {
+        const double angle = std::atan2( y, -x );
+        x = -minimumNorm * std::cos( angle );
+        y = minimumNorm * std::sin( angle );
+    }
+    if( z * z + w * w < minimumNorm * minimumNorm )
+    {
+        const double angle = std::atan2( z, w );
+        w = minimumNorm * std::cos( angle );
+        z = minimumNorm * std::sin( angle );
+    }
+
+    double termsSquared1 = ( z * z + w * w );
+    double termsSquared2 = ( x * x + y * y );
 
     double recurrentTerm = std::sqrt( termsSquared2 / termsSquared1 );
     Eigen::Matrix< double, 3, 4 > partialMatrix;
 
-    partialMatrix( 0, 0 ) = quaternion.z( ) / termsSquared1;
-    partialMatrix( 0, 1 ) = quaternion.y( ) / termsSquared2;
-    partialMatrix( 0, 2 ) = -quaternion.x( ) / termsSquared2;
-    partialMatrix( 0, 3 ) = -quaternion.w( ) / termsSquared1;
+    partialMatrix( 0, 0 ) = z / termsSquared1;
+    partialMatrix( 0, 1 ) = y / termsSquared2;
+    partialMatrix( 0, 2 ) = -x / termsSquared2;
+    partialMatrix( 0, 3 ) = -w / termsSquared1;
 
-    partialMatrix( 1, 0 ) = -2.0 * quaternion.w( ) * recurrentTerm;
-    partialMatrix( 1, 1 ) = 2.0 * quaternion.x( ) / recurrentTerm;
-    partialMatrix( 1, 2 ) = 2.0 * quaternion.y( ) / recurrentTerm;
-    partialMatrix( 1, 3 ) = -2.0 * quaternion.z( ) * recurrentTerm;
+    partialMatrix( 1, 0 ) = -2.0 * w * recurrentTerm;
+    partialMatrix( 1, 1 ) = 2.0 * x / recurrentTerm;
+    partialMatrix( 1, 2 ) = 2.0 * y / recurrentTerm;
+    partialMatrix( 1, 3 ) = -2.0 * z * recurrentTerm;
 
     partialMatrix( 2, 0 ) = partialMatrix( 0, 0 );
     partialMatrix( 2, 1 ) = -partialMatrix( 0, 1 );

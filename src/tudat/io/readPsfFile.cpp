@@ -469,33 +469,7 @@ std::shared_ptr< const data::CameraInstrumentSupplementaryData > getPsfCameraIns
 
 double getPsfPictureObservationTime( const RawPsfFileImageContents& imageContents, const bool useMidExposureTime )
 {
-    std::stringstream stream( imageContents.endOfExposureTimeUtcString_ );
-    int year = 0;
-    std::string monthString;
-    int day = 0;
-    std::string timeString;
-    stream >> year >> monthString >> day >> timeString;
-    if( stream.fail( ) || timeString.empty( ) )
-    {
-        throw std::runtime_error( "Error when converting PSF epoch: malformed UTC string '" + imageContents.endOfExposureTimeUtcString_ +
-                                  "'." );
-    }
-
-    std::replace( timeString.begin( ), timeString.end( ), ':', ' ' );
-    std::stringstream timeStream( timeString );
-    int hour = 0;
-    int minute = 0;
-    double seconds = 0.0;
-    timeStream >> hour >> minute >> seconds;
-    if( timeStream.fail( ) )
-    {
-        throw std::runtime_error( "Error when converting PSF epoch: malformed time field in '" + imageContents.endOfExposureTimeUtcString_ +
-                                  "'." );
-    }
-
-    TrackingFileMonthFieldConverter monthConverter( TrackingDataType::month );
-    const int month = static_cast< int >( monthConverter.toDouble( monthString ) );
-    double observationTime = basic_astrodynamics::DateTime( year, month, day, hour, minute, seconds ).epoch< double >( );
+    double observationTime = parseTrackingDateTime( imageContents.endOfExposureTimeUtcString_ ).epoch< double >( );
     if( useMidExposureTime )
     {
         observationTime -= 0.5 * imageContents.exposureTimeSeconds_;
@@ -568,10 +542,10 @@ void rebuildPsfCameraSupplementaryDataWithPointingHistory( RawPsfFileContents& p
 
         std::shared_ptr< data::CameraInstrumentSupplementaryData > updatedCameraData =
                 std::make_shared< data::CameraInstrumentSupplementaryData >( cameraData->getCameraId( ),
-                                                                             cameraData->getFocalLength( ),
-                                                                             cameraData->getPrincipalPoint( ),
-                                                                             cameraData->getFieldOfViewBounds( ),
-                                                                             cameraData->getKMatrix( ),
+                                                                             cameraData->getCalibration( ).focalLength_,
+                                                                             cameraData->getCalibration( ).principalPoint_,
+                                                                             cameraData->getCalibration( ).fieldOfViewBounds_,
+                                                                             cameraData->getCalibration( ).kMatrix_,
                                                                              cameraData->getDistortionCoefficients( ),
                                                                              cameraData->getMountingOffsets( ),
                                                                              pointingHistory );

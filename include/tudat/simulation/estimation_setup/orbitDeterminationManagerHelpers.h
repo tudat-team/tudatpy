@@ -527,7 +527,9 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceFromObjects(
     Eigen::MatrixXd initialCovariance;
     if( !estimationOutput->considerParametersIncluded_ )
     {
-        initialCovariance = estimationOutput->getUnnormalizedCovarianceMatrix( );
+        // Covariance from a constrained estimation has an additional row and column per constraint
+        const int numberOfParameters = estimationOutput->getNormalizationTerms( ).rows( );
+        initialCovariance = estimationOutput->getUnnormalizedCovarianceMatrix( ).topLeftCorner( numberOfParameters, numberOfParameters );
     }
     else
     {

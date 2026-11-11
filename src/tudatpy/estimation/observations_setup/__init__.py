@@ -1,5 +1,9 @@
 from tudatpy.kernel.estimation.observations_setup import *
 
+# Select the Python package, which provides deprecated aliases on top of the kernel submodule: importing it binds it
+# as attribute of this module, replacing the kernel submodule bound by the star import above
+import tudatpy.estimation.observations_setup.ancillary_settings
+
 
 def __getattr__(name):
     # Removable compatibility bridge for the former kernel submodule. Load it

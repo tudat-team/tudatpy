@@ -140,17 +140,19 @@ private:
             {
                 case translational_state: {
                     // Set translational states for bodies provided as input.
-                    for( unsigned int i = 0; i < integratedStates_[ translational_state ].size( ); i++ )
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
+                            integratedStates_.at( translational_state );
+                    for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
                         // Associate state with current time, so that bodies with an ephemeris defined w.r.t. this body use it
-                        bodyList_.at( std::get< 0 >( integratedStates_[ translational_state ][ i ] ) )
+                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )
                                 ->template setPropagatedState< StateScalarType, TimeType >(
                                         integratedStateIterator_->second.segment( i * 6, 6 ), currentTime );
                     }
                     break;
                 }
                 case rotational_state: {
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
                             integratedStates_.at( rotational_state );
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
@@ -162,7 +164,7 @@ private:
                 }
                 case body_mass_state: {
                     // Set mass for bodies provided as input.
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedMass =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedMass =
                             integratedStates_.at( body_mass_state );
 
                     for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
@@ -175,7 +177,7 @@ private:
                 case proper_time:
                     break;
                 case custom_state: {
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedCustomStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedCustomStates =
                             integratedStates_.at( custom_state );
                     int currentStartIndex = 0;
                     for( unsigned int i = 0; i < bodiesWithIntegratedCustomStates.size( ); i++ )
@@ -241,7 +243,7 @@ private:
             {
                 case translational_state: {
                     // Iterate over all integrated translational states.
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
                             integratedStates_[ translational_state ];
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
@@ -253,7 +255,7 @@ private:
                     break;
                 }
                 case rotational_state: {
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
                             integratedStates_.at( rotational_state );
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
@@ -264,7 +266,7 @@ private:
                 }
                 case body_mass_state: {
                     // Iterate over all integrated masses.
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
                             integratedStates_.at( body_mass_state );
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {

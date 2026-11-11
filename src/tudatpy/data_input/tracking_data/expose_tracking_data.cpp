@@ -14,6 +14,7 @@
 #include "odf/expose_odf.h"
 #include "psf/expose_psf.h"
 #include "slr/expose_slr.h"
+#include "landmarks/expose_landmarks.h"
 #include "scalarTypes.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingDataTime.h"
@@ -137,7 +138,13 @@ diagonal weights, per-observation matrix blocks or one full matrix for the objec
          time_scale : str, default "TDB"
              Time scale of the observation epochs.
          weighing_scheme : str, default ""
-             Name of the weighing scheme assigned to the observations.
+             Name of the weighing scheme assigned to the observations (``"VFCC17"``, ``"ADES"`` or
+             ``"ADES_NIGHT"``). The weights are computed when an observation collection is created
+             from this object, unless weights have been set manually. For ``"ADES"`` and
+             ``"ADES_NIGHT"``, the weights are computed from the rmsRA and rmsDec uncertainties
+             stored in the metadata. For ``"ADES_NIGHT"``, the weights are additionally divided by
+             the number of observations in the same local night (using the same
+             definition of a local night as for ``"VFCC17"``).
       )doc" )
             .def_property_readonly( "observable_type",
                                     &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,
@@ -690,6 +697,15 @@ number of observation events, regardless of the number of scalar components.)doc
          :type: str
       )doc" );
 
+    py::class_< tdat::CameraCalibration >( m, "CameraCalibration", R"doc(
+         Calibration of a camera, at a given time (see
+         :meth:`CameraInstrumentSupplementaryData.get_calibration`).
+      )doc" )
+            .def_readonly( "focal_length", &tdat::CameraCalibration::focalLength_, R"doc(Camera focal length.)doc" )
+            .def_readonly( "principal_point", &tdat::CameraCalibration::principalPoint_, R"doc(Camera principal point.)doc" )
+            .def_readonly( "field_of_view_bounds", &tdat::CameraCalibration::fieldOfViewBounds_, R"doc(Field-of-view bounds.)doc" )
+            .def_readonly( "k_matrix", &tdat::CameraCalibration::kMatrix_, R"doc(Camera K matrix.)doc" );
+
     py::class_< tdat::CameraInstrumentSupplementaryData,
                 std::shared_ptr< tdat::CameraInstrumentSupplementaryData >,
                 tdat::InstrumentSupplementaryData >( m, "CameraInstrumentSupplementaryData", R"doc(
@@ -727,35 +743,27 @@ number of observation events, regardless of the number of scalar components.)doc
 
          :type: str
       )doc" )
-            .def_property_readonly( "focal_length", &tdat::CameraInstrumentSupplementaryData::getFocalLength, R"doc(
-         **read-only**
+            .def( "get_calibration",
+                  &tdat::CameraInstrumentSupplementaryData::getCalibration,
+                  py::arg( "time" ) = TUDAT_NAN,
+                  R"doc(
+         Function to get the calibration of the camera at a given time.
 
-         Camera focal length.
+         Returns the constant calibration of the camera, or, for a camera
+         whose calibration changes between pictures (such as one created
+         from SUM files), that of the picture closest in time.
 
-         :type: float
-      )doc" )
-            .def_property_readonly( "principal_point", &tdat::CameraInstrumentSupplementaryData::getPrincipalPoint, R"doc(
-         **read-only**
+         Parameters
+         ----------
+         time : float, default=nan
+             Time, in UTC seconds since J2000 (the time scale of
+             :attr:`rotation_from_inertial_to_camera_frame_history`). Only
+             required when the calibration changes between pictures.
 
-         Camera principal point.
-
-         :type: numpy.ndarray
-      )doc" )
-            .def_property_readonly( "field_of_view_bounds",
-                                    &tdat::CameraInstrumentSupplementaryData::getFieldOfViewBounds,
-                                    R"doc(
-         **read-only**
-
-         Field-of-view bounds.
-
-         :type: numpy.ndarray
-      )doc" )
-            .def_property_readonly( "k_matrix", &tdat::CameraInstrumentSupplementaryData::getKMatrix, R"doc(
-         **read-only**
-
-         Camera K matrix.
-
-         :type: numpy.ndarray
+         Returns
+         -------
+         CameraCalibration
+             Calibration of the camera at the given time.
       )doc" )
             .def_property_readonly( "distortion_coefficients",
                                     &tdat::CameraInstrumentSupplementaryData::getDistortionCoefficients,
@@ -778,9 +786,64 @@ number of observation events, regardless of the number of scalar components.)doc
                                     R"doc(
          **read-only**
 
-         Camera-frame rotation history indexed by time.
+         Camera-frame rotation history indexed by picture time, in UTC seconds
+         since J2000 (as in the source files; the cameras created from this
+         data use TDB instead). The rotations start from the inertial frame,
+         or from the body-fixed frame of :attr:`pointing_reference_body_name`
+         when that is set.
 
          :type: dict[float, object]
+      )doc" )
+            .def_property( "pointing_reference_body_name",
+                           &tdat::CameraInstrumentSupplementaryData::getPointingReferenceBodyName,
+                           &tdat::CameraInstrumentSupplementaryData::setPointingReferenceBodyName,
+                           R"doc(
+         Body whose body-fixed frame the camera rotation history starts from.
+         An empty string means the inertial frame.
+
+         :type: str
+      )doc" )
+            .def_property( "body_fixed_position",
+                           &tdat::CameraInstrumentSupplementaryData::getBodyFixedPosition,
+                           &tdat::CameraInstrumentSupplementaryData::setBodyFixedPosition,
+                           R"doc(
+         Position of the camera in the body-fixed frame of the body that
+         carries it [m]. It is used when the camera is created from this
+         supplementary data. Defaults to zero.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
+      )doc" )
+            .def_property( "pointing_uncertainty_history",
+                           &tdat::CameraInstrumentSupplementaryData::getPointingUncertaintyHistory,
+                           &tdat::CameraInstrumentSupplementaryData::setPointingUncertaintyHistory,
+                           R"doc(
+         A-priori uncertainty of the camera pointing about the three camera
+         axes [rad], indexed by the picture times of the rotation history (in
+         UTC seconds since J2000). Empty when the source gives no value.
+
+         :type: dict[float, numpy.ndarray[numpy.float64[3, 1]]]
+      )doc" );
+
+    py::class_< tdat::ReferencePointSupplementaryData, std::shared_ptr< tdat::ReferencePointSupplementaryData > >(
+            m, "ReferencePointSupplementaryData", R"doc(
+         Container for the position of a reference point fixed to a body, such
+         as a ground station or a surface landmark.
+
+         When applied with
+         :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`,
+         a ground station with this position is created on the associated body,
+         named after the reference point. If the ground station already exists,
+         its position must match.
+      )doc" )
+            .def( py::init< const Eigen::Vector3d& >( ), py::arg( "body_fixed_position" ) )
+            .def_property_readonly( "body_fixed_position",
+                                    &tdat::ReferencePointSupplementaryData::getBodyFixedPosition,
+                                    R"doc(
+         **read-only**
+
+         Cartesian position of the reference point in the body-fixed frame [m].
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
       )doc" );
 
     py::class_< tdat::TranslationalStateSupplementaryData >( m, "TranslationalStateSupplementaryData", R"doc(
@@ -1000,6 +1063,14 @@ number of observation events, regardless of the number of scalar components.)doc
 
          :type: list[InstrumentSupplementaryData]
       )doc" )
+            .def_property( "reference_point_supplementary_data",
+                           &tdat::TrackingSupplementaryData::getReferencePointSupplementaryData,
+                           &tdat::TrackingSupplementaryData::setReferencePointSupplementaryData,
+                           R"doc(
+         Body-fixed position of the reference point, or None if not provided.
+
+         :type: ReferencePointSupplementaryData | None
+      )doc" )
             .def( "set_frequency_supplementary_data",
                   &tdat::TrackingSupplementaryData::setFrequencySupplementaryData,
                   py::arg( "frequency_supplementary_data" ),
@@ -1033,6 +1104,9 @@ number of observation events, regardless of the number of scalar components.)doc
 
     auto slrModule = m.def_submodule( "slr" );
     slr::expose_slr( slrModule );
+
+    auto landmarksModule = m.def_submodule( "landmarks" );
+    landmarks::expose_landmarks( landmarksModule );
 }
 
 }  // namespace tracking_data

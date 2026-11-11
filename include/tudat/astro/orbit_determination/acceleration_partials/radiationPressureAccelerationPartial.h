@@ -180,37 +180,6 @@ public:
      */
     void wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial );
 
-    //! Function to compute the partial derivative w.r.t. an arcwise radiation pressure coefficient
-    /*!
-     * Function to compute the partial derivative w.r.t. an arcwise radiation pressure coefficient
-     * \param parameter Parameter of arcwise radiation pressure coefficient w.r.t. which partial is to be taken
-     * \param partial Partial derivative w.r.t. an arcwise radiation pressure coefficient (returned by reference)
-     */
-    void wrtArcWiseRadiationPressureCoefficient(
-            Eigen::MatrixXd& partial,
-            const std::shared_ptr< estimatable_parameters::ArcWiseRadiationPressureCoefficient > parameter )
-    {
-        // Get partial w.r.t. radiation pressure coefficient
-        Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
-        this->wrtRadiationPressureCoefficient( partialWrtSingleParameter );
-
-        // Retrieve current arc
-        std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
-        partial.setZero( );
-        if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
-        {
-            int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
-
-            if( currentArc >= partial.cols( ) )
-            {
-                throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
-            }
-
-            // Set partial
-            partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
-        }
-    }
-
     //! Function for updating partial w.r.t. the bodies' positions
     /*!
      *  Function for updating common blocks of partial to current state. For the radiation pressure acceleration,
