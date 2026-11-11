@@ -280,12 +280,71 @@ menselijke/scientifieke goedkeuring van de nieuwe bindings uitgevoerd.
 | `benchmarks/cpp/parallelMultiArc.cpp` | Eerder zelfstandig prototype; referentie behouden |
 | `src/tudat/math/integrators/rungeKuttaCoefficients.cpp` | Constante RK-tabellen |
 
-Een logische **voor te leggen** vervolgstap is een aparte representatieve
-Python-schaalbenchmark: minstens acht onafhankelijke arcs en hetzelfde werk bij
-1/2/4/8 workers, met een sequentiële referentie en vastgelegde machine/configuratie.
-Alleen meer workers instellen geeft bij twee arcs geen acht parallelle taken.
-De gebruiker heeft hierover vragen gesteld, maar nog geen benchmarkuitbreiding,
-free-threading-port of extra modelcategorie opgedragen.
+### Mijn aanbeveling: eerst een representatieve Python-schaalbenchmark
+
+**Ik zou als eerstvolgende ontwikkeltaak een afzonderlijke, reproduceerbare
+schaalbenchmark via de nieuwe publieke Python-API bouwen.** De gebruiker heeft
+gevraagd deze mening vast te leggen; dit is een aanbeveling voor de volgende
+sessie, nog geen opdracht om nu een lange meting te starten.
+
+De native route heeft al overtuigende lokale schaalmetingen, en de Python-API
+heeft korte correctheids-/lifetime-tests. Wat nog ontbreekt is het bewijs dat
+een representatieve aanroep vanuit Python dezelfde nuttige versnelling behoudt,
+inclusief modelopbouw en nabewerking. Het bestaande voorbeeld is daarvoor te
+klein. Deze stap levert met beperkte uitbreiding direct bruikbaar bewijs voor
+de centrale onderzoeksvraag en legt vast waar eventuele overhead ontstaat.
+Daarna kunnen we gericht kiezen tussen bredere modelondersteuning en verdere
+optimalisatie. Ik zou niet eerst free-threading toevoegen: de C++-workers
+rekenen al parallel, terwijl GIL-loos gebruik een aparte synchronisatieopgave is.
+
+Concreet zou ik het volgende laten ontwikkelen:
+
+1. **Een aparte benchmarkdriver**, bijvoorbeeld
+   `benchmarks/benchmark_python_independent_arcs.py`; behoud het korte bestaande
+   voorbeeld. Maak arc-aantal, graad/orde, duur, stap, workers en herhalingen
+   instelbaar. Gebruik uitsluitend het ondersteunde native Mars-model en echte
+   onafhankelijke arcs; verander het productie-API-contract niet voor de meting.
+2. **Twee duidelijk gescheiden instellingen:** een snelle smoke-run voor
+   gebruikscontrole en een expliciete zwaardere run. Begin voor die laatste
+   met acht arcs, graad/orde 50, twee dagen per arc en een stap van 30 seconden,
+   aansluitend bij de historische native meting. Controleer daarvoor ook
+   beginstaten, epochs en modelkeuzes tegen de native benchmark; alleen dezelfde
+   graad en duur maken twee runs nog niet vergelijkbaar. Pas duur/omvang aan
+   als het werk op de nieuwe machine te licht of te zwaar blijkt.
+3. **Dezelfde berekening bij 1/2/4/8 workers**, met een verse facade per run en
+   ongewijzigde invoer. Eén worker moet de echte sequentiële default gebruiken.
+   Bij acht ingestelde workers moeten er minstens acht onafhankelijke arcs
+   zijn. Controleer de native uitvoeringsvlag. Behandel gekoppelde arcs via de
+   bestaande fallbacktests, niet als een parallelle snelheidsmeting.
+4. **Correctheid vóór een snelheidsclaim:** vergelijk toestanden, STM's en
+   gevoeligheden op alle opgeslagen epochs met de sequentiële referentie;
+   controleer ook de globale gedeelde-mu-mapping via de native matrixinterface.
+   Gebruik de bestaande eindigheidscontroles en toleranties. Neem deze
+   Python-uitlezing/vergelijking niet ongemerkt mee in de integratietijd.
+5. **Eerlijke tijdmeting:** rapporteer facade-/modelconstructie en integratie
+   afzonderlijk, plus hun som als totale gebruikersrelevante tijd. Integratie
+   omvat de seriële workerfactory en native nabewerking; noem het geen zuivere
+   workerkerneltijd. Houd resultaatuitlezing en destructie buiten die som en
+   vermeld dat expliciet; behandel eenmalige kernel-/pakketinitialisatie bij
+   iedere workerstand hetzelfde. Claim alleen directe overeenkomst met de historische
+   native tijden als ook de meetgrenzen gelijk zijn. Doe bijvoorbeeld drie
+   herhalingen, wissel de worker-volgorde en rapporteer mediaan én spreiding.
+   Gebruik geen harde minimale speedup als platformonafhankelijke testassertie.
+6. **Een klein machineleesbaar meetverslag** (bijvoorbeeld JSONL) met branch/HEAD
+   en dirty-status, machine/CPU, relevante dependency- en buildversies,
+   threadinstellingen, alle model-/integratieparameters, ingestelde workers,
+   gebruikte route, tijden en numerieke vergelijking. Leg opdracht en uitleg
+   bij de benchmark vast. Bewaar grote uitvoer lokaal; neem alleen bewust
+   gekozen kleine meetverslagen in Git op, zonder bestaande meetdata te
+   overschrijven. Voeg hiervoor geen zware benchmarkdependency toe.
+
+De taak is klaar als een gedocumenteerde smoke-run werkt, een expliciet gekozen
+representatieve meetreeks reproduceerbaar is, en zowel numerieke overeenkomst
+als de gemeten versnelling (of het uitblijven daarvan) eerlijk worden getoond.
+Als de schaalbaarheid tegenvalt, profileer eerst opbouw, factory en nabewerking;
+versoepel geen isolatie- of GIL-afspraken om alleen het benchmarkgetal te verhogen.
+Kies de meetomvang op de nieuwe machine na de korte reproductie; start niet
+automatisch de langste instelling.
 
 Meer modellen, gerichte ThreadSanitizer-controle, andere platformen en generieke
 Python-factories zijn afzonderlijke vervolgstappen. De oude sequentiële
@@ -311,7 +370,9 @@ lifetime en parameter-resetcontract blijft gewenst vóór bredere opname.
 > historische native testinformatie; de Python-bindings waren toen nog niet
 > aanwezig. Behoud de sequentiële defaults, modelisolatie, native resultaten,
 > gelatchte fallback voor gekoppelde arcs en het huidige GIL/callbackcontract.
-> Bespreek daarna de volgende ontwikkeltaak; een Python-schaalbenchmark is een
-> voorstel, nog geen gekozen opdracht. Start geen lange benchmark automatisch.
+> Lees daarna de concrete aanbeveling voor een representatieve
+> Python-schaalbenchmark en bespreek die als eerstvolgende ontwikkeltaak met de
+> gebruiker. Het is een onderbouwd voorstel, nog geen opdracht voor een lange
+> meetreeks. Start geen lange benchmark automatisch.
 > Agent-tooling en profieldata zijn bewust alleen lokaal bewaard en gaan niet
 > mee via Git. Communiceer in het Nederlands en maak afgebakende commits.
