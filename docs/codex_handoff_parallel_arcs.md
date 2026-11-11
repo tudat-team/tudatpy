@@ -1,347 +1,317 @@
 # Overdracht: parallellisatie van Tudat-arcs
 
-**Aanvulling 11 november 2026:** de eerste beperkte Python-API is uitgewerkt en
-getest op de AMD-machine. Zie [python_independent_arcs_api.md](python_independent_arcs_api.md)
-voor ontwerp, modelbeperkingen, lifetime/GIL/exception-afspraken, reproduceerbare
-commando's en testresultaten. Op de branch `parallellization_inquiry` zijn nu
-ook `fb07784bf` (bouwfix zonder serialisatie) en `7688a026b` (Python-API) gecommit.
-De vijf basiscommits hieronder zijn behouden. De oorspronkelijke tekst
-hieronder beschrijft de overdrachtsstand van 9 november en is historische context.
+Bijgewerkt op **11 november 2026**, voor een nieuwe sessie op een andere machine
+op **12 november 2026** (Europe/Amsterdam). Dit document beschrijft de actuele
+stand; de opdracht om de eerste Python-bindings te maken is **afgerond**.
 
-De overdracht en het Intel-reproductieverslag worden nu ook in Git opgenomen.
-De oude profileringsbestanden zijn lokaal verzameld onder
-`local-profiles/20261111/`, met behoud van de oorspronkelijke bestandsnamen en
-de submappen `Old/` en `oud/`. Een lokaal manifest bevat bestandsgroottes en
-SHA-256-controlesommen. De profileringsmap en agent-tooling zijn uitsluitend
-via `.git/info/exclude` uitgesloten; die bestanden blijven op deze machine
-aanwezig en worden niet met een clone of Git-bundle overgedragen.
+## Begin hier
 
-Opgesteld op 9 november 2026 voor een nieuwe Codex-sessie op een andere machine.
-Dit is projectcontext en een reproduceerbaar startpunt; controleer de actuele
-repositorystatus voordat u verder werkt.
+1. Controleer branch `parallellization_inquiry`, de commits hieronder en lokale
+   wijzigingen. Neem geen bestaande binaries, buildmappen of CMake-cache over.
+2. Lees [python_independent_arcs_api.md](python_independent_arcs_api.md) voor het
+   Python-contract en [independent_arc_execution.md](independent_arc_execution.md)
+   voor de native C++-route. Het [Intel-reproductieverslag](parallel_arcs_reproduction_20261109.md)
+   beschrijft de eerdere native controle op 9 november.
+3. Doe op de andere machine eerst de bouw-/omgevingscontrole en de korte tests
+   hieronder. Verifieer dat Python de nieuw gebouwde module importeert.
+4. **Een volgende ontwikkeltaak is nog niet gekozen.** Bespreek die na de korte
+   reproductie met de gebruiker. Bouw de bestaande Python-API niet opnieuw en
+   start geen lange benchmark als voorwaarde voor dat gesprek.
 
-**Bijgewerkt na de sessie van 9 november 2026 op de Intel-machine. De
-eerstvolgende taak is de native C++-parallellisatie toegankelijk maken vanuit
-Python (Tudatpy). De gebruiker wil dit in een latere sessie op een andere
-machine oppakken. Begin met een concreet Python-API-ontwerp voor één ondersteund
-voorbeeld en werk daarna de bindings uit. De native acceptatietests zijn op de
-Intel-machine inmiddels succesvol gereproduceerd; zie hieronder.**
+De gebruiker werkt in het Nederlands, wil concrete metingen en afgebakende
+commits, en richt zich op parallellisatie van onderliggende Tudat-routines.
+Prioriteit is gegeven aan onafhankelijke arcs boven losse krachtberekeningen
+binnen één arc. Prototype, native solver en Python-interface moeten duidelijk
+onderscheiden blijven.
 
-## Doel en stand van zaken
+## Wat werkt nu
 
-Het onderzoeksvoorstel richt zich op zware baananalyses met veel ruimtevaartuigen,
-lange tijdvakken en hoge nauwkeurigheid. We hebben prioriteit gegeven aan
-parallellisatie **over onafhankelijke arcs**, boven parallellisatie van losse
-krachtberekeningen binnen een arc.
+De bestaande C++-klassen `MultiArcDynamicsSimulator` en
+`MultiArcVariationalEquationsSolver` hebben een opt-in route met native
+**C++-threads** voor onafhankelijke arcs. Dit gebruikt geen Python
+`multiprocessing`. Resultaten en globale matrixinterfaces blijven native Tudat.
 
-Er is inmiddels een opt-in route in de bestaande C++-klassen
-`MultiArcDynamicsSimulator` en `MultiArcVariationalEquationsSolver`. Deze gebruikt
-threads voor complete arc-integraties en behoudt de native resultaatcontainers
-en gezamenlijke resultaatverwerking. Het is meer dan het oorspronkelijke losse
-prototype, maar nog geen generieke automatische modelkopie of Python-feature.
+Python biedt nu een bewust beperkte ingang:
 
-Belangrijkste grenzen:
+- `simulator.MarsGravityArcModel(degree=..., order=...)`;
+- `simulator.IndependentArcVariationalSimulator(...)`;
+- één ondersteund model: Mars/JGMRO120D, Cowell, vaste RKDP87-stap, zes
+  beginstaatparameters per arc en één gedeelde Mars-mu;
+- eigen native modellen per arc, opgebouwd door een C++-factory;
+- sequentiële default (`number_of_workers=1`), expliciet parallel opt-in;
+- geen willekeurige Python-factory, Python-callbacks of toegang tot de
+  onderliggende veranderlijke solver/bodies vanuit deze wrapper.
 
-- Standaard blijft uitvoering sequentieel.
-- De parallelle route ondersteunt voorlopig Cowell-translatiepropagatie.
-- De aanroeper levert een expliciete C++-factory voor geïsoleerde arc-modellen.
-- Toestandsoverdracht/NaN-beginstaten houdt de solver conservatief sequentieel,
-  ook bij herintegratie nadat de NaNs zijn ingevuld.
-- Andere toestandsrepresentaties vallen terug op sequentiële uitvoering.
-- Consider parameters worden bij configuratie van de variatiefactory afgewezen.
-- Python-bindings voor deze configuratie zijn **nog niet toegevoegd**.
-- Er is geen algemene thread-safety-garantie voor willekeurige Tudat-modellen.
+Het [uitvoerbare voorbeeld](../benchmarks/python_independent_arcs.py) heeft twee
+arcs van elk **600 seconden**, stap **30 seconden**, zwaartekrachtgraad **20** en
+**twee workers**. De gebruiker heeft het zelf uitgevoerd. Het is terecht zeer
+snel klaar: dit is een functioneel voorbeeld, geen zware snelheidsbenchmark.
 
-## Git en overdracht naar de andere machine
+```bash
+# Vanuit de repositoryroot, na een eigen verse build:
+conda activate tudatpy-dev
+PYTHONPATH=build-python-arcs/src python benchmarks/python_independent_arcs.py
+```
 
-Tak: `parallellization_inquiry` (let op deze exacte spelling).
-Gecontroleerde basis-HEAD bij het schrijven: **`9a4c3365d`**.
+Verwachte hoofduitvoer:
+
+```text
+Native independent execution: True
+Arc 0: 21 saved states
+Arc 1: 21 saved states
+Global state-transition/sensitivity matrix: (6, 13)
+```
+
+## Git en overdracht
+
+Deze acht commits staan op `parallellization_inquiry`, plus de aanvullende
+actualisering van dit overdrachtsdocument. Basis-HEAD vóór deze actualisering:
+`990b7b4fa`.
 
 | Commit | Inhoud |
 |---|---|
-| `2873e55d4` | Los parallel C++-prototype, controles en eerste meetresultaten |
-| `5efa213d2` | Zelfstandige thread-safety-bugfix voor Runge–Kutta-tabellen |
-| `a7718ee1d` | Integratie in de native C++-multi-arc solvers |
+| `2873e55d4` | Los parallel C++-prototype en eerste controles/metingen |
+| `5efa213d2` | Thread-safe initialisatie van Runge–Kutta-tabellen |
+| `a7718ee1d` | Onafhankelijke arcs in de bestaande native multi-arc solvers |
 | `fc9d93882` | Single-arc-profileringsscripts en LEO-analyse |
-| `9a4c3365d` | Historische onderzoeksnotitie met verwijzing naar huidige implementatie |
+| `9a4c3365d` | Historische onderzoeksnotitie |
+| `fb07784bf` | Bouwfix voor Python met serialisatie uitgeschakeld |
+| `7688a026b` | Python-API, native Mars-model, voorbeeld, tests en API-contract |
+| `990b7b4fa` | Overdracht en Intel-reproductieverslag in Git |
 
-Controleer of deze commits op de andere machine beschikbaar zijn. De
-beschikbaarheid op een remote is niet gecontroleerd; er is hier geen push gedaan.
-Dit overdrachtsdocument is na bovenstaande HEAD aangemaakt en moet zelf ook
-worden meegenomen (los kopiëren of eerst committen).
-Hetzelfde geldt voor `docs/parallel_arcs_reproduction_20261109.md`: beide
-documenten zijn aan het einde van deze sessie nog untracked. Er is in deze
-sessie geen commit of push gedaan en geen wetenschappelijke broncode gewijzigd.
-
-Bijvoorbeeld: maak desgewenst een bundle van de tak nadat de gewenste documenten
-zijn gecommit. Dit kan een groot bestand worden, omdat het bereikbare historie
-bevat. Gebruik een gekozen overdrachtspad buiten de bronbestanden:
+Er is in deze sessie **niet gepusht**. Beschikbaarheid op een remote is niet
+gecontroleerd. Zorg dus dat ook de laatste documentatiecommit wordt meegenomen.
+Bijvoorbeeld via een bundle, na het committen van alle gewenste wijzigingen:
 
 ```bash
+# Bronmachine; kies zelf een overdrachtspad:
 git bundle create /gekozen/pad/tudat-parallel-arcs.bundle parallellization_inquiry
-# Op de andere machine, in een nieuwe directory:
+# Andere machine, in een nieuwe directory:
 git clone -b parallellization_inquiry /gekozen/pad/tudat-parallel-arcs.bundle tudatpy
+cd tudatpy
 ```
 
-Een bundle bevat geen untracked bestanden, dependency-installaties of
-submodulerepositories. Gebruik waar nodig de normale repository/submodule-setup;
-de afwijkende lokale submodulestand hieronder hoort niet bij deze feature.
+Een bundle bevat geen submodulerepositories, omgevingsinstallaties, ignored of
+untracked bestanden. Regel submodules waar nodig afzonderlijk. Op 11 november
+stond `examples/tudatpy` op `0113d35864519867da66acd0a3ca3a3f2f2e5d63`, zonder
+lokale submodulewijziging. Een oudere werkmap had een afwijkende submodulestand;
+neem die historische afwijking niet automatisch over en herstel geen bestaand
+werk op de nieuwe machine zonder opdracht.
 
-De oude werkmap had daarnaast bestaande, bewust niet opgenomen wijzigingen:
+### Wat uitsluitend lokaal blijft
 
-- `examples/tudatpy`: submodule van `0113d3586…` naar `8227687d5…`; deze wijziging
-  is niet door dit werk gemaakt en mag niet stilzwijgend worden teruggedraaid.
-- Untracked profielbestanden (`perf.data*`, `*.perf.data`, callgraphs, rapporten),
-  `Old/`, `oud/` en `gprof-environment-dev.yaml`. Ze zijn behouden; ze zijn niet
-  nodig voor de native acceptatietest en horen niet automatisch in een commit.
-- Alle eerdere benchmarkbestanden onder `benchmarks/` zijn inmiddels gecommit.
+De gebruiker heeft expliciet gekozen de agent-tooling **alleen lokaal** te
+houden. Deze paden zijn via `.git/info/exclude` uitgesloten:
 
-## Eerst lezen en belangrijkste bestanden
+```text
+/.agents/
+/.codex/
+/AGENTS.md
+/rseng-check/
+/.rseng-agent-skills-*
+/.rseng-agent-skills.codex.json
+/local-profiles/
+```
 
-Lees [independent_arc_execution.md](independent_arc_execution.md) voor het
-actuele API-contract. [parallellization_inquiry.md](parallellization_inquiry.md)
-is uitsluitend historische context, geen actuele implementatiestatus.
+Die uitsluitingen zijn lokaal; `.gitignore` is niet gewijzigd. De nieuwe machine
+krijgt de tooling en uitsluitingen niet automatisch. Gebruik daar de aanwezige
+agentinstructies; voeg de lokale tooling niet alsnog aan Git toe.
 
-| Bestand | Rol |
-|---|---|
-| `include/tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h` | Factory, aliascontroles, scheduling, fallback en native resultaatverwerking |
-| `include/tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h` | Variatiefactory, actuele parameterwaarden en layoutcontroles |
-| `include/tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h` | `integrateIndependentArc`: schrijven naar caller-owned arc-resultaten |
-| `include/tudat/simulation/propagation_setup/independentArcExecutor.h` | Thread-taakverdeler, join en deterministische fouttoerekening |
-| `src/tudat/math/integrators/rungeKuttaCoefficients.cpp` | Eenmalige, constante Runge–Kutta-tabellen |
-| `tests/test_tudat/src/math/integrators/unitTestRungeKuttaCoefficients.cpp` | Zelfstandige concurrentietest, zonder arc-executor |
-| `benchmarks/cpp/nativeMultiArc.cpp` | Native acceptatietest, model-factory en schaalmeting |
-| `benchmarks/cpp/marsArcBenchmark.h` | Gedeelde Mars-opbouw en SPICE-wrappers voor de benchmarks |
-| `benchmarks/cpp/parallelMultiArc.cpp` | Oorspronkelijk los prototype; bewaren als referentie |
-| `benchmarks/profile_multi_arc.py` | Sequentiële native multi-arc Python-benchmark |
-| `benchmarks/cpp/native-scaling-forward.jsonl` | Vastgelegde native schaalmeting |
+Alle **24** oude profilerings-/omgevingsbestanden (**2,71 GiB**) zijn op verzoek
+verplaatst naar `local-profiles/20261111/`. Bestandsnamen en submappen `Old/` en
+`oud/` zijn behouden. Een `manifest.json` bevat oorspronkelijke paden, groottes,
+mtime en SHA-256; controles vóór en na verplaatsing kwamen overeen. Een lokale
+README licht de indeling toe. Niets is verwijderd. Ook `gprof-environment-dev.yaml`
+en de drie `*-self.txt`-rapporten staan daar. De YAML beschrijft een historische
+Python 3.11-omgeving en is niet de omgeving voor de nieuwe bindings.
 
-De overige profileringsscripts en uitleg staan in
-[benchmarks/README.md](../benchmarks/README.md),
-[MARS_GRAVITY.md](../benchmarks/MARS_GRAVITY.md) en
-[MULTI_ARC.md](../benchmarks/MULTI_ARC.md).
+Deze data is niet nodig voor de korte reproductie. Kopieer de map afzonderlijk
+als de nieuwe sessie de oorspronkelijke profielen moet onderzoeken. Vlak na de
+opruimcommit was `git status --short` leeg.
 
-## Ontwerp dat behouden moet blijven
+## Bouw-/omgevingscontrole op de andere machine
 
-De C++-ingang is `setIndependentArcExecution(workers, factory)`, op beide
-multi-arc klassen. Configureer vóór integratie en schakel integratie bij
-constructie uit. `clearIndependentArcExecution()` herstelt de gewone route.
-
-De factory wordt **serieel, op iedere integratie opnieuw** aangeroepen, vóór
-workerthreads starten. De variatiefactory krijgt arc-index, oorspronkelijke
-arc-instellingen en actuele lokale parameterwaarden. Zo worden gewijzigde
-beginstaten en gedeelde parameters bij herintegratie meegenomen.
-
-De factory moet dezelfde fysica en instellingen reconstrueren met eigen
-veranderlijke bodies, modellen, caches en parameterobjecten. Een kopie van
-`SystemOfBodies` is geen deep copy. Bekende aliases worden afgewezen, maar
-controle van een willekeurige volledige pointer-/callbackgraph is niet mogelijk.
-
-De Mars-benchmark beschermt SPICE-ephemeris- en rotatieaanroepen met één gedeelde
-mutex. Die wrappers staan in benchmarkcode: Tudat heeft hiermee **geen algemene
-globale SPICE-lock** gekregen. Voor een andere factory moet externe gedeelde
-toestand opnieuw correct worden behandeld.
-
-Workers schrijven rechtstreeks in de native per-arc resultaten. Na join volgt
-de bestaande sequentiële nabewerking: ephemeriden, afhankelijke variabelen en
-gezamenlijke STM/sensitiviteitsinterface. Er is geen handmatig samengevoegde,
-dichte globale matrixhistorie zoals in het eerste prototype. De native globale
-parameterindeling koppelt alle lokale mu-sensitiviteiten aan dezelfde parameter.
-
-Exceptions worden na join met arc-index gemeld; ook niet-succesvolle terminatie
-geldt als fout. Bij fouten volgt geen globale nabewerking/succesmarkering.
-Oorspronkelijke derivative-model-scratchcaches zijn geen snapshots van workers;
-gebruik de resultaatobjecten voor histories en evaluatietellingen.
-
-## Bekende bugfix en bewijsgrenzen
-
-Een incidentele afwijking in de dynamica-only-test leidde tot inspectie van
-gedeelde integratortoestand. De DP87-getter controleerde `higherOrder != 7`,
-terwijl de initializer orde 8 instelde. Iedere lookup herschreef daardoor een
-statische tabel, mogelijk terwijl een andere thread die kopieerde.
-
-De getter gebruikt nu voor alle 21 methoden function-local `static const`
-tabellen met C++ thread-safe initialisatie. De numerieke initializers en
-coëfficiënten zijn niet gewijzigd. De code-inspectie toont de race; zonder
-ThreadSanitizer is niet bewezen dat juist die race de eerste incidentele
-afwijking veroorzaakte. Maak dat onderscheid in toekomstige verslaglegging.
-
-## Verse bouw op een andere machine
-
-De onderstaande shellcommando's zijn voor Linux/POSIX. Bouw opnieuw; neem geen
-`CMakeCache.txt`, statische libraries of uitvoerbare bestanden van de oude
-machine over. De oude map `build/` bevatte libraries van augustus bij headers
-van november en bleek niet compatibel.
-
-De repository heeft `environment.yaml` met onder meer CMake, Make, compilers,
-Eigen, Boost, Cereal, CSPICE, SOFA, NRLMSISE, Tudat Resources en pybind11. Dit is
-geen versielockbestand. Een mogelijke basis is:
+Gebruik een verse build en een eigen ontwikkelomgeving. `environment.yaml`
+bevat de dependencies, maar is geen versielockbestand. Controleer onder andere
+CMake, compilers, Eigen, Boost, **Cereal**, CSPICE, SOFA, NRLMSISE, Tudat Resources,
+pybind11, NumPy, pytest en de gedeclareerde Python-dependencies.
 
 ```bash
+# Alleen indien een geschikte omgeving nog niet bestaat:
 conda env create -f environment.yaml
 conda activate tudatpy-dev
 ```
 
-Gebruik een andere omgevingsnaam als deze al bestaat. Controleer de gekozen
-compiler en dependency-paden in de CMake-uitvoer. Tudat Resources moet de
-standaard SPICE-kernels en het JGMRO120D Mars-model kunnen vinden. Vul ontbrekende
-wetenschappelijke data niet aan met verzonnen/vereenvoudigde coëfficiënten.
+De AMD-machine gebruikte op 11 november Python 3.14.6, GCC 14.4.0,
+pybind11 3.0.3 en Tudat Resources 2.4 (`h68c723b_5`). Cereal 1.3.2 kwam hier uit
+het reeds aanwezige `/tmp/tudat-cereal-prefix`; **neem dit tijdelijke pad niet
+over**. Zorg dat Cereal op de nieuwe machine correct is geïnstalleerd.
+
+De publieke package-import vereiste hier ook herstel van de al gedeclareerde
+`atdf2ascii`-dependency: 1.0.0, upstream commit
+`ae11cb1438d2843923272caee4eda69ea476fa93`, plus `bitstring` 5.0.0,
+`termcolor` 3.3.0 en `tibs` 2.0.2. Geen bestaande pakketten zijn opgewaardeerd.
+Zie het API-document voor het volledige lokale bouw-/omgevingsverslag.
+
+De standaard SPICE-kernels en `gravity_models/Mars/jgmro120d.txt` moeten
+beschikbaar zijn. Gebruik echte resourcebestanden; vervang ze niet door
+verzonnen of vereenvoudigde coëfficiënten. Kopieer geen oude geïnstalleerde
+`tudatpy-with-debug-symbols`-package als vervanging voor de nieuwe build.
+
+Onderstaande compilerpaden zijn voor Linux met de gebruikte Conda-toolchain;
+pas ze op een ander platform aan. Kies een andere nieuwe buildmap als
+`build-python-arcs` daar al bestaat. Pas bouwjobs aan het geheugen aan; op de
+Intel-machine met 16 GB waren twee jobs gebruikt.
 
 ```bash
-# Vanuit de repositoryroot; gebruik op deze machine een NIEUWE buildmap.
-cmake -S . -B build-parallel-arcs -G "Unix Makefiles" \
-    -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DTUDAT_BUILD_TESTS=ON \
-    -DTUDAT_BUILD_WITH_SERIALIZATION=OFF \
-    -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=OFF \
-    -DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=ON
+cmake -S . -B build-python-arcs -G 'Unix Makefiles' \
+  -DCMAKE_CXX_COMPILER="$CONDA_PREFIX/bin/x86_64-conda-linux-gnu-c++" \
+  -DCMAKE_C_COMPILER="$CONDA_PREFIX/bin/x86_64-conda-linux-gnu-cc" \
+  -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+  -DCMAKE_BUILD_TYPE=Release -DTUDAT_BUILD_TESTS=ON \
+  -DTUDAT_BUILD_WITH_SERIALIZATION=OFF \
+  -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=OFF \
+  -DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=ON \
+  -DCCACHE_PROGRAM=CCACHE_PROGRAM-NOTFOUND
+cmake --build build-python-arcs --target kernel -j 2
+PYTHONPATH=build-python-arcs/src python -c 'import tudatpy.kernel; print(tudatpy.kernel.__file__)'
+PYTHONPATH=build-python-arcs/src python benchmarks/python_independent_arcs.py
+PYTHONPATH=build-python-arcs/src python -m pytest \
+  tests/test_tudatpy/test_independent_arc_execution.py --no-remote-data -q
 
-cmake --build build-parallel-arcs --target copy_test_data \
-    test_propagators_IndependentArcExecution \
-    test_integrators_RungeKuttaCoefficients \
-    test_integrators_RungeKutta87DormandPrinceIntegrator -j 4
+cmake --build build-python-arcs --target copy_test_data \
+  test_propagators_IndependentArcExecution test_integrators_RungeKuttaCoefficients \
+  test_integrators_RungeKutta87DormandPrinceIntegrator -j 2
+ctest --test-dir build-python-arcs \
+  -R '^test_(propagators_IndependentArcExecution|integrators_RungeKuttaCoefficients|integrators_RungeKutta87DormandPrinceIntegrator)$' \
+  --output-on-failure
 ```
 
-Pas het aantal bouwjobs aan het beschikbare geheugen aan; templates compileren
-zwaar. Dit bouwt C++-doelen, geen nieuwe geïnstalleerde Python-module. Het
-native acceptatieprogramma gebruikt `double` voor tijd en toestand.
+De geprinte module moet uit de eigen build komen. De native acceptatietest
+gebruikt `double` voor tijd/toestand; de echte Python-build gebruikt de
+bindingsconfiguratie met `tudat::Time`. De native test alleen vervangt daarom
+niet de Python-build en de 22 bindingtests.
 
-Oude lokale bijzonderheden die niet naar de andere machine mogen worden gekopieerd:
+## Bewijs en grenzen
 
-- Compiler/dependencies: `/home/hanno/miniforge3/envs/tudatpy-dev`.
-- Cereal ontbrak in die installatie en werd tijdelijk onder
-  `/tmp/tudat-cereal-prefix` geïnstalleerd. Een nieuwe correcte omgeving kan
-  Cereal rechtstreeks leveren; kopieer die `/tmp`-prefix niet in nieuwe commando's.
-- De Python-profielen gebruikten daarnaast `tudatpy-with-debug-symbols` met een
-  oudere geïnstalleerde interface. Dat pakket was niet deze nieuwe C++-build.
-- `build_prototype.py` leest `flags.make`/`link.txt` uit een Makefiles-build.
-  Gebruik bij voorkeur het native CMake-testdoel hierboven; die helper is geen
-  universeel Ninja/Windows-bouwsysteem.
+Op de **AMD-machine, 11 november 2026**:
 
-## Tests en meting reproduceren
+- Verse Release-kernel, publiek Python-voorbeeld en **22 nieuwe Python-tests**
+  geslaagd. Dekking: sequentieel/parallel, mu-updates, gekopieerde invoer,
+  lifetime van native resultaten/interfaces, deferred reset, dynamics-only,
+  gekoppelde herintegratie, validatie en workerfouten/herstel.
+- Alle **drie native CTests** geslaagd.
+- Volledige Python-run met `--no-remote-data`: **660 passed, 209 failed,
+  114 skipped, 1 xfailed**. Daarvan vereisen 207 fouten de uitgeschakelde
+  serialisatie; twee andere tests downloaden ongemarkeerd externe bestanden
+  en faalden op sandbox-DNS. Dit is geen volledig groene all-features-suite.
+- Passende selectie voor serialisatie-OFF/offline: **652 passed, 104 skipped,
+  2 deselected**. Exacte uitsluitingen en commando staan in het API-document.
+- Black, clang-format en whitespacecontrole geslaagd. Na de codecommits is
+  uitsluitend documentatie/lokale bestandsorganisatie gewijzigd.
 
-```bash
-export OPENBLAS_NUM_THREADS=1
-export OMP_NUM_THREADS=1
+Op de **Intel-machine, 9 november 2026**: drie native tests geslaagd, native
+acceptatie 30 keer en coëfficiëntencontrole 20 keer achtereen geslaagd. De korte
+schaalproef met vier arcs was te licht voor een overtuigende snelheidsclaim.
+De Python-bindings bestonden toen nog niet; ze zijn daar nog niet getest.
+Zie het afzonderlijke reproductieverslag voor details.
 
-ctest --test-dir build-parallel-arcs --output-on-failure \
-    -R '^(test_propagators_IndependentArcExecution|test_integrators_RungeKuttaCoefficients|test_integrators_RungeKutta87DormandPrinceIntegrator)$'
+De eerdere native AMD-meting (acht arcs, graad 50, twee dagen per arc) gaf
+31,070 / 15,615 / 7,977 / 4,717 s bij 1/2/4/8 workers (maximaal 6,59×).
+Zie `benchmarks/cpp/native-scaling-forward.jsonl`. Dit is historische native
+meetdata, **geen nieuwe meting van de Python-API**. Op 11 november is geen nieuwe
+lange benchmark uitgevoerd. Gebruik de korte demonstratie niet als speeduptest.
 
-ctest --test-dir build-parallel-arcs --output-on-failure \
-    -R '^test_propagators_IndependentArcExecution$' --repeat until-fail:30
+Numerieke parity gebruikt de bestaande tolerantie
+`abs(actual - expected) <= 1e-14 + 1e-11 * abs(expected)` en eindige waarden.
+Dit toetst overeenkomst met de sequentiële route, geen absolute fysieke
+baannauwkeurigheid. Er is geen volledige ThreadSanitizer-run of onafhankelijke
+menselijke/scientifieke goedkeuring van de nieuwe bindings uitgevoerd.
 
-ctest --test-dir build-parallel-arcs --output-on-failure \
-    -R '^test_integrators_RungeKuttaCoefficients$' --repeat until-fail:20
+## Ontwerpafspraken die behouden moeten blijven
 
-# Eerst een korte functionele schaalproef, daarna pas de langere meting.
-build-parallel-arcs/tests/test_propagators_IndependentArcExecution \
-    --arcs 4 --degree 20 --days-per-arc 0.02
-build-parallel-arcs/tests/test_propagators_IndependentArcExecution \
-    --arcs 8 --degree 50 --days-per-arc 2
-```
+- Native C++: `setIndependentArcExecution(workers, factory)`; de factory wordt
+  **serieel vóór workers, opnieuw bij elke integratie** aangeroepen met actuele
+  lokale parameters. Modellen/caches/integrators moeten echt geïsoleerd zijn;
+  `SystemOfBodies` kopiëren is geen deep copy. Bekende aliases worden gecheckt,
+  maar niet iedere willekeurige pointer-/callbackgraph.
+- Sequentiële defaults, Cowell-beperking en native resultaatinterfaces blijven.
+  Toestandsoverdracht/NaN-afhankelijkheid blijft voor de solver gelatcht op
+  sequentiële uitvoering, ook na het oplossen van de NaNs. Andere native
+  toestandsrepresentaties vallen terug; consider parameters worden afgewezen.
+- C++-workers vullen bestaande arc-resultaten; na join volgt native globale
+  verwerking van ephemeriden en STM/sensitiviteiten. Gedeelde mu blijft één
+  globale parameter. Workerfouten worden na join met arc-index doorgegeven.
+- Python: invoer/configuratie wordt gekopieerd; workerfactories bevatten geen
+  geleende Python-objecten, Python-callbacks of verwijzing naar de facade.
+  Native resultaatobjecten hebben live/update-semantiek, geen snapshots.
+- **GIL blijft vastgehouden** tijdens Python-integratie. Native workers hebben
+  hem niet nodig; Python-threads kunnen hierdoor niet gelijktijdig live
+  resultaten lezen/wijzigen. Geen `gil_scoped_release` toevoegen zonder een
+  apart synchronisatie-/snapshotontwerp voor alle toegankelijke objecten.
+- Free-threaded Python is besproken, **niet geïmplementeerd of getest**. De
+  C++-workers zijn al parallel. Zonder GIL is expliciete bescherming nodig,
+  ook voor eerder verkregen native resultaten. Alleen een mutex om de facade
+  of een modulevlag is onvoldoende; willekeurige callbacks blijven uitgesloten.
+- `reintegrate=False` in de nieuwe facade stelt alle integratie uit. De oudere
+  native `resetParameterEstimate(values, false)` doet juist dynamics-only;
+  verwar die betekenissen niet. De facade synchroniseert parameters expliciet.
+- De ondersteunde Mars-ephemeris-/rotatiedelegates gebruiken een gedeelde mutex.
+  Dit is **geen algemene globale SPICE-lock** voor alle Tudat-code of modellen.
+- De RK-bugfix initialiseert alle 21 tabellen éénmaal als `static const`. De
+  oude DP87-getter testte orde 7 terwijl de initializer 8 instelde en herschreef
+  daardoor gedeelde tabellen. De race is uit code-inspectie aangetoond; dat hij
+  de oorspronkelijke incidentele afwijking veroorzaakte is zonder TSan niet bewezen.
 
-De executable voert eerst de korte regressiecontroles uit en meet daarna
-hetzelfde werk met 1/2/4/8 workers. Vergelijk met de sequentiële native referentie,
-niet alleen met een tweede parallelle run. Stop compilaties tijdens tijdmetingen.
-Sla nieuwe machine-uitkomsten onder een nieuwe bestandsnaam op; overschrijf de
-historische meetbestanden niet automatisch.
+## Codekaart en mogelijk vervolg
 
-Getest op de oude machine: AMD Ryzen 9 7900X, 12 cores/24 logische CPU's,
-x86_64 Linux, conda-forge GCC 14.4.0, Release. Native meting:
+| Bestand | Rol |
+|---|---|
+| `src/tudatpy/dynamics/simulator/independent_arc_models.h` | Native model, eigendom, validatie en facade |
+| `src/tudatpy/dynamics/simulator/expose_simulator_independent_arcs.cpp` | Python-bindings; bewust GIL vasthouden |
+| `tests/test_tudatpy/test_independent_arc_execution.py` | 22 korte binding-/paritytests |
+| `benchmarks/python_independent_arcs.py` | Kort werkend Python-voorbeeld |
+| `include/tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h` | Native scheduling, aliascontroles, fallback en resultaatverwerking |
+| `include/tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h` | Actuele lokale parameters en variatiefactory |
+| `include/tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h` | Schrijven naar native per-arc resultaten |
+| `include/tudat/simulation/propagation_setup/independentArcExecutor.h` | Taakverdeling, join en fouten |
+| `benchmarks/cpp/nativeMultiArc.cpp` | Native acceptatie/factory/schaalmeting |
+| `benchmarks/cpp/marsArcBenchmark.h` | Native benchmarkmodel en SPICE-wrappers |
+| `benchmarks/cpp/parallelMultiArc.cpp` | Eerder zelfstandig prototype; referentie behouden |
+| `src/tudat/math/integrators/rungeKuttaCoefficients.cpp` | Constante RK-tabellen |
 
-| Workers | Totale tijd | Versnelling t.o.v. 1 |
-|---:|---:|---:|
-| 1 | 31,070 s | 1,00 |
-| 2 | 15,615 s | 1,99 |
-| 4 | 7,977 s | 3,90 |
-| 8 | 4,717 s | 6,59 |
+Een logische **voor te leggen** vervolgstap is een aparte representatieve
+Python-schaalbenchmark: minstens acht onafhankelijke arcs en hetzelfde werk bij
+1/2/4/8 workers, met een sequentiële referentie en vastgelegde machine/configuratie.
+Alleen meer workers instellen geeft bij twee arcs geen acht parallelle taken.
+De gebruiker heeft hierover vragen gesteld, maar nog geen benchmarkuitbreiding,
+free-threading-port of extra modelcategorie opgedragen.
 
-Dit is één lokale native schaalmeting, geen universele garantie. Inclusief
-native opbouw, factory-opbouw en nabewerking; exclusief validatie en destructie.
-Alle 46.088 opgeslagen arc-tijdstippen zijn numeriek vergeleken. De tests dekken
-ook gedeelde parameterupdates, resultaatidentiteit, ephemeriden, interpolatoren,
-fouten/herstel, dynamics-only en gekoppelde herintegratie. Er is geen volledige
-ThreadSanitizer-run van Tudat gedaan. De afzonderlijke executor is met
-AddressSanitizer/UBSan getest, met leak detection uit wegens ptrace-beperkingen.
+Meer modellen, gerichte ThreadSanitizer-controle, andere platformen en generieke
+Python-factories zijn afzonderlijke vervolgstappen. De oude sequentiële
+`benchmarks/profile_multi_arc.py` activeert de nieuwe parallelle API niet.
+[parallellization_inquiry.md](parallellization_inquiry.md) is historische context.
 
-## Reproductie op de Intel-machine: voltooid op 9 november 2026
+Lokale rseng-tooling meldde nog ontbrekende `CITATION.cff` en agent-ignore-regels
+in de gedeelde `.gitignore`. Agent-tooling is inmiddels bewust lokaal uitgesloten;
+projectbrede metadata/tooling is geen nieuw gekozen ontwikkeldoel. Code, tests
+en documentatie zijn AI-assisted; menselijke review van modelbeperking, GIL,
+lifetime en parameter-resetcontract blijft gewenst vóór bredere opname.
 
-De huidige sessie gebruikte een Intel Core i7-8550U (4 cores / 8 logische CPU's),
-16 GB RAM en de Conda-omgeving `tudatpy-dev`: GCC 14.4.0, Eigen 5.0.1,
-Boost 1.85.0, CSPICE 67 en Tudat Resources 2.4. Er is een verse Release-build
-gemaakt in `build-parallel-arcs-local`, met twee bouwjobs en dezelfde opties als
-hierboven. Cereal ontbrak; uitsluitend Cereal 1.3.2 is toegevoegd, zonder andere
-pakketten bij te werken. De benodigde SPICE-kernels en JGMRO120D waren aanwezig.
+## Starttekst voor de sessie van 12 november
 
-- Alle drie geselecteerde native C++-tests slaagden.
-- De native multi-arc-acceptatietest slaagde 30 opeenvolgende herhalingen.
-- De Runge–Kutta-coëfficiëntentest slaagde 20 opeenvolgende herhalingen.
-- De korte proef met vier arcs, graad 20 en 0,02 dag per arc valideerde alle
-  236 opgeslagen tijdstippen bij 1/2/4/8 ingestelde workers tegen de native
-  sequentiële referentie. Totale tijden: respectievelijk 0,2351 / 0,2816 /
-  0,2197 / 0,2230 seconde. Dit is te weinig werk voor een overtuigende
-  schaalbaarheidsclaim; met vier arcs zijn maximaal vier workers actief.
-
-De bestaande toleranties zijn ongewijzigd. De multi-arc-vergelijking controleert
-per element `abs(actual - expected) <= 1e-14 + 1e-11 * abs(expected)` en wijst
-niet-eindige waarden af. Dit toetst overeenkomst met de sequentiële referentie,
-niet de absolute fysieke baannauwkeurigheid. Maximale afwijkingen worden bij
-succes niet gerapporteerd.
-
-De lange schaalmeting, volledige Tudat-testsuite en ThreadSanitizer zijn hier
-niet uitgevoerd. De build gaf een waarschuwing over een mogelijk dangling
-reference in `observationOutput.cpp:542`; de benchmark meldde deprecated gebruik
-van `getNumericalVariationalEquationsSolution`. De tests slaagden desondanks.
-
-Zie [het reproductieverslag](parallel_arcs_reproduction_20261109.md) voor
-commando's en beperkingen. Logs en pakketmanifest staan lokaal onder
-`build-parallel-arcs-local/reproduction/` (gitignored, niet automatisch
-overgedragen). Neem geen binaries of CMake-cache over naar een andere machine.
-
-De toegevoegde rseng-praktijkregels staan in `AGENTS.md` en `.agents/skills/`;
-deze waren lokaal untracked, evenals `rseng-check/` en agentconfiguratie.
-Fasedekking staat in `.rseng-agent-skills-coverage.md`. De zelfcontrole meldt
-nog ontbrekende `CITATION.cff` en agent-directoryregels in `.gitignore`; dit is
-vastgelegd en niet als onderdeel van de testreproductie aangepast.
-
-## Voorgesteld vervolg voor de nieuwe sessie
-
-1. **Eerstvolgende ontwikkeltaak: ontsluit de native C++-parallellisatie vanuit
-   Python.** De gebruiker heeft deze vervolgstap gekozen, maar uitgesteld tot
-   een latere sessie op een andere machine. Werk eerst het Python-API-contract
-   concreet uit aan de hand van één ondersteund voorbeeld: hoe levert de
-   gebruiker geïsoleerde arc-modellen aan en wie bezit die objecten? Een
-   worker-aantal zonder modelisolatie is geen veilige uitbreiding.
-2. Controleer bij de start branch/commits en lokale wijzigingen. Bouw op een
-   nieuwe machine zo nodig opnieuw en voer de korte native tests uit als
-   omgevingscontrole. De reproductie op de Intel-machine is al voltooid;
-   een lange schaalmeting is geen voorwaarde voor het Python-API-ontwerp.
-3. Werk vervolgens de Python-bindings uit binnen het afgesproken contract.
-   Behandel factory-lifetime, GIL, exceptions en eventuele Python-callbacks in
-   modellen expliciet; geef alleen C++-workerwerk vrij waarvan de voorwaarden
-   duidelijk zijn. De oude Python-benchmark activeert nog geen parallellisatie.
-4. Overweeg meer modellen/platforms en een gerichte ThreadSanitizer-build vóór
-   bredere thread-safety-claims. Uitbreiding buiten Cowell/zonder factory en
-   productie-integratie van SPICE-synchronisatie zijn afzonderlijke ontwerpstappen.
-
-Gebruikersvoorkeuren uit deze sessie: communiceer in het Nederlands, werk met
-concrete metingen, houd prototype en native implementatie duidelijk uit elkaar,
-en maak afgebakende commits. Commit/push geen bestaande submodulewijziging,
-profieldata of andere lokale bestanden zonder passende opdracht.
-
-### Starttekst om in de nieuwe sessie te plakken
-
-> Lees `docs/codex_handoff_parallel_arcs.md` en daarna
-> `docs/independent_arc_execution.md`. De eerstvolgende taak is de native
-> C++-parallellisatie toegankelijk maken vanuit Python. Begin met een concreet
-> API-ontwerp en één ondersteund voorbeeld voor geïsoleerde arc-modellen; werk
-> daarna de bindings uit, met expliciete afspraken over lifetime, GIL,
-> exceptions en Python-callbacks. Controleer de branch `parallellization_inquiry`
-> en de vijf genoemde commits. De native acceptatietests zijn op 9 november
-> 2026 op de Intel-machine succesvol gereproduceerd; lees ook
-> `docs/parallel_arcs_reproduction_20261109.md`. Doe op een nieuwe machine de
-> benodigde bouw-/omgevingscontrole. Behoud sequentiële defaults,
-> isolatievoorwaarden, native resultaatinterfaces en sequentiële fallback voor
-> gekoppelde arcs. Voer geen lange benchmark uit als voorwaarde voor het
-> API-ontwerp.
+> Lees `docs/codex_handoff_parallel_arcs.md`, daarna
+> `docs/python_independent_arcs_api.md` en `docs/independent_arc_execution.md`.
+> De eerste beperkte Python-API voor native C++-multithreading over geïsoleerde
+> Mars-arcs is geïmplementeerd en gecommit. Controleer de branch
+> `parallellization_inquiry`, de acht vermelde commits en de laatste
+> overdrachtsactualisering. Doe op deze machine een verse bouw-/omgevingscontrole
+> en reproduceer het korte Python-voorbeeld, de 22 nieuwe Python-tests en de
+> drie native CTests. Lees het Intel-reproductieverslag van 9 november als
+> historische native testinformatie; de Python-bindings waren toen nog niet
+> aanwezig. Behoud de sequentiële defaults, modelisolatie, native resultaten,
+> gelatchte fallback voor gekoppelde arcs en het huidige GIL/callbackcontract.
+> Bespreek daarna de volgende ontwikkeltaak; een Python-schaalbenchmark is een
+> voorstel, nog geen gekozen opdracht. Start geen lange benchmark automatisch.
+> Agent-tooling en profieldata zijn bewust alleen lokaal bewaard en gaan niet
+> mee via Git. Communiceer in het Nederlands en maak afgebakende commits.
