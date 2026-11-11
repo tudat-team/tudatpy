@@ -748,7 +748,7 @@ Parameters
 correction_function : Callable[[float], tuple[numpy.ndarray, numpy.ndarray]]
     Function returning the cosine and sine coefficient variations (as a tuple, in that order) as a function of time, each as a 2-D
     array of shape :math:`(l_{\text{max}}-l_{\text{min}}+1, m_{\text{max}}-m_{\text{min}}+1)` (for instance ``np.array([[a, b, c]])``
-    for degree 2 and orders 0 to 2; a 1-D array is not accepted). The first entry in each array is the variation at degree
+    for degree 2 and orders 0 to 2; a 1-D array is interpreted as a single column). The first entry in each array is the variation at degree
     ``minimum_degree`` and order ``minimum_order``.
 minimum_degree : int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations

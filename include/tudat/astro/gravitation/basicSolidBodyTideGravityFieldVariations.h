@@ -331,28 +331,33 @@ protected:
      *  \param deformingBodyMassRatio Ratio of masses of body causing deformation and body being deformed
      *  \param sphericalPosition Spherical position (radius, latitude, longitude) of body causing deformation w.r.t. body being
      *  deformed, in body-fixed frame
-     *  \param bodyFixedRelativeState State of body causing deformation w.r.t. body being deformed, in body-fixed frame
+     *  \param sphericalVelocity Body-fixed velocity of body causing deformation w.r.t. body being deformed, premultiplied by the
+     *  transpose of the spherical-to-Cartesian gradient matrix (so that its dot product with a spherical gradient is the time
+     *  derivative of the associated potential)
      *  \return Time derivative of tidal forcing (cosine coefficient minus i times sine coefficient)
      */
     std::complex< double > calculateTidalForcingTimeDerivative( const int degree,
                                                                 const int order,
                                                                 const double deformingBodyMassRatio,
                                                                 const Eigen::Vector3d& sphericalPosition,
-                                                                const Eigen::Vector6d& bodyFixedRelativeState );
+                                                                const Eigen::Vector3d& sphericalVelocity );
 
     //! Function to add time derivatives of corrections due to the current body causing deformation.
     /*!
      *  Function to add time derivatives of corrections due to the current body causing deformation, from the time derivatives of the
-     *  tidal forcing for unit Love number.
-     *  \param unitLoveNumberForcingRateFunction Function returning the time derivative of the tidal forcing for unit Love number, as
-     *  a function of degree and order
+     *  tidal forcing for unit Love number (see calculateTidalForcingTimeDerivative for input).
+     *  \param deformingBodyMassRatio Ratio of masses of body causing deformation and body being deformed
+     *  \param sphericalPosition Spherical position (radius, latitude, longitude) of body causing deformation, in body-fixed frame
+     *  \param sphericalVelocity Body-fixed velocity of body causing deformation, premultiplied by the transpose of the
+     *  spherical-to-Cartesian gradient matrix
      *  \param cosineRates Time derivatives of cosine coefficient corrections (correction added to input value).
      *  \param sineRates Time derivatives of sine coefficient corrections (correction added to input value).
      */
-    virtual void addTidalCorrectionTimeDerivatives(
-            const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
-            Eigen::MatrixXd& cosineRates,
-            Eigen::MatrixXd& sineRates ) = 0;
+    virtual void addTidalCorrectionTimeDerivatives( const double deformingBodyMassRatio,
+                                                    const Eigen::Vector3d& sphericalPosition,
+                                                    const Eigen::Vector3d& sphericalVelocity,
+                                                    Eigen::MatrixXd& cosineRates,
+                                                    Eigen::MatrixXd& sineRates ) = 0;
 
     //! Function returning time derivative of rotation matrix from inertial to deformed body-fixed frame
     std::function< Eigen::Matrix3d( double ) > rotationDerivativeFunction_;
@@ -685,10 +690,11 @@ protected:
      *  (passed by reference; correction added to input value).
      */
     void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections ) override;
-    void addTidalCorrectionTimeDerivatives(
-            const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
-            Eigen::MatrixXd& cosineRates,
-            Eigen::MatrixXd& sineRates ) override;
+    void addTidalCorrectionTimeDerivatives( const double deformingBodyMassRatio,
+                                            const Eigen::Vector3d& sphericalPosition,
+                                            const Eigen::Vector3d& sphericalVelocity,
+                                            Eigen::MatrixXd& cosineRates,
+                                            Eigen::MatrixXd& sineRates ) override;
 
     // LOVE NUMBER TODO: FIX DOCS
     //! List of love numbers for each degree and order
@@ -790,10 +796,11 @@ public:
 
 protected:
     void addBasicSolidBodyTideCorrections( Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections ) override;
-    void addTidalCorrectionTimeDerivatives(
-            const std::function< std::complex< double >( const int, const int ) >& unitLoveNumberForcingRateFunction,
-            Eigen::MatrixXd& cosineRates,
-            Eigen::MatrixXd& sineRates ) override;
+    void addTidalCorrectionTimeDerivatives( const double deformingBodyMassRatio,
+                                            const Eigen::Vector3d& sphericalPosition,
+                                            const Eigen::Vector3d& sphericalVelocity,
+                                            Eigen::MatrixXd& cosineRates,
+                                            Eigen::MatrixXd& sineRates ) override;
 
     std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers_;
 };

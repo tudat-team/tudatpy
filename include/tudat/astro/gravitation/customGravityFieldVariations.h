@@ -48,7 +48,10 @@ public:
             const int maximumOrder,
             const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > customCorrectionTimeDerivativeFunction =
                     nullptr ):
-        GravityFieldVariations( minimumDegree, minimumOrder, maximumDegree, maximumOrder ),
+        GravityFieldVariations( minimumDegree,
+                                minimumOrder,
+                                checkDegreeOrderRange( minimumDegree, minimumOrder, maximumDegree, maximumOrder ),
+                                maximumOrder ),
         customCorrectionFunction_( customCorrectionFunction ),
         customCorrectionTimeDerivativeFunction_( customCorrectionTimeDerivativeFunction )
     {
@@ -77,6 +80,17 @@ public:
     }
 
 private:
+    //! Function to check the degree and order range (before creating the base class), returning the maximum degree
+    static int checkDegreeOrderRange( const int minimumDegree, const int minimumOrder, const int maximumDegree, const int maximumOrder )
+    {
+        if( minimumDegree < 0 || minimumOrder < 0 || maximumDegree < minimumDegree || maximumOrder < minimumOrder )
+        {
+            throw std::runtime_error(
+                    "Error when creating custom gravity field variations: inconsistent minimum and maximum degree and order." );
+        }
+        return maximumDegree;
+    }
+
     //! Function to check whether the size of the user-defined correction blocks matches the degrees and orders of the variation
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > checkCorrectionBlockSizes( std::pair< Eigen::MatrixXd, Eigen::MatrixXd > corrections,
                                                                              const std::string& correctionType )

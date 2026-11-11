@@ -83,22 +83,16 @@ public:
      */
     void getCosineSinePair( const double time, Eigen::MatrixXd& sineCoefficients, Eigen::MatrixXd& cosineCoefficients );
 
-    //! Function to add time derivatives of sine and cosine corrections at given time to coefficient time derivative matrices.
+    //! Function to compute time derivatives of (cosine, sine) correction blocks at given time.
     /*!
-     *  Function to add time derivatives of sine and cosine corrections at given time to coefficient time derivative matrices,
-     *  computed as the derivative of the interpolated corrections.
+     *  Function to compute time derivatives of (cosine, sine) correction blocks at given time, as the derivative of the
+     *  interpolated corrections.
      *  \param time Time at which time derivatives of corrections are to be evaluated.
-     *  \param sineCoefficientDerivatives Sine coefficient time derivatives, to which the calculated time derivatives are added
-     *  \param cosineCoefficientDerivatives Cosine coefficient time derivatives, to which the calculated time derivatives are added
+     *  \return Pair of time derivatives of (cosine, sine) correction blocks
      */
-    void getCosineSinePairTimeDerivative( const double time,
-                                          Eigen::MatrixXd& sineCoefficientDerivatives,
-                                          Eigen::MatrixXd& cosineCoefficientDerivatives );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > getCosineSinePairTimeDerivative( const double time );
 
 private:
-    //! Function to add a combined (cosine, sine) block to the cosine and sine coefficient matrices
-    void addCosineSinePair( const Eigen::MatrixXd& cosineSinePair, Eigen::MatrixXd& sineCoefficients, Eigen::MatrixXd& cosineCoefficients );
-
     //! Interpolator object for approximating coefficient corrections.
     /*!
      *  Interpolator object for approximating coefficient corrections, interpolates the cosine and

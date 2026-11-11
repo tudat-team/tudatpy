@@ -335,6 +335,18 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     }
     tabulatedVariation->resetCoefficientInterpolator( cosineTable, sineTable );
     checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + 1.5 * tableStep, 10.0, 1.0e-10 );
+
+    // Check time derivatives of tabulated variations with cubic spline and Lagrange interpolation (between nodes, away from table edges)
+    for( const auto& interpolatorSettings : std::vector< std::shared_ptr< interpolators::InterpolatorSettings > >{
+                 std::make_shared< interpolators::InterpolatorSettings >( interpolators::cubic_spline_interpolator ),
+                 std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) } )
+    {
+        checkGravityFieldVariationDerivative(
+                std::make_shared< TabulatedGravityFieldVariations >( cosineTable, sineTable, 1, 0, interpolatorSettings ),
+                firstEpoch + 25.3 * tableStep,
+                1.0,
+                1.0e-7 );
+    }
 }
 
 //! Function to get state function of body, either from Spice, or linearized around a reference epoch (with velocity consistent with

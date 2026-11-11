@@ -211,6 +211,9 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                 deformedBodyOrientationFunction = std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
                                                              bodies.at( body )->getRotationalEphemeris( ),
                                                              std::placeholders::_1 );
+                deformedBodyRotationDerivativeFunction = std::bind( &ephemerides::RotationalEphemeris::getDerivativeOfRotationToTargetFrame,
+                                                                    bodies.at( body )->getRotationalEphemeris( ),
+                                                                    std::placeholders::_1 );
             }
             else
             {
@@ -339,14 +342,6 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
             if( customGravityFieldVariationSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected custom gravity field variation settings for " + body );
-            }
-            if( customGravityFieldVariationSettings->getMinimumDegree( ) < 0 ||
-                customGravityFieldVariationSettings->getMinimumOrder( ) < 0 ||
-                customGravityFieldVariationSettings->getMaximumDegree( ) < customGravityFieldVariationSettings->getMinimumDegree( ) ||
-                customGravityFieldVariationSettings->getMaximumOrder( ) < customGravityFieldVariationSettings->getMinimumOrder( ) )
-            {
-                throw std::runtime_error( "Error when creating custom gravity field variations for " + body +
-                                          ": inconsistent minimum and maximum degree and order." );
             }
             gravityFieldVariationModel = std::make_shared< CustomGravityFieldVariations >(
                     customGravityFieldVariationSettings->getCorrectionFunction( ),
