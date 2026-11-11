@@ -814,6 +814,42 @@ BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
     }
 }
 
+//! Test addition of coefficient rates to a degree-two block, for variations that only partially overlap with this block
+BOOST_AUTO_TEST_CASE( testGravityFieldVariationRatesBlockOverlap )
+{
+    // Linear variations (rates equal to amplitudes) at degrees 2-4 and orders 0-2, degrees 2-3 and orders 1-2, and degree 3, order 0
+    const std::vector< std::pair< int, int > > minimumDegreesAndOrders = { { 2, 0 }, { 2, 1 }, { 3, 0 } };
+    const std::vector< Eigen::MatrixXd > cosineRates = { Eigen::MatrixXd::Random( 3, 3 ),
+                                                         Eigen::MatrixXd::Random( 2, 2 ),
+                                                         Eigen::MatrixXd::Random( 1, 1 ) };
+    const std::vector< Eigen::MatrixXd > sineRates = { Eigen::MatrixXd::Random( 3, 3 ),
+                                                       Eigen::MatrixXd::Random( 2, 2 ),
+                                                       Eigen::MatrixXd::Random( 1, 1 ) };
+
+    Eigen::MatrixXd cosineRateBlock = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineRateBlock = Eigen::MatrixXd::Zero( 3, 3 );
+    for( unsigned int i = 0; i < minimumDegreesAndOrders.size( ); i++ )
+    {
+        PolynomialGravityFieldVariations( std::map< int, Eigen::MatrixXd >( { { 1, cosineRates.at( i ) } } ),
+                                          std::map< int, Eigen::MatrixXd >( { { 1, sineRates.at( i ) } } ),
+                                          0.0,
+                                          minimumDegreesAndOrders.at( i ).first,
+                                          minimumDegreesAndOrders.at( i ).second )
+                .addSphericalHarmonicsCorrectionTimeDerivatives( 1.0E3, sineRateBlock, cosineRateBlock );
+    }
+
+    // Only the degree-two rows of the first two variations are inside the block; the third variation is skipped
+    Eigen::MatrixXd expectedCosineRateBlock = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd expectedSineRateBlock = Eigen::MatrixXd::Zero( 3, 3 );
+    expectedCosineRateBlock.block( 2, 0, 1, 3 ) = cosineRates.at( 0 ).topRows( 1 );
+    expectedCosineRateBlock.block( 2, 1, 1, 2 ) += cosineRates.at( 1 ).topRows( 1 );
+    expectedSineRateBlock.block( 2, 0, 1, 3 ) = sineRates.at( 0 ).topRows( 1 );
+    expectedSineRateBlock.block( 2, 1, 1, 2 ) += sineRates.at( 1 ).topRows( 1 );
+
+    BOOST_CHECK_SMALL( ( cosineRateBlock - expectedCosineRateBlock ).norm( ), 1.0E-15 );
+    BOOST_CHECK_SMALL( ( sineRateBlock - expectedSineRateBlock ).norm( ), 1.0E-15 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

@@ -58,7 +58,7 @@ public:
     Eigen::Matrix3d getCurrentInertiaTensor( );
 
     //! Function to retrieve the time derivative of the inertia tensor, as set by the latest call to update function
-    Eigen::Matrix3d getCurrentDerivativeInertiaTensor( );
+    virtual Eigen::Matrix3d getCurrentDerivativeInertiaTensor( );
 
     //! Function to retrieve whether these properties define an inertia tensor
     bool isInertiaTensorAvailable( ) const;
@@ -101,9 +101,19 @@ protected:
 class TimeDependentRigidBodyProperties : public RigidBodyProperties
 {
 public:
+    //! Constructor, with properties defined as functions of time
+    /*!
+     * Constructor, with properties defined as functions of time
+     * \param massFunction Function returning the mass as a function of time
+     * \param centerOfMassFunction Function returning the center of mass as a function of time (none if empty)
+     * \param inertiaTensorFunction Function returning the inertia tensor as a function of time (none if empty)
+     * \param inertiaTensorDerivativeFunction Function returning the time derivative of the inertia tensor as a function of time
+     * (none if empty; may only be defined if inertiaTensorFunction is defined)
+     */
     TimeDependentRigidBodyProperties( const std::function< double( const double ) > massFunction,
                                       const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
-                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr );
+                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr,
+                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr );
 
     TimeDependentRigidBodyProperties( const double mass,
                                       const Eigen::Vector3d& centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
@@ -131,14 +141,27 @@ protected:
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
 
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+
+    //! Function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
 class MassDependentRigidBodyProperties : public RigidBodyProperties
 {
 public:
+    //! Constructor, with center of mass and inertia tensor defined as functions of mass
+    /*!
+     * Constructor, with center of mass and inertia tensor defined as functions of mass
+     * \param currentMass Initial mass of the body
+     * \param centerOfMassFunction Function returning the center of mass as a function of mass (none if empty)
+     * \param inertiaTensorFunction Function returning the inertia tensor as a function of mass (none if empty)
+     * \param inertiaTensorDerivativeFunction Function returning the time derivative of the inertia tensor as a function of time,
+     * including the contribution of the mass rate (none if empty; may only be defined if inertiaTensorFunction is defined)
+     */
     MassDependentRigidBodyProperties( const double currentMass,
                                       const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
-                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction );
+                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction,
+                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr );
 
     virtual ~MassDependentRigidBodyProperties( );
 
@@ -147,9 +170,6 @@ public:
     virtual void updateMassDistribution( const double currentTime );
 
     virtual void setCurrentMass( const double currentMass );
-
-    //! Supply dI/dt as a function of time, including the mass-rate dependence, for rotational dynamics.
-    void setInertiaTensorDerivativeFunction( const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction );
 
 protected:
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
@@ -180,6 +200,15 @@ public:
 
     void updateMassDistribution( const double currentTime ) override;
 
+    //! Function to retrieve the time derivative of the inertia tensor, at the time of the latest update of the mass distribution
+    /*!
+     * Function to retrieve the time derivative of the inertia tensor, at the time of the latest update of the mass distribution. For
+     * a time-dependent gravity field, the derivative is computed at the first call after each update, so that it is only computed if
+     * it is used (for instance by an inertial torque), and only once per update.
+     * \return Time derivative of the inertia tensor
+     */
+    Eigen::Matrix3d getCurrentDerivativeInertiaTensor( ) override;
+
     //! Set the inertia tensor derivative from the time derivatives of the (C20, C21, C22, S21, S22) coefficients.
     void updateInertiaTensorDerivative( const Eigen::Vector5d& derivativeDegreeTwoCoefficients ) override;
 
@@ -206,11 +235,12 @@ protected:
     //! Function to compute the mass from the gravity field
     void computeMassFromGravityField( );
 
-    //! Function to compute the center of mass, inertia tensor and (for a time-dependent field) its time derivative from the gravity field
+    //! Function to compute the center of mass and inertia tensor from the gravity field
     /*!
-     * Function to compute the center of mass, inertia tensor and (for a time-dependent field) its time derivative from the gravity
-     * field
-     * \param currentTime Time at which the inertia tensor derivative is to be computed (not computed if NaN)
+     * Function to compute the center of mass and inertia tensor from the gravity field (and the inertia tensor derivative for a
+     * static field)
+     * \param currentTime Time of the update, at which the inertia tensor derivative of a time-dependent field is computed when
+     * requested (not computed if NaN)
      */
     void computeMassDistributionFromGravityField( const double currentTime );
 
@@ -221,6 +251,9 @@ protected:
     double scaledMeanMomentOfInertia_;
 
     bool modelIsTimeDependent_;
+
+    //! Time of the latest update of the mass distribution (NaN if not updated for the current time)
+    double massDistributionUpdateTime_;
 
     //! Inertia tensor per unit mass of (homogeneous) polyhedron
     Eigen::Matrix3d polyhedronInertiaTensorPerUnitMass_;

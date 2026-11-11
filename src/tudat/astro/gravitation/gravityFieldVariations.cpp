@@ -41,12 +41,11 @@ void GravityFieldVariations::addSphericalHarmonicsCorrectionTimeDerivatives( con
                                                                              Eigen::MatrixXd& sineCoefficientDerivatives,
                                                                              Eigen::MatrixXd& cosineCoefficientDerivatives )
 {
-    const std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientDerivatives =
-            calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
-    // The caller may request only the low-degree rates needed for the inertia tensor.
-    // Still evaluate every variation, then add the part within the destination matrices.
+    // The caller may request only the low-degree rates needed for the inertia tensor; variations outside this block are skipped
     if( minimumDegree_ < sineCoefficientDerivatives.rows( ) && minimumOrder_ < sineCoefficientDerivatives.cols( ) )
     {
+        const std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientDerivatives =
+                calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
         const int degreeCount = std::min( numberOfDegrees_, static_cast< int >( sineCoefficientDerivatives.rows( ) ) - minimumDegree_ );
         const int orderCount = std::min( numberOfOrders_, static_cast< int >( sineCoefficientDerivatives.cols( ) ) - minimumOrder_ );
         sineCoefficientDerivatives.block( minimumDegree_, minimumOrder_, degreeCount, orderCount ) +=

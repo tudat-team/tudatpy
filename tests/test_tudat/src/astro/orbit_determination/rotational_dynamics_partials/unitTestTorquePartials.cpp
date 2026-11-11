@@ -685,9 +685,8 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartialsWithInertiaTensorDerivative )
     Eigen::Matrix3d inertiaTensorDerivative;
     inertiaTensorDerivative << -2.0E1, 3.0, 1.0, 3.0, -1.0E1, -4.0, 1.0, -4.0, -3.0E1;
 
-    std::shared_ptr< MassDependentRigidBodyProperties > rigidBodyProperties =
-            std::make_shared< MassDependentRigidBodyProperties >( 1.0E3, nullptr, [ = ]( const double ) { return inertiaTensor; } );
-    rigidBodyProperties->setInertiaTensorDerivativeFunction( [ = ]( const double ) { return inertiaTensorDerivative; } );
+    std::shared_ptr< MassDependentRigidBodyProperties > rigidBodyProperties = std::make_shared< MassDependentRigidBodyProperties >(
+            1.0E3, nullptr, [ = ]( const double ) { return inertiaTensor; }, [ = ]( const double ) { return inertiaTensorDerivative; } );
     vehicle->setMassProperties( rigidBodyProperties );
 
     // Set rotational state of body
@@ -1112,6 +1111,55 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTorquePartialWrtLoveNumberAfterTimeRe
 
     BOOST_CHECK_GT( partialOfNewObject.norm( ), 0.0 );
     BOOST_CHECK_SMALL( ( partialOfReusedObject - partialOfNewObject ).norm( ) / partialOfNewObject.norm( ), 1.0E-12 );
+}
+
+//! Test partial of inertial torque w.r.t. gravitational parameter, for a body with an inertia tensor (and its time derivative) derived
+//! from a time-varying gravity field
+BOOST_AUTO_TEST_CASE( testInertialTorqueGravitationalParameterPartialWithInertiaTensorDerivative )
+{
+    // Create body with gravity-derived rigid body properties, with linearly varying C20 and C22
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    cosineCoefficients( 2, 0 ) = -1.0E-2;
+    cosineCoefficients( 2, 2 ) = 2.0E-3;
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( "Body" );
+    bodySettings.at( "Body" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            1.0E6, 1.0E3, cosineCoefficients, Eigen::MatrixXd::Zero( 3, 3 ), "BodyFixed" );
+    bodySettings.at( "Body" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( 0.4 );
+    bodySettings.at( "Body" )->gravityFieldVariationSettings.push_back( polynomialGravityFieldVariationsSettings(
+            { { 1, ( Eigen::MatrixXd( 1, 3 ) << 1.0E-4, 0.0, 2.0E-4 ).finished( ) } }, std::map< int, Eigen::MatrixXd >( ), 0.0 ) );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    std::shared_ptr< Body > body = bodies.at( "Body" );
+
+    Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
+    rotationalState( 0 ) = 1.0;
+    rotationalState.segment( 4, 3 ) << 1.0E-4, -2.0E-4, 3.0E-4;
+    body->setCurrentRotationalStateToLocalFrame( rotationalState );
+    const double testTime = 1.0E3;
+    body->getMassProperties( )->update( testTime );
+
+    // Check that the inertia tensor derivative dominates the inertial torque, so that the comparison tests its contribution
+    const Eigen::Vector3d angularVelocity = rotationalState.segment( 4, 3 );
+    BOOST_CHECK_GT( ( body->getBodyInertiaTensorDerivative( ) * angularVelocity ).norm( ),
+                    10.0 * angularVelocity.cross( body->getBodyInertiaTensor( ) * angularVelocity ).norm( ) );
+
+    // Compare analytical and numerical partials w.r.t. gravitational parameter
+    std::shared_ptr< InertialTorqueModel > inertialTorqueModel = createInertialTorqueModel( body, "Body" );
+    std::shared_ptr< TorquePartial > torquePartial =
+            createAnalyticalTorquePartial( inertialTorqueModel, std::make_pair( "Body", body ), std::make_pair( "Body", body ) );
+    std::shared_ptr< EstimatableParameter< double > > gravitationalParameter =
+            std::make_shared< GravitationalParameter >( body->getGravityFieldModel( ), "Body" );
+    inertialTorqueModel->updateMembers( testTime );
+    torquePartial->update( testTime );
+    const Eigen::Vector3d partialWrtGravitationalParameter = torquePartial->wrtParameter( gravitationalParameter );
+    const Eigen::Vector3d testPartialWrtGravitationalParameter =
+            calculateTorqueWrtParameterPartials( gravitationalParameter,
+                                                 inertialTorqueModel,
+                                                 1.0E3,
+                                                 std::bind( &RigidBodyProperties::update, body->getMassProperties( ), testTime ),
+                                                 testTime );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtGravitationalParameter, partialWrtGravitationalParameter, 1.0E-8 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

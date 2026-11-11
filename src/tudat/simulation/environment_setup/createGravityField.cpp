@@ -661,7 +661,8 @@ std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
             rigidBodyProperties = std::make_shared< TimeDependentRigidBodyProperties >(
                     fromFunctionRigidBodyPropertiesSettings->getMassFunction( ),
                     fromFunctionRigidBodyPropertiesSettings->getCenterOfMassFunction( ),
-                    fromFunctionRigidBodyPropertiesSettings->getInertiaTensorFunction( ) );
+                    fromFunctionRigidBodyPropertiesSettings->getInertiaTensorFunction( ),
+                    fromFunctionRigidBodyPropertiesSettings->getInertiaTensorDerivativeFunction( ) );
             break;
         }
         case from_gravity_field_rigid_body_properties: {
@@ -691,7 +692,8 @@ std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
             rigidBodyProperties = std::make_shared< MassDependentRigidBodyProperties >(
                     massDependentMassDistributionSettings->getCurrentMass( ),
                     massDependentMassDistributionSettings->getCenterOfMassFunction( ),
-                    massDependentMassDistributionSettings->getInertiaTensorFunction( ) );
+                    massDependentMassDistributionSettings->getInertiaTensorFunction( ),
+                    massDependentMassDistributionSettings->getInertiaTensorDerivativeFunction( ) );
             break;
         }
         default:

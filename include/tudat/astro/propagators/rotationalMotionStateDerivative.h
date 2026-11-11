@@ -50,6 +50,8 @@ int getRotationalStateSize( const RotationalPropagatorType propagatorType );
  * \param totalTorque Total torque acting on body, expressed in its body-fixed frame
  * \param angularVelocityVector Current angular velocity vector of body, expressed in its body-fixed frame
  * \param inertiaTensorTimeDerivative Time derivative of inertiaTensor (default zero)
+ * NOTE: angularVelocityVector and inertiaTensorTimeDerivative are not used, since the terms -omega x (I omega) and -(dI/dt) omega
+ * are included in totalTorque through the InertialTorqueModel. Using them here would include these terms twice.
  * \return Time-derivative of a body's angular velocity vector, expressed in its body-fixed frame
  */
 Eigen::Vector3d evaluateRotationalEquationsOfMotion( const Eigen::Matrix3d& inertiaTensor,
@@ -78,7 +80,8 @@ public:
      * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated.
      * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order).
      * \param bodyInertiaTensorTimeDerivativeFunctions List of functions returning time derivatives of inertia tensors of
-     * bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
+     * bodiesToPropagate (in same order). Not used in the equations of motion, since the
+     * term -(dI/dt) omega is included in the InertialTorqueModel.
      */
     RotationalMotionStateDerivative( const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,
                                      const RotationalPropagatorType propagatorType,
@@ -363,7 +366,8 @@ protected:
     // List of functions returning inertia tensors of bodiesToPropagate (in same order)
     std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions_;
 
-    //  List of functions returning time derivatives of inertia tensors of bodiesToPropagate (in same order)
+    //  List of functions returning time derivatives of inertia tensors of bodiesToPropagate (in same order); not used in the
+    //  equations of motion, since the term -(dI/dt) omega is included in the InertialTorqueModel
     std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions_;
 
     // Predefined iterator to save (de-)allocation time.

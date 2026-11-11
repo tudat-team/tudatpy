@@ -52,7 +52,8 @@ public:
      * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated.
      * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order).
      * \param bodyInertiaTensorTimeDerivativeFunctions List of functions returning time derivatives of inertia tensors of
-     *  bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
+     *  bodiesToPropagate (in same order). Not used in the equations of motion, since the
+     *  term -(dI/dt) omega is included in the InertialTorqueModel.
      */
     RotationalMotionModifiedRodriguesParametersStateDerivative(
             const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,

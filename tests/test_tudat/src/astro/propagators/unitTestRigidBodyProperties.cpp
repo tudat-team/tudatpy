@@ -370,6 +370,58 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative 
     }
 }
 
+//! Test conservation of inertial angular momentum in torque-free rotational motion, for a body with a time-varying inertia tensor (and
+//! its time derivative) defined by rigid body properties settings
+BOOST_AUTO_TEST_CASE( testAngularMomentumConservationWithInertiaTensorDerivative )
+{
+    using namespace simulation_setup;
+    using namespace propagators;
+
+    // Create body with linearly varying inertia tensor
+    const Eigen::Matrix3d initialInertiaTensor = Eigen::Vector3d( 1000.0, 1200.0, 1500.0 ).asDiagonal( );
+    const Eigen::Matrix3d inertiaTensorDerivative = ( Eigen::Matrix3d( ) << -1.0, 0.1, 0.0, 0.1, -2.0, 0.2, 0.0, 0.2, -1.5 ).finished( );
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" )->rigidBodyPropertiesSettings = fromFunctionRigidBodyPropertiesSettings(
+            []( const double ) { return 100.0; },
+            nullptr,
+            [ = ]( const double time ) -> Eigen::Matrix3d { return initialInertiaTensor + inertiaTensorDerivative * time; },
+            [ = ]( const double ) -> Eigen::Matrix3d { return inertiaTensorDerivative; } );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Propagate torque-free rotational motion (inertial torque only)
+    const std::vector< std::string > bodiesToIntegrate = { "Vehicle" };
+    Eigen::VectorXd initialRotationalState = Eigen::VectorXd::Zero( 7 );
+    initialRotationalState( 0 ) = 1.0;
+    initialRotationalState.segment( 4, 3 ) << 1.0E-2, -2.0E-2, 1.5E-2;
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+            bodies,
+            std::make_shared< RotationalStatePropagatorSettings< double > >(
+                    createTorqueModelsMap( bodies, SelectedTorqueMap( ), bodiesToIntegrate ),
+                    bodiesToIntegrate,
+                    initialRotationalState,
+                    0.0,
+                    std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 0.5 ),
+                    std::make_shared< PropagationTimeTerminationSettings >( 100.0 ),
+                    quaternions,
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >(
+                            { inertialToBodyFixedRotationMatrixVariable( "Vehicle" ),
+                              inertiaTensorVariableSaveSettings( "Vehicle" ) } ) ) );
+
+    // Check that inertial angular momentum is conserved (it changes by about 10 % without the inertia tensor derivative)
+    const std::map< double, Eigen::VectorXd >& stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    const std::map< double, Eigen::VectorXd >& dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+    const Eigen::Vector3d initialAngularMomentum = initialInertiaTensor * initialRotationalState.segment( 4, 3 );
+    for( const auto& stateEntry : stateHistory )
+    {
+        const Eigen::VectorXd& dependentVariables = dependentVariableHistory.at( stateEntry.first );
+        const Eigen::Vector3d inertialAngularMomentum =
+                getMatrixFromVectorRotationRepresentation( dependentVariables.segment( 0, 9 ) ).transpose( ) *
+                getMatrixFromVectorRotationRepresentation( dependentVariables.segment( 9, 9 ) ) * stateEntry.second.segment( 4, 3 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertialAngularMomentum, initialAngularMomentum, 1.0E-8 );
+    }
+}
+
 BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )
 {
     using namespace tudat;

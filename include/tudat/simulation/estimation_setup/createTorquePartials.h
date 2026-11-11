@@ -178,18 +178,21 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
         case inertial_torque: {
             std::function< Eigen::Vector3d( ) > angularVelocityFunction =
                     std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
-            std::function< Eigen::Matrix3d( ) > inertiaTensorFunction = std::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
+            // Use same rigid body properties as torque model
+            std::shared_ptr< RigidBodyProperties > rigidBodyProperties = acceleratedBody.second->getMassProperties( );
+            std::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
+                    std::bind( &RigidBodyProperties::getCurrentInertiaTensor, rigidBodyProperties );
 
             // Inertia tensor derivative is included in partial if it is included in the torque model
             std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction;
             if( std::dynamic_pointer_cast< InertialTorqueModel >( torqueModel )->isInertiaTensorDerivativeIncluded( ) )
             {
-                inertiaTensorDerivativeFunction = std::bind( &Body::getBodyInertiaTensorDerivative, acceleratedBody.second );
+                inertiaTensorDerivativeFunction = std::bind( &RigidBodyProperties::getCurrentDerivativeInertiaTensor, rigidBodyProperties );
             }
 
             torquePartial = std::make_shared< acceleration_partials::InertialTorquePartial >( angularVelocityFunction,
                                                                                               inertiaTensorFunction,
-                                                                                              acceleratedBody.second->getMassProperties( ),
+                                                                                              rigidBodyProperties,
                                                                                               acceleratedBody.first,
                                                                                               inertiaTensorDerivativeFunction );
             break;

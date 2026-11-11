@@ -181,6 +181,7 @@ void expose_rigid_body_setup( py::module& m )
            py::arg( "mass_function" ),
            py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
            py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
+           py::arg_v( "inertia_tensor_derivative_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -198,6 +199,9 @@ void expose_rigid_body_setup( py::module& m )
      Function returning the center of mass as a function of time in seconds since J2000 TDB, to be used during the propagation.
  inertia_tensor_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
      Function returning the inertia tensor as a function of time in seconds since J2000 TDB, to be used during the propagation.
+ inertia_tensor_derivative_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
+     Function returning the time derivative of the inertia tensor as a function of time in seconds since J2000 TDB. If defined, the
+     term :math:`-\dot{\mathbf{I}}\boldsymbol{\omega}` is included in the inertial torque. Requires an inertia tensor function.
  Returns
  -------
  RigidBodyPropertiesSettings
@@ -215,6 +219,7 @@ void expose_rigid_body_setup( py::module& m )
            py::arg( "mass" ),
            py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
            py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
+           py::arg_v( "inertia_tensor_derivative_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -231,6 +236,10 @@ void expose_rigid_body_setup( py::module& m )
      Function returning the center of mass as a function of mass (to be used during the propagation)
  inertia_tensor_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
      Function returning the inertia tensor as a function of mass (to be used during the propagation)
+ inertia_tensor_derivative_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
+     Function returning the time derivative of the inertia tensor as a function of time in seconds since J2000 TDB (including the
+     effect of the mass rate). If defined, the term :math:`-\dot{\mathbf{I}}\boldsymbol{\omega}` is included in the inertial torque.
+     Requires an inertia tensor function.
  Returns
  -------
  RigidBodyPropertiesSettings

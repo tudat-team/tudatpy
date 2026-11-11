@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <iostream>
+
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
@@ -42,6 +44,13 @@ std::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorque
                                   ": rigid-body properties are missing." );
     }
     checkInertiaTensorAvailability( bodyUndergoingTorque, nameOfBodyUndergoingTorque, "inertial torque" );
+    if( !bodyUndergoingTorque->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) )
+    {
+        std::cerr << "Warning when creating inertial torque for " << nameOfBodyUndergoingTorque
+                  << ": no time derivative of the inertia tensor is defined, the term -(dI/dt) omega is not included. For a time-varying "
+                     "inertia tensor, define the inertia tensor derivative function in the rigid body properties settings."
+                  << std::endl;
+    }
     return std::make_shared< basic_astrodynamics::InertialTorqueModel >(
             std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, bodyUndergoingTorque ),
             bodyUndergoingTorque->getMassProperties( ) );

@@ -1151,6 +1151,7 @@ std::pair< Eigen::MatrixXd, Eigen::VectorXd > propagateRotationWithGravityDerive
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
             "Body", initialRotationalState, "ECLIPJ2000" ) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Body", gravitational_parameter ) );
     std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate( parameterNames, bodies );
 
     // Propagate dynamics and variational equations, and retrieve state and state transition matrix at test time
@@ -1171,10 +1172,13 @@ BOOST_AUTO_TEST_CASE( testRotationalVariationalEquationsWithInertiaTensorDerivat
             Eigen::AngleAxisd( 0.3, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 1.2, Eigen::Vector3d::UnitX( ) ) ) );
     initialRotationalState.segment( 4, 3 ) << 2.0E-4, -1.0E-4, 5.0E-4;
 
-    // Compute state transition matrices for time-varying and constant gravity field
-    Eigen::MatrixXd stateTransitionMatrix = propagateRotationWithGravityDerivedInertia( initialRotationalState, true ).first;
-    Eigen::MatrixXd constantInertiaStateTransitionMatrix =
-            propagateRotationWithGravityDerivedInertia( initialRotationalState, false ).first;
+    // Compute state transition and sensitivity matrices, and states, for time-varying and constant gravity field
+    std::pair< Eigen::MatrixXd, Eigen::VectorXd > timeVaryingInertiaResults =
+            propagateRotationWithGravityDerivedInertia( initialRotationalState, true );
+    std::pair< Eigen::MatrixXd, Eigen::VectorXd > constantInertiaResults =
+            propagateRotationWithGravityDerivedInertia( initialRotationalState, false );
+    Eigen::MatrixXd stateTransitionMatrix = timeVaryingInertiaResults.first;
+    Eigen::MatrixXd constantInertiaStateTransitionMatrix = constantInertiaResults.first;
 
     // Compute numerical partials of state at test time w.r.t. initial angular velocity
     const double angularVelocityPerturbation = 1.0E-8;
@@ -1203,6 +1207,12 @@ BOOST_AUTO_TEST_CASE( testRotationalVariationalEquationsWithInertiaTensorDerivat
         BOOST_CHECK_SMALL( ( analyticalBlock - numericalBlock ).norm( ) / numericalBlock.norm( ), 1.0E-6 );
         BOOST_CHECK_GT( ( analyticalBlock - constantInertiaBlock ).norm( ) / numericalBlock.norm( ), 1.0E-3 );
     }
+
+    // Inertia tensor and its derivative are both proportional to the gravitational parameter, so the state is independent of it. Check
+    // that the sensitivity to the gravitational parameter (scaled by its value of 1.0E6) is zero, well below the effect of the inertia
+    // tensor derivative on the state (which an error in the inertia tensor derivative contribution to this partial would produce)
+    BOOST_CHECK_SMALL( 1.0E6 * timeVaryingInertiaResults.first.block( 0, 7, 7, 1 ).norm( ),
+                       1.0E-8 * ( timeVaryingInertiaResults.second - constantInertiaResults.second ).norm( ) );
 }
 
 BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )

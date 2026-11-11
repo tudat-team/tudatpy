@@ -1014,11 +1014,23 @@ protected:
 class FromFunctionRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
 {
 public:
-    FromFunctionRigidBodyPropertiesSettings( const std::function< double( const double ) > massFunction,
-                                             const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
-                                             const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr ):
+    //! Constructor
+    /*!
+     * Constructor
+     * \param massFunction Function returning the mass as a function of time
+     * \param centerOfMassFunction Function returning the center of mass as a function of time (none if empty)
+     * \param inertiaTensorFunction Function returning the inertia tensor as a function of time (none if empty)
+     * \param inertiaTensorDerivativeFunction Function returning the time derivative of the inertia tensor as a function of time
+     * (none if empty; may only be defined if inertiaTensorFunction is defined)
+     */
+    FromFunctionRigidBodyPropertiesSettings(
+            const std::function< double( const double ) > massFunction,
+            const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr ):
         RigidBodyPropertiesSettings( from_function_rigid_body_properties ), massFunction_( massFunction ),
-        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
+        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction ),
+        inertiaTensorDerivativeFunction_( inertiaTensorDerivativeFunction )
     {}
 
     virtual ~FromFunctionRigidBodyPropertiesSettings( ) {}
@@ -1038,22 +1050,43 @@ public:
         return inertiaTensorFunction_;
     }
 
+    //! Function to retrieve the function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > getInertiaTensorDerivativeFunction( )
+    {
+        return inertiaTensorDerivativeFunction_;
+    }
+
 protected:
     std::function< double( const double ) > massFunction_;
 
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
 
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+
+    //! Function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
 class MassDependentMassDistributionSettings : public RigidBodyPropertiesSettings
 {
 public:
-    MassDependentMassDistributionSettings( const double currentMass,
-                                           const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
-                                           const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
+    //! Constructor
+    /*!
+     * Constructor
+     * \param currentMass Initial mass of the body
+     * \param centerOfMassFunction Function returning the center of mass as a function of mass (none if empty)
+     * \param inertiaTensorFunction Function returning the inertia tensor as a function of mass (none if empty)
+     * \param inertiaTensorDerivativeFunction Function returning the time derivative of the inertia tensor as a function of time,
+     * including the contribution of the mass rate (none if empty; may only be defined if inertiaTensorFunction is defined)
+     */
+    MassDependentMassDistributionSettings(
+            const double currentMass,
+            const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr ):
         RigidBodyPropertiesSettings( mass_dependent_rigid_body_properties ), currentMass_( currentMass ),
-        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
+        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction ),
+        inertiaTensorDerivativeFunction_( inertiaTensorDerivativeFunction )
     {}
 
     virtual ~MassDependentMassDistributionSettings( ) {}
@@ -1073,12 +1106,21 @@ public:
         return inertiaTensorFunction_;
     }
 
+    //! Function to retrieve the function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > getInertiaTensorDerivativeFunction( )
+    {
+        return inertiaTensorDerivativeFunction_;
+    }
+
 protected:
     double currentMass_;
 
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
 
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+
+    //! Function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
 inline std::shared_ptr< RigidBodyPropertiesSettings > constantRigidBodyPropertiesSettings(
@@ -1098,17 +1140,21 @@ inline std::shared_ptr< RigidBodyPropertiesSettings > fromGravityFieldRigidBodyP
 inline std::shared_ptr< RigidBodyPropertiesSettings > fromFunctionRigidBodyPropertiesSettings(
         const std::function< double( const double ) > massFunction,
         const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
-        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr )
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr,
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr )
 {
-    return std::make_shared< FromFunctionRigidBodyPropertiesSettings >( massFunction, centerOfMassFunction, inertiaTensorFunction );
+    return std::make_shared< FromFunctionRigidBodyPropertiesSettings >(
+            massFunction, centerOfMassFunction, inertiaTensorFunction, inertiaTensorDerivativeFunction );
 }
 
 inline std::shared_ptr< RigidBodyPropertiesSettings > massDependentMassDistributionSettings(
         const double currentMass,
         const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
-        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction )
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction,
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr )
 {
-    return std::make_shared< MassDependentMassDistributionSettings >( currentMass, centerOfMassFunction, inertiaTensorFunction );
+    return std::make_shared< MassDependentMassDistributionSettings >(
+            currentMass, centerOfMassFunction, inertiaTensorFunction, inertiaTensorDerivativeFunction );
 }
 
 std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
