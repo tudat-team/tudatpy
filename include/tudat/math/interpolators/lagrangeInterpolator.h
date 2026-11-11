@@ -310,7 +310,9 @@ private:
     /*!
      *  Function to compute the interpolated value (see interpolate), or its derivative w.r.t. the independent variable. For the
      *  barycentric form L = N / D, with a_j = w_j / ( x - x_j ), the derivative uses a_j' = -a_j / ( x - x_j ), so that
-     *  L' = ( N' - L D' ) / D. At a node x_k, L'(x_k) = sum_{j != k} ( w_j / w_k ) ( y_j - y_k ) / ( x_k - x_j ).
+     *  L' = ( N' - L D' ) / D. To prevent cancellation between N' and L D' close to a node, the derivative is computed with all y_j
+     *  taken relative to the y_j at the node closest to x, which leaves L' unchanged. At a node x_k,
+     *  L'(x_k) = sum_{j != k} ( w_j / w_k ) ( y_j - y_k ) / ( x_k - x_j ).
      *  \param targetIndependentVariableValue Value of independent variable at which interpolation is to take place.
      *  \param computeDerivative Boolean denoting whether the derivative (true) or the value (false) is to be computed.
      *  \return Interpolated value of dependent variable, or its derivative w.r.t. the independent variable.
@@ -374,8 +376,23 @@ private:
             // precision (e.g., Mac Silicon where long double = double).
             DependentVariableType numeratorSum = zeroEntry_;
             ScalarType denominatorSum = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
-            DependentVariableType numeratorSumDerivative = zeroEntry_;
+
+            // For the derivative, the dependent variables are taken relative to their value at the node closest to the target
+            DependentVariableType numeratorSumDerivative;
             ScalarType denominatorSumDerivative = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+            int referenceEntry = lowerEntry - offsetEntries_;
+            if( computeDerivative )
+            {
+                numeratorSumDerivative = zeroEntry_;
+                for( int j = referenceEntry + 1; j < lowerEntry - offsetEntries_ + numberOfStages_; j++ )
+                {
+                    if( std::abs( static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] ) ) <
+                        std::abs( static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ referenceEntry ] ) ) )
+                    {
+                        referenceEntry = j;
+                    }
+                }
+            }
 
             for( int i = 0; i < numberOfStages_; i++ )
             {
@@ -432,18 +449,24 @@ private:
                 // where w_j = 1 / denominators[lowerEntry][i] (pre-computed in initializeDenominators)
                 ScalarType term =
                         mathematical_constants::getFloatingInteger< ScalarType >( 1 ) / ( diff * denominators[ lowerEntry ][ i ] );
-                numeratorSum = numeratorSum + dependentValues_[ j ] * term;
                 denominatorSum += term;
-                if( computeDerivative )
+                if( !computeDerivative )
                 {
-                    // Derivative of barycentric term: -w_j / (x - x_j)^2
-                    numeratorSumDerivative = numeratorSumDerivative - dependentValues_[ j ] * ( term / diff );
+                    numeratorSum = numeratorSum + dependentValues_[ j ] * term;
+                }
+                else
+                {
+                    // Terms of N and N' relative to reference value, with derivative of barycentric term: -w_j / (x - x_j)^2
+                    numeratorSum = numeratorSum + ( dependentValues_[ j ] - dependentValues_[ referenceEntry ] ) * term;
+                    numeratorSumDerivative =
+                            numeratorSumDerivative - ( dependentValues_[ j ] - dependentValues_[ referenceEntry ] ) * ( term / diff );
                     denominatorSumDerivative -= term / diff;
                 }
             }
             interpolatedValue = numeratorSum / denominatorSum;
             if( computeDerivative )
             {
+                // L' = ( N' - L D' ) / D, which is unchanged when using L relative to the reference value
                 interpolatedValue = ( numeratorSumDerivative - interpolatedValue * denominatorSumDerivative ) / denominatorSum;
             }
         }
@@ -469,9 +492,7 @@ private:
                 std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
                           << " ), using cubic-spline interpolation. Reliable interval lower boundary: " << lowerBoundReliableInterval
                           << "; upper boundary: " << upperBoundReliableInterval << std::endl;
-                interpolatedValue = computeDerivative ? boundaryInterpolator->interpolateDerivative( targetIndependentVariableValue )
-                                                      : boundaryInterpolator->interpolate( targetIndependentVariableValue );
-                break;
+                [[fallthrough]];
             case lagrange_cubic_spline_boundary_interpolation:
                 interpolatedValue = computeDerivative ? boundaryInterpolator->interpolateDerivative( targetIndependentVariableValue )
                                                       : boundaryInterpolator->interpolate( targetIndependentVariableValue );

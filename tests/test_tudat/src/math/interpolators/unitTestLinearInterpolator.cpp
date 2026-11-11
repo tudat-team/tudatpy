@@ -244,9 +244,6 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
 
             interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
             BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, 0.0, 1.0E-15 );
-
-            // Derivative of default value is zero
-            BOOST_CHECK_EQUAL( linearInterpolator.interpolateDerivative( valueBelowMinimumValue ), 0.0 );
         }
         else if( ( static_cast< BoundaryInterpolationType >( i ) == use_nan_value ) ||
                  ( static_cast< BoundaryInterpolationType >( i ) == use_nan_value_with_warning ) )
@@ -423,6 +420,9 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case_extrapolation_user_
 
             interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
             BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, extrapolationValue, 1.0E-15 );
+
+            // Derivative of default value is zero
+            BOOST_CHECK_EQUAL( linearInterpolator.interpolateDerivative( valueBelowMinimumValue ), 0.0L );
         }
     }
 
