@@ -279,8 +279,7 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
 
     double initialEphemerisTime = 1.0E7;
 
-    // Create bodies, with a basic tidal deformation of the Earth due to the Moon and the Sun. The states are relative to the Earth, to
-    // limit rounding errors in the numerical partials.
+    // Create bodies, with a basic tidal deformation of the Earth due to the Moon and the Sun
     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon", "Sun" }, "Earth", "ECLIPJ2000" );
     bodySettings.at( "Earth" )->rotationModelSettings = simpleRotationModelSettings(
             "ECLIPJ2000",
@@ -305,10 +304,12 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
     LinkDefinition linkEnds;
     linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Earth", "Graz" );
 
+    // Station state relative to the Earth, since rounding errors of the barycentric Earth position (about 1.0E-5 m) exceed the
+    // tolerance of the numerical partials
     std::function< Eigen::VectorXd( const double ) > observationFunctionAtReception =
             std::bind( &Ephemeris::getCartesianState,
                        createReferencePointCompositeEphemeris< double, double >(
-                               bodies.at( "Earth" )->getEphemeris( ),
+                               std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ), "Earth", "ECLIPJ2000" ),
                                bodies.at( "Earth" )->getRotationalEphemeris( ),
                                std::bind( &GroundStation::getStateInPlanetFixedFrame< double, double >,
                                           bodies.at( "Earth" )->getGroundStation( "Graz" ),
