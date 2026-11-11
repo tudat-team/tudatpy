@@ -350,7 +350,7 @@ public:
         // y' = ( y_i+1 - y_i ) / h - ( 3 A^2 - 1 ) / 6 h y''_i + ( 3 B^2 - 1 ) / 6 h y''_i+1
         ScalarType intervalSize = static_cast< ScalarType >( independentValues_[ lowerEntry + 1 ] - independentValues_[ lowerEntry ] );
         ScalarType coefficientA = ( independentValues_[ lowerEntry + 1 ] - targetIndependentVariableValue ) / intervalSize;
-        ScalarType coefficientB = mathematical_constants::getFloatingInteger< ScalarType >( 1.0 ) - coefficientA;
+        ScalarType coefficientB = 1.0 - coefficientA;
         return ( dependentValues_[ lowerEntry + 1 ] - dependentValues_[ lowerEntry ] ) / intervalSize -
                 secondDerivativeOfCurve_[ lowerEntry ] * ( ( 3.0 * coefficientA * coefficientA - 1.0 ) / 6.0 * intervalSize ) +
                 secondDerivativeOfCurve_[ lowerEntry + 1 ] * ( ( 3.0 * coefficientB * coefficientB - 1.0 ) / 6.0 * intervalSize );

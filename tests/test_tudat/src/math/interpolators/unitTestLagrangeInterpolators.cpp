@@ -236,14 +236,54 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_derivative )
                                     1.0E-11 );
     }
 
+    // Cubic spline boundary interpolation at the lower and upper edge
     interpolators::LagrangeInterpolator< double, double > splineBoundaryInterpolator( dataMap, stages );
-    const double evaluationPoint = 0.05;
     const double finiteDifferenceStep = 1.0E-5;
-    BOOST_CHECK_CLOSE_FRACTION( splineBoundaryInterpolator.interpolateDerivative( evaluationPoint ),
-                                ( splineBoundaryInterpolator.interpolate( evaluationPoint + finiteDifferenceStep ) -
-                                  splineBoundaryInterpolator.interpolate( evaluationPoint - finiteDifferenceStep ) ) /
-                                        ( 2.0 * finiteDifferenceStep ),
-                                1.0E-6 );
+    for( const double evaluationPoint : { 0.05, 100.0 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( splineBoundaryInterpolator.interpolateDerivative( evaluationPoint ),
+                                    ( splineBoundaryInterpolator.interpolate( evaluationPoint + finiteDifferenceStep ) -
+                                      splineBoundaryInterpolator.interpolate( evaluationPoint - finiteDifferenceStep ) ) /
+                                            ( 2.0 * finiteDifferenceStep ),
+                                    1.0E-6 );
+    }
+
+    // Time independent variable and vector dependent variable, as for tabulated ephemerides
+    std::map< Time, Eigen::VectorXd > vectorDataMap;
+    for( const auto& dataPoint : dataMap )
+    {
+        vectorDataMap[ Time( dataPoint.first ) ] = Eigen::Vector2d( dataPoint.second, -2.0 * dataPoint.second );
+    }
+    interpolators::LagrangeInterpolator< Time, Eigen::VectorXd > vectorInterpolator(
+            vectorDataMap, stages, interpolators::huntingAlgorithm, interpolators::lagrange_shifted_interval_boundary_interpolation );
+    for( const double evaluationPoint : { 3.0, 2.5, -0.05 } )
+    {
+        Eigen::VectorXd derivative = vectorInterpolator.interpolateDerivative( Time( evaluationPoint ) );
+        BOOST_CHECK_CLOSE_FRACTION( derivative( 0 ), evaluatePolynomialDerivative( coefficients, evaluationPoint ), 1.0E-11 );
+        BOOST_CHECK_CLOSE_FRACTION( derivative( 1 ), -2.0 * evaluatePolynomialDerivative( coefficients, evaluationPoint ), 1.0E-11 );
+    }
+}
+
+// Test derivative close to a node (outside the node tolerance), for data with an offset that is large w.r.t. its variation
+// (as for a position in meters). Without computing the barycentric sums relative to the value at the nearest node, the error is
+// of the order of machine precision times offset divided by distance to node (here 1E-4 relative).
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_derivative_near_node )
+{
+    const int stages = 6;
+    std::map< int, double > coefficients = getPolynomialCoefficients( stages - 1 );
+    std::map< double, double > dataMap;
+    for( const double independentVariable : getIndependentVariableVector( ) )
+    {
+        dataMap[ independentVariable ] = evaluatePolynomial( coefficients, independentVariable ) + 1.0E8;
+    }
+
+    interpolators::LagrangeInterpolator< double, double > interpolator( dataMap, stages );
+    for( const double evaluationPoint : { 2.5 - 1.0E-6, 2.5 + 1.0E-6 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolateDerivative( evaluationPoint ),
+                                    evaluatePolynomialDerivative( coefficients, evaluationPoint ),
+                                    1.0E-6 );
+    }
 }
 
 // Test to check whether the various boundary handling methopds are properly implemented
