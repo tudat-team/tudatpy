@@ -3,7 +3,10 @@
 The native `MultiArcDynamicsSimulator` now has an opt-in independent-arc path.
 `MultiArcVariationalEquationsSolver` exposes the corresponding variational
 configuration. Default construction and integration remain sequential.
-There are no Python bindings for this configuration yet.
+Python exposes a deliberately restricted native model through
+`IndependentArcVariationalSimulator`; see
+[the API and ownership contract](python_independent_arcs_api.md). The generic
+C++ factory is not exposed as an unrestricted Python callback.
 
 ## Configuration and ownership
 
