@@ -21,6 +21,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
@@ -2344,6 +2345,38 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                                                            vectorParameterName->parameterType_.second.second );
                     }
                 }
+                break;
+            }
+            case ground_station_linear_velocity: {
+                const std::string stationName = vectorParameterName->parameterType_.second.second;
+                if( currentBody->getGroundStationMap( ).count( stationName ) == 0 )
+                {
+                    throw std::runtime_error( "Error, requested linear velocity of ground station " + stationName +
+                                              ", which was not found" );
+                }
+                std::shared_ptr< ground_stations::CombinedStationMotionModel > combinedModel =
+                        std::dynamic_pointer_cast< ground_stations::CombinedStationMotionModel >(
+                                currentBody->getGroundStation( stationName )->getNominalStationState( )->getStationMotionModel( ) );
+                std::vector< std::shared_ptr< ground_stations::LinearStationMotionModel > > linearModels;
+                if( combinedModel != nullptr )
+                {
+                    for( const std::shared_ptr< ground_stations::StationMotionModel >& motionModel : combinedModel->getModelList( ) )
+                    {
+                        std::shared_ptr< ground_stations::LinearStationMotionModel > linearModel =
+                                std::dynamic_pointer_cast< ground_stations::LinearStationMotionModel >( motionModel );
+                        if( linearModel != nullptr )
+                        {
+                            linearModels.push_back( linearModel );
+                        }
+                    }
+                }
+                if( linearModels.size( ) != 1 )
+                {
+                    throw std::runtime_error( "Error, requested linear velocity of ground station " + stationName + ", which has " +
+                                              std::to_string( linearModels.size( ) ) + " linear motion models; exactly one is required" );
+                }
+                vectorParameterToEstimate = std::make_shared< GroundStationLinearVelocity >(
+                        linearModels.at( 0 ), vectorParameterName->parameterType_.second.first, stationName );
                 break;
             }
             case displacement_love_number:

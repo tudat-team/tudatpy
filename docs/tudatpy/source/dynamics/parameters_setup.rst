@@ -127,6 +127,8 @@ Functions
 
    ground_station_position
 
+   ground_station_linear_velocity
+
    reference_point_position
 
    displacement_love_number
@@ -293,6 +295,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_relative_observation_bias
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.ground_station_position
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.ground_station_linear_velocity
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.reference_point_position
 

@@ -252,6 +252,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case camera_pointing_correction:
             parameterDescription = "camera pointing correction ";
             break;
+        case ground_station_linear_velocity:
+            parameterDescription = "ground station linear velocity ";
+            break;
         case displacement_love_number:
             parameterDescription = "displacement Love number ";
             break;
@@ -507,6 +510,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case camera_pointing_correction:
             isDoubleParameter = false;
             break;
+        case ground_station_linear_velocity:
         case displacement_love_number:
         case displacement_shida_number:
             isDoubleParameter = false;
@@ -790,6 +794,7 @@ bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parame
         case shared_observation_bias:
         case relative_gravitational_parameter_rate:
         case camera_pointing_correction:
+        case ground_station_linear_velocity:
         case displacement_love_number:
         case displacement_shida_number:
             return false;

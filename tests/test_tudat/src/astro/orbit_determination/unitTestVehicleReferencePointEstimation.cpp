@@ -253,8 +253,35 @@ BOOST_AUTO_TEST_CASE( test_ReferencePointEstimation )
     estimationInput->defineEstimationSettings( true, true, true, true, false );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
+    // Record the iteration number, number of residuals and inverse covariance passed to the iteration callback
+    std::vector< int > callbackIterations;
+    std::vector< int > callbackResidualSizes;
+    std::vector< Eigen::MatrixXd > callbackInverseCovariances;
+    estimationInput->iterationCallback_ =
+            [ & ]( const int iteration, const Eigen::VectorXd& residuals, const Eigen::MatrixXd& inverseCovariance ) {
+                callbackIterations.push_back( iteration );
+                callbackResidualSizes.push_back( residuals.rows( ) );
+                callbackInverseCovariances.push_back( inverseCovariance );
+            };
+
     // Perform estimation
     std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+
+    // Check that the callback is called once per iteration, with all residuals and with the inverse covariance
+    BOOST_CHECK( callbackIterations.size( ) > static_cast< unsigned int >( estimationOutput->bestIteration_ ) );
+    BOOST_CHECK( callbackIterations.size( ) <= 4 );
+    for( unsigned int i = 0; i < callbackIterations.size( ); i++ )
+    {
+        BOOST_CHECK_EQUAL( callbackIterations.at( i ), static_cast< int >( i ) );
+        BOOST_CHECK_EQUAL( callbackResidualSizes.at( i ), observationsAndTimes->getTotalObservableSize( ) );
+        BOOST_CHECK_EQUAL( callbackInverseCovariances.at( i ).rows( ), truthParameters.rows( ) );
+        BOOST_CHECK_EQUAL( callbackInverseCovariances.at( i ).cols( ), truthParameters.rows( ) );
+    }
+    const Eigen::MatrixXd bestInverseCovariance = estimationOutput->getUnnormalizedInverseCovarianceMatrix( );
+    BOOST_CHECK_SMALL(
+            ( callbackInverseCovariances.at( estimationOutput->bestIteration_ ) - bestInverseCovariance ).cwiseAbs( ).maxCoeff( ) /
+                    bestInverseCovariance.cwiseAbs( ).maxCoeff( ),
+            1.0E-10 );
 
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout << "estimation error: " << ( estimationError ).transpose( ) << std::endl;

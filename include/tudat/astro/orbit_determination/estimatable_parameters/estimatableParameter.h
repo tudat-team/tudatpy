@@ -118,6 +118,7 @@ enum EstimatebleParametersEnum {
     shared_observation_bias,
     relative_gravitational_parameter_rate,
     camera_pointing_correction,
+    ground_station_linear_velocity,
     displacement_love_number,
     displacement_shida_number
 };

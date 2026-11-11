@@ -11,6 +11,7 @@
 #ifndef TUDAT_PODINPUTOUTPUTTYPES_H
 #define TUDAT_PODINPUTOUTPUTTYPES_H
 
+#include <functional>
 #include <map>
 #include <vector>
 #include <iostream>
@@ -444,6 +445,10 @@ public:
     {
         return applyAprioriParameterDeviation_;
     }
+
+    //! Function called in each iteration, after the normal equations are solved, with the iteration number, the residuals and
+    //! the unnormalized inverse covariance; empty if not used.
+    std::function< void( const int, const Eigen::VectorXd&, const Eigen::MatrixXd& ) > iterationCallback_;
 
     //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
     bool saveResidualsAndParametersFromEachIteration_;

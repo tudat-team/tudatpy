@@ -161,6 +161,9 @@ void expose_parameters_setup_types( py::module& m )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position,
                     R"doc(Estimatable parameter for ground station position.)doc" )
+            .value( "ground_station_linear_velocity_type",
+                    tep::EstimatebleParametersEnum::ground_station_linear_velocity,
+                    R"doc(Estimatable parameter for the body-fixed velocity of the linear motion of a ground station.)doc" )
             .value( "camera_pointing_correction_type",
                     tep::EstimatebleParametersEnum::camera_pointing_correction,
                     R"doc(Estimatable parameter for camera pointing correction.)doc" )
@@ -2152,6 +2155,35 @@ EstimatableParameterSettings
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified ground station's position bias.
+
+
+     )doc" );
+
+    m.def( "ground_station_linear_velocity",
+           &tep::groundStationLinearVelocity,
+           py::arg( "body" ),
+           py::arg( "ground_station_name" ),
+           R"doc(
+
+ Function for creating parameter settings for ground station linear velocity.
+
+ Function for creating parameter settings object for the body-fixed Cartesian velocity (in m/s) of a ground station's linear motion model.
+ Using the ground station linear velocity as estimatable parameter requires:
+
+ * The ground station to have a linear motion model (see :func:`~tudatpy.dynamics.environment_setup.ground_station.linear_station_motion`)
+ * At least one observation model to rely on the specified ground station
+
+
+ Parameters
+ ----------
+ body : str
+     Body name identifying the body, with which the ground station is associated.
+ ground_station_name : str
+     Name which identifies the ground station with the linear motion model.
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified ground station's linear velocity.
 
 
      )doc" );

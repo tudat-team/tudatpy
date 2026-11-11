@@ -228,6 +228,32 @@ private:
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
 };
 
+//! Partial of the state of a ground station w.r.t. the body-fixed velocity of its linear motion model.
+class CartesianPartialWrtStationLinearVelocity : public CartesianStatePartial
+{
+public:
+    CartesianPartialWrtStationLinearVelocity( const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
+                                              const double referenceEpoch ):
+        bodyRotationModel_( bodyRotationModel ), referenceEpoch_( referenceEpoch )
+    {}
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
+    {
+        return Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) ) * ( time - referenceEpoch_ );
+    }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time )
+    {
+        return bodyRotationModel_->getDerivativeOfRotationToBaseFrame( time ) * ( time - referenceEpoch_ ) +
+                Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) );
+    }
+
+private:
+    std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
+
+    double referenceEpoch_;
+};
+
 //! Partial of the state of a point on the surface of a body w.r.t. the displacement Love number h_n or Shida number l_n of the basic
 //! tidal deformation models of the body. The displacement is linear in this number, so that its partial is the displacement computed
 //! with a unit Love or Shida number. The velocity partial is that of the rotation of the body-fixed displacement partial, without the

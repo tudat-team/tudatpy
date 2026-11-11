@@ -231,6 +231,46 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
                     1.0E-6 );
         }
     }
+
+    // Create ground station with linear motion model, and partial w.r.t. its linear velocity
+    createGroundStation( bodies.at( "Earth" ),
+                         "Wettzell",
+                         ( Eigen::Vector3d( ) << 4.1E6, 9.3E5, 4.8E6 ).finished( ),
+                         coordinate_conversions::cartesian_position,
+                         { std::make_shared< LinearGroundStationMotionSettings >( ( Eigen::Vector3d( ) << 0.02, -0.01, 0.03 ).finished( ),
+                                                                                  initialEphemerisTime ) } );
+    LinkDefinition linkEnds3;
+    linkEnds3[ observed_body ] = std::make_pair< std::string, std::string >( "Earth", "Wettzell" );
+
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > stationLinearVelocity =
+            createVectorParameterToEstimate< double, double >( groundStationLinearVelocity( "Earth", "Wettzell" ), bodies );
+    std::shared_ptr< CartesianStatePartial > partialObjectWrtStationLinearVelocity =
+            createCartesianStatePartialsWrtParameter( linkEnds3.linkEnds_, bodies, stationLinearVelocity ).begin( )->second;
+
+    Eigen::MatrixXd partialWrtStationLinearVelocity =
+            partialObjectWrtStationLinearVelocity->calculatePartialOfPosition( currentState, currentTime );
+    Eigen::MatrixXd partialOfVelocityWrtStationLinearVelocity =
+            partialObjectWrtStationLinearVelocity->calculatePartialOfVelocity( currentState, currentTime );
+
+    // Compute numerical partial w.r.t. station linear velocity
+    std::function< Eigen::VectorXd( const double ) > movingStationObservationFunction =
+            std::bind( &Ephemeris::getCartesianState,
+                       createReferencePointCompositeEphemeris< double, double >(
+                               bodies.at( "Earth" )->getEphemeris( ),
+                               bodies.at( "Earth" )->getRotationalEphemeris( ),
+                               std::bind( &GroundStation::getStateInPlanetFixedFrame< double, double >,
+                                          bodies.at( "Earth" )->getGroundStation( "Wettzell" ),
+                                          std::placeholders::_1,
+                                          "Earth" ) ),
+                       std::placeholders::_1 );
+    Eigen::MatrixXd numericalPartialWrtStationLinearVelocity = calculateNumericalObservationParameterPartial(
+            stationLinearVelocity, Eigen::Vector3d::Constant( 10.0 ), movingStationObservationFunction, receptionTime );
+
+    // Test partials w.r.t. station linear velocity
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            partialWrtStationLinearVelocity, numericalPartialWrtStationLinearVelocity.block( 0, 0, 3, 3 ), 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            partialOfVelocityWrtStationLinearVelocity, numericalPartialWrtStationLinearVelocity.block( 3, 0, 3, 3 ), 1.0E-6 );
 }
 
 //! Test partial derivatives of the position and velocity of a ground station w.r.t. the displacement Love and Shida number of the

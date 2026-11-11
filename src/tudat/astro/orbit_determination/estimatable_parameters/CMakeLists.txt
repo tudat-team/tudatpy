@@ -37,6 +37,7 @@ set(estimatable_parameters_HEADERS
   "observationBiasParameter.h"
   "ppnParameters.h"
   "groundStationPosition.h"
+  "groundStationLinearVelocity.h"
   "displacementLoveNumber.h"
   "referencePointPosition.h"
   "cameraPointingCorrection.h"
