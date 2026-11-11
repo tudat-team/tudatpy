@@ -28,6 +28,7 @@ import astropy.units as u
 import astropy
 import copy
 import os
+import warnings
 import re
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
@@ -848,17 +849,31 @@ class BatchMPC:
                 time_scale_converter = time_representation.default_time_scale_converter()
             else:
                 time_scale_converter = None
+
+            def convert_datetime_bound_to_tdb(epoch_utc):
+                # The UTC to TDB conversion fails for epochs beyond the end of the leap second
+                # table. This is not fixed in this deprecated class, only in the data_input one.
+                try:
+                    return time_scale_converter.convert_time(
+                        input_scale=time_representation.utc_scale,
+                        output_scale=time_representation.tdb_scale,
+                        input_value=epoch_utc,
+                    )
+                except RuntimeError:
+                    warnings.warn(
+                        "Future datetime bounds in filter are fixed in "
+                        "data_input.tracking_data.mpc.BatchMPC, not in the deprecated "
+                        "tudatpy.data.mpc.BatchMPC."
+                    )
+                    raise
+
             if epoch_start is not None:
                 if isinstance(epoch_start, float) or isinstance(epoch_start, int):
                     self._table = self._table.query("epoch_seconds_TDB >= @epoch_start")
                 elif isinstance(epoch_start, datetime.datetime):
                     epoch_start_iso_string = epoch_start.isoformat(sep=" ")
                     epoch_start_utc = DateTime.from_iso_string(epoch_start_iso_string).to_epoch()
-                    epoch_start_tdb = time_scale_converter.convert_time(
-                        input_scale=time_representation.utc_scale,
-                        output_scale=time_representation.tdb_scale,
-                        input_value=epoch_start_utc,
-                    )
+                    epoch_start_tdb = convert_datetime_bound_to_tdb(epoch_start_utc)
                     self._table = self._table.query("epoch_seconds_TDB >= @epoch_start_tdb")
             if epoch_end is not None:
                 if isinstance(epoch_end, float) or isinstance(epoch_end, int):
@@ -866,11 +881,7 @@ class BatchMPC:
                 elif isinstance(epoch_end, datetime.datetime):
                     epoch_end_iso_string = epoch_end.isoformat(sep=" ")
                     epoch_end_utc = DateTime.from_iso_string(epoch_end_iso_string).to_epoch()
-                    epoch_end_tdb = time_scale_converter.convert_time(
-                        input_scale=time_representation.utc_scale,
-                        output_scale=time_representation.tdb_scale,
-                        input_value=epoch_end_utc,
-                    )
+                    epoch_end_tdb = convert_datetime_bound_to_tdb(epoch_end_utc)
                     self._table = self._table.query("epoch_seconds_TDB <= @epoch_end_tdb")
 
             self._refresh_metadata()
