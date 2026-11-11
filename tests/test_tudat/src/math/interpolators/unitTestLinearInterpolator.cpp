@@ -13,6 +13,9 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include "tudat/math/interpolators/linearInterpolator.h"
+#include "tudat/math/interpolators/piecewiseConstantInterpolator.h"
+#include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
+#include "tudat/math/interpolators/chebyshevApproximation.h"
 
 #include <Eigen/Core>
 
@@ -174,6 +177,8 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
             // Test that the expected exception is thrown for value below minimum value
             BOOST_CHECK_THROW( linearInterpolator.interpolate( valueBelowMinimumValue ),
                                tudat::exceptions::InterpolationOutOfBoundsError< double > );
+            BOOST_CHECK_THROW( linearInterpolator.interpolateDerivative( valueBelowMinimumValue ),
+                               tudat::exceptions::InterpolationOutOfBoundsError< double > );
             try
             {
                 linearInterpolator.interpolate( valueBelowMinimumValue );
@@ -210,6 +215,9 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
 
             interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
             BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, dependentVariableValues.at( inputData.rows( ) - 1 ), 1.0E-15 );
+
+            // Derivative of boundary value is zero
+            BOOST_CHECK_EQUAL( linearInterpolator.interpolateDerivative( valueAboveMaximumValue ), 0.0 );
         }
         else if( ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary ) ||
                  ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary_with_warning ) )
@@ -236,6 +244,9 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
 
             interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
             BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, 0.0, 1.0E-15 );
+
+            // Derivative of default value is zero
+            BOOST_CHECK_EQUAL( linearInterpolator.interpolateDerivative( valueBelowMinimumValue ), 0.0 );
         }
         else if( ( static_cast< BoundaryInterpolationType >( i ) == use_nan_value ) ||
                  ( static_cast< BoundaryInterpolationType >( i ) == use_nan_value_with_warning ) )
@@ -245,6 +256,8 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
 
             interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
             BOOST_CHECK_EQUAL( !( interpolatedValue == interpolatedValue ), true );
+
+            BOOST_CHECK( std::isnan( linearInterpolator.interpolateDerivative( valueAboveMaximumValue ) ) );
         }
     }
 }
@@ -473,6 +486,50 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case_extrapolation_user_
             BOOST_CHECK_SMALL( ( interpolatedValue - extrapolationValue ).norm( ), 1.0E-15 );
         }
     }
+}
+
+// Test derivatives of linear and piecewise constant interpolators for linear data y = 2x - 1 inside the domain, at a node and in
+// the extrapolation region, which are 2 and 0, respectively
+BOOST_AUTO_TEST_CASE( test_linearInterpolation_derivative )
+{
+    using namespace interpolators;
+
+    const std::vector< double > independentVariableValues = { 0.0, 1.0, 3.0 };
+    const std::vector< double > dependentVariableValues = { -1.0, 1.0, 5.0 };
+    LinearInterpolatorDouble linearInterpolator( independentVariableValues, dependentVariableValues );
+    PiecewiseConstantInterpolator< double, double > piecewiseConstantInterpolator( independentVariableValues, dependentVariableValues );
+
+    for( const double evaluationPoint : { 0.5, 1.0, 4.0 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( linearInterpolator.interpolateDerivative( evaluationPoint ), 2.0, 1.0E-15 );
+        BOOST_CHECK_EQUAL( piecewiseConstantInterpolator.interpolateDerivative( evaluationPoint ), 0.0 );
+    }
+}
+
+// Test derivative of jump data linear interpolator for an angle increasing by 1 rad per unit of the independent variable, wrapped
+// to [-pi, pi), inside the domain (in the interval with the jump), at a node and in the extrapolation region
+BOOST_AUTO_TEST_CASE( test_jumpDataLinearInterpolation_derivative )
+{
+    using mathematical_constants::PI;
+
+    interpolators::JumpDataLinearInterpolator< double, double > interpolator(
+            std::vector< double >{ 0.0, 2.0, 4.0, 6.0, 8.0 },
+            std::vector< double >{ 0.0, 2.0, 4.0 - 2.0 * PI, 6.0 - 2.0 * PI, 8.0 - 2.0 * PI },
+            PI,
+            2.0 * PI );
+
+    for( const double evaluationPoint : { 3.0, 2.0, 9.0 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolateDerivative( evaluationPoint ), 1.0, 1.0E-14 );
+    }
+}
+
+// Test that the derivative of the Chebyshev interpolator, which is not implemented, throws an exception
+BOOST_AUTO_TEST_CASE( test_chebyshevInterpolation_derivative )
+{
+    interpolators::ChebyshevInterpolator< double, double > interpolator( std::vector< double >{ 0.0, 1.0 },
+                                                                         std::vector< std::vector< double > >{ { 1.0 } } );
+    BOOST_CHECK_THROW( interpolator.interpolateDerivative( 0.5 ), tudat::exceptions::InterpolationDerivativeNotImplementedError );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

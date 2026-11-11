@@ -297,6 +297,43 @@ public:
         return interpolatedValue;
     }
 
+    //! Function to compute the derivative of the interpolated value w.r.t. the independent variable.
+    /*!
+     * Function to compute the derivative of the interpolated value w.r.t. the independent variable, i.e. the slope of the
+     * segment used by interpolate (at a node, the segment selected by the lookup scheme).
+     * \param independentVariableValue Value of independent variable at which the derivative is to be determined.
+     * \return Derivative of the interpolated value w.r.t. the independent variable.
+     */
+    DependentVariableType interpolateDerivative( const IndependentVariableType independentVariableValue )
+    {
+        DependentVariableType derivative;
+        bool useValue = false;
+        this->checkDerivativeBoundaryCase( derivative, useValue, independentVariableValue );
+        if( useValue )
+        {
+            return derivative;
+        }
+
+        // Select the segment as in interpolate
+        unsigned int lowerIndex = lookUpScheme_->findNearestLowerNeighbour( independentVariableValue );
+        unsigned int upperIndex = lowerIndex + 1;
+        if( lowerIndex == independentValues_.size( ) - 1 )
+        {
+            if( this->isPeriodic( ) )
+            {
+                upperIndex = 0;
+            }
+            else
+            {
+                lowerIndex -= 1;
+                upperIndex = lowerIndex + 1;
+            }
+        }
+
+        return ( dependentValues_[ upperIndex ] - dependentValues_[ lowerIndex ] ) /
+                static_cast< ScalarType >( getShortestDistance( independentValues_[ lowerIndex ], independentValues_[ upperIndex ] ) );
+    }
+
     InterpolatorTypes getInterpolatorType( )
     {
         return linear_interpolator;

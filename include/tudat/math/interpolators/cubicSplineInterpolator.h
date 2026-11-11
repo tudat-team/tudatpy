@@ -324,6 +324,38 @@ public:
                 coefficientC_ * secondDerivativeOfCurve_[ lowerEntry_ ] + coefficientD_ * secondDerivativeOfCurve_[ lowerEntry_ + 1 ];
     }
 
+    //! Function to compute the derivative of the interpolated value w.r.t. the independent variable.
+    /*!
+     *  Function to compute the derivative of the interpolated value w.r.t. the independent variable, by differentiating the
+     *  interpolant in interpolate (with dA/dx = -1/h and dB/dx = 1/h, see Press W.H., et al., 2002).
+     *  \param targetIndependentVariableValue Value of independent variable at which the derivative is to be determined.
+     *  \return Derivative of the interpolated value w.r.t. the independent variable.
+     */
+    DependentVariableType interpolateDerivative( const IndependentVariableType targetIndependentVariableValue )
+    {
+        DependentVariableType derivative;
+        bool useValue = false;
+        this->checkDerivativeBoundaryCase( derivative, useValue, targetIndependentVariableValue );
+        if( useValue )
+        {
+            return derivative;
+        }
+
+        unsigned int lowerEntry = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+        if( lowerEntry == independentValues_.size( ) - 1 )
+        {
+            lowerEntry -= 1;
+        }
+
+        // y' = ( y_i+1 - y_i ) / h - ( 3 A^2 - 1 ) / 6 h y''_i + ( 3 B^2 - 1 ) / 6 h y''_i+1
+        ScalarType intervalSize = static_cast< ScalarType >( independentValues_[ lowerEntry + 1 ] - independentValues_[ lowerEntry ] );
+        ScalarType coefficientA = ( independentValues_[ lowerEntry + 1 ] - targetIndependentVariableValue ) / intervalSize;
+        ScalarType coefficientB = mathematical_constants::getFloatingInteger< ScalarType >( 1.0 ) - coefficientA;
+        return ( dependentValues_[ lowerEntry + 1 ] - dependentValues_[ lowerEntry ] ) / intervalSize -
+                secondDerivativeOfCurve_[ lowerEntry ] * ( ( 3.0 * coefficientA * coefficientA - 1.0 ) / 6.0 * intervalSize ) +
+                secondDerivativeOfCurve_[ lowerEntry + 1 ] * ( ( 3.0 * coefficientB * coefficientB - 1.0 ) / 6.0 * intervalSize );
+    }
+
     InterpolatorTypes getInterpolatorType( )
     {
         return cubic_spline_interpolator;
