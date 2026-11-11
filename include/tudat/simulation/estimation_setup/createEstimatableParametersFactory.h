@@ -23,6 +23,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
+#include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
@@ -2390,16 +2391,19 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > > deformationModels;
                 for( const auto& deformationModel : currentBody->getBodyDeformationModels( ) )
                 {
-                    if( std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( deformationModel ) != nullptr )
+                    // The IERS 2010 model, which is derived from the basic tidal deformation model, is not supported
+                    if( std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( deformationModel ) != nullptr &&
+                        std::dynamic_pointer_cast< basic_astrodynamics::Iers2010EarthDeformation >( deformationModel ) == nullptr )
                     {
                         deformationModels.push_back(
                                 std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( deformationModel ) );
                     }
                 }
-                vectorParameterToEstimate = std::make_shared< DisplacementLoveNumber >( deformationModels,
-                                                                                        loveNumberSettings->degrees_,
-                                                                                        loveNumberSettings->useShidaNumber_,
-                                                                                        vectorParameterName->parameterType_.second.first );
+                vectorParameterToEstimate =
+                        std::make_shared< DisplacementLoveNumber >( deformationModels,
+                                                                    loveNumberSettings->degrees_,
+                                                                    vectorParameterName->parameterType_.first == displacement_shida_number,
+                                                                    vectorParameterName->parameterType_.second.first );
                 break;
             }
             case reference_point_position: {

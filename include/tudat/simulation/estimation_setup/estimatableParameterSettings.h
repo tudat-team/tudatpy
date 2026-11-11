@@ -1626,14 +1626,11 @@ public:
                                                         const std::vector< int >& degrees,
                                                         const bool useShidaNumber ):
         EstimatableParameterSettings( associatedBody, useShidaNumber ? displacement_shida_number : displacement_love_number ),
-        degrees_( degrees ), useShidaNumber_( useShidaNumber )
+        degrees_( degrees )
     {}
 
     //! Degree of each estimated number
     std::vector< int > degrees_;
-
-    //! Whether the Shida number l_n (true) or the Love number h_n (false) is estimated
-    bool useShidaNumber_;
 };
 
 //! Function to create settings for the displacement Love number h_n of each of the given degrees of a body

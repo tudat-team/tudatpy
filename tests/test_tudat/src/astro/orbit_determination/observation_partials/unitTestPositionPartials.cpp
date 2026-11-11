@@ -32,8 +32,6 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
-#include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
-#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
 
 namespace tudat
 {
@@ -281,39 +279,29 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
 
     double initialEphemerisTime = 1.0E7;
 
-    // Create bodies, with a basic tidal deformation of the Earth due to the Moon and the Sun. The (constant) states are relative to the
-    // Earth, to limit rounding errors in the numerical partials.
-    SystemOfBodies bodies;
-    bodies.createEmptyBody( "Earth" );
-    bodies.createEmptyBody( "Moon" );
-    bodies.createEmptyBody( "Sun" );
-    for( const std::string bodyName : { "Earth", "Moon", "Sun" } )
-    {
-        bodies.at( bodyName )
-                ->setEphemeris( std::make_shared< ConstantEphemeris >(
-                        getBodyCartesianStateAtEpoch( bodyName, "Earth", "ECLIPJ2000", "NONE", 0.0 ), "SSB", "ECLIPJ2000" ) );
-        bodies.at( bodyName )->setGravityFieldModel( std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( bodyName ) ) );
-    }
-    bodies.at( "Earth" )->setRotationalEphemeris( createRotationModel(
-            std::make_shared< SimpleRotationModelSettings >(
-                    "ECLIPJ2000",
-                    "IAU_Earth",
-                    spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
-                    initialEphemerisTime,
-                    2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ),
-            "Earth" ) );
+    // Create bodies, with a basic tidal deformation of the Earth due to the Moon and the Sun. The states are relative to the Earth, to
+    // limit rounding errors in the numerical partials.
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon", "Sun" }, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings = simpleRotationModelSettings(
+            "ECLIPJ2000",
+            "IAU_Earth",
+            spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+            initialEphemerisTime,
+            2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY );
     std::map< int, std::pair< double, double > > loveAndShidaNumberPerDegree;
     loveAndShidaNumberPerDegree[ 2 ] = std::make_pair( 0.6, 0.08 );
     loveAndShidaNumberPerDegree[ 3 ] = std::make_pair( 0.29, 0.015 );
-    bodies.at( "Earth" )->addBodyDeformationModel( createBodyDeformationModel(
-            basicTidalBodyShapeDeformation( { "Moon", "Sun" }, loveAndShidaNumberPerDegree, 6378137.0 ), "Earth", bodies ) );
+    bodySettings.at( "Earth" )->bodyDeformationSettings.push_back(
+            basicTidalBodyShapeDeformation( { "Moon", "Sun" }, loveAndShidaNumberPerDegree, 6378137.0 ) );
 
     // Create ground station, of which the position includes the tidal displacement
-    createGroundStation( bodies.at( "Earth" ),
-                         "Graz",
-                         ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( ),
-                         coordinate_conversions::cartesian_position,
-                         { bodyDeformationStationMotionSettings( ) } );
+    bodySettings.at( "Earth" )->groundStationSettings.push_back( std::make_shared< GroundStationSettings >(
+            "Graz",
+            ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( ),
+            coordinate_conversions::cartesian_position,
+            std::vector< std::shared_ptr< GroundStationMotionSettings > >( { bodyDeformationStationMotionSettings( ) } ) ) );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
     LinkDefinition linkEnds;
     linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Earth", "Graz" );
 
@@ -328,17 +316,14 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
                                           "Earth" ) ),
                        std::placeholders::_1 );
 
-    std::vector< std::shared_ptr< BasicTidalBodyDeformation > > deformationModels = {
-        std::dynamic_pointer_cast< BasicTidalBodyDeformation >( bodies.at( "Earth" )->getBodyDeformationModels( ).at( 0 ) )
-    };
     double receptionTime = 1.1E7;
     Eigen::Vector6d currentState = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( receptionTime );
 
     // Compare analytical and numerical partials w.r.t. the Love number h_n and the Shida number l_n, of degrees 2 and 3
     for( const bool useShidaNumber : { false, true } )
     {
-        std::shared_ptr< DisplacementLoveNumber > loveNumberParameter =
-                std::make_shared< DisplacementLoveNumber >( deformationModels, std::vector< int >( { 2, 3 } ), useShidaNumber, "Earth" );
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > loveNumberParameter = createVectorParameterToEstimate< double, double >(
+                useShidaNumber ? displacementShidaNumber( "Earth", { 2, 3 } ) : displacementLoveNumber( "Earth", { 2, 3 } ), bodies );
         BOOST_CHECK_EQUAL( loveNumberParameter->getParameterSize( ), 2 );
 
         std::shared_ptr< CartesianStatePartial > partialObject =
@@ -351,7 +336,7 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
         Eigen::MatrixXd numericalPartial = calculateNumericalObservationParameterPartial(
                 loveNumberParameter, perturbation, observationFunctionAtReception, receptionTime );
 
-        // Compare per degree, relative to the size of the partial (millimetres to decimetres per unit Love or Shida number)
+        // Compare per degree, relative to the size of the partial (millimeters to decimeters per unit Love or Shida number)
         for( int i = 0; i < 2; i++ )
         {
             BOOST_CHECK( partialOfPosition.col( i ).norm( ) > 1.0E-3 );

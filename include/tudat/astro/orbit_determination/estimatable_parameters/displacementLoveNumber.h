@@ -42,12 +42,12 @@ public:
                             const bool useShidaNumber,
                             const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( useShidaNumber ? displacement_shida_number : displacement_love_number, associatedBody ),
-        deformationModels_( deformationModels ), degrees_( degrees ), useShidaNumber_( useShidaNumber )
+        deformationModels_( deformationModels ), degrees_( degrees )
     {
         if( deformationModels_.empty( ) )
         {
             throw std::runtime_error( "Error when creating displacement Love or Shida number parameter of " + associatedBody +
-                                      ", no basic tidal deformation model found" );
+                                      ", no basic tidal deformation model found (IERS 2010 deformation models are not supported)" );
         }
         for( const auto& model : deformationModels_ )
         {
@@ -86,8 +86,8 @@ public:
             std::map< int, std::pair< double, double > > loveAndShidaNumberPerDegree = model->getDisplacementLoveNumberPerDegree( );
             for( unsigned int i = 0; i < degrees_.size( ); i++ )
             {
-                ( useShidaNumber_ ? loveAndShidaNumberPerDegree[ degrees_.at( i ) ].second
-                                  : loveAndShidaNumberPerDegree[ degrees_.at( i ) ].first ) = parameterValue( i );
+                ( getUseShidaNumber( ) ? loveAndShidaNumberPerDegree[ degrees_.at( i ) ].second
+                                       : loveAndShidaNumberPerDegree[ degrees_.at( i ) ].first ) = parameterValue( i );
             }
             model->setDisplacementLoveNumberPerDegree( loveAndShidaNumberPerDegree );
         }
@@ -96,6 +96,17 @@ public:
     int getParameterSize( )
     {
         return degrees_.size( );
+    }
+
+    std::string getParameterDescription( )
+    {
+        std::string parameterDescription =
+                getParameterTypeString( parameterName_.first ) + "of " + parameterName_.second.first + " for degrees: ";
+        for( unsigned int i = 0; i < degrees_.size( ); i++ )
+        {
+            parameterDescription += std::to_string( degrees_.at( i ) ) + ( i + 1 < degrees_.size( ) ? ", " : "." );
+        }
+        return parameterDescription;
     }
 
     std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > > getDeformationModels( ) const
@@ -110,7 +121,7 @@ public:
 
     bool getUseShidaNumber( ) const
     {
-        return useShidaNumber_;
+        return parameterName_.first == displacement_shida_number;
     }
 
 private:
@@ -118,7 +129,7 @@ private:
     double extractLoveOrShidaNumber( const std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > model, const int degree ) const
     {
         const std::pair< double, double > loveAndShidaNumber = model->getDisplacementLoveNumberPerDegree( ).at( degree );
-        return useShidaNumber_ ? loveAndShidaNumber.second : loveAndShidaNumber.first;
+        return getUseShidaNumber( ) ? loveAndShidaNumber.second : loveAndShidaNumber.first;
     }
 
     //! Basic tidal deformation models of the body
@@ -126,9 +137,6 @@ private:
 
     //! Degree of each estimated number
     std::vector< int > degrees_;
-
-    //! Whether the Shida number l_n (true) or the Love number h_n (false) is estimated
-    bool useShidaNumber_;
 };
 
 }  // namespace estimatable_parameters

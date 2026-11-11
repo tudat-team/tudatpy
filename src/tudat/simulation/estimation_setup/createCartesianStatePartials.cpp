@@ -252,8 +252,31 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                     }
                     case estimatable_parameters::displacement_love_number:
                     case estimatable_parameters::displacement_shida_number: {
-                        // The parameter affects each point on the surface of the body for which a ground station exists.
-                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) > 0 )
+                        // The parameter affects each ground station on the body of which the motion includes the body deformation.
+                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) == 0 )
+                        {
+                            break;
+                        }
+                        std::shared_ptr< ground_stations::GroundStationState > stationState =
+                                currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
+                                        ->getNominalStationState( );
+                        std::shared_ptr< ground_stations::CombinedStationMotionModel > combinedModel =
+                                std::dynamic_pointer_cast< ground_stations::CombinedStationMotionModel >(
+                                        stationState->getStationMotionModel( ) );
+                        bool stationIncludesDeformation = false;
+                        if( combinedModel != nullptr )
+                        {
+                            for( const std::shared_ptr< ground_stations::StationMotionModel >& motionModel :
+                                 combinedModel->getModelList( ) )
+                            {
+                                if( std::dynamic_pointer_cast< ground_stations::BodyDeformationStationMotionModel >( motionModel ) !=
+                                    nullptr )
+                                {
+                                    stationIncludesDeformation = true;
+                                }
+                            }
+                        }
+                        if( stationIncludesDeformation )
                         {
                             std::shared_ptr< estimatable_parameters::DisplacementLoveNumber > loveNumberParameter =
                                     std::dynamic_pointer_cast< estimatable_parameters::DisplacementLoveNumber >( parameterToEstimate );
@@ -268,9 +291,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                                     loveNumberParameter->getDeformationModels( ),
                                     loveNumberParameter->getDegrees( ),
                                     loveNumberParameter->getUseShidaNumber( ),
-                                    currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
-                                            ->getNominalStationState( )
-                                            ->getNominalCartesianPosition( ) );
+                                    stationState );
                         }
                         break;
                     }

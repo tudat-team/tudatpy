@@ -266,16 +266,16 @@ public:
      *  \param deformationModels Basic tidal deformation models of the body
      *  \param degrees Degree of each Love or Shida number
      *  \param useShidaNumber Whether the partial is w.r.t. the Shida number l_n (true) or the Love number h_n (false)
-     *  \param nominalPosition Nominal body-fixed position of the point
+     *  \param stationState State of the ground station, of which the nominal body-fixed position is used
      */
     CartesianPartialWrtDisplacementLoveNumber(
             const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
             const std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > >& deformationModels,
             const std::vector< int >& degrees,
             const bool useShidaNumber,
-            const Eigen::Vector3d& nominalPosition ):
+            const std::shared_ptr< ground_stations::GroundStationState > stationState ):
         bodyRotationModel_( bodyRotationModel ), deformationModels_( deformationModels ), degrees_( degrees ),
-        unitLoveNumber_( useShidaNumber ? 0.0 : 1.0 ), unitShidaNumber_( useShidaNumber ? 1.0 : 0.0 ), nominalPosition_( nominalPosition )
+        unitLoveAndShidaNumber_( useShidaNumber ? std::make_pair( 0.0, 1.0 ) : std::make_pair( 1.0, 0.0 ) ), stationState_( stationState )
     {}
 
     Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
@@ -293,50 +293,12 @@ private:
     Eigen::Matrix< double, 3, Eigen::Dynamic > getBodyFixedPartial( const double time )
     {
         Eigen::Matrix< double, 3, Eigen::Dynamic > partial = Eigen::Matrix< double, 3, Eigen::Dynamic >::Zero( 3, degrees_.size( ) );
-        const Eigen::Vector3d siteUnitVector = nominalPosition_.normalized( );
-        for( const auto& model : deformationModels_ )
+        for( unsigned int i = 0; i < degrees_.size( ); i++ )
         {
-            const Eigen::Vector3d deformedBodyPosition = model->getDeformedBodyStateFunction( )( time ).segment( 0, 3 );
-            const Eigen::Quaterniond deformedBodyRotation = model->getDeformedBodyRotationFunction( )( time );
-            const double deformedBodyGravitationalParameter = model->getGravitionalParameterOfDeformedBody( )( );
-            const double equatorialRadius = model->getDeformedBodyEquatorialRadius( );
-            const std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyStateFunctions =
-                    model->getDeformingBodyStateFunctions( );
-            const std::vector< std::function< double( ) > > deformingBodyGravitationalParameters =
-                    model->getGravitionalParametersOfDeformingBodies( );
-            for( unsigned int j = 0; j < deformingBodyStateFunctions.size( ); j++ )
+            for( const auto& model : deformationModels_ )
             {
-                const Eigen::Vector3d relativeBodyPosition =
-                        deformedBodyRotation * ( deformingBodyStateFunctions.at( j )( time ).segment( 0, 3 ) - deformedBodyPosition );
-                const double gravitationalParameterRatio =
-                        deformingBodyGravitationalParameters.at( j )( ) / deformedBodyGravitationalParameter;
-                for( unsigned int i = 0; i < degrees_.size( ); i++ )
-                {
-                    switch( degrees_.at( i ) )
-                    {
-                        case 2:
-                            partial.col( i ) += basic_astrodynamics::calculateDegreeTwoBasicTidalDisplacement( gravitationalParameterRatio,
-                                                                                                               siteUnitVector,
-                                                                                                               relativeBodyPosition,
-                                                                                                               equatorialRadius,
-                                                                                                               unitLoveNumber_,
-                                                                                                               unitShidaNumber_ );
-                            break;
-                        case 3:
-                            partial.col( i ) +=
-                                    basic_astrodynamics::calculateDegreeThreeBasicTidalDisplacement( gravitationalParameterRatio,
-                                                                                                     siteUnitVector,
-                                                                                                     relativeBodyPosition,
-                                                                                                     equatorialRadius,
-                                                                                                     unitLoveNumber_,
-                                                                                                     unitShidaNumber_ );
-                            break;
-                        default:
-                            throw std::runtime_error(
-                                    "Error, partials of basic tidal displacements of degrees other than 2 or 3 "
-                                    "not implemented" );
-                    }
-                }
+                partial.col( i ) += model->calculateDisplacement(
+                        time, stationState_->getNominalCartesianPosition( ), { { degrees_.at( i ), unitLoveAndShidaNumber_ } } );
             }
         }
         return partial;
@@ -349,11 +311,9 @@ private:
     std::vector< int > degrees_;
 
     //! Love and Shida number for which the displacement is the partial: (1, 0) for h_n, (0, 1) for l_n
-    double unitLoveNumber_;
+    std::pair< double, double > unitLoveAndShidaNumber_;
 
-    double unitShidaNumber_;
-
-    Eigen::Vector3d nominalPosition_;
+    std::shared_ptr< ground_stations::GroundStationState > stationState_;
 };
 
 //! Derived class for scaling three-dimensional position partial to position observable partial

@@ -65,6 +65,16 @@ public:
         return calculateDisplacement( time, stationState->getNominalCartesianPosition( ) );
     }
 
+    //! Function to calculate the displacement for the given Love and Shida number ( h_n, l_n ) of each degree n, instead of those of
+    //! the model
+    Eigen::Vector3d calculateDisplacement( const double time,
+                                           const Eigen::Vector3d& bodyFixedPosition,
+                                           const std::map< int, std::pair< double, double > >& displacementLoveNumbers )
+    {
+        updateBodyProperties( time );
+        return calculateBasicTicalDisplacement( bodyFixedPosition, displacementLoveNumbers );
+    }
+
     //! Function to retrieve the displacement Love and Shida number ( h_n, l_n ) of each degree n
     std::map< int, std::pair< double, double > > getDisplacementLoveNumberPerDegree( ) const
     {
@@ -75,36 +85,6 @@ public:
     void setDisplacementLoveNumberPerDegree( const std::map< int, std::pair< double, double > >& displacementLoveNumberPerDegree )
     {
         displacementLoveNumbers_ = displacementLoveNumberPerDegree;
-    }
-
-    std::function< Eigen::Vector6d( const double ) > getDeformedBodyStateFunction( ) const
-    {
-        return deformedBodyStateFunction_;
-    }
-
-    std::vector< std::function< Eigen::Vector6d( const double ) > > getDeformingBodyStateFunctions( ) const
-    {
-        return deformingBodyStateFunctions_;
-    }
-
-    std::function< Eigen::Quaterniond( const double ) > getDeformedBodyRotationFunction( ) const
-    {
-        return deformedBodyRotationFunction_;
-    }
-
-    std::function< double( ) > getGravitionalParameterOfDeformedBody( ) const
-    {
-        return gravitionalParameterOfDeformedBody_;
-    }
-
-    std::vector< std::function< double( ) > > getGravitionalParametersOfDeformingBodies( ) const
-    {
-        return gravitionalParametersOfDeformingBodies_;
-    }
-
-    double getDeformedBodyEquatorialRadius( ) const
-    {
-        return deformedBodyEquatorialRadius_;
     }
 
 protected:
