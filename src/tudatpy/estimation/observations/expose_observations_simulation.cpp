@@ -20,7 +20,7 @@
 
 #include "scalarTypes.h"
 
-#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/simulatePseudoObservations.h"
 
 namespace tom = tudat::observation_models;
@@ -35,58 +35,17 @@ namespace observations
 
 void expose_observations_simulation_bindings( py::module& m )
 {
-    m.def(
-            "simulate_pseudo_observations",
-            []( const tss::SystemOfBodies& bodies,
-                const std::vector< std::string >& observedBodies,
-                const std::vector< std::string >& centralBodies,
-                const std::vector< TIME_TYPE >& observationTimes ) {
-                warnLegacyObservationInterface( "simulate_pseudo_observations",
-                                                "create_pseudo_observation_dataset_and_models_from_observation_times" );
-                return tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE >(
-                        bodies, observedBodies, centralBodies, observationTimes );
-            },
-            py::arg( "bodies" ),
-            py::arg( "observed_bodies" ),
-            py::arg( "central_bodies" ),
-            py::arg( "observation_times" ) );
+    m.def( "simulate_pseudo_observations",
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
+                              const std::vector< TIME_TYPE >& >( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
+           py::arg( "bodies" ),
+           py::arg( "observed_bodies" ),
+           py::arg( "central_bodies" ),
+           py::arg( "observation_times" ),
+           R"doc(
 
-    m.def(
-            "create_pseudo_observations_and_models",
-            []( const tss::SystemOfBodies& bodies,
-                const std::vector< std::string >& observedBodies,
-                const std::vector< std::string >& centralBodies,
-                const TIME_TYPE initialTime,
-                const TIME_TYPE finalTime,
-                const TIME_TYPE timeStep ) {
-                warnLegacyObservationInterface( "create_pseudo_observations_and_models", "create_pseudo_observation_dataset_and_models" );
-                return tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE >(
-                        bodies, observedBodies, centralBodies, initialTime, finalTime, timeStep );
-            },
-            py::arg( "bodies" ),
-            py::arg( "observed_bodies" ),
-            py::arg( "central_bodies" ),
-            py::arg( "initial_time" ),
-            py::arg( "final_time" ),
-            py::arg( "time_step" ),
-            R"doc(No documentation found.)doc" );
-
-    m.def(
-            "create_pseudo_observations_and_models_from_observation_times",
-            []( const tss::SystemOfBodies& bodies,
-                const std::vector< std::string >& observedBodies,
-                const std::vector< std::string >& centralBodies,
-                const std::vector< TIME_TYPE >& observationTimes ) {
-                warnLegacyObservationInterface( "create_pseudo_observations_and_models_from_observation_times",
-                                                "create_pseudo_observation_dataset_and_models_from_observation_times" );
-                return tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE >(
-                        bodies, observedBodies, centralBodies, observationTimes );
-            },
-            py::arg( "bodies" ),
-            py::arg( "observed_bodies" ),
-            py::arg( "central_bodies" ),
-            py::arg( "observation_times" ),
-            R"doc(
          Create relative-position model settings and pseudo-observations from ephemerides at ``observation_times``.
 
          ``observed_bodies`` are paired with ``central_bodies`` in the supplied system of ``bodies``. Epochs are in
@@ -110,6 +69,116 @@ void expose_observations_simulation_bindings( py::module& m )
 
       )doc" );
 
+    m.def( "create_observation_collection_from_arrays",
+           &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observations" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancillary_settings_per_observable" ) =
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
+           R"doc(
+
+         Create an ObservationCollection from existing measurements grouped by observable type.
+
+         ``observations`` maps each observable type to its link ends and a pair of measurement-vector and epoch lists.
+         ``reference_link_end`` identifies the time reference. ``ancillary_settings_per_observable`` optionally
+         supplies ancillary data for each observable type.
+
+         Parameters
+         ----------
+         observations : dict[ObservableType, tuple[dict[LinkEndType, LinkEndId], tuple[list[numpy.ndarray[numpy.float64[m, 1]]], list[Time]]]]
+             Measurements grouped by observable type; each entry contains the link ends and paired lists of measurement vectors and epochs.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         ancillary_settings_per_observable : dict[ObservableType, ObservationAncillarySimulationSettings], default = {}
+             Ancillary data for each observable type.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the supplied measurements and epochs.
+
+      )doc" );
+
+    m.def( "simulate_observations",
+           &tss::simulateObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "simulation_settings" ),
+           py::arg( "observation_simulators" ),
+           py::arg( "bodies" ),
+           R"doc(
+
+ Function to simulate observations.
+
+ Function to simulate observations from set observation simulators and observation simulator settings.
+ Automatically iterates over all provided observation simulators, generating the full set of simulated observations.
+
+
+ Parameters
+ ----------
+ observation_to_simulate : List[ :class:`ObservationSimulationSettings` ]
+     List of settings objects, each object providing the observation time settings for simulating one type of observable and link end set.
+
+ observation_simulators : List[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]
+     List of :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` objects, each object hosting the functionality for simulating one type of observable and link end set.
+
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+     Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
+
+ Returns
+ -------
+ :class:`~tudatpy.estimation.observations.ObservationCollection`
+     Object collecting all products of the observation simulation.
+
+
+
+
+
+
+     )doc" );
+
+    m.def( "create_single_type_observation_collection_from_arrays",
+           py::overload_cast< const tom::ObservableType,
+                              const tom::LinkDefinition&,
+                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+                              const std::vector< TIME_TYPE >,
+                              const tom::LinkEndType,
+                              const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(
+                   &tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "observations_list" ),
+           py::arg( "times_list" ),
+           py::arg( "reference_link_end" ),
+           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
+           R"doc(
+
+         Create an ObservationCollection for one ``observable_type`` and ``link_ends`` definition.
+
+         ``observations_list`` contains measurement vectors and ``times_list`` the corresponding epochs in seconds
+         since J2000, referenced to ``reference_link_end``. ``ancillary_settings`` optionally supplies observable-
+         specific supporting data.
+
+         Parameters
+         ----------
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         link_ends : LinkDefinition
+             Definition of the bodies and reference points participating in the observation link.
+         observations_list : list[numpy.ndarray[numpy.float64[m, 1]]]
+             Measurement vectors, with one vector for each epoch.
+         times_list : list[Time]
+             Observation epochs in seconds since J2000, paired with the measurement vectors.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         ancillary_settings : ObservationAncillarySimulationSettings, default = None
+             Optional observable-specific ancillary data.
+
+         Returns
+         -------
+         ObservationCollection
+             Collection containing the supplied measurements for the single observable and link definition.
+
+      )doc" );
+
     m.def( "create_pseudo_observation_dataset_and_models",
            py::overload_cast< const tss::SystemOfBodies&,
                               const std::vector< std::string >&,
@@ -127,7 +196,7 @@ void expose_observations_simulation_bindings( py::module& m )
 Create pseudo-observation simulators and an :class:`~tudatpy.estimation.observations.ObservationDataset`.
 
 This is the dataset-backed counterpart of
-``create_pseudo_observations_and_models``. It creates the observation models for
+``simulate_pseudo_observations``. It creates the observation models for
 the requested observed bodies and returns the generated pseudo-observations in
 the new dataset representation.
 
@@ -157,24 +226,6 @@ Returns
 tuple[list[ObservationSimulator], tudatpy.estimation.observations.ObservationDataset]
     Observation simulators and the generated dataset.
 )doc" );
-
-    m.def(
-            "set_existing_observations",
-            []( const std::map< tom::ObservableType,
-                                std::pair< tom::LinkEnds,
-                                           std::pair< std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >,
-                                                      std::vector< TIME_TYPE > > > >& observations,
-                const tom::LinkEndType referenceLinkEnd,
-                const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >&
-                        ancillarySettingsPerObservable ) {
-                warnLegacyObservationInterface( "set_existing_observations", "set_existing_observation_dataset" );
-                return tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >(
-                        observations, referenceLinkEnd, ancillarySettingsPerObservable );
-            },
-            py::arg( "observations" ),
-            py::arg( "reference_link_end" ),
-            py::arg( "ancillary_settings_per_observable" ) =
-                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) );
 
     m.def( "set_existing_observation_dataset",
            &tss::setExistingObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -208,90 +259,6 @@ tudatpy.estimation.observations.ObservationDataset
                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
            R"doc(Create an observation dataset from existing observation arrays.)doc" );
 
-    m.def(
-            "create_observation_collection_from_arrays",
-            []( const std::map< tom::ObservableType,
-                                std::pair< tom::LinkEnds,
-                                           std::pair< std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >,
-                                                      std::vector< TIME_TYPE > > > >& observations,
-                const tom::LinkEndType referenceLinkEnd,
-                const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >&
-                        ancillarySettingsPerObservable ) {
-                warnLegacyObservationInterface( "create_observation_collection_from_arrays", "create_observation_dataset_from_arrays" );
-                return tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >(
-                        observations, referenceLinkEnd, ancillarySettingsPerObservable );
-            },
-            py::arg( "observations" ),
-            py::arg( "reference_link_end" ),
-            py::arg( "ancillary_settings_per_observable" ) =
-                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
-            R"doc(
-
-         Create an ObservationCollection from existing measurements grouped by observable type.
-
-         ``observations`` maps each observable type to its link ends and a pair of measurement-vector and epoch lists.
-         ``reference_link_end`` identifies the time reference. ``ancillary_settings_per_observable`` optionally
-         supplies ancillary data for each observable type.
-
-         Parameters
-         ----------
-         observations : dict[ObservableType, tuple[dict[LinkEndType, LinkEndId], tuple[list[numpy.ndarray[numpy.float64[m, 1]]], list[Time]]]]
-             Measurements grouped by observable type; each entry contains the link ends and paired lists of measurement vectors and epochs.
-         reference_link_end : LinkEndType
-             Link end at which the observation epochs are defined.
-         ancillary_settings_per_observable : dict[ObservableType, ObservationAncillarySimulationSettings], default = {}
-             Ancillary data for each observable type.
-
-         Returns
-         -------
-         ObservationCollection
-             Collection containing the supplied measurements and epochs.
-
-      )doc" );
-
-    m.def(
-            "simulate_observations",
-            []( const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >& simulationSettings,
-                const std::vector< std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >&
-                        observationSimulators,
-                const tss::SystemOfBodies& bodies ) {
-                warnLegacyObservationInterface( "simulate_observations", "simulate_observation_dataset" );
-                return tss::simulateObservations< STATE_SCALAR_TYPE, TIME_TYPE >( simulationSettings, observationSimulators, bodies );
-            },
-            py::arg( "simulation_settings" ),
-            py::arg( "observation_simulators" ),
-            py::arg( "bodies" ),
-            R"doc(
-
- Function to simulate observations.
-
- Function to simulate observations from set observation simulators and observation simulator settings.
- Automatically iterates over all provided observation simulators, generating the full set of simulated observations.
-
-
- Parameters
- ----------
- observation_to_simulate : List[ :class:`ObservationSimulationSettings` ]
-     List of settings objects, each object providing the observation time settings for simulating one type of observable and link end set.
-
- observation_simulators : List[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]
-     List of :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` objects, each object hosting the functionality for simulating one type of observable and link end set.
-
- bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
-     Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
-
- Returns
- -------
- :class:`~tudatpy.estimation.observations.ObservationCollection`
-     Object collecting all products of the observation simulation.
-
-
-
-
-
-
-     )doc" );
-
     m.def( "simulate_observation_dataset",
            &tss::simulateObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "simulation_settings" ),
@@ -318,26 +285,6 @@ tudatpy.estimation.observations.ObservationDataset
     Dataset containing all simulated observations, residual placeholders,
     weights, dependent variables and metadata.
 )doc" );
-
-    m.def(
-            "single_type_observation_collection",
-            []( const tom::ObservableType observableType,
-                const tom::LinkDefinition& linkEnds,
-                const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& observationsList,
-                const std::vector< TIME_TYPE > timesList,
-                const tom::LinkEndType referenceLinkEnd,
-                const std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings ) {
-                warnLegacyObservationInterface( "single_type_observation_collection", "single_type_observation_dataset" );
-                return tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
-                        observableType, linkEnds, observationsList, timesList, referenceLinkEnd, ancillarySettings );
-            },
-            py::arg( "observable_type" ),
-            py::arg( "link_ends" ),
-            py::arg( "observations_list" ),
-            py::arg( "times_list" ),
-            py::arg( "reference_link_end" ),
-            py::arg( "ancillary_settings" ) = nullptr,
-            R"doc(No documentation found.)doc" );
 
     m.def(
             "single_type_observation_dataset",
@@ -415,55 +362,6 @@ tudatpy.estimation.observations.ObservationDataset
             py::arg( "reference_link_end" ),
             py::arg( "ancillary_settings" ) = nullptr,
             R"doc(Create a single-set observation dataset from existing arrays.)doc" );
-
-    m.def(
-            "create_single_type_observation_collection_from_arrays",
-            []( const tom::ObservableType observableType,
-                const tom::LinkDefinition& linkEnds,
-                const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& observationsList,
-                const std::vector< TIME_TYPE > timesList,
-                const tom::LinkEndType referenceLinkEnd,
-                const std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings ) {
-                warnLegacyObservationInterface( "create_single_type_observation_collection_from_arrays",
-                                                "create_single_type_observation_dataset_from_arrays" );
-                return tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
-                        observableType, linkEnds, observationsList, timesList, referenceLinkEnd, ancillarySettings );
-            },
-            py::arg( "observable_type" ),
-            py::arg( "link_ends" ),
-            py::arg( "observations_list" ),
-            py::arg( "times_list" ),
-            py::arg( "reference_link_end" ),
-            py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
-            R"doc(
-
-         Create an ObservationCollection for one ``observable_type`` and ``link_ends`` definition.
-
-         ``observations_list`` contains measurement vectors and ``times_list`` the corresponding epochs in seconds
-         since J2000, referenced to ``reference_link_end``. ``ancillary_settings`` optionally supplies observable-
-         specific supporting data.
-
-         Parameters
-         ----------
-         observable_type : ObservableType
-             Type of observable to which the settings or measurements apply.
-         link_ends : LinkDefinition
-             Definition of the bodies and reference points participating in the observation link.
-         observations_list : list[numpy.ndarray[numpy.float64[m, 1]]]
-             Measurement vectors, with one vector for each epoch.
-         times_list : list[Time]
-             Observation epochs in seconds since J2000, paired with the measurement vectors.
-         reference_link_end : LinkEndType
-             Link end at which the observation epochs are defined.
-         ancillary_settings : ObservationAncillarySimulationSettings, default = None
-             Optional observable-specific ancillary data.
-
-         Returns
-         -------
-         ObservationCollection
-             Collection containing the supplied measurements for the single observable and link definition.
-
-      )doc" );
 }
 
 }  // namespace observations

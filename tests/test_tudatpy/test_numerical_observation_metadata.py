@@ -1,6 +1,5 @@
 """Numerical metadata follows observation identities rather than transient row indices."""
 
-import pickle
 from pathlib import Path
 
 import numpy as np
@@ -11,7 +10,6 @@ from tudatpy.data_input.tracking_data import ObservationWeightSettings, Tracking
 from tudatpy.data_input.tracking_data.gaia import GaiaAstrometry
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import observations
-from tudatpy.estimation.observations import observations_processing
 
 
 def tracking_data(epochs=(3.0, 1.0, 1.0, 2.0)):
@@ -154,30 +152,6 @@ def test_copying_sets_remaps_metadata_to_new_ids_including_within_same_dataset()
     assert dataset.get_numerical_observation_metadata(
         "angle", dataset.observation_ids_for_set(same_dataset_set)
     ) == [10, 11, 20, 30]
-
-
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
-def test_transfer_to_filtered_set_and_serialization_preserve_numerical_metadata():
-    source = tracking_data([1.0, 2.0, 3.0])
-    source.add_numerical_observation_metadata("angle", [10, 20, 30])
-    dataset = dataset_from_tracking([source])
-    observation_set = observations.create_single_observation_set_from_dataset(dataset, 0)
-    observation_set.filter_observations(
-        observations_processing.observation_filter(
-            observations_processing.ObservationFilterType.time_bounds_filtering,
-            1.5,
-            2.5,
-            use_opposite_condition=True,
-        )
-    )
-    assert dataset.numerical_observation_metadata["angle"] == {1: 20}
-    restored = pickle.loads(pickle.dumps(observation_set))
-    filtered = observations.create_observation_dataset_from_single_observation_set(
-        restored.filtered_observation_set
-    )
-    assert filtered.get_numerical_observation_metadata(
-        "angle", filtered.observation_ids_for_set(0)
-    ) == [10, 30]
 
 
 def test_gaia_angles_match_ccd_rows_after_filtering_and_dataset_conversion():

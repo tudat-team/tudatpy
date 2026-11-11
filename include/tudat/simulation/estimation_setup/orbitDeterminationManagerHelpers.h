@@ -233,22 +233,6 @@ void calculateResiduals(
             observationDataset, observationDataset->createComputationObservationVectorData( true ), observationSimulator, residuals );
 }
 
-//! Calculate residuals for a legacy observation collection.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void calculateResiduals(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-        const std::map< observation_models::ObservableType,
-                        std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-                observationSimulator,
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
-{
-    const auto dataset = observationsCollection->getObservationDataset( );
-    calculateResiduals< ObservationScalarType, TimeType >(
-            dataset, dataset->createOrderedObservationVectorData( true ), observationSimulator, residuals );
-}
-
 //! Function to retrieve the weights of a set of observations, checking their size against the number of observations
 /*!
  * \param flattenedObservationData Flattened data of the observations for which the weights are to be retrieved
@@ -496,32 +480,6 @@ void calculateDesignMatrixAndResiduals(
                                                                           calculatePartials );
 }
 
-//! Calculate design-matrix rows and residuals for a legacy observation collection.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void calculateDesignMatrixAndResiduals(
-        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-        const std::map< observation_models::ObservableType,
-                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
-                observationManagers,
-        const int totalNumberParameters,
-        const int totalObservationSize,
-        Eigen::MatrixXd& designMatrix,
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
-        const bool calculateResiduals = true,
-        const bool calculatePartials = true )
-{
-    calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationsCollection->getObservationDataset( ),
-                                                                          observationManagers,
-                                                                          totalNumberParameters,
-                                                                          totalObservationSize,
-                                                                          designMatrix,
-                                                                          residuals,
-                                                                          calculateResiduals,
-                                                                          calculatePartials );
-}
-
 //! Calculate a design matrix for an observation dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -540,26 +498,6 @@ void calculateDesignMatrix(
             observationDataset, observationManagers, totalNumberParameters, totalObservationSize, designMatrix, dummyVector, false, true );
 }
 
-//! Calculate a design matrix for a legacy observation collection.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void calculateDesignMatrix(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-        const std::map< observation_models::ObservableType,
-                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
-                observationManagers,
-        const int totalNumberParameters,
-        const int totalObservationSize,
-        Eigen::MatrixXd& designMatrix )
-{
-    calculateDesignMatrix< ObservationScalarType, TimeType >( observationsCollection->getObservationDataset( ),
-                                                              observationManagers,
-                                                              totalNumberParameters,
-                                                              totalObservationSize,
-                                                              designMatrix );
-}
-
 //! Calculate residuals with observation managers for an observation dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -575,22 +513,6 @@ void calculateResiduals(
     Eigen::MatrixXd dummyMatrix;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
             observationDataset, observationManagers, 0, totalObservationSize, dummyMatrix, residuals, true, false );
-}
-
-//! Calculate residuals with observation managers for a legacy collection.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void calculateResiduals(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-        const std::map< observation_models::ObservableType,
-                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
-                observationManagers,
-        const int totalObservationSize,
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
-{
-    calculateResiduals< ObservationScalarType, TimeType >(
-            observationsCollection->getObservationDataset( ), observationManagers, totalObservationSize, residuals );
 }
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times

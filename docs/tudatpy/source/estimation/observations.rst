@@ -123,15 +123,19 @@ Python's ``and``, ``or``, or ``not`` operators with conditions.
 Legacy compatibility
 --------------------
 
-:class:`SingleObservationSet` and :class:`ObservationCollection` remain
-available as compatibility facades. New code should use
-:class:`ObservationDataset` and condition-based selection.
+:class:`SingleObservationSet` and :class:`ObservationCollection` are deprecated, but remain
+available for existing code. New code should use :class:`ObservationDataset` and condition-based selection.
 
 .. autoclass:: SingleObservationSet
    :members:
 
 .. autoclass:: ObservationCollection
    :members:
+
+.. autofunction:: create_observation_dataset_from_collection
+.. autofunction:: create_observation_dataset_from_single_observation_set
+.. autofunction:: create_observation_collection_from_dataset
+.. autofunction:: create_single_observation_set_from_dataset
 
 Submodules
 ----------

@@ -33,7 +33,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationCollectionConversion.h"
 #include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
 
@@ -46,17 +46,6 @@ namespace simulation_setup
 template< typename ObservationScalarType = double, typename TimeType = double >
 class CovarianceAnalysisInput
 {
-private:
-    //! Return the legacy observation source, reporting a missing source when data are required.
-    observation_models::ObservationCollection< ObservationScalarType, TimeType >& legacyObservationSource( ) const
-    {
-        if( !observationCollection_ )
-        {
-            throw std::runtime_error( "Cannot access observations: no observation source was supplied." );
-        }
-        return *observationCollection_;
-    }
-
 public:
     CovarianceAnalysisInput(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
@@ -109,56 +98,30 @@ public:
      */
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > getObservationCollection( )
     {
-        if( observationCollection_ == nullptr && observationDataset_ != nullptr )
-        {
-            observationCollection_ =
-                    observation_models::createObservationCollection< ObservationScalarType, TimeType >( observationDataset_ );
-        }
         return observationCollection_;
     }
 
-    //! Return the dataset source, converting a legacy collection when required.
+    //! Return the observation dataset; for input created from a (deprecated) observation collection, a new dataset converted from it.
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( )
     {
-        return observationDataset_ ? observationDataset_ : legacyObservationSource( ).getObservationDataset( );
+        if( observationDataset_ != nullptr )
+        {
+            return observationDataset_;
+        }
+        if( observationCollection_ == nullptr )
+        {
+            throw std::runtime_error( "Cannot access observations: no observation source was supplied." );
+        }
+        return observation_models::createObservationDataset< ObservationScalarType, TimeType >( observationCollection_ );
     }
 
-    //! Return fitted residuals to a legacy source after computing against its independent snapshot.
-    void synchronizeLegacyResiduals( const observation_models::ObservationDataset< ObservationScalarType, TimeType >& prepared )
+    //! Write residuals computed on a dataset obtained from getObservationDataset back into the (deprecated) observation collection, if any.
+    void synchronizeLegacyResiduals( const observation_models::ObservationDataset< ObservationScalarType, TimeType >& observationDataset )
     {
-        if( observationDataset_ )
+        if( observationCollection_ != nullptr )
         {
-            return;
+            observation_models::writeObservationDatasetToCollection( observationDataset, observationCollection_ );
         }
-        auto& source = legacyObservationSource( );
-        const auto projection = prepared.createOrderedObservationVectorData( true );
-        const auto currentObservations = source.getObservationVector( );
-        if( currentObservations.size( ) != projection.getObservationVector( ).size( ) ||
-            currentObservations != projection.getObservationVector( ) || source.getConcatenatedTimeVector( ) != projection.getTimes( ) )
-        {
-            throw std::runtime_error( "Legacy observation data changed during estimation; residuals were not written back." );
-        }
-        const auto sets = source.getSingleObservationSets( );
-        const auto setIds = prepared.getSetIdsInObservationVectorOrder( );
-        if( sets.size( ) != setIds.size( ) )
-        {
-            throw std::runtime_error( "Legacy observation grouping changed during estimation." );
-        }
-        for( std::size_t i = 0; i < sets.size( ); ++i )
-        {
-            const auto& metadata = prepared.getObservationSetMetadata( setIds.at( i ) );
-            const auto oldAncillary = prepared.getAncillarySettings( metadata.ancillarySettingsId_ );
-            const auto currentAncillary = sets.at( i )->getAncillarySettings( );
-            if( sets.at( i )->getObservableType( ) != metadata.observableType_ ||
-                sets.at( i )->getReferenceLinkEnd( ) != metadata.referenceLinkEnd_ ||
-                !( sets.at( i )->getLinkEnds( ) == prepared.getLinkDefinition( metadata.linkDefinitionId_ ) ) ||
-                static_cast< bool >( oldAncillary ) != static_cast< bool >( currentAncillary ) ||
-                ( oldAncillary && !( *oldAncillary == *currentAncillary ) ) )
-            {
-                throw std::runtime_error( "Legacy observation metadata changed during estimation; residuals were not written back." );
-            }
-        }
-        source.setResiduals( projection.getResidualVector( ) );
     }
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
@@ -305,10 +268,10 @@ public:
     }
 
 protected:
-    //! Legacy collection facade retained only to preserve ObservationCollection constructor/getter identity.
+    //! Deprecated observation collection, converted to a dataset when observations are used (null if a dataset is used).
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
 
-    //! Dataset backend used by covariance/estimation internals.
+    //! Observation dataset (null if a deprecated observation collection is used).
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
@@ -435,15 +398,13 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
             const bool applyFinalParameterCorrection = true,
-            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr,
             const bool applyAprioriParameterDeviation = false,
             const bool resetParametersToBestIteration = false ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
         conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
-        outlierRejectionSettings_( outlierRejectionSettings ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation ),
-        resetParametersToBestIteration_( resetParametersToBestIteration )
+        applyAprioriParameterDeviation_( applyAprioriParameterDeviation ), resetParametersToBestIteration_( resetParametersToBestIteration )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -485,10 +446,10 @@ public:
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
         conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
-        outlierRejectionSettings_( outlierRejectionSettings ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation ),
-        resetParametersToBestIteration_( resetParametersToBestIteration )
+        applyAprioriParameterDeviation_( applyAprioriParameterDeviation ), resetParametersToBestIteration_( resetParametersToBestIteration )
 
     {
+        setOutlierRejectionSettings( outlierRejectionSettings );
         if( this->areConsiderParametersIncluded( ) )
         {
             if( considerParametersDeviations_.size( ) > 0 )
@@ -587,6 +548,12 @@ public:
     //! Function to set the settings for the outlier rejection during the estimation (null to use no outlier rejection)
     void setOutlierRejectionSettings( const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings )
     {
+        if( outlierRejectionSettings != nullptr && this->observationCollection_ != nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when setting outlier rejection settings, outlier rejection is not supported for estimation input created from "
+                    "an ObservationCollection; use an ObservationDataset instead." );
+        }
         outlierRejectionSettings_ = outlierRejectionSettings;
     }
 

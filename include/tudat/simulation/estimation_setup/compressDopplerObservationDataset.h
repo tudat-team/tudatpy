@@ -18,7 +18,7 @@
 
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationCollectionConversion.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 
 namespace tudat
@@ -293,22 +293,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
             getEarthGroundStationPositions( bodies ) );
 }
 
-//! Compress a legacy single observation set through its dataset backend.
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
-        const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio,
-        const std::map< std::string, Eigen::Vector3d >& approximateGroundStationPositions =
-                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            compressDopplerData< ObservationScalarType, TimeType >( originalDopplerData->getObservationDataset( ),
-                                                                    originalDopplerData->getObservationSetId( ),
-                                                                    compressionRatio,
-                                                                    approximateGroundStationPositions ) );
-}
-
-//! Compress a legacy observation collection and return a compatibility facade.
+//! Compress a (deprecated) observation collection; see createCompressedDopplerDataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
@@ -319,14 +304,14 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                 simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
     return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createCompressedDopplerDataset< ObservationScalarType, TimeType >( originalDopplerData->getObservationDataset( ),
+            createCompressedDopplerDataset< ObservationScalarType, TimeType >( createObservationDataset( originalDopplerData ),
                                                                                compressionRatio,
                                                                                minNumberObservations,
                                                                                maxArcGap,
                                                                                approximateGroundStationPositions ) );
 }
 
-//! Compress a legacy observation collection to a target count time and return a compatibility facade.
+//! Compress a (deprecated) observation collection to a target count time; see createCountTimeCompressedDopplerDataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCountTimeCompressedDopplerCollection(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
@@ -337,7 +322,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 {
     return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
             createCountTimeCompressedDopplerDataset< ObservationScalarType, TimeType >(
-                    originalDopplerData->getObservationDataset( ), bodies, targetCountTime, minNumberObservations, maxArcGap ) );
+                    createObservationDataset( originalDopplerData ), bodies, targetCountTime, minNumberObservations, maxArcGap ) );
 }
 
 }  // namespace observation_models

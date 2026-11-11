@@ -258,17 +258,6 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix
     return std::make_pair( sortedMatrix, sortOutput.second );
 }
 
-//! Return a time-ordered design matrix for a legacy observation collection.
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
-        const Eigen::MatrixXd& typeAndLinkSortedDesignMatrix,
-        std::vector< int >& timeOrder )
-{
-    return getTimeOrderedDesignMatrix< ObservationScalarType, TimeType >(
-            measurementData->getObservationDataset( ), typeAndLinkSortedDesignMatrix, timeOrder );
-}
-
 //! Function to create a map of the estimation covariance as a function of time
 /*!
  *  Function to create a map of the estimation covariance as a function of time
@@ -404,24 +393,6 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
     return covarianceMatrixHistory;
 }
 
-//! Calculate covariance history at explicit epochs for a legacy observation collection.
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
-        const Eigen::MatrixXd& typeAndLinkSortedNormalizedDesignMatrix,
-        const Eigen::VectorXd& normalizationFactors,
-        const std::vector< double >& outputTimes,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
-{
-    return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >( measurementData->getObservationDataset( ),
-                                                                                     typeAndLinkSortedNormalizedDesignMatrix,
-                                                                                     normalizationFactors,
-                                                                                     outputTimes,
-                                                                                     diagonalOfWeightMatrix,
-                                                                                     unnormalizedInverseAPrioriCovariance );
-}
-
 //! Calculate covariance history at a fixed cadence for an observation dataset.
 template< typename ObservationScalarType = double, typename TimeType = double, typename WeightType = Eigen::VectorXd >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
@@ -460,24 +431,6 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
                                                   outputTimes,
                                                   weights,
                                                   unnormalizedInverseAPrioriCovariance );
-}
-
-//! Calculate covariance history at a fixed cadence for a legacy observation collection.
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
-        const Eigen::MatrixXd& typeAndLinkSortedNormalizedDesignMatrix,
-        const Eigen::VectorXd& normalizationFactors,
-        const double outputTimeStep,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
-{
-    return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >( measurementData->getObservationDataset( ),
-                                                                                     typeAndLinkSortedNormalizedDesignMatrix,
-                                                                                     normalizationFactors,
-                                                                                     outputTimeStep,
-                                                                                     diagonalOfWeightMatrix,
-                                                                                     unnormalizedInverseAPrioriCovariance );
 }
 
 //! Function to create a map of the estimation covariance as a function of time

@@ -53,11 +53,6 @@ bool isObservationSetSelectedByLegacyParser( const ObservationDataset< Observati
                                              const unsigned int setId,
                                              const std::shared_ptr< ObservationCollectionParser >& observationParser );
 
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type >
-class SingleObservationSet;
-
 //! Queryable backend for Tudat observation data.
 /*!
  * ObservationDataset stores observations as event rows plus scalar-component
@@ -581,36 +576,10 @@ public:
             const Eigen::VectorXd weight,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
 
-    //! Set scalar weights for multiple legacy parser selections.
-    void setConstantWeightPerObservable(
-            const std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser );
-
-    //! Set component weights for multiple legacy parser selections.
-    void setConstantWeightPerObservable(
-            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser );
-
     //! Set a tabulated diagonal weight vector on a legacy parser selection.
     void setTabulatedWeights(
             const Eigen::VectorXd tabulatedWeights,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
-
-    //! Set tabulated diagonal weights for multiple legacy parser selections.
-    void setTabulatedWeights(
-            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser );
-
-    //! Return per-set indices accepted by a legacy observation filter.
-    std::vector< unsigned int > getFilteredObservationIndices( const unsigned int setId,
-                                                               const std::shared_ptr< ObservationFilterBase >& observationFilter ) const;
-
-    //! Move or copy selected observations between sets through the backwards-compatible dataset interface.
-    void moveObservationsToSet( const unsigned int sourceSetId,
-                                ObservationDataset< ObservationScalarType, TimeType >& targetDataset,
-                                const unsigned int targetSetId,
-                                const std::vector< unsigned int >& indices,
-                                const bool removeFromSource = true );
-
-    //! Remove duplicate time tags from one set through the legacy interface.
-    void eraseDuplicateObservationsFromSet( const unsigned int setId, const bool printWarning = true );
 
     //! Return the legacy concatenated computed-observation vector for one set.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getComputedObservationVectorForSet( const unsigned int setId ) const;
@@ -634,14 +603,8 @@ public:
     //! Return legacy set start-and-size entries grouped by observable and link ends.
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizeByLink( ) const;
 
-    //! Return aggregate legacy start-and-size entries grouped by observable and link ends.
-    std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > getObservationTypeAndLinkEndStartAndSize( ) const;
-
     //! Return aggregate legacy start-and-size entries grouped by observable type.
     std::map< ObservableType, std::pair< int, int > > getObservableTypeStartAndSize( ) const;
-
-    //! Return legacy link-end groups for each observable type.
-    std::map< ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( ) const;
 
     //! Return concatenated observed values for one observable type.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorForObservableType(
@@ -701,17 +664,6 @@ private:
     //////////////////////////////////////////////////////////
 
     friend struct detail::ObservationSelectionIndices< ObservationScalarType, TimeType >;
-
-    template< typename SetObservationScalarType,
-              typename SetTimeType,
-              typename std::enable_if< is_state_scalar_and_time_type< SetObservationScalarType, SetTimeType >::value, int >::type >
-    friend class SingleObservationSet;
-
-    template< typename CollectionObservationScalarType,
-              typename CollectionTimeType,
-              typename std::enable_if< is_state_scalar_and_time_type< CollectionObservationScalarType, CollectionTimeType >::value,
-                                       int >::type >
-    friend class ObservationCollection;
 
     //! Non-copyable identity value used to detect mappings from another dataset instance.
     struct LifetimeToken {

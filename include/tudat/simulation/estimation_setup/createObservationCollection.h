@@ -10,20 +10,14 @@
 #define TUDAT_CREATE_OBSERVATION_COLLECTION_H
 
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationCollectionConversion.h"
 
 namespace tudat
 {
 namespace observation_models
 {
 
-//! Base-branch spelling retained as a thin compatibility wrapper.
-inline bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancillarySetting )
-{
-    return shouldSkipObservationDatasetAncillarySetting( ancillarySetting );
-}
-
-//! Create a legacy single-set facade from one generic tracking-data object.
+//! Create a (deprecated) single observation set from one generic tracking-data object.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -37,7 +31,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
     return createSingleObservationSet( dataset, setId );
 }
 
-//! Backwards-compatible adapter for the legacy collection representation.
+//! Create a (deprecated) observation collection from generic tracking-data objects; see createObservationDatasetFromTrackingData.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >

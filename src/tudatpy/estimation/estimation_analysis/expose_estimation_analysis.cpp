@@ -146,36 +146,6 @@ namespace estimation_analysis
 namespace
 {
 
-const char* legacyEstimationObservationDeprecationGuide =
-        "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
-
-void warnLegacyEstimationObservationInterface( const std::string& interfaceName, const std::string& replacementApi )
-{
-    const std::string message = interfaceName + " uses the deprecated ObservationCollection compatibility interface. Use " +
-            replacementApi +
-            " with tudatpy.estimation.observations.ObservationDataset instead. API reference: "
-            "https://py.api.tudat.space/en/latest/estimation/estimation_analysis.html#tudatpy.estimation.estimation_analysis." +
-            replacementApi + ". Migration guide: " + legacyEstimationObservationDeprecationGuide;
-    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
-    {
-        throw py::error_already_set( );
-    }
-}
-
-void warnLegacyEstimationWeightSetter( const std::string& interfaceName )
-{
-    const std::string message = interfaceName +
-            " is deprecated. Set weights on tudatpy.estimation.observations.ObservationDataset before creating "
-            "CovarianceAnalysisInput or EstimationInput. API reference: "
-            "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations.ObservationDataset"
-            ". Migration guide: " +
-            legacyEstimationObservationDeprecationGuide;
-    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
-    {
-        throw py::error_already_set( );
-    }
-}
-
 void warnLegacyWeightMatrixDiagonalAccess( )
 {
     const std::string message =
@@ -349,23 +319,35 @@ void expose_estimation_analysis( py::module& m )
 
       )doc" );
 
-    {
-        py::options legacyDocOptions;
-        legacyDocOptions.disable_user_defined_docstrings( );
-        legacyDocOptions.disable_function_signatures( );
+    covarianceAnalysisInputClass.def( py::init< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                                                const Eigen::MatrixXd,
+                                                const Eigen::MatrixXd >( ),
+                                      py::arg( "observations_and_times" ),
+                                      py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                                      py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                                      R"doc(
 
-        covarianceAnalysisInputClass.def(
-                py::init( []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >& observationsAndTimes,
-                              const Eigen::MatrixXd inverseAprioriCovariance,
-                              const Eigen::MatrixXd considerCovariance ) {
-                    warnLegacyEstimationObservationInterface( "CovarianceAnalysisInput(ObservationCollection)", "CovarianceAnalysisInput" );
-                    return std::make_shared< tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                            observationsAndTimes, inverseAprioriCovariance, considerCovariance );
-                } ),
-                py::arg( "observations_and_times" ),
-                py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ) );
-    }
+         Class constructor.
+
+         Constructor through which the user can create instances of this class. Note that the weight are all initiated as 1.0, and the default settings of ``define_covariance_settings`` are used.
+
+
+         Parameters
+         ----------
+         observations_and_times : ObservationCollection
+             Total data structure of observations and associated times/link ends/type/etc.
+         inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
+         Returns
+         -------
+         :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput`
+             Instance of the :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput` class, defining the data and other settings to be used for the covariance analysis.
+
+
+
+
+
+     )doc" );
 
     covarianceAnalysisInputClass.def( py::init< const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >&,
                                                 const Eigen::MatrixXd,
@@ -390,24 +372,24 @@ void expose_estimation_analysis( py::module& m )
              A-priori covariance matrix of considered parameters.
      )doc" );
 
-    {
-        py::options legacyDocOptions;
-        legacyDocOptions.disable_user_defined_docstrings( );
-        legacyDocOptions.disable_function_signatures( );
-
-        covarianceAnalysisInputClass.def(
-                "set_constant_weight",
-                []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input, const double weight ) {
-                    warnLegacyEstimationWeightSetter( "CovarianceAnalysisInput.set_constant_weight" );
-                    const auto observationCollection = input.getObservationCollection( );
-                    if( !observationCollection )
-                    {
-                        throw std::runtime_error( "Cannot set observation weights: no observation source was supplied." );
-                    }
-                    observationCollection->setConstantWeight( weight );
-                },
-                py::arg( "weight" ) );
-    }
+    covarianceAnalysisInputClass.def(
+            "set_constant_weight",
+            []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input, const double weight ) {
+                tudat::utilities::printDeprecationWarning(
+                        "tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput.set_constant_weight",
+                        "the weight setters of tudatpy.estimation.observations.ObservationDataset",
+                        "Deprecated as of v1.1." );
+                if( input.getObservationCollection( ) != nullptr )
+                {
+                    input.getObservationCollection( )->setConstantWeight( weight );
+                }
+                else
+                {
+                    input.getObservationDataset( )->setConstantWeight( weight );
+                }
+            },
+            py::arg( "weight" ),
+            R"doc(Deprecated as of v1.1. Set weights on the observations instead.)doc" );
 
     covarianceAnalysisInputClass
             .def( "define_covariance_settings",
@@ -494,7 +476,9 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Dataset-backed observation data used by this covariance-analysis input.
+         Observation dataset used by this covariance-analysis input. If the input was created from a (deprecated)
+         :class:`~tudatpy.estimation.observations.ObservationCollection`, this is a new dataset converted from that
+         collection, so that changes to it do not affect the analysis.
 
          :type: tudatpy.estimation.observations.ObservationDataset
       )doc" )
@@ -547,42 +531,65 @@ void expose_estimation_analysis( py::module& m )
 
       )doc" );
 
-    {
-        py::options legacyDocOptions;
-        legacyDocOptions.disable_user_defined_docstrings( );
-        legacyDocOptions.disable_function_signatures( );
+    estimationInputClass.def( py::init< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                                        const Eigen::MatrixXd,
+                                        std::shared_ptr< tss::EstimationConvergenceChecker >,
+                                        const Eigen::MatrixXd,
+                                        const Eigen::VectorXd,
+                                        const bool,
+                                        const bool,
+                                        const bool >( ),
+                              py::arg( "observations_and_times" ),
+                              py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                              py::arg_v( "convergence_checker",
+                                         tss::estimationConvergenceChecker( ),
+                                         "tudatpy.estimation.estimation_analysis.estimation_convergence_checker()" ),
+                              py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                              py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
+                              py::arg( "apply_final_parameter_correction" ) = true,
+                              py::arg( "apply_apriori_parameter_deviation" ) = false,
+                              py::arg( "reset_parameters_to_best_iteration" ) = false,
+                              R"doc(
 
-        estimationInputClass.def(
-                py::init( []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >& observationsAndTimes,
-                              const Eigen::MatrixXd inverseAprioriCovariance,
-                              std::shared_ptr< tss::EstimationConvergenceChecker > convergenceChecker,
-                              const Eigen::MatrixXd considerCovariance,
-                              const Eigen::VectorXd considerParametersDeviations,
-                              const bool applyFinalParameterCorrection,
-                              const std::shared_ptr< tss::OutlierRejectionSettings > outlierRejectionSettings,
-                              const bool applyAprioriParameterDeviation,
-                              const bool resetParametersToBestIteration ) {
-                    warnLegacyEstimationObservationInterface( "EstimationInput(ObservationCollection)", "EstimationInput" );
-                    return std::make_shared< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > >( observationsAndTimes,
-                                                                                                     inverseAprioriCovariance,
-                                                                                                     convergenceChecker,
-                                                                                                     considerCovariance,
-                                                                                                     considerParametersDeviations,
-                                                                                                     applyFinalParameterCorrection,
-                                                                                                     outlierRejectionSettings,
-                                                                                                     applyAprioriParameterDeviation,
-                                                                                                     resetParametersToBestIteration );
-                } ),
-                py::arg( "observations_and_times" ),
-                py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
-                py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
-                py::arg( "apply_final_parameter_correction" ) = true,
-                py::arg( "outlier_rejection_settings" ) = nullptr,
-                py::arg( "apply_apriori_parameter_deviation" ) = false,
-                py::arg( "reset_parameters_to_best_iteration" ) = false );
-    }
+         Class constructor.
+
+         Constructor through which the user can create instances of this class.
+
+
+         Parameters
+         ----------
+         observations_and_times : ObservationCollection
+             Total data structure of observations and associated times/link ends/type/etc.
+         inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
+         convergence_checker : :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker`, default = :func:`~tudatpy.estimation.estimation_analysis.estimation_convergence_checker`
+             Object defining when the estimation is converged.
+         consider_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A-priori covariance matrix of the considered parameters. This should be either a size 0x0 matrix (no consider parameters), or a square matrix with the same size as the number of consider parameters.
+         consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
+             Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
+         apply_final_parameter_correction : bool, default = True
+             Whether to apply the final estimated parameter correction to the simulation models after convergence. Only used to set
+             the simulation models if ``reset_parameters_to_best_iteration`` is ``False``.
+         apply_apriori_parameter_deviation : bool, default = False
+             Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
+             of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
+             each differential correction independently.
+         reset_parameters_to_best_iteration : bool, default = False
+             Whether to set the estimated parameters (in the ``parameters_to_estimate``) to those of the best iteration of the
+             estimation after the estimation is finished. If ``False``, they are set to those of the last iteration (see
+             :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`). Setting this to ``False`` is deprecated:
+             the default will change to ``True``, after which this input will be removed.
+         Returns
+         -------
+         :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
+             Instance of the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` class, defining the data and other settings to be used for the estimation.
+
+
+
+
+
+     )doc" );
 
     estimationInputClass
             .def( py::init< const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >&,

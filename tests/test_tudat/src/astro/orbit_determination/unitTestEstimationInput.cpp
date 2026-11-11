@@ -252,14 +252,13 @@ void checkAPrioriParameterDeviation( const bool correlated )
         std::make_shared< TabulatedObservationSimulationSettings< double > >(
                 position_observable, linkEnds, observationTimes, observed_body )
     };
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
     simulatedObservations->setConstantWeight( 1.0 );
     if( correlated )
     {
-        const auto dataset = simulatedObservations->getObservationDataset( );
-        const auto observationIds = dataset->getObservationIdsForSet( 0 );
-        dataset->setWeightBlock( { observationIds.at( 0 ) }, { observationIds.at( 1 ) }, 0.1 * Eigen::Matrix3d::Identity( ) );
+        const auto observationIds = simulatedObservations->getObservationIdsForSet( 0 );
+        simulatedObservations->setWeightBlock( { observationIds.at( 0 ) }, { observationIds.at( 1 ) }, 0.1 * Eigen::Matrix3d::Identity( ) );
     }
 
     const Eigen::VectorXd trueParameters = parametersToEstimate->getFullParameterValues< double >( );
@@ -273,23 +272,33 @@ void checkAPrioriParameterDeviation( const bool correlated )
             1.0 / ( positionAprioriStandardDeviation * positionAprioriStandardDeviation ) );
     fullEstimationInverseAprioriCovariance( 6, 6 ) =
             1.0 / ( dragCoefficientAprioriStandardDeviation * dragCoefficientAprioriStandardDeviation );
-    const auto makeInput = [ & ]( const auto& observations ) {
-        return std::make_shared< EstimationInput< double, double > >( observations,
-                                                                      fullEstimationInverseAprioriCovariance,
-                                                                      estimationConvergenceChecker( 3, -1.0, -1.0, 100 ),
-                                                                      Eigen::MatrixXd::Zero( 0, 0 ),
-                                                                      Eigen::VectorXd::Zero( 0 ),
-                                                                      true,
-                                                                      nullptr,
-                                                                      true );
-    };
-    // Cover both the legacy collection constructor and the direct dataset constructor.
-    const auto estimationInput =
-            correlated ? makeInput( simulatedObservations->getObservationDataset( ) ) : makeInput( simulatedObservations );
+    // Cover both the dataset constructor and the deprecated collection constructor (which does not support correlated weights).
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput = correlated
+            ? std::make_shared< EstimationInput< double, double > >( simulatedObservations,
+                                                                     fullEstimationInverseAprioriCovariance,
+                                                                     estimationConvergenceChecker( 3, -1.0, -1.0, 100 ),
+                                                                     Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                     Eigen::VectorXd::Zero( 0 ),
+                                                                     true,
+                                                                     nullptr,
+                                                                     true )
+            : std::make_shared< EstimationInput< double, double > >( createObservationCollection( simulatedObservations ),
+                                                                     fullEstimationInverseAprioriCovariance,
+                                                                     estimationConvergenceChecker( 3, -1.0, -1.0, 100 ),
+                                                                     Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                     Eigen::VectorXd::Zero( 0 ),
+                                                                     true,
+                                                                     true );
     estimationInput->defineEstimationSettings( true, true, true, false, true, false );
 
     const std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
+    if( !correlated )
+    {
+        // The residuals of the best iteration must be written back into the deprecated observation collection.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                estimationInput->getObservationCollection( )->getConcatenatedResiduals( ), estimationOutput->residuals_, 1.0E-12 );
+    }
 
     // The constrained estimation must complete all three requested iterations without numerical failures.
     BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
@@ -1008,31 +1017,10 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
                        "excluded from estimation system" );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredVectorData.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
 
-    // The base API accepts collections of shared legacy sets. Exercise its fresh
-    // preparation and residual writeback through the actual estimation manager.
-    std::vector< std::shared_ptr< SingleObservationSet<> > > legacySets;
-    for( unsigned int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
-    {
-        legacySets.push_back( std::make_shared< SingleObservationSet<> >( simulatedObservations, setId ) );
-    }
-    auto legacyCollection = std::make_shared< ObservationCollection<> >( legacySets );
-    auto legacyInput = std::make_shared< EstimationInput<> >( legacyCollection );
-    legacyInput->defineEstimationSettings( true, true, true, false, true, false );
-    legacyInput->setConvergenceChecker( estimationConvergenceChecker( 1, 0.0, 1.0E-20, 4 ) );
-    simulatedObservations->setResidualVector( Eigen::VectorXd::Constant( totalObservationSize, -12345.0 ) );
-    parametersToEstimate->resetParameterValues( perturbedState );
-    const auto legacyOutput = orbitDeterminationManager.estimateParameters( legacyInput );
-    BOOST_CHECK( legacyInput->getObservationCollection( ) == legacyCollection );
-    BOOST_CHECK( legacySets.front( )->getObservationDataset( ) == simulatedObservations );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyOutput->getWeightsMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            simulatedObservations->createObservationVectorData( ).getResidualVector( ), legacyOutput->residualHistory_.front( ), 1.0E-13 );
-
     simulatedObservations->rejectObservations( ObservationSelectionCondition<>::all( ) );
     const auto reportsEmptySelection = []( const std::runtime_error& error ) {
         return std::string( error.what( ) ).find( "without active observations" ) != std::string::npos;
     };
-    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.estimateParameters( legacyInput ), std::runtime_error, reportsEmptySelection );
     BOOST_CHECK_EXCEPTION( orbitDeterminationManager.estimateParameters( estimationInput ), std::runtime_error, reportsEmptySelection );
     BOOST_CHECK_EXCEPTION( orbitDeterminationManager.computeCovariance( covarianceInput ), std::runtime_error, reportsEmptySelection );
 }

@@ -150,6 +150,10 @@ BOOST_AUTO_TEST_CASE( test_ObservationOnlyEstimation )
     // Check that residual times are consistent with the observation collection
     BOOST_CHECK_EQUAL( static_cast< Eigen::Index >( estimationOutput->getResidualTimes( ).size( ) ), estimationOutput->residuals_.rows( ) );
     BOOST_CHECK( estimationOutput->getResidualTimes( ) == simulatedObservations->getConcatenatedDoubleTimeVector( ) );
+
+    // Check that the residuals of the best iteration are written back into each set of the observation collection
+    BOOST_CHECK_SMALL( ( simulatedObservations->getConcatenatedResiduals( ) - estimationOutput->residuals_ ).cwiseAbs( ).maxCoeff( ),
+                       1.0E-15 );
 }
 
 BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
