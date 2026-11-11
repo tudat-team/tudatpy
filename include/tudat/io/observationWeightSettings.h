@@ -98,9 +98,6 @@ struct ObservationWeightSettings {
     //! Validate sizes before storing settings or constructing numerical weights.
     void validateDimensions( const std::size_t numberOfObservations, const unsigned int singleObservationSize ) const
     {
-        const auto isObservationBlock = [ singleObservationSize ]( const Eigen::MatrixXd& block ) {
-            return block.rows( ) == singleObservationSize && block.cols( ) == singleObservationSize;
-        };
         bool valid = false;
         switch( type_ )
         {
@@ -119,11 +116,14 @@ struct ObservationWeightSettings {
                                      } );
                 break;
             case WeightsBlockType::constant_block:
-                valid = isObservationBlock( weightBlock_ );
+                valid = weightBlock_.rows( ) == singleObservationSize && weightBlock_.cols( ) == singleObservationSize;
                 break;
             case WeightsBlockType::block_per_observation:
                 valid = weightBlocks_.size( ) == numberOfObservations &&
-                        std::all_of( weightBlocks_.begin( ), weightBlocks_.end( ), isObservationBlock );
+                        std::all_of(
+                                weightBlocks_.begin( ), weightBlocks_.end( ), [ singleObservationSize ]( const Eigen::MatrixXd& block ) {
+                                    return block.rows( ) == singleObservationSize && block.cols( ) == singleObservationSize;
+                                } );
                 break;
             case WeightsBlockType::set_block:
                 valid = weightBlock_.rows( ) == static_cast< Eigen::Index >( numberOfObservations * singleObservationSize ) &&
