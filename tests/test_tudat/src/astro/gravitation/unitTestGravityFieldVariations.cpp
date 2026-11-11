@@ -933,6 +933,54 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariationRatesBlockOverlap )
     BOOST_CHECK_SMALL( ( sineRateBlock - expectedSineRateBlock ).norm( ), 1.0E-15 );
 }
 
+//! Test custom gravity field variations created from settings, and their user-defined time derivatives
+BOOST_AUTO_TEST_CASE( testCustomGravityFieldVariations )
+{
+    using namespace tudat::simulation_setup;
+
+    // Degree two variations (orders 0-2) varying sinusoidally in time, and their time derivatives
+    const double frequency = 1.0E-4;
+    Eigen::MatrixXd cosineAmplitudes( 1, 3 ), sineAmplitudes( 1, 3 );
+    cosineAmplitudes << 1.0E-6, -2.0E-6, 3.0E-6;
+    sineAmplitudes << 0.0, 4.0E-6, -5.0E-6;
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionFunction = [ = ]( const double time ) {
+        return std::make_pair( Eigen::MatrixXd( cosineAmplitudes * std::sin( frequency * time ) ),
+                               Eigen::MatrixXd( sineAmplitudes * std::sin( frequency * time ) ) );
+    };
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionTimeDerivativeFunction =
+            [ = ]( const double time ) {
+                return std::make_pair( Eigen::MatrixXd( cosineAmplitudes * frequency * std::cos( frequency * time ) ),
+                                       Eigen::MatrixXd( sineAmplitudes * frequency * std::cos( frequency * time ) ) );
+            };
+
+    // Create time-dependent gravity field with custom variations
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Body" );
+    Eigen::MatrixXd nominalCosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    nominalCosineCoefficients( 0, 0 ) = 1.0;
+    std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
+            std::make_shared< TimeDependentSphericalHarmonicsGravityField >(
+                    1.0E6, 1.0E4, nominalCosineCoefficients, Eigen::MatrixXd::Zero( 3, 3 ) );
+    bodies.getBody( "Body" )->setGravityFieldModel( gravityField );
+    std::shared_ptr< GravityFieldVariationsSet > variations = createGravityFieldModelVariationsSet(
+            "Body", bodies, { customGravityFieldVariationsSettings( correctionFunction, 2, 0, 2, 2, correctionTimeDerivativeFunction ) } );
+    gravityField->updateCorrectionFunctions( );
+
+    // Check coefficients and coefficient rates against user-defined functions
+    const double testTime = 1.0E4;
+    gravityField->update( testTime );
+    Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( 3, 3 );
+    variations->addSphericalHarmonicsCorrectionTimeDerivatives( testTime, sineRates, cosineRates );
+
+    BOOST_CHECK_SMALL( ( gravityField->getCosineCoefficients( ).block( 2, 0, 1, 3 ) - correctionFunction( testTime ).first ).norm( ),
+                       1.0E-20 );
+    BOOST_CHECK_SMALL( ( gravityField->getSineCoefficients( ).block( 2, 0, 1, 3 ) - correctionFunction( testTime ).second ).norm( ),
+                       1.0E-20 );
+    BOOST_CHECK_SMALL( ( cosineRates.block( 2, 0, 1, 3 ) - correctionTimeDerivativeFunction( testTime ).first ).norm( ), 1.0E-25 );
+    BOOST_CHECK_SMALL( ( sineRates.block( 2, 0, 1, 3 ) - correctionTimeDerivativeFunction( testTime ).second ).norm( ), 1.0E-25 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

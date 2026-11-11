@@ -324,25 +324,21 @@ protected:
     //! Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number
     /*!
      *  Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number,
-     *  due to the body causing deformation with the current mass ratio, from the gradient of the associated spherical harmonic term.
+     *  from the gradient of the associated spherical harmonic term. The spherical harmonics cache must be updated to the position
+     *  of the body causing deformation before calling this function.
      *  \param degree Degree of tide.
      *  \param order Order of tide.
+     *  \param deformingBodyMassRatio Ratio of masses of body causing deformation and body being deformed
+     *  \param sphericalPosition Spherical position (radius, latitude, longitude) of body causing deformation w.r.t. body being
+     *  deformed, in body-fixed frame
      *  \param bodyFixedRelativeState State of body causing deformation w.r.t. body being deformed, in body-fixed frame
      *  \return Time derivative of tidal forcing (cosine coefficient minus i times sine coefficient)
      */
     std::complex< double > calculateTidalForcingTimeDerivative( const int degree,
                                                                 const int order,
+                                                                const double deformingBodyMassRatio,
+                                                                const Eigen::Vector3d& sphericalPosition,
                                                                 const Eigen::Vector6d& bodyFixedRelativeState );
-
-    //! Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame
-    /*!
-     *  Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame,
-     *  and set the associated mass ratio
-     *  \param bodyIndex Index (in list of deforming bodies) of body causing deformation
-     *  \param time Time at which state is to be calculated.
-     *  \return State of body causing deformation w.r.t. body being deformed, in body-fixed frame
-     */
-    Eigen::Vector6d getBodyFixedRelativeState( const int bodyIndex, const double time );
 
     //! Function to add time derivatives of corrections due to the current body causing deformation.
     /*!

@@ -12,6 +12,7 @@
 
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
+#include "tudat/astro/gravitation/customGravityFieldVariations.h"
 #include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
 #include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
@@ -211,9 +212,6 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                 deformedBodyOrientationFunction = std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
                                                              bodies.at( body )->getRotationalEphemeris( ),
                                                              std::placeholders::_1 );
-                deformedBodyRotationDerivativeFunction = std::bind( &ephemerides::RotationalEphemeris::getDerivativeOfRotationToTargetFrame,
-                                                                    bodies.at( body )->getRotationalEphemeris( ),
-                                                                    std::placeholders::_1 );
             }
             else
             {
@@ -334,6 +332,22 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         polynomialGravityFieldVariationSettings->getMinimumOrder( ) );
             }
 
+            break;
+        }
+        case custom_variation: {
+            std::shared_ptr< CustomGravityFieldVariationsSettings > customGravityFieldVariationSettings =
+                    std::dynamic_pointer_cast< CustomGravityFieldVariationsSettings >( gravityFieldVariationSettings );
+            if( customGravityFieldVariationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected custom gravity field variation settings for " + body );
+            }
+            gravityFieldVariationModel = std::make_shared< CustomGravityFieldVariations >(
+                    customGravityFieldVariationSettings->getCorrectionFunction( ),
+                    customGravityFieldVariationSettings->getMinimumDegree( ),
+                    customGravityFieldVariationSettings->getMinimumOrder( ),
+                    customGravityFieldVariationSettings->getMaximumDegree( ),
+                    customGravityFieldVariationSettings->getMaximumOrder( ),
+                    customGravityFieldVariationSettings->getCorrectionTimeDerivativeFunction( ) );
             break;
         }
         default: {

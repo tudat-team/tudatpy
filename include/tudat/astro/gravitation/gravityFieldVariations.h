@@ -31,7 +31,8 @@ enum BodyDeformationTypes {
     polynomial_variation,
     iers_2010,
     pole_tide,
-    ocean_tide
+    ocean_tide,
+    custom_variation
 };
 
 //! Interface class between GravityFieldVariations objects that are interpolated and
@@ -410,7 +411,9 @@ public:
     //! Add all model coefficient rates to the supplied matrices.
     /*!
      * The matrices may contain only the low-degree coefficients needed by a caller. Each
-     * variation is evaluated and the overlapping part of its rate block is added.
+     * variation is evaluated and the overlapping part of its rate block is added. For variations that are interpolated (once
+     * getVariationFunctions is called), the rates are computed from the interpolated corrections by central differences, with a
+     * step of 1.0E-3 times the interpolation time step.
      */
     void addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
                                                          Eigen::MatrixXd& sineCoefficientDerivatives,
@@ -514,6 +517,9 @@ private:
      *  (map key denotes index of variationObjects) for which createInterpolator is true.
      */
     std::map< int, double > timeSteps_;
+
+    //! Functions adding interpolated corrections (map key denotes index of variationObjects), set by getVariationFunctions
+    std::map< int, std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > > interpolatedCorrectionFunctions_;
 };
 
 }  // namespace gravitation

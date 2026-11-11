@@ -12,6 +12,7 @@
 #define TUDAT_CREATEGRAVITYFIELDVARIATIONS_H
 
 #include <complex>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -900,6 +901,81 @@ private:
         ar( CEREAL_NVP( minimumOrder_ ) );
     }
 };
+//! Class to define settings for gravity field variations directly provided as a function of time
+class CustomGravityFieldVariationsSettings : public GravityFieldVariationSettings
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param correctionFunction Function returning the (cosine, sine) coefficient corrections as a function of time, as matrix
+     * blocks starting at minimumDegree and minimumOrder
+     * \param minimumDegree Degree where the correction blocks start
+     * \param minimumOrder Order where the correction blocks start
+     * \param maximumDegree Degree where the correction blocks end
+     * \param maximumOrder Order where the correction blocks end
+     * \param correctionTimeDerivativeFunction Function returning the time derivatives of the (cosine, sine) coefficient corrections
+     * as a function of time, with the same blocks as correctionFunction (none if empty)
+     */
+    CustomGravityFieldVariationsSettings(
+            const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionFunction,
+            const int minimumDegree,
+            const int minimumOrder,
+            const int maximumDegree,
+            const int maximumOrder,
+            const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionTimeDerivativeFunction =
+                    nullptr ):
+        GravityFieldVariationSettings( gravitation::custom_variation ), correctionFunction_( correctionFunction ),
+        minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ), maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ),
+        correctionTimeDerivativeFunction_( correctionTimeDerivativeFunction )
+    {}
+
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > getCorrectionFunction( )
+    {
+        return correctionFunction_;
+    }
+
+    int getMinimumDegree( )
+    {
+        return minimumDegree_;
+    }
+
+    int getMinimumOrder( )
+    {
+        return minimumOrder_;
+    }
+
+    int getMaximumDegree( )
+    {
+        return maximumDegree_;
+    }
+
+    int getMaximumOrder( )
+    {
+        return maximumOrder_;
+    }
+
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > getCorrectionTimeDerivativeFunction( )
+    {
+        return correctionTimeDerivativeFunction_;
+    }
+
+protected:
+    //! Function returning the (cosine, sine) coefficient corrections as a function of time
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionFunction_;
+
+    int minimumDegree_;
+
+    int minimumOrder_;
+
+    int maximumDegree_;
+
+    int maximumOrder_;
+
+    //! Function returning the time derivatives of the (cosine, sine) coefficient corrections as a function of time
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionTimeDerivativeFunction_;
+};
+
 //! Function to create constant complex Love number list for a range of degrees and orders.
 /*!
  * Function to create constant complex Love number list for a range of degrees and orders, maximum degree and order
@@ -1110,6 +1186,18 @@ inline std::shared_ptr< GravityFieldVariationSettings > polynomialGravityFieldVa
 
     return std::make_shared< PolynomialGravityFieldVariationsSettings >(
             cosineAmplitudes, sineAmplitudes, referenceEpoch, minimumDegree, minimumOrder );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > customGravityFieldVariationsSettings(
+        const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionFunction,
+        const int minimumDegree,
+        const int minimumOrder,
+        const int maximumDegree,
+        const int maximumOrder,
+        const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionTimeDerivativeFunction = nullptr )
+{
+    return std::make_shared< CustomGravityFieldVariationsSettings >(
+            correctionFunction, minimumDegree, minimumOrder, maximumDegree, maximumOrder, correctionTimeDerivativeFunction );
 }
 
 inline std::shared_ptr< GravityFieldVariationSettings > modeCoupledSolidBodyGravityFieldVariationSettings(

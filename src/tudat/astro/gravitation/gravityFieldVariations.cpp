@@ -274,8 +274,9 @@ std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixX
         // If current variation is to be interpolated, create interpolation function and add to list
         if( createInterpolator_.count( i ) > 0 )
         {
-            variationFunctions.push_back( createInterpolatedSphericalHarmonicCorrectionFunctions(
-                    variationObjects_[ i ], initialTimes_[ i ], finalTimes_[ i ], timeSteps_[ i ], createInterpolator_[ i ] ) );
+            interpolatedCorrectionFunctions_[ i ] = createInterpolatedSphericalHarmonicCorrectionFunctions(
+                    variationObjects_[ i ], initialTimes_[ i ], finalTimes_[ i ], timeSteps_[ i ], createInterpolator_[ i ] );
+            variationFunctions.push_back( interpolatedCorrectionFunctions_[ i ] );
         }
         // If current variation is to not be interpolated, create function directly by function
         // pointer by to current GravityFieldVariations object.
@@ -297,9 +298,36 @@ void GravityFieldVariationsSet::addSphericalHarmonicsCorrectionTimeDerivatives( 
                                                                                 Eigen::MatrixXd& sineCoefficientDerivatives,
                                                                                 Eigen::MatrixXd& cosineCoefficientDerivatives )
 {
-    for( const std::shared_ptr< GravityFieldVariations >& variation : variationObjects_ )
+    for( unsigned int i = 0; i < variationObjects_.size( ); i++ )
     {
-        variation->addSphericalHarmonicsCorrectionTimeDerivatives( time, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+        const std::shared_ptr< GravityFieldVariations > variation = variationObjects_.at( i );
+        if( interpolatedCorrectionFunctions_.count( i ) == 0 )
+        {
+            variation->addSphericalHarmonicsCorrectionTimeDerivatives( time, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+        }
+        // For interpolated variations, compute rates from interpolated corrections by central differences, for consistency with the
+        // corrections used in the gravity field (variations outside the supplied matrices are skipped)
+        else if( variation->getMinimumDegree( ) < sineCoefficientDerivatives.rows( ) &&
+                 variation->getMinimumOrder( ) < sineCoefficientDerivatives.cols( ) )
+        {
+            const int numberOfRows = variation->getMinimumDegree( ) + variation->getNumberOfDegrees( );
+            const int numberOfColumns = variation->getMinimumOrder( ) + variation->getNumberOfOrders( );
+            Eigen::MatrixXd upperSineCorrections = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
+            Eigen::MatrixXd upperCosineCorrections = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
+            Eigen::MatrixXd lowerSineCorrections = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
+            Eigen::MatrixXd lowerCosineCorrections = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
+
+            const double differenceStep = 1.0E-3 * timeSteps_.at( i );
+            interpolatedCorrectionFunctions_.at( i )( time + differenceStep, upperSineCorrections, upperCosineCorrections );
+            interpolatedCorrectionFunctions_.at( i )( time - differenceStep, lowerSineCorrections, lowerCosineCorrections );
+
+            const int degreeCount = std::min( numberOfRows, static_cast< int >( sineCoefficientDerivatives.rows( ) ) );
+            const int orderCount = std::min( numberOfColumns, static_cast< int >( sineCoefficientDerivatives.cols( ) ) );
+            sineCoefficientDerivatives.topLeftCorner( degreeCount, orderCount ) +=
+                    ( upperSineCorrections - lowerSineCorrections ).topLeftCorner( degreeCount, orderCount ) / ( 2.0 * differenceStep );
+            cosineCoefficientDerivatives.topLeftCorner( degreeCount, orderCount ) +=
+                    ( upperCosineCorrections - lowerCosineCorrections ).topLeftCorner( degreeCount, orderCount ) / ( 2.0 * differenceStep );
+        }
     }
 }
 
