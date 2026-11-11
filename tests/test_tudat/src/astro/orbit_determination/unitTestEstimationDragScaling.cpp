@@ -147,18 +147,20 @@ BOOST_AUTO_TEST_CASE( test_EstimationDragScaling )
         printEstimatableParameterEntries( parametersToEstimate );
 
         std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
-                   std::shared_ptr< observation_models::ObservationDataset< double > > >
-                observationDatasetAndModelSettings =
-                        simulatePseudoObservationDataset( bodies, bodiesToEstimate, centralBodies, initialTime, finalTime, 120.0 );
-        std::shared_ptr< observation_models::ObservationDataset< double > > observationDataset = observationDatasetAndModelSettings.second;
+                   std::shared_ptr< observation_models::ObservationCollection< double > > >
+                observationCollectionAndModelSettings =
+                        simulatePseudoObservations( bodies, bodiesToEstimate, centralBodies, initialTime, finalTime, 120.0 );
+        std::shared_ptr< observation_models::ObservationCollection< double > > observationCollection =
+                observationCollectionAndModelSettings.second;
 
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList =
-                observationDatasetAndModelSettings.first;
+                observationCollectionAndModelSettings.first;
 
         OrbitDeterminationManager< double > orbitDeterminationManager =
                 OrbitDeterminationManager< double >( bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
 
-        std::shared_ptr< EstimationInput< double > > estimationInput = std::make_shared< EstimationInput< double > >( observationDataset );
+        std::shared_ptr< EstimationInput< double > > estimationInput =
+                std::make_shared< EstimationInput< double > >( observationCollection );
         estimationInput->defineEstimationSettings( 0, 1, 0, 1, 1, 1 );
         estimationInput->resetParametersToBestIteration_ = true;
 
@@ -360,13 +362,14 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
         MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
-                   std::shared_ptr< observation_models::ObservationDataset< double > > >
-                observationDatasetAndModelSettings =
-                        simulatePseudoObservationDataset( bodies, bodiesToEstimate, centralBodies, observationTimes );
-        std::shared_ptr< observation_models::ObservationDataset< double > > observationDataset = observationDatasetAndModelSettings.second;
+                   std::shared_ptr< observation_models::ObservationCollection< double > > >
+                observationCollectionAndModelSettings =
+                        simulatePseudoObservations( bodies, bodiesToEstimate, centralBodies, observationTimes );
+        std::shared_ptr< observation_models::ObservationCollection< double > > observationCollection =
+                observationCollectionAndModelSettings.second;
 
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList =
-                observationDatasetAndModelSettings.first;
+                observationCollectionAndModelSettings.first;
 
         Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
 
@@ -412,7 +415,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
         OrbitDeterminationManager< double > orbitDeterminationManager =
                 OrbitDeterminationManager< double >( bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
 
-        std::shared_ptr< EstimationInput< double > > estimationInput = std::make_shared< EstimationInput< double > >( observationDataset );
+        std::shared_ptr< EstimationInput< double > > estimationInput =
+                std::make_shared< EstimationInput< double > >( observationCollection );
         estimationInput->defineEstimationSettings( 0, 1, 0, 1, 1, 1 );
 
         std::shared_ptr< EstimationOutput<> > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
@@ -590,14 +594,14 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
         }
 
         std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
-                   std::shared_ptr< observation_models::ObservationDataset< double > > >
-                observationDatasetAndModelSettings = simulatePseudoObservationDataset(
+                   std::shared_ptr< observation_models::ObservationCollection< double > > >
+                observationCollectionAndModelSettings = simulatePseudoObservations(
                         bodies, bodiesToEstimate, centralBodies, observationTimes );
-        std::shared_ptr< observation_models::ObservationDataset< double > > observationDataset =
-                observationDatasetAndModelSettings.second;
+        std::shared_ptr< observation_models::ObservationCollection< double > > observationCollection =
+                observationCollectionAndModelSettings.second;
 
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList =
-                observationDatasetAndModelSettings.first;
+                observationCollectionAndModelSettings.first;
 
         Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
         std::cout << "truthParameters: " << truthParameters << std::endl;
@@ -609,7 +613,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
                         bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
 
         std::shared_ptr< EstimationInput< double > > estimationInput =
-                std::make_shared< EstimationInput< double > >( observationDataset );
+                std::make_shared< EstimationInput< double > >( observationCollection );
         estimationInput->defineEstimationSettings( 0, 1, 0, 1, 1, 1 );
 
         std::shared_ptr< EstimationOutput<> > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );

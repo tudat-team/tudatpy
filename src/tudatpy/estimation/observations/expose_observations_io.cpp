@@ -23,9 +23,9 @@
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processPsfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
-#include "tudat/simulation/estimation_setup/createObservationDataset.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
-#include "tudat/simulation/estimation_setup/compressDopplerObservationDataset.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 namespace tba = tudat::basic_astrodynamics;
 namespace tom = tudat::observation_models;

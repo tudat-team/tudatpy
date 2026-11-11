@@ -26,7 +26,6 @@
 
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
-#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/basics/deprecationWarnings.h"
 #include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/io/serialization/registrations_estimation.h"
