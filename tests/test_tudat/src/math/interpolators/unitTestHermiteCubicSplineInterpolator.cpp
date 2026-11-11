@@ -86,6 +86,13 @@ BOOST_AUTO_TEST_CASE( testHermiteCubicSplineInterpolator )
 
         // Check if test result match analytical result.
         BOOST_CHECK_SMALL( std::fabs( analyticalValue - interpolatedDependentVariableValue ) / analyticalValue, 1.0e-15 );
+
+        // Check derivative against analytical value 10x + 3 inside the domain, at a node and in the extrapolation region,
+        // which is reproduced exactly by the Hermite spline
+        for( const double evaluationPoint : { 6.0, 5.0, 12.0 } )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolateDerivative( evaluationPoint ), 10.0 * evaluationPoint + 3.0, 1.0E-14 );
+        }
     }
 }
 

@@ -195,6 +195,37 @@ public:
         return interpolatedValue;
     }
 
+    //! Function to compute the derivative of the interpolated value w.r.t. the independent variable.
+    /*!
+     *  Function to compute the derivative of the interpolated value w.r.t. the independent variable, i.e. the slope of the
+     *  segment used by interpolate, with the jump removed as in interpolate.
+     *  \param independentVariableValue Value of independent variable at which the derivative is to be determined.
+     *  \return Derivative of the interpolated value w.r.t. the independent variable.
+     */
+    DependentVariableType interpolateDerivative( const IndependentVariableType independentVariableValue )
+    {
+        DependentVariableType derivative;
+        bool useValue = false;
+        this->checkDerivativeBoundaryCase( derivative, useValue, independentVariableValue );
+        if( useValue )
+        {
+            return derivative;
+        }
+
+        unsigned int lowerIndex = lookUpScheme_->findNearestLowerNeighbour( independentVariableValue );
+        if( lowerIndex == independentValues_.size( ) - 1 )
+        {
+            lowerIndex -= 1;
+        }
+
+        DependentVariableType dependentVariableChange = dependentValues_[ lowerIndex + 1 ] - dependentValues_[ lowerIndex ];
+        if( std::abs( dependentVariableChange ) > maximumAllowableVariation_ )
+        {
+            dependentVariableChange -= dependentVariableChange / std::abs( dependentVariableChange ) * jumpSize_;
+        }
+        return dependentVariableChange / ( independentValues_[ lowerIndex + 1 ] - independentValues_[ lowerIndex ] );
+    }
+
     InterpolatorTypes getInterpolatorType( )
     {
         return discrete_jump_linear_interpolator;

@@ -95,6 +95,13 @@ class LagrangeInterpolationOutOfBoundsError(InterpolationOutOfBoundsError):
     def __init__(self, message: str, requested_value: float, lower_bound: float, upper_bound: float):
         super().__init__(message, requested_value, lower_bound, upper_bound)
 
+class InterpolationDerivativeNotImplementedError(TudatError):
+    """
+    Error thrown when the derivative of the interpolated value is requested from an interpolator for which it is not implemented.
+    """
+    def __init__(self, message: str):
+        super().__init__(message)
+
 class MaximumIterationsExceededError(TudatError):
     """
     Error thrown when the maximum number of iterations of an iterative operation is exceeded.
@@ -195,6 +202,10 @@ class MinimumStepSizeViolatedError(StepSizeViolationError):
         catch( const te::InterpolationOutOfBoundsError< TIME_TYPE >& exc )
         {
             setPyException( "InterpolationOutOfBoundsError", exc, exc.requestedValue, exc.lowerBound, exc.upperBound );
+        }
+        catch( const te::InterpolationDerivativeNotImplementedError& exc )
+        {
+            setPyException( "InterpolationDerivativeNotImplementedError", exc );
         }
         catch( const te::TudatError& exc )
         {

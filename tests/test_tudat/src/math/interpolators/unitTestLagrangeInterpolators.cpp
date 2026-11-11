@@ -43,6 +43,23 @@ double evaluatePolynomial( const std::map< int, double >& coefficients, const do
     return polynomialValue;
 }
 
+//! Function to evaluate polynomial derivative
+/*!
+ *  Function to evaluate derivative of polynomial with coefficients and independent variable as input.
+ *  \param coefficients Polynomial coefficients with the coefficient as map value and order as key (including order 0).
+ *  \param evaluationPoint Independent variable at which polynomial derivative is to be evaluated.
+ *  \return Polynomial derivative.
+ */
+double evaluatePolynomialDerivative( const std::map< int, double >& coefficients, const double evaluationPoint )
+{
+    double polynomialDerivative = 0.0;
+    for( std::map< int, double >::const_iterator it = std::next( coefficients.begin( ) ); it != coefficients.end( ); it++ )
+    {
+        polynomialDerivative += it->first * it->second * std::pow( evaluationPoint, it->first - 1 );
+    }
+    return polynomialDerivative;
+}
+
 //! Function to retrieve polynomial coefficients
 /*!
  *  Function to retrieve quasi-random polynomial coefficients, up to a given maximum order.
@@ -195,6 +212,38 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_shifted_interval_boundary )
             }
         }
     }
+}
+
+// Test derivative of Lagrange interpolant for 5th order polynomial data with 6 stages, against the analytical derivative inside
+// the domain, at a node and in the extrapolation region (shifted interval boundary handling), and against central finite
+// differences in the cubic spline boundary region
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_derivative )
+{
+    const int stages = 6;
+    std::map< int, double > coefficients = getPolynomialCoefficients( stages - 1 );
+    std::map< double, double > dataMap;
+    for( const double independentVariable : getIndependentVariableVector( ) )
+    {
+        dataMap[ independentVariable ] = evaluatePolynomial( coefficients, independentVariable );
+    }
+
+    interpolators::LagrangeInterpolator< double, double > interpolator(
+            dataMap, stages, interpolators::huntingAlgorithm, interpolators::lagrange_shifted_interval_boundary_interpolation );
+    for( const double evaluationPoint : { 3.0, 2.5, -0.05 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolateDerivative( evaluationPoint ),
+                                    evaluatePolynomialDerivative( coefficients, evaluationPoint ),
+                                    1.0E-11 );
+    }
+
+    interpolators::LagrangeInterpolator< double, double > splineBoundaryInterpolator( dataMap, stages );
+    const double evaluationPoint = 0.05;
+    const double finiteDifferenceStep = 1.0E-5;
+    BOOST_CHECK_CLOSE_FRACTION( splineBoundaryInterpolator.interpolateDerivative( evaluationPoint ),
+                                ( splineBoundaryInterpolator.interpolate( evaluationPoint + finiteDifferenceStep ) -
+                                  splineBoundaryInterpolator.interpolate( evaluationPoint - finiteDifferenceStep ) ) /
+                                        ( 2.0 * finiteDifferenceStep ),
+                                1.0E-6 );
 }
 
 // Test to check whether the various boundary handling methopds are properly implemented
