@@ -184,31 +184,44 @@ std::complex< double > SolidBodyTideGravityFieldVariations::calculateTidalForcin
     // The forcing (R/r)^(n+1) * Pnm * exp( -i * m * longitude ) is the potential of a single spherical harmonic term (with
     // mu = R), so that its time derivative is the gradient of this term, multiplied by the body-fixed velocity. The spherical
     // harmonics cache must be updated to the current position.
-    const double legendrePolynomial = sphericalHarmonicsCache_.getLegendreCache( ).getLegendrePolynomial( degree, order );
-    const double legendrePolynomialDerivative =
-            sphericalHarmonicsCache_.getLegendreCache( ).getLegendrePolynomialDerivative( degree, order );
+    // Near the poles, the gradient is computed without the (singular) Legendre polynomial derivative, as for the spherical harmonic
+    // acceleration (same colatitude cutoff)
+    Eigen::Vector3d cosineTermSphericalGradient, sineTermSphericalGradient;
+    if( std::fabs( mathematical_constants::PI / 2.0 - std::fabs( sphericalPosition( 1 ) ) ) < 1.0E-6 )
+    {
+        cosineTermSphericalGradient = basic_mathematics::computePotentialGradientNearPole(
+                sphericalPosition, 1.0, degree, order, 1.0, 0.0, sphericalHarmonicsCache_ );
+        sineTermSphericalGradient = basic_mathematics::computePotentialGradientNearPole(
+                sphericalPosition, 1.0, degree, order, 0.0, 1.0, sphericalHarmonicsCache_ );
+    }
+    else
+    {
+        const double legendrePolynomial = sphericalHarmonicsCache_.getLegendreCache( ).getLegendrePolynomial( degree, order );
+        const double legendrePolynomialDerivative =
+                sphericalHarmonicsCache_.getLegendreCache( ).getLegendrePolynomialDerivative( degree, order );
+        cosineTermSphericalGradient = basic_mathematics::computePotentialGradient( sphericalPosition,
+                                                                                   1.0,
+                                                                                   degree,
+                                                                                   order,
+                                                                                   1.0,
+                                                                                   0.0,
+                                                                                   legendrePolynomial,
+                                                                                   legendrePolynomialDerivative,
+                                                                                   sphericalHarmonicsCache_ );
+        sineTermSphericalGradient = basic_mathematics::computePotentialGradient( sphericalPosition,
+                                                                                 1.0,
+                                                                                 degree,
+                                                                                 order,
+                                                                                 0.0,
+                                                                                 1.0,
+                                                                                 legendrePolynomial,
+                                                                                 legendrePolynomialDerivative,
+                                                                                 sphericalHarmonicsCache_ );
+    }
     const Eigen::Vector3d cosineTermGradient = coordinate_conversions::convertSphericalToCartesianGradient(
-            basic_mathematics::computePotentialGradient( sphericalPosition,
-                                                         1.0,
-                                                         degree,
-                                                         order,
-                                                         1.0,
-                                                         0.0,
-                                                         legendrePolynomial,
-                                                         legendrePolynomialDerivative,
-                                                         sphericalHarmonicsCache_ ),
-            bodyFixedRelativeState.segment( 0, 3 ) );
+            cosineTermSphericalGradient, bodyFixedRelativeState.segment( 0, 3 ) );
     const Eigen::Vector3d sineTermGradient = coordinate_conversions::convertSphericalToCartesianGradient(
-            basic_mathematics::computePotentialGradient( sphericalPosition,
-                                                         1.0,
-                                                         degree,
-                                                         order,
-                                                         0.0,
-                                                         1.0,
-                                                         legendrePolynomial,
-                                                         legendrePolynomialDerivative,
-                                                         sphericalHarmonicsCache_ ),
-            bodyFixedRelativeState.segment( 0, 3 ) );
+            sineTermSphericalGradient, bodyFixedRelativeState.segment( 0, 3 ) );
     return deformingBodyMassRatio / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
             std::complex< double >( cosineTermGradient.dot( bodyFixedRelativeState.segment( 3, 3 ) ),
                                     -sineTermGradient.dot( bodyFixedRelativeState.segment( 3, 3 ) ) );
@@ -223,16 +236,20 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
         return GravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
     }
 
+    // Retrieve state, orientation, rotation derivative and mass of deformed body
+    const Eigen::Vector6d deformedBodyState = deformedBodyStateFunction_( time );
+    const Eigen::Quaterniond deformedBodyOrientation = deformedBodyOrientationFunction_( time );
+    const Eigen::Matrix3d deformedBodyRotationDerivative = rotationDerivativeFunction_( time );
+    const double deformedBodyMass = deformedBodyMass_( );
+
     Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
     {
         // Compute state of body causing deformation w.r.t. deformed body, in deformed body-fixed frame
         const Eigen::Vector6d bodyFixedRelativeState = ephemerides::transformStateToFrameFromRotations< double >(
-                deformingBodyStateFunctions_[ i ]( time ) - deformedBodyStateFunction_( time ),
-                deformedBodyOrientationFunction_( time ),
-                rotationDerivativeFunction_( time ) );
-        const double currentMassRatio = deformingBodyMasses_[ i ]( ) / deformedBodyMass_( );
+                deformingBodyStateFunctions_[ i ]( time ) - deformedBodyState, deformedBodyOrientation, deformedBodyRotationDerivative );
+        const double currentMassRatio = deformingBodyMasses_[ i ]( ) / deformedBodyMass;
 
         // Update spherical harmonics cache once for all degrees and orders (latitude instead of colatitude)
         Eigen::Vector3d sphericalPosition =
@@ -259,7 +276,7 @@ void BasicSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDerivatives
         Eigen::MatrixXd& sineRates )
 {
     // Mean forcing terms are constant, and do not contribute
-    for( auto loveNumberIt : loveNumbers_ )
+    for( const auto& loveNumberIt : loveNumbers_ )
     {
         int n = loveNumberIt.first;
         for( int m = 0; ( m <= n && m < static_cast< int >( loveNumberIt.second.size( ) ) ); m++ )
@@ -280,11 +297,11 @@ void ModeCoupledSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDeriv
         Eigen::MatrixXd& cosineRates,
         Eigen::MatrixXd& sineRates )
 {
-    for( auto loveNumberIt : loveNumbers_ )
+    for( const auto& loveNumberIt : loveNumbers_ )
     {
         std::complex< double > unityLoveNumberForcingRate =
                 unitLoveNumberForcingRateFunction( loveNumberIt.first.first, loveNumberIt.first.second );
-        for( auto responseIt : loveNumberIt.second )
+        for( const auto& responseIt : loveNumberIt.second )
         {
             int nResponse = responseIt.first.first;
             int mResponse = responseIt.first.second;

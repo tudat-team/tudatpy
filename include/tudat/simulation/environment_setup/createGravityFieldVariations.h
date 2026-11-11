@@ -915,7 +915,7 @@ public:
      * \param maximumDegree Degree where the correction blocks end
      * \param maximumOrder Order where the correction blocks end
      * \param correctionTimeDerivativeFunction Function returning the time derivatives of the (cosine, sine) coefficient corrections
-     * as a function of time, with the same blocks as correctionFunction (none if empty)
+     * as a function of time, with the same blocks as correctionFunction (if empty, requesting the time derivatives throws)
      */
     CustomGravityFieldVariationsSettings(
             const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionFunction,
@@ -960,7 +960,19 @@ public:
         return correctionTimeDerivativeFunction_;
     }
 
+    //! Virtual equals function for polymorphic comparison (always false, since functions cannot be compared)
+    bool equals( const GravityFieldVariationSettings& /*rhs*/ ) const override
+    {
+        return false;
+    }
+
 protected:
+    //! Default constructor for serialization.
+    CustomGravityFieldVariationsSettings( ):
+        GravityFieldVariationSettings( gravitation::custom_variation ), correctionFunction_( nullptr ), minimumDegree_( 2 ),
+        minimumOrder_( 0 ), maximumDegree_( 2 ), maximumOrder_( 0 ), correctionTimeDerivativeFunction_( nullptr )
+    {}
+
     //! Function returning the (cosine, sine) coefficient corrections as a function of time
     std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionFunction_;
 
@@ -974,6 +986,25 @@ protected:
 
     //! Function returning the time derivatives of the (cosine, sine) coefficient corrections as a function of time
     std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionTimeDerivativeFunction_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomGravityFieldVariationsSettings cannot be serialized: std::function members are not serializable." );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomGravityFieldVariationsSettings cannot be serialized: std::function members are not serializable." );
+    }
 };
 
 //! Function to create constant complex Love number list for a range of degrees and orders.

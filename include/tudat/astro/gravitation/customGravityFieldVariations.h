@@ -12,6 +12,7 @@
 #define TUDAT_CUSTOMGRAVITYFIELDVARIATIONS_H
 
 #include <functional>
+#include <stdexcept>
 #include <string>
 
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
@@ -36,8 +37,8 @@ public:
      * \param maximumDegree Degree where the correction blocks end
      * \param maximumOrder Order where the correction blocks end
      * \param customCorrectionTimeDerivativeFunction Function returning the time derivatives of the (cosine, sine) coefficient
-     * corrections as a function of time, with the same blocks as customCorrectionFunction (if empty, zero time derivatives are used,
-     * with a warning)
+     * corrections as a function of time, with the same blocks as customCorrectionFunction (if empty, requesting the time derivatives
+     * throws)
      */
     CustomGravityFieldVariations(
             const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > customCorrectionFunction,
@@ -63,21 +64,22 @@ public:
         return checkCorrectionBlockSizes( customCorrectionFunction_( time ), "corrections" );
     }
 
-    //! Function for calculating time derivatives of spherical harmonic coefficient corrections (zero with warning if not defined).
+    //! Function for calculating time derivatives of spherical harmonic coefficient corrections (throws if not defined).
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override
     {
         if( customCorrectionTimeDerivativeFunction_ == nullptr )
         {
-            return GravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
+            throw std::runtime_error(
+                    "Error in custom gravity field variations: time derivatives of corrections requested, but no time derivative function "
+                    "is defined." );
         }
         return checkCorrectionBlockSizes( customCorrectionTimeDerivativeFunction_( time ), "correction time derivatives" );
     }
 
 private:
     //! Function to check whether the size of the user-defined correction blocks matches the degrees and orders of the variation
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > checkCorrectionBlockSizes(
-            const std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& corrections,
-            const std::string& correctionType )
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > checkCorrectionBlockSizes( std::pair< Eigen::MatrixXd, Eigen::MatrixXd > corrections,
+                                                                             const std::string& correctionType )
     {
         if( corrections.first.rows( ) != numberOfDegrees_ || corrections.first.cols( ) != numberOfOrders_ ||
             corrections.second.rows( ) != numberOfDegrees_ || corrections.second.cols( ) != numberOfOrders_ )

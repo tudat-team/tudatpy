@@ -86,6 +86,8 @@ Functions
 
    tabulated
 
+   custom_gravity_field_variation
+
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide_complex_k
@@ -111,6 +113,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field_variation.single_power_polynomial
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field_variation.tabulated
+
+.. autofunction:: tudatpy.dynamics.environment_setup.gravity_field_variation.custom_gravity_field_variation
 
 
 
