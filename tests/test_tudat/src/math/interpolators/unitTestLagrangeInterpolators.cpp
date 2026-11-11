@@ -256,11 +256,13 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_derivative )
     }
     interpolators::LagrangeInterpolator< Time, Eigen::VectorXd > vectorInterpolator(
             vectorDataMap, stages, interpolators::huntingAlgorithm, interpolators::lagrange_shifted_interval_boundary_interpolation );
+    // Time( -0.05 ) is stored as -1 full period plus 3599.95 s which, where long double is double (MSVC, Apple arm64), gives errors
+    // of about 2E-13 s in each difference to a node, and a relative error of about 4E-11 in the extrapolated derivative
     for( const double evaluationPoint : { 3.0, 2.5, -0.05 } )
     {
         Eigen::VectorXd derivative = vectorInterpolator.interpolateDerivative( Time( evaluationPoint ) );
-        BOOST_CHECK_CLOSE_FRACTION( derivative( 0 ), evaluatePolynomialDerivative( coefficients, evaluationPoint ), 1.0E-11 );
-        BOOST_CHECK_CLOSE_FRACTION( derivative( 1 ), -2.0 * evaluatePolynomialDerivative( coefficients, evaluationPoint ), 1.0E-11 );
+        BOOST_CHECK_CLOSE_FRACTION( derivative( 0 ), evaluatePolynomialDerivative( coefficients, evaluationPoint ), 1.0E-10 );
+        BOOST_CHECK_CLOSE_FRACTION( derivative( 1 ), -2.0 * evaluatePolynomialDerivative( coefficients, evaluationPoint ), 1.0E-10 );
     }
 }
 

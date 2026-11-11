@@ -350,7 +350,8 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 }
 
 //! Function to get state function of body, either from Spice, or linearized around a reference epoch (with velocity consistent with
-//! position, required for numerical differentiation of tidal variations)
+//! position, required for numerical differentiation of tidal variations). Linearized states are w.r.t. Jupiter, so that rounding errors
+//! in the (much larger) barycentric positions do not limit the accuracy of numerical derivatives
 std::function< Eigen::Vector6d( double ) > getGravityVariationTestStateFunction( const std::string& body, const bool useLinearizedStates )
 {
     if( !useLinearizedStates )
@@ -359,7 +360,7 @@ std::function< Eigen::Vector6d( double ) > getGravityVariationTestStateFunction(
     }
 
     const double referenceTime = 1.0e7;
-    const Eigen::Vector6d referenceState = getBodyCartesianStateAtEpoch( body, "SSB", "J2000", "None", referenceTime );
+    const Eigen::Vector6d referenceState = getBodyCartesianStateAtEpoch( body, "Jupiter", "J2000", "None", referenceTime );
     return [ referenceTime, referenceState ]( const double time ) {
         Eigen::Vector6d state = referenceState;
         state.head< 3 >( ) += ( time - referenceTime ) * referenceState.tail< 3 >( );
