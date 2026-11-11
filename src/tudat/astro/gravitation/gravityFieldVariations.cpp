@@ -24,6 +24,29 @@ namespace tudat
 namespace gravitation
 {
 
+namespace
+{
+
+//! Function to add the part of a block of (cosine, sine) coefficient rates, starting at given degree and order, that lies inside the
+//! supplied coefficient rate matrices
+void addOverlappingCoefficientRates( const std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficientRateBlocks,
+                                     const int minimumDegree,
+                                     const int minimumOrder,
+                                     Eigen::MatrixXd& sineCoefficientDerivatives,
+                                     Eigen::MatrixXd& cosineCoefficientDerivatives )
+{
+    const int degreeCount = std::min( static_cast< int >( coefficientRateBlocks.first.rows( ) ),
+                                      static_cast< int >( sineCoefficientDerivatives.rows( ) ) - minimumDegree );
+    const int orderCount = std::min( static_cast< int >( coefficientRateBlocks.first.cols( ) ),
+                                     static_cast< int >( sineCoefficientDerivatives.cols( ) ) - minimumOrder );
+    sineCoefficientDerivatives.block( minimumDegree, minimumOrder, degreeCount, orderCount ) +=
+            coefficientRateBlocks.second.topLeftCorner( degreeCount, orderCount );
+    cosineCoefficientDerivatives.block( minimumDegree, minimumOrder, degreeCount, orderCount ) +=
+            coefficientRateBlocks.first.topLeftCorner( degreeCount, orderCount );
+}
+
+}  // namespace
+
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > GravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative( const double )
 {
     if( !missingDerivativeWarningIssued_ )
@@ -41,18 +64,14 @@ void GravityFieldVariations::addSphericalHarmonicsCorrectionTimeDerivatives( con
                                                                              Eigen::MatrixXd& sineCoefficientDerivatives,
                                                                              Eigen::MatrixXd& cosineCoefficientDerivatives )
 {
-    const std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientDerivatives =
-            calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
-    // The caller may request only the low-degree rates needed for the inertia tensor.
-    // Still evaluate every variation, then add the part within the destination matrices.
+    // The caller may request only the low-degree rates needed for the inertia tensor; variations outside this block are skipped
     if( minimumDegree_ < sineCoefficientDerivatives.rows( ) && minimumOrder_ < sineCoefficientDerivatives.cols( ) )
     {
-        const int degreeCount = std::min( numberOfDegrees_, static_cast< int >( sineCoefficientDerivatives.rows( ) ) - minimumDegree_ );
-        const int orderCount = std::min( numberOfOrders_, static_cast< int >( sineCoefficientDerivatives.cols( ) ) - minimumOrder_ );
-        sineCoefficientDerivatives.block( minimumDegree_, minimumOrder_, degreeCount, orderCount ) +=
-                coefficientDerivatives.second.topLeftCorner( degreeCount, orderCount );
-        cosineCoefficientDerivatives.block( minimumDegree_, minimumOrder_, degreeCount, orderCount ) +=
-                coefficientDerivatives.first.topLeftCorner( degreeCount, orderCount );
+        addOverlappingCoefficientRates( calculateSphericalHarmonicsCorrectionsTimeDerivative( time ),
+                                        minimumDegree_,
+                                        minimumOrder_,
+                                        sineCoefficientDerivatives,
+                                        cosineCoefficientDerivatives );
     }
 }
 
@@ -76,6 +95,14 @@ void PairInterpolationInterface::getCosineSinePair( const double time,
         throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " +
                                   std::string( caughtException.what( ) ) );
     }
+}
+
+//! Function to compute time derivatives of (cosine, sine) correction blocks at given time.
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PairInterpolationInterface::getCosineSinePairTimeDerivative( const double time )
+{
+    const Eigen::MatrixXd cosineSinePairDerivative = cosineSineInterpolator_->interpolateDerivative( time );
+    return std::make_pair( cosineSinePairDerivative.block( 0, 0, numberOfDegrees_, numberOfOrders_ ),
+                           cosineSinePairDerivative.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) );
 }
 
 //! Function to add sine and cosine corrections at given time to coefficient matrices.
@@ -151,9 +178,9 @@ std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > Gravit
     return std::make_pair( isEntryFound, gravityFieldVariation );
 }
 
-//! Function to create a function linearly interpolating the sine and cosine correction coefficients
-//! produced by an object of GravityFieldVariations type.
-std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > createInterpolatedSphericalHarmonicCorrectionFunctions(
+//! Function to create an interface interpolating the sine and cosine correction coefficients produced by an object of
+//! GravityFieldVariations type.
+std::shared_ptr< PairInterpolationInterface > createSphericalHarmonicCorrectionInterpolationInterface(
         std::shared_ptr< GravityFieldVariations > variationObject,
         const double initialTime,
         const double finalTime,
@@ -192,19 +219,11 @@ std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > create
             interpolators::createOneDimensionalInterpolator< double, Eigen::MatrixXd >( cosineSineCorrectionsMap, interpolatorSettings );
 
     // Create pair interpolation interface for TimeDependentSphericalHarmonicsGravityField
-    std::shared_ptr< PairInterpolationInterface > interpolationInterface =
-            std::make_shared< PairInterpolationInterface >( cosineSineCorrectionInterpolator,
-                                                            variationObject->getMinimumDegree( ),
-                                                            variationObject->getMinimumOrder( ),
-                                                            variationObject->getNumberOfDegrees( ),
-                                                            variationObject->getNumberOfOrders( ) );
-
-    // Create update function.
-    return std::bind( &PairInterpolationInterface::getCosineSinePair,
-                      interpolationInterface,
-                      std::placeholders::_1,
-                      std::placeholders::_2,
-                      std::placeholders::_3 );
+    return std::make_shared< PairInterpolationInterface >( cosineSineCorrectionInterpolator,
+                                                           variationObject->getMinimumDegree( ),
+                                                           variationObject->getMinimumOrder( ),
+                                                           variationObject->getNumberOfDegrees( ),
+                                                           variationObject->getNumberOfOrders( ) );
 }
 
 //! Class constructor.
@@ -275,8 +294,13 @@ std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixX
         // If current variation is to be interpolated, create interpolation function and add to list
         if( createInterpolator_.count( i ) > 0 )
         {
-            variationFunctions.push_back( createInterpolatedSphericalHarmonicCorrectionFunctions(
-                    variationObjects_[ i ], initialTimes_[ i ], finalTimes_[ i ], timeSteps_[ i ], createInterpolator_[ i ] ) );
+            correctionInterpolationInterfaces_[ i ] = createSphericalHarmonicCorrectionInterpolationInterface(
+                    variationObjects_[ i ], initialTimes_[ i ], finalTimes_[ i ], timeSteps_[ i ], createInterpolator_[ i ] );
+            variationFunctions.push_back( std::bind( &PairInterpolationInterface::getCosineSinePair,
+                                                     correctionInterpolationInterfaces_[ i ],
+                                                     std::placeholders::_1,
+                                                     std::placeholders::_2,
+                                                     std::placeholders::_3 ) );
         }
         // If current variation is to not be interpolated, create function directly by function
         // pointer by to current GravityFieldVariations object.
@@ -298,9 +322,24 @@ void GravityFieldVariationsSet::addSphericalHarmonicsCorrectionTimeDerivatives( 
                                                                                 Eigen::MatrixXd& sineCoefficientDerivatives,
                                                                                 Eigen::MatrixXd& cosineCoefficientDerivatives )
 {
-    for( const std::shared_ptr< GravityFieldVariations >& variation : variationObjects_ )
+    for( unsigned int i = 0; i < variationObjects_.size( ); i++ )
     {
-        variation->addSphericalHarmonicsCorrectionTimeDerivatives( time, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+        const std::shared_ptr< GravityFieldVariations > variation = variationObjects_.at( i );
+        if( correctionInterpolationInterfaces_.count( i ) == 0 )
+        {
+            variation->addSphericalHarmonicsCorrectionTimeDerivatives( time, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+        }
+        // For interpolated variations, use the derivative of the interpolated corrections, for consistency with the corrections used
+        // in the gravity field (variations outside the supplied matrices are skipped)
+        else if( variation->getMinimumDegree( ) < sineCoefficientDerivatives.rows( ) &&
+                 variation->getMinimumOrder( ) < sineCoefficientDerivatives.cols( ) )
+        {
+            addOverlappingCoefficientRates( correctionInterpolationInterfaces_.at( i )->getCosineSinePairTimeDerivative( time ),
+                                            variation->getMinimumDegree( ),
+                                            variation->getMinimumOrder( ),
+                                            sineCoefficientDerivatives,
+                                            cosineCoefficientDerivatives );
+        }
     }
 }
 

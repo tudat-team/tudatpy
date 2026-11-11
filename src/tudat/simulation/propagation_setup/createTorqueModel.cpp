@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <iostream>
+
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
@@ -20,6 +22,17 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to check that the inertia tensor of a body that is required for a torque model is defined
+void checkInertiaTensorAvailability( const std::shared_ptr< Body > body, const std::string& bodyName, const std::string& torqueName )
+{
+    if( body->getMassProperties( ) == nullptr || !body->getMassProperties( )->isInertiaTensorAvailable( ) )
+    {
+        throw std::runtime_error( "Error when creating " + torqueName + ": no inertia tensor is defined for " + bodyName +
+                                  ". Define rigid body properties with an inertia tensor, or derive them from a spherical harmonic gravity "
+                                  "field with a scaled mean moment of inertia (rigid_body.from_gravity_field)." );
+    }
+}
+
 //! Function to create an aerodynamic torque model.
 std::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
@@ -29,6 +42,14 @@ std::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorque
     {
         throw std::runtime_error( "Error when creating inertial torque for " + nameOfBodyUndergoingTorque +
                                   ": rigid-body properties are missing." );
+    }
+    checkInertiaTensorAvailability( bodyUndergoingTorque, nameOfBodyUndergoingTorque, "inertial torque" );
+    if( !bodyUndergoingTorque->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) )
+    {
+        std::cerr << "Warning when creating inertial torque for " << nameOfBodyUndergoingTorque
+                  << ": no time derivative of the inertia tensor is defined, the term -(dI/dt) omega is not included. For a time-varying "
+                     "inertia tensor, define the inertia tensor derivative function in the rigid body properties settings."
+                  << std::endl;
     }
     return std::make_shared< basic_astrodynamics::InertialTorqueModel >(
             std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, bodyUndergoingTorque ),
@@ -133,6 +154,10 @@ std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecon
     }
 
     // Retrieve environment parameters
+    checkInertiaTensorAvailability(
+            bodyUndergoingTorque,
+            nameOfBodyUndergoingTorque,
+            "second degree gravitational torque on " + nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque );
     std::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction =
             std::bind( &simulation_setup::Body::getBodyInertiaTensor, bodyUndergoingTorque );
     std::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
@@ -244,6 +269,10 @@ std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > 
         throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
                                   " due to " + nameOfBodyExertingTorque + ", body exerting torque has no mass properties." );
     }
+    const std::string torqueName =
+            "fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque;
+    checkInertiaTensorAvailability( bodyUndergoingTorque, nameOfBodyUndergoingTorque, torqueName );
+    checkInertiaTensorAvailability( bodyExertingTorque, nameOfBodyExertingTorque, torqueName );
     if( bodyUndergoingTorque->getRotationalEphemeris( ) == nullptr )
     {
         throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +

@@ -11,9 +11,11 @@
 #ifndef TUDAT_CUSTOMGRAVITYFIELDVARIATIONS_H
 #define TUDAT_CUSTOMGRAVITYFIELDVARIATIONS_H
 
-#include "tudat/math/interpolators/oneDimensionalInterpolator.h"
+#include <functional>
+#include <stdexcept>
+#include <string>
+
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
-#include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat
 {
@@ -21,33 +23,92 @@ namespace tudat
 namespace gravitation
 {
 
-//! Class for variations in spherical harmonic coefficients, directly provided as a function
+//! Class for variations in spherical harmonic coefficients, directly provided as a function of time
 class CustomGravityFieldVariations : public GravityFieldVariations
 {
 public:
-    CustomGravityFieldVariations( std::function< double, std::pair< Eigen::MatrixXd >( const double ) > customCorrectionFunction,
-                                  const int minimumDegree,
-                                  const int minimumOrder ):
-        GravityFieldVariations( minimumDegree, minimumOrder, -1, -1 ), customCorrectionFunction_( customCorrectionFunction )
-    {}
-
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time )
+    //! Constructor
+    /*!
+     * Constructor
+     * \param customCorrectionFunction Function returning the (cosine, sine) coefficient corrections as a function of time, as
+     * matrix blocks starting at minimumDegree and minimumOrder
+     * \param minimumDegree Degree where the correction blocks start
+     * \param minimumOrder Order where the correction blocks start
+     * \param maximumDegree Degree where the correction blocks end
+     * \param maximumOrder Order where the correction blocks end
+     * \param customCorrectionTimeDerivativeFunction Function returning the time derivatives of the (cosine, sine) coefficient
+     * corrections as a function of time, with the same blocks as customCorrectionFunction (if empty, requesting the time derivatives
+     * throws)
+     */
+    CustomGravityFieldVariations(
+            const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > customCorrectionFunction,
+            const int minimumDegree,
+            const int minimumOrder,
+            const int maximumDegree,
+            const int maximumOrder,
+            const std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > customCorrectionTimeDerivativeFunction =
+                    nullptr ):
+        GravityFieldVariations( minimumDegree,
+                                minimumOrder,
+                                checkDegreeOrderRange( minimumDegree, minimumOrder, maximumDegree, maximumOrder ),
+                                maximumOrder ),
+        customCorrectionFunction_( customCorrectionFunction ),
+        customCorrectionTimeDerivativeFunction_( customCorrectionTimeDerivativeFunction )
     {
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > currentCorrections = customCorrectionFunction_( time );
-        if( numberOfDegrees_ == -1 || numberOfOrders_ == -1 )
+        if( customCorrectionFunction_ == nullptr )
         {
-            maximumDegree_ = minimumDegree_ + currentCorrections.first.rows( ) - 1;
-            maximumOrder_ = minimumOrder_ + currentCorrections.first.cols( ) - 1;
-            numberOfDegrees_ = maximumDegree_ - minimumDegree_ + 1;
-            numberOfOrders_ = maximumOrder_ - minimumOrder_ + 1;
-            lastCosineCorrection_.setZero( maximumDegree_ + 1, maximumOrder_ + 1 );
-            lastSineCorrection_.setZero( maximumDegree_ + 1, maximumOrder_ + 1 );
+            throw std::runtime_error( "Error when creating custom gravity field variations: no correction function provided." );
         }
-        return currentCorrections;
+    }
+
+    //! Function for calculating spherical harmonic coefficient corrections.
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) override
+    {
+        return checkCorrectionBlockSizes( customCorrectionFunction_( time ), "corrections" );
+    }
+
+    //! Function for calculating time derivatives of spherical harmonic coefficient corrections (throws if not defined).
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override
+    {
+        if( customCorrectionTimeDerivativeFunction_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error in custom gravity field variations: time derivatives of corrections requested, but no time derivative function "
+                    "is defined." );
+        }
+        return checkCorrectionBlockSizes( customCorrectionTimeDerivativeFunction_( time ), "correction time derivatives" );
     }
 
 private:
-    std::function< double, std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > customCorrectionFunction_;
+    //! Function to check the degree and order range (before creating the base class), returning the maximum degree
+    static int checkDegreeOrderRange( const int minimumDegree, const int minimumOrder, const int maximumDegree, const int maximumOrder )
+    {
+        if( minimumDegree < 0 || minimumOrder < 0 || maximumDegree < minimumDegree || maximumOrder < minimumOrder )
+        {
+            throw std::runtime_error(
+                    "Error when creating custom gravity field variations: inconsistent minimum and maximum degree and order." );
+        }
+        return maximumDegree;
+    }
+
+    //! Function to check whether the size of the user-defined correction blocks matches the degrees and orders of the variation
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > checkCorrectionBlockSizes( std::pair< Eigen::MatrixXd, Eigen::MatrixXd > corrections,
+                                                                             const std::string& correctionType )
+    {
+        if( corrections.first.rows( ) != numberOfDegrees_ || corrections.first.cols( ) != numberOfOrders_ ||
+            corrections.second.rows( ) != numberOfDegrees_ || corrections.second.cols( ) != numberOfOrders_ )
+        {
+            throw std::runtime_error( "Error in custom gravity field variations: size of " + correctionType +
+                                      " is inconsistent with minimum and maximum degree and order." );
+        }
+        return corrections;
+    }
+
+    //! Function returning the (cosine, sine) coefficient corrections as a function of time
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > customCorrectionFunction_;
+
+    //! Function returning the time derivatives of the (cosine, sine) coefficient corrections as a function of time
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > customCorrectionTimeDerivativeFunction_;
 };
 
 }  // namespace gravitation

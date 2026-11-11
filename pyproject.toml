@@ -1,2 +1,7 @@
 [tool.black]
 line-length = 100
+
+[pytest]
+markers = [
+    "remote_data: test requiring remote data via internet connection",
+]

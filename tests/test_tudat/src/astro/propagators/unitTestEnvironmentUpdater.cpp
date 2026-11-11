@@ -624,6 +624,22 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     }
 }
 
+//! Test that solid body tide variations add state updates of deformed and deforming bodies
+BOOST_AUTO_TEST_CASE( test_solidBodyTideEnvironmentUpdates )
+{
+    loadStandardSpiceKernels( );
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" } );
+    bodySettings.at( "Earth" )->gravityFieldVariationSettings = { fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+            "Moon", 0.3, 2 ) };
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    std::map< EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
+    environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ] = { "Earth" };
+    addSolidBodyTideEnvironmentUpdates( environmentModelsToUpdate, bodies );
+    BOOST_CHECK( environmentModelsToUpdate.at( body_translational_state_update ) == std::vector< std::string >( { "Earth", "Moon" } ) );
+    BOOST_CHECK( environmentModelsToUpdate.at( body_rotational_state_update ) == std::vector< std::string >( { "Earth" } ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

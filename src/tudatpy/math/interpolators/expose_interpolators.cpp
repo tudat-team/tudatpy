@@ -165,6 +165,13 @@ the interpolation domain. This enum provides the available options a user has to
 A cubic-spline interpolator is created from the first and last :math:`\max(m/2-1,4)` data points of the full data set, and these cubic spline interpolators are used when an interpolation at :math:`t<t_{(m/2-1)}` or :math:`t<t_{N-(m/2)}` is called.
 
       )doc" )
+            .value( "lagrange_shifted_interval_boundary_interpolation",
+                    ti::LagrangeInterpolatorBoundaryHandling::lagrange_shifted_interval_boundary_interpolation,
+                    R"doc(
+
+When an interpolation at :math:`t<t_{(m/2-1)}` is called, the interpolating polynomial for the centered interval :math:`[t_{(m/2-1)}...t_{(m/2)}]` is used, which interpolates the first :math:`m` data points :math:`[t_{0}...t_{m-1}]`. Similarly, when an interpolation at :math:`t>t_{N-(m/2)+1}` is called, the interpolating polynomial of the interval :math:`[t_{N-(m/2)}...t_{N-(m/2)+1}]` is used, which interpolates the last :math:`m` data points :math:`[t_{N-m+1}...t_{N}]`.
+
+      )doc" )
             .value( "lagrange_no_boundary_interpolation",
                     ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation,
                     R"doc(
@@ -573,6 +580,29 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
 
      )doc" )
+            .def( "interpolate_derivative",
+                  &ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE >::interpolateDerivative,
+                  py::arg( "independent_variable_value" ),
+                  R"doc(
+
+         This function computes the derivative of the interpolated value w.r.t. the independent variable.
+
+         The derivative is computed analytically from the interpolant used by :meth:`interpolate`. Outside the interpolation
+         domain, the boundary handling of the interpolator is applied: an exception is thrown, the derivative of the
+         extrapolated interpolant is used, or the derivative is zero (when using the boundary or default value) or NaN.
+
+
+         Parameters
+         ----------
+         independent_variable_value : float
+             Value of independent variable at which the derivative is to be computed.
+
+         Returns
+         -------
+         float
+             Derivative of the interpolated dependent variable value w.r.t. the independent variable
+
+     )doc" )
             .def_property_readonly( "independent_values",
                                     &ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE >::getIndependentValues,
                                     R"doc(
@@ -624,6 +654,21 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
         -------
         float
             Interpolated dependent variable value, using implemented algorithm at requested independent variable value
+    )doc" )
+            .def( "interpolate_derivative",
+                  &ti::OneDimensionalInterpolator< Time, STATE_SCALAR_TYPE >::interpolateDerivative,
+                  py::arg( "independent_variable_value" ),
+                  R"doc(
+        Same as :meth:`~OneDimensionalInterpolatorScalar.interpolate_derivative`, but with a :func:`~Time` independent variable.
+
+        Parameters
+        ----------
+        independent_variable_value : Time
+            Value of independent variable at which the derivative is to be computed.
+        Returns
+        -------
+        float
+            Derivative of the interpolated dependent variable value w.r.t. the independent variable
     )doc" );
 
     py::class_< ti::OneDimensionalInterpolator< double, Eigen::VectorXd >,
@@ -657,6 +702,27 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
              Interpolated dependent variable value, using implemented algorithm at requested independent variable value
 
 
+
+     )doc" )
+            .def( "interpolate_derivative",
+                  &ti::OneDimensionalInterpolator< double, Eigen::VectorXd >::interpolateDerivative,
+                  py::arg( "independent_variable_value" ),
+                  R"doc(
+
+         This function computes the derivative of the interpolated value w.r.t. the independent variable.
+
+         Same as :meth:`~OneDimensionalInterpolatorScalar.interpolate_derivative`, but for vector dependent variables.
+
+
+         Parameters
+         ----------
+         independent_variable_value : float
+             Value of independent variable at which the derivative is to be computed.
+
+         Returns
+         -------
+         np.array
+             Derivative of the interpolated dependent variable value w.r.t. the independent variable
 
      )doc" )
             .def_property_readonly( "independent_values",
@@ -707,6 +773,21 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
         -------
         np.array
             Interpolated dependent variable value, using implemented algorithm at requested independent variable value
+    )doc" )
+            .def( "interpolate_derivative",
+                  &ti::OneDimensionalInterpolator< Time, Eigen::VectorXd >::interpolateDerivative,
+                  py::arg( "independent_variable_value" ),
+                  R"doc(
+        Same as :meth:`~OneDimensionalInterpolatorVector.interpolate_derivative`, but with a :func:`~Time` independent variable.
+
+        Parameters
+        ----------
+        independent_variable_value : astro.time_representation.Time
+            Value of independent variable at which the derivative is to be computed.
+        Returns
+        -------
+        np.array
+            Derivative of the interpolated dependent variable value w.r.t. the independent variable
     )doc" );
 
     py::class_< ti::OneDimensionalInterpolator< double, Eigen::MatrixXd >,
@@ -739,6 +820,27 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
              Interpolated dependent variable value, using implemented algorithm at requested independent variable value
 
 
+
+     )doc" )
+            .def( "interpolate_derivative",
+                  &ti::OneDimensionalInterpolator< double, Eigen::MatrixXd >::interpolateDerivative,
+                  py::arg( "independent_variable_value" ),
+                  R"doc(
+
+         This function computes the derivative of the interpolated value w.r.t. the independent variable.
+
+         Same as :meth:`~OneDimensionalInterpolatorScalar.interpolate_derivative`, but for matrix dependent variables.
+
+
+         Parameters
+         ----------
+         independent_variable_value : float
+             Value of independent variable at which the derivative is to be computed.
+
+         Returns
+         -------
+         np.array
+             Derivative of the interpolated dependent variable value w.r.t. the independent variable
 
      )doc" )
             .def_property_readonly( "independent_values",
@@ -790,6 +892,21 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
         -------
         np.array
             Interpolated dependent variable value, using implemented algorithm at requested independent variable value
+    )doc" )
+            .def( "interpolate_derivative",
+                  &ti::OneDimensionalInterpolator< tudat::Time, Eigen::MatrixXd >::interpolateDerivative,
+                  py::arg( "independent_variable_value" ),
+                  R"doc(
+        Same as :meth:`~OneDimensionalInterpolatorMatrix.interpolate_derivative`, but with a :func:`~Time` independent variable.
+
+        Parameters
+        ----------
+        independent_variable_value : astro.time_representation.Time
+            Value of independent variable at which the derivative is to be computed.
+        Returns
+        -------
+        np.array
+            Derivative of the interpolated dependent variable value w.r.t. the independent variable
     )doc" );
 
     m.def( "create_one_dimensional_scalar_interpolator",

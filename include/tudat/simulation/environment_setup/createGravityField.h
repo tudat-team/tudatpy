@@ -11,6 +11,8 @@
 #ifndef TUDAT_CREATEGRAVITYFIELD_H
 #define TUDAT_CREATEGRAVITYFIELD_H
 
+#include <cmath>
+#include <iostream>
 #include <map>
 #include <vector>
 #include <string>
@@ -166,9 +168,17 @@ public:
         GravityFieldSettings( spherical_harmonic ), gravitationalParameter_( gravitationalParameter ), referenceRadius_( referenceRadius ),
         inertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), associatedReferenceFrame_( associatedReferenceFrame ), createTimeDependentField_( 0 ),
-        scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
-    {}
+        scaledMeanMomentOfInertia_( TUDAT_NAN )
+    {
+        setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
+    }
 
+    // Deprecated constructor, computing the degree two coefficients and scaled mean moment of inertia from an inertia tensor.
+    /*
+     *  Deprecated constructor, computing the degree two coefficients and scaled mean moment of inertia from an inertia tensor. Instead,
+     *  compute these with gravitation::getDegreeTwoSphericalHarmonicCoefficients, and define the scaled mean moment of inertia in the
+     *  rigid body properties settings derived from the gravity field.
+     */
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
                                             const double referenceRadius,
                                             const Eigen::Matrix3d& inertiaTensor,
@@ -185,6 +195,12 @@ public:
         cosineCoefficients_.block( 2, 0, 1, 3 ) = std::get< 0 >( degreeTwoField ).block( 2, 0, 1, 3 );
         sineCoefficients_.block( 2, 1, 1, 2 ) = std::get< 1 >( degreeTwoField ).block( 2, 1, 1, 2 );
         scaledMeanMomentOfInertia_ = std::get< 2 >( degreeTwoField );
+
+        std::cerr << "Warning, defining spherical harmonic gravity field settings from an inertia tensor is deprecated and will be removed "
+                     "in a future version of Tudat. Compute the degree two coefficients and scaled mean moment of inertia from the inertia "
+                     "tensor, and define the scaled mean moment of inertia in the rigid body properties settings derived from the gravity "
+                     "field (rigid_body.from_gravity_field) instead."
+                  << std::endl;
     }
 
     virtual ~SphericalHarmonicsGravityFieldSettings( ) {}
@@ -243,6 +259,13 @@ public:
     //! Set the compatibility input that is transferred to rigid-body-property settings.
     void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
     {
+        if( std::isfinite( scaledMeanMomentOfInertia ) )
+        {
+            std::cerr << "Warning, defining the scaled mean moment of inertia in spherical harmonic gravity field settings is deprecated "
+                         "and will be removed in a future version of Tudat. Define it in the rigid body properties settings derived from "
+                         "the gravity field (rigid_body.from_gravity_field) instead."
+                      << std::endl;
+        }
         scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
     }
 
@@ -774,6 +797,36 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                                                   const int gravitationalParameterIndex = -1,
                                                   const int referenceRadiusIndex = -1 );
 
+//! Function to read a spherical harmonics ASCII data record (SHADR) gravity field file
+/*
+ *  Function to read a gravity field file in the PDS spherical harmonics ASCII data record (SHADR) format. In contrast to
+ *  readGravityFieldFile, the coefficient records may be in any order, and covariance records are skipped. The header record
+ *  provides the reference radius (in km) and gravitational parameter (in km^3/s^2), which are returned in SI units, and
+ *  unnormalized coefficients are converted to (geodesy-)normalized coefficients.
+ *  \param fileName Name of SHADR gravity field file to be loaded.
+ *  \param maximumDegree Maximum degree of gravity field to be loaded.
+ *  \param maximumOrder Maximum order of gravity field to be loaded.
+ *  \param coefficients Normalized spherical harmonics coefficients (first is cosine, second is sine).
+ *  \return Pair of gravitational parameter (m^3/s^2) and reference radius (m).
+ */
+std::pair< double, double > readShadrGravityFieldFile( const std::string& fileName,
+                                                       const int maximumDegree,
+                                                       const int maximumOrder,
+                                                       std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients );
+
+//! Function to create spherical harmonic gravity field settings from a SHADR gravity field file
+inline std::shared_ptr< SphericalHarmonicsGravityFieldSettings > shadrSphericalHarmonicsGravityFieldSettings(
+        const std::string& fileName,
+        const int maximumDegree,
+        const int maximumOrder,
+        const std::string& associatedReferenceFrame = "" )
+{
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+    std::pair< double, double > referenceData = readShadrGravityFieldFile( fileName, maximumDegree, maximumOrder, coefficients );
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            referenceData.first, referenceData.second, coefficients.first, coefficients.second, associatedReferenceFrame );
+}
+
 // Function to create a gravity field model.
 /*
  *  Function to create a gravity field model based on model-specific settings for the gravity field.
@@ -823,6 +876,8 @@ inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings
             gravitationalParameter, referenceRadius, normalizedCosineCoefficients, normalizedSineCoefficients, associatedReferenceFrame );
 }
 
+//! Deprecated function to create spherical harmonic gravity field settings from an inertia tensor (see corresponding
+//! SphericalHarmonicsGravityFieldSettings constructor)
 inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings(
         const double gravitationalParameter,
         const double referenceRadius,
@@ -959,11 +1014,23 @@ protected:
 class FromFunctionRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
 {
 public:
-    FromFunctionRigidBodyPropertiesSettings( const std::function< double( const double ) > massFunction,
-                                             const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
-                                             const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr ):
+    //! Constructor
+    /*!
+     * Constructor
+     * \param massFunction Function returning the mass as a function of time
+     * \param centerOfMassFunction Function returning the center of mass as a function of time (none if empty)
+     * \param inertiaTensorFunction Function returning the inertia tensor as a function of time (none if empty)
+     * \param inertiaTensorDerivativeFunction Function returning the time derivative of the inertia tensor as a function of time
+     * (none if empty; may only be defined if inertiaTensorFunction is defined)
+     */
+    FromFunctionRigidBodyPropertiesSettings(
+            const std::function< double( const double ) > massFunction,
+            const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr ):
         RigidBodyPropertiesSettings( from_function_rigid_body_properties ), massFunction_( massFunction ),
-        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
+        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction ),
+        inertiaTensorDerivativeFunction_( inertiaTensorDerivativeFunction )
     {}
 
     virtual ~FromFunctionRigidBodyPropertiesSettings( ) {}
@@ -983,22 +1050,43 @@ public:
         return inertiaTensorFunction_;
     }
 
+    //! Function to retrieve the function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > getInertiaTensorDerivativeFunction( )
+    {
+        return inertiaTensorDerivativeFunction_;
+    }
+
 protected:
     std::function< double( const double ) > massFunction_;
 
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
 
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+
+    //! Function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
 class MassDependentMassDistributionSettings : public RigidBodyPropertiesSettings
 {
 public:
-    MassDependentMassDistributionSettings( const double currentMass,
-                                           const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
-                                           const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
+    //! Constructor
+    /*!
+     * Constructor
+     * \param currentMass Initial mass of the body
+     * \param centerOfMassFunction Function returning the center of mass as a function of mass (none if empty)
+     * \param inertiaTensorFunction Function returning the inertia tensor as a function of mass (none if empty)
+     * \param inertiaTensorDerivativeFunction Function returning the time derivative of the inertia tensor as a function of time,
+     * including the contribution of the mass rate (none if empty; may only be defined if inertiaTensorFunction is defined)
+     */
+    MassDependentMassDistributionSettings(
+            const double currentMass,
+            const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction,
+            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr ):
         RigidBodyPropertiesSettings( mass_dependent_rigid_body_properties ), currentMass_( currentMass ),
-        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
+        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction ),
+        inertiaTensorDerivativeFunction_( inertiaTensorDerivativeFunction )
     {}
 
     virtual ~MassDependentMassDistributionSettings( ) {}
@@ -1018,12 +1106,21 @@ public:
         return inertiaTensorFunction_;
     }
 
+    //! Function to retrieve the function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > getInertiaTensorDerivativeFunction( )
+    {
+        return inertiaTensorDerivativeFunction_;
+    }
+
 protected:
     double currentMass_;
 
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
 
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+
+    //! Function returning the time derivative of the inertia tensor as a function of time
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
 inline std::shared_ptr< RigidBodyPropertiesSettings > constantRigidBodyPropertiesSettings(
@@ -1043,17 +1140,21 @@ inline std::shared_ptr< RigidBodyPropertiesSettings > fromGravityFieldRigidBodyP
 inline std::shared_ptr< RigidBodyPropertiesSettings > fromFunctionRigidBodyPropertiesSettings(
         const std::function< double( const double ) > massFunction,
         const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
-        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr )
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr,
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr )
 {
-    return std::make_shared< FromFunctionRigidBodyPropertiesSettings >( massFunction, centerOfMassFunction, inertiaTensorFunction );
+    return std::make_shared< FromFunctionRigidBodyPropertiesSettings >(
+            massFunction, centerOfMassFunction, inertiaTensorFunction, inertiaTensorDerivativeFunction );
 }
 
 inline std::shared_ptr< RigidBodyPropertiesSettings > massDependentMassDistributionSettings(
         const double currentMass,
         const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
-        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction )
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction,
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction = nullptr )
 {
-    return std::make_shared< MassDependentMassDistributionSettings >( currentMass, centerOfMassFunction, inertiaTensorFunction );
+    return std::make_shared< MassDependentMassDistributionSettings >(
+            currentMass, centerOfMassFunction, inertiaTensorFunction, inertiaTensorDerivativeFunction );
 }
 
 std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(

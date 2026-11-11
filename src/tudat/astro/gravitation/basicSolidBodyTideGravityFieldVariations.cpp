@@ -12,7 +12,6 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
-#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 
 namespace tudat
 {
@@ -175,46 +174,72 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
 }
 
 //! Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number
-std::complex< double > SolidBodyTideGravityFieldVariations::calculateTidalForcingTimeDerivative(
-        const int degree,
-        const int order,
-        const Eigen::Vector6d& bodyFixedRelativeState )
+std::complex< double > SolidBodyTideGravityFieldVariations::calculateTidalForcingTimeDerivative( const int degree,
+                                                                                                 const int order,
+                                                                                                 const double deformingBodyMassRatio,
+                                                                                                 const Eigen::Vector3d& sphericalPosition,
+                                                                                                 const Eigen::Vector3d& sphericalVelocity )
 {
     // The forcing (R/r)^(n+1) * Pnm * exp( -i * m * longitude ) is the potential of a single spherical harmonic term (with
-    // mu = R), so that its time derivative is the gradient of this term, multiplied by the body-fixed velocity.
-    const Eigen::Vector3d cosineTermGradient =
-            computeSingleGeodesyNormalizedGravitationalAcceleration( bodyFixedRelativeState.segment( 0, 3 ),
-                                                                     deformedBodyReferenceRadius_,
-                                                                     deformedBodyReferenceRadius_,
-                                                                     degree,
-                                                                     order,
-                                                                     1.0,
-                                                                     0.0,
-                                                                     sphericalHarmonicsCache_ );
-    const Eigen::Vector3d sineTermGradient =
-            computeSingleGeodesyNormalizedGravitationalAcceleration( bodyFixedRelativeState.segment( 0, 3 ),
-                                                                     deformedBodyReferenceRadius_,
-                                                                     deformedBodyReferenceRadius_,
-                                                                     degree,
-                                                                     order,
-                                                                     0.0,
-                                                                     1.0,
-                                                                     sphericalHarmonicsCache_ );
-    return massRatio / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
-            std::complex< double >( cosineTermGradient.dot( bodyFixedRelativeState.segment( 3, 3 ) ),
-                                    -sineTermGradient.dot( bodyFixedRelativeState.segment( 3, 3 ) ) );
+    // mu = R), so that its time derivative is the gradient of this term, multiplied by the body-fixed velocity (here, spherical
+    // gradient multiplied by sphericalVelocity). The spherical harmonics cache must be updated to the current position.
+    // Near the poles, the gradient is computed without the (singular) Legendre polynomial derivative, as for the spherical harmonic
+    // acceleration (same colatitude cutoff)
+    Eigen::Vector3d cosineTermSphericalGradient, sineTermSphericalGradient;
+    if( std::fabs( mathematical_constants::PI / 2.0 - std::fabs( sphericalPosition( 1 ) ) ) < 1.0E-6 )
+    {
+        cosineTermSphericalGradient = basic_mathematics::computePotentialGradientNearPole(
+                sphericalPosition, 1.0, degree, order, 1.0, 0.0, sphericalHarmonicsCache_ );
+        sineTermSphericalGradient = basic_mathematics::computePotentialGradientNearPole(
+                sphericalPosition, 1.0, degree, order, 0.0, 1.0, sphericalHarmonicsCache_ );
+    }
+    else
+    {
+        const double legendrePolynomial = sphericalHarmonicsCache_.getLegendreCache( ).getLegendrePolynomial( degree, order );
+        const double legendrePolynomialDerivative =
+                sphericalHarmonicsCache_.getLegendreCache( ).getLegendrePolynomialDerivative( degree, order );
+        cosineTermSphericalGradient = basic_mathematics::computePotentialGradient( sphericalPosition,
+                                                                                   1.0,
+                                                                                   degree,
+                                                                                   order,
+                                                                                   1.0,
+                                                                                   0.0,
+                                                                                   legendrePolynomial,
+                                                                                   legendrePolynomialDerivative,
+                                                                                   sphericalHarmonicsCache_ );
+        sineTermSphericalGradient = basic_mathematics::computePotentialGradient( sphericalPosition,
+                                                                                 1.0,
+                                                                                 degree,
+                                                                                 order,
+                                                                                 0.0,
+                                                                                 1.0,
+                                                                                 legendrePolynomial,
+                                                                                 legendrePolynomialDerivative,
+                                                                                 sphericalHarmonicsCache_ );
+    }
+    return deformingBodyMassRatio / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
+            std::complex< double >( cosineTermSphericalGradient.dot( sphericalVelocity ),
+                                    -sineTermSphericalGradient.dot( sphericalVelocity ) );
 }
 
 //! Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame
 Eigen::Vector6d SolidBodyTideGravityFieldVariations::getBodyFixedRelativeState( const int bodyIndex, const double time )
 {
-    // Set mass ratio of current body causing deformation
-    massRatio = deformingBodyMasses_[ bodyIndex ]( ) / deformedBodyMass_( );
-
     return ephemerides::transformStateToFrameFromRotations< double >(
             deformingBodyStateFunctions_[ bodyIndex ]( time ) - deformedBodyStateFunction_( time ),
             deformedBodyOrientationFunction_( time ),
             rotationDerivativeFunction_( time ) );
+}
+
+//! Function to update the spherical harmonics cache to the body-fixed position of a body causing deformation
+Eigen::Vector3d SolidBodyTideGravityFieldVariations::updateSphericalHarmonicsCache( const Eigen::Vector3d& bodyFixedPosition )
+{
+    // Convert to spherical position, with latitude instead of colatitude
+    Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical( bodyFixedPosition );
+    sphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - sphericalPosition( 1 );
+    sphericalHarmonicsCache_.update(
+            sphericalPosition( 0 ), std::sin( sphericalPosition( 1 ) ), sphericalPosition( 2 ), deformedBodyReferenceRadius_ );
+    return sphericalPosition;
 }
 
 //! Function for calculating time derivatives of spherical harmonic coefficient corrections due to selected bodies.
@@ -226,21 +251,42 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
 {
     Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
-
-    for( unsigned int i = 0; i < bodyIndices.size( ); i++ )
+    if( bodyIndices.size( ) == 0 )
     {
-        Eigen::Vector6d bodyFixedRelativeState = getBodyFixedRelativeState( bodyIndices.at( i ), time );
+        return std::make_pair( cosineRates, sineRates );
+    }
+
+    // Retrieve state, orientation, rotation derivative and mass of deformed body
+    const Eigen::Vector6d deformedBodyState = deformedBodyStateFunction_( time );
+    const Eigen::Quaterniond deformedBodyOrientation = deformedBodyOrientationFunction_( time );
+    const Eigen::Matrix3d deformedBodyRotationDerivative = rotationDerivativeFunction_( time );
+    const double deformedBodyMass = deformedBodyMass_( );
+
+    for( const int bodyIndex : bodyIndices )
+    {
+        // Compute state of body causing deformation w.r.t. deformed body, in deformed body-fixed frame
+        const Eigen::Vector6d bodyFixedRelativeState = ephemerides::transformStateToFrameFromRotations< double >(
+                deformingBodyStateFunctions_[ bodyIndex ]( time ) - deformedBodyState,
+                deformedBodyOrientation,
+                deformedBodyRotationDerivative );
+        const Eigen::Vector3d bodyFixedPosition = bodyFixedRelativeState.segment( 0, 3 );
+        const double currentMassRatio = deformingBodyMasses_[ bodyIndex ]( ) / deformedBodyMass;
 
         // The time derivatives are linear in the body-fixed velocity, of which the part due to the rotation of the deformed body
         // is -omega x r. The partial w.r.t. an angular velocity component is obtained by replacing the velocity with its partial.
-        if( angularVelocityComponent >= 0 )
-        {
-            bodyFixedRelativeState.segment( 3, 3 ) =
-                    Eigen::Vector3d( bodyFixedRelativeState.segment( 0, 3 ) ).cross( Eigen::Vector3d::Unit( angularVelocityComponent ) );
-        }
+        const Eigen::Vector3d bodyFixedVelocity = ( angularVelocityComponent >= 0 )
+                ? Eigen::Vector3d( bodyFixedPosition.cross( Eigen::Vector3d::Unit( angularVelocityComponent ) ) )
+                : Eigen::Vector3d( bodyFixedRelativeState.segment( 3, 3 ) );
+
+        // Update spherical harmonics cache, and premultiply velocity by transpose of spherical-to-Cartesian gradient matrix, once for
+        // all degrees and orders
+        const Eigen::Vector3d sphericalPosition = updateSphericalHarmonicsCache( bodyFixedPosition );
+        const Eigen::Vector3d sphericalVelocity =
+                coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition ).transpose( ) * bodyFixedVelocity;
+
         addTidalCorrectionTimeDerivatives(
                 [ & ]( const int degree, const int order ) {
-                    return calculateTidalForcingTimeDerivative( degree, order, bodyFixedRelativeState );
+                    return calculateTidalForcingTimeDerivative( degree, order, currentMassRatio, sphericalPosition, sphericalVelocity );
                 },
                 cosineRates,
                 sineRates,
@@ -301,6 +347,7 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeD
 std::complex< double > SolidBodyTideGravityFieldVariations::calculateTidalForcingTimeDerivativePartialWrtPosition(
         const int degree,
         const int order,
+        const double deformingBodyMassRatio,
         const Eigen::Vector6d& bodyFixedRelativeState,
         const Eigen::Vector3d& bodyFixedPositionVariation,
         const std::function< Eigen::Matrix3d( const int, const int, const bool, const Eigen::Vector3d& ) >& forcingHessianFunction )
@@ -310,7 +357,7 @@ std::complex< double > SolidBodyTideGravityFieldVariations::calculateTidalForcin
     const Eigen::Vector3d bodyFixedPosition = bodyFixedRelativeState.segment( 0, 3 );
     const Eigen::Matrix3d cosineTermHessian = forcingHessianFunction( degree, order, true, bodyFixedPosition );
     const Eigen::Matrix3d sineTermHessian = forcingHessianFunction( degree, order, false, bodyFixedPosition );
-    return massRatio / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
+    return deformingBodyMassRatio / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
             std::complex< double >( ( cosineTermHessian * bodyFixedPositionVariation ).dot( bodyFixedRelativeState.segment( 3, 3 ) ),
                                     -( sineTermHessian * bodyFixedPositionVariation ).dot( bodyFixedRelativeState.segment( 3, 3 ) ) );
 }
@@ -333,19 +380,24 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsParti
 
     for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
     {
-        const Eigen::Vector6d bodyFixedRelativeState = getBodyFixedRelativeState( i, time );
+        const Eigen::Vector3d bodyFixedPosition = getBodyFixedRelativeState( i, time ).segment( 0, 3 );
         const Eigen::Vector3d inertialRelativePosition =
                 ( deformingBodyStateFunctions_[ i ]( time ) - deformedBodyStateFunction_( time ) ).segment( 0, 3 );
+        const double currentMassRatio = deformingBodyMasses_[ i ]( ) / deformedBodyMass_( );
+        const Eigen::Vector3d sphericalPosition = updateSphericalHarmonicsCache( bodyFixedPosition );
+        const Eigen::Matrix3d gradientMatrixTranspose =
+                coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition ).transpose( );
 
         // The corrections are linear in the forcing, of which the partial w.r.t. body-fixed position is given by its gradient. The
         // partial w.r.t. orientation is therefore obtained from the time derivative, with the velocity replaced by the position partial
         for( unsigned int j = 0; j < rotationToBodyFixedFramePartials.size( ); j++ )
         {
-            Eigen::Vector6d modifiedBodyFixedState = bodyFixedRelativeState;
-            modifiedBodyFixedState.segment( 3, 3 ) = rotationToBodyFixedFramePartials.at( j ) * inertialRelativePosition;
+            const Eigen::Vector3d sphericalPositionPartial =
+                    gradientMatrixTranspose * ( rotationToBodyFixedFramePartials.at( j ) * inertialRelativePosition );
             addTidalCorrectionTimeDerivatives(
                     [ & ]( const int degree, const int order ) {
-                        return calculateTidalForcingTimeDerivative( degree, order, modifiedBodyFixedState );
+                        return calculateTidalForcingTimeDerivative(
+                                degree, order, currentMassRatio, sphericalPosition, sphericalPositionPartial );
                     },
                     correctionPartials.at( j ).first,
                     correctionPartials.at( j ).second,
@@ -379,22 +431,28 @@ SolidBodyTideGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeD
     for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
     {
         const Eigen::Vector6d bodyFixedRelativeState = getBodyFixedRelativeState( i, time );
+        const Eigen::Vector3d bodyFixedPosition = bodyFixedRelativeState.segment( 0, 3 );
         const Eigen::Vector6d inertialRelativeState = deformingBodyStateFunctions_[ i ]( time ) - deformedBodyStateFunction_( time );
+        const double currentMassRatio = deformingBodyMasses_[ i ]( ) / deformedBodyMass_( );
+        const Eigen::Vector3d sphericalPosition = updateSphericalHarmonicsCache( bodyFixedPosition );
+        const Eigen::Matrix3d gradientMatrixTranspose =
+                coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition ).transpose( );
 
         for( unsigned int j = 0; j < rotationToBodyFixedFramePartials.size( ); j++ )
         {
             // Partials of body-fixed position and velocity of body causing deformation w.r.t. orientation
             const Eigen::Vector3d positionPartial = rotationToBodyFixedFramePartials.at( j ) * inertialRelativeState.segment( 0, 3 );
-            Eigen::Vector6d modifiedBodyFixedState = bodyFixedRelativeState;
-            modifiedBodyFixedState.segment( 3, 3 ) = rotationToBodyFixedFramePartials.at( j ) * inertialRelativeState.segment( 3, 3 ) +
-                    angularVelocityMatrix * positionPartial;
+            const Eigen::Vector3d sphericalVelocityPartial = gradientMatrixTranspose *
+                    ( rotationToBodyFixedFramePartials.at( j ) * inertialRelativeState.segment( 3, 3 ) +
+                      angularVelocityMatrix * positionPartial );
 
             // Time derivative of forcing is linear in velocity, and depends on position through the gradient of the forcing
             addTidalCorrectionTimeDerivatives(
                     [ & ]( const int degree, const int order ) {
-                        return calculateTidalForcingTimeDerivative( degree, order, modifiedBodyFixedState ) +
+                        return calculateTidalForcingTimeDerivative(
+                                       degree, order, currentMassRatio, sphericalPosition, sphericalVelocityPartial ) +
                                 calculateTidalForcingTimeDerivativePartialWrtPosition(
-                                        degree, order, bodyFixedRelativeState, positionPartial, forcingHessianFunction );
+                                        degree, order, currentMassRatio, bodyFixedRelativeState, positionPartial, forcingHessianFunction );
                     },
                     correctionRatePartials.at( j ).first,
                     correctionRatePartials.at( j ).second,
@@ -448,7 +506,16 @@ std::complex< double > SolidBodyTideGravityFieldVariations::calculateUnitLoveNum
         throw std::runtime_error(
                 "Error when computing time derivative of tidal forcing, no rotation matrix derivative function is defined" );
     }
-    return calculateTidalForcingTimeDerivative( degree, order, getBodyFixedRelativeState( bodyIndex, time ) );
+    const Eigen::Vector6d bodyFixedRelativeState = getBodyFixedRelativeState( bodyIndex, time );
+    const Eigen::Vector3d bodyFixedPosition = bodyFixedRelativeState.segment( 0, 3 );
+    const Eigen::Vector3d sphericalPosition = updateSphericalHarmonicsCache( bodyFixedPosition );
+    return calculateTidalForcingTimeDerivative(
+            degree,
+            order,
+            deformingBodyMasses_[ bodyIndex ]( ) / deformedBodyMass_( ),
+            sphericalPosition,
+            coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition ).transpose( ) *
+                    bodyFixedRelativeState.segment( 3, 3 ) );
 }
 
 //! Function to add time derivatives of corrections due to the current body causing deformation.
@@ -459,7 +526,7 @@ void BasicSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDerivatives
         const int maximumDegree )
 {
     // Mean forcing terms are constant, and do not contribute
-    for( auto loveNumberIt : loveNumbers_ )
+    for( const auto& loveNumberIt : loveNumbers_ )
     {
         int n = loveNumberIt.first;
         if( n > maximumDegree )
@@ -485,12 +552,12 @@ void ModeCoupledSolidBodyTideGravityFieldVariations::addTidalCorrectionTimeDeriv
         Eigen::MatrixXd& sineRates,
         const int maximumDegree )
 {
-    for( auto loveNumberIt : loveNumbers_ )
+    for( const auto& loveNumberIt : loveNumbers_ )
     {
         // Only compute forcing if it contributes to a response at or below the maximum degree
         std::complex< double > unityLoveNumberForcingRate;
         bool isForcingRateComputed = false;
-        for( auto responseIt : loveNumberIt.second )
+        for( const auto& responseIt : loveNumberIt.second )
         {
             int nResponse = responseIt.first.first;
             int mResponse = responseIt.first.second;

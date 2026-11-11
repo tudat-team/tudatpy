@@ -26,6 +26,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 
 namespace tudat
@@ -334,6 +335,18 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     }
     tabulatedVariation->resetCoefficientInterpolator( cosineTable, sineTable );
     checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + 1.5 * tableStep, 10.0, 1.0e-10 );
+
+    // Check time derivatives of tabulated variations with cubic spline and Lagrange interpolation (between nodes, away from table edges)
+    for( const auto& interpolatorSettings : std::vector< std::shared_ptr< interpolators::InterpolatorSettings > >{
+                 std::make_shared< interpolators::InterpolatorSettings >( interpolators::cubic_spline_interpolator ),
+                 std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) } )
+    {
+        checkGravityFieldVariationDerivative(
+                std::make_shared< TabulatedGravityFieldVariations >( cosineTable, sineTable, 1, 0, interpolatorSettings ),
+                firstEpoch + 25.3 * tableStep,
+                1.0,
+                1.0e-7 );
+    }
 }
 
 //! Function to get state function of body, either from Spice, or linearized around a reference epoch (with velocity consistent with
@@ -443,6 +456,12 @@ std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupled
         loveNumbers[ std::make_pair( 2, 2 ) ][ std::make_pair( 3, 2 ) ] = 0.3;
         loveNumbers[ std::make_pair( 2, 1 ) ][ std::make_pair( 3, 1 ) ] = 0.2;
     }
+    else if( index == 3 )
+    {
+        // Forcing degree above maximum response degree
+        loveNumbers[ std::make_pair( 4, 1 ) ][ std::make_pair( 2, 1 ) ] = 0.2;
+        loveNumbers[ std::make_pair( 3, 2 ) ][ std::make_pair( 2, 2 ) ] = 0.1;
+    }
 
     // Set up gravity field variation of Jupiter due to Galilean moons.
     const auto variation = std::make_shared< ModeCoupledSolidBodyTideGravityFieldVariations >(
@@ -522,7 +541,7 @@ BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
     for( const double time : { testTime, testTime + 3600.0 } )
     {
         checkGravityFieldVariationDerivative( basicRateTestModel, time, 1.0, 5.0e-8 );
-        for( int index = 0; index < 3; index++ )
+        for( int index = 0; index < 4; index++ )
         {
             checkGravityFieldVariationDerivative( getModeCoupledGravityFieldVariation( index, true ), time, 1.0, 5.0e-8 );
         }
@@ -895,6 +914,140 @@ BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
             }
         }
     }
+}
+
+//! Test addition of coefficient rates to a degree-two block, for variations that only partially overlap with this block
+BOOST_AUTO_TEST_CASE( testGravityFieldVariationRatesBlockOverlap )
+{
+    // Linear variations (rates equal to amplitudes) at degrees 2-4 and orders 0-2, degrees 2-3 and orders 1-2, and degree 3, order 0
+    const std::vector< std::pair< int, int > > minimumDegreesAndOrders = { { 2, 0 }, { 2, 1 }, { 3, 0 } };
+    const std::vector< Eigen::MatrixXd > cosineRates = { Eigen::MatrixXd::Random( 3, 3 ),
+                                                         Eigen::MatrixXd::Random( 2, 2 ),
+                                                         Eigen::MatrixXd::Random( 1, 1 ) };
+    const std::vector< Eigen::MatrixXd > sineRates = { Eigen::MatrixXd::Random( 3, 3 ),
+                                                       Eigen::MatrixXd::Random( 2, 2 ),
+                                                       Eigen::MatrixXd::Random( 1, 1 ) };
+
+    Eigen::MatrixXd cosineRateBlock = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineRateBlock = Eigen::MatrixXd::Zero( 3, 3 );
+    for( unsigned int i = 0; i < minimumDegreesAndOrders.size( ); i++ )
+    {
+        PolynomialGravityFieldVariations( std::map< int, Eigen::MatrixXd >( { { 1, cosineRates.at( i ) } } ),
+                                          std::map< int, Eigen::MatrixXd >( { { 1, sineRates.at( i ) } } ),
+                                          0.0,
+                                          minimumDegreesAndOrders.at( i ).first,
+                                          minimumDegreesAndOrders.at( i ).second )
+                .addSphericalHarmonicsCorrectionTimeDerivatives( 1.0E3, sineRateBlock, cosineRateBlock );
+    }
+
+    // Only the degree-two rows of the first two variations are inside the block; the third variation is skipped
+    Eigen::MatrixXd expectedCosineRateBlock = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd expectedSineRateBlock = Eigen::MatrixXd::Zero( 3, 3 );
+    expectedCosineRateBlock.block( 2, 0, 1, 3 ) = cosineRates.at( 0 ).topRows( 1 );
+    expectedCosineRateBlock.block( 2, 1, 1, 2 ) += cosineRates.at( 1 ).topRows( 1 );
+    expectedSineRateBlock.block( 2, 0, 1, 3 ) = sineRates.at( 0 ).topRows( 1 );
+    expectedSineRateBlock.block( 2, 1, 1, 2 ) += sineRates.at( 1 ).topRows( 1 );
+
+    BOOST_CHECK_SMALL( ( cosineRateBlock - expectedCosineRateBlock ).norm( ), 1.0E-15 );
+    BOOST_CHECK_SMALL( ( sineRateBlock - expectedSineRateBlock ).norm( ), 1.0E-15 );
+}
+
+//! Test time derivatives of interpolated gravity field variations, against the analytical time derivatives of the variations
+BOOST_AUTO_TEST_CASE( testInterpolatedGravityFieldVariationRates )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Cubic polynomial variation (reproduced exactly by 8-point Lagrange interpolation), and tidal variation
+    const double testTime = 1.0E7;
+    Eigen::MatrixXd amplitudeBlock( 1, 3 );
+    amplitudeBlock << 1.0E-6, -2.0E-6, 3.0E-6;
+    std::map< int, Eigen::MatrixXd > cosineAmplitudes, sineAmplitudes;
+    for( int power = 1; power <= 3; power++ )
+    {
+        cosineAmplitudes[ power ] = amplitudeBlock / std::pow( 1.0E5, power );
+        sineAmplitudes[ power ] = -amplitudeBlock / std::pow( 1.0E5, power );
+    }
+    const std::vector< std::shared_ptr< GravityFieldVariations > > variations = {
+        std::make_shared< PolynomialGravityFieldVariations >( cosineAmplitudes, sineAmplitudes, testTime, 2, 0 ),
+        getBasicGravityFieldVariation( true )
+    };
+    const std::vector< BodyDeformationTypes > variationTypes = { polynomial_variation, basic_solid_body };
+    const std::vector< double > tolerances = { 1.0E-10, 1.0E-7 };
+
+    for( unsigned int i = 0; i < variations.size( ); i++ )
+    {
+        // Interpolate variation with 8-point Lagrange interpolator over one day, with a 300 s step
+        GravityFieldVariationsSet interpolatedVariations( { variations.at( i ) },
+                                                          { variationTypes.at( i ) },
+                                                          { "" },
+                                                          { { 0, std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) } },
+                                                          { { 0, testTime - 43200.0 } },
+                                                          { { 0, testTime + 43200.0 } },
+                                                          { { 0, 300.0 } } );
+        interpolatedVariations.getVariationFunctions( );
+
+        // Compare rates of interpolated variation (between interpolation nodes) with analytical rates
+        const double evaluationTime = testTime + 1234.5;
+        Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( 3, 3 );
+        Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( 3, 3 );
+        interpolatedVariations.addSphericalHarmonicsCorrectionTimeDerivatives( evaluationTime, sineRates, cosineRates );
+        const std::pair< Eigen::MatrixXd, Eigen::MatrixXd > analyticalRates =
+                variations.at( i )->calculateSphericalHarmonicsCorrectionsTimeDerivative( evaluationTime );
+
+        BOOST_CHECK_SMALL( ( cosineRates.block( 2, 0, 1, 3 ) - analyticalRates.first ).norm( ),
+                           tolerances.at( i ) * analyticalRates.first.norm( ) );
+        BOOST_CHECK_SMALL( ( sineRates.block( 2, 0, 1, 3 ) - analyticalRates.second ).norm( ),
+                           tolerances.at( i ) * analyticalRates.second.norm( ) );
+    }
+}
+
+//! Test custom gravity field variations created from settings, and their user-defined time derivatives
+BOOST_AUTO_TEST_CASE( testCustomGravityFieldVariations )
+{
+    using namespace tudat::simulation_setup;
+
+    // Degree two variations (orders 0-2) varying sinusoidally in time, and their time derivatives
+    const double frequency = 1.0E-4;
+    Eigen::MatrixXd cosineAmplitudes( 1, 3 ), sineAmplitudes( 1, 3 );
+    cosineAmplitudes << 1.0E-6, -2.0E-6, 3.0E-6;
+    sineAmplitudes << 0.0, 4.0E-6, -5.0E-6;
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionFunction = [ = ]( const double time ) {
+        return std::make_pair( Eigen::MatrixXd( cosineAmplitudes * std::sin( frequency * time ) ),
+                               Eigen::MatrixXd( sineAmplitudes * std::sin( frequency * time ) ) );
+    };
+    std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > correctionTimeDerivativeFunction =
+            [ = ]( const double time ) {
+                return std::make_pair( Eigen::MatrixXd( cosineAmplitudes * frequency * std::cos( frequency * time ) ),
+                                       Eigen::MatrixXd( sineAmplitudes * frequency * std::cos( frequency * time ) ) );
+            };
+
+    // Create body with time-dependent gravity field with custom variations
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( "Body" );
+    Eigen::MatrixXd nominalCosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    nominalCosineCoefficients( 0, 0 ) = 1.0;
+    bodySettings.at( "Body" )->gravityFieldSettings =
+            sphericalHarmonicsGravitySettings( 1.0E6, 1.0E4, nominalCosineCoefficients, Eigen::MatrixXd::Zero( 3, 3 ), "Body_Fixed" );
+    bodySettings.at( "Body" )->gravityFieldVariationSettings.push_back(
+            customGravityFieldVariationsSettings( correctionFunction, 2, 0, 2, 2, correctionTimeDerivativeFunction ) );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
+            std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( bodies.at( "Body" )->getGravityFieldModel( ) );
+    std::shared_ptr< GravityFieldVariationsSet > variations = bodies.at( "Body" )->getGravityFieldVariationSet( );
+
+    // Check coefficients and coefficient rates against user-defined functions
+    const double testTime = 1.0E4;
+    gravityField->update( testTime );
+    Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( 3, 3 );
+    variations->addSphericalHarmonicsCorrectionTimeDerivatives( testTime, sineRates, cosineRates );
+
+    BOOST_CHECK_SMALL( ( gravityField->getCosineCoefficients( ).block( 2, 0, 1, 3 ) - correctionFunction( testTime ).first ).norm( ),
+                       1.0E-20 );
+    BOOST_CHECK_SMALL( ( gravityField->getSineCoefficients( ).block( 2, 0, 1, 3 ) - correctionFunction( testTime ).second ).norm( ),
+                       1.0E-20 );
+    BOOST_CHECK_SMALL( ( cosineRates.block( 2, 0, 1, 3 ) - correctionTimeDerivativeFunction( testTime ).first ).norm( ), 1.0E-25 );
+    BOOST_CHECK_SMALL( ( sineRates.block( 2, 0, 1, 3 ) - correctionTimeDerivativeFunction( testTime ).second ).norm( ), 1.0E-25 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

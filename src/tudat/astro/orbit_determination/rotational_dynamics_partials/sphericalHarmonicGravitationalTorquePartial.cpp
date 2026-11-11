@@ -129,8 +129,10 @@ void SphericalHarmonicGravitationalTorquePartial::update( const double currentTi
         currentBodyFixedPotentialGradientCrossProductMatrix_ = linear_algebra::getCrossProductMatrix( currentBodyFixedPotentialGradient_ );
         currentMass_ = torqueModel_->perturberMassFunction( )( );
 
-        currentQuaternionVector_ =
-                linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToBodyFixedFrame_.transpose( ) ) );
+        // Quaternion of the current (propagated) rotational state, not recomputed from the rotation matrix: the partials w.r.t. the
+        // quaternion entries change sign with the quaternion, while q and -q give the same rotation matrix
+        currentQuaternionVector_ = linear_algebra::convertQuaternionToVectorFormat(
+                torqueModel_->getSphericalHarmonicAcceleration( )->getCurrentRotationToIntegrationFrame( ) );
         linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion( currentQuaternionVector_,
                                                                                currentRotationMatrixDerivativesWrtQuaternion_ );
 
@@ -154,25 +156,21 @@ void SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAcceler
     Eigen::MatrixXd accelerationPartialsMatrix = Eigen::MatrixXd( 3, accelerationPartialFunction.second );
     accelerationPartialFunction.first( accelerationPartialsMatrix );
 
-    partialMatrix += currentParameterPartialPreMultiplier_ * accelerationPartialsMatrix;
-}
-
-void SphericalHarmonicGravitationalTorquePartial::addPerturberMassPartialWrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
-{
-    // Torque is linear in perturber mass M = mu/G, so its partial w.r.t. mu is T/(G M)
-    partialMatrix.block( 0, 0, 3, 1 ) +=
-            torqueModel_->getTorque( ) / ( physical_constants::GRAVITATIONAL_CONSTANT * torqueModel_->perturberMassFunction( )( ) );
+    partialMatrix = currentParameterPartialPreMultiplier_ * accelerationPartialsMatrix;
 }
 
 void SphericalHarmonicGravitationalTorquePartial::getPerturberGravitationalParameterPartial(
         Eigen::MatrixXd& partialMatrix,
         const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction )
 {
+    partialMatrix.setZero( );
     if( accelerationPartialFunction.second > 0 )
     {
         getParameterPartialFromAccelerationPartialFunction( partialMatrix, accelerationPartialFunction );
     }
-    addPerturberMassPartialWrtGravitationalParameter( partialMatrix );
+
+    // Torque is linear in perturber mass M = mu/G, so its partial w.r.t. mu is T/(G M)
+    partialMatrix.block( 0, 0, 3, 1 ) += torqueModel_->getTorque( ) / ( physical_constants::GRAVITATIONAL_CONSTANT * currentMass_ );
 }
 
 }  // namespace acceleration_partials

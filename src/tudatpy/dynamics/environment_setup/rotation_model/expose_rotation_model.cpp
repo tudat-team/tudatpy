@@ -448,7 +448,7 @@ void expose_rotation_model_setup( py::module& m )
 
  Function for creating high-accuracy Earth rotation model settings.
 
- Function for settings object, defining high-accuracy Earth rotation model according to the IERS Conventions 2010.  The model
+ Function for settings object, defining high-accuracy Earth rotation model according to the IERS Conventions 2010 :cite:p:`Petit2010`.  The model
  computes the rotation from ITRS to GCRS (with rotation matrix :math:`\mathbf{R}^{(\text{GCRS}/\text{ITRS})}`) and its inverse from:
 
  .. math::
@@ -457,29 +457,66 @@ void expose_rotation_model_setup( py::module& m )
  using the intermediate frames TIRS (Terrestrial Intermediate Reference System) and CIRS (Celestial Intermediate Reference System) where (with equations referring to the IERS 2010 Conventions) :math:`\mathbf{R}^{(\text{GCRS}/\text{CIRS})}` implements Eq. (5.10), :math:`\mathbf{R}^{(\text{CIRS}/\text{TIRS})}` implements Eq. (5.5), and
  :math:`\mathbf{R}^{(\text{TIRS}/\text{ITRS})}` implements Eq. (5.3). The inputs to these rotation matrices are :
 
- * :math:`X`, :math:`Y`: Celestial pole position elements
- * :math:`s`: The CIO (Celestial Intermediate Origin)
- * :math:`\theta_{E}`: Earth rotation angle (denoted as :math:`ERA` in IERS Conventions)
+ * :math:`X`, :math:`Y`: Celestial pole position elements. Their nominal values :math:`X_{\text{IAU}}`, :math:`Y_{\text{IAU}}` are computed with the SOFA function ``iauXys00a``, ``iauXys00b`` or ``iauXys06a`` when selecting :class:`~tudatpy.dynamics.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006`` as ``precession_nutation_theory`` input, respectively
+ * :math:`s`: The CIO (Celestial Intermediate Origin), computed by the same SOFA function as :math:`X_{\text{IAU}}`, :math:`Y_{\text{IAU}}`
+ * :math:`\theta_{E}`: Earth rotation angle (denoted as :math:`ERA` in IERS Conventions), computed from Eq. (5.15) (implemented in SOFA's ``iauEra00`` function):
+
+   .. math::
+      \theta_{E} = 2\pi\left(0.7790572732640 + 1.00273781191135448\,T_{u}\right), \qquad T_{u} = JD_{\text{UT1}} - 2451545.0
+
+   with :math:`JD_{\text{UT1}}` the Julian date in UT1, and :math:`UT1 = UTC + \left(UT1 - UTC\right)` (see below for :math:`UT1 - UTC`)
+
  * :math:`x_{p}`, :math:`y_{p}`: Polar motion components
- * :math:`s'`: The TIO (Terrestrial Intermediate Origin)
+ * :math:`s'`: The TIO (Terrestrial Intermediate Origin), computed from Eq. (5.13) (implemented in SOFA's ``iauSp00`` function)
 
- Depending on the selected ``precession_nutation_theory`` input, the SOFA function ``iauXys00a``, ``iauXys00b`` or ``iauXys06a`` is used to compute :math:`X,Y,s`, when selecting
- :class:`~tudatpy.dynamics.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. For epoch 01-01-1962 and later, corrections to the nominal values of :math:`X,Y`
- are applied using linear interpolation of daily corrections for :math:`X,Y` from the eopc04_14_IAU2000.62-now.txt file. The quantity :math:`s'` is computed from Eq. (5.13) (implemented in SOFA's ``iauSp00`` function).
+ From 01-01-1962 to the end of the IERS EOP C04 file (the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory), the daily values of the polar motion :math:`\left(x_{p}, y_{p}\right)_{\text{C04}}`, of :math:`\left(UT1 - UTC\right)_{\text{C04}}` and of the corrections :math:`\left(\Delta X, \Delta Y\right)_{\text{C04}}` from this file are linearly interpolated (for :math:`\left(UT1 - UTC\right)_{\text{C04}}`, correcting for discontinuities during days with leap seconds). After the end of the C04 file, they are held fixed at the last values in the file.
 
- The value of :math:`\theta_{E}` is computed directly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_representation.default_time_scale_converter`, the computation of
- :math:`\theta_{E}` from this quantity follows from Eq. (5.15), implemented by SOFA's ``iauEra00`` function.
+ In addition, the following short-period corrections from :cite:t:`Petit2010` are added:
 
- The polar motion components :math:`x_{p}`, :math:`y_{p}` are computed from:
+ * :math:`\left(\Delta x_{p}, \Delta y_{p}\right)_{\text{IERS}}`: corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1a (with :math:`n=2`), and corrections for diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b
+ * :math:`\Delta\left(UT1 - UTC\right)_{\text{IERS}}`: corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1b, and corrections for diurnal and semidiurnal variations due to ocean tides as per Tables 8.2a and 8.2b
 
- * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1a (with :math:`n=2`) of IERS Conventions 2010
- * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
- * Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory (for epoch 01-01-1962 and later, zero otherwise)
+ For epochs :math:`t \geq` 01-01-1962, this gives:
+
+ .. math::
+    \left(x_{p}, y_{p}\right)_{t \geq 1962} = \left(x_{p}, y_{p}\right)_{\text{C04}} + \left(\Delta x_{p}, \Delta y_{p}\right)_{\text{IERS}}
+
+ .. math::
+    \left(X, Y\right)_{t \geq 1962} = \left(X, Y\right)_{\text{IAU}} + \left(\Delta X, \Delta Y\right)_{\text{C04}}
+
+ .. math::
+    \left(UT1 - UTC\right)_{t \geq 1962} = \left(UT1 - UTC\right)_{\text{C04}} + \Delta\left(UT1 - UTC\right)_{\text{IERS}}
+
+ Before 01-01-1962, where the C04 file has no data, the following is used instead:
+
+ * For :math:`x_{p}`, :math:`y_{p}`: the values :math:`\left(x_{p}, y_{p}\right)_{\text{C01}}` of the IERS EOP C01 series (the eopc01_polar_motion_1846-1961.txt file in the tudat-resources directory, sampled at 0.05 to 0.1 year) are linearly interpolated between 1846 and 1962. Before 1846, they are held fixed at the first values in the file
+ * For UT1: we compute :math:`UT1 = TT - \Delta T`, with :math:`\Delta T = TT - UT1` from cubic spline interpolation of the historicalDeltaT.txt file in the tudat-resources directory, as a function of :math:`y = 2000 + (TT - J2000)/(365.25 \text{ days})`. We set the approximation UTC=UT1, and the short-period corrections :math:`\Delta\left(UT1 - UTC\right)_{\text{IERS}}` are not applied
+ * For the corrections to :math:`X`, :math:`Y`: the values are held fixed at the first values in the C04 file
+
+ The tabulated values of :math:`\Delta T` in the historicalDeltaT.txt file are (years in astronomical year numbering):
+
+ * At 01-01-1962: taken from the C04 file, so that UT1 is continuous
+ * Between 1956 and 1962: from the IERS EOP C01 series (:math:`32.184\text{ s} - (UT1-TAI)`, every 0.05 year)
+ * Between 1948 and 1956: from the Astronomical Almanac (yearly)
+ * Between -720 and 1948: from the spline of :cite:t:`Stephenson2016`, as updated by :cite:t:`Morrison2021` (yearly)
+ * Between -13200 and -800: from the long-term parabola :math:`-320 + 32.5\,((y - 1825)/100)^2` s of :cite:t:`Stephenson2016` (every 100 years), offset by -358.5 s to be continuous with the spline at -720
+ * Before -13200: the cubic spline is extrapolated, with a warning
+
+ The file header and the script that generated it document the sources.
+
+ For epochs :math:`t <` 01-01-1962, this gives:
+
+ .. math::
+    \left(x_{p}, y_{p}\right)_{t < 1962} = \left(x_{p}, y_{p}\right)_{\text{C01}} + \left(\Delta x_{p}, \Delta y_{p}\right)_{\text{IERS}}
+
+ .. math::
+    \left(X, Y\right)_{t < 1962} = \left(X, Y\right)_{\text{IAU}} + \left(\Delta X, \Delta Y\right)_{\text{C04}}\big|_{t = 1962}
+
+ .. math::
+    UT1_{t < 1962} = TT - \Delta T, \qquad \left(UT1 - UTC\right)_{t < 1962} = 0
 
  Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
  The target frame (e.g. body-fixed frame) name is ITRS.
-
- Alternative options to modify the input (not exposed here) include the EOP correction file, input time scale, short period UT1 and polar motion variations.
 
  Parameters
  ----------
@@ -690,6 +727,37 @@ void expose_rotation_model_setup( py::module& m )
 
 
      )doc" );
+
+    m.def( "tabulated_rotation",
+           &tss::tabulatedRotationModelSettings,
+           py::arg( "rotational_state_history" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "interpolator_settings" ) = nullptr,
+           R"doc(
+
+ Function for creating settings for a rotation model interpolated from a rotational state history.
+
+ The rotational state at each epoch consists of the quaternion entries (see :func:`~tudatpy.astro.element_conversion.rotation_matrix_to_quaternion_entries` for conversion from rotation matrix) of the rotation from the body-fixed (target)
+ frame to the base frame, followed by the angular velocity of the body [rad/s] in the body-fixed frame, as for a propagated rotational state.
+
+ Parameters
+ ----------
+ rotational_state_history : dict[float, numpy.ndarray[numpy.float64[7, 1]]]
+     Rotational states (quaternion entries and body-fixed angular velocity), per epoch [s since J2000].
+ base_frame : str
+     Name of the base frame of the rotation model.
+ target_frame : str
+     Name of the body-fixed (target) frame of the rotation model.
+ interpolator_settings : InterpolatorSettings, default = None
+     Settings of the interpolator of the rotational states (None: Lagrange interpolation of order 8).
+
+ Returns
+ -------
+ RotationModelSettings
+     Settings for the tabulated rotation model.
+
+      )doc" );
 
     m.def( "constant_rotation_model",
            py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d& >( &tss::constantRotationModelSettings ),
@@ -1009,7 +1077,7 @@ void expose_rotation_model_setup( py::module& m )
         1.0: (11.7 * milliarcsec_to_rad * np.sin(np.radians(118.7)),
               11.7 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
         2.0: (3.9 * milliarcsec_to_rad * np.sin(np.radians(172.5)),
-              3.9 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
+              3.9 * milliarcsec_to_rad * np.cos(np.radians(172.5))),
         3.0: (0.0, 0.0),
         4.0: (0.0, 0.0),
         3.34: (0.0, 50.0 * milliarcsec_to_rad)

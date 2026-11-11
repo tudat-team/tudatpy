@@ -12,9 +12,11 @@
 #endif
 #include "expose_ephemeris.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createSp3Ephemeris.h"
 
+#include <tudat/astro/ephemerides/tleEphemeris.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup/createEphemeris.h>
+#include <tudat/io/readSp3File.h>
 
 #include "scalarTypes.h"
 
@@ -49,6 +51,390 @@ namespace environment_setup
 namespace ephemeris
 {
 
+void expose_ephemeris_types( py::module& m )
+{
+    py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle", R"doc(
+
+ Tle object containing the SGP/SDP model parameters as derived from the element set.
+
+ .. note::
+
+        This class is typically used together with the :func:`~tudatpy.dynamics.environment_setup.ephemeris.sgp4` function (or the :class:`~tudatpy.dynamics.environment.TleEphemeris` class), which use the TLE data to compute the state of a satellite at a given epoch.
+
+ )doc" )
+            .def( py::init<  // ctor 1
+                          const std::string& >( ),
+                  py::arg( "lines" ),
+                  R"doc(
+
+                Initialize TLE object from a single string containing the TLE data, delimited by a newline character.
+
+                :type: str
+                )doc" )
+            .def( py::init<  // ctor 2
+                          const std::string&,
+                          const std::string& >( ),
+                  py::arg( "line_1" ),
+                  py::arg( "line_2" ),
+                  R"doc(
+
+                Initialize TLE object from separate strings for the first and second lines of the TLE.
+
+                :type: str
+                )doc" )
+            .def( py::init<  // ctor 3
+                          const double,
+                          const double,
+                          const double,
+                          const double,
+                          const double,
+                          const double,
+                          const double,
+                          const double >( ),
+                  py::arg( "reference_epoch" ),
+                  py::arg( "b_star" ),
+                  py::arg( "inclination" ),
+                  py::arg( "right_ascension" ),
+                  py::arg( "eccentricity" ),
+                  py::arg( "argument_of_perigee" ),
+                  py::arg( "mean_anomaly" ),
+                  py::arg( "mean_motion" ),
+                  R"doc(
+
+                Initialize TLE object directly from SGP4 mean elements, for instance as provided by an Orbit Mean-Elements Message (OMM), for which no two-line representation is available.
+
+                Parameters
+                ----------
+                reference_epoch : float
+                    Reference epoch of the element set, in TDB seconds since J2000.
+                b_star : float
+                    B* drag coefficient, in inverse Earth radii.
+                inclination : float
+                    Inclination, in radians.
+                right_ascension : float
+                    Right ascension of the ascending node, in radians.
+                eccentricity : float
+                    Eccentricity.
+                argument_of_perigee : float
+                    Argument of perigee, in radians.
+                mean_anomaly : float
+                    Mean anomaly at the reference epoch, in radians.
+                mean_motion : float
+                    Mean motion, in radians per minute.
+                )doc" )
+            .def_property_readonly( "reference_epoch",
+                                    &te::Tle::getEpoch,
+                                    R"doc(
+
+                **read-only**
+
+                Reference epoch of the TLE element set in TDB seconds since J2000.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "b_star",
+                                    &te::Tle::getBStar,
+                                    R"doc(
+
+                **read-only**
+
+                B*  coefficient used by the SGP4 propagator, as provided by the TLE.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "inclination",
+                                    &te::Tle::getInclination,
+                                    R"doc(
+
+                **read-only**
+
+                Orbital inclination as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "right_ascension",
+                                    &te::Tle::getRightAscension,
+                                    R"doc(
+
+                **read-only**
+
+                Right ascension of the ascending node of the orbit as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "eccentricity",
+                                    &te::Tle::getEccentricity,
+                                    R"doc(
+
+                **read-only**
+
+                Orbital eccentricity as provided by the TLE.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "argument_of_perigee",
+                                    &te::Tle::getArgOfPerigee,
+                                    R"doc(
+
+                **read-only**
+
+                Argument of perigee of the orbit as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "mean_anomaly",
+                                    &te::Tle::getMeanAnomaly,
+                                    R"doc(
+
+                **read-only**
+
+                Mean anomaly of the orbit at the TLE epoch as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "mean_motion",
+                                    &te::Tle::getMeanMotion,
+                                    R"doc(
+
+                **read-only**
+
+                Mean motion of the orbit in radians per minute, in radians per minute.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "norad_catalog_number",
+                                    &te::Tle::getNoradCatalogNumber,
+                                    R"doc(
+
+                **read-only**
+
+                NORAD catalog number identifying the space object.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "classification",
+                                    &te::Tle::getClassification,
+                                    R"doc(
+
+                **read-only**
+
+                Security classification of the TLE (e.g. ``'U'`` for unclassified).
+
+                :type: str
+                )doc" )
+
+            .def_property_readonly( "international_designator_launch_year",
+                                    &te::Tle::getInternationalDesignatorLaunchYear,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch year of the space object, as provided by the TLE.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "international_designator_launch_number",
+                                    &te::Tle::getInternationalDesignatorLaunchNumber,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch number of the space object, as provided by the TLE.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "international_designator_piece",
+                                    &te::Tle::getInternationalDesignatorPiece,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch piece of the space object, as provided by the TLE.
+
+                :type: str
+                )doc" )
+
+            .def_property_readonly( "element_set_number",
+                                    &te::Tle::getElementSetNumber,
+                                    R"doc(
+
+                **read-only**
+
+                Element set number of the TLE, indicating successive updates.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "revolution_number_at_epoch",
+                                    &te::Tle::getRevolutionNumberAtEpoch,
+                                    R"doc(
+
+                **read-only**
+
+                Revolution number of the orbit at the TLE epoch.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "mean_motion_first_derivative",
+                                    &te::Tle::getMeanMotionFirstDerivative,
+                                    R"doc(
+
+                **read-only**
+
+                First time derivative of the mean motion as given in the TLE, in radians per minute^2.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "mean_motion_second_derivative",
+                                    &te::Tle::getMeanMotionSecondDerivative,
+                                    R"doc(
+
+                **read-only**
+
+                Second time derivative of the mean motion as given in the TLE, in radians per minute^3.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "ephemeris_type",
+                                    &te::Tle::getEphemerisType,
+                                    R"doc(
+
+                **read-only**
+
+                Ephemeris type indicator used by the TLE (typically zero for SGP4).
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "raw_line_1",
+                                    &te::Tle::getRawLine1,
+                                    R"doc(
+
+                **read-only**
+
+                Raw first line of the two-line element set.
+
+                :type: str
+                )doc" )
+
+            .def_property_readonly( "raw_line_2",
+                                    &te::Tle::getRawLine2,
+                                    R"doc(
+
+                **read-only**
+
+                Raw second line of the two-line element set.
+
+                :type: str
+                )doc" )
+
+            .def( "epoch", &te::Tle::getEpoch, R"doc(
+
+         Retrieve the epoch of the two-line element set.
+
+         Returns
+         -------
+         float
+             Epoch in seconds since J2000 (TDB).
+
+      )doc" )
+            .def( "get_b_star", &te::Tle::getBStar, R"doc(
+
+         Retrieve the B-star drag term of the two-line element set.
+
+         Returns
+         -------
+         float
+             B-star drag term used by SGP4, in inverse Earth radii.
+
+      )doc" )
+            .def( "get_epoch", &te::Tle::getEpoch, R"doc(
+
+         Retrieve the epoch of the two-line element set.
+
+         Returns
+         -------
+         float
+             Epoch in seconds since J2000 (TDB).
+
+      )doc" )
+            .def( "get_inclination", &te::Tle::getInclination, R"doc(
+
+         Retrieve the orbital inclination of the two-line element set.
+
+         Returns
+         -------
+         float
+             Inclination, in rad.
+
+      )doc" )
+            .def( "get_right_ascension", &te::Tle::getRightAscension, R"doc(
+
+         Retrieve the right ascension of the ascending node of the two-line element set.
+
+         Returns
+         -------
+         float
+             Right ascension of the ascending node, in rad.
+
+      )doc" )
+            .def( "get_eccentricity", &te::Tle::getEccentricity, R"doc(
+
+         Retrieve the eccentricity of the two-line element set.
+
+         Returns
+         -------
+         float
+             Orbital eccentricity.
+
+      )doc" )
+            .def( "get_arg_of_perigee", &te::Tle::getArgOfPerigee, R"doc(
+
+         Retrieve the argument of perigee of the two-line element set.
+
+         Returns
+         -------
+         float
+             Argument of perigee, in rad.
+
+      )doc" )
+            .def( "get_mean_anomaly", &te::Tle::getMeanAnomaly, R"doc(
+
+         Retrieve the mean anomaly at the epoch of the two-line element set.
+
+         Returns
+         -------
+         float
+             Mean anomaly, in rad.
+
+      )doc" )
+            .def( "get_mean_motion", &te::Tle::getMeanMotion, R"doc(
+
+         Retrieve the mean motion of the two-line element set.
+
+         Returns
+         -------
+         float
+             Mean motion, in rad/min, as used by SGP4.
+
+      )doc" );
+}
+
+//! Expose ephemeris settings factories, including environment-level SP3 ephemeris creation.
 void expose_ephemeris_setup( py::module& m )
 {
     py::module_::import( "tudatpy.kernel.dynamics.environment" ).attr( "Ephemeris" );
@@ -877,6 +1263,94 @@ void expose_ephemeris_setup( py::module& m )
 
      )doc" );
 
+    m.def( "sp3_from_file_name",
+           py::overload_cast< const std::string&, const std::string&, const std::string&, const std::string&, const double >(
+                   &tss::sp3EphemerisSettings ),
+           py::arg( "file_name" ),
+           py::arg( "satellite_id" ),
+           py::arg( "frame_origin" ) = "Earth",
+           py::arg( "frame_orientation" ) = "",
+           py::arg( "reference_julian_day" ) = tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000,
+           R"doc(
+Create tabulated ephemeris settings from an SP3 precise-orbit file.
+
+The file is loaded and processed by
+:func:`~tudatpy.data_input.environment_data.sp3.read_sp3_file`, which
+reconstructs the velocities of position-only files using second-order finite
+differences. When ``frame_orientation`` is empty, the reference-frame
+name declared in the SP3 header is used. Otherwise, supported ITRF realization
+or terrestrial/inertial transformations are applied to the states. Epochs
+remain expressed in the time system declared by the file.
+
+Parameters
+----------
+file_name : str
+    Path to the SP3 file.
+satellite_id : str
+    ID of the satellite, as written in the file without surrounding whitespace (for instance ``G01``). An error is raised
+    if the satellite is not in the file, or if one of its states contains a missing value.
+frame_origin : str, default="Earth"
+    Origin of the frame in which the ephemeris is defined. The states are not translated to this origin.
+frame_orientation : str, default=""
+    Orientation of the frame in which the ephemeris is defined. If empty, the frame tag declared in the file is used.
+    Otherwise, the states are transformed to this frame, which can be: ``GCRS`` (or ``GCRF``), ``J2000`` (or ``EME00``,
+    ``EME2K``, ``EME2000``), ``ECLIPJ2000``, ``ITRS`` (or ``ECEF``), an ITRF realization from ``ITRF88`` to ``ITRF2020``,
+    or an analysis product tag ending in the two-digit year of its ITRF realization (for instance ``IGS14``). An error is
+    raised for any other frame, or for a transformation between ``ITRS`` and a specific ITRF realization.
+reference_julian_day : float, default=2451545.0
+    Julian day relative to which the epochs of the ephemeris are expressed. The default value is J2000.
+
+Returns
+-------
+TabulatedEphemerisSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived
+    :class:`~tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings` class.
+)doc" );
+
+    m.def( "sp3_from_file_contents",
+           py::overload_cast< const std::shared_ptr< tudat::input_output::Sp3FileContents >&,
+                              const std::string&,
+                              const std::string&,
+                              const std::string& >( &tss::sp3EphemerisSettings ),
+           py::arg( "file_contents" ),
+           py::arg( "satellite_id" ),
+           py::arg( "frame_origin" ) = "Earth",
+           py::arg( "frame_orientation" ) = "",
+           R"doc(
+Create tabulated ephemeris settings from parsed SP3 contents.
+
+The ``file_contents`` must have been loaded with
+:func:`~tudatpy.data_input.environment_data.sp3.read_sp3_file`. For
+position-only files, they contain the velocities that this function
+reconstructed using second-order finite differences. When ``frame_orientation``
+is empty, the reference-frame name declared in the SP3 header is used.
+Otherwise, supported ITRF realization or terrestrial/inertial transformations
+are applied to the states. Epochs remain expressed in the time system declared
+by the file.
+
+Parameters
+----------
+file_contents : :class:`~tudatpy.data_input.environment_data.sp3.Sp3FileContents`
+    Contents of the SP3 file.
+satellite_id : str
+    ID of the satellite, as written in the file without surrounding whitespace (for instance ``G01``). An error is raised
+    if the satellite is not in the file, or if one of its states contains a missing value.
+frame_origin : str, default="Earth"
+    Origin of the frame in which the ephemeris is defined. The states are not translated to this origin.
+frame_orientation : str, default=""
+    Orientation of the frame in which the ephemeris is defined. If empty, the frame tag declared in the file is used.
+    Otherwise, the states are transformed to this frame, which can be: ``GCRS`` (or ``GCRF``), ``J2000`` (or ``EME00``,
+    ``EME2K``, ``EME2000``), ``ECLIPJ2000``, ``ITRS`` (or ``ECEF``), an ITRF realization from ``ITRF88`` to ``ITRF2020``,
+    or an analysis product tag ending in the two-digit year of its ITRF realization (for instance ``IGS14``). An error is
+    raised for any other frame, or for a transformation between ``ITRS`` and a specific ITRF realization.
+
+Returns
+-------
+TabulatedEphemerisSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived
+    :class:`~tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings` class.
+)doc" );
+
     m.def( "tabulated_from_existing",
            py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
                               const double,
@@ -984,6 +1458,34 @@ void expose_ephemeris_setup( py::module& m )
          '1 32789U 07021G   08119.60740078 -.00000054  00000-0  00000+0 0  9999',
          '2 32789 098.0082 179.6267 0015321 307.2977 051.0656 14.81417433    68' )
   )
+
+     )doc" );
+
+    m.def( "sgp4",
+           &tss::directTleEphemerisSettings,
+           py::arg( "tle" ),
+           py::arg( "frame_origin" ) = "Earth",
+           py::arg( "frame_orientation" ) = "J2000",
+           R"doc(
+
+ Function for creating ephemeris model settings for an SGP4-propagated TLE object.
+
+ As the version of this function that takes the two lines of the TLE as input, but taking a :class:`~tudatpy.dynamics.environment_setup.ephemeris.Tle` object instead.
+ This allows SGP4 ephemerides to be created for element sets without a two-line representation (for instance from an Orbit Mean-Elements Message),
+ using the element-based constructor of :class:`~tudatpy.dynamics.environment_setup.ephemeris.Tle`.
+
+ Parameters
+ ----------
+ tle : Tle
+     TLE object containing the SGP4 mean elements
+ frame_origin : str, default="Earth"
+     Origin of frame in which ephemeris data is defined. At present, only "Earth" is supported.
+ frame_orientation : str, default="J2000"
+     Orientation of frame in which ephemeris data is defined.
+ Returns
+ -------
+ DirectTleEphemerisSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.DirectTleEphemerisSettings` class
 
      )doc" );
 

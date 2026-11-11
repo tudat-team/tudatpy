@@ -146,6 +146,13 @@ Variation model due to ocean tides
 Variation model due to pole tides
 
       )doc" )
+            .value( "custom_variation",
+                    tg::custom_variation,
+                    R"doc(
+
+Variation model with gravity field coefficient variations provided directly as a function of time
+
+      )doc" )
             .export_values( );
 }
 
@@ -707,6 +714,53 @@ minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
     Minimum order :math:`m_{\text{min}}` of gravity field variations
+
+Returns
+-------
+GravityFieldVariationSettings
+    Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
+
+)doc" );
+
+    m.def( "custom_gravity_field_variation",
+           &tss::customGravityFieldVariationsSettings,
+           py::arg( "correction_function" ),
+           py::arg( "minimum_degree" ),
+           py::arg( "minimum_order" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg_v( "correction_time_derivative_function",
+                      std::function< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) >( ),
+                      "None" ),
+           R"doc(
+
+Function for creating gravity field variations provided directly as a function of time.
+
+Function for creating gravity field variations for which the user provides the (fully normalized) coefficient variations
+:math:`\Delta\bar{C}_{lm}(t)` and :math:`\Delta\bar{S}_{lm}(t)` as a function of time, for degrees :math:`l_{\text{min}}` to
+:math:`l_{\text{max}}` and orders :math:`m_{\text{min}}` to :math:`m_{\text{max}}`. Optionally, the user can also provide the
+time derivatives of these variations, which are used when the time derivative of the gravity field is needed (for instance for
+the time derivative of an inertia tensor derived from the gravity field). If these are not provided, and the time derivatives are
+needed, an exception is thrown.
+
+Parameters
+----------
+correction_function : Callable[[float], tuple[numpy.ndarray, numpy.ndarray]]
+    Function returning the cosine and sine coefficient variations (as a tuple, in that order) as a function of time, each as a 2-D
+    array of shape :math:`(l_{\text{max}}-l_{\text{min}}+1, m_{\text{max}}-m_{\text{min}}+1)` (for instance ``np.array([[a, b, c]])``
+    for degree 2 and orders 0 to 2; a 1-D array is interpreted as a single column). The first entry in each array is the variation at degree
+    ``minimum_degree`` and order ``minimum_order``.
+minimum_degree : int
+    Minimum degree :math:`l_{\text{min}}` of gravity field variations
+minimum_order : int
+    Minimum order :math:`m_{\text{min}}` of gravity field variations
+maximum_degree : int
+    Maximum degree :math:`l_{\text{max}}` of gravity field variations
+maximum_order : int
+    Maximum order :math:`m_{\text{max}}` of gravity field variations
+correction_time_derivative_function : Callable[[float], tuple[numpy.ndarray, numpy.ndarray]], default = None
+    Function returning the time derivatives of the cosine and sine coefficient variations, with the same format as
+    ``correction_function``.
 
 Returns
 -------

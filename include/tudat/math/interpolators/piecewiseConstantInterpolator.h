@@ -158,6 +158,21 @@ public:
         return dependentValues_.at( lowerEntry );
     }
 
+    //! Function to compute the derivative of the interpolated value w.r.t. the independent variable.
+    /*!
+     *  Function to compute the derivative of the interpolated value w.r.t. the independent variable, which is zero (or NaN
+     *  outside the domain for use_nan_value(_with_warning)).
+     *  \param targetIndependentVariableValue Value of independent variable at which the derivative is to be determined.
+     *  \return Derivative of the interpolated value w.r.t. the independent variable.
+     */
+    DependentVariableType interpolateDerivative( const IndependentVariableType targetIndependentVariableValue )
+    {
+        DependentVariableType derivative;
+        bool useValue = false;
+        this->checkDerivativeBoundaryCase( derivative, useValue, targetIndependentVariableValue );
+        return derivative;
+    }
+
     //! Function to reset the values of dependent variables used by interpolator
     /*!
      *  Function to reset the values of dependent variables used by interpolator

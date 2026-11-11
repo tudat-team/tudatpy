@@ -31,7 +31,8 @@ enum BodyDeformationTypes {
     polynomial_variation,
     iers_2010,
     pole_tide,
-    ocean_tide
+    ocean_tide,
+    custom_variation
 };
 
 //! Interface class between GravityFieldVariations objects that are interpolated and
@@ -49,7 +50,7 @@ public:
     //! Class constructor
     /*!
      *  Constructor, receives an interpolator (typically created from a GravityFieldVariations
-     *  object by the createInterpolatedSphericalHarmonicCorrectionFunctions function), which is
+     *  object by the createSphericalHarmonicCorrectionInterpolationInterface function), which is
      *  used to approximate the spherical harmonic coefficient corrections at any given time
      * (inside the interpolation window). All correction coefficients are calculated as rectangular
      *  blocks in both the cosine and sine matrices (of equal size)
@@ -81,6 +82,15 @@ public:
      *  corrections are added and returned by reference
      */
     void getCosineSinePair( const double time, Eigen::MatrixXd& sineCoefficients, Eigen::MatrixXd& cosineCoefficients );
+
+    //! Function to compute time derivatives of (cosine, sine) correction blocks at given time.
+    /*!
+     *  Function to compute time derivatives of (cosine, sine) correction blocks at given time, as the derivative of the
+     *  interpolated corrections.
+     *  \param time Time at which time derivatives of corrections are to be evaluated.
+     *  \return Pair of time derivatives of (cosine, sine) correction blocks
+     */
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > getCosineSinePairTimeDerivative( const double time );
 
 private:
     //! Interpolator object for approximating coefficient corrections.
@@ -123,7 +133,7 @@ private:
  *  (i.e. time-dependencies of sine and cosine coefficients). The interface of derived classes
  *  with TimeDependentSphericalHarmonicsGravityField, which combines all corrections and adds them
  *  to nominal values, can be performed either directly, or through an interpolator
- *  (see PairInterpolationInterface and createInterpolatedSphericalHarmonicCorrectionFunctions)
+ *  (see PairInterpolationInterface and createSphericalHarmonicCorrectionInterpolationInterface)
  *  to save on computation time when evaluating slowly changing functions at very short intervals.
  *  All correction coefficients are calculated as rectangular blocks in both the cosine and sine
  *  matrices (of equal size).
@@ -315,23 +325,21 @@ private:
     bool missingDerivativeWarningIssued_ = false;
 };
 
-//! Function to create a function linearly interpolating the sine and cosine correction coefficients
-//! produced by an object of GravityFieldVariations type.
+//! Function to create an interface interpolating the sine and cosine correction coefficients produced by an object of
+//! GravityFieldVariations type.
 /*!
- *  Function to create a function linearly interpolating the sine and cosine correction coefficients
- *  produced by an object of GravityFieldVariations type.
- *  The function creates a function pointer to the getCosineSinePair function of
- *  PairInterpolationInterface. The object of type PairInterpolationInterface is created by
+ *  Function to create an interface interpolating the sine and cosine correction coefficients produced by an object of
+ *  GravityFieldVariations type. The object of type PairInterpolationInterface is created by
  *  generating an interpolator for sine/cosine coefficients from the variationObject object and
  *  the initial/final time and time step that are passed.
  *  \param variationObject Object generating cosine and sine coefficient corrections.
  *  \param initialTime Start time of interpolator.
  *  \param finalTime End time of interpolator.
  *  \param timeStep Time step between subsequent evaluations of coefficient corrections
- *  \return Function pointer to function mimicing the addSphericalHarmonicsCorrections
- *  function of GravityFieldVariations.
+ *  \return Interface interpolating the corrections, of which the getCosineSinePair function mimics the
+ *  addSphericalHarmonicsCorrections function of GravityFieldVariations.
  */
-std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > createInterpolatedSphericalHarmonicCorrectionFunctions(
+std::shared_ptr< PairInterpolationInterface > createSphericalHarmonicCorrectionInterpolationInterface(
         std::shared_ptr< GravityFieldVariations > variationObject,
         const double initialTime,
         const double finalTime,
@@ -410,7 +418,8 @@ public:
     //! Add all model coefficient rates to the supplied matrices.
     /*!
      * The matrices may contain only the low-degree coefficients needed by a caller. Each
-     * variation is evaluated and the overlapping part of its rate block is added.
+     * variation is evaluated and the overlapping part of its rate block is added. For variations that are interpolated (once
+     * getVariationFunctions is called), the rates are the derivatives of the interpolated corrections.
      */
     void addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
                                                          Eigen::MatrixXd& sineCoefficientDerivatives,
@@ -514,6 +523,9 @@ private:
      *  (map key denotes index of variationObjects) for which createInterpolator is true.
      */
     std::map< int, double > timeSteps_;
+
+    //! Interfaces to interpolated corrections (map key denotes index of variationObjects), set by getVariationFunctions
+    std::map< int, std::shared_ptr< PairInterpolationInterface > > correctionInterpolationInterfaces_;
 };
 
 }  // namespace gravitation

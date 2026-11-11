@@ -62,25 +62,25 @@ public:
 
     void resetCosineShAmplitudesCosineTime( const std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime )
     {
-        checkAmplitudes( cosineShAmplitudesCosineTime );
+        checkAmplitudes( cosineShAmplitudesCosineTime, "C_lm * cos time" );
         cosineShAmplitudesCosineTime_ = cosineShAmplitudesCosineTime;
     }
 
     void resetCosineShAmplitudesSineTime( const std::vector< Eigen::MatrixXd >& cosineShAmplitudesSineTime )
     {
-        checkAmplitudes( cosineShAmplitudesSineTime );
+        checkAmplitudes( cosineShAmplitudesSineTime, "C_lm * sin time" );
         cosineShAmplitudesSineTime_ = cosineShAmplitudesSineTime;
     }
 
     void resetSineShAmplitudesCosineTime( const std::vector< Eigen::MatrixXd >& sineShAmplitudesCosineTime )
     {
-        checkAmplitudes( sineShAmplitudesCosineTime );
+        checkAmplitudes( sineShAmplitudesCosineTime, "S_lm * cos time" );
         sineShAmplitudesCosineTime_ = sineShAmplitudesCosineTime;
     }
 
     void resetSineShAmplitudesSineTime( const std::vector< Eigen::MatrixXd >& sineShAmplitudesSineTime )
     {
-        checkAmplitudes( sineShAmplitudesSineTime );
+        checkAmplitudes( sineShAmplitudesSineTime, "S_lm * sin time" );
         sineShAmplitudesSineTime_ = sineShAmplitudesSineTime;
     }
 
@@ -96,7 +96,7 @@ public:
 
 protected:
     //! Validate amplitude counts and block dimensions only when constructing or resetting the model.
-    void checkAmplitudes( const std::vector< Eigen::MatrixXd >& amplitudes ) const;
+    void checkAmplitudes( const std::vector< Eigen::MatrixXd >& amplitudes, const std::string& amplitudeType ) const;
 
     std::vector< Eigen::MatrixXd > cosineShAmplitudesCosineTime_;
 

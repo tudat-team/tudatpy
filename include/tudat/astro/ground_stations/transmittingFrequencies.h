@@ -201,7 +201,7 @@ public:
     {
         TimeType lookupTime = lookupTimeOriginal;
         int lowerNearestNeighbour = -1;
-        if( lookupTimeOriginal < startTimes_.at( 0 ) )
+        if( startTimes_.size( ) == 1 || lookupTimeOriginal < startTimes_.at( 0 ) )
         {
             lowerNearestNeighbour = 0;
         }
@@ -219,19 +219,19 @@ public:
             }
         }
 
-        if( invalidStartTimeLookupScheme_ != nullptr )
+        if( !invalidTimeBlocksStartTimes_.empty( ) )
         {
-            for( unsigned int i = 0; i < invalidTimeBlocksStartTimes_.size( ); i++ )
+            const Time lookupTimeAsTime = Time( lookupTimeOriginal );
+            const std::size_t firstInvalidTimeBlockIndex = getFirstInvalidTimeBlockIndexAfter( lookupTimeAsTime );
+            if( firstInvalidTimeBlockIndex < invalidTimeBlocksStartTimes_.size( ) &&
+                invalidTimeBlocksStartTimes_.at( firstInvalidTimeBlockIndex ) < lookupTimeAsTime )
             {
-                if( lookupTimeOriginal > invalidTimeBlocksStartTimes_.at( i ) && lookupTimeOriginal < invalidTimeBlocksEndTimes_.at( i ) )
-                {
-                    const std::string gapMessage = "Error when interpolating ramp reference frequency: look up time (" +
-                            std::to_string( static_cast< double >( lookupTimeOriginal ) ) +
-                            ") is in time interval without transmitted frequency (" +
-                            std::to_string( double( invalidTimeBlocksStartTimes_.at( i ) ) ) + " to " +
-                            std::to_string( double( invalidTimeBlocksEndTimes_.at( i ) ) ) + ").";
-                    handleGap( gapMessage );
-                }
+                const std::string gapMessage = "Error when interpolating ramp reference frequency: look up time (" +
+                        std::to_string( static_cast< double >( lookupTimeOriginal ) ) +
+                        ") is in time interval without transmitted frequency (" +
+                        std::to_string( double( invalidTimeBlocksStartTimes_.at( firstInvalidTimeBlockIndex ) ) ) + " to " +
+                        std::to_string( double( invalidTimeBlocksEndTimes_.at( firstInvalidTimeBlockIndex ) ) ) + ").";
+                handleGap( gapMessage );
             }
         }
 
@@ -257,20 +257,21 @@ public:
             return -computeFrequencyIntegral< ObservationScalarType, TimeType >( quadratureEndTime, quadratureStartTime );
         }
 
-        if( invalidStartTimeLookupScheme_ != nullptr )
+        if( !invalidTimeBlocksStartTimes_.empty( ) )
         {
-            for( unsigned int i = 0; i < invalidTimeBlocksStartTimes_.size( ); i++ )
+            // Gaps are sorted and disjoint: loop over all gaps that end after the start, and start before the end, of the interval
+            for( std::size_t firstInvalidTimeBlockIndex = getFirstInvalidTimeBlockIndexAfter( Time( quadratureStartTime ) );
+                 firstInvalidTimeBlockIndex < invalidTimeBlocksStartTimes_.size( ) &&
+                 invalidTimeBlocksStartTimes_.at( firstInvalidTimeBlockIndex ) < Time( quadratureEndTime );
+                 firstInvalidTimeBlockIndex++ )
             {
-                if( quadratureStartTime < invalidTimeBlocksEndTimes_.at( i ) && quadratureEndTime > invalidTimeBlocksStartTimes_.at( i ) )
-                {
-                    const std::string gapMessage = "Error when integrating ramp reference frequency: time interval (" +
-                            std::to_string( static_cast< double >( quadratureStartTime ) ) + " to " +
-                            std::to_string( static_cast< double >( quadratureEndTime ) ) +
-                            ") overlaps with time interval without transmitted frequency (" +
-                            std::to_string( double( invalidTimeBlocksStartTimes_.at( i ) ) ) + " to " +
-                            std::to_string( double( invalidTimeBlocksEndTimes_.at( i ) ) ) + ").";
-                    handleGap( gapMessage );
-                }
+                const std::string gapMessage = "Error when integrating ramp reference frequency: time interval (" +
+                        std::to_string( static_cast< double >( quadratureStartTime ) ) + " to " +
+                        std::to_string( static_cast< double >( quadratureEndTime ) ) +
+                        ") overlaps with time interval without transmitted frequency (" +
+                        std::to_string( double( invalidTimeBlocksStartTimes_.at( firstInvalidTimeBlockIndex ) ) ) + " to " +
+                        std::to_string( double( invalidTimeBlocksEndTimes_.at( firstInvalidTimeBlockIndex ) ) ) + ").";
+                handleGap( gapMessage );
             }
         }
 
@@ -279,7 +280,7 @@ public:
         int currentRamp = -1;
         try
         {
-            if( quadratureStartTime < startTimes_.at( 0 ) )
+            if( startTimes_.size( ) == 1 || quadratureStartTime < startTimes_.at( 0 ) )
             {
                 currentRamp = 0;
             }
@@ -369,6 +370,13 @@ public:
     void addFrequencyInterpolator( const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd );
 
 private:
+    //! Function to retrieve the index of the first gap between ramps that ends after the given time (number of gaps if none)
+    std::size_t getFirstInvalidTimeBlockIndexAfter( const Time& time ) const
+    {
+        return static_cast< std::size_t >(
+                std::upper_bound( invalidTimeBlocksEndTimes_.begin( ), invalidTimeBlocksEndTimes_.end( ), time ) -
+                invalidTimeBlocksEndTimes_.begin( ) );
+    }
     void handleGap( const std::string& gapMessage )
     {
         switch( gapHandling_ )
@@ -461,9 +469,6 @@ private:
 
     //! Lookup scheme to find the nearest ramp start time for a given time
     std::shared_ptr< interpolators::LookUpScheme< Time > > startTimeLookupScheme_;
-
-    //! Lookup scheme to find the nearest start time of the blocks without frequency transmission
-    std::shared_ptr< interpolators::LookUpScheme< Time > > invalidStartTimeLookupScheme_;
 };
 
 }  // namespace ground_stations

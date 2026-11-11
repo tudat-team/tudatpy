@@ -15,6 +15,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -51,10 +52,11 @@ public:
             const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial,
             const std::string acceleratedBody,
             const std::string acceleratingBody,
-            const bool perturberMassIsGravityDerived = false ):
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyExertingTorque ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravitational_torque ),
         torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial ),
-        perturberMassIsGravityDerived_( perturberMassIsGravityDerived )
+        perturberMassIsGravityDerived_( std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                                                rigidBodyPropertiesOfBodyExertingTorque ) != nullptr )
     {
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }
@@ -104,6 +106,18 @@ public:
         {
             partialMatrix.block( startRow, startColumn, 3, 4 ) -= currentPartialDerivativeWrtQuaternion_;
         }
+    }
+
+    //! Function to reset the constituent acceleration partial (and its Love number partial interfaces) to the current time
+    void resetCurrentTimeOfMemberObjects( ) override
+    {
+        accelerationPartial_->resetCurrentTime( );
+    }
+
+    //! Function to update the parameter partials of the constituent acceleration partial (and its Love number partial interfaces)
+    void updateParameterPartialsOfMemberObjects( ) override
+    {
+        accelerationPartial_->updateParameterPartials( );
     }
 
     //! Function for determining if the torque is dependent on a non-rotational integrated state.
@@ -160,9 +174,6 @@ protected:
     void getParameterPartialFromAccelerationPartialFunction(
             Eigen::MatrixXd& partialMatrix,
             const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction );
-
-    //! Function to add the partial w.r.t. the gravitational parameter of the body exerting the torque, due to its mass (M = mu/G)
-    void addPerturberMassPartialWrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
 
     //! Function to compute the partial w.r.t. the gravitational parameter of the body exerting the torque
     void getPerturberGravitationalParameterPartial(

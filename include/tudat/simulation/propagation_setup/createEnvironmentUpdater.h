@@ -45,6 +45,21 @@ void removePropagatedStatesFomEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
         const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList );
 
+//! Function that adds the ephemeris origins between updated bodies and a propagated body to the updated environment variables
+/*!
+ * Function that adds the ephemeris origins between updated bodies and a propagated body to the updated environment variables. For
+ * instance, if a moon has an ephemeris w.r.t. a planet, which has an ephemeris w.r.t. a propagated barycenter, the planet is added
+ * when the moon is updated. Since the state of the planet depends on the propagated state, it must be recomputed at each update.
+ * \param environmentModelsToUpdate List of environment models to be updated, this data structure is modified by this function
+ * and returned by reference
+ * \param integratedStateList List of states that are numerically integrated.
+ * \param bodies List of body objects used in the simulations.
+ */
+void addEphemerisOriginsOfUpdatedStates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStateList,
+        const simulation_setup::SystemOfBodies& bodies );
+
 //! Get list of required environment model update settings from torque models.
 /*!
  * Get list of required environment model update settings from torque models.
@@ -128,6 +143,30 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const simulation_setup::SystemOfBodies& bodies );
+
+//! Function that adds the environment updates required by the solid-body tide variations of updated gravity fields
+/*!
+ * Function that adds the environment updates required by the solid-body tide variations of updated gravity fields: the
+ * translational and rotational state of the deformed body, and the translational state of the deforming bodies.
+ * \param environmentModelsToUpdate List of required environment model updates, to which the updates are added (returned by reference).
+ * \param bodies List of body objects that comprises the environment
+ */
+void addSolidBodyTideEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const simulation_setup::SystemOfBodies& bodies );
+
+//! Function that adds the gravity field updates required by the mass distribution updates of bodies with rigid body properties
+//! derived from a time-dependent spherical harmonic gravity field
+/*!
+ * Function that adds the gravity field updates required by the mass distribution updates of bodies with rigid body properties
+ * derived from a time-dependent spherical harmonic gravity field, since the center of mass and inertia tensor of these bodies are
+ * computed from the current gravity field coefficients.
+ * \param environmentModelsToUpdate List of required environment model updates, to which the updates are added (returned by reference).
+ * \param bodies List of body objects that comprises the environment
+ */
+void addGravityDerivedMassDistributionEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
         const simulation_setup::SystemOfBodies& bodies );
 
 //! Get list of required environment model update settings from a list of propagation settings.
@@ -233,6 +272,9 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     // Remove variables from environment updates that are numerically propagated.
     if( !isPartOfMultiTypePropagation )
     {
+        addGravityDerivedMassDistributionEnvironmentUpdates( environmentModelsToUpdate, bodies );
+        addSolidBodyTideEnvironmentUpdates( environmentModelsToUpdate, bodies );
+        addEphemerisOriginsOfUpdatedStates( environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ), bodies );
         removePropagatedStatesFomEnvironmentUpdates( environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
         checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodies );
     }

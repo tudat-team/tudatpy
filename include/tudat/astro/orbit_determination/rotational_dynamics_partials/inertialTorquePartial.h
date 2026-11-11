@@ -20,6 +20,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -36,8 +37,8 @@ public:
      * Constructor
      * \param angularVelocityFunction Function that returns body's body-fixed angular velocity vector
      * \param inertiaTensorFunction Function that returns body's inertia tensor
-     * \param inertiaTensorNormalizationFunction Function the inertia tensor normalization factor
-     * \param bodyGravitationalParameterFunction Function returning body gravitational parameter
+     * \param rigidBodyProperties Rigid body properties of body undergoing torque (inertia tensor depends on gravitational parameter
+     * and degree two gravity field coefficients only if these are derived from the gravity field)
      * \param acceleratedBody Name of body undergoing torque
      * \param inertiaTensorDerivativeFunction Function that returns time derivative of body's inertia tensor (empty if
      * this derivative is not included in the inertial torque)
@@ -51,8 +52,7 @@ public:
     InertialTorquePartial(
             const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
             const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
-            const std::function< double( ) > inertiaTensorNormalizationFunction,
-            const std::function< double( ) > bodyGravitationalParameterFunction,
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties,
             const std::string acceleratedBody,
             const std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction = std::function< Eigen::Matrix3d( ) >( ),
             const std::vector< std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > >& tidalGravityFieldVariations =
@@ -65,8 +65,10 @@ public:
             const std::function< Eigen::Quaterniond( ) > rotationToBaseFrameFunction = std::function< Eigen::Quaterniond( ) >( ) ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
         angularVelocityFunction_( angularVelocityFunction ), inertiaTensorFunction_( inertiaTensorFunction ),
-        getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ),
-        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction ),
+        getInertiaTensorNormalizationFactor_(
+                simulation_setup::getInertiaTensorNormalizationFunctionOfGravityDerivedProperties( rigidBodyProperties ) ),
+        bodyGravitationalParameterFunction_(
+                simulation_setup::getGravitationalParameterFunctionOfGravityDerivedProperties( rigidBodyProperties ) ),
         inertiaTensorDerivativeFunction_( inertiaTensorDerivativeFunction ), tidalGravityFieldVariations_( tidalGravityFieldVariations ),
         tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
         tidalLoveNumberRatePartialInterfaces_( tidalLoveNumberRatePartialInterfaces ),
@@ -161,7 +163,7 @@ public:
             currentAngularVelocityVector_ = angularVelocityFunction_( );
             currentAngularVelocityCrossProductMatrix_ = linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ );
 
-            // Gravity field properties are only defined (and needed) for bodies with a (spherical harmonic) gravity field
+            // These functions are not defined for all bodies, and are only used by partials that check for their existence
             if( getInertiaTensorNormalizationFactor_ != nullptr )
             {
                 currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );

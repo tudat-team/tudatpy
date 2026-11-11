@@ -14,6 +14,7 @@
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -32,6 +33,11 @@ class FullTwoBodySphericalHarmonicGravitationalTorquePartial : public TorquePart
 {
 public:
     //! Constructor.
+    /*!
+     * Constructor.
+     * \param rigidBodyPropertiesOfBodyUndergoingTorque Rigid body properties of the body undergoing torque (mass depends on its
+     * gravitational parameter only if these are derived from its gravity field)
+     */
     FullTwoBodySphericalHarmonicGravitationalTorquePartial(
             const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel,
             const std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial,
@@ -40,7 +46,8 @@ public:
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque =
                     observation_partials::RotationMatrixPartialNamedList( ),
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque =
-                    observation_partials::RotationMatrixPartialNamedList( ) );
+                    observation_partials::RotationMatrixPartialNamedList( ),
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyUndergoingTorque = nullptr );
 
     ~FullTwoBodySphericalHarmonicGravitationalTorquePartial( ) {}
 
@@ -114,6 +121,9 @@ private:
 
     //! Partial w.r.t. an effective gravitational parameter used by the associated acceleration model.
     void wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
+
+    //! Partial w.r.t. the gravitational parameter of the body undergoing torque (through mutual attraction and/or its mass).
+    void wrtGravitationalParameterOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix );
 
     //! Partial w.r.t. the mass of the body undergoing torque.
     void wrtBodyUndergoingTorqueMass( Eigen::MatrixXd& partialMatrix );
@@ -189,6 +199,10 @@ private:
 
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBodyUndergoingTorque_;
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBodyExertingTorque_;
+
+    //! Function returning the gravitational parameter of the body undergoing torque, if its mass is derived from its gravity field
+    //! (empty otherwise)
+    std::function< double( ) > gravitationalParameterOfBodyUndergoingTorqueFunction_;
 };
 
 }  // namespace acceleration_partials

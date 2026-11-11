@@ -12,6 +12,7 @@
 #define TUDAT_STATETRANSITIONMATRIXINTERFACE_H
 
 #include <iostream>
+#include <numeric>
 #include <vector>
 
 #include <memory>
@@ -189,6 +190,10 @@ public:
         combinedStateTransitionMatrix_ =
                 Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
 
+        // All sensitivity matrix columns are propagated, unless set otherwise (see setReducedSensitivityMatrixColumns)
+        reducedSensitivityMatrixColumns_.resize( sensitivityMatrixSize_ );
+        std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
+
         // Re-order state partial addition indices to match ephemeris update order (inverted in variational equations object)
         statePartialAdditionIndices_.clear( );
         for( int i = statePartialAdditionIndices.size( ) - 1; i >= 0; i-- )
@@ -221,16 +226,6 @@ public:
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > getStateTransitionMatrixInterpolator( )
     {
         return stateTransitionMatrixInterpolator_;
-    }
-
-    //! Function to get the interpolator returning the sensitivity matrix as a function of time.
-    /*!
-     * Function to get the interpolator returning the sensitivity matrix as a function of time.
-     * \return Interpolator returning the sensitivity matrix as a function of time.
-     */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > getSensitivityMatrixInterpolator( )
-    {
-        return sensitivityMatrixInterpolator_;
     }
 
     //! Function to get the concatenated state transition and sensitivity matrix at a given time.
@@ -275,9 +270,24 @@ public:
         return statePartialAdditionIndices_;
     }
 
+    //! Function to set the columns of the full sensitivity matrix that are propagated (and interpolated)
+    /*!
+     * Function to set the columns of the full sensitivity matrix that are propagated, in case sensitivity matrix columns that
+     * are zero are omitted (see EstimatableParameterSet::setReduceSensitivityMatrixColumns). The sensitivity matrix
+     * interpolator then returns only these columns, which are placed in the full sensitivity matrix after interpolation.
+     * \param reducedSensitivityMatrixColumns Index in the full sensitivity matrix of each propagated column
+     */
+    void setReducedSensitivityMatrixColumns( const std::vector< int >& reducedSensitivityMatrixColumns )
+    {
+        reducedSensitivityMatrixColumns_ = reducedSensitivityMatrixColumns;
+    }
+
 private:
     //! Predefined matrix to use as return value when calling getCombinedStateTransitionAndSensitivityMatrix.
     Eigen::MatrixXd combinedStateTransitionMatrix_;
+
+    //! Index in the full sensitivity matrix of each propagated column
+    std::vector< int > reducedSensitivityMatrixColumns_;
 
     //! Interpolator returning the state transition matrix as a function of time.
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > stateTransitionMatrixInterpolator_;
@@ -477,17 +487,6 @@ public:
     getStateTransitionMatrixInterpolators( )
     {
         return stateTransitionMatrixInterpolators_;
-    }
-
-    //! Function to get the vector of interpolators returning the sensitivity matrix as a function of time.
-    /*!
-     * Function to get the vector of interpolators returning the sensitivity matrix as a function of time.
-     * \return Vector of interpolators returning the sensitivity matrix as a function of time.
-     */
-    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
-    getSensitivityMatrixInterpolator( )
-    {
-        return sensitivityMatrixInterpolators_;
     }
 
     //! Function to get the size of the total parameter vector.
@@ -692,6 +691,24 @@ public:
         return statePartialAdditionIndices_.at( arcIndex );
     }
 
+    //! Function to set the columns of the full sensitivity matrix that are propagated (and interpolated) in each arc
+    /*!
+     * Function to set the columns of the full sensitivity matrix that are propagated in each arc, in case sensitivity matrix
+     * columns that are zero are omitted (see EstimatableParameterSet::setReduceSensitivityMatrixColumns). The sensitivity
+     * matrix interpolators then return only these columns, which are placed in the full sensitivity matrix after interpolation.
+     * \param reducedSensitivityMatrixColumns Index in the full (arc-wise) sensitivity matrix of each propagated column, per arc
+     */
+    void setReducedSensitivityMatrixColumns( const std::vector< std::vector< int > >& reducedSensitivityMatrixColumns )
+    {
+        if( static_cast< int >( reducedSensitivityMatrixColumns.size( ) ) != numberOfStateArcs_ )
+        {
+            throw std::runtime_error(
+                    "Error when setting reduced sensitivity matrix columns of multi-arc interface, number of arcs is "
+                    "inconsistent." );
+        }
+        reducedSensitivityMatrixColumns_ = reducedSensitivityMatrixColumns;
+    }
+
     int getArcWiseStateTransitionMatrixSize( const int currentArc ) const
     {
         return arcWiseStateTransitionMatrixSize_[ currentArc ];
@@ -772,8 +789,16 @@ protected:
         {
             combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize, stateTransitionMatrixSize ) =
                     stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
-            combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize, stateTransitionMatrixSize, sensitivityMatrixSize ) =
-                    sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+            const std::vector< int >& reducedColumns = reducedSensitivityMatrixColumns_.at( currentArc );
+            if( reducedColumns.size( ) > 0 )
+            {
+                Eigen::MatrixXd reducedSensitivityMatrix = sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+                for( unsigned int i = 0; i < reducedColumns.size( ); i++ )
+                {
+                    combinedStateTransitionMatrix.col( stateTransitionMatrixSize + reducedColumns.at( i ) ) =
+                            reducedSensitivityMatrix.col( i );
+                }
+            }
         }
         catch( std::runtime_error& caughtException )
         {
@@ -932,6 +957,14 @@ protected:
             }
         }
         fullSensitivityMatrixSize_ = arcWiseSensitivityMatrixSize_[ 0 ];
+
+        // By default, all sensitivity matrix columns are propagated in each arc
+        reducedSensitivityMatrixColumns_.resize( arcWiseSensitivityMatrixSize_.size( ) );
+        for( unsigned int arc = 0; arc < arcWiseSensitivityMatrixSize_.size( ); arc++ )
+        {
+            reducedSensitivityMatrixColumns_[ arc ].resize( arcWiseSensitivityMatrixSize_[ arc ] );
+            std::iota( reducedSensitivityMatrixColumns_[ arc ].begin( ), reducedSensitivityMatrixColumns_[ arc ].end( ), 0 );
+        }
     }
 
     void getArcStartTimesPerBody( )
@@ -1030,6 +1063,9 @@ private:
 
     //! Vector of parameters to estimate, per arc.
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > > arcWiseParametersToEstimate_;
+
+    //! Index in the full sensitivity matrix of each propagated column, per arc (empty if all columns are propagated)
+    std::vector< std::vector< int > > reducedSensitivityMatrixColumns_;
 
     //! map with indices of initial parameters in multi-arc solution and in the full combined solution
     //! key is the arc index. second element is a map: for each body to be estimated (key) in the given arc, we provide a pair of pairs, as follows:
@@ -1182,11 +1218,15 @@ public:
                     multiArcStateTransition.block( singleArcStateSize_, 0, originalMultiArcStateSize, singleArcStateSize_ ) *
                     singleArcStateTransitionAtArcStart.block( 0, 0, singleArcStateSize_, singleArcStateSize_ );
 
-            // Set multi-arc sensitivity block
+            // Set multi-arc sensitivity block: the multi-arc propagation provides the dependency on the parameters that builds up
+            // during the arc (directly, and through the single-arc states); the dependency through the single-arc states at the start
+            // of the arc is added using the coupled state transition matrix block.
             combinedStateTransitionMatrix.block(
                     singleArcStateSize_, multiArcStateSize, originalMultiArcStateSize, sensitivityMatrixSize_ ) =
                     multiArcStateTransition.block(
-                            singleArcStateSize_, multiArcStateSize, originalMultiArcStateSize, sensitivityMatrixSize_ );
+                            singleArcStateSize_, multiArcStateSize, originalMultiArcStateSize, sensitivityMatrixSize_ ) +
+                    multiArcStateTransition.block( singleArcStateSize_, 0, originalMultiArcStateSize, singleArcStateSize_ ) *
+                            singleArcStateTransitionAtArcStart.block( 0, singleArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ );
 
             std::vector< std::pair< int, int > > statePartialAdditionIndices =
                     multiArcInterface_->getStatePartialAdditionIndices( currentArc.first );

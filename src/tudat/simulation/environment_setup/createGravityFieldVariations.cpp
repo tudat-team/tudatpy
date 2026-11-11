@@ -12,6 +12,7 @@
 
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
+#include "tudat/astro/gravitation/customGravityFieldVariations.h"
 #include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
 #include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
@@ -72,8 +73,10 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
             variationIdentifiers.push_back( "" );
         }
 
-        // Check if current variation is interpolated, and set settings if necessary.
-        if( gravityFieldVariationSettings.at( i )->getInterpolatorSettings( ) != nullptr )
+        // Check if current variation is interpolated, and set settings if necessary (tabulated variations interpolate the tabulated
+        // values themselves, using the interpolator settings)
+        if( gravityFieldVariationSettings.at( i )->getInterpolatorSettings( ) != nullptr &&
+            gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) != tabulated_variation )
         {
             createInterpolators[ i ] = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->interpolatorSettings_;
             initialTimes[ i ] = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->initialTime_;
@@ -196,16 +199,13 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                 }
             }
 
-            // Select and validate the rotation source once, when creating the model.
-            if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr &&
-                bodies.at( body )->getRotationalEphemeris( ) == nullptr )
-            {
-                throw std::runtime_error( "Error creating tidal variation: no rotational ephemeris for " + body );
-            }
-
             // Set state and orientation functions of perturbed body.
             if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
             {
+                if( bodies.at( body )->getRotationalEphemeris( ) == nullptr )
+                {
+                    throw std::runtime_error( "Error creating interpolated tidal variation: no rotational ephemeris for " + body );
+                }
                 deformedBodyStateFunction =
                         std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( body ), std::placeholders::_1 );
                 deformedBodyOrientationFunction = std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
@@ -334,6 +334,22 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         polynomialGravityFieldVariationSettings->getMinimumOrder( ) );
             }
 
+            break;
+        }
+        case custom_variation: {
+            std::shared_ptr< CustomGravityFieldVariationsSettings > customGravityFieldVariationSettings =
+                    std::dynamic_pointer_cast< CustomGravityFieldVariationsSettings >( gravityFieldVariationSettings );
+            if( customGravityFieldVariationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected custom gravity field variation settings for " + body );
+            }
+            gravityFieldVariationModel = std::make_shared< CustomGravityFieldVariations >(
+                    customGravityFieldVariationSettings->getCorrectionFunction( ),
+                    customGravityFieldVariationSettings->getMinimumDegree( ),
+                    customGravityFieldVariationSettings->getMinimumOrder( ),
+                    customGravityFieldVariationSettings->getMaximumDegree( ),
+                    customGravityFieldVariationSettings->getMaximumOrder( ),
+                    customGravityFieldVariationSettings->getCorrectionTimeDerivativeFunction( ) );
             break;
         }
         default: {

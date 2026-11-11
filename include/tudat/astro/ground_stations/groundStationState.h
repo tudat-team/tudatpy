@@ -354,6 +354,14 @@ protected:
     std::vector< Eigen::Vector3d > displacementVectors_;
 };
 
+//! Relativistic correction to the station position, when the station position is required w.r.t. the solar system barycenter
+/*!
+ *  Spatial part of Eq. (11.18) of the IERS Conventions 2010 (or of Eq. (11.19) when scaling to TDB-compatible coordinates),
+ *  without the terms that depend on the acceleration of the body on which the station is located:
+ *  x_B = x_G ( 1 - U / c^2 - L_C ) - ( v . x_G ) v / ( 2 c^2 ), with x_G the (inertially oriented) nominal station position w.r.t.
+ *  the centre of its body, v the barycentric velocity of that body, U the gravitational potential of the central body (typically
+ *  the Sun) at the centre of the station's body, and L_C only included when scaling to TDB-compatible coordinates.
+ */
 struct BodyCentricToBarycentricRelativisticStationMotion : public StationMotionModel {
 public:
     BodyCentricToBarycentricRelativisticStationMotion(
@@ -361,12 +369,14 @@ public:
             const std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction,
             const std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction,
             const std::function< double( ) > centralBodyGravitationalParameterFunction,
-            const bool useGeneralRelativisticCorrection ):
+            const bool useGeneralRelativisticCorrection,
+            const bool scaleToTdbCompatibleCoordinates = true ):
         bodyBarycentricStateFunction_( bodyBarycentricStateFunction ),
         centralBodyBarycentricPositionFunction_( centralBodyBarycentricPositionFunction ),
         inertialToBodyFixedRotationFunction_( inertialToBodyFixedRotationFunction ),
         centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
+        scaleToTdbCompatibleCoordinates_( scaleToTdbCompatibleCoordinates )
     {
         if( useGeneralRelativisticCorrection &&
             ( centralBodyGravitationalParameterFunction == nullptr || centralBodyBarycentricPositionFunction == nullptr ) )
@@ -401,6 +411,9 @@ protected:
     Eigen::Vector6d centralBodyBarycentricState_;
 
     bool useGeneralRelativisticCorrection_;
+
+    // Boolean denoting whether TT-compatible station coordinates are scaled to TDB-compatible coordinates (L_C term)
+    bool scaleToTdbCompatibleCoordinates_;
 };
 
 struct CustomStationMotionModel : public StationMotionModel {

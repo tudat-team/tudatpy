@@ -413,15 +413,23 @@ protected:
     //! Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number
     /*!
      *  Function to compute the time derivative of the tidal forcing of a single degree and order, for unit Love number,
-     *  due to the body causing deformation with the current mass ratio, from the gradient of the associated spherical harmonic term.
+     *  from the gradient of the associated spherical harmonic term. The spherical harmonics cache must be updated to the position
+     *  of the body causing deformation before calling this function.
      *  \param degree Degree of tide.
      *  \param order Order of tide.
-     *  \param bodyFixedRelativeState State of body causing deformation w.r.t. body being deformed, in body-fixed frame
+     *  \param deformingBodyMassRatio Ratio of masses of body causing deformation and body being deformed
+     *  \param sphericalPosition Spherical position (radius, latitude, longitude) of body causing deformation w.r.t. body being
+     *  deformed, in body-fixed frame
+     *  \param sphericalVelocity Body-fixed velocity of body causing deformation w.r.t. body being deformed, premultiplied by the
+     *  transpose of the spherical-to-Cartesian gradient matrix (so that its dot product with a spherical gradient is the time
+     *  derivative of the associated potential)
      *  \return Time derivative of tidal forcing (cosine coefficient minus i times sine coefficient)
      */
     std::complex< double > calculateTidalForcingTimeDerivative( const int degree,
                                                                 const int order,
-                                                                const Eigen::Vector6d& bodyFixedRelativeState );
+                                                                const double deformingBodyMassRatio,
+                                                                const Eigen::Vector3d& sphericalPosition,
+                                                                const Eigen::Vector3d& sphericalVelocity );
 
     //! Function to compute the partial of the time derivative of the tidal forcing w.r.t. the body-fixed position of the deforming body
     /*!
@@ -429,6 +437,7 @@ protected:
      *  number) w.r.t. the body-fixed position of the body causing deformation, multiplied by a given position variation
      *  \param degree Degree of tide.
      *  \param order Order of tide.
+     *  \param deformingBodyMassRatio Ratio of masses of body causing deformation and body being deformed
      *  \param bodyFixedRelativeState State of body causing deformation w.r.t. body being deformed, in body-fixed frame
      *  \param bodyFixedPositionVariation Variation of body-fixed position by which the partial is multiplied
      *  \param forcingHessianFunction Function returning the Hessian of the potential of a single spherical harmonic term (see
@@ -438,19 +447,29 @@ protected:
     std::complex< double > calculateTidalForcingTimeDerivativePartialWrtPosition(
             const int degree,
             const int order,
+            const double deformingBodyMassRatio,
             const Eigen::Vector6d& bodyFixedRelativeState,
             const Eigen::Vector3d& bodyFixedPositionVariation,
             const std::function< Eigen::Matrix3d( const int, const int, const bool, const Eigen::Vector3d& ) >& forcingHessianFunction );
 
     //! Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame
     /*!
-     *  Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame,
-     *  and set the associated mass ratio
+     *  Function to compute the state of a body causing deformation w.r.t. the deformed body, in the deformed body-fixed frame
+     *  (requires the time derivative of the rotation to the deformed body-fixed frame to be defined)
      *  \param bodyIndex Index (in list of deforming bodies) of body causing deformation
      *  \param time Time at which state is to be calculated.
      *  \return State of body causing deformation w.r.t. body being deformed, in body-fixed frame
      */
     Eigen::Vector6d getBodyFixedRelativeState( const int bodyIndex, const double time );
+
+    //! Function to update the spherical harmonics cache to the body-fixed position of a body causing deformation
+    /*!
+     *  Function to update the spherical harmonics cache to the body-fixed position of a body causing deformation, as required by
+     *  calculateTidalForcingTimeDerivative
+     *  \param bodyFixedPosition Position of body causing deformation w.r.t. body being deformed, in body-fixed frame
+     *  \return Spherical position (radius, latitude, longitude) of body causing deformation
+     */
+    Eigen::Vector3d updateSphericalHarmonicsCache( const Eigen::Vector3d& bodyFixedPosition );
 
     //! Function for calculating time derivatives of spherical harmonic coefficient corrections due to selected bodies.
     /*!

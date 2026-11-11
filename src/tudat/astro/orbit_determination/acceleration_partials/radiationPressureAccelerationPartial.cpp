@@ -125,11 +125,11 @@ CannonBallRadiationPressurePartial::getParameterPartialFunctionDerivedAccelerati
 
                 if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) != nullptr )
                 {
-                    partialFunction = std::bind(
-                            &CannonBallRadiationPressurePartial::wrtArcWiseRadiationPressureCoefficient,
-                            this,
-                            std::placeholders::_1,
-                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) );
+                    partialFunction = createArcWiseParameterPartialFunction(
+                            std::bind( &CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient, this, std::placeholders::_1 ),
+                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter )
+                                    ->getArcTimeLookupScheme( ),
+                            parameter->getParameterSize( ) );
                 }
                 else
                 {

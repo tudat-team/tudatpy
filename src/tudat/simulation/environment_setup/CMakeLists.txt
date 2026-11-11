@@ -13,6 +13,7 @@ set(environment_HEADERS
         createAerodynamicCoefficientInterface.h
         createBodyShapeModel.h
         createEphemeris.h
+        createSp3Ephemeris.h
         createGravityField.h
         createAerodynamicControlSurfaces.h
         createRotationModel.h
@@ -45,6 +46,7 @@ set(environment_HEADERS
 # Add header files.
 set(environment_SOURCES
         createEphemeris.cpp
+        createSp3Ephemeris.cpp
         createRotationModel.cpp
         createRotationModelEarthOrientation.cpp
         createGravityFieldVariations.cpp
@@ -95,7 +97,7 @@ if(TUDAT_BUILD_WITH_MCD_INTERFACE)
         ${NetCDF_Fortran_LIBRARIES}
         ${NetCDF_C_LIBRARIES}
     )
-    target_include_directories(tudat_environment_setup SYSTEM PRIVATE 
+    target_include_directories(tudat_environment_setup SYSTEM PRIVATE
         "${NetCDF_INCLUDE_DIRS}"
         "${CMAKE_SOURCE_DIR}/third_parties/mcd")
 endif()

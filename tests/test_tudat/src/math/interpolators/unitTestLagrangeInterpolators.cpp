@@ -43,6 +43,23 @@ double evaluatePolynomial( const std::map< int, double >& coefficients, const do
     return polynomialValue;
 }
 
+//! Function to evaluate polynomial derivative
+/*!
+ *  Function to evaluate derivative of polynomial with coefficients and independent variable as input.
+ *  \param coefficients Polynomial coefficients with the coefficient as map value and order as key (including order 0).
+ *  \param evaluationPoint Independent variable at which polynomial derivative is to be evaluated.
+ *  \return Polynomial derivative.
+ */
+double evaluatePolynomialDerivative( const std::map< int, double >& coefficients, const double evaluationPoint )
+{
+    double polynomialDerivative = 0.0;
+    for( std::map< int, double >::const_iterator it = std::next( coefficients.begin( ) ); it != coefficients.end( ); it++ )
+    {
+        polynomialDerivative += it->first * it->second * std::pow( evaluationPoint, it->first - 1 );
+    }
+    return polynomialDerivative;
+}
+
 //! Function to retrieve polynomial coefficients
 /*!
  *  Function to retrieve quasi-random polynomial coefficients, up to a given maximum order.
@@ -165,6 +182,107 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_polynomials )
                 }
             }
         }
+    }
+}
+
+// Test that the shifted-interval boundary handling reproduces polynomials of the interpolation order over the full range
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_shifted_interval_boundary )
+{
+    std::vector< double > independentVariableVector = getIndependentVariableVector( );
+    for( unsigned int stages = 4; stages < 11; stages += 2 )
+    {
+        std::map< int, double > coefficients = getPolynomialCoefficients( stages - 1 );
+        std::map< double, double > dataMap;
+        for( const double independentVariable : independentVariableVector )
+        {
+            dataMap[ independentVariable ] = evaluatePolynomial( coefficients, independentVariable );
+        }
+        interpolators::LagrangeInterpolator< double, double > interpolator(
+                dataMap, stages, interpolators::huntingAlgorithm, interpolators::lagrange_shifted_interval_boundary_interpolation );
+
+        // Check the first and last intervals, which are outside the range of the centred polynomials
+        for( unsigned int i : { 0u, static_cast< unsigned int >( independentVariableVector.size( ) ) - 2 } )
+        {
+            for( unsigned j = 1; j < 10; j++ )
+            {
+                double currentDataPoint = independentVariableVector.at( i ) +
+                        static_cast< double >( j ) / 10.0 * ( independentVariableVector.at( i + 1 ) - independentVariableVector.at( i ) );
+                BOOST_CHECK_CLOSE_FRACTION(
+                        interpolator.interpolate( currentDataPoint ), evaluatePolynomial( coefficients, currentDataPoint ), 1.0E-12 );
+            }
+        }
+    }
+}
+
+// Test derivative of Lagrange interpolant for 5th order polynomial data with 6 stages, against the analytical derivative inside
+// the domain, at a node and in the extrapolation region (shifted interval boundary handling), and against central finite
+// differences in the cubic spline boundary region
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_derivative )
+{
+    const int stages = 6;
+    std::map< int, double > coefficients = getPolynomialCoefficients( stages - 1 );
+    std::map< double, double > dataMap;
+    for( const double independentVariable : getIndependentVariableVector( ) )
+    {
+        dataMap[ independentVariable ] = evaluatePolynomial( coefficients, independentVariable );
+    }
+
+    interpolators::LagrangeInterpolator< double, double > interpolator(
+            dataMap, stages, interpolators::huntingAlgorithm, interpolators::lagrange_shifted_interval_boundary_interpolation );
+    for( const double evaluationPoint : { 3.0, 2.5, -0.05 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolateDerivative( evaluationPoint ),
+                                    evaluatePolynomialDerivative( coefficients, evaluationPoint ),
+                                    1.0E-11 );
+    }
+
+    // Cubic spline boundary interpolation at the lower and upper edge
+    interpolators::LagrangeInterpolator< double, double > splineBoundaryInterpolator( dataMap, stages );
+    const double finiteDifferenceStep = 1.0E-5;
+    for( const double evaluationPoint : { 0.05, 100.0 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( splineBoundaryInterpolator.interpolateDerivative( evaluationPoint ),
+                                    ( splineBoundaryInterpolator.interpolate( evaluationPoint + finiteDifferenceStep ) -
+                                      splineBoundaryInterpolator.interpolate( evaluationPoint - finiteDifferenceStep ) ) /
+                                            ( 2.0 * finiteDifferenceStep ),
+                                    1.0E-6 );
+    }
+
+    // Time independent variable and vector dependent variable, as for tabulated ephemerides
+    std::map< Time, Eigen::VectorXd > vectorDataMap;
+    for( const auto& dataPoint : dataMap )
+    {
+        vectorDataMap[ Time( dataPoint.first ) ] = Eigen::Vector2d( dataPoint.second, -2.0 * dataPoint.second );
+    }
+    interpolators::LagrangeInterpolator< Time, Eigen::VectorXd > vectorInterpolator(
+            vectorDataMap, stages, interpolators::huntingAlgorithm, interpolators::lagrange_shifted_interval_boundary_interpolation );
+    for( const double evaluationPoint : { 3.0, 2.5, -0.05 } )
+    {
+        Eigen::VectorXd derivative = vectorInterpolator.interpolateDerivative( Time( evaluationPoint ) );
+        BOOST_CHECK_CLOSE_FRACTION( derivative( 0 ), evaluatePolynomialDerivative( coefficients, evaluationPoint ), 1.0E-11 );
+        BOOST_CHECK_CLOSE_FRACTION( derivative( 1 ), -2.0 * evaluatePolynomialDerivative( coefficients, evaluationPoint ), 1.0E-11 );
+    }
+}
+
+// Test derivative close to a node (outside the node tolerance), for data with an offset that is large w.r.t. its variation
+// (as for a position in meters). Without computing the barycentric sums relative to the value at the nearest node, the error is
+// of the order of machine precision times offset divided by distance to node (here 1E-4 relative).
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_derivative_near_node )
+{
+    const int stages = 6;
+    std::map< int, double > coefficients = getPolynomialCoefficients( stages - 1 );
+    std::map< double, double > dataMap;
+    for( const double independentVariable : getIndependentVariableVector( ) )
+    {
+        dataMap[ independentVariable ] = evaluatePolynomial( coefficients, independentVariable ) + 1.0E8;
+    }
+
+    interpolators::LagrangeInterpolator< double, double > interpolator( dataMap, stages );
+    for( const double evaluationPoint : { 2.5 - 1.0E-6, 2.5 + 1.0E-6 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolateDerivative( evaluationPoint ),
+                                    evaluatePolynomialDerivative( coefficients, evaluationPoint ),
+                                    1.0E-6 );
     }
 }
 
