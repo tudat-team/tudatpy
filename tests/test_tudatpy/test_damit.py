@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+import requests
 
 import tudatpy.data_input.environment_data.damit.damit as damit_module
 from tudatpy.astro.polyhedron_utilities import volume
@@ -299,13 +300,19 @@ def test_query_remote(tmp_path):
         ),
         patch.object(damit_module, "_DAMIT_MODELS_DIR", tmp_path / "models"),
     ):
-        models = damit_module.list_damit_models(mpc_number=TEST_ASTEROID)
-        best_model_id = int(
-            models[models["quality_flag"] == models["quality_flag"].max()].index.min()
-        )
+        try:
+            models = damit_module.list_damit_models(mpc_number=TEST_ASTEROID)
+            best_model_id = int(
+                models[models["quality_flag"] == models["quality_flag"].max()].index.min()
+            )
 
-        model_by_mpc = DamitModel.query(mpc_number=TEST_ASTEROID)
-        model_by_id = DamitModel.query(damit_model_id=best_model_id, force_refresh=True)
+            model_by_mpc = DamitModel.query(mpc_number=TEST_ASTEROID)
+            model_by_id = DamitModel.query(damit_model_id=best_model_id, force_refresh=True)
+        except requests.HTTPError as error:
+            # The DAMIT table export intermittently returns an internal server error
+            if error.response.status_code != 500:
+                raise
+            pytest.skip(f"DAMIT server unavailable: {error}")
 
     assert _model_volume(model_by_mpc) == pytest.approx(_model_volume(model_by_id))
     assert model_by_mpc.pole_longitude == pytest.approx(model_by_id.pole_longitude)
