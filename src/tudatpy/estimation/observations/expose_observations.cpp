@@ -1225,7 +1225,9 @@ Most functions of this class act on the observations selected by a ``condition``
 :data:`~tudatpy.estimation.observations.observation_query`. Observations can be rejected (see
 :meth:`reject_observations`): rejected observations remain in the dataset, but are not used in the estimation. The
 weights may be diagonal, or may contain correlations between the components of an observation, between observations
-in a set, or between observations in different sets.
+in a set, or between observations in different sets. If the weights correlate an observation that is rejected with one
+that is not, the estimation uses the rows and columns of the weight matrix that belong to the observations that are not
+rejected; the weights of these observations are not recomputed from the covariance of the remaining observations.
 
 Functions that retrieve data take an ``ordering`` input, which is one of:
 

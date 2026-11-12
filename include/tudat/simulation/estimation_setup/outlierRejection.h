@@ -190,6 +190,19 @@ public:
         return isRejected_;
     }
 
+    //! Reset the rejection status (in order of increasing observation id), and apply it to the observation dataset.
+    void resetRejectionStatus( const std::vector< bool >& isRejected )
+    {
+        if( isRejected.size( ) != isRejected_.size( ) )
+        {
+            throw std::runtime_error( "Error when resetting outlier rejection status, size of rejection status vector (" +
+                                      std::to_string( isRejected.size( ) ) + ") is not equal to the number of observations (" +
+                                      std::to_string( isRejected_.size( ) ) + ")." );
+        }
+        isRejected_ = isRejected;
+        applyRejectionStatusToObservationDataset( );
+    }
+
     //! Return the number of observations that are currently rejected.
     unsigned int getNumberOfRejectedObservations( ) const
     {

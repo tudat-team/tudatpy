@@ -88,6 +88,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             estimationData, weightsMatrixDiagonals, weightsMatrix, hasOffDiagonalWeights );
     // Declare variables to be returned (i.e. results from best iteration)
     double bestCostFunction = TUDAT_NAN;
+    double bestSelectionCostFunction = TUDAT_NAN;
+    std::vector< bool > bestRejectionStatus;
     double bestRmsResidual = TUDAT_NAN;
     ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
@@ -403,6 +405,12 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         {
             costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
         }
+        // With outlier rejection, the number of observations that is used can differ per iteration. The best iteration is then
+        // selected using the observation cost per used observation (scaled to the total number of observations in the dataset).
+        double selectionCostFunction = applyOutlierRejection
+                ? costFunction * static_cast< double >( observationDataset->getTotalScalarSize( ) ) /
+                        static_cast< double >( totalNumberOfObservations )
+                : costFunction;
         double aprioriCost = 0.0;
         if( estimationInput->getApplyAprioriParameterDeviation( ) )
         {
@@ -413,6 +421,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         // In deviation-based mode, best-iteration selection additionally includes the absolute a priori cost. Residual RMS
         // is unchanged so observation-only diagnostics remain meaningful.
         costFunction += aprioriCost + interArcContribution.totalConstraintCost;
+        selectionCostFunction += aprioriCost + interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 
@@ -459,9 +468,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         }
 
         // If current iteration is better than previous one, update 'best' data.
-        if( costFunction < bestCostFunction || !( bestCostFunction == bestCostFunction ) )
+        if( selectionCostFunction < bestSelectionCostFunction || !( bestSelectionCostFunction == bestSelectionCostFunction ) )
         {
+            bestSelectionCostFunction = selectionCostFunction;
             bestCostFunction = costFunction;
+            if( applyOutlierRejection )
+            {
+                bestRejectionStatus = outlierRejection->getRejectionStatus( );
+            }
             bestRmsResidual = residualRms;
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
@@ -549,6 +563,13 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         {
             break;
         }
+    }
+
+    // Set the rejection status of the observations to that of the best iteration, to which the estimation output and the
+    // residuals in the observation dataset belong (the status was last updated for the iteration after the final one).
+    if( applyOutlierRejection && bestIteration >= 0 )
+    {
+        outlierRejection->resetRejectionStatus( bestRejectionStatus );
     }
 
     if( estimationInput->getPrintOutput( ) )

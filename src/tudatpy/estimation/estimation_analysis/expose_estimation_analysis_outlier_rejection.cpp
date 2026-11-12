@@ -125,7 +125,10 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
  Note that this algorithm requires that the observation covariance (or the inverse weight matrix) is compatible with the
  true errors. If no weights are set on the observations (all weights equal to 1), the algorithm will throw an error. If
- inaccurate weights are set, it may produce unexpected results.
+ inaccurate weights are set, it may produce unexpected results. The observation covariance is the inverse of the
+ complete weight matrix of the observation dataset, including the observations that are rejected, whereas the
+ least-squares inversion uses the rows and columns of the weight matrix of the observations that are not rejected. The
+ two are only consistent if the weights do not correlate rejected observations with observations that are not rejected.
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.

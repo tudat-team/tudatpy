@@ -157,6 +157,13 @@ BOOST_AUTO_TEST_CASE( testEstimationWithOutlierRejection )
                        dataset->createObservationVectorData( true ).getObservationVector( ).size( ) - 1 );
     BOOST_CHECK( podData.first->parameterEstimate_.allFinite( ) );
     const auto allData = dataset->createObservationVectorData( true );
+
+    // After the estimation, the observations that are rejected in the dataset are those that were not used in the best iteration
+    for( int row = 0; row < activeFlags.rows( ); row++ )
+    {
+        BOOST_CHECK_EQUAL( dataset->getObservationRow( allData.getObservationIds( ).at( row ) ).isActive_,
+                           activeFlags( row, podData.first->bestIteration_ ) );
+    }
     auto bestDataset = *dataset;
     bestDataset.restoreObservations( observation_models::ObservationSelectionCondition< double, double >::all( ) );
     bestDataset.rejectObservations( observation_models::ObservationSelectionCondition< double, double >(

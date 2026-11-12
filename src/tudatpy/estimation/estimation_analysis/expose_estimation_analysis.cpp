@@ -618,7 +618,10 @@ void expose_estimation_analysis( py::module& m )
              the simulation models if ``reset_parameters_to_best_iteration`` is ``False``.
          outlier_rejection_settings : :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings`, default = None
              Settings for the algorithm that rejects (and recovers) outlying observations during the estimation. No
-             outlier rejection is performed when this input is left empty.
+             outlier rejection is performed when this input is left empty. After the estimation, the observations that
+             are rejected in the ``observation_dataset`` are those that were not used in the best iteration, to which the
+             estimation output belongs. Since the number of observations that is used can differ per iteration, the best
+             iteration is selected using the cost function per used observation when outlier rejection is applied.
          apply_apriori_parameter_deviation : bool, default = False
              Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
              of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
