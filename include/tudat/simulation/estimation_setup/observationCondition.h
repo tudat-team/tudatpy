@@ -44,6 +44,7 @@ class ObservationSelectionCondition
         all,
         observable_type,
         link_definition,
+        link_end_type,
         link_end,
         set_id,
         time_greater_equal,
@@ -80,6 +81,9 @@ public:
                 return getSetMetadata( dataset, observationId ).observableType_ == observableType_;
             case Type::link_definition:
                 return dataset.getLinkDefinition( getSetMetadata( dataset, observationId ).linkDefinitionId_ ) == linkDefinition_;
+            case Type::link_end_type:
+                return dataset.getLinkDefinition( getSetMetadata( dataset, observationId ).linkDefinitionId_ )
+                               .linkEnds_.count( linkEndType_ ) > 0;
             case Type::link_end: {
                 const LinkEnds& linkEnds =
                         dataset.getLinkDefinition( getSetMetadata( dataset, observationId ).linkDefinitionId_ ).linkEnds_;
@@ -153,6 +157,14 @@ public:
     {
         ObservationSelectionCondition condition( Type::link_definition );
         condition.linkDefinition_ = linkDefinition;
+        return condition;
+    }
+
+    //! Create a condition matching observations that have a link end with the given role (for any link-end identity).
+    static ObservationSelectionCondition linkEndType( const LinkEndType linkEndType )
+    {
+        ObservationSelectionCondition condition( Type::link_end_type );
+        condition.linkEndType_ = linkEndType;
         return condition;
     }
 

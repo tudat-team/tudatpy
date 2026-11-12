@@ -97,6 +97,16 @@ def test_query_conditions_select_expected_dataset_rows(sample_dataset):
     assert dataset.get_observation_ids(
         observation_query.receiver == links.LinkEndId("Mars", "")
     ) == [3, 4]
+    # A link end type should select the rows of every set with a link end of that type.
+    assert dataset.get_observation_ids(
+        observations.ObservationSelectionCondition.link_end_type(links.receiver)
+    ) == [0, 1, 2, 3, 4]
+    assert (
+        dataset.get_observation_ids(
+            observations.ObservationSelectionCondition.link_end_type(links.observer)
+        )
+        == []
+    )
     # The full link definition of the Mars set should select only its rows.
     assert dataset.get_observation_ids(
         observation_query.link_definition == links.LinkDefinition(_link_ends("Mars"))

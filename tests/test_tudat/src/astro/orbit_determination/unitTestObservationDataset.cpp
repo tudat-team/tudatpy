@@ -334,10 +334,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
     // Set-id conditions must be backend conditions, not Python-only convenience filters.
     checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::setId( 1 ) ), { 3, 4 } );
 
-    // Link-based conditions must match rows by complete link definition and individual link end.
+    // Link-based conditions must match rows by complete link definition, link-end type and individual link end.
     checkIds( dataset.getObservationIdsMatchingCondition(
                       ObservationSelectionCondition< double, double >::linkDefinition( station2LinkDefinition ) ),
               { 3, 4 } );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::linkEndType( transmitter ) ),
+              { 0, 1, 2, 3, 4 } );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::linkEndType( reflector1 ) ),
+              {} );
     checkIds( dataset.getObservationIdsMatchingCondition(
                       ObservationSelectionCondition< double, double >::linkEnd( transmitter, LinkEndId( "Earth", "Station1" ) ) ),
               { 0, 1, 2 } );

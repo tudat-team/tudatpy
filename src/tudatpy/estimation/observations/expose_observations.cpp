@@ -837,6 +837,23 @@ Returns
 ObservationSelectionCondition
     Condition selecting the observations with the given link definition.
 )doc" )
+            .def_static( "link_end_type",
+                         &InspectionCondition::linkEndType,
+                         py::arg( "link_end_type" ),
+                         R"doc(
+Function to create a condition that selects the observations that have a link end with a given role, for any body and
+reference point of this link end.
+
+Parameters
+----------
+link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType
+    Role of the link end in the observation (e.g. receiver or transmitter).
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations that have a link end with the given role.
+)doc" )
             .def_static( "link_end",
                          &InspectionCondition::linkEnd,
                          py::arg( "link_end_type" ),
