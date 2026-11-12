@@ -900,7 +900,7 @@ void testTidalInertialTorquePartials( const std::vector< std::shared_ptr< Gravit
     Eigen::MatrixXd torqueDeviations = calculateTorqueDeviationDueToOrientationChange( rotationalStateSetFunction,
                                                                                        inertialTorqueModel,
                                                                                        rotationalState,
-                                                                                       Eigen::Vector4d::Constant( 1.0E-7 ),
+                                                                                       Eigen::Vector4d::Constant( 2.0E-8 ),
                                                                                        appliedQuaternionPerturbation,
                                                                                        updateFunction,
                                                                                        testTime );

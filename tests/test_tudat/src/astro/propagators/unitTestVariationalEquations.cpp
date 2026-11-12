@@ -1255,8 +1255,12 @@ std::pair< Eigen::MatrixXd, std::map< double, Eigen::VectorXd > > propagateRotat
     }
     else
     {
+        // Placeholder tabulated rotation model (required for rotational propagation), overwritten by propagated rotational state
         bodySettings.at( "Phobos" )->rotationModelSettings =
-                constantRotationModelSettings( "ECLIPJ2000", "Phobos_Fixed", Eigen::Quaterniond::Identity( ) );
+                tabulatedRotationSettings( { { -1.0E100, initialRotationalState }, { 1.0E100, initialRotationalState } },
+                                           "ECLIPJ2000",
+                                           "Phobos_Fixed",
+                                           std::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator ) );
     }
 
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
