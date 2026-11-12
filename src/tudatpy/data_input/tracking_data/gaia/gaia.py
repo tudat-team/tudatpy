@@ -185,6 +185,12 @@ class GaiaAstrometry:
         """Read-only copy of the astrometry table."""
         return self._table.copy()
 
+    @property
+    def sources(self) -> pd.DataFrame:
+        """Returns a dataframe of the sources (asteroids/natural satellites) on this ``GaiaAstrometry`` object"""
+        table = self._table.drop_duplicates("source_id").set_index("source_id")
+        return table[["number_mp", "denomination"]]
+
     def copy(self) -> "GaiaAstrometry":
         """Get a copy of the ``GaiaAstrometry`` object.
 
@@ -243,6 +249,7 @@ class GaiaAstrometry:
 
     def to_tracking_data(
         self,
+        target_body_names: dict[int, str] | None = None,
         light_deflection_bodies: Iterable[str] | None = None,
         photocenter_correction: bool = False,
     ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
@@ -255,6 +262,11 @@ class GaiaAstrometry:
 
         Parameters
         ----------
+        target_body_names: dict, optional
+            Provide the names to use for the object(s) in the Tudat environment. By default, asteroids are named by
+            their MPC number (e.g. "433") and natural satellites are named by their denomination (e.g. "Enceladus").
+            To change this, provide a dict with keys being the ``source_id`` of an object, and the value being
+            the desired name
         light_deflection_bodies : Iterable[str] | None, optional
             Body names of bodies that exert relativistic light-deflection in the environment. Each body must have an
             ephemeris and mass. The bodies being estimated must also have an ephemeris so that their position in time
@@ -269,10 +281,21 @@ class GaiaAstrometry:
         tuple[list[TrackingData], list[TrackingSupplementaryData]]
             One tracking-data object per transit and one shared Gaia geocentric state
             history, including velocities, with Earth origin, J2000 orientation and
-            TDB epochs. Asteroids are named by their MPC number. Natural satellites are named by their denomination.
+            TDB epochs.
         """
         # Force the weight matrix to be completely symmetric (due to possible numerical error introduced in inversion)
         force_symmetric = lambda mat: (mat + mat.T) / 2
+
+        sources = self.sources
+
+        def _body_name(source_id: int) -> str:
+            """Create a body name for the target"""
+            if isinstance(target_body_names, dict) and source_id in target_body_names:
+                return str(target_body_names[source_id])
+            elif sources.loc[source_id, "number_mp"] == 0:
+                return sources.loc[source_id, "denomination"].capitalize()
+            else:
+                return str(sources.loc[source_id, "number_mp"])
 
         correction_settings = AngularObservationCorrectionSettings(
             light_deflection_bodies=(
@@ -281,14 +304,11 @@ class GaiaAstrometry:
             photocenter_correction=photocenter_correction,
         )
         tracking_data_objects = []
-        for _, table_for_object in self._table.groupby("source_id", sort=False):
 
+        for source_id, table_for_object in self._table.groupby("source_id", sort=False):
+
+            body_name = _body_name(source_id)
             observation_covariance_matrices = self._get_observation_covariance(table_for_object)
-
-            if table_for_object["number_mp"].iloc[0] == 0:
-                body_name = table_for_object["denomination"].iloc[0].capitalize()
-            else:
-                body_name = str(table_for_object["number_mp"].iloc[0])
 
             for (_, transit_rows), covariance_matrix in zip(
                 table_for_object.groupby("transit_id", sort=False),
@@ -656,19 +676,24 @@ class GaiaAstrometry:
             print(asteroid_data)
 
 
-def load_gaia_astrometry(
+def read_gaia_astrometry_data(
     target: int | str,
+    target_body_name: str | None = None,
     parquet_path: str | Path | None = None,
     epoch_start: float | DateTime | datetime | None = None,
     epoch_end: float | DateTime | datetime | None = None,
     time_scale: TimeScales = tdb_scale,
-) -> GaiaAstrometry | None:
-    """Load one object's Gaia CCD observations and apply the existing quality filters.
+) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
+    """Convenience wrapper function around :class:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry`, that
+    retrieves the astrometry for one object and converts it into ``TrackingData``. Filters poor observations
+    (``exclude_poor_observations=True``) and applies the solar relativistic light-deflection correction.
 
     Parameters
     ----------
     target : int | str
         Permanent MPC asteroid number, or denomination (needed for natural satellites).
+    target_body_name : str, optional
+        Body name to use for the target in the environment. If None, uses the default name.
     parquet_path : str | Path, optional
         Local FPR parquet archive. Read it if it exists; otherwise query AIP
         and save the full response there before conversion and filtering.
@@ -681,10 +706,10 @@ def load_gaia_astrometry(
 
     Returns
     -------
-    GaiaAstrometry | None
-        Filtered observations, or None if retrieval or filtering finds no data.
-        Query failures, unreadable archives and other errors propagate. Progress
-        is printed to the terminal. No dynamics or estimation objects are used.
+    list[TrackingData]
+        List of TrackingData objects (empty if no data is found)
+    list[TrackingSupplementaryData]
+        List of supplementary TrackingData objects (empty if no data is found)
     """
     if isinstance(epoch_start, datetime):
         epoch_start = DateTime.from_python_datetime(epoch_start).epoch()
@@ -718,19 +743,21 @@ def load_gaia_astrometry(
     except RuntimeError as error:
         if str(error).startswith("No observations found"):
             print(f"No Gaia observations for {target}.", flush=True)
-            return None
+            return [], []
         raise
     try:
-        gaia.apply_filters(epoch_start=epoch_start, epoch_end=epoch_end)
+        gaia.apply_filters(
+            exclude_poor_observations=True, epoch_start=epoch_start, epoch_end=epoch_end
+        )
     except RuntimeError as error:
         if str(error) == "No observations left after applying filters":
             print(f"No Gaia observations for {target} in the selected interval.", flush=True)
-            return None
+            return [], []
         raise
     table = gaia.table
     if table.empty:
         print(f"No Gaia observations for {target} in the selected interval.", flush=True)
-        return None
+        return [], []
     if table["source_id"].nunique() != 1:
         raise RuntimeError(f"Gaia astrometry must contain only target {target}.")
     print(
@@ -738,7 +765,11 @@ def load_gaia_astrometry(
         f"{table.transit_id.nunique()} transits for {target}.",
         flush=True,
     )
-    return gaia
+    source_id = gaia.sources.index.item()
+    return gaia.to_tracking_data(
+        target_body_names={source_id: target_body_name} if target_body_name else None,
+        light_deflection_bodies=("Sun",),
+    )
 
 
 def _prepare_gaia_asteroid_table(table: pd.DataFrame) -> pd.DataFrame:
