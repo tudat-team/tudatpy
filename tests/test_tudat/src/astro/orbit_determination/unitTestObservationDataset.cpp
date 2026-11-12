@@ -1525,6 +1525,46 @@ BOOST_AUTO_TEST_CASE( test_time_ordered_design_matrix_uses_active_mixed_dimensio
     BOOST_CHECK_EQUAL_COLLECTIONS( sorted.second.begin( ), sorted.second.end( ), expectedTimes.begin( ), expectedTimes.end( ) );
 }
 
+//! Verify that the covariance as a function of time uses the full weights matrix, with rows and columns ordered by time.
+BOOST_AUTO_TEST_CASE( test_covariance_history_with_off_diagonal_weights )
+{
+    auto dataset = std::make_shared< ObservationDataset<> >( );
+    dataset->addObservationSet( one_way_range,
+                                createOneWayLinkDefinition( "Station1" ),
+                                { Eigen::Vector1d::Zero( ), Eigen::Vector1d::Zero( ), Eigen::Vector1d::Zero( ) },
+                                { 3.0, 1.0, 2.0 },
+                                receiver );
+    Eigen::Matrix3d weights;
+    weights << 4.0, 1.0, 0.5, 1.0, 3.0, 0.25, 0.5, 0.25, 2.0;
+    const Eigen::SparseMatrix< double > sparseWeights = weights.sparseView( );
+    const Eigen::VectorXd diagonal = weights.diagonal( );
+    const Eigen::MatrixXd design = Eigen::Vector3d( 1.0, 2.0, 3.0 );
+    const Eigen::VectorXd normalization = Eigen::Vector1d::Constant( 2.0 );
+    const Eigen::MatrixXd prior = Eigen::MatrixXd::Identity( 1, 1 );
+
+    // Expected covariance is 1 / ( 4 * H^T W H + 1 ), with H and W restricted to the observations up to the output time
+    const auto history = simulation_setup::calculateCovarianceUsingDataUpToEpoch(
+            dataset, design, normalization, std::vector< double >{ 1.0, 2.0, 3.0 }, sparseWeights, prior );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 1.0 )( 0, 0 ), 1.0 / 49.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 2.0 )( 0, 0 ), 1.0 / 133.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 3.0 )( 0, 0 ), 1.0 / 177.0, 1.0E-14 );
+
+    auto input = std::make_shared< simulation_setup::EstimationInput<> >( dataset, prior );
+    auto output = std::make_shared< simulation_setup::EstimationOutput<> >( Eigen::Vector1d::Zero( ),
+                                                                            Eigen::Vector3d::Zero( ),
+                                                                            design,
+                                                                            diagonal,
+                                                                            normalization,
+                                                                            Eigen::MatrixXd::Constant( 1, 1, 44.25 ),
+                                                                            0.0,
+                                                                            0 );
+    output->weightsMatrix_ = sparseWeights;
+    const auto outputHistory = simulation_setup::calculateCovarianceUsingDataUpToEpoch( input, output, std::vector< double >{ 3.0 } );
+    const auto timeStepHistory = simulation_setup::calculateCovarianceUsingDataUpToEpoch( input, output, 1.0 );
+    BOOST_CHECK_CLOSE_FRACTION( outputHistory.at( 3.0 )( 0, 0 ), 1.0 / 177.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( timeStepHistory.at( 2.0 )( 0, 0 ), 1.0 / 133.0, 1.0E-14 );
+}
+
 //! Verify inspection getters preserve ordering, alignment, and weight correlations.
 BOOST_AUTO_TEST_CASE( test_inspection_ordering_alignment_and_correlations )
 {
