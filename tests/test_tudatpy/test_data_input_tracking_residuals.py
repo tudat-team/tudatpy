@@ -1099,7 +1099,6 @@ def test_translational_state_supplementary_data_rejects_non_utc_tdb_epochs():
 
 
 @pytest.mark.remote_data
-@pytest.mark.horizons_vectors
 def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
     """Check JPL Itokawa range and Doppler residuals over the 2005 arc."""
     # Check the complete remote-data path from JPL radar rows through Tudat
@@ -1165,7 +1164,6 @@ def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
 
 
 @pytest.mark.remote_data
-@pytest.mark.horizons_vectors
 @pytest.mark.parametrize(
     ("target", "horizons_id"),
     [
