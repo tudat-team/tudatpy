@@ -386,3 +386,15 @@ def test_python_row_and_metadata_descriptions_survive_dataset_removal(sample_dat
     assert row.observation_id == original_id
     assert row.time == original_time
     assert metadata.observable_type == original_type
+
+
+def test_condition_contents_can_be_retrieved():
+    """Verify that the kind, child conditions and values of a condition can be retrieved."""
+    query = observations.observation_query
+    condition = (query.observable_type == model_settings.one_way_range_type) & (query.time >= 2.0)
+    assert condition.condition_type == observations.ObservationSelectionConditionType.and_condition
+    range_condition, time_condition = condition.child_conditions
+    assert range_condition.condition_type.name == "observable_type"
+    assert range_condition.observable_type_value == model_settings.one_way_range_type
+    assert time_condition.condition_type.name == "time_greater_equal"
+    assert time_condition.time_value == 2.0

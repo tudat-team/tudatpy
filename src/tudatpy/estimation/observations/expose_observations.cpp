@@ -787,6 +787,35 @@ int
 )doc" );
     }
 
+    py::enum_< InspectionCondition::Type >( m,
+                                            "ObservationSelectionConditionType",
+                                            R"doc(
+Enumeration of the kinds of conditions that an
+:class:`~tudatpy.estimation.observations.ObservationSelectionCondition` can represent, see
+:attr:`~tudatpy.estimation.observations.ObservationSelectionCondition.condition_type`. The entries correspond to the
+functions of :class:`~tudatpy.estimation.observations.ObservationSelectionCondition` with the same name, with
+``and_condition``, ``or_condition`` and ``not_condition`` denoting conditions that are created with ``&``, ``|`` and
+``~``, respectively.
+)doc" )
+            .value( "all", InspectionCondition::Type::all )
+            .value( "observable_type", InspectionCondition::Type::observable_type )
+            .value( "link_definition", InspectionCondition::Type::link_definition )
+            .value( "link_end_type", InspectionCondition::Type::link_end_type )
+            .value( "link_end", InspectionCondition::Type::link_end )
+            .value( "set_id", InspectionCondition::Type::set_id )
+            .value( "time_greater_equal", InspectionCondition::Type::time_greater_equal )
+            .value( "time_greater_than", InspectionCondition::Type::time_greater_than )
+            .value( "time_less_equal", InspectionCondition::Type::time_less_equal )
+            .value( "time_less_than", InspectionCondition::Type::time_less_than )
+            .value( "active", InspectionCondition::Type::active )
+            .value( "residual_absolute_value_greater_than", InspectionCondition::Type::residual_absolute_value_greater_than )
+            .value( "observation_absolute_value_greater_than", InspectionCondition::Type::observation_absolute_value_greater_than )
+            .value( "dependent_variable_greater_than", InspectionCondition::Type::dependent_variable_greater_than )
+            .value( "and_condition", InspectionCondition::Type::and_condition )
+            .value( "or_condition", InspectionCondition::Type::or_condition )
+            .value( "not_condition", InspectionCondition::Type::not_condition )
+            .value( "custom", InspectionCondition::Type::custom );
+
     py::class_< InspectionCondition >( m,
                                        "ObservationSelectionCondition",
                                        R"doc(
@@ -795,6 +824,9 @@ Class defining a condition that selects observations in an :class:`~tudatpy.esti
 A condition is evaluated for each individual observation (not for complete observation sets). Conditions are normally
 created with :data:`~tudatpy.estimation.observations.observation_query`, but can also be created with the static
 functions of this class. Conditions can be combined with ``&`` (and) and ``|`` (or), and negated with ``~``.
+
+The contents of a condition can be retrieved from its ``condition_type``, from its ``child_conditions`` (for conditions
+that are combined with ``&``, ``|`` or ``~``), and from the attributes holding the value that it compares to.
 )doc" )
             .def( py::init<>( ), R"doc(Class constructor, creating a condition that selects all observations.)doc" )
             .def_static( "all", &InspectionCondition::all, R"doc(
@@ -1064,6 +1096,91 @@ Returns
 -------
 ObservationSelectionCondition
     Condition selecting the observations with a dependent variable larger than the limit.
+)doc" )
+            .def_property_readonly( "condition_type", &InspectionCondition::getType, R"doc(
+**read-only**
+
+Kind of the condition, for instance a condition on the observable type, or the combination of two conditions with
+``&``.
+
+:type: ObservationSelectionConditionType
+)doc" )
+            .def_property_readonly( "child_conditions", &InspectionCondition::getChildConditions, R"doc(
+**read-only**
+
+Conditions that are combined by this condition: two for an ``and_condition`` or ``or_condition`` (created with ``&``
+or ``|``), one for a ``not_condition`` (created with ``~``), and none for other kinds of conditions.
+
+:type: list[ObservationSelectionCondition]
+)doc" )
+            .def_property_readonly( "observable_type_value", &InspectionCondition::getObservableType, R"doc(
+**read-only**
+
+Observable type that is selected by an ``observable_type`` condition (not used by other kinds of conditions).
+
+:type: tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+)doc" )
+            .def_property_readonly( "link_definition_value", &InspectionCondition::getLinkDefinition, R"doc(
+**read-only**
+
+Link definition that is selected by a ``link_definition`` condition (not used by other kinds of conditions).
+
+:type: tudatpy.estimation.observable_models_setup.links.LinkDefinition
+)doc" )
+            .def_property_readonly( "link_end_type_value", &InspectionCondition::getLinkEndType, R"doc(
+**read-only**
+
+Role of the link end that is selected by a ``link_end_type`` or ``link_end`` condition (not used by other kinds of
+conditions).
+
+:type: tudatpy.estimation.observable_models_setup.links.LinkEndType
+)doc" )
+            .def_property_readonly( "link_end_id_value", &InspectionCondition::getLinkEndId, R"doc(
+**read-only**
+
+Body and reference point of the link end that is selected by a ``link_end`` condition (not used by other kinds of
+conditions).
+
+:type: tudatpy.estimation.observable_models_setup.links.LinkEndId
+)doc" )
+            .def_property_readonly( "set_id_value", &InspectionCondition::getSetId, R"doc(
+**read-only**
+
+Id of the observation set that is selected by a ``set_id`` condition (not used by other kinds of conditions).
+
+:type: int
+)doc" )
+            .def_property_readonly( "time_value", &InspectionCondition::getTimeValue, R"doc(
+**read-only**
+
+Time (in seconds since J2000, TDB) to which the observation time is compared by a ``time_greater_equal``,
+``time_greater_than``, ``time_less_equal`` or ``time_less_than`` condition (not used by other kinds of conditions).
+
+:type: tudatpy.astro.time_representation.Time
+)doc" )
+            .def_property_readonly( "vector_limit", &InspectionCondition::getVectorLimit, R"doc(
+**read-only**
+
+Limit used by a ``residual_absolute_value_greater_than``, ``observation_absolute_value_greater_than`` or
+``dependent_variable_greater_than`` condition (not used by other kinds of conditions).
+
+:type: numpy.ndarray[numpy.float64[m, 1]]
+)doc" )
+            .def_property_readonly( "dependent_variable_settings", &InspectionCondition::getDependentVariableSettings, R"doc(
+**read-only**
+
+Settings of the dependent variable used by a ``dependent_variable_greater_than`` condition (``None`` for other kinds
+of conditions).
+
+:type: tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+)doc" )
+            .def_property_readonly( "return_first_compatible_settings", &InspectionCondition::getReturnFirstCompatibleSettings, R"doc(
+**read-only**
+
+Whether a ``dependent_variable_greater_than`` condition uses the first compatible dependent variable if a set
+contains several (not used by other kinds of conditions).
+
+:type: bool
 )doc" )
             .def(
                     "__and__",

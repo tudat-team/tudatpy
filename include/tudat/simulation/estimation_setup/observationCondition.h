@@ -39,7 +39,8 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type >
 class ObservationSelectionCondition
 {
-    //! Condition kinds, used to dispatch the evaluation.
+public:
+    //! Condition kinds, used to dispatch the evaluation and to inspect a condition.
     enum class Type {
         all,
         observable_type,
@@ -61,7 +62,6 @@ class ObservationSelectionCondition
         custom
     };
 
-public:
     using Evaluator = std::function< bool( const ObservationDataset< ObservationScalarType, TimeType >&, const unsigned int ) >;
 
     //! Create a condition that selects every observation row.
@@ -136,6 +136,72 @@ public:
     ObservationSelectionCondition operator!( ) const
     {
         return ObservationSelectionCondition( Type::not_condition, { *this } );
+    }
+
+    //! Return the kind of this condition.
+    Type getType( ) const
+    {
+        return type_;
+    }
+
+    //! Return the conditions combined by a logical AND/OR/NOT condition (empty for other kinds of conditions).
+    std::vector< ObservationSelectionCondition > getChildConditions( ) const
+    {
+        return children_;
+    }
+
+    //! Return the observable type of an observable-type condition.
+    ObservableType getObservableType( ) const
+    {
+        return observableType_;
+    }
+
+    //! Return the link definition of a link-definition condition.
+    LinkDefinition getLinkDefinition( ) const
+    {
+        return linkDefinition_;
+    }
+
+    //! Return the link-end role of a link-end-type or link-end condition.
+    LinkEndType getLinkEndType( ) const
+    {
+        return linkEndType_;
+    }
+
+    //! Return the link-end identity of a link-end condition.
+    LinkEndId getLinkEndId( ) const
+    {
+        return linkEndId_;
+    }
+
+    //! Return the set id of a set-id condition.
+    unsigned int getSetId( ) const
+    {
+        return setId_;
+    }
+
+    //! Return the epoch of a one-sided time condition.
+    TimeType getTimeValue( ) const
+    {
+        return timeValue_;
+    }
+
+    //! Return the limit of a residual, observation or dependent-variable condition.
+    Eigen::VectorXd getVectorLimit( ) const
+    {
+        return vectorLimit_;
+    }
+
+    //! Return the dependent-variable settings of a dependent-variable condition.
+    std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > getDependentVariableSettings( ) const
+    {
+        return dependentVariableSettings_;
+    }
+
+    //! Return whether a dependent-variable condition uses the first of several compatible dependent variables.
+    bool getReturnFirstCompatibleSettings( ) const
+    {
+        return returnFirstCompatibleSettings_;
     }
 
     //! Create a condition that selects every observation row.
