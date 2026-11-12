@@ -188,6 +188,17 @@ BOOST_AUTO_TEST_CASE( test_cubicSplineInterpolator_matlab_compare )
     }
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( benchmarkData.block( 0, 1, benchmarkData.rows( ), 1 ), outputData, 1.0e-5 );
+
+    // Check derivative against central finite differences inside the domain, at a node and in the extrapolation region
+    const double finiteDifferenceStep = 1.0E-5;
+    for( const double evaluationPoint : { 0.1, independentVariableValues.at( 5 ), independentVariableValues.back( ) + 0.5 } )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( cubicInterpolator.interpolateDerivative( evaluationPoint ),
+                                    ( cubicInterpolator.interpolate( evaluationPoint + finiteDifferenceStep ) -
+                                      cubicInterpolator.interpolate( evaluationPoint - finiteDifferenceStep ) ) /
+                                            ( 2.0 * finiteDifferenceStep ),
+                                    1.0E-6 );
+    }
 }
 
 // Test linear interpolation outside of independent variable range
