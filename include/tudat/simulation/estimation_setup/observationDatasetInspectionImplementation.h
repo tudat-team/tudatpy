@@ -146,14 +146,69 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::vector< Eigen::VectorXd > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getDependentVariableValues(
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
-        const ObservationOrdering ordering ) const
+        const ObservationOrdering ordering,
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
+        const bool returnFirstCompatibleSettings ) const
 {
     std::vector< Eigen::VectorXd > result;
     for( const auto id : resolveObservationIds( condition, ordering ) )
     {
-        result.push_back( getDependentVariables( id ) );
+        result.push_back( dependentVariableSettings == nullptr
+                                  ? getDependentVariables( id )
+                                  : getSingleDependentVariable( id, dependentVariableSettings, returnFirstCompatibleSettings ) );
     }
     return result;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSingleDependentVariable(
+        const unsigned int observationId,
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
+        const bool returnFirstCompatibleSettings ) const
+{
+    if( dependentVariableSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when retrieving single dependent variable from observation dataset, settings are null." );
+    }
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping =
+            getDependentVariableBookkeeping(
+                    getObservationSetMetadata( getObservationRow( observationId ).setId_ ).dependentVariableLayoutId_ );
+    if( dependentVariableBookkeeping == nullptr )
+    {
+        return Eigen::VectorXd( );
+    }
+
+    std::vector< std::pair< int, int > > compatibleIndicesAndSizes;
+    for( const auto& settingsIterator : dependentVariableBookkeeping->getSettingsIndicesAndSizes( ) )
+    {
+        if( dependentVariableSettings->areSettingsCompatible( settingsIterator.second ) )
+        {
+            compatibleIndicesAndSizes.push_back( settingsIterator.first );
+        }
+    }
+
+    if( compatibleIndicesAndSizes.empty( ) )
+    {
+        return Eigen::VectorXd( );
+    }
+    if( compatibleIndicesAndSizes.size( ) > 1 && !returnFirstCompatibleSettings )
+    {
+        throw std::runtime_error(
+                "Error when retrieving single dependent variable from observation dataset, multiple compatible "
+                "dependent variables found." );
+    }
+
+    const std::pair< int, int >& indexAndSize = compatibleIndicesAndSizes.at( 0 );
+    const Eigen::VectorXd dependentVariables = getDependentVariables( observationId );
+    if( indexAndSize.first + indexAndSize.second > dependentVariables.size( ) )
+    {
+        throw std::runtime_error(
+                "Error when retrieving single dependent variable from observation dataset, the stored values are "
+                "inconsistent with the dependent-variable settings (they may not have been computed yet)." );
+    }
+    return dependentVariables.segment( indexAndSize.first, indexAndSize.second );
 }
 
 template< typename ObservationScalarType,

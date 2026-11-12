@@ -276,41 +276,9 @@ private:
     bool evaluateDependentVariable( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
                                     const unsigned int observationId ) const
     {
-        const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping =
-                dataset.getDependentVariableBookkeeping( getSetMetadata( dataset, observationId ).dependentVariableLayoutId_ );
-        if( dependentVariableBookkeeping == nullptr )
-        {
-            return false;
-        }
-
-        std::vector< std::pair< int, int > > compatibleIndicesAndSizes;
-        for( const auto& settingsIterator : dependentVariableBookkeeping->getSettingsIndicesAndSizes( ) )
-        {
-            if( dependentVariableSettings_->areSettingsCompatible( settingsIterator.second ) )
-            {
-                compatibleIndicesAndSizes.push_back( settingsIterator.first );
-            }
-        }
-
-        if( compatibleIndicesAndSizes.empty( ) )
-        {
-            return false;
-        }
-        if( compatibleIndicesAndSizes.size( ) > 1 && !returnFirstCompatibleSettings_ )
-        {
-            throw std::runtime_error(
-                    "Error when evaluating dependent-variable condition, multiple compatible dependent variables found." );
-        }
-
-        const std::pair< int, int >& indexAndSize = compatibleIndicesAndSizes.at( 0 );
-        const Eigen::VectorXd dependentVariables = dataset.getDependentVariables( observationId );
-        if( indexAndSize.first + indexAndSize.second > dependentVariables.size( ) )
-        {
-            throw std::runtime_error( "Error when evaluating dependent-variable condition, dependent-variable size is inconsistent." );
-        }
-
-        return isAnyComponentGreaterThanLimit(
-                dependentVariables.segment( indexAndSize.first, indexAndSize.second ), false, "dependent-variable" );
+        const Eigen::VectorXd dependentVariable =
+                dataset.getSingleDependentVariable( observationId, dependentVariableSettings_, returnFirstCompatibleSettings_ );
+        return dependentVariable.size( ) > 0 && isAnyComponentGreaterThanLimit( dependentVariable, false, "dependent-variable" );
     }
 
     //! Return whether any (absolute) value is greater than vectorLimit_, which has length one or the size of values.

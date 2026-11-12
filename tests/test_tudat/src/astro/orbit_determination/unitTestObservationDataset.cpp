@@ -410,6 +410,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
                               elevationSettings, elevationLimit, true ) ),
               { 1 } );
 
+    // A single dependent variable is retrieved by its settings, and is empty for sets that do not store it.
+    const std::vector< Eigen::VectorXd > elevationValues = dataset.getDependentVariableValues(
+            ObservationSelectionCondition< double, double >::all( ), ObservationOrdering::internal, elevationSettings );
+    BOOST_CHECK_EQUAL( elevationValues.size( ), 5 );
+    BOOST_CHECK_EQUAL( elevationValues.at( 1 )( 0 ), 0.4 );
+    BOOST_CHECK_EQUAL( elevationValues.at( 4 ).size( ), 0 );
+    BOOST_CHECK_EQUAL( ambiguousDependentVariableDataset.getSingleDependentVariable( 1, elevationSettings, true )( 0 ), 0.4 );
+
     ObservationDataset< double, double > noDependentVariableBookkeepingDataset;
     noDependentVariableBookkeepingDataset.addObservationSet(
             one_way_range,

@@ -243,6 +243,7 @@ def test_nested_metadata_is_detached():
     assert layout[(0, 1)] is not setting
     layout.clear()
     assert list(dataset.get_metadata()[0]["dependent_variable_layout"]) == [(0, 1)]
+    assert dataset.get_dependent_variables(dependent_variable_settings=setting)[0][0] == 0.5
     del dataset, source, settings, setting
     gc.collect()
     assert captured.get_float_settings(ancillary.doppler_integration_time) == 30

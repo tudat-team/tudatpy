@@ -282,11 +282,14 @@ public:
                     ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
             const ObservationOrdering ordering = ObservationOrdering::internal ) const;
 
-    //! Function to retrieve the dependent variables of each selected observation (empty if none are stored).
+    //! Function to retrieve the dependent variables of each selected observation (empty if none are stored). If
+    //! dependent-variable settings are provided, only the dependent variable with these settings is retrieved.
     std::vector< Eigen::VectorXd > getDependentVariableValues(
             const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
                     ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
-            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+            const ObservationOrdering ordering = ObservationOrdering::internal,
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings = nullptr,
+            const bool returnFirstCompatibleSettings = false ) const;
 
     //! Function to retrieve the (observation id, component index) of each component of the selected observations.
     std::vector< std::pair< unsigned int, unsigned int > > getScalarComponents(
@@ -454,6 +457,13 @@ public:
     {
         return getObservationRow( observationId ).dependentVariableValues_;
     }
+
+    //! Return the dependent variable with the given settings for one observation event (empty if no compatible
+    //! dependent variable is stored for its set).
+    Eigen::VectorXd getSingleDependentVariable(
+            const unsigned int observationId,
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
+            const bool returnFirstCompatibleSettings = false ) const;
 
     //! Replace per-observation dependent-variable vectors for one set.
     void setDependentVariablesForSet( const unsigned int setId, const std::vector< Eigen::VectorXd >& dependentVariables );

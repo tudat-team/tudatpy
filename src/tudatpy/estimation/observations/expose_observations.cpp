@@ -1247,13 +1247,23 @@ list[dict]
 )doc" )
                 .def(
                         "get_dependent_variables",
-                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
-                            return self.getDependentVariableValues( condition, inspectionOrdering( ordering ) );
+                        []( const InspectionDataset& self,
+                            const InspectionCondition& condition,
+                            const std::string& ordering,
+                            const std::shared_ptr< tss::ObservationDependentVariableSettings >& dependentVariableSettings,
+                            const bool returnFirstCompatibleSettings ) {
+                            return self.getDependentVariableValues(
+                                    condition, inspectionOrdering( ordering ), dependentVariableSettings, returnFirstCompatibleSettings );
                         },
                         py::arg( "condition" ) = InspectionCondition::all( ),
                         py::arg( "ordering" ) = "internal",
+                        py::arg( "dependent_variable_settings" ) = nullptr,
+                        py::arg( "return_first_compatible_settings" ) = false,
                         R"doc(
 Function to retrieve the dependent variables of the selected observations.
+
+By default, all dependent variables of each observation are retrieved. To retrieve a single dependent variable, its
+settings are provided as ``dependent_variable_settings``.
 
 Parameters
 ----------
@@ -1262,12 +1272,21 @@ condition : tudatpy.estimation.observations.ObservationSelectionCondition, defau
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
     Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
+dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings, default = None
+    Settings of the single dependent variable that is to be retrieved. If ``None``, all dependent variables are
+    retrieved.
+return_first_compatible_settings : bool, default = False
+    Whether to use the first compatible dependent variable if a set contains several dependent variables that are
+    compatible with ``dependent_variable_settings``. If ``False``, an error is raised in this case.
 
 Returns
 -------
 list[numpy.ndarray[numpy.float64[m, 1]]]
-    Dependent variables of each selected observation (empty if none are stored). The content of these vectors is
-    given by the ``dependent_variable_layout`` entry of :meth:`get_metadata`.
+    Dependent variables of each selected observation, in the same order as the output of :meth:`get_times` for the
+    same ``condition`` and ``ordering``. An entry is empty if no dependent variables are stored for the observation
+    or, when ``dependent_variable_settings`` is provided, if its observation set has no compatible dependent variable.
+    If ``dependent_variable_settings`` is ``None``, the content of these vectors is given by the
+    ``dependent_variable_layout`` entry of :meth:`get_metadata`.
 )doc" )
                 .def(
                         "get_scalar_components",
