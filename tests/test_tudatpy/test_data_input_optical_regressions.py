@@ -7,7 +7,10 @@ import pandas as pd
 import pytest
 
 from tudatpy.dynamics import environment_setup
-from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
+from tudatpy.estimation.observations import (
+    create_observation_collection_from_tracking_data,
+    create_observation_dataset_from_tracking_data,
+)
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
 from tudatpy.data_input.tracking_data.obs_80_cols import read_80_column_data
 from tudatpy.data_input.tracking_data.optical_utilities import read_optical_data
@@ -65,6 +68,24 @@ def test_catalog_bias_is_subtracted_in_final_collection(optical_table, monkeypat
         rtol=1.0e-10,
         atol=1.0e-16,
     )
+
+
+def test_adopted_biases_are_applied(optical_table):
+    """Subtract adopted RA cos(Dec) and Dec biases, and use the negative adopted time bias."""
+    arcsec = np.deg2rad(1.0 / 3600.0)
+    table = optical_table.assign(DEC=60.0, biasRA=0.5, biasDec=0.25)
+    data, _ = read_optical_data(table)
+    raw = np.array(data[0].observations).reshape(-1)
+    collection = create_observation_collection_from_tracking_data(
+        data, empty_bodies(), apply_corrections=True
+    )
+    np.testing.assert_allclose(
+        np.array(collection.concatenated_observations).reshape(-1) - raw,
+        -arcsec * np.array([0.5 / np.cos(np.deg2rad(60.0)), 0.25]),
+        rtol=1.0e-10,
+    )
+    data, _ = read_optical_data(table.assign(biasTime=2.0))
+    assert data[0].observation_time_biases == [-2.0]
 
 
 @pytest.mark.parametrize("source", ["file", "mpc"])
@@ -156,30 +177,32 @@ def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, t
 def test_ades_weights_from_uncertainties_and_local_night(
     optical_table, scheme, observations_per_night
 ):
-    """Weight positions by their uncertainties, or by VFCC17 without; for ADES_NIGHT the first two share a night."""
+    """Weight positions by their uncertainties and correlation, or by VFCC17 without; for ADES_NIGHT the first two share a night."""
     table = pd.concat([optical_table] * 3, ignore_index=True)
     # Station 500 is at zero longitude, so the local night is the integer part of the Julian date.
     table["epoch"] = [2460310.55, 2460310.65, 2460311.65]
     table["DEC"] = [0.0, 30.0, 60.0]
     table["rmsRA"] = [0.15, 0.2, np.nan]
     table["rmsDec"] = [0.13, 0.1, np.nan]
+    table["rmsCorr"] = [0.4, np.nan, np.nan]
     data, _ = read_optical_data(table, weighing_scheme=scheme)
-    collection = create_observation_collection_from_tracking_data(data, weighting_bodies())
+    dataset = create_observation_dataset_from_tracking_data(data, weighting_bodies())
 
-    # The RA uncertainty is scaled by 1/cos(Dec); for ADES_NIGHT, weights are divided by N.
+    # The weights are the inverse of the covariance of each observation, with the RA uncertainty scaled by 1/cos(Dec);
+    # for ADES_NIGHT, weights are divided by N.
     arcsec = np.deg2rad(1.0 / 3600.0)
-    expected = (
-        np.column_stack(
-            [
-                (np.cos(np.deg2rad(table["DEC"])) / (table["rmsRA"] * arcsec)) ** 2,
-                1.0 / (table["rmsDec"] * arcsec) ** 2,
-            ]
+    expected = np.zeros((6, 6))
+    for i in range(2):
+        ra_sigma = table["rmsRA"][i] * arcsec / np.cos(np.deg2rad(table["DEC"][i]))
+        dec_sigma = table["rmsDec"][i] * arcsec
+        covariance = np.nan_to_num(table["rmsCorr"][i]) * ra_sigma * dec_sigma
+        expected[2 * i : 2 * i + 2, 2 * i : 2 * i + 2] = (
+            np.linalg.inv([[ra_sigma**2, covariance], [covariance, dec_sigma**2]])
+            / observations_per_night[i]
         )
-        / np.array(observations_per_night)[:, None]
-    )
     # The last observation has no uncertainties, and gets the VFCC17 weight of CCD data with catalogue U.
-    expected[2] = 1.0 / arcsec**2
-    np.testing.assert_allclose(collection.concatenated_weights, expected.reshape(-1), rtol=1.0e-12)
+    expected[4:, 4:] = np.eye(2) / arcsec**2
+    np.testing.assert_allclose(dataset.get_weight_matrix().toarray(), expected, rtol=1.0e-12)
 
 
 @pytest.mark.parametrize("source", ["pandas", "mpc"])

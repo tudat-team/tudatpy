@@ -254,10 +254,11 @@ void expose_tracking_data( py::module& m )
              ``"ADES_NIGHT"``). The weights are computed when an observation collection is created
              from this object, unless weights have been set manually. For ``"ADES"`` and
              ``"ADES_NIGHT"``, the weights are computed from the rmsRA and rmsDec uncertainties
-             stored in the metadata. For ``"ADES_NIGHT"``, the weights are additionally divided by
-             the number of observations in the same local night (using the same
-             definition of a local night as for ``"VFCC17"``). In both ADES schemes, observations
-             without (positive) rmsRA and rmsDec get ``"VFCC17"`` weights.
+             stored in the metadata, and from their correlation rmsCorr (if available), which gives
+             a non-diagonal weight block for each observation. For ``"ADES_NIGHT"``, the weights are
+             additionally divided by the number of observations in the same local night (using the
+             same definition of a local night as for ``"VFCC17"``). In both ADES schemes, observations
+             without rmsRA and rmsDec get ``"VFCC17"`` weights.
       )doc" )
             .def_property_readonly( "observable_type",
                                     &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,
@@ -678,14 +679,15 @@ void expose_tracking_data( py::module& m )
 
          When the tracking data is converted to an observation dataset, the contribution of the epoch uncertainty
          :math:`\sigma_{T}` is added to the covariance :math:`\mathbf{C}_{P}` of each observation (the inverse of its
-         positional weights, which must be defined), following Farnocchia et al. (2022):
+         positional weights, which must be defined), following :cite:p:`farnocchia2022`:
 
          .. math::
             \mathbf{C}=\mathbf{C}_{P}+\sigma_{T}^{2}\begin{pmatrix}\dot{\alpha}^{2} & \dot{\alpha}\dot{\delta}\\ \dot{\alpha}\dot{\delta} & \dot{\delta}^{2}\end{pmatrix}
 
-         where :math:`\dot{\alpha}` and :math:`\dot{\delta}` are the rates of right ascension and declination, computed
-         from the states of the observer and observed body in the environment. The inverse of :math:`\mathbf{C}` is used
-         as the (non-diagonal) weight block of each observation.
+         where :math:`\dot{\alpha}` and :math:`\dot{\delta}` are the rates of right ascension and declination (w.r.t.
+         J2000), computed from the states of the observer and observed body in the environment. The inverse of
+         :math:`\mathbf{C}` is used as the (non-diagonal) weight block of each observation. For set-level weights, which
+         correlate different observations, these contributions are added to the covariance of the full set.
 
          Parameters
          ----------
@@ -695,7 +697,14 @@ void expose_tracking_data( py::module& m )
             .def_property_readonly( "observation_time_uncertainties",
                                     &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimeUncertainties,
                                     py::return_value_policy::copy,
-                                    "(1-sigma) observation epoch uncertainties (in seconds), one per observation (empty if not set)." )
+                                    R"doc(
+         **read-only**
+
+         (1-sigma) uncertainties of the observation epochs (in seconds), one per observation (empty if not set), see
+         :meth:`set_observation_time_uncertainties`.
+
+         :type: list[float]
+      )doc" )
             .def( "set_observation_time_biases",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationTimeBiases,
                   py::arg( "time_biases" ),
@@ -716,7 +725,14 @@ void expose_tracking_data( py::module& m )
             .def_property_readonly( "observation_time_biases",
                                     &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimeBiases,
                                     py::return_value_policy::copy,
-                                    "Biases of the observation epochs (in seconds), one per observation (empty if not set)." )
+                                    R"doc(
+         **read-only**
+
+         Biases of the observation epochs (in seconds), one per observation (empty if not set), see
+         :meth:`set_observation_time_biases`.
+
+         :type: list[float]
+      )doc" )
             .def( "remove_single_observation_entry",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry,
                   py::arg( "index" ),

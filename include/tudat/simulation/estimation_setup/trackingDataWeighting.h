@@ -19,11 +19,13 @@
 #include <vector>
 
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingDataWeights.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 
 namespace tudat
 {
@@ -74,7 +76,7 @@ void setObservationWeightsFromTrackingDataScheme(
     const std::map< std::string, std::vector< std::string > > ancillaryStringVectorSettings =
             trackingData->getAncillarySettingsStringVector( );
 
-    for( const std::string metadataKey : { "note2", "catalog", "rmsRA", "rmsDec" } )
+    for( const std::string metadataKey : { "note2", "catalog", "rmsRA", "rmsDec", "rmsCorr" } )
     {
         auto metadataIterator = ancillaryStringVectorSettings.find( metadataKey );
         if( metadataIterator == ancillaryStringVectorSettings.end( ) )
@@ -103,27 +105,8 @@ void setObservationWeightsFromTrackingDataScheme(
     }
 }
 
-//! Function to compute the rates of right ascension and declination of an observed body
-/*!
- * Function to compute the rates of right ascension and declination of an observed body, from its Cartesian state relative to the
- * observer (expressed in the frame in which the right ascension and declination are defined).
- * \param relativeState Cartesian state of the observed body w.r.t. the observer
- * \return Rates of right ascension and declination (in rad/s)
- */
-inline Eigen::Vector2d computeRightAscensionAndDeclinationRates( const Eigen::Vector6d& relativeState )
-{
-    const double x = relativeState( 0 ), y = relativeState( 1 ), z = relativeState( 2 );
-    const double vx = relativeState( 3 ), vy = relativeState( 4 ), vz = relativeState( 5 );
-    const double squaredEquatorialDistance = x * x + y * y;
-    const double squaredDistance = squaredEquatorialDistance + z * z;
-
-    return Eigen::Vector2d(
-            ( x * vy - y * vx ) / squaredEquatorialDistance,
-            ( vz * squaredEquatorialDistance - z * ( x * vx + y * vy ) ) / ( squaredDistance * std::sqrt( squaredEquatorialDistance ) ) );
-}
-
-//! Function to compute the rates of right ascension and declination of the observed body (transmitter), as seen by the observer
-//! (receiver), at a list of times, from the geometric states of both link ends in the environment
+//! Function to compute the rates of right ascension and declination (w.r.t. J2000) of the observed body (transmitter), as seen by
+//! the observer (receiver), at a list of times, from the geometric states of both link ends in the environment
 template< typename TimeType = double >
 std::vector< Eigen::Vector2d > getRightAscensionAndDeclinationRates( const simulation_setup::SystemOfBodies& bodies,
                                                                      const observation_models::LinkEnds& rawLinkEnds,
@@ -134,11 +117,18 @@ std::vector< Eigen::Vector2d > getRightAscensionAndDeclinationRates( const simul
     const std::function< Eigen::Vector6d( const TimeType ) > observedBodyStateFunction =
             simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, double >( rawLinkEnds.at( transmitter ), bodies );
 
+    // Rotation from the global frame to J2000, in which the right ascension and declination are defined
+    const Eigen::Matrix3d rotationToJ2000 = getJ2000ToGlobalFrameTransformation( bodies ).transpose( );
+
     std::vector< Eigen::Vector2d > angularRates;
+    angularRates.reserve( observationTimes.size( ) );
     for( const TimeType& observationTime : observationTimes )
     {
-        angularRates.push_back( computeRightAscensionAndDeclinationRates( observedBodyStateFunction( observationTime ) -
-                                                                          observerStateFunction( observationTime ) ) );
+        // The rates are the partials w.r.t. the observer position, multiplied by the velocity of the observer w.r.t. the observed body
+        const Eigen::Vector6d relativeState = observerStateFunction( observationTime ) - observedBodyStateFunction( observationTime );
+        angularRates.push_back( observation_partials::calculatePartialOfAngularPositionWrtLinkEndPosition(
+                                        rotationToJ2000 * relativeState.segment< 3 >( 0 ), true ) *
+                                rotationToJ2000 * relativeState.segment< 3 >( 3 ) );
     }
     return angularRates;
 }
@@ -148,16 +138,28 @@ std::vector< Eigen::Vector2d > getRightAscensionAndDeclinationRates( const simul
  * Function to add the contribution of observation epoch uncertainties to the weights of angular position observations, following
  * Farnocchia et al. (2022). For each observation, the covariance C_P (inverse of the positional weights) is augmented to
  * C = C_P + sigma_T^2 r r^T, where sigma_T is the epoch uncertainty and r the vector of right ascension and declination rates.
- * The returned weights are the inverse of C, for each observation.
+ * The returned weights are the inverse of C, for each observation. For set-level weights (correlating different observations), the
+ * covariance of the full set is augmented with these 2x2 blocks along its diagonal, and its inverse is returned as set-level weights.
  * \param positionalWeightSettings Weights of the angular position observations, without contribution of the epoch uncertainties
  * \param timeUncertainties Uncertainties of the observation epochs (in s)
  * \param angularRates Rates of right ascension and declination (in rad/s), at each observation epoch
  * \return Weights of the angular position observations, including the contribution of the epoch uncertainties
  */
 inline ObservationWeightSettings getAngularPositionWeightsWithTimeUncertainty( const ObservationWeightSettings& positionalWeightSettings,
-                                                                                const std::vector< double >& timeUncertainties,
-                                                                                const std::vector< Eigen::Vector2d >& angularRates )
+                                                                               const std::vector< double >& timeUncertainties,
+                                                                               const std::vector< Eigen::Vector2d >& angularRates )
 {
+    if( positionalWeightSettings.type_ == ObservationWeightSettings::WeightsBlockType::set_block )
+    {
+        Eigen::MatrixXd covariance = positionalWeightSettings.weightBlock_.inverse( );
+        for( unsigned int i = 0; i < angularRates.size( ); ++i )
+        {
+            covariance.block( 2 * i, 2 * i, 2, 2 ) +=
+                    timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates.at( i ) * angularRates.at( i ).transpose( );
+        }
+        return ObservationWeightSettings::setBlock( covariance.inverse( ) );
+    }
+
     std::vector< Eigen::MatrixXd > weightBlocks;
     for( unsigned int i = 0; i < angularRates.size( ); ++i )
     {

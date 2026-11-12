@@ -1,5 +1,8 @@
 import tudatpy.data_input.tracking_data.ades.parsers as parser
 from tudatpy.data_input.tracking_data.ades.parsers import MODE_DICT, CATALOG_DICT
+from tudatpy.data_input.tracking_data.ades.reader import (
+    _select_ades_observation_or_residual_fields,
+)
 
 import pandas as pd
 import pytest
@@ -677,3 +680,24 @@ def test_returns_empty_table_without_known_observations(tmp_path):
     result = parser.parse_ades_file(str(path))
     assert isinstance(result, Table)
     assert len(result) == 0
+
+
+@pytest.mark.parametrize("prefer_residual_fields", [False, True])
+def test_selects_observation_or_residual_fields_per_observation(prefer_residual_fields):
+    """Use all fields of the preferred kind if any is available, otherwise all of the other kind."""
+    # The observations have both kinds of fields, only observation fields, and only residual fields.
+    table = Table(
+        {
+            "rmsRA": [0.1, 0.2, np.nan],
+            "rmsTime": [1.0, np.nan, np.nan],
+            "sigRA": [0.3, np.nan, 0.4],
+            "sigDec": [0.35, np.nan, 0.45],
+            "biasTime": [2.0, np.nan, 3.0],
+        }
+    )
+    _select_ades_observation_or_residual_fields(table, prefer_residual_fields)
+    first = (0.3, 0.35, np.nan, 2.0) if prefer_residual_fields else (0.1, np.nan, 1.0, np.nan)
+    expected = np.array([first, (0.2, np.nan, np.nan, np.nan), (0.4, 0.45, np.nan, 3.0)])
+    for index, column in enumerate(["rmsRA", "rmsDec", "rmsTime", "biasTime"]):
+        assert_equal(np.asarray(table[column]), expected[:, index])
+    assert not {"sigRA", "sigDec", "sigCorr", "sigTime"} & set(table.colnames)

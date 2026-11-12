@@ -324,17 +324,20 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
             observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
 }
 
-//! Function to retrieve an ADES uncertainty (in arcseconds) from string metadata, zero if it is not available
-inline double getAdesUncertainty( const std::map< std::string, std::string >& stringMetadata, const std::string& key )
+//! Function to retrieve a numerical ADES value (e.g. rmsRA in arcseconds) from string metadata, NaN if it is not available
+inline double getAdesMetadataValue( const std::map< std::string, std::string >& stringMetadata, const std::string& key )
 {
     const auto metadataIterator = stringMetadata.find( key );
-    return ( metadataIterator == stringMetadata.end( ) || metadataIterator->second.empty( ) ) ? 0.0 : std::stod( metadataIterator->second );
+    return ( metadataIterator == stringMetadata.end( ) || metadataIterator->second.empty( ) ) ? TUDAT_NAN
+                                                                                              : std::stod( metadataIterator->second );
 }
 
 //! Function to set the observation weights of angular position TrackingData for the ADES and ADES_NIGHT weighing schemes. The weights are
-//! computed from the rmsRA and rmsDec uncertainties (in arcseconds, stored as string metadata); the RA uncertainty is divided by cos(Dec).
-//! For ADES_NIGHT, each weight is additionally divided by N, with N the number of observations in the same local night (identical
-//! night definition as used for the VFCC17 weighing scheme). Observations without (positive) rmsRA and rmsDec get VFCC17 weights.
+//! the inverse of the covariance computed from the rmsRA and rmsDec uncertainties (in arcseconds, stored as string metadata; the RA
+//! uncertainty is divided by cos(Dec)) and their correlation rmsCorr (zero if not available). For ADES_NIGHT, each weight is additionally
+//! divided by N, with N the number of observations in the same local night (identical night definition as used for the VFCC17 weighing
+//! scheme). Observations without rmsRA and rmsDec get VFCC17 weights. If any observation has a nonzero correlation, the weights are set as
+//! one block per observation, otherwise as diagonal weights.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -358,34 +361,70 @@ void setAdesWeights( const std::shared_ptr< TrackingData< ObservationScalarType,
     const std::vector< int > observationsPerLocalNight = getNumberOfObservationsPerLocalNight( epochs, stationPositions );
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations = trackingData->getObservations( );
 
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observationWeights;
-    observationWeights.reserve( trackingData->getNumberOfObservations( ) );
+    std::vector< Eigen::MatrixXd > weightBlocks;
+    weightBlocks.reserve( trackingData->getNumberOfObservations( ) );
+    bool hasCorrelations = false;
     for( unsigned int i = 0; i < trackingData->getNumberOfObservations( ); ++i )
     {
-        const double rmsRa = getAdesUncertainty( stringMetadata.at( i ), "rmsRA" );
-        const double rmsDec = getAdesUncertainty( stringMetadata.at( i ), "rmsDec" );
+        const double rmsRa = getAdesMetadataValue( stringMetadata.at( i ), "rmsRA" );
+        const double rmsDec = getAdesMetadataValue( stringMetadata.at( i ), "rmsDec" );
+        const double rmsCorr = getAdesMetadataValue( stringMetadata.at( i ), "rmsCorr" );
 
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > weight( 2 );
-        if( rmsRa > 0.0 && rmsDec > 0.0 )
+        Eigen::Matrix2d weight;
+        if( std::isnan( rmsRa ) && std::isnan( rmsDec ) )
+        {
+            weight = getVfcc17Weight( epochs.at( i ), stringMetadata.at( i ), observationsPerLocalNight.at( i ) ) *
+                    Eigen::Matrix2d::Identity( );
+        }
+        else if( !( rmsRa > 0.0 && rmsDec > 0.0 && std::isfinite( rmsRa ) && std::isfinite( rmsDec ) ) )
+        {
+            throw std::runtime_error(
+                    "Error when setting ADES weights, rmsRA and rmsDec must both be positive and finite, or both be absent, "
+                    "found rmsRA = " +
+                    std::to_string( rmsRa ) + " and rmsDec = " + std::to_string( rmsDec ) + " for observation " + std::to_string( i ) +
+                    "." );
+        }
+        else if( !std::isnan( rmsCorr ) && !( std::fabs( rmsCorr ) < 1.0 ) )
+        {
+            throw std::runtime_error( "Error when setting ADES weights, rmsCorr must be between -1 and 1, found rmsCorr = " +
+                                      std::to_string( rmsCorr ) + " for observation " + std::to_string( i ) + "." );
+        }
+        else
         {
             const double declination = static_cast< double >( observations.at( i )( 1 ) );
             const double raUncertainty = unit_conversions::convertArcSecondsToRadians( rmsRa ) / std::cos( declination );
             const double decUncertainty = unit_conversions::convertArcSecondsToRadians( rmsDec );
-            weight << 1.0 / ( raUncertainty * raUncertainty ), 1.0 / ( decUncertainty * decUncertainty );
+            const double correlation = std::isnan( rmsCorr ) ? 0.0 : rmsCorr;
+
+            // Inverse of the covariance with variances raUncertainty^2 and decUncertainty^2, and covariance
+            // correlation * raUncertainty * decUncertainty
+            weight << 1.0 / ( raUncertainty * raUncertainty ), -correlation / ( raUncertainty * decUncertainty ),
+                    -correlation / ( raUncertainty * decUncertainty ), 1.0 / ( decUncertainty * decUncertainty );
+            weight /= 1.0 - correlation * correlation;
             if( deweightPerLocalNight )
             {
                 weight /= static_cast< double >( observationsPerLocalNight.at( i ) );
             }
+            hasCorrelations = hasCorrelations || ( correlation != 0.0 );
         }
-        else
-        {
-            weight.setConstant( getVfcc17Weight( epochs.at( i ), stringMetadata.at( i ), observationsPerLocalNight.at( i ) ) );
-        }
-        observationWeights.push_back( weight );
+        weightBlocks.push_back( weight );
     }
 
-    trackingData->setObservationWeightSettings(
-            observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
+    if( hasCorrelations )
+    {
+        trackingData->setObservationWeightSettings( observation_models::ObservationWeightSettings::blockPerObservation( weightBlocks ) );
+    }
+    else
+    {
+        std::vector< Eigen::VectorXd > observationWeights;
+        observationWeights.reserve( weightBlocks.size( ) );
+        for( const Eigen::MatrixXd& weightBlock : weightBlocks )
+        {
+            observationWeights.push_back( weightBlock.diagonal( ) );
+        }
+        trackingData->setObservationWeightSettings(
+                observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
+    }
 }
 
 }  // namespace data

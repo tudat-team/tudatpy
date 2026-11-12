@@ -58,7 +58,8 @@ def read_80_column_data(
     weighing_scheme : str, default ""
         Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
         :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
-        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
+        uncertainties of each observation, and from their correlation rmsCorr if
+        available) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
         weights divided by the number of observations of the same target,
         from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
         weights are computed when the observation collection is created. If empty, no weights
