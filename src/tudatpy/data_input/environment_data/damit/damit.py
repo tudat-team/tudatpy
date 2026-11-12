@@ -18,16 +18,10 @@ _DAMIT_TABLES_DIR = _DAMIT_DIR / "tables"
 _DAMIT_ASTEROID_MODELS = _DAMIT_TABLES_DIR / "asteroid_models.csv"
 _DAMIT_ASTEROIDS = _DAMIT_TABLES_DIR / "asteroids.csv"
 
-# Rotation warnings that were already given, since Python may report a repeated warning again
-_reported_rotation_warnings = set()
-
 
 def _download_tables(force: bool = False) -> None:
-    """Download DAMIT asteroid and asteroid model tables, necessary for:
-    - Querying models by MPC number
-    - Getting volume-equivalent diameter
-    - Rotational parameters
-    """
+    """Download the DAMIT asteroid and asteroid model tables, which give the MPC numbers, sizes and YORP rates of the
+    models."""
     for table in (_DAMIT_ASTEROIDS, _DAMIT_ASTEROID_MODELS):
         download_extra_file(
             url=f"https://damit.cuni.cz/projects/damit/exports/table/{table.stem}",
@@ -38,9 +32,7 @@ def _download_tables(force: bool = False) -> None:
 
 
 def _download_model(model_id: int, force: bool = False) -> tuple[Path, Path]:
-    """Downloads an individual asteroid model
-    - shape.obj: contains vertices and facets
-    - spin.txt: contains rotational parameters"""
+    """Download the shape (shape.obj) and rotation (spin.txt) files of a DAMIT model, and return their paths."""
     model_dir = _DAMIT_MODELS_DIR / str(model_id)
     obj_file = model_dir / "shape.obj"
     spin_file = model_dir / "spin.txt"
@@ -58,7 +50,7 @@ def _download_model(model_id: int, force: bool = False) -> tuple[Path, Path]:
 
 
 def _load_model_table(force: bool = False) -> pd.DataFrame:
-    """Loads all asteroid shape models into a pandas dataframe"""
+    """Load the table of all DAMIT models, with the MPC number of each model's asteroid, indexed by model ID."""
     _download_tables(force)
 
     # Asteroid data table containing primarily the DAMIT ID's of the asteroids
@@ -86,21 +78,23 @@ def list_damit_models(
     mpc_number: int | None = None,
     force_refresh: bool = False,
 ) -> pd.DataFrame:
-    """
-    Returns a table with asteroid models for the queried MPC number. An asteroid may have one or more models,
-    or none, in which case the table is returned empty. Asteroid model tables will be downloaded if run for the first time
+    """List the DAMIT models of an asteroid, or of all asteroids.
+
+    An asteroid can have several models, or none, in which case the returned table is empty. The DAMIT tables are
+    downloaded on the first call, and stored for later use.
 
     Parameters
     ----------
     mpc_number : int, optional
-        MPC number to query. If None, all models are returned.
+        MPC number of the asteroid. If None, all models are listed.
     force_refresh : bool, optional
-        If true, redownloads and overwrites existing tables to the latest versions.
+        If True, downloads the DAMIT tables again, replacing the stored ones. Defaults to False.
 
     Returns
     -------
-    pd.DataFrame
-        A dataframe containing the models that match the query
+    pandas.DataFrame
+        Table of the models, indexed by DAMIT model ID, with the columns of the DAMIT model table and the MPC number
+        of the asteroid (``mpc_number``).
     """
     table = _load_model_table(force_refresh)
 
@@ -112,36 +106,40 @@ def list_damit_models(
 
 
 class DamitModel:
-    """
-    Initialize a DamitModel object from the shape and rotational parameters.
+    """Asteroid model from DAMIT: a polyhedron shape and a rotation about a fixed axis.
 
-    Normally, use either :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.query`
-    or :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.from_file` to initialize a model.
+    A model is normally created with :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.query` or
+    :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.from_file`. Shape model settings are created from it
+    with :func:`~tudatpy.dynamics.environment_setup.shape.damit_polyhedron` or
+    :func:`~tudatpy.dynamics.environment_setup.shape.damit_best_fitting_ellipsoid`, and rotation model settings with
+    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit`.
 
-    To create shape and rotation model settings from a DamitModel, use
-    :func:`~tudatpy.dynamics.environment_setup.shape.damit_polyhedron`,
-    :func:`~tudatpy.dynamics.environment_setup.shape.damit_best_fitting_ellipsoid`,
-    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_polyhedron` and
-    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_best_fitting_ellipsoid`.
+    The body-fixed frame of the model has its z-axis along the rotation axis, which is assumed to be a principal axis,
+    and its x-axis along the principal axis of minimum moment of inertia in the equatorial plane (for a constant
+    density). The vertices are rotated about the z-axis to this frame, and the rotation angle is changed by the same
+    angle, so that the orientation of the body is unchanged. Body-fixed longitudes therefore differ from those in the
+    frame of the DAMIT shape model by this angle.
+
+    The rotation rate is constant: a YORP change of the rotation rate is ignored. For a model from
+    :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.query` that has one, a warning is given when its
+    rotation is used.
 
     Parameters
     ----------
-    vertices : np.ndarray
-        Vertex coordinates in meters
-    facets : np.ndarray
-        Facet coordinates, zero-indexed
+    vertices : numpy.ndarray
+        Cartesian coordinates of the vertices in the frame of the shape model (m), one row per vertex.
+    facets : numpy.ndarray
+        Indices of the three vertices of each facet (zero-indexed), one row per facet.
     pole_longitude : float
-        Longitude in ecliptic J2000 coordinates (rad)
+        Ecliptic longitude of the rotation axis, w.r.t. ECLIPJ2000 (rad).
     pole_latitude : float
-        Latitude in ecliptic J2000 coordinates (rad)
-    period: float
-        Period in seconds. Note: changes to rotation rate due to YORP effect are ignored. For models obtained from
-        :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.query`, a warning is given once per body when
-        the rotation of such a model is used.
-    initial_rotation_angle: float
-        Initial rotation angle in (rad)
-    reference_epoch: float
-        Rotation reference epoch in seconds since J2000
+        Ecliptic latitude of the rotation axis, w.r.t. ECLIPJ2000 (rad).
+    period : float
+        Sidereal rotation period (s).
+    initial_rotation_angle : float
+        Rotation angle of the frame of the shape model at the reference epoch (rad).
+    reference_epoch : float
+        Reference epoch of the rotation, in seconds since J2000.
     """
 
     def __init__(
@@ -154,6 +152,10 @@ class DamitModel:
         initial_rotation_angle: float,
         reference_epoch: float,
     ):
+        # Copy the input, so that later changes to the input arrays do not change the model
+        vertices = np.array(vertices, dtype=float)
+        facets = np.array(facets, dtype=int)
+
         # Input check
         if not vertices.shape[1] == 3 or not facets.shape[1] == 3:
             raise ValueError("Vertices and facets must have three columns")
@@ -162,6 +164,19 @@ class DamitModel:
 
         if period <= 0:
             raise ValueError("Period must be positive")
+
+        # Rotate the vertices about the z-axis by the smallest angle that puts the x-axis along the principal axis of
+        # minimum moment of inertia in the equatorial plane (r' = R_z(-offset) r), and add this angle to the rotation
+        # angle, so that the orientation of the body is unchanged
+        _, eigenvectors = np.linalg.eigh(inertia_tensor_from_density(vertices, facets, 1)[:2, :2])
+        principal_axis_offset = (
+            np.arctan2(eigenvectors[1, 0], eigenvectors[0, 0]) + np.pi / 2
+        ) % np.pi - np.pi / 2
+        cos_offset, sin_offset = np.cos(principal_axis_offset), np.sin(principal_axis_offset)
+        vertices[:, :2] = vertices[:, :2] @ np.array(
+            [[cos_offset, -sin_offset], [sin_offset, cos_offset]]
+        )
+        initial_rotation_angle += principal_axis_offset
 
         # DamitModel attributes
         self._vertices = vertices
@@ -174,19 +189,13 @@ class DamitModel:
         self._rotation_warning = None
         self._number_of_equally_good_models = None
 
-    def _warn_if_rotation_incomplete(self) -> None:
-        """Warns if rotation is used of a model with ignored rotational data. The text identifies the body, so this
-        is reported once per body."""
-        warning = self._rotation_warning
-        if warning is not None and warning not in _reported_rotation_warnings:
-            _reported_rotation_warnings.add(warning)
-            warn(warning)
-
     @property
     def vertices(self) -> np.ndarray:
         """**read-only**
 
-        Copy of the vertex coordinates (m)
+        Copy of the body-fixed Cartesian coordinates of the vertices (m), one row per vertex.
+
+        :type: numpy.ndarray
         """
         return self._vertices.copy()
 
@@ -194,7 +203,9 @@ class DamitModel:
     def facets(self) -> np.ndarray:
         """**read-only**
 
-        Copy of the facet vertex indices, zero-indexed
+        Copy of the indices of the three vertices of each facet (zero-indexed), one row per facet.
+
+        :type: numpy.ndarray
         """
         return self._facets.copy()
 
@@ -202,54 +213,61 @@ class DamitModel:
     def pole_longitude(self) -> float:
         """**read-only**
 
-        Pole longitude in ecliptic J2000 coordinates (rad)
+        Ecliptic longitude of the rotation axis, w.r.t. ECLIPJ2000 (rad).
+
+        :type: float
         """
-        self._warn_if_rotation_incomplete()
         return self._pole_longitude
 
     @property
     def pole_latitude(self) -> float:
         """**read-only**
 
-        Pole latitude in ecliptic J2000 coordinates (rad)
+        Ecliptic latitude of the rotation axis, w.r.t. ECLIPJ2000 (rad).
+
+        :type: float
         """
-        self._warn_if_rotation_incomplete()
         return self._pole_latitude
 
     @property
     def period(self) -> float:
         """**read-only**
 
-        Rotation period (s)
+        Sidereal rotation period (s).
+
+        :type: float
         """
-        self._warn_if_rotation_incomplete()
         return self._period
 
     @property
     def initial_rotation_angle(self) -> float:
         """**read-only**
 
-        Rotation angle at the reference epoch (rad)
+        Rotation angle of the body-fixed frame at the reference epoch (rad).
+
+        :type: float
         """
-        self._warn_if_rotation_incomplete()
         return self._initial_rotation_angle
 
     @property
     def reference_epoch(self) -> float:
         """**read-only**
 
-        Rotation reference epoch in seconds since J2000
+        Reference epoch of the rotation, in seconds since J2000.
+
+        :type: float
         """
-        self._warn_if_rotation_incomplete()
         return self._reference_epoch
 
     @property
     def number_of_equally_good_models(self) -> int | None:
         """**read-only**
 
-        Number of models (including this one) sharing the highest quality flag of the asteroid, when this model was
-        selected by :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.query` from an MPC number. None for
-        models obtained in any other way.
+        Number of models of the asteroid (including this one) that share the highest quality flag, if this model was
+        selected by :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.query` from an MPC number, and None
+        otherwise.
+
+        :type: int | None
         """
         return self._number_of_equally_good_models
 
@@ -262,27 +280,29 @@ class DamitModel:
         diameter: float | None = None,
         force_refresh: bool = False,
     ):
-        """
-        Queries the DAMIT database by MPC number or model ID. Models are downloaded from the internet and stored on disk
-        for faster subsequent retrieval.
+        """Load a DAMIT model by MPC number or by DAMIT model ID.
+
+        Exactly one of ``mpc_number`` and ``damit_model_id`` must be given. The DAMIT tables and model files are
+        downloaded on first use, and stored for later use.
 
         Parameters
         ----------
         mpc_number : int, optional
-            If given, queries a DamitModel by small-body MPC number. The model with the highest quality flag is selected.
-            If several models share the highest flag, the one with the lowest model ID is selected, and their number is
-            given by :attr:`~tudatpy.data_input.environment_data.damit.DamitModel.number_of_equally_good_models`.
+            MPC number of the asteroid. Of its models, the one with the highest quality flag is selected. If several
+            models share the highest flag, the one with the lowest model ID is selected, and their number is given by
+            :attr:`~tudatpy.data_input.environment_data.damit.DamitModel.number_of_equally_good_models`.
         damit_model_id : int, optional
-            If given, queries a DamitModel by the Damit model ID
+            DAMIT model ID.
         diameter : float, optional
-            Volume-equivalent diameter to scale the shape model to. If not given, it uses the size that is available
-            in the DAMIT catalog, which may be none in which case the size is garbage
-        force_refresh : bool
-            If true, re-downloads and overwrites models to the latest versions
+            Volume-equivalent diameter (m) to which the shape is scaled. If not given, the size from the DAMIT tables
+            is used. If DAMIT has no size information for the model, a warning is given, and the size is not physical.
+        force_refresh : bool, optional
+            If True, downloads the DAMIT tables and model files again, replacing the stored ones. Defaults to False.
 
         Returns
         -------
         DamitModel
+            Selected DAMIT model.
         """
         # Get the model metadata (rotational parameters, size info etc.)
         number_of_equally_good_models = None
@@ -310,9 +330,8 @@ class DamitModel:
                 raise LookupError(f"No shape model found with ID {damit_model_id}") from e
 
         else:
-            model_metadata = None
             raise ValueError(
-                "Must specify either a valid MPC number or Damit Model ID (and not both)"
+                "Must specify either a valid MPC number or DAMIT model ID (and not both)"
             )
 
         # Get diameter from metadata if size is not calibrated and diameter is not given
@@ -327,7 +346,7 @@ class DamitModel:
 
         # Load model
         # Download shape models
-        model_id = model_metadata["id"]
+        model_id = int(model_metadata["id"])
         shape_file, spin_file = _download_model(model_id, force_refresh)
 
         model = cls.from_file(spin_file, shape_file, diameter)
@@ -337,7 +356,7 @@ class DamitModel:
         if pd.notna(model_metadata["yorp"]):
             model._rotation_warning = (
                 f"DAMIT asteroid {model_metadata['asteroid_id']} (MPC number {model_metadata['mpc_number']}) "
-                "has a YORP change in rotation rate, which is ignored: its rotation is modelled with a constant rate."
+                "has a YORP change in rotation rate, which is ignored: its rotation is modeled with a constant rate."
             )
 
         return model
@@ -349,25 +368,22 @@ class DamitModel:
         shape_file: str | Path,
         diameter: float | None = None,
     ):
-        """
-        Loads a DAMIT model from files. It is assumed the files are in the exact same format as those downloaded from
-        the DAMIT database.
-
-        Note: if no diameter is given, the model uses whatever the volume of the shape is already in (scaled for the
-        correct units), which may be non-physical. To be safe, it is recommended to pass a diameter.
+        """Load a DAMIT model from files in the format of those downloaded from the DAMIT database.
 
         Parameters
         ----------
-        spin_file : str | Path
-            Path to spin.txt file
-        shape_file : str | Path
-            Path to shape.obj(/obj.txt) file
-        diameter : float | None
-            Diameter in meter. If given, scales the model to this size.
+        spin_file : str or pathlib.Path
+            Path to the rotation file (spin.txt).
+        shape_file : str or pathlib.Path
+            Path to the shape file, in OBJ format (shape.obj).
+        diameter : float, optional
+            Volume-equivalent diameter (m) to which the shape is scaled. If not given, the vertex coordinates are taken
+            to be in km, which gives a non-physical size for a model that DAMIT gives with unit volume.
 
         Returns
         -------
         DamitModel
+            DAMIT model from the files.
         """
         with open(spin_file, "r") as f:
             pole_longitude, pole_latitude, period = [
@@ -392,7 +408,8 @@ class DamitModel:
         shape_model_file,
         diameter: float | None,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Loads the shape model file and optionally scales by diameter"""
+        """Load the vertices (m) and zero-indexed facets of an OBJ shape file, scaled to the given volume-equivalent
+        diameter (m), or converted from km if no diameter is given."""
         # Check format
         with open(shape_model_file, "r") as f:
             first_line = f.readline().strip().split()
@@ -415,6 +432,8 @@ class DamitModel:
 
         # Scale the model size
         if diameter is not None:
+            if not diameter > 0:
+                raise ValueError("Diameter must be positive")
             current_model_volume = volume(vertices, facets)
             if current_model_volume <= 0:
                 raise RuntimeError("Broken shape model: shape model has negative volume")
@@ -425,23 +444,12 @@ class DamitModel:
 
         return vertices, facets
 
-    def best_fitting_ellipsoid(self) -> tuple[list, float]:
-        r"""
-        Approximate the best fitting (in the sense of inertia) triaxial ellipsoid of the polyhedron shape model.
+    def best_fitting_ellipsoid(self) -> list[float]:
+        r"""Compute the tri-axial ellipsoid with the same moments of inertia as the polyhedron shape.
 
-        The ellipsoid is solved for by solving the Eigenvalue problem:
-
-        .. math::
-
-            I\omega = \lambda\omega
-
-        where :math:`I` is the inertia tensor of the polyhedron, :math:`\lambda` is an eigenvalue and :math:`\omega` is
-        an eigenvector. The eigenvectors and eigenvalues represent principal axes of the ellipsoid and the moments of
-        inertia about those axes, respectively. Rotation is assumed to be about the same axis as for the polyhedron
-        (usually the axis of highest inertia). The x/y-axes of the ellipsoid may not necessarily align axes in which the
-        polyhedron is defined, in which case an extra rotation about the z-axis is required (the principal axis offset).
-
-        From the computed moments of inertia, the ellipsoid semi-axes are computed as:
+        The axes of the ellipsoid are those of the body-fixed frame, which are principal axes of the polyhedron. With
+        the moments of inertia :math:`I_A \le I_B` about the x- and y-axes, :math:`I_C` about the z-axis, and the mass
+        :math:`M` of the polyhedron, the semi-axes are:
 
         .. math::
 
@@ -449,25 +457,15 @@ class DamitModel:
             b = \sqrt{\frac{5}{2M}\left(I_A + I_C - I_B\right)}, \quad
             c = \sqrt{\frac{5}{2M}\left(I_A + I_B - I_C\right)}
 
-        The principal axis offset :math:`\psi` is computed as follows, where :math:`v_A` is the eigenvector
-        corresponding to eigenvalue :math:`I_A`
-
-        .. math::
-
-            \psi = \operatorname{atan2}\left(v_{A,y}, v_{A,x}\right)
+        The inertia tensor is computed for a constant density, about the origin of the model, which is assumed to be
+        its center of mass.
 
         Returns
         -------
-        tuple[list, float]
-            Semi-axes [a, b, c] of the ellipsoid (m), and the principal axis offset around the z-axis (rad)
+        list[float]
+            Semi-axes :math:`[a, b, c]` of the ellipsoid along the x-, y- and z-axes (m).
         """
-        # Principal axes of the equatorial block only
-        # -> it is assumed that the shape model z-axis is a principal axis itself to preserve the correct
-        # axis of rotation.
-
-        inertia_matrix = inertia_tensor_from_density(self._vertices, self._facets, 1)
-        eigenvalues, eigenvectors = np.linalg.eigh(inertia_matrix[:2, :2])
-        ixx, iyy, izz = eigenvalues[0], eigenvalues[1], inertia_matrix[2, 2]
+        ixx, iyy, izz = np.diag(inertia_tensor_from_density(self._vertices, self._facets, 1))
 
         # Convert moments of inertia to ellipsoid axes
         mass = volume(self._vertices, self._facets)  # Model has unit density
@@ -475,40 +473,35 @@ class DamitModel:
         b = np.sqrt((5.0 / (2.0 * mass)) * (ixx + izz - iyy))
         c = np.sqrt((5.0 / (2.0 * mass)) * (ixx + iyy - izz))
 
-        # Principal axis offset required to account for the difference in the ellipsoid x-axis and DAMIT model x-axis
-        principal_axis_offset = (
-            np.arctan2(eigenvectors[1, 0], eigenvectors[0, 0]) + np.pi / 2
-        ) % np.pi - np.pi / 2
+        return [a, b, c]
 
-        return [a, b, c], principal_axis_offset
+    def initial_orientation(self, base_frame: str) -> np.ndarray:
+        """Compute the rotation matrix from the base frame to the body-fixed frame at the reference epoch.
 
-    def initial_orientation(self, base_frame: str, extra_rotation: float = 0.0) -> np.ndarray:
-        """
-        Rotation matrix from the base frame to the body-fixed frame at the reference epoch.
+        If DAMIT gives a YORP change in rotation rate for the model, a warning is given, as this change is ignored.
 
         Parameters
         ----------
         base_frame : str
-            Base frame used in the environment. Options: "J2000", "ECLIPJ2000"
-        extra_rotation : float, optional
-            Extra rotation angle around the body z-axis (rad), e.g. from the ellipsoid principal axis offset
+            Base frame orientation of the environment: ``"J2000"`` or ``"ECLIPJ2000"``.
 
         Returns
         -------
-        np.ndarray
-            3x3 rotation matrix from the base frame to the body-fixed frame
+        numpy.ndarray
+            Rotation matrix from the base frame to the body-fixed frame.
         """
         if base_frame not in ("J2000", "ECLIPJ2000"):
             raise ValueError("`base_frame` must be J2000 or ECLIPJ2000")
 
-        self._warn_if_rotation_incomplete()
+        if self._rotation_warning is not None:
+            warn(self._rotation_warning)
 
         # Initial orientation ecliptic to body-fixed. The prime meridian longitude is measured from the ascending node
         # of the body equator, which is 90 deg ahead of the direction from which DAMIT measures its rotation angle.
         rotation_to_body_fixed = inertial_to_body_fixed_rotation_matrix(
             pole_declination=self._pole_latitude,
             pole_right_ascension=self._pole_longitude,
-            prime_meridian_longitude=self._initial_rotation_angle + extra_rotation - np.pi / 2,
+            prime_meridian_longitude=self._initial_rotation_angle - np.pi / 2,
         )
         if base_frame == "J2000":
             rotation_to_body_fixed = rotation_to_body_fixed @ j2000_to_eclipj2000()

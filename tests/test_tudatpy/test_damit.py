@@ -8,6 +8,7 @@ import tudatpy.data_input.environment_data.damit.damit as damit_module
 from tudatpy.astro.polyhedron_utilities import volume
 from tudatpy.data_input.environment_data.damit import DamitModel
 from tudatpy.dynamics import environment_setup
+from tudatpy.interface import spice
 
 DATA_DIR = Path(__file__).parent
 EROS_SPIN = DATA_DIR / "eros_spin.txt"
@@ -87,13 +88,15 @@ def test_from_file_parses_spin_and_shape(eros):
     assert eros._pole_longitude == pytest.approx(np.deg2rad(17))
     assert eros._pole_latitude == pytest.approx(np.deg2rad(11))
     assert eros._period == pytest.approx(5.27025528 * 3600)
-    assert eros._initial_rotation_angle == pytest.approx(np.deg2rad(32.64))
     assert eros._reference_epoch == pytest.approx(0.0)  # JD 2451545.0 is J2000
 
 
 def test_volume_scaling(eros):
     """Test that shape model is correctly scaled and that diameter input scales volume to that diameter"""
-    assert _model_volume(eros) == pytest.approx(2.4916158e12, rel=1e-6)
+    # Volume of Eros of 2535 +/- 20 km^3 from the NEAR MSI shape model (Thomas et al., 2002, Icarus 155(1), 18-37,
+    # doi:10.1006/icar.2001.6755, abstract). The coarse 1708-plate version of this shape model used here (DAMIT model
+    # 3083, PDS plate model eros_2001012_001708) has a 1.7 % smaller volume.
+    assert _model_volume(eros) == pytest.approx(2535e9, rel=0.02)
 
     diameter = 16_840.0
     scaled = DamitModel.from_file(EROS_SPIN, EROS_SHAPE, diameter=diameter)
@@ -113,10 +116,9 @@ def test_ellipsoid_semi_axes_box():
     half_sides = np.array([3.0, 2.0, 1.0])
     model = _box_model(*half_sides)
 
-    semi_axes, offset = model.best_fitting_ellipsoid()
+    semi_axes = model.best_fitting_ellipsoid()
 
     np.testing.assert_allclose(semi_axes, np.sqrt(5 / 3) * half_sides, rtol=1e-10)
-    assert offset == pytest.approx(0.0, abs=1e-10)
 
 
 def test_shape_settings(eros):
@@ -126,22 +128,20 @@ def test_shape_settings(eros):
     np.testing.assert_array_equal(polyhedron.vertices_defining_each_facet, eros.facets)
 
     ellipsoid = environment_setup.shape.damit_best_fitting_ellipsoid(eros)
-    semi_axes, _ = eros.best_fitting_ellipsoid()
     np.testing.assert_allclose(
-        [ellipsoid.semi_axis_a, ellipsoid.semi_axis_b, ellipsoid.semi_axis_c], semi_axes
+        [ellipsoid.semi_axis_a, ellipsoid.semi_axis_b, ellipsoid.semi_axis_c],
+        eros.best_fitting_ellipsoid(),
     )
 
 
 @pytest.mark.parametrize("angle", [0.3, -0.7, 1.2])
-def test_ellipsoid_offset_rotated_box(angle):
-    """Rotating the shape around the z-axis is recovered as the principal axis offset"""
-    half_sides = np.array([3.0, 2.0, 1.0])
-    model = _box_model(*half_sides, angle=angle)
+def test_principal_axis_frame_rotated_box(angle):
+    """A shape rotated around the z-axis is rotated back to its principal axes, and the rotation is added to the
+    rotation angle"""
+    model = _box_model(3.0, 2.0, 1.0, angle=angle)
 
-    semi_axes, offset = model.best_fitting_ellipsoid()
-
-    np.testing.assert_allclose(semi_axes, np.sqrt(5 / 3) * half_sides, rtol=1e-10)
-    assert offset == pytest.approx(angle, abs=1e-10)
+    np.testing.assert_allclose(model.vertices, _box_model(3.0, 2.0, 1.0).vertices, atol=1e-12)
+    assert model.initial_rotation_angle == pytest.approx(angle, abs=1e-12)
 
 
 def _passive_rotation_z(angle):
@@ -152,44 +152,54 @@ def _passive_rotation_z(angle):
 
 
 def test_initial_orientation(eros):
-    """Tests that initial orientation has the correct pole and that extra rotation rotates the initial orientation"""
-    orientation = eros.initial_orientation("ECLIPJ2000")
-
-    longitude, latitude = eros.pole_longitude, eros.pole_latitude
-    pole = [
-        np.cos(latitude) * np.cos(longitude),
-        np.cos(latitude) * np.sin(longitude),
-        np.sin(latitude),
-    ]
-    np.testing.assert_allclose(orientation[2], pole, atol=1e-12)
+    """The body-fixed vertices, rotated to ECLIPJ2000 at the reference epoch, are the vertices of the DAMIT shape model
+    rotated with the DAMIT convention r_ecl = R_z(lambda) R_y(90 deg - beta) R_z(phi_0) r_ast"""
+    # Pole longitude lambda, pole latitude beta and initial rotation angle phi_0 (deg) from eros_spin.txt
+    pole_longitude, pole_latitude, initial_rotation_angle = np.deg2rad([17.0, 11.0, 32.64])
+    colatitude = np.pi / 2 - pole_latitude
+    rotation_y = np.array(
+        [
+            [np.cos(colatitude), 0, np.sin(colatitude)],
+            [0, 1, 0],
+            [-np.sin(colatitude), 0, np.cos(colatitude)],
+        ]
+    )
+    damit_to_ecliptic = (
+        _passive_rotation_z(-pole_longitude)
+        @ rotation_y
+        @ _passive_rotation_z(-initial_rotation_angle)
+    )
+    damit_vertices, _ = DamitModel._load_shape_model(EROS_SHAPE, None)
 
     np.testing.assert_allclose(
-        eros.initial_orientation("ECLIPJ2000", extra_rotation=0.3),
-        _passive_rotation_z(0.3) @ orientation,
+        eros.vertices @ eros.initial_orientation("ECLIPJ2000"),
+        damit_vertices @ damit_to_ecliptic.T,
+        atol=1e-6,
+    )
+
+
+def test_initial_orientation_j2000(eros):
+    """The J2000 initial orientation is the ECLIPJ2000 one combined with the SPICE rotation from J2000 to ECLIPJ2000"""
+    np.testing.assert_allclose(
+        eros.initial_orientation("J2000"),
+        eros.initial_orientation("ECLIPJ2000")
+        @ spice.compute_rotation_matrix_between_frames("J2000", "ECLIPJ2000", 0.0),
         atol=1e-12,
     )
 
 
-@pytest.mark.parametrize("ellipsoid", [False, True], ids=["polyhedron", "ellipsoid"])
-def test_rotation_model_settings(ellipsoid):
-    """Tests wiring of DamitModel rotation parameters to rotation model settings for the polyhedron and ellipsoid"""
-    angle = 0.3
-    model = _box_model(3.0, 2.0, 1.0, angle=angle)
-    if ellipsoid:
-        create_rotation_settings = environment_setup.rotation_model.damit_best_fitting_ellipsoid
-        extra_rotation = angle
-    else:
-        create_rotation_settings = environment_setup.rotation_model.damit_polyhedron
-        extra_rotation = 0.0
+def test_rotation_model_settings():
+    """Tests wiring of DamitModel rotation parameters to rotation model settings"""
+    model = _box_model(3.0, 2.0, 1.0, angle=0.3)
 
     body_settings = environment_setup.BodyListSettings("SSB", "ECLIPJ2000")
     body_settings.add_empty_settings("Box")
-    body_settings.get("Box").rotation_model_settings = create_rotation_settings(
+    body_settings.get("Box").rotation_model_settings = environment_setup.rotation_model.damit(
         model, "ECLIPJ2000", "Box_fixed"
     )
     rotation = environment_setup.create_system_of_bodies(body_settings).get("Box").rotation_model
 
-    initial = model.initial_orientation("ECLIPJ2000", extra_rotation)
+    initial = model.initial_orientation("ECLIPJ2000")
     epoch = model.reference_epoch
     np.testing.assert_allclose(rotation.inertial_to_body_fixed_rotation(epoch), initial, atol=1e-12)
 
@@ -203,7 +213,7 @@ def test_rotation_model_settings(ellipsoid):
 def test_rotation_invalid_base_frame(eros):
     """Only J2000 and ECLIPJ2000 are supported base frames"""
     with pytest.raises(ValueError):
-        environment_setup.rotation_model.damit_polyhedron(eros, "IAU_EARTH", "Eros_fixed")
+        environment_setup.rotation_model.damit(eros, "IAU_EARTH", "Eros_fixed")
 
 
 @pytest.mark.parametrize(
@@ -231,10 +241,9 @@ def offline_damit(tmp_path):
         "10,1,LS,0,16.84,2,\n"  # low quality
         "11,1,LS,0,20.0,4,\n"  # best quality
         "12,1,LS,1,,1,\n"  # calibrated size
-        "13,1,LS,0,,3,\n"  # no size information
         "18,4,LS,1,,3,\n"  # two equally good models, highest ID first
         "17,4,LS,1,,3,\n"
-    )  # Text column as in the real table, otherwise pandas turns the selected model ID into a float
+    )
 
     downloaded = []
 
@@ -271,10 +280,6 @@ def test_query_selection_offline(offline_damit, eros):
 
     # Calibrated model is not rescaled
     assert _model_volume(DamitModel.query(damit_model_id=12)) == pytest.approx(_model_volume(eros))
-
-    # No size information available
-    with pytest.warns(UserWarning):
-        DamitModel.query(damit_model_id=13)
 
     # Unknown asteroid or model
     with pytest.raises(LookupError):

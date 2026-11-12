@@ -168,7 +168,9 @@ def _split_tarball_files(files: Dict[str, str]) -> Tuple[Dict[str, str], Dict[st
     return regular, tarball_groups
 
 
-def _download_with_requests(url: str, dest_path: Path, retries: int = 3) -> None:
+def _download_with_requests(
+    url: str, dest_path: Path, retries: int = 3, expected_hash: Optional[str] = None
+) -> None:
     """Download a URL atomically, retrying failed transfers.
 
     Parameters
@@ -179,6 +181,8 @@ def _download_with_requests(url: str, dest_path: Path, retries: int = 3) -> None
         Local destination of the completed download.
     retries : int, default=3
         Maximum number of download attempts.
+    expected_hash : str, optional
+        Expected SHA-256 digest, verified before the download replaces ``dest_path``.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = dest_path.with_name(f".{dest_path.name}.part")
@@ -203,6 +207,9 @@ def _download_with_requests(url: str, dest_path: Path, retries: int = 3) -> None
                             fd.write(chunk)
                             if progress is not None:
                                 progress.update(len(chunk))
+            if expected_hash and not _verify_sha256(temporary_path, expected_hash):
+                temporary_path.unlink()
+                raise ChecksumMismatchError(_checksum_mismatch_message(dest_path, expected_hash))
             temporary_path.replace(dest_path)
             return
         except (requests.RequestException, OSError):
@@ -331,12 +338,9 @@ def _download_file(
     if dest_path.exists() and not force:
         return False
 
-    # Replaces an existing file only after a completed download
-    _download_with_requests(url, dest_path)
+    # Replaces an existing file only after a completed and verified download
+    _download_with_requests(url, dest_path, expected_hash=expected_hash)
 
-    if expected_hash and not _verify_sha256(dest_path, expected_hash):
-        dest_path.unlink(missing_ok=True)
-        raise ChecksumMismatchError(_checksum_mismatch_message(dest_path, expected_hash))
     if expected_hash:
         print(f"Verified SHA256 for {dest_path}")
     return True
