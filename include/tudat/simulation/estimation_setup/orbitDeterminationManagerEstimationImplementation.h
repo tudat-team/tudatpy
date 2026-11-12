@@ -56,6 +56,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     observation_models::ObservationVectorData< ObservationScalarType, TimeType > estimationData =
             observationDataset->createObservationVectorData( false );
     int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
+    const int initialNumberOfObservations = totalNumberOfObservations;
 
     if( totalNumberOfObservations == 0 )
     {
@@ -159,6 +160,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
             if( totalNumberOfObservations == 0 )
             {
+                outlierRejection->resetRejectionStatus( bestRejectionStatus );
                 throw std::runtime_error(
                         "Error during parameter estimation, all observations have been rejected by the outlier "
                         "rejection algorithm." );
@@ -405,12 +407,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         {
             costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
         }
-        // With outlier rejection, the number of observations that is used can differ per iteration. The best iteration is then
-        // selected using the observation cost per used observation (scaled to the total number of observations in the dataset).
-        double selectionCostFunction = applyOutlierRejection
-                ? costFunction * static_cast< double >( observationDataset->getTotalScalarSize( ) ) /
-                        static_cast< double >( totalNumberOfObservations )
-                : costFunction;
         double aprioriCost = 0.0;
         if( estimationInput->getApplyAprioriParameterDeviation( ) )
         {
@@ -420,8 +416,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         }
         // In deviation-based mode, best-iteration selection additionally includes the absolute a priori cost. Residual RMS
         // is unchanged so observation-only diagnostics remain meaningful.
+        // With outlier rejection, the number of observations that is used can differ per iteration. The best iteration is then
+        // selected using the observation (and inter-arc constraint) cost per used observation, scaled to the number of
+        // observations used in the first iteration.
+        const double selectionCostFunction = applyOutlierRejection
+                ? ( costFunction + interArcContribution.totalConstraintCost ) * static_cast< double >( initialNumberOfObservations ) /
+                                static_cast< double >( totalNumberOfObservations ) +
+                        aprioriCost
+                : costFunction + ( aprioriCost + interArcContribution.totalConstraintCost );
         costFunction += aprioriCost + interArcContribution.totalConstraintCost;
-        selectionCostFunction += aprioriCost + interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 

@@ -675,6 +675,10 @@ void expose_tracking_data( py::module& m )
                   R"doc(
          Remove one observation entry.
 
+         If the observation weights correlate the removed observation with other observations, the rows and columns of
+         the removed observation are deleted from the weight matrix; the weights of the remaining observations are not
+         recomputed from their covariance.
+
          Parameters
          ----------
          index : int

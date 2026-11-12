@@ -46,7 +46,7 @@ namespace
 using InspectionDataset = tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >;
 using InspectionCondition = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >;
 
-std::vector< Eigen::VectorXd > evaluateTrackingDataAngularCorrections(
+std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > evaluateTrackingDataAngularCorrections(
         const std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > >& trackingData,
         const tss::SystemOfBodies& bodies,
         const std::vector< TIME_TYPE >& epochsTdb )
@@ -110,11 +110,11 @@ std::vector< Eigen::VectorXd > evaluateTrackingDataAngularCorrections(
                                      py::arg( "perturbing_bodies_list" ) = settings.lightDeflectionBodies_ )
                                .cast< Eigen::MatrixXd >( );
     }
-    std::vector< Eigen::VectorXd > result;
+    std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > result;
     result.reserve( sourceObservations.size( ) );
     for( Eigen::Index i = 0; i < corrections.rows( ); ++i )
     {
-        result.push_back( corrections.row( i ).transpose( ) );
+        result.push_back( corrections.row( i ).transpose( ).cast< STATE_SCALAR_TYPE >( ) );
     }
     return result;
 }
@@ -1607,7 +1607,7 @@ observations : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.f
     Values of the observations, as a list with one vector per observation, or as an array with one row per
     observation. For an observable with a single component, a one-dimensional array with one value per observation
     may also be used.
-times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n, 1]]
+times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n]]
     Times of the observations, in seconds since J2000 (TDB).
 reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
     Link end at which the observation times are defined.
@@ -1728,7 +1728,7 @@ link_definition : tudatpy.estimation.observable_models_setup.links.LinkDefinitio
     Link ends of the observations.
 observations : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
     Values of the observations (see :meth:`add_observation_set`).
-times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n, 1]]
+times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n]]
     Times of the observations, in seconds since J2000 (TDB).
 reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
     Link end at which the observation times are defined.
@@ -1998,7 +1998,7 @@ set_id : int
     Id of the observation set.
 observations : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
     Values of the new observations (see :meth:`add_observation_set`).
-times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n, 1]]
+times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n]]
     Times of the new observations, in seconds since J2000 (TDB).
 dependent_variables : list[numpy.ndarray[numpy.float64[k, 1]]], default = []
     Dependent variables of the new observations. These must be provided if, and only if, dependent variables are

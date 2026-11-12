@@ -243,10 +243,10 @@ def photocenter_correction_angular_observations(
 ) -> np.ndarray:
     r"""
     Compute photocenter-barycenter offset correction assuming an ellipsoidal shape of the observed body, according to
-    Muinonen & Lumme (2015).
+    :cite:t:`muinonen2015`.
 
     Compute photocenter-barycenter offset correction assuming an ellipsoidal shape of the observed body, according to
-    Muinonen & Lumme (2015):
+    :cite:t:`muinonen2015`:
 
     .. math::
         \mathbf{d}(\alpha) = \frac{1}{L(\alpha)}\frac{1}{3}F_0 \tilde{\omega} P(\alpha) abc \frac{S_\odot S_\oplus}{S}

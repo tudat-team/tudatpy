@@ -583,10 +583,10 @@ BOOST_AUTO_TEST_CASE( test_RejectionThreshold )
     const double fudgeTerm = carpinoFudgeTerm( numberOfObservations - 2 );
 
     {
-        // The largest chi-squared of the observations that are in the fit is 100. A quarter of that is larger than the
-        // threshold from the settings, so the threshold follows the data.
-        const std::vector< double > chiSquaredPerObservation = { 4.0, 100.0, 40.0, 12.0, 1.0E4, 2.0E4 };
-        BOOST_CHECK_CLOSE_FRACTION( outlierRejection.getRejectionThreshold( chiSquaredPerObservation ), 0.25 * 100.0 + fudgeTerm, 1.0E-12 );
+        // The largest chi-squared of the observations that are in the fit is 1000. A quarter of that is larger than the
+        // threshold from the settings plus the fudge term, so the threshold follows the data.
+        const std::vector< double > chiSquaredPerObservation = { 4.0, 1000.0, 40.0, 12.0, 1.0E4, 2.0E4 };
+        BOOST_CHECK_CLOSE_FRACTION( outlierRejection.getRejectionThreshold( chiSquaredPerObservation ), 0.25 * 1000.0, 1.0E-12 );
     }
 
     {

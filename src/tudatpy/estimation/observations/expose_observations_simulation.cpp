@@ -307,7 +307,7 @@ void expose_observations_simulation_bindings( py::module& m )
 
          Parameters
          ----------
-         simulation_settings : List[ :class:`ObservationSimulationSettings` ]
+         simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
              List of settings objects, each object providing the observation time settings for simulating one type of observable and link end set.
 
          observation_simulators : List[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]

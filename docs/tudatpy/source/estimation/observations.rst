@@ -186,8 +186,6 @@ Functions
 
    create_compressed_doppler_collection
 
-   create_count_time_compressed_doppler_collection
-
 
 .. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_collection
 

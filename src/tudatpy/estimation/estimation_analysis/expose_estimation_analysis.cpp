@@ -426,7 +426,9 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Complete diagonal of the weights matrix that is to be used
+         Complete diagonal of the weights matrix that is to be used. For input created from an
+         :class:`~tudatpy.estimation.observations.ObservationDataset`, this includes the rejected observations, in the order
+         of the rows of :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`.
 
          :type: numpy.ndarray[numpy.float64[n, 1]]
       )doc" )
@@ -653,8 +655,8 @@ void expose_estimation_analysis( py::module& m )
                             R"doc(
 
          Function called in each iteration of the estimation, after the normal equations are solved, as
-         ``f(iteration, residuals, inverse_covariance)``: the iteration number (from 0), the residuals of this iteration (ordered as in
-         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`) and the unnormalized inverse covariance
+         ``f(iteration, residuals, inverse_covariance)``: the iteration number (from 0), the residuals of this iteration (of the observations used in this iteration, ordered as in
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals`) and the unnormalized inverse covariance
          matrix of this iteration (as in
          :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.inverse_covariance`).
          It can be used to monitor a long estimation while it runs. Default is ``None`` (no callback).

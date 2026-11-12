@@ -91,7 +91,7 @@ def light_deflection_correction_angular_observations(
     Compute corrections to angular observations for the relativistic deflection of light around massive bodies.
 
     Compute corrections to angular observations for the relativistic deflection of light around massive bodies, according to
-    Klioner (2003) equation 70 (post-Newtonian component only):
+    :cite:t:`klioner2003`, equation 70 (post-Newtonian component only):
 
     .. math::
 

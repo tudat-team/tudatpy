@@ -79,7 +79,8 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
          **read-only**
 
-         Maximum fraction of all observations that may be in the rejected state.
+         Maximum fraction of the observations that are not rejected before the estimation, that the algorithm may hold in
+         the rejected state (over all iterations).
 
          :type: float
       )doc" )
@@ -118,10 +119,14 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
  When the :math:`\chi^2` value of an observation exceeds the rejection threshold, the observation is marked as an outlier
  and excluded from the next iteration. The rejection threshold used by the algorithm is increased when the largest
- :math:`\chi^2` value of the observations that are not rejected is large, or when few of these observations remain. If a
+ :math:`\chi^2` value of the observations that are not rejected is large, or when few of these observations remain:
+ it is :math:`\max(\chi^2_{\text{rej}} + 400\cdot 1.2^{-N}, \chi^2_{\max}/4)`, with :math:`\chi^2_{\text{rej}}` the
+ rejection threshold from the settings, :math:`N` the number of observations that are not rejected, and
+ :math:`\chi^2_{\max}` the largest :math:`\chi^2` value of these observations. If a
  rejected observation has a :math:`\chi^2` value below the recovery threshold, it is no longer an outlier, and is included
  in the next iteration of the least-squares fit again. Separate recovery and rejection thresholds are used to prevent
- observations from being alternately rejected and recovered in the later iterations.
+ observations from being alternately rejected and recovered in the later iterations. Observations that are rejected
+ before the estimation remain rejected, and are not considered by the algorithm.
 
  Note that this algorithm requires that the observation covariance (or the inverse weight matrix) is compatible with the
  true errors. If no weights are set on the observations (all weights equal to 1), the algorithm will throw an error. If
@@ -142,7 +147,8 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
      Chi-squared value below which an observation that was rejected in an earlier iteration is recovered. Must be
      smaller than ``chi2_rejection_threshold``.
  maximum_rejected_fraction : float, default = 0.25
-     Maximum fraction (between 0 and 1) of all observations that may be in the rejected state.
+     Maximum fraction (between 0 and 1) of the observations that are not rejected before the estimation, that the
+     algorithm may hold in the rejected state (over all iterations).
  first_iteration_with_rejection : int, default = 1
      Index of the first estimation iteration in which observations may be rejected, counted from zero.
 

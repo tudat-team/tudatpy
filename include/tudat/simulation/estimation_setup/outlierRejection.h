@@ -314,9 +314,15 @@ protected:
         }
         std::vector< double > chiSquaredPerObservation;
 
-        // Compute chi-squared for each observation, using its persistent dataset id to find the matching rows.
+        // Compute chi-squared for each observation, using its persistent dataset id to find the matching rows. Observations
+        // that were rejected at the start of the estimation are never used, and get no chi-squared value.
         for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
+            if( this->isDisabled_.at( observationIndex ) )
+            {
+                chiSquaredPerObservation.push_back( 0.0 );
+                continue;
+            }
             const unsigned int observationId = this->observationIds_.at( observationIndex );
             const double chiSquared = computeChiSquared( outlierRejectionInput.getDesignMatrixBlock( observationId ),
                                                          outlierRejectionInput.getResidualBlock( observationId ).template cast< double >( ),
@@ -345,13 +351,13 @@ protected:
                     decideRejectionStatus( isCurrentlyRejected, chiSquaredPerObservation.at( observationIndex ), rejectionThreshold );
         }
 
-        // Prevent too many observations being rejected at once during one iteration
+        // Limit the number of observations that the algorithm holds in the rejected state
         applyMaximumRejectedFraction( newRejectionStatus, chiSquaredPerObservation );
 
         this->isRejected_ = newRejectionStatus;
     }
 
-    //! Limit the number of observations rejected in this iteration to the fraction that the settings allow.
+    //! Limit the number of observations rejected by the algorithm (over all iterations) to the fraction that the settings allow.
     /*!
      * If more observations are rejected in this iteration than allowed, the best ones are kept. This does not touch observations
      * that were already rejected and are still rejected during this iteration.
@@ -434,8 +440,9 @@ protected:
         // Increases rejection threshold when small number of observations are left
         const double fudgeTerm = 400 * std::pow( 1.2, -numberOfAcceptedObservations );
 
+        // Carpino et al. (2003), Section 2.4: the fudge term is added to the rejection threshold from the settings
         double rejectionThreshold =
-                std::max( 0.25 * chiSquaredMax, this->outlierRejectionSettings_->getChi2RejectionThreshold( ) ) + fudgeTerm;
+                std::max( 0.25 * chiSquaredMax, this->outlierRejectionSettings_->getChi2RejectionThreshold( ) + fudgeTerm );
 
         return rejectionThreshold;
     }

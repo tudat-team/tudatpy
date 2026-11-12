@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/basics/utilities.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -226,10 +227,18 @@ createCompressedDopplerDatasetFromRatioFunction(
         const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > activeObservationsInSet =
                 observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::setId( setId ) &&
                 observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::active( );
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations =
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > unsortedObservations =
                 originalDopplerData->getObservations( activeObservationsInSet, observation_models::ObservationOrdering::estimation );
-        const std::vector< TimeType > observationTimes =
-                originalDopplerData->getTimes( activeObservationsInSet, observation_models::ObservationOrdering::estimation );
+
+        // Split the arcs in time order (the observations of a set in a dataset need not be sorted)
+        const std::pair< std::vector< int >, std::vector< TimeType > > timeOrder = utilities::getSortOrderOfVectorAndSortedVector(
+                originalDopplerData->getTimes( activeObservationsInSet, observation_models::ObservationOrdering::estimation ) );
+        const std::vector< TimeType >& observationTimes = timeOrder.second;
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
+        for( const int index : timeOrder.first )
+        {
+            observations.push_back( unsortedObservations.at( index ) );
+        }
 
         for( unsigned int arcStart = 0; arcStart < observationTimes.size( ); )
         {
