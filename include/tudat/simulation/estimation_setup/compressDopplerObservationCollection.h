@@ -51,9 +51,14 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     double currentCompressionTime = originalAncillarySettings->getAncillaryDoubleData(
             observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
 
+    // Rejected observations are not used in the compression
+    const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > activeObservationsInSet =
+            observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::setId( setId ) &&
+            observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::active( );
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > originalObservations =
-            originalDopplerData->getObservationsForSet( setId );
-    std::vector< TimeType > originalObservationTimesTdb = originalDopplerData->getObservationTimesForSet( setId );
+            originalDopplerData->getObservations( activeObservationsInSet, observation_models::ObservationOrdering::estimation );
+    std::vector< TimeType > originalObservationTimesTdb =
+            originalDopplerData->getTimes( activeObservationsInSet, observation_models::ObservationOrdering::estimation );
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
             earth_orientation::createDefaultTimeConverter( );
@@ -217,9 +222,14 @@ createCompressedDopplerDatasetFromRatioFunction(
         }
 
         const observation_models::LinkDefinition& linkDefinition = originalDopplerData->getLinkDefinition( metadata.linkDefinitionId_ );
+        // Rejected observations are not used in the compression
+        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > activeObservationsInSet =
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::setId( setId ) &&
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::active( );
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations =
-                originalDopplerData->getObservationsForSet( setId );
-        const std::vector< TimeType > observationTimes = originalDopplerData->getObservationTimesForSet( setId );
+                originalDopplerData->getObservations( activeObservationsInSet, observation_models::ObservationOrdering::estimation );
+        const std::vector< TimeType > observationTimes =
+                originalDopplerData->getTimes( activeObservationsInSet, observation_models::ObservationOrdering::estimation );
 
         for( unsigned int arcStart = 0; arcStart < observationTimes.size( ); )
         {

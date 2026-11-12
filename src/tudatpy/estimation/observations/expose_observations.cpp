@@ -1419,6 +1419,9 @@ list[numpy.ndarray[numpy.float64[m, 1]]]
     Dependent variables of each selected observation, in the same order as the output of :meth:`get_times` for the
     same ``condition`` and ``ordering``. An entry is empty if no dependent variables are stored for the observation
     or, when ``dependent_variable_settings`` is provided, if its observation set has no compatible dependent variable.
+    An error is raised if ``dependent_variable_settings`` is provided, and the dependent variable is defined for an
+    observation set but its values have not been computed (see
+    :func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables`).
     If ``dependent_variable_settings`` is ``None``, the content of these vectors is given by the
     ``dependent_variable_layout`` entry of :meth:`get_metadata`.
 )doc" )

@@ -166,9 +166,8 @@ simulateObservationsWithCheck(
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
         const bool scaleAngularPositionNoise = false )
 {
-    std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
+    std::multimap< TimeType, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::VectorXd > > observations;
     std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulatedObservation;
-    std::vector< Eigen::VectorXd > dependentVariables;
 
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
@@ -185,16 +184,25 @@ simulateObservationsWithCheck(
         // Check if receiving station can view transmitting station.
         if( std::get< 1 >( simulatedObservation ) )
         {
-            // If viable, add observable and time to vector of simulated data.
-            observations.insert( { observationTimes[ i ], std::get< 0 >( simulatedObservation ) } );
-            dependentVariables.push_back( std::get< 2 >( simulatedObservation ) );
+            // If viable, add observable, time and dependent variables to (time-sorted) simulated data.
+            observations.insert(
+                    std::make_pair( observationTimes[ i ],
+                                    std::make_pair( std::get< 0 >( simulatedObservation ), std::get< 2 >( simulatedObservation ) ) ) );
         }
     }
 
-    // Return pair of simulated ranges and reception times.
-    return std::make_tuple( utilities::createVectorFromMultiMapValues( observations ),
-                            utilities::createVectorFromMultiMapKeys( observations ),
-                            dependentVariables );
+    // Return simulated observations, times and dependent variables, all sorted by time.
+    std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
+                std::vector< TimeType >,
+                std::vector< Eigen::VectorXd > >
+            simulatedObservations;
+    for( const auto& observation : observations )
+    {
+        std::get< 0 >( simulatedObservations ).push_back( observation.second.first );
+        std::get< 1 >( simulatedObservations ).push_back( observation.first );
+        std::get< 2 >( simulatedObservations ).push_back( observation.second.second );
+    }
+    return simulatedObservations;
 }
 
 //! Function to simulate observables, checking whether they are viable according to settings passed to this function

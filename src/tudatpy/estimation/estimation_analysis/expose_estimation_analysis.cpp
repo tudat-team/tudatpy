@@ -420,21 +420,9 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "weight_matrix_diagonal",
-                    []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input ) {
-                        if( PyErr_WarnEx(
-                                    PyExc_DeprecationWarning,
-                                    "CovarianceAnalysisInput.weight_matrix_diagonal is deprecated. It is retained for older scripts and "
-                                    "is not consistent with rejected/inactive observations; set and inspect weights on "
-                                    "tudatpy.estimation.observations.ObservationDataset instead.",
-                                    1 ) < 0 )
-                        {
-                            throw py::error_already_set( );
-                        }
-                        return input.getWeightsMatrixDiagonals( );
-                    },
-                    R"doc(
+            .def_property_readonly( "weight_matrix_diagonal",
+                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsMatrixDiagonals,
+                                    R"doc(
 
          **read-only**
 

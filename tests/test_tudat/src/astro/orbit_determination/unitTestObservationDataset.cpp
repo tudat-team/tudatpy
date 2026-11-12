@@ -367,11 +367,11 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
     const ObservationSelectionCondition< double, double > rangeOrLateCondition =
             ObservationSelectionCondition< double, double >::observableType( one_way_range ) ||
             ObservationSelectionCondition< double, double >::timeGreaterEqual( 4.0 );
-    BOOST_CHECK( rangeOrLateCondition.getType( ) == ObservationSelectionCondition< double, double >::Type::or_condition );
+    BOOST_CHECK( ( rangeOrLateCondition.getType( ) == ObservationSelectionCondition< double, double >::Type::or_condition ) );
     BOOST_CHECK_EQUAL( rangeOrLateCondition.getChildConditions( ).size( ), 2 );
     BOOST_CHECK( rangeOrLateCondition.getChildConditions( ).at( 0 ).getObservableType( ) == one_way_range );
-    BOOST_CHECK( rangeOrLateCondition.getChildConditions( ).at( 1 ).getType( ) ==
-                 ObservationSelectionCondition< double, double >::Type::time_greater_equal );
+    BOOST_CHECK( ( rangeOrLateCondition.getChildConditions( ).at( 1 ).getType( ) ==
+                   ObservationSelectionCondition< double, double >::Type::time_greater_equal ) );
     BOOST_CHECK_EQUAL( rangeOrLateCondition.getChildConditions( ).at( 1 ).getTimeValue( ), 4.0 );
 
     // Value, residual and dependent-variable conditions must compare component-wise vectors of matching size.
