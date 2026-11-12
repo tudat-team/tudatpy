@@ -488,12 +488,14 @@ private:
 
         switch( lagrangeBoundaryHandling_ )
         {
-            case lagrange_cubic_spline_boundary_interpolation_with_warning:
-                std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
-                          << " ), using cubic-spline interpolation. Reliable interval lower boundary: " << lowerBoundReliableInterval
-                          << "; upper boundary: " << upperBoundReliableInterval << std::endl;
-                [[fallthrough]];
             case lagrange_cubic_spline_boundary_interpolation:
+            case lagrange_cubic_spline_boundary_interpolation_with_warning:
+                if( lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation_with_warning )
+                {
+                    std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
+                              << " ), using cubic-spline interpolation. Reliable interval lower boundary: " << lowerBoundReliableInterval
+                              << "; upper boundary: " << upperBoundReliableInterval << std::endl;
+                }
                 interpolatedValue = computeDerivative ? boundaryInterpolator->interpolateDerivative( targetIndependentVariableValue )
                                                       : boundaryInterpolator->interpolate( targetIndependentVariableValue );
                 break;
