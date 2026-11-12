@@ -257,7 +257,8 @@ private:
 //! Partial of the state of a point on the surface of a body w.r.t. the displacement Love number h_n or Shida number l_n of the basic
 //! tidal deformation models of the body. The displacement is linear in this number, so that its partial is the displacement computed
 //! with a unit Love or Shida number. The velocity partial is that of the rotation of the body-fixed displacement partial, without the
-//! (much smaller) time variation of the displacement partial itself.
+//! time variation of the displacement partial itself, consistent with BodyDeformationStationMotionModel, which does not include the time
+//! derivative of the displacement in the station velocity.
 class CartesianPartialWrtDisplacementLoveNumber : public CartesianStatePartial
 {
 public:

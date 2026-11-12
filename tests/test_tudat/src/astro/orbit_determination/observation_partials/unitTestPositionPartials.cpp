@@ -327,8 +327,10 @@ BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
                 useShidaNumber ? displacementShidaNumber( "Earth", { 2, 3 } ) : displacementLoveNumber( "Earth", { 2, 3 } ), bodies );
         BOOST_CHECK_EQUAL( loveNumberParameter->getParameterSize( ), 2 );
 
-        std::shared_ptr< CartesianStatePartial > partialObject =
-                createCartesianStatePartialsWrtParameter( linkEnds.linkEnds_, bodies, loveNumberParameter ).begin( )->second;
+        std::map< LinkEndType, std::shared_ptr< CartesianStatePartial > > partialMap =
+                createCartesianStatePartialsWrtParameter( linkEnds.linkEnds_, bodies, loveNumberParameter );
+        BOOST_REQUIRE_EQUAL( partialMap.size( ), 1 );
+        std::shared_ptr< CartesianStatePartial > partialObject = partialMap.begin( )->second;
         Eigen::MatrixXd partialOfPosition = partialObject->calculatePartialOfPosition( currentState, receptionTime );
         Eigen::MatrixXd partialOfVelocity = partialObject->calculatePartialOfVelocity( currentState, receptionTime );
 

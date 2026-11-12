@@ -11,6 +11,7 @@
 #ifndef TUDAT_DISPLACEMENTLOVENUMBER_H
 #define TUDAT_DISPLACEMENTLOVENUMBER_H
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -48,6 +49,19 @@ public:
         {
             throw std::runtime_error( "Error when creating displacement Love or Shida number parameter of " + associatedBody +
                                       ", no basic tidal deformation model found (IERS 2010 deformation models are not supported)" );
+        }
+        if( degrees_.empty( ) )
+        {
+            throw std::runtime_error( "Error when creating displacement Love or Shida number parameter of " + associatedBody +
+                                      ", no degrees provided" );
+        }
+        for( unsigned int i = 0; i < degrees_.size( ); i++ )
+        {
+            if( std::count( degrees_.begin( ), degrees_.end( ), degrees_.at( i ) ) > 1 )
+            {
+                throw std::runtime_error( "Error when creating displacement Love or Shida number parameter of " + associatedBody +
+                                          ", degree " + std::to_string( degrees_.at( i ) ) + " provided more than once" );
+            }
         }
         for( const auto& model : deformationModels_ )
         {

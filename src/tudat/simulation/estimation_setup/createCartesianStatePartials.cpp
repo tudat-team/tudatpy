@@ -278,6 +278,11 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                         }
                         if( stationIncludesDeformation )
                         {
+                            if( currentBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error, body's rotation model is not found in body " + currentBodyName +
+                                                          " when making position w.r.t. displacement Love or Shida number partial" );
+                            }
                             std::shared_ptr< estimatable_parameters::DisplacementLoveNumber > loveNumberParameter =
                                     std::dynamic_pointer_cast< estimatable_parameters::DisplacementLoveNumber >( parameterToEstimate );
                             if( loveNumberParameter == nullptr )
