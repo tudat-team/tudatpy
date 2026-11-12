@@ -3,22 +3,27 @@ from .. import shape
 
 
 def damit_polyhedron(damit_model: DamitModel, *args, **kwargs) -> shape.PolyhedronBodyShapeSettings:
-    """
-    Factory function to create polyhedron shape model settings from a DAMIT shape model.
+    """Factory function to create polyhedron body shape model settings from a DAMIT model.
+
+    Creates polyhedron body shape model settings (see
+    :func:`~tudatpy.dynamics.environment_setup.shape.polyhedron`) with the vertices and facets of a
+    :class:`~tudatpy.data_input.environment_data.damit.DamitModel`. Use together with
+    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit` for the rotation model.
 
     This function wraps :class:`~tudatpy.data_input.environment_data.damit.DamitModel`.
 
     Parameters
     ----------
     damit_model : DamitModel
-        DAMIT model to create the shape settings for
-    args, kwargs
-        Remaining inputs are passed to :func:`~tudatpy.dynamics.environment_setup.shape.polyhedron`
+        DAMIT model from which the shape model settings are created.
+    *args, **kwargs
+        Remaining inputs of :func:`~tudatpy.dynamics.environment_setup.shape.polyhedron`.
 
     Returns
     -------
     PolyhedronBodyShapeSettings
-        Polyhedron shape settings for the DAMIT model
+        Instance of the :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` derived
+        :class:`~tudatpy.dynamics.environment_setup.shape.PolyhedronBodyShapeSettings` class.
 
     Examples
     --------
@@ -31,25 +36,25 @@ def damit_polyhedron(damit_model: DamitModel, *args, **kwargs) -> shape.Polyhedr
 def damit_best_fitting_ellipsoid(
     damit_model: DamitModel,
 ) -> shape.TriAxialEllipsoidBodyShapeSettings:
-    """
-    Factory function to create the best fitting triaxial ellipsoid shape model settings from a DAMIT shape model.
+    """Factory function to create tri-axial ellipsoid body shape model settings from a DAMIT model.
 
-    Creates a triaxial ellipsoid shape model for an ellipsoid with equivalent moment of inertia to the DAMIT
-    polyhedron shape model. Use together with
-    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit_best_fitting_ellipsoid` for the
-    rotation model, to correctly align the ellipsoid.
+    Creates tri-axial ellipsoid body shape model settings (see
+    :func:`~tudatpy.dynamics.environment_setup.shape.triaxial_ellipsoid`) for the ellipsoid with the same moments of
+    inertia as the polyhedron shape of a :class:`~tudatpy.data_input.environment_data.damit.DamitModel` (see
+    :meth:`~tudatpy.data_input.environment_data.damit.DamitModel.best_fitting_ellipsoid`). Use together with
+    :func:`~tudatpy.dynamics.environment_setup.rotation_model.damit` for the rotation model.
 
     This function wraps :class:`~tudatpy.data_input.environment_data.damit.DamitModel`.
 
     Parameters
     ----------
     damit_model : DamitModel
-        DAMIT model to create the shape settings for
+        DAMIT model from which the shape model settings are created.
 
     Returns
     -------
     TriAxialEllipsoidBodyShapeSettings
-        Shape settings for the best fitting triaxial ellipsoid
+        Instance of the :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` derived
+        :class:`~tudatpy.dynamics.environment_setup.shape.TriAxialEllipsoidBodyShapeSettings` class.
     """
-    semi_axes, _ = damit_model.best_fitting_ellipsoid()
-    return shape.triaxial_ellipsoid(*semi_axes)
+    return shape.triaxial_ellipsoid(*damit_model.best_fitting_ellipsoid())

@@ -136,12 +136,6 @@ public:
         return semiAxisC_;
     }
 
-    //! Function to obtain the three semi-axes (a, b, c)
-    Eigen::Vector3d getSemiAxes( )
-    {
-        return Eigen::Vector3d( semiAxisA_, semiAxisB_, semiAxisC_ );
-    }
-
 private:
     //! Semi-axis along the body-fixed x-axis
     double semiAxisA_;

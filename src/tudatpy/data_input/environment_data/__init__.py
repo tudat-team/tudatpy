@@ -2,7 +2,8 @@
 
 This module groups helpers for external environment data sources, including
 SPICE kernels, Horizons, SBDB, Space-Track, DIScos, ILRS/SINEX data, space
-weather, comet-coma data, and mission-specific environment products.
+weather, comet-coma data, DAMIT asteroid models, and mission-specific
+environment products.
 """
 
 from tudatpy.kernel.data_input.environment_data import *

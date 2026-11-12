@@ -123,16 +123,13 @@ void expose_shape_setup( py::module& m )
 
          `BodyShapeSettings` derived class for tri-axial ellipsoid body shape model settings.
 
-
-
-
       )doc" )
             .def_property( "semi_axis_a",
                            &tss::TriAxialEllipsoidBodyShapeSettings::getSemiAxisA,
                            &tss::TriAxialEllipsoidBodyShapeSettings::resetSemiAxisA,
                            R"doc(
 
-         Semi-axis of the ellipsoid along the body-fixed x-axis.
+         Semi-axis of the ellipsoid along the body-fixed x-axis (m).
 
          :type: float
       )doc" )
@@ -141,7 +138,7 @@ void expose_shape_setup( py::module& m )
                            &tss::TriAxialEllipsoidBodyShapeSettings::resetSemiAxisB,
                            R"doc(
 
-         Semi-axis of the ellipsoid along the body-fixed y-axis.
+         Semi-axis of the ellipsoid along the body-fixed y-axis (m).
 
          :type: float
       )doc" )
@@ -150,7 +147,7 @@ void expose_shape_setup( py::module& m )
                            &tss::TriAxialEllipsoidBodyShapeSettings::resetSemiAxisC,
                            R"doc(
 
-         Semi-axis of the ellipsoid along the body-fixed z-axis.
+         Semi-axis of the ellipsoid along the body-fixed z-axis (m).
 
          :type: float
       )doc" );
@@ -370,7 +367,7 @@ BodyShapeSettings
 
  Function for creating tri-axial ellipsoid body shape model settings.
 
- Function for settings object, defining a tri-axial ellipsoid body shape model from its three semi-axes, which are
+ Function for creating settings for a tri-axial ellipsoid body shape model from its three semi-axes, which are
  aligned with the body-fixed x-, y- and z-axes, respectively.
 
  The altitude is the shortest distance from the point to the surface, and is negative for points inside the ellipsoid.
@@ -380,11 +377,11 @@ BodyShapeSettings
  Parameters
  ----------
  semi_axis_a : float
-     Semi-axis of the ellipsoid along the body-fixed x-axis.
+     Semi-axis of the ellipsoid along the body-fixed x-axis (m).
  semi_axis_b : float
-     Semi-axis of the ellipsoid along the body-fixed y-axis.
+     Semi-axis of the ellipsoid along the body-fixed y-axis (m).
  semi_axis_c : float
-     Semi-axis of the ellipsoid along the body-fixed z-axis.
+     Semi-axis of the ellipsoid along the body-fixed z-axis (m).
  Returns
  -------
  TriAxialEllipsoidBodyShapeSettings
