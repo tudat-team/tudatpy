@@ -255,6 +255,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case ground_station_linear_velocity:
             parameterDescription = "ground station linear velocity ";
             break;
+        case displacement_love_number:
+            parameterDescription = "displacement Love number ";
+            break;
+        case displacement_shida_number:
+            parameterDescription = "displacement Shida number ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -505,6 +511,8 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = false;
             break;
         case ground_station_linear_velocity:
+        case displacement_love_number:
+        case displacement_shida_number:
             isDoubleParameter = false;
             break;
         default:
@@ -787,6 +795,8 @@ bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parame
         case relative_gravitational_parameter_rate:
         case camera_pointing_correction:
         case ground_station_linear_velocity:
+        case displacement_love_number:
+        case displacement_shida_number:
             return false;
     }
     throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +

@@ -1618,6 +1618,33 @@ inline std::shared_ptr< EstimatableParameterSettings > groundStationLinearVeloci
     return std::make_shared< EstimatableParameterSettings >( body, ground_station_linear_velocity, groundStationName );
 }
 
+//! Class for settings of the displacement Love number h_n or Shida number l_n of the basic tidal deformation of a body
+class DisplacementLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    DisplacementLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                        const std::vector< int >& degrees,
+                                                        const bool useShidaNumber ):
+        EstimatableParameterSettings( associatedBody, useShidaNumber ? displacement_shida_number : displacement_love_number ),
+        degrees_( degrees )
+    {}
+
+    //! Degree of each estimated number
+    std::vector< int > degrees_;
+};
+
+//! Function to create settings for the displacement Love number h_n of each of the given degrees of a body
+inline std::shared_ptr< EstimatableParameterSettings > displacementLoveNumber( const std::string& body, const std::vector< int >& degrees )
+{
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, false );
+}
+
+//! Function to create settings for the displacement Shida number l_n of each of the given degrees of a body
+inline std::shared_ptr< EstimatableParameterSettings > displacementShidaNumber( const std::string& body, const std::vector< int >& degrees )
+{
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, true );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > cameraPointingCorrection( const std::string& body, const std::string& cameraName )
 {
     return std::make_shared< EstimatableParameterSettings >( body, camera_pointing_correction, cameraName );
