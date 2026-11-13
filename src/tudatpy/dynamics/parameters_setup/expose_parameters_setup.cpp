@@ -152,6 +152,12 @@ void expose_parameters_setup_types( py::module& m )
             .value( "ppn_parameter_beta_type",
                     tep::EstimatebleParametersEnum::ppn_parameter_beta,
                     R"doc(Estimatable parameter for PPN parameter beta.)doc" )
+            .value( "displacement_love_number_type",
+                    tep::EstimatebleParametersEnum::displacement_love_number,
+                    R"doc(Estimatable parameter for the displacement Love number of the basic tidal deformation of a body.)doc" )
+            .value( "displacement_shida_number_type",
+                    tep::EstimatebleParametersEnum::displacement_shida_number,
+                    R"doc(Estimatable parameter for the displacement Shida number of the basic tidal deformation of a body.)doc" )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position,
                     R"doc(Estimatable parameter for ground station position.)doc" )
@@ -728,7 +734,7 @@ void expose_parameters_setup( py::module& m )
 
 Creates settings for estimating the three constants of a three-coefficient radiation-pressure acceleration.
 
-The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square metres. It is
+The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square meters. It is
 linked to every matching acceleration created with
 :func:`~tudatpy.dynamics.propagation_setup.acceleration.three_coefficient_radiation_pressure` from
 ``radiation_source`` acting on ``body`` in the supplied propagator settings.
@@ -2182,13 +2188,81 @@ EstimatableParameterSettings
 
      )doc" );
 
+    m.def( "displacement_love_number",
+           &tep::displacementLoveNumber,
+           py::arg( "deformed_body" ),
+           py::arg( "degrees" ),
+           R"doc(
+
+Function for creating parameter settings for a body's displacement Love number :math:`h_{n}`.
+
+Function for creating parameter settings for the displacement Love number :math:`h_{n}` of each of the given degrees :math:`n` of
+a body's basic tidal deformation. The parameter has one entry per degree, and its value is used in all basic tidal deformation
+models of the body. The displacement Shida number :math:`l_{n}` is estimated with a separate parameter
+(see :func:`~tudatpy.dynamics.parameters_setup.displacement_shida_number`).
+
+Using the displacement Love number as estimatable parameter requires:
+
+* A :func:`~tudatpy.dynamics.environment_setup.shape_deformation.basic_solid_body_tidal` shape deformation model of the ``deformed_body``, which includes each of the given degrees
+* At least one observation model to rely on a ground station on the ``deformed_body``, of which the motion includes the body deformation
+
+
+Parameters
+----------
+deformed_body : str
+    Name of the body that is undergoing tidal deformation
+degrees : list[int]
+    Degree :math:`n` (2 or 3) of each Love number :math:`h_{n}` that is to be estimated
+
+Returns
+-------
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+    Object for the specified body's displacement Love number :math:`h_{n}` of each given degree
+
+
+    )doc" );
+
+    m.def( "displacement_shida_number",
+           &tep::displacementShidaNumber,
+           py::arg( "deformed_body" ),
+           py::arg( "degrees" ),
+           R"doc(
+
+Function for creating parameter settings for a body's displacement Shida number :math:`l_{n}`.
+
+Function for creating parameter settings for the displacement Shida number :math:`l_{n}` of each of the given degrees :math:`n` of
+a body's basic tidal deformation. The parameter has one entry per degree, and its value is used in all basic tidal deformation
+models of the body. The displacement Love number :math:`h_{n}` is estimated with a separate parameter
+(see :func:`~tudatpy.dynamics.parameters_setup.displacement_love_number`).
+
+Using the displacement Shida number as estimatable parameter requires:
+
+* A :func:`~tudatpy.dynamics.environment_setup.shape_deformation.basic_solid_body_tidal` shape deformation model of the ``deformed_body``, which includes each of the given degrees
+* At least one observation model to rely on a ground station on the ``deformed_body``, of which the motion includes the body deformation
+
+
+Parameters
+----------
+deformed_body : str
+    Name of the body that is undergoing tidal deformation
+degrees : list[int]
+    Degree :math:`n` (2 or 3) of each Shida number :math:`l_{n}` that is to be estimated
+
+Returns
+-------
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+    Object for the specified body's displacement Shida number :math:`l_{n}` of each given degree
+
+
+    )doc" );
+
     m.def( "reference_point_position",
            &tep::referencePointPosition,
            py::arg( "body" ),
            py::arg( "reference_point_name" ),
            R"doc(
 
-         Configure estimation of the body-fixed Cartesian position of ``reference_point_name`` on ``body``, in metres.
+         Configure estimation of the body-fixed Cartesian position of ``reference_point_name`` on ``body``, in meters.
 
          Parameters
          ----------

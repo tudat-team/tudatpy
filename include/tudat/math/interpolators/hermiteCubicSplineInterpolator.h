@@ -185,6 +185,36 @@ public:
         return targetValue;
     }
 
+    //! Function to compute the derivative of the interpolated value w.r.t. the independent variable.
+    /*!
+     *  Function to compute the derivative of the interpolated value w.r.t. the independent variable, by differentiating the
+     *  Hermite spline in interpolate: ( 3 a f^2 + 2 b f + c ) / h, with f the normalized position in the interval of size h.
+     *  \param targetIndependentVariableValue Value of independent variable at which the derivative is to be determined.
+     *  \return Derivative of the interpolated value w.r.t. the independent variable.
+     */
+    DependentVariableType interpolateDerivative( const IndependentVariableType targetIndependentVariableValue )
+    {
+        DependentVariableType derivative;
+        bool useValue = false;
+        this->checkDerivativeBoundaryCase( derivative, useValue, targetIndependentVariableValue );
+        if( useValue )
+        {
+            return derivative;
+        }
+
+        unsigned int lowerEntry = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+        if( lowerEntry == independentValues_.size( ) - 1 )
+        {
+            lowerEntry -= 1;
+        }
+
+        ScalarType intervalSize = static_cast< ScalarType >( independentValues_[ lowerEntry + 1 ] - independentValues_[ lowerEntry ] );
+        ScalarType factor = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ lowerEntry ] ) / intervalSize;
+        return ( coefficients_[ 0 ][ lowerEntry ] * ( 3.0 * factor * factor ) + coefficients_[ 1 ][ lowerEntry ] * ( 2.0 * factor ) +
+                 coefficients_[ 2 ][ lowerEntry ] ) /
+                intervalSize;
+    }
+
     InterpolatorTypes getInterpolatorType( )
     {
         return hermite_spline_interpolator;

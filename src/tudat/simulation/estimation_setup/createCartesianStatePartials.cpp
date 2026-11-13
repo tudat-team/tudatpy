@@ -12,6 +12,7 @@
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 namespace tudat
@@ -246,6 +247,56 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                             }
                             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtStationLinearVelocity >(
                                     currentBody->getRotationalEphemeris( ), velocityParameter->getMotionModel( )->getReferenceEpoch( ) );
+                        }
+                        break;
+                    }
+                    case estimatable_parameters::displacement_love_number:
+                    case estimatable_parameters::displacement_shida_number: {
+                        // The parameter affects each ground station on the body of which the motion includes the body deformation.
+                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) == 0 )
+                        {
+                            break;
+                        }
+                        std::shared_ptr< ground_stations::GroundStationState > stationState =
+                                currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
+                                        ->getNominalStationState( );
+                        std::shared_ptr< ground_stations::CombinedStationMotionModel > combinedModel =
+                                std::dynamic_pointer_cast< ground_stations::CombinedStationMotionModel >(
+                                        stationState->getStationMotionModel( ) );
+                        bool stationIncludesDeformation = false;
+                        if( combinedModel != nullptr )
+                        {
+                            for( const std::shared_ptr< ground_stations::StationMotionModel >& motionModel :
+                                 combinedModel->getModelList( ) )
+                            {
+                                if( std::dynamic_pointer_cast< ground_stations::BodyDeformationStationMotionModel >( motionModel ) !=
+                                    nullptr )
+                                {
+                                    stationIncludesDeformation = true;
+                                }
+                            }
+                        }
+                        if( stationIncludesDeformation )
+                        {
+                            if( currentBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error, body's rotation model is not found in body " + currentBodyName +
+                                                          " when making position w.r.t. displacement Love or Shida number partial" );
+                            }
+                            std::shared_ptr< estimatable_parameters::DisplacementLoveNumber > loveNumberParameter =
+                                    std::dynamic_pointer_cast< estimatable_parameters::DisplacementLoveNumber >( parameterToEstimate );
+                            if( loveNumberParameter == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when making cartesian state partial w.r.t. displacement Love or Shida number, parameter "
+                                        "type is incompatible" );
+                            }
+                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtDisplacementLoveNumber >(
+                                    currentBody->getRotationalEphemeris( ),
+                                    loveNumberParameter->getDeformationModels( ),
+                                    loveNumberParameter->getDegrees( ),
+                                    loveNumberParameter->getUseShidaNumber( ),
+                                    stationState );
                         }
                         break;
                     }

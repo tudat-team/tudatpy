@@ -119,6 +119,16 @@ public:
      */
     virtual DependentVariableType interpolate( const IndependentVariableType independentVariableValue ) = 0;
 
+    //! Function to compute the derivative of the interpolated value w.r.t. the independent variable.
+    /*!
+     *  Function to compute the derivative of the interpolated value w.r.t. the independent variable, from the interpolant
+     *  used by interpolate. Outside the interpolation domain, the boundaryHandling_ setting is applied, see
+     *  checkDerivativeBoundaryCase.
+     *  \param independentVariableValue Independent variable value at which the derivative is to be determined.
+     *  \return Derivative of the interpolated value w.r.t. the independent variable.
+     */
+    virtual DependentVariableType interpolateDerivative( const IndependentVariableType independentVariableValue ) = 0;
+
     //! Function to perform interpolation, with non-const input argument.
     /*!
      *  This function performs the interpolation, with non-const input argument. Function calls the interpolate function and is
@@ -383,6 +393,28 @@ protected:
                         throw std::runtime_error( "Error when checking interpolation boundary, boundary handling method not recognized." );
                 }
             }
+        }
+    }
+
+    //! Function to check whether boundary handling needs to be applied to the derivative, depending on method chosen.
+    /*!
+     *  Function to check whether boundary handling needs to be applied to the derivative, depending on method chosen. The
+     *  exception and warnings are those of checkBoundaryCase. Outside the domain, the derivative is NaN for use_nan_value(_with_warning),
+     *  and zero for use_boundary_value(_with_warning) and use_default_value(_with_warning). For extrapolate_at_boundary(_with_warning),
+     *  useValue remains false, and the derivative of the extrapolated interpolant is to be used.
+     *  \param derivative Derivative of dependent variable w.r.t. independent variable (set to zero, or NaN if applicable).
+     *  \param useValue Boolean that specifies whether derivative is to be used, instead of differentiating the interpolant.
+     *  \param targetIndependentVariable Value of independent variable (i.e., the one that is to be checked for boundary handling).
+     */
+    void checkDerivativeBoundaryCase( DependentVariableType& derivative,
+                                      bool& useValue,
+                                      const IndependentVariableType& targetIndependentVariable )
+    {
+        derivative = IdentityElement::getAdditionIdentity< DependentVariableType >( dependentValues_.front( ) );
+        checkBoundaryCase( derivative, useValue, targetIndependentVariable );
+        if( useValue && boundaryHandling_ != use_nan_value && boundaryHandling_ != use_nan_value_with_warning )
+        {
+            derivative = IdentityElement::getAdditionIdentity< DependentVariableType >( dependentValues_.front( ) );
         }
     }
 
