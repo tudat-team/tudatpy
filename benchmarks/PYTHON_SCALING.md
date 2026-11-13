@@ -236,7 +236,7 @@ Serialisatie-afhankelijke tests worden nu alleen bij de expliciete OFF-bouwvlag
 overgeslagen; de twee downloadtests respecteren de offline-optie. De onafhankelijke
 `Time`-pickle-tests blijven actief. De historische handmatige uitsluitingen zijn
 dus niet meer nodig. De aparte serialisatie-ON-build is vervolgens eveneens
-[gevalideerd](../docs/serialization_validation_20261112.md): 915 passed,
+[gevalideerd](../docs/independent_arc_development.md#validation-evidence-and-limits): 915 passed,
 108 skipped, plus vier native serialisatiedoelen. Daarbij zijn verouderde fixtures
 en waarde-gelijkheidsbugs gecorrigeerd. Dit betreft correctheidsvalidatie;
 de schaalmeting hierboven blijft de eerdere OFF-meting.

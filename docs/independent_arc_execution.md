@@ -105,6 +105,9 @@ results may already exist, but no successful global result is advertised. A
 subsequent integration creates fresh isolated workers. The executor continues
 already available tasks rather than implementing cancellation.
 
+See [Building and validating independent arcs](independent_arc_development.md)
+for environment setup, native/Python acceptance commands and ON/OFF testing.
+
 ## Acceptance checks and measurement
 
 ```bash

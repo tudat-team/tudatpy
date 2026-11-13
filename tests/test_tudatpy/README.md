@@ -30,25 +30,12 @@ PYTHONPATH=build-python-arcs/src python -m pytest \
   tests/test_tudatpy/test_serialization_build_policy.py --no-remote-data -q
 ```
 
-On 2026-11-12, the rebuilt serialization-OFF kernel passed the full offline
-command with **694 passed, 329 skipped**, without manual exclusions. The public
-short independent-arc example also passed after rebuilding. These counts include
-the uncommitted Python scaling-benchmark tests in this working tree.
-
 A separate kernel built with `TUDAT_BUILD_WITH_SERIALIZATION=ON` must run the
 Cereal roundtrip tests to validate serialization itself. The policy tests check
 both values of the selection flag; they do not validate an ON binary's actual
-roundtrips. The subsequent separate ON build was validated on 2026-11-12:
-**915 passed, 108 skipped**, plus four native serialization CTests. The targeted
-serialization/policy run passed 235 tests with two explicit refactoring skips.
-See [the validation record](../../docs/serialization_validation_20261112.md)
-for the fixture and value-equality repairs found by enabling real propagation
-result tests. Eight accidental skips for an unrelated `spice` package and a
-stale expected-failure mark were removed. The two deliberate observation-file
-refactoring skips remain.
-
-Both full-suite totals above include the 28 scaling-driver tests already present
-in the validation working tree, whose benchmark changes are committed separately.
+roundtrips. See [Building and validating independent arcs](../../docs/independent_arc_development.md)
+for separate ON/OFF build commands, full-suite and focused checks, native
+serialization targets, regression-test expectations and validation limits.
 
 These test-policy changes and this documentation were AI-assisted. Review the
 feature-marker boundaries when introducing more optional serialization tests.
