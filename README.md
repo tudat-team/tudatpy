@@ -206,6 +206,8 @@ If you move the data files after compiling, provide their location through the `
 
 We are open to and appreciate external contributions!
 Please take a look at our [contribution guidelines](https://github.com/tudat-team/tudatpy?tab=contributing-ov-file) for more information.
+For adding, replacing or removing shared data files, see the
+[Zenodo resource maintenance guide](docs/resource_maintenance.md).
 
 
 ## Citation
