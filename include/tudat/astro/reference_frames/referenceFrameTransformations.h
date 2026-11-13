@@ -17,6 +17,7 @@
 #define TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
 
 #include <cmath>
+#include <string>
 #include <vector>
 
 #include <functional>
@@ -553,6 +554,13 @@ Eigen::Matrix3d getJ2000toECLIPJ2000TransformationMatrix( );
  * @return Transformation matrix
  */
 Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix( );
+
+//! Get transformation matrix from J2000 to a frame orientation (J2000, ICRF or ECLIPJ2000)
+/*!
+ * @param frameOrientation Name of the frame orientation (J2000, ICRF or ECLIPJ2000)
+ * @return Transformation matrix
+ */
+Eigen::Matrix3d getJ2000ToFrameOrientationTransformationMatrix( const std::string& frameOrientation );
 
 //! Pre-multiplier used to take derivative of rotation matrix about x-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =

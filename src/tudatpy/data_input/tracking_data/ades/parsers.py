@@ -100,8 +100,12 @@ CATALOG_DICT = {
     "IRASPSC": "^",
 }
 
-# residual fields with the uncertainties and biases adopted by an orbit computing centre
-RESIDUAL_COLUMNS = ["sigRA", "sigDec", "sigCorr", "sigTime", "biasRA", "biasDec", "biasTime"]
+# ADES fields with the uncertainties of an observation as reported by the observer (observation fields), and the corresponding
+# uncertainties adopted by an orbit computing center (residual fields), which also provide the adopted biases
+OBSERVATION_UNCERTAINTY_FIELDS = ("rmsRA", "rmsDec", "rmsCorr", "rmsTime")
+RESIDUAL_UNCERTAINTY_FIELDS = ("sigRA", "sigDec", "sigCorr", "sigTime")
+RESIDUAL_BIAS_FIELDS = ("biasRA", "biasDec", "biasTime")
+RESIDUAL_COLUMNS = [*RESIDUAL_UNCERTAINTY_FIELDS, *RESIDUAL_BIAS_FIELDS]
 
 # output columns that are kept as floats (with NaN for missing values) in the parsed table
 NUMERIC_OUTPUT_COLUMNS = [

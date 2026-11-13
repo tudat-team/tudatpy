@@ -4,18 +4,17 @@ MPC ADES tracking-data loading.
 
 import numpy as np
 
-from .parsers import parse_ades_file
+from .parsers import (
+    OBSERVATION_UNCERTAINTY_FIELDS,
+    RESIDUAL_BIAS_FIELDS,
+    RESIDUAL_UNCERTAINTY_FIELDS,
+    parse_ades_file,
+)
 from tudatpy.data_input.tracking_data.optical_utilities import read_astropy_optical_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
     radar_data_from_table,
     radar_data_to_tracking_data,
 )
-
-# ADES fields with the uncertainties of an observation as reported by the observer (observation fields), and the corresponding
-# uncertainties adopted by an orbit computing center (residual fields), which also provide the adopted biases
-OBSERVATION_UNCERTAINTY_FIELDS = ("rmsRA", "rmsDec", "rmsCorr", "rmsTime")
-RESIDUAL_UNCERTAINTY_FIELDS = ("sigRA", "sigDec", "sigCorr", "sigTime")
-RESIDUAL_BIAS_FIELDS = ("biasRA", "biasDec", "biasTime")
 
 
 def _select_ades_observation_or_residual_fields(table, prefer_residual_fields: bool):
@@ -84,6 +83,7 @@ def read_ades_data(
     weighing_scheme: str | None = "",
     minimum_ades_uncertainty: float | None = None,
     prefer_residual_fields: bool = False,
+    vfcc17_for_missing_uncertainties: bool = False,
 ):
     """Function to read an MPC ADES file into TrackingData objects.
 
@@ -118,8 +118,8 @@ def read_ades_data(
         uncertainties of each observation, and from their correlation rmsCorr if
         available) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
         weights divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). In
-        both ADES schemes, observations without rmsRA and rmsDec get ``"VFCC17"`` weights. The
+        from the same observatory, in the same local night, as defined for ``"VFCC17"``). For
+        observations without rmsRA and rmsDec, see ``vfcc17_for_missing_uncertainties``. The
         weights are computed when the observation collection is created. If empty, no weights
         are assigned. If weights are assigned, any rmsTime timing uncertainties are added to
         the observation covariance (see
@@ -128,7 +128,9 @@ def read_ades_data(
         Minimum rmsRA and rmsDec (in arcseconds) for which the ADES uncertainties of an
         observation are used (applied to sigRA and sigDec for observations that use the
         residual fields, see ``prefer_residual_fields``). For observations with a smaller value,
-        these are removed, so that the ADES weighing schemes assign ``"VFCC17"`` weights instead.
+        rmsRA and rmsDec are removed, so that these are treated as observations without
+        uncertainties (see ``vfcc17_for_missing_uncertainties``). Not applied to stellar
+        occultation observations.
     prefer_residual_fields : bool, default False
         Whether the uncertainties and biases adopted by an orbit computing center (the ADES
         residual fields sigRA, sigDec, sigCorr, sigTime, biasRA, biasDec and biasTime) are used
@@ -137,12 +139,18 @@ def read_ades_data(
         uses either all fields of one kind or all fields of the other: those of the preferred
         kind if any of them is available, otherwise those of the other kind. The residual uncertainties then
         take the place of rmsRA, rmsDec, rmsCorr and rmsTime in the weighing schemes. The
-        adopted biases (only available in the residual fields) are applied as follows, assuming
-        that the reported values are the true values plus the bias: biasTime (in seconds) is
+        adopted biases (only available in the residual fields) are applied when the observations
+        are converted with ``apply_corrections=True``, assuming that the reported values are the
+        true values plus the bias: biasTime (in seconds) is
         set as the negative observation time bias (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_observation_time_biases`), and
         biasRA (of RA cos(Dec)) and biasDec (in arcseconds) are subtracted as observation
         corrections, replacing the star-catalog corrections of these observations.
+    vfcc17_for_missing_uncertainties : bool, default False
+        Whether observations without rmsRA and rmsDec (including those removed by
+        ``minimum_ades_uncertainty``) get ``"VFCC17"`` weights in the ``"ADES"`` and
+        ``"ADES_NIGHT"`` weighing schemes. If False, such observations raise an error for these
+        weighing schemes.
 
     Returns
     -------
@@ -160,11 +168,20 @@ def read_ades_data(
     if len(parsed_table) > 0:
         _select_ades_observation_or_residual_fields(parsed_table, prefer_residual_fields)
         if minimum_ades_uncertainty is not None:
-            rejected = (parsed_table["rmsRA"] < minimum_ades_uncertainty) | (
-                parsed_table["rmsDec"] < minimum_ades_uncertainty
+            rejected = (np.asarray(parsed_table["mode"]) != "OCC") & (
+                (parsed_table["rmsRA"] < minimum_ades_uncertainty)
+                | (parsed_table["rmsDec"] < minimum_ades_uncertainty)
             )
             for column in ("rmsRA", "rmsDec"):
                 parsed_table[column][rejected] = np.nan
+        if weighing_scheme in ("ADES", "ADES_NIGHT") and not vfcc17_for_missing_uncertainties:
+            no_uncertainties = np.isnan(parsed_table["rmsRA"]) & np.isnan(parsed_table["rmsDec"])
+            if no_uncertainties.any():
+                raise ValueError(
+                    f"{int(no_uncertainties.sum())} observation(s) have no rmsRA and rmsDec for "
+                    f"the {weighing_scheme} weighing scheme; set "
+                    "vfcc17_for_missing_uncertainties=True to give them VFCC17 weights"
+                )
         optical_tracking_data, supplementary_data = read_astropy_optical_data(
             parsed_table,
             in_degrees=False,

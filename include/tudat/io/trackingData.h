@@ -397,8 +397,8 @@ public:
     }
 
     //! Set the biases of the observation epochs (in seconds), one per observation (angular position only). An observation with
-    //! time bias c is taken to be h(t+c), with t its epoch. When creating an observation dataset, each observation is corrected
-    //! to h(t) using its time derivative.
+    //! time bias c is taken to be h(t+c), with t its epoch. When creating an observation dataset with corrections applied, each
+    //! observation is corrected to h(t) using its time derivative.
     void setObservationTimeBiases( const std::vector< double >& timeBiases )
     {
         if( timeBiases.size( ) != numberOfObservations_ )

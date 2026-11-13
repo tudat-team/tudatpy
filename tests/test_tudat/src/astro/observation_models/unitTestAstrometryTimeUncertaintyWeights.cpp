@@ -91,7 +91,8 @@ BOOST_AUTO_TEST_CASE( testAngularPositionTimeBiasesAndUncertainties )
         trackingData->setObservationTimeBiases( timeBiases );
 
         const ObservationVectorData< double, double > vectorData =
-                createObservationDatasetFromTrackingData< double, double >( { trackingData }, bodies )->createObservationVectorData( );
+                createObservationDatasetFromTrackingData< double, double >( { trackingData }, bodies, true )
+                        ->createObservationVectorData( );
 
         Eigen::Matrix4d expectedCovariance = useSetLevelWeights ? correlatedCovariance : uncorrelatedCovariance;
         for( unsigned int i = 0; i < 2; i++ )

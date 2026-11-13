@@ -2764,7 +2764,7 @@ tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
     List of tracking data objects to convert.
 bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
     System of bodies, used to retrieve the ground station positions for the time scale conversions, and to compute the
-    angular corrections (see ``apply_corrections``).
+    angular corrections (see ``apply_corrections``) and the effect of time biases and uncertainties.
 apply_corrections : bool, default = False
     Whether to apply the corrections stored in the tracking data to the observation values. If ``True``, the
     corrections requested with
@@ -4668,7 +4668,8 @@ tudatpy.estimation.observations.ObservationCollection
         tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
             List of tracking data objects to convert.
         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
-            System of bodies, used to resolve ground station positions for time scale conversions.
+            System of bodies, used to resolve ground station positions for time scale conversions and to compute the
+            effect of time biases and uncertainties.
         apply_corrections : bool, optional
             Whether corrections stored in the tracking data should be applied to
             the observation values during conversion. Default is False.

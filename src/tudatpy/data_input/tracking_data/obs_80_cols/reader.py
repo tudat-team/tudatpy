@@ -57,13 +57,8 @@ def read_80_column_data(
         observations.
     weighing_scheme : str, default ""
         Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
-        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
-        uncertainties of each observation, and from their correlation rmsCorr if
-        available) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
-        weights divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
-        weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+        :cite:p:`veres2017`). The weights are computed when the observation collection is
+        created. If empty, no weights are assigned.
 
     Returns
     -------
@@ -75,6 +70,11 @@ def read_80_column_data(
     For radar range observation-model time-scale requirements, see
     :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`.
     """
+    if weighing_scheme in ("ADES", "ADES_NIGHT"):
+        raise ValueError(
+            f"Weighing scheme '{weighing_scheme}' requires ADES uncertainties, which the MPC "
+            "80-column format does not contain."
+        )
     parsed_table = parse_80cols_file(file_names)
     optical_tracking_data, supplementary_data = [], []
     if len(parsed_table) > 0:

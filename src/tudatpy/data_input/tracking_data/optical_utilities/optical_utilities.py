@@ -605,7 +605,8 @@ def optical_table_to_tracking_data(
     -----
     The biases adopted by an orbit computing center (the ADES residual fields biasRA, biasDec
     and biasTime, see :func:`~tudatpy.data_input.tracking_data.ades.read_ades_data`) are applied
-    if they are present in the table, assuming that the reported values are the true values
+    if they are present in the table (when the observations are converted with
+    ``apply_corrections=True``), assuming that the reported values are the true values
     plus the bias: biasRA (of RA cos(Dec)) and biasDec (in arcseconds) are subtracted as
     observation corrections (replacing the star-catalog corrections of these observations),
     and the negative of biasTime (in seconds) is set as observation time bias.
@@ -653,6 +654,8 @@ def optical_table_to_tracking_data(
                 "(positive, finite) or both absent, and rmsCorr (if given) to be between "
                 "-1 and 1, for every observation"
             )
+        # pass the checked numerical values (NaN if missing) to the weighing scheme
+        table = table.assign(**dict(zip(ades_columns, values.T)))
 
     if add_star_catalog_corrections:
         RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)

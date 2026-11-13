@@ -240,24 +240,27 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
         epochsTdb = epochsInput;
     }
 
-    // Correct angular position observations for time biases, using the rates of right ascension and declination, which are also
-    // used to add the contribution of time uncertainties to the weights
+    // Correct angular position observations for time biases (if corrections are applied), using the rates of right ascension and
+    // declination, which are also used to add the contribution of time uncertainties to the weights
     const std::vector< double >& timeBiases = trackingData->getObservationTimeBiases( );
     const std::vector< double >& timeUncertainties = trackingData->getObservationTimeUncertainties( );
-    std::vector< Eigen::Vector2d > angularRates;
-    if( !timeBiases.empty( ) || !timeUncertainties.empty( ) )
+    if( ( !timeBiases.empty( ) || !timeUncertainties.empty( ) ) && observableType != observation_models::angular_position )
     {
-        if( observableType != observation_models::angular_position )
-        {
-            throw std::runtime_error(
-                    "Error when adding tracking data to an observation dataset, observation time biases and uncertainties are only "
-                    "supported for angular position observations." );
-        }
+        throw std::runtime_error(
+                "Error when adding tracking data to an observation dataset, observation time biases and uncertainties are only "
+                "supported for angular position observations." );
+    }
+    std::vector< Eigen::Vector2d > angularRates;
+    if( ( applyCorrections && !timeBiases.empty( ) ) || !timeUncertainties.empty( ) )
+    {
         angularRates = getRightAscensionAndDeclinationRates< TimeType >( bodies, rawLinkEnds, epochsTdb );
     }
-    for( unsigned int i = 0; i < timeBiases.size( ); ++i )
+    if( applyCorrections )
     {
-        observations[ i ] -= ( timeBiases.at( i ) * angularRates.at( i ) ).template cast< ObservationScalarType >( );
+        for( unsigned int i = 0; i < timeBiases.size( ); ++i )
+        {
+            observations[ i ] -= ( timeBiases.at( i ) * angularRates.at( i ) ).template cast< ObservationScalarType >( );
+        }
     }
 
     // Evaluate environment-dependent corrections at TDB reception times using the original observations.

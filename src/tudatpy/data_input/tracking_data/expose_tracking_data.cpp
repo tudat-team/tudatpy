@@ -713,7 +713,7 @@ void expose_tracking_data( py::module& m )
 
          An observation with epoch :math:`t` and time bias :math:`c` is taken to be the observable at :math:`t+c`,
          consistent with the time bias estimatable parameters. When the tracking data is converted to an observation
-         dataset, each observation is corrected to epoch :math:`t` as
+         dataset with ``apply_corrections=True``, each observation is corrected to epoch :math:`t` as
          :math:`(\alpha,\delta)\rightarrow(\alpha-c\dot{\alpha},\delta-c\dot{\delta})`, with the rates computed as for
          :meth:`set_observation_time_uncertainties`.
 

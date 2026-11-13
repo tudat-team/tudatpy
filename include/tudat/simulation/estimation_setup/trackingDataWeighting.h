@@ -20,12 +20,12 @@
 
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingDataWeights.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
-#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 
 namespace tudat
 {
@@ -118,7 +118,18 @@ std::vector< Eigen::Vector2d > getRightAscensionAndDeclinationRates( const simul
             simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, double >( rawLinkEnds.at( transmitter ), bodies );
 
     // Rotation from the global frame to J2000, in which the right ascension and declination are defined
-    const Eigen::Matrix3d rotationToJ2000 = getJ2000ToGlobalFrameTransformation( bodies ).transpose( );
+    Eigen::Matrix3d rotationToJ2000;
+    try
+    {
+        rotationToJ2000 = reference_frames::getJ2000ToFrameOrientationTransformationMatrix( bodies.getFrameOrientation( ) ).transpose( );
+    }
+    catch( const std::runtime_error& caughtException )
+    {
+        throw std::runtime_error(
+                "Error when computing right ascension and declination rates for observation time biases or "
+                "uncertainties: " +
+                std::string( caughtException.what( ) ) );
+    }
 
     std::vector< Eigen::Vector2d > angularRates;
     angularRates.reserve( observationTimes.size( ) );

@@ -320,8 +320,7 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
                 getVfcc17Weight( epochs.at( i ), stringMetadata.at( i ), observationsPerLocalNight.at( i ) ) ) );
     }
 
-    trackingData->setObservationWeightSettings(
-            observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
+    trackingData->setObservationWeights( observationWeights );
 }
 
 //! Function to retrieve a numerical ADES value (e.g. rmsRA in arcseconds) from string metadata, NaN if it is not available
