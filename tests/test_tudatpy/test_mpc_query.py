@@ -188,7 +188,7 @@ def test_read_pandas_optical_data_returns_tracking_data(valid_obs_table):
     _check_tracking_data_pair(read_pandas_optical_data(valid_obs_table), expected_sets=2)
 
 
-def test_read_pandas_optical_data_marks_vfcc17_weighing_scheme(valid_obs_table):
+def test_read_pandas_optical_data_marks_vfcc17_weights(valid_obs_table):
     tracking_data, supplementary_data = read_pandas_optical_data(
         valid_obs_table, vfcc17_weights=True
     )
