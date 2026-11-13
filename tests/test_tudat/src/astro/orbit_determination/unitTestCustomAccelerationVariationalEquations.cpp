@@ -458,6 +458,103 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
     }
 }
 
+// Check analytical custom partials w.r.t. a gravitational parameter and a spherical harmonic coefficient block against
+// finite differences. The custom acceleration is linear in Earth's GM, C20 and C21, which it reads from the gravity field.
+BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartialsWrtGravityParameters )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    double initialEphemerisTime = double( 1.0E7 );
+    double finalEphemerisTime = initialEphemerisTime + 86400.0;
+
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+
+    std::shared_ptr< gravitation::SphericalHarmonicsGravityField > earthGravityField =
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( bodies.at( "Earth" )->getGravityFieldModel( ) );
+
+    // Acceleration a = gmScale * GM * e_x + coefficientScale * ( C20 * e_y + C21 * e_z )
+    double gmScale = 1.0E-20;
+    double coefficientScale = 1.0E-3;
+    std::function< Eigen::Vector3d( const double ) > accelerationFunction = [ = ]( const double ) {
+        return Eigen::Vector3d( gmScale * earthGravityField->getGravitationalParameter( ),
+                                coefficientScale * earthGravityField->getCosineCoefficients( )( 2, 0 ),
+                                coefficientScale * earthGravityField->getCosineCoefficients( )( 2, 1 ) );
+    };
+    std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > gmPartialFunction =
+            [ = ]( const double, const Eigen::Vector3d& ) { return Eigen::MatrixXd( gmScale * Eigen::Vector3d::UnitX( ) ); };
+    std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > coefficientPartialFunction = [ = ]( const double,
+                                                                                                                 const Eigen::Vector3d& ) {
+        Eigen::MatrixXd partial = Eigen::MatrixXd::Zero( 3, 2 );
+        partial( 1, 0 ) = coefficientScale;
+        partial( 2, 1 ) = coefficientScale;
+        return partial;
+    };
+
+    SelectedAccelerationMap accelerationMap;
+    accelerationMap[ "Vehicle" ][ "Earth" ].push_back(
+            std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationMap[ "Vehicle" ][ "Vehicle" ].push_back( std::make_shared< CustomAccelerationSettings >( accelerationFunction ) );
+    std::vector< std::string > bodiesToIntegrate = { "Vehicle" };
+    std::vector< std::string > centralBodies = { "Earth" };
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+
+    Eigen::Vector6d initialKeplerianElements;
+    initialKeplerianElements << 7200.0E3, 0.05, unit_conversions::convertDegreesToRadians( 85.3 ),
+            unit_conversions::convertDegreesToRadians( 235.7 ), unit_conversions::convertDegreesToRadians( 23.4 ),
+            unit_conversions::convertDegreesToRadians( 139.87 );
+    Eigen::Vector6d systemInitialState =
+            convertKeplerianToCartesianElements( initialKeplerianElements, earthGravityField->getGravitationalParameter( ) );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    rungeKuttaFixedStepSettings( 90.0, CoefficientSets::rungeKuttaFehlberg78 ),
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
+
+    // Estimate GM and the (2,0), (2,1) cosine block, each with an analytical partial for the custom acceleration
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
+    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+            std::vector< std::pair< int, int > >{ { 2, 0 }, { 2, 1 } }, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+    parameterNames.at( 1 )->customPartialSettings_.push_back(
+            std::make_shared< AnalyticalAccelerationPartialSettings >( gmPartialFunction, "Vehicle", "Vehicle", custom_acceleration ) );
+    parameterNames.at( 2 )->customPartialSettings_.push_back( std::make_shared< AnalyticalAccelerationPartialSettings >(
+            coefficientPartialFunction, "Vehicle", "Vehicle", custom_acceleration ) );
+    std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate( parameterNames, bodies );
+
+    SingleArcVariationalEquationsSolver<> variationalEquationsSolver( bodies, propagatorSettings, parametersToEstimate );
+    Eigen::MatrixXd sensitivityMatrix = variationalEquationsSolver.getSensitivityMatrixSolution( ).rbegin( )->second;
+
+    // Central differences of the final state w.r.t. each parameter
+    Eigen::VectorXd nominalParameters = parametersToEstimate->getFullParameterValues< double >( );
+    Eigen::Vector3d parameterPerturbations( 1.0E-6 * nominalParameters( 6 ), 1.0E-2, 1.0E-2 );
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        Eigen::VectorXd perturbedParameters = nominalParameters;
+        perturbedParameters( 6 + i ) += parameterPerturbations( i );
+        parametersToEstimate->resetParameterValues( perturbedParameters );
+        Eigen::VectorXd upperturbedState =
+                SingleArcDynamicsSimulator<>( bodies, propagatorSettings ).getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
+
+        perturbedParameters( 6 + i ) -= 2.0 * parameterPerturbations( i );
+        parametersToEstimate->resetParameterValues( perturbedParameters );
+        Eigen::VectorXd downperturbedState =
+                SingleArcDynamicsSimulator<>( bodies, propagatorSettings ).getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
+
+        Eigen::VectorXd numericalSensitivity = ( upperturbedState - downperturbedState ) / ( 2.0 * parameterPerturbations( i ) );
+        BOOST_CHECK_LT( ( numericalSensitivity - sensitivityMatrix.col( i ) ).norm( ) / numericalSensitivity.norm( ), 1.0E-6 );
+    }
+    parametersToEstimate->resetParameterValues( nominalParameters );
+}
+
 BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
 {
     double scaleDistance = 1.0E6;
