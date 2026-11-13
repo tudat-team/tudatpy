@@ -30,9 +30,8 @@ from tudatpy.estimation.observations_setup import ancillary_settings
 SPACECRAFT = "MGS"
 EARTH = "Earth"
 
-# ``atdf2ascii`` output for PDS file 9066071a.tdf (Mars Global Surveyor, March
-# 1999), taken from ``atdf2ascii/Examples``
-FIXTURE_DIR = Path(resource_paths.get_test_data_path()) / "atdf"
+# Stem of the ``atdf2ascii`` output for PDS file 9066071a.tdf (Mars Global
+# Surveyor, March 1999), taken from ``atdf2ascii/Examples``; see ``atdf_dir``.
 FIXTURE_STEM = "9066071a"
 
 # Row counts of the fixture's ``.msr`` table per "Data Type", and of its``.ramp`` table per station
@@ -127,23 +126,29 @@ def expected_epoch(timestamp: pd.Timestamp) -> float:
 # Fixtures
 # -----------------------------------------------------------------------------
 @pytest.fixture(scope="module")
-def msr_df() -> pd.DataFrame:
+def atdf_dir(data_dir) -> Path:
+    """Directory holding the ``atdf2ascii`` ``.msr`` and ``.ramp`` tables of the fixture."""
+    return data_dir / "atdf"
+
+
+@pytest.fixture(scope="module")
+def msr_df(atdf_dir) -> pd.DataFrame:
     """The fixture's ``.msr`` table, parsed once. Treated as read-only by tests."""
     processor = AtdfTrackingDataProcessor([Path(FIXTURE_STEM)], SPACECRAFT)
-    processor._read_atdf_ascii_msr(FIXTURE_DIR)
+    processor._read_atdf_ascii_msr(atdf_dir)
     return processor.df_processed_msr
 
 
 @pytest.fixture(scope="module")
-def ramp_df() -> pd.DataFrame:
+def ramp_df(atdf_dir) -> pd.DataFrame:
     """The fixture's ``.ramp`` table, parsed once. Treated as read-only by tests."""
     processor = AtdfTrackingDataProcessor([Path(FIXTURE_STEM)], SPACECRAFT)
-    processor._read_atdf_ascii_ramp(FIXTURE_DIR)
+    processor._read_atdf_ascii_ramp(atdf_dir)
     return processor.df_processed_rmp
 
 
 @pytest.fixture
-def stub_atdf_to_ascii(monkeypatch):
+def stub_atdf_to_ascii(monkeypatch, atdf_dir):
     """Replace ``atdf2ascii.atdf_to_ascii`` with a recorder that emits the fixture.
 
     Decoding a binary ATDF file is ``atdf2ascii``'s responsibility, so the tests
@@ -157,7 +162,7 @@ def stub_atdf_to_ascii(monkeypatch):
         calls.append({"input_file": input_file, "output_dir": output_dir, **kwargs})
         for suffix in ("msr", "ramp"):
             shutil.copy(
-                FIXTURE_DIR / f"{FIXTURE_STEM}.{suffix}",
+                atdf_dir / f"{FIXTURE_STEM}.{suffix}",
                 Path(output_dir) / f"{Path(input_file).stem}.{suffix}",
             )
 
@@ -575,11 +580,11 @@ class TestReadAtdfData:
 # Integration with the estimation interface
 # -----------------------------------------------------------------------------
 @pytest.fixture(scope="module")
-def observation_collection(dsn_bodies):
+def observation_collection(dsn_bodies, atdf_dir):
     """The full fixture converted and handed to tudat's estimation interface."""
     tracking_data, _ = AtdfTrackingDataProcessor(
         [Path(FIXTURE_STEM)], SPACECRAFT
-    ).process_ascii_tables(FIXTURE_DIR)
+    ).process_ascii_tables(atdf_dir)
     return create_observation_collection_from_tracking_data(tracking_data, dsn_bodies)
 
 
