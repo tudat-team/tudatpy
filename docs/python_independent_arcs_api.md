@@ -133,6 +133,40 @@ joining thread. The first implementation does not use an unchecked
 `native_only=True` user assertion. Free-threaded Python and external concurrent
 C++ mutation are outside this initial contract.
 
+## Serialization contract for independent arcs
+
+The supported workflow is **integrate successfully, join all workers, then
+serialize the completed results serially**. The synchronous integration call
+returns only after worker joins and native postprocessing. Do not serialize or
+deserialize into a result/model graph while integration, parameter reset or
+another operation is modifying that graph. This also applies to retained native
+result references: they are live objects, not independent snapshots. After a
+failed integration, a retained reference must not be assumed to represent a
+complete successful new result.
+
+The current workers perform numerical propagation; they do not access Cereal
+archives, and the isolated-model factory does not use Cereal for cloning.
+`TUDAT_BUILD_WITH_SERIALIZATION=ON` enables I/O methods, not concurrent archive
+access. The tested build uses Cereal's default `CEREAL_THREAD_SAFE=0` and does
+not rely on simultaneous serialization from multiple threads.
+
+With the current GIL-enabled Python contract, retaining the GIL prevents other
+ordinary Python threads from serializing the live results during integration.
+That is not a lock for external C++ threads, nor a free-threaded Python guarantee.
+Native callers remain responsible for preventing concurrent mutation/readout.
+
+Concurrent saving, background I/O and in-flight checkpoints are outside this
+API contract. Such an extension needs consistent independent snapshots or
+synchronization of the full traversed object graph. One archive/stream must
+still have only one accessing thread at a time. Concurrent use of separate
+archives additionally requires `CEREAL_THREAD_SAFE=1` consistently before Cereal
+headers in all participating translation units, including precompiled headers.
+That setting protects Cereal's internal bookkeeping, not Tudat's objects. See
+[Cereal's thread-safety contract](https://uscilab.github.io/cereal/thread_safety.html).
+Saved results are data; they are not a checkpoint of a resumable integrator and
+its runtime callbacks. This documents the existing supported workflow; it adds
+no locks, snapshot facility or asynchronous I/O.
+
 ## Errors and validation
 
 Validate dimensions, finite inputs, increasing epochs, positive duration/step,
@@ -228,8 +262,7 @@ Verification on this machine:
   two are unmarked network downloads in the GRAIL/MRO residual tests, blocked by
   sandbox DNS. This is not an all-features/full-suite pass.
 
-For this serialization-OFF, offline configuration, run the remaining suite
-explicitly as follows (rather than silently changing/marking unrelated tests):
+Historical workaround used before the test-selection fix on 2026-11-12:
 
 ```bash
 PYTHONPATH=build-python-arcs/src python -m pytest tests/test_tudatpy --no-remote-data \
@@ -243,6 +276,44 @@ This configuration-specific run passes: **652 passed, 104 skipped,
 serialization test modules are excluded, including the tests in them that did
 not fail. Existing deprecation warnings remain. Black, clang-format and
 `git diff --check` pass for the new/changed feature files.
+
+### Build-option-aware test selection (2026-11-12)
+
+The loaded kernel now reports its compiled serialization option through the
+internal boolean `_build_with_serialization`. This is the binary's build flag,
+not a guess based on missing methods or a neighbouring CMake cache. Tests marked
+`requires_serialization` are skipped only when that flag is explicitly false.
+An absent/non-boolean flag raises a test-configuration error and requests a
+rebuild; it does not silently disable tests. An ON flag keeps these tests active,
+so broken serialization registrations remain failures.
+
+The independent tuple-based `Time` pickle tests remain active in OFF builds.
+The GRAIL/MRO download tests now carry `remote_data` markers and respect
+`--no-remote-data`. The supported offline command no longer needs `--ignore`
+or name-based deselection:
+
+```bash
+PYTHONPATH=build-python-arcs/src python -m pytest tests/test_tudatpy --no-remote-data -q
+```
+
+This command validates the available features of the loaded OFF build. A
+separate serialization-ON build is needed to exercise Cereal itself;
+the selection-policy tests for an ON flag are not serialization roundtrip tests.
+That separate build was subsequently validated on 2026-11-12; see
+[the ON validation record](serialization_validation_20261112.md).
+
+After rebuilding the OFF kernel on 2026-11-12, this full offline command passed:
+**694 passed, 329 skipped**, with no manual exclusions or deselections. Eleven
+new policy tests cover explicit ON/OFF selection, rejection of unknown flags
+and the flag/basic-binding contract. The three independent `Time` pickle tests
+passed; both download tests were individually confirmed skipped by the offline
+option. The public short example still succeeds. This OFF command does not
+exercise Cereal; the subsequent ON run passed 915 tests with 108 skips after
+repairing stale fixtures and value-equality defects, documented in the record
+linked above.
+
+These full-suite counts include 28 scaling-driver tests present in the validation
+working tree; those benchmark changes are separate from the serialization fix.
 
 The native test build/run commands are:
 

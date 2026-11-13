@@ -582,8 +582,12 @@ private:
                     cumulativeNumberOfFunctionEvaluations_ == rhsDerived->cumulativeNumberOfFunctionEvaluations_ &&
                     processedStateIds_ == rhsDerived->processedStateIds_ && propagatedStateIds_ == rhsDerived->propagatedStateIds_ &&
                     integratedStateAndBodyList_ == rhsDerived->integratedStateAndBodyList_ &&
-                    outputSettings_ == rhsDerived->outputSettings_ &&
-                    dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ &&
+                    ( ( outputSettings_ != nullptr && rhsDerived->outputSettings_ != nullptr )
+                              ? ( *outputSettings_ == *rhsDerived->outputSettings_ )
+                              : outputSettings_ == rhsDerived->outputSettings_ ) &&
+                    ( ( dependentVariableInterface_ != nullptr && rhsDerived->dependentVariableInterface_ != nullptr )
+                              ? ( *dependentVariableInterface_ == *rhsDerived->dependentVariableInterface_ )
+                              : dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ ) &&
                     sequentialPropagation_ == rhsDerived->sequentialPropagation_ &&
                     //    rawSolutionConversionFunction_ == rhsDerived->rawSolutionConversionFunction_ && Cannot evaluate std::function for
                     //    equality

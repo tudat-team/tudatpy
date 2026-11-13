@@ -752,6 +752,7 @@ def test_ifms_mex_residuals_are_millihertz_level():
     assert abs(np.mean(residuals)) < 1.0e-3
 
 
+@pytest.mark.remote_data(service="NAIF/PDS GRAIL")
 def test_odf_grail_short_arc_residuals_are_millihertz_level():
     test_data_path = _test_data_path()
     grail_data_path = test_data_path / "grail_residuals_download"
@@ -817,6 +818,7 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
 
 
+@pytest.mark.remote_data(service="NAIF/PDS MRO")
 def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     """Read one hour of MRO radio data and verify the calculated frequencies match closely."""
     test_data_path = _test_data_path()
