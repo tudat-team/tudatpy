@@ -385,10 +385,10 @@ BodyShapeSettings
 
  Function for creating tri-axial ellipsoid body shape model settings.
 
- Function for creating settings for a tri-axial ellipsoid body shape model from its three semi-axes, which are
- aligned with the body-fixed x-, y- and z-axes, respectively.
+ Function for creating settings for a tri-axial ellipsoid body shape model from its three semi-axes. The principal
+ axes of the ellipsoid are always along the axes of the body-fixed frame: ``semi_axis_a``, ``semi_axis_b`` and
+ ``semi_axis_c`` are the semi-axes along the body-fixed x-, y- and z-axes, respectively.
 
- The altitude is the shortest distance from the point to the surface, and is negative for points inside the ellipsoid.
  The average radius of the shape model is the radius of a sphere with the same volume, :math:`(abc)^{1/3}`.
 
 

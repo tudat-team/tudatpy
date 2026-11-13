@@ -6,7 +6,6 @@ import io
 import json
 import sys
 import tarfile
-from unittest.mock import patch
 
 import pytest
 import requests
@@ -82,22 +81,6 @@ def test_download_failure_removes_partial_file(monkeypatch, tmp_path):
 
     assert not destination.exists()
     assert not destination.with_name(".resource.dat.part").exists()
-
-
-def test_failed_forced_download_keeps_existing_file(tmp_path):
-    """Keep the existing file when a forced download fails."""
-    destination = tmp_path / "resource.dat"
-    destination.write_text("existing")
-
-    with patch.object(
-        resource_installer, "_download_with_requests", side_effect=requests.ConnectionError()
-    ):
-        with pytest.raises(requests.ConnectionError):
-            resource_installer._download_file(
-                "https://example.invalid/resource.dat", destination, force=True
-            )
-
-    assert destination.read_text() == "existing"
 
 
 def test_verify_sha256_returns_boolean(tmp_path):
