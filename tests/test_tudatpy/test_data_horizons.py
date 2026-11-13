@@ -22,7 +22,6 @@ pytestmark = pytest.mark.remote_data
 # 100% test coverage for tudatpy/numerical_simulation/environment_setup/ephemeris/horizons_wrapper.py.
 
 
-@pytest.mark.horizons_vectors
 def test_compare_horizons_spice(pos_tolerance=1e3, vel_tolerance=1e-3):
     """Compares the states from an array of times between HorizonsQuery and SPICE"""
     start = 20 * 365 * 86400
@@ -214,7 +213,6 @@ def test_JPL_user_input(
         )
 
 
-@pytest.mark.horizons_vectors
 @pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
 @pytest.mark.parametrize(
     "epoch_start,epoch_end,epoch_step,epoch_list,extended_query,expectation",
@@ -257,7 +255,6 @@ def test_JPL_methods(
         query.name
 
 
-@pytest.mark.horizons_vectors
 @pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
 def test_hybrid_function_wrapper(query_id, location, frame_orientation, frame_origin):
     """Coverage test for the hybrid function, no comparisons just seeing if it runs"""
@@ -286,7 +283,6 @@ def test_hybrid_function_wrapper(query_id, location, frame_orientation, frame_or
     body_settings.get("Eros").ephemeris_settings = juice_eph_settings
 
 
-@pytest.mark.horizons_vectors
 @pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
 @pytest.mark.parametrize(
     "epoch_start,epoch_end,epoch_step,epoch_list,extended_query,expectation",
