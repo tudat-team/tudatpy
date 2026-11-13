@@ -71,9 +71,9 @@ void expose_tracking_data( py::module& m )
          :ref:`observation_corrections`. The observed body and the observer are taken from the link ends of the tracking data.
          The observations stored in the tracking data are not modified.
       )doc" )
-            .def( py::init< const std::vector< std::string >&, const Eigen::VectorXd& >( ),
+            .def( py::init< const std::vector< std::string >&, const bool >( ),
                   py::arg( "light_deflection_bodies" ) = std::vector< std::string >( ),
-                  py::arg( "photocenter_body_dimensions" ) = Eigen::VectorXd( ),
+                  py::arg( "photocenter_correction" ) = false,
                   R"doc(
          Class constructor.
 
@@ -82,12 +82,12 @@ void expose_tracking_data( py::module& m )
          light_deflection_bodies : list[str], default = []
              Names of the bodies for which the gravitational light deflection is corrected (no light deflection correction if
              empty).
-         photocenter_body_dimensions : numpy.ndarray[numpy.float64[m, 1]], default = []
-             Dimensions of the observed body, used to compute the photocenter correction: empty (no photocenter correction),
-             a single radius, or the three semi-axes of an ellipsoid, in meters.
+         photocenter_correction : bool, default = False
+             Request a photocenter correction. The photocenter correction takes the target's size from its shape model,
+             which must be a spherical or tri-axial ellipsoid shape model.
       )doc" )
             .def_readonly( "light_deflection_bodies", &tdat::AngularObservationCorrectionSettings::lightDeflectionBodies_ )
-            .def_readonly( "photocenter_body_dimensions", &tdat::AngularObservationCorrectionSettings::photocenterBodyDimensions_ );
+            .def_readonly( "photocenter_correction", &tdat::AngularObservationCorrectionSettings::photocenterCorrection_ );
 
     py::class_< tom::ObservationWeightSettings >( m,
                                                   "ObservationWeightSettings",
