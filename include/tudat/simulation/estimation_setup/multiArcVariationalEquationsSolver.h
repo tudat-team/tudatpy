@@ -12,6 +12,7 @@
 #define TUDAT_MULTIARCVARIATIONALEQUATIONSSOLVER_H
 
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 #include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
 
 namespace tudat
@@ -340,6 +341,79 @@ public:
         {
             resetVariationalEquationsInterpolators( );
         }
+    }
+
+    using IsolatedArcVariationalSolverFactory =
+            std::function< std::shared_ptr< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+                    std::size_t,
+                    const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > >&,
+                    const VectorType& ) >;
+
+    //! Opt in to isolated independent-arc integration, preserving native results and matrix interfaces.
+    /*! Called serially on every integration, the factory receives the original arc settings and
+     * the current local parameter vector (initial states first). It must reconstruct the same
+     * physics with fresh mutable models and the same local parameter ordering. It must not
+     * integrate on construction. Shared library state must be isolated/synchronized by the factory.
+     * Parameter values and non-state parameter names/order are checked before starting threads.
+     */
+    void setIndependentArcExecution( const std::size_t workers, IsolatedArcVariationalSolverFactory factory )
+    {
+        if( workers == 0 || !factory )
+        {
+            throw std::invalid_argument( "Independent arcs require positive workers and a factory" );
+        }
+        if( this->parametersToEstimate_->getConsiderParameters( ) )
+        {
+            throw std::invalid_argument( "Independent arc execution does not yet support consider parameters" );
+        }
+        dynamicsSimulator_->setIndependentArcExecution(
+                workers,
+                [ parametersPerArc = arcWiseParametersToEstimate_, settings = propagatorSettings_, factory ]( std::size_t arc,
+                                                                                                              const MatrixType& initial ) {
+                    auto expected = parametersPerArc.at( arc );
+                    VectorType values = expected->template getFullParameterValues< StateScalarType >( );
+                    if( values.size( ) < initial.rows( ) || expected->getInitialDynamicalStateParameterSize( ) != initial.rows( ) )
+                    {
+                        throw std::invalid_argument( "Independent arc requires matching propagated/estimated state dimensions" );
+                    }
+                    values.head( initial.rows( ) ) = initial.col( initial.cols( ) - 1 );
+                    auto solver = factory( arc, settings->getSingleArcSettings( ).at( arc ), values );
+                    if( !solver )
+                    {
+                        throw std::invalid_argument( "Independent arc factory returned null variational solver" );
+                    }
+                    auto actual = solver->getParametersToEstimate( );
+                    VectorType actualValues = actual->template getFullParameterValues< StateScalarType >( );
+                    if( actual->getConsiderParameters( ) || actual->getParameterSetSize( ) != expected->getParameterSetSize( ) ||
+                        actualValues.size( ) != values.size( ) || !actualValues.allFinite( ) ||
+                        !( actualValues.array( ) == values.array( ) ).all( ) ||
+                        actual->getInitialDynamicalStateParameterSize( ) != initial.rows( ) )
+                    {
+                        throw std::invalid_argument( "Independent arc parameter values/dimensions do not match" );
+                    }
+                    auto checkNames = []( const auto& first, const auto& second ) {
+                        if( first.size( ) != second.size( ) )
+                        {
+                            throw std::invalid_argument( "Independent arc parameter counts differ" );
+                        }
+                        for( std::size_t i = 0; i < first.size( ); ++i )
+                        {
+                            if( first.at( i )->getParameterName( ) != second.at( i )->getParameterName( ) ||
+                                first.at( i )->getParameterSize( ) != second.at( i )->getParameterSize( ) )
+                            {
+                                throw std::invalid_argument( "Independent arc parameter names/order differ" );
+                            }
+                        }
+                    };
+                    checkNames( expected->getEstimatedDoubleParameters( ), actual->getEstimatedDoubleParameters( ) );
+                    checkNames( expected->getEstimatedVectorParameters( ), actual->getEstimatedVectorParameters( ) );
+                    return solver->getDynamicsSimulator( );
+                } );
+    }
+
+    void clearIndependentArcExecution( )
+    {
+        dynamicsSimulator_->clearIndependentArcExecution( );
     }
 
     //! Function to return object used for numerically propagating and managing the solution of the equations of motion.

@@ -1,0 +1,5 @@
+{"reference_seconds":29.467468013,"arcs":8,"degree":50,"days_per_arc":2}
+{"workers":1,"setup_seconds":0.056086298,"integration_seconds":29.202324084,"merge_seconds":0.0555537,"total_seconds":29.313964532,"checked_epochs":46088,"validation":"passed"}
+{"workers":2,"setup_seconds":0.0541184,"integration_seconds":14.729361805,"merge_seconds":0.015283283,"total_seconds":14.798764008,"checked_epochs":46088,"validation":"passed"}
+{"workers":4,"setup_seconds":0.054136642,"integration_seconds":7.456718396,"merge_seconds":0.014713608,"total_seconds":7.525568987,"checked_epochs":46088,"validation":"passed"}
+{"workers":8,"setup_seconds":0.054940002,"integration_seconds":4.502193714,"merge_seconds":0.013669769,"total_seconds":4.570803815,"checked_epochs":46088,"validation":"passed"}

@@ -25,6 +25,10 @@ void add_exceptions_to_kernel( py::module_& m );
 
 PYBIND11_MODULE( kernel, m )
 {
+    // Report the option compiled into this loaded binary, not a nearby CMake
+    // cache. Tests must not infer disabled features from missing methods.
+    m.attr( "_build_with_serialization" ) = py::bool_( TUDAT_BUILD_WITH_SERIALIZATION != 0 );
+
     auto math = m.def_submodule( "math" );
     auto astro = m.def_submodule( "astro" );
     auto trajectory_design = m.def_submodule( "trajectory_design" );

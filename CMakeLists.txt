@@ -368,6 +368,7 @@ include_directories(${TudatResources_INCLUDE_DIRS})
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
+find_package(Threads REQUIRED)
 set(_TUDAT_EIGEN_INCLUDE_DIRS "")
 if(TARGET Eigen3::Eigen)
     get_target_property(_TUDAT_EIGEN_INCLUDE_DIRS Eigen3::Eigen INTERFACE_INCLUDE_DIRECTORIES)

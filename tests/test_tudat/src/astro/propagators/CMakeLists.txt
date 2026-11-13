@@ -141,6 +141,24 @@ TUDAT_ADD_TEST_CASE(IntegratedStateInterpolator PRIVATE_LINKS ${Tudat_PROPAGATIO
 TUDAT_ADD_TEST_CASE(StateDerivativeRestrictedThreeBodyProblem PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_basic_mathematics tudat_statistics tudat_input_output)
 
 if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+# Native result-interface, reintegration, shared-parameter and dependent-arc acceptance checks.
+add_executable(test_propagators_IndependentArcExecution
+    "${PROJECT_SOURCE_DIR}/benchmarks/cpp/nativeMultiArc.cpp")
+target_include_directories(test_propagators_IndependentArcExecution PRIVATE
+    "${PROJECT_BINARY_DIR}/include" "${PROJECT_SOURCE_DIR}/include")
+target_include_directories(test_propagators_IndependentArcExecution SYSTEM PRIVATE
+    "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}")
+if(TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(test_propagators_IndependentArcExecution PRIVATE
+        -Wl,--start-group ${Tudat_ESTIMATION_LIBRARIES} -Wl,--end-group Threads::Threads)
+else()
+    target_link_libraries(test_propagators_IndependentArcExecution PRIVATE ${Tudat_ESTIMATION_LIBRARIES} Threads::Threads)
+endif()
+set_target_properties(test_propagators_IndependentArcExecution PROPERTIES
+    CXX_STANDARD 17 RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/tests")
+add_test(NAME test_propagators_IndependentArcExecution
+    COMMAND test_propagators_IndependentArcExecution --checks-only)
+
 TUDAT_ADD_TEST_CASE(VariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(FullTwoBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})

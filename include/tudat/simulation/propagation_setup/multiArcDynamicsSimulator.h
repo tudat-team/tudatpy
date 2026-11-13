@@ -12,6 +12,8 @@
 #define TUDAT_MULTIARCDYNAMICSSIMULATOR_H
 
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/independentArcExecutor.h"
+#include <set>
 
 namespace tudat
 {
@@ -126,6 +128,19 @@ public:
     bool getUpdateInitialStates( )
     {
         return updateInitialStates_;
+    }
+
+    //! Dependent initial states must be obtained after the preceding arc completes.
+    bool hasDependentInitialStates( ) const
+    {
+        for( const auto& state : initialStatesList_ )
+        {
+            if( linear_algebra::doesMatrixHaveNanEntries( state ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > getArcInitialState( const int arcIndex,
@@ -270,6 +285,8 @@ public:
             std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > singleArcResults;
             for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
             {
+                hasDependentArcInitialStates_ = hasDependentArcInitialStates_ ||
+                        linear_algebra::doesMatrixHaveNanEntries( singleArcSettings.at( i )->getInitialStates( ) );
                 singleArcDynamicsSimulators_.push_back( std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodies,
                         singleArcSettings.at( i ),
@@ -307,6 +324,38 @@ public:
 
     //! Destructor
     ~MultiArcDynamicsSimulator( ) {}
+
+    using IsolatedArcSimulatorFactory = std::function< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+            std::size_t,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) >;
+
+    //! Opt in to independent-arc execution. Factory calls are serial, before any integration starts.
+    /*! The factory must return fresh mutable models matching the corresponding original arc,
+     * including integrator, termination, state representation and dependent variables. It must
+     * also isolate or synchronize external library state (e.g. SPICE). Bodies, gravity/rotation
+     * models, simulator and integrator aliases are rejected. This is not a general model cloner.
+     * This first implementation supports Cowell translational arcs. Other state representations,
+     * and NaN/state-transfer initial conditions, retain the sequential route for the whole run.
+     */
+    void setIndependentArcExecution( const std::size_t workers, IsolatedArcSimulatorFactory factory )
+    {
+        if( workers == 0 || !factory )
+        {
+            throw std::invalid_argument( "Independent arcs require positive workers and a factory" );
+        }
+        independentArcWorkers_ = workers;
+        isolatedArcSimulatorFactory_ = std::move( factory );
+    }
+
+    void clearIndependentArcExecution( )
+    {
+        isolatedArcSimulatorFactory_ = nullptr;
+        independentArcWorkers_ = 1;
+    }
+    bool getLastIntegrationUsedIndependentArcs( ) const
+    {
+        return lastIntegrationUsedIndependentArcs_;
+    }
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > getArcInitialState(
             const int arcIndex,
@@ -392,15 +441,130 @@ public:
 
         printPrePropagationMessages( );
 
-        // Propagate dynamics for each arc
-        for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
+        lastIntegrationUsedIndependentArcs_ = false;
+        // State transfer replaces NaNs by finite states after the first run. Keep
+        // the conservative sequential policy for such solvers on reintegration.
+        hasDependentArcInitialStates_ = hasDependentArcInitialStates_ || initialStateProvider->hasDependentInitialStates( );
+        bool cowellArcs = true;
+        for( const auto& simulator : singleArcDynamicsSimulators_ )
         {
-            currentArcInitialState = getArcInitialState( i, initialStateProvider );
-            arcInitialStateList.push_back( currentArcInitialState );
+            auto settings = std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                    simulator->getPropagatorSettings( ) );
+            cowellArcs = cowellArcs && settings && settings->propagator_ == cowell;
+        }
+        if( isolatedArcSimulatorFactory_ && cowellArcs && !hasDependentArcInitialStates_ )
+        {
+            std::vector< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > isolated;
+            std::set< const void* > models;
+            auto registerModels = [ &models ]( const simulation_setup::SystemOfBodies& system, bool rejectAliases ) {
+                for( const auto& body : system.getMap( ) )
+                {
+                    for( const void* model : { static_cast< const void* >( body.second.get( ) ),
+                                               static_cast< const void* >( body.second->getGravityFieldModel( ).get( ) ),
+                                               static_cast< const void* >( body.second->getEphemeris( ).get( ) ),
+                                               static_cast< const void* >( body.second->getRotationalEphemeris( ).get( ) ) } )
+                    {
+                        if( model && !models.insert( model ).second && rejectAliases )
+                        {
+                            throw std::invalid_argument( "Independent arc factory shares mutable body/gravity/rotation models" );
+                        }
+                    }
+                }
+            };
+            registerModels( bodies_, false );
+            auto registerAccelerations = [ &models ]( const auto& simulator, bool rejectAliases ) {
+                auto settings = std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                        simulator->getPropagatorSettings( ) );
+                if( !settings || settings->propagator_ != cowell )
+                {
+                    throw std::invalid_argument( "Independent arc factory must return Cowell settings" );
+                }
+                for( const auto& accelerated : settings->getAccelerationsMap( ) )
+                {
+                    for( const auto& accelerating : accelerated.second )
+                    {
+                        for( const auto& acceleration : accelerating.second )
+                        {
+                            if( !models.insert( acceleration.get( ) ).second && rejectAliases )
+                            {
+                                throw std::invalid_argument( "Independent arc factory shares acceleration models" );
+                            }
+                        }
+                    }
+                }
+            };
+            std::set< const void* > simulators, integrators;
+            for( const auto& simulator : singleArcDynamicsSimulators_ )
+            {
+                simulators.insert( simulator.get( ) );
+                integrators.insert( simulator->getIntegratorSettings( ).get( ) );
+                registerAccelerations( simulator, false );
+            }
+            for( std::size_t i = 0; i < singleArcDynamicsSimulators_.size( ); ++i )
+            {
+                arcInitialStateList.push_back( getArcInitialState( i, initialStateProvider ) );
+                auto simulator = isolatedArcSimulatorFactory_( i, arcInitialStateList.back( ) );
+                if( !simulator || !simulators.insert( simulator.get( ) ).second ||
+                    !integrators.insert( simulator->getIntegratorSettings( ).get( ) ).second )
+                {
+                    throw std::invalid_argument( "Independent arc factory returned null or shared simulator/integrator" );
+                }
+                if( simulator->getInitialPropagationTime( ) != singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( ) ||
+                    simulator->getPropagatorSettings( )->getConventionalStateSize( ) !=
+                            singleArcDynamicsSimulators_.at( i )->getPropagatorSettings( )->getConventionalStateSize( ) ||
+                    simulator->getDependentVariableIds( ) != singleArcDynamicsSimulators_.at( i )->getDependentVariableIds( ) )
+                {
+                    throw std::invalid_argument( "Independent arc settings are incompatible with the original arc" );
+                }
+                using ArcResult = typename MultiArcSimulationResults::single_arc_type;
+                if constexpr( ArcResult::is_variational )
+                {
+                    auto partials = simulator->getDynamicsStateDerivative( )->getVariationalEquationsCalculator( );
+                    if( !partials || partials->getNumberOfParameterValues( ) != arcInitialStateList.back( ).cols( ) - 1 )
+                    {
+                        throw std::invalid_argument( "Independent arc variational dimensions differ" );
+                    }
+                }
+                registerModels( simulator->getSystemOfBodies( ), true );
+                if( simulator->getSystemOfBodies( ).getFrameOrigin( ) != bodies_.getFrameOrigin( ) ||
+                    simulator->getSystemOfBodies( ).getFrameOrientation( ) != bodies_.getFrameOrientation( ) )
+                {
+                    throw std::invalid_argument( "Independent arc global frame differs" );
+                }
+                registerAccelerations( simulator, true );
+                auto original = std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                        singleArcDynamicsSimulators_.at( i )->getPropagatorSettings( ) );
+                auto replacement = std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                        simulator->getPropagatorSettings( ) );
+                if( original->centralBodies_ != replacement->centralBodies_ ||
+                    original->bodiesToIntegrate_ != replacement->bodiesToIntegrate_ )
+                {
+                    throw std::invalid_argument( "Independent arc body order/frame differs" );
+                }
+                isolated.push_back( simulator );
+            }
+            executeIsolatedArcs( isolated.size( ), independentArcWorkers_, [ & ]( std::size_t i ) {
+                isolated.at( i )->template integrateIndependentArc< typename MultiArcSimulationResults::single_arc_type >(
+                        arcInitialStateList.at( i ), propagationResults->getSingleArcResults( ).at( i ) );
+                if( !propagationResults_->getSingleArcResults( ).at( i )->integrationCompletedSuccessfully( ) )
+                {
+                    throw std::runtime_error( "integration did not reach its termination condition" );
+                }
+            } );
+            lastIntegrationUsedIndependentArcs_ = true;
+        }
+        else
+        {
+            // State transfer and the default configuration retain the original sequential execution.
+            for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
+            {
+                currentArcInitialState = getArcInitialState( i, initialStateProvider );
+                arcInitialStateList.push_back( currentArcInitialState );
 
-            singleArcDynamicsSimulators_.at( i )
-                    ->template integrateEquationsOfMotion< typename MultiArcSimulationResults::single_arc_type >(
-                            currentArcInitialState, propagationResults->getSingleArcResults( ).at( i ) );
+                singleArcDynamicsSimulators_.at( i )
+                        ->template integrateEquationsOfMotion< typename MultiArcSimulationResults::single_arc_type >(
+                                currentArcInitialState, propagationResults->getSingleArcResults( ).at( i ) );
+            }
         }
 
         printPostPropagationMessages( );
@@ -636,6 +800,10 @@ public:
     ///////////////////////////////////////////////////
 
 protected:
+    std::size_t independentArcWorkers_ = 1;
+    IsolatedArcSimulatorFactory isolatedArcSimulatorFactory_;
+    bool lastIntegrationUsedIndependentArcs_ = false;
+    bool hasDependentArcInitialStates_ = false;
     //! Objects used to compute the dynamics of the sepatrate arcs
     std::vector< std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators_;
 

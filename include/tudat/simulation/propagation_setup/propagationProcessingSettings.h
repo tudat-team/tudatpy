@@ -12,6 +12,7 @@
 #define TUDAT_PROPAGATIONPROCESSINGSETTINGS_H
 
 #include <vector>
+#include <cmath>
 #include <string>
 #include <map>
 #include <iostream>
@@ -380,9 +381,11 @@ private:
 
         const bool printSettingsAreEqual = ( printSettings_ == rhs->printSettings_ ) ||
                 ( printSettings_ != nullptr && rhs->printSettings_ != nullptr && ( *printSettings_ == *rhs->printSettings_ ) );
+        // NaN denotes an unset seconds interval, not a numerical result.
+        const bool secondsIntervalsAreEqual = resultsSaveFrequencyInSeconds_ == rhs->resultsSaveFrequencyInSeconds_ ||
+                ( std::isnan( resultsSaveFrequencyInSeconds_ ) && std::isnan( rhs->resultsSaveFrequencyInSeconds_ ) );
 
-        return resultsSaveFrequencyInSteps_ == rhs->resultsSaveFrequencyInSteps_ &&
-                resultsSaveFrequencyInSeconds_ == rhs->resultsSaveFrequencyInSeconds_ && printSettingsAreEqual &&
+        return resultsSaveFrequencyInSteps_ == rhs->resultsSaveFrequencyInSteps_ && secondsIntervalsAreEqual && printSettingsAreEqual &&
                 isPartOfMultiArc_ == rhs->isPartOfMultiArc_ && arcIndex_ == rhs->arcIndex_ &&
                 saveWarningPrinted_ == rhs->saveWarningPrinted_;
     }

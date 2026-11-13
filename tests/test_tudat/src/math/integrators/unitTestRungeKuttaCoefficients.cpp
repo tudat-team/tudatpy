@@ -23,6 +23,9 @@
 #define BOOST_TEST_MAIN
 
 #include <cmath>
+#include <atomic>
+#include <thread>
+#include <vector>
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -39,6 +42,57 @@ BOOST_AUTO_TEST_SUITE( test_runge_kutta_coefficients )
 
 using numerical_integrators::CoefficientSets;
 using numerical_integrators::RungeKuttaCoefficients;
+
+BOOST_AUTO_TEST_CASE( testConcurrentDormandPrinceCoefficientLookup )
+{
+    // Exercise cold initialization and repeated copies without the arc executor.
+    // DP87 used to rewrite a shared table on every lookup (testing order 7
+    // while initializing order 8), racing with readers copying its matrices.
+    constexpr int workers = 8;
+    std::atomic< int > ready{ 0 };
+    std::atomic< bool > start{ false }, valid{ true };
+    std::vector< RungeKuttaCoefficients > snapshots( workers );
+    std::vector< std::thread > threads;
+    for( int worker = 0; worker < workers; ++worker )
+    {
+        threads.emplace_back( [ &, worker ] {
+            ready.fetch_add( 1 );
+            while( !start.load( ) )
+            {
+                std::this_thread::yield( );
+            }
+            for( int iteration = 0; iteration < 1000; ++iteration )
+            {
+                auto coefficients = RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince );
+                if( coefficients.higherOrder != 8 || coefficients.lowerOrder != 7 || coefficients.aCoefficients.rows( ) != 13 ||
+                    coefficients.aCoefficients.cols( ) != 12 || !coefficients.aCoefficients.allFinite( ) ||
+                    coefficients.aCoefficients( 1, 0 ) != 1.0 / 18.0 || !coefficients.bCoefficients.allFinite( ) ||
+                    !coefficients.cCoefficients.allFinite( ) )
+                {
+                    valid.store( false );
+                }
+                snapshots.at( worker ) = std::move( coefficients );
+            }
+        } );
+    }
+    while( ready.load( ) != workers )
+    {
+        std::this_thread::yield( );
+    }
+    start.store( true );
+    for( auto& thread : threads )
+    {
+        thread.join( );
+    }
+    BOOST_REQUIRE( valid.load( ) );
+    const auto& reference = RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince );
+    for( const auto& snapshot : snapshots )
+    {
+        BOOST_CHECK( snapshot.aCoefficients.isApprox( reference.aCoefficients, 0.0 ) );
+        BOOST_CHECK( snapshot.bCoefficients.isApprox( reference.bCoefficients, 0.0 ) );
+        BOOST_CHECK( snapshot.cCoefficients.isApprox( reference.cCoefficients, 0.0 ) );
+    }
+}
 
 void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet, const double tolerance )
 {
