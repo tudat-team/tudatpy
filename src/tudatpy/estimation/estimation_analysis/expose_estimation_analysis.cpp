@@ -143,53 +143,6 @@ namespace estimation
 namespace estimation_analysis
 {
 
-namespace
-{
-
-const char* legacyEstimationObservationDeprecationGuide =
-        "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
-
-void warnLegacyEstimationObservationInterface( const std::string& interfaceName, const std::string& replacementApi )
-{
-    const std::string message = interfaceName + " uses the deprecated ObservationCollection compatibility interface. Use " +
-            replacementApi +
-            " with tudatpy.estimation.observations.ObservationDataset instead. API reference: "
-            "https://py.api.tudat.space/en/latest/estimation/estimation_analysis.html#tudatpy.estimation.estimation_analysis." +
-            replacementApi + ". Migration guide: " + legacyEstimationObservationDeprecationGuide;
-    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
-    {
-        throw py::error_already_set( );
-    }
-}
-
-void warnLegacyEstimationWeightSetter( const std::string& interfaceName )
-{
-    const std::string message = interfaceName +
-            " is deprecated. Set weights on tudatpy.estimation.observations.ObservationDataset before creating "
-            "CovarianceAnalysisInput or EstimationInput. API reference: "
-            "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations.ObservationDataset"
-            ". Migration guide: " +
-            legacyEstimationObservationDeprecationGuide;
-    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
-    {
-        throw py::error_already_set( );
-    }
-}
-
-void warnLegacyWeightMatrixDiagonalAccess( )
-{
-    const std::string message =
-            "CovarianceAnalysisInput.weight_matrix_diagonal is deprecated. It is retained for older scripts and is not "
-            "consistent with rejected/inactive observations; set and inspect weights on "
-            "tudatpy.estimation.observations.ObservationDataset instead.";
-    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
-    {
-        throw py::error_already_set( );
-    }
-}
-
-}  // namespace
-
 void expose_estimation_analysis( py::module& m )
 {
     // ************** Modules ***************
@@ -338,78 +291,94 @@ void expose_estimation_analysis( py::module& m )
 
      )doc" );
 
-    auto covarianceAnalysisInputClass =
-            py::class_< tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >,
-                        std::shared_ptr< tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
-                                                                                                           "CovarianceAnalysisInput",
-                                                                                                           R"doc(
+    py::class_< tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                   "CovarianceAnalysisInput",
+                                                                                                   R"doc(
 
          Class for defining all inputs to a covariance analysis.
 
 
-      )doc" );
+      )doc" )
+            .def( py::init< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                            const Eigen::MatrixXd,
+                            const Eigen::MatrixXd >( ),
+                  py::arg( "observations_and_times" ),
+                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  R"doc(
 
-    {
-        py::options legacyDocOptions;
-        legacyDocOptions.disable_user_defined_docstrings( );
-        legacyDocOptions.disable_function_signatures( );
+         Class constructor.
 
-        covarianceAnalysisInputClass.def(
-                py::init( []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >& observationsAndTimes,
-                              const Eigen::MatrixXd inverseAprioriCovariance,
-                              const Eigen::MatrixXd considerCovariance ) {
-                    warnLegacyEstimationObservationInterface( "CovarianceAnalysisInput(ObservationCollection)", "CovarianceAnalysisInput" );
-                    return std::make_shared< tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                            observationsAndTimes, inverseAprioriCovariance, considerCovariance );
-                } ),
-                py::arg( "observations_and_times" ),
-                py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ) );
-    }
+         Constructor through which the user can create instances of this class. Note that the weight are all initiated as 1.0, and the default settings of ``define_covariance_settings`` are used.
 
-    covarianceAnalysisInputClass.def( py::init< const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >&,
-                                                const Eigen::MatrixXd,
-                                                const Eigen::MatrixXd >( ),
-                                      py::arg( "observation_dataset" ),
-                                      py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                                      py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                                      R"doc(
 
-         Class constructor using the dataset-backed observation representation.
+         Parameters
+         ----------
+         observations_and_times : ObservationCollection
+             Total data structure of observations and associated times/link ends/type/etc.
+         inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
+         Returns
+         -------
+         :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput`
+             Instance of the :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput` class, defining the data and other settings to be used for the covariance analysis.
 
-         This overload accepts an :class:`~tudatpy.estimation.observations.ObservationDataset`
-         directly.
+
+
+
+
+     )doc" )
+            .def( py::init< const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                            const Eigen::MatrixXd,
+                            const Eigen::MatrixXd >( ),
+                  py::arg( "observation_dataset" ),
+                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  R"doc(
+
+         Class constructor, using an :class:`~tudatpy.estimation.observations.ObservationDataset`.
+
+         Constructor through which the user can create instances of this class, from the observations in an
+         :class:`~tudatpy.estimation.observations.ObservationDataset`. The observation weights are taken from the dataset, and
+         the default settings of ``define_covariance_settings`` are used.
+
 
          Parameters
          ----------
          observation_dataset : tudatpy.estimation.observations.ObservationDataset
-             Dataset containing observations, residuals, weights, link metadata and ancillary data.
+             Observations (with their times, link ends, weights, etc.) to be used in the covariance analysis. Rejected
+             observations are not used.
          inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
-             Inverse a-priori covariance matrix of estimated parameters.
+             Inverse of the a priori covariance matrix (unnormalized) of the estimated parameters. This should be either a size
+             0x0 matrix (no a priori information), or a square matrix with the same size as the number of estimated parameters.
          consider_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
-             A-priori covariance matrix of considered parameters.
-     )doc" );
-
-    {
-        py::options legacyDocOptions;
-        legacyDocOptions.disable_user_defined_docstrings( );
-        legacyDocOptions.disable_function_signatures( );
-
-        covarianceAnalysisInputClass.def(
-                "set_constant_weight",
-                []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input, const double weight ) {
-                    warnLegacyEstimationWeightSetter( "CovarianceAnalysisInput.set_constant_weight" );
-                    const auto observationCollection = input.getObservationCollection( );
-                    if( !observationCollection )
-                    {
-                        throw std::runtime_error( "Cannot set observation weights: no observation source was supplied." );
-                    }
-                    observationCollection->setConstantWeight( weight );
-                },
-                py::arg( "weight" ) );
-    }
-
-    covarianceAnalysisInputClass
+             A-priori covariance matrix of the considered parameters. This should be either a size 0x0 matrix (no consider
+             parameters), or a square matrix with the same size as the number of consider parameters.
+         Returns
+         -------
+         :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput`
+             Instance of the :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput` class, defining the data and other settings to be used for the covariance analysis.
+     )doc" )
+            .def(
+                    "set_constant_weight",
+                    []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input, const double weight ) {
+                        tudat::utilities::printDeprecationWarning(
+                                "tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput.set_constant_weight",
+                                "the weight setters of tudatpy.estimation.observations.ObservationDataset",
+                                "Deprecated as of v1.1." );
+                        if( input.getObservationCollection( ) != nullptr )
+                        {
+                            input.getObservationCollection( )->setConstantWeight( weight );
+                        }
+                        else
+                        {
+                            input.getObservationDataset( )->setConstantSingleObservationScalarWeight(
+                                    tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ), weight );
+                        }
+                    },
+                    py::arg( "weight" ),
+                    R"doc(Deprecated as of v1.1. Set weights on the associated :class:`~tudatpy.estimation.observations.ObservationCollection` instead.)doc" )
             .def( "define_covariance_settings",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineCovarianceSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -451,19 +420,15 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "weight_matrix_diagonal",
-                    []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input ) {
-                        warnLegacyWeightMatrixDiagonalAccess( );
-                        return input.getWeightsMatrixDiagonals( );
-                    },
-                    R"doc(
+            .def_property_readonly( "weight_matrix_diagonal",
+                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsMatrixDiagonals,
+                                    R"doc(
 
-         Deprecated complete diagonal of the weights matrix.
+         **read-only**
 
-         This value is not consistent with rejected or inactive observations. Set
-         and inspect weights on :class:`tudatpy.estimation.observations.ObservationDataset`
-         instead.
+         Complete diagonal of the weights matrix that is to be used. For input created from an
+         :class:`~tudatpy.estimation.observations.ObservationDataset`, this includes the rejected observations, in the order
+         of the rows of :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`.
 
          :type: numpy.ndarray[numpy.float64[n, 1]]
       )doc" )
@@ -494,7 +459,9 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Dataset-backed observation data used by this covariance-analysis input.
+         Observation dataset used by this object. If this object was created from a (deprecated)
+         :class:`~tudatpy.estimation.observations.ObservationCollection`, this is a new dataset converted from that
+         collection, so that changes to it do not affect the analysis.
 
          :type: tudatpy.estimation.observations.ObservationDataset
       )doc" )
@@ -530,11 +497,11 @@ void expose_estimation_analysis( py::module& m )
          :type: list[InterArcStateContinuityConstraintSettings]
       )doc" );
 
-    auto estimationInputClass = py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
-                                            std::shared_ptr< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                                            tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
-                                                                                                            "EstimationInput",
-                                                                                                            R"doc(
+    py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                "EstimationInput",
+                                                                                R"doc(
 
          Class for defining all inputs to the estimation.
 
@@ -545,43 +512,66 @@ void expose_estimation_analysis( py::module& m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( py::init< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                            const Eigen::MatrixXd,
+                            std::shared_ptr< tss::EstimationConvergenceChecker >,
+                            const Eigen::MatrixXd,
+                            const Eigen::VectorXd,
+                            const bool,
+                            const bool,
+                            const bool >( ),
+                  py::arg( "observations_and_times" ),
+                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg_v( "convergence_checker",
+                             tss::estimationConvergenceChecker( ),
+                             "tudatpy.estimation.estimation_analysis.estimation_convergence_checker()" ),
+                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
+                  py::arg( "apply_final_parameter_correction" ) = true,
+                  py::arg( "apply_apriori_parameter_deviation" ) = false,
+                  py::arg( "reset_parameters_to_best_iteration" ) = false,
+                  R"doc(
 
-    {
-        py::options legacyDocOptions;
-        legacyDocOptions.disable_user_defined_docstrings( );
-        legacyDocOptions.disable_function_signatures( );
+         Class constructor.
 
-        estimationInputClass.def(
-                py::init( []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >& observationsAndTimes,
-                              const Eigen::MatrixXd inverseAprioriCovariance,
-                              std::shared_ptr< tss::EstimationConvergenceChecker > convergenceChecker,
-                              const Eigen::MatrixXd considerCovariance,
-                              const Eigen::VectorXd considerParametersDeviations,
-                              const bool applyFinalParameterCorrection,
-                              const std::shared_ptr< tss::OutlierRejectionSettings > outlierRejectionSettings,
-                              const bool applyAprioriParameterDeviation ) {
-                    warnLegacyEstimationObservationInterface( "EstimationInput(ObservationCollection)", "EstimationInput" );
-                    return std::make_shared< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > >( observationsAndTimes,
-                                                                                                     inverseAprioriCovariance,
-                                                                                                     convergenceChecker,
-                                                                                                     considerCovariance,
-                                                                                                     considerParametersDeviations,
-                                                                                                     applyFinalParameterCorrection,
-                                                                                                     outlierRejectionSettings,
-                                                                                                     applyAprioriParameterDeviation );
-                } ),
-                py::arg( "observations_and_times" ),
-                py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
-                py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
-                py::arg( "apply_final_parameter_correction" ) = true,
-                py::arg( "outlier_rejection_settings" ) = nullptr,
-                py::arg( "apply_apriori_parameter_deviation" ) = false );
-    }
+         Constructor through which the user can create instances of this class.
 
-    estimationInputClass
+
+         Parameters
+         ----------
+         observations_and_times : ObservationCollection
+             Total data structure of observations and associated times/link ends/type/etc.
+         inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
+         convergence_checker : :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker`, default = :func:`~tudatpy.estimation.estimation_analysis.estimation_convergence_checker`
+             Object defining when the estimation is converged.
+         consider_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A-priori covariance matrix of the considered parameters. This should be either a size 0x0 matrix (no consider parameters), or a square matrix with the same size as the number of consider parameters.
+         consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
+             Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
+         apply_final_parameter_correction : bool, default = True
+             Whether to apply the final estimated parameter correction to the simulation models after convergence. Only used to set
+             the simulation models if ``reset_parameters_to_best_iteration`` is ``False``.
+         apply_apriori_parameter_deviation : bool, default = False
+             Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
+             of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
+             each differential correction independently.
+         reset_parameters_to_best_iteration : bool, default = False
+             Whether to set the estimated parameters (in the ``parameters_to_estimate``) to those of the best iteration of the
+             estimation after the estimation is finished. If ``False``, they are set to those of the last iteration (see
+             :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`). Setting this to ``False`` is deprecated:
+             the default will change to ``True``, after which this input will be removed.
+         Returns
+         -------
+         :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
+             Instance of the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` class, defining the data and other settings to be used for the estimation.
+
+
+
+
+
+     )doc" )
             .def( py::init< const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >&,
                             const Eigen::MatrixXd,
                             std::shared_ptr< tss::EstimationConvergenceChecker >,
@@ -589,6 +579,7 @@ void expose_estimation_analysis( py::module& m )
                             const Eigen::VectorXd,
                             const bool,
                             const std::shared_ptr< tss::OutlierRejectionSettings >,
+                            const bool,
                             const bool >( ),
                   py::arg( "observation_dataset" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -600,34 +591,48 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "apply_final_parameter_correction" ) = true,
                   py::arg( "outlier_rejection_settings" ) = nullptr,
                   py::arg( "apply_apriori_parameter_deviation" ) = false,
+                  py::arg( "reset_parameters_to_best_iteration" ) = false,
                   R"doc(
 
-         Class constructor using the dataset-backed observation representation.
+         Class constructor, using an :class:`~tudatpy.estimation.observations.ObservationDataset`.
 
-         This overload accepts an :class:`~tudatpy.estimation.observations.ObservationDataset`
-         directly.
+         Constructor through which the user can create instances of this class, from the observations in an
+         :class:`~tudatpy.estimation.observations.ObservationDataset`. The observation weights are taken from the dataset.
+
 
          Parameters
          ----------
          observation_dataset : tudatpy.estimation.observations.ObservationDataset
-             Dataset containing observations, residuals, weights, link metadata and ancillary data.
+             Observations (with their times, link ends, weights, etc.) to be used in the estimation. Rejected observations are
+             not used. Observations rejected by the outlier rejection (see ``outlier_rejection_settings``) are marked as
+             rejected in this dataset.
          inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
-             Inverse a-priori covariance matrix of estimated parameters.
-         convergence_checker : tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker, optional
+             Inverse of the a priori covariance matrix (unnormalized) of the estimated parameters. This should be either a size
+             0x0 matrix (no a priori information), or a square matrix with the same size as the number of estimated parameters.
+         convergence_checker : :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker`, default = :func:`~tudatpy.estimation.estimation_analysis.estimation_convergence_checker`
              Object defining when the estimation is converged.
          consider_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
              A-priori covariance matrix of the considered parameters. This should be either a size 0x0 matrix (no consider parameters), or a square matrix with the same size as the number of consider parameters.
          consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
              Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
          apply_final_parameter_correction : bool, default = True
-             Whether to apply the final estimated parameter correction to the simulation models after convergence.
-         outlier_rejection_settings : tudatpy.estimation.estimation_analysis.OutlierRejectionSettings, default = None
+             Whether to apply the final estimated parameter correction to the simulation models after convergence. Only used to set
+             the simulation models if ``reset_parameters_to_best_iteration`` is ``False``.
+         outlier_rejection_settings : :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings`, default = None
              Settings for the algorithm that rejects (and recovers) outlying observations during the estimation. No
-             outlier rejection is performed when this input is left empty.
+             outlier rejection is performed when this input is left empty. After the estimation, the observations that
+             are rejected in the ``observation_dataset`` are those that were not used in the best iteration, to which the
+             estimation output belongs. Since the number of observations that is used can differ per iteration, the best
+             iteration is selected using the cost function per used observation when outlier rejection is applied.
          apply_apriori_parameter_deviation : bool, default = False
              Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
              of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
              each differential correction independently.
+         reset_parameters_to_best_iteration : bool, default = False
+             Whether to set the estimated parameters (in the ``parameters_to_estimate``) to those of the best iteration of the
+             estimation after the estimation is finished. If ``False``, they are set to those of the last iteration (see
+             :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`). Setting this to ``False`` is deprecated:
+             the default will change to ``True``, after which this input will be removed.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
@@ -644,6 +649,19 @@ void expose_estimation_analysis( py::module& m )
          :class:`~tudatpy.estimation.observations.ObservationDataset` that was provided to this object.
 
          :type: :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings`
+      )doc" )
+            .def_readwrite( "iteration_callback",
+                            &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::iterationCallback_,
+                            R"doc(
+
+         Function called in each iteration of the estimation, after the normal equations are solved, as
+         ``f(iteration, residuals, inverse_covariance)``: the iteration number (from 0), the residuals of this iteration (of the observations used in this iteration, ordered as in
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals`) and the unnormalized inverse covariance
+         matrix of this iteration (as in
+         :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.inverse_covariance`).
+         It can be used to monitor a long estimation while it runs. Default is ``None`` (no callback).
+
+         :type: Callable[[int, numpy.ndarray, numpy.ndarray], None]
       )doc" )
             .def( "define_estimation_settings",
                   &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineEstimationSettings,
@@ -888,7 +906,8 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Whether the estimation/covariance output stores a full weight matrix with off-diagonal entries.
+         Boolean denoting whether the weight matrix used in the estimation or covariance analysis contains off-diagonal entries
+         (correlations between observations).
 
          :type: bool
       )doc" )
@@ -898,7 +917,8 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Complete sparse weight matrix used for the estimation or covariance analysis.
+         Complete weight matrix used for the estimation or covariance analysis, with rows and columns in the same order as the
+         rows of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.weighted_design_matrix`.
 
          :type: scipy.sparse.csc_matrix
       )doc" )
@@ -919,9 +939,8 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters, 
+         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters,
          equal to the sum of the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance` matrix and the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` matrix.
-
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -1024,8 +1043,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Residual vectors, concatenated per iteration into a matrix. The :math:`i^{th}` column contains the residuals from the :math:`i^{th}` iteration. Vector residuals are flattened into its scalar components (e.g. ``[dRA1,dDEC1,dRA2,dDEC2...]`` for angular observations).
-         This holds the residuals for **all** observations, including those that were inactive/rejected.
+         Residual vectors, concatenated per iteration into a matrix; the :math:`i^{th}` column has the residuals from the :math:`i^{th}` iteration. The rows include the rejected observations (see :attr:`active_flags_per_iteration`).
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -1035,9 +1053,19 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Boolean flags indicating which observations were active in each estimation iteration. This matrix has the same shape and row ordering as :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`. ``True`` means the observation was included in the fit for that iteration.
+         Matrix of booleans denoting, for each entry of :attr:`residual_history`, whether the observation was used in the corresponding iteration (``False`` if it was rejected). This matrix has the same size and ordering as :attr:`residual_history`.
 
          :type: numpy.ndarray[numpy.bool_[m, n]]
+      )doc" )
+            .def_property_readonly( "residual_times",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualTimes,
+                                    R"doc(
+
+         **read-only**
+
+         Observation times corresponding to the entries of :attr:`final_residuals`, in the same order as :attr:`~tudatpy.estimation.observations.ObservationCollection.concatenated_times` of the observation collection used in the estimation (or the ``"estimation"`` order of the :class:`~tudatpy.estimation.observations.ObservationDataset`). If no observations are rejected, these also correspond to the rows of :attr:`residual_history`.
+
+         :type: list[float]
       )doc" )
             .def_property_readonly( "parameter_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getParameterHistoryMatrix,
@@ -1065,22 +1093,54 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Vector of post-fit observation residuals for the iteration with the lowest rms residuals, active observations only.
+         Vector of post-fit observation residuals, for the iteration with the lowest rms residuals. Rejected observations are not included.
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
             .def_readonly( "final_parameters",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::parameterEstimate_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Parameter estimate from the selected best iteration of the estimation.
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+
+      )doc" )
             .def_readonly( "exception_during_inversion",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringInversion_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Whether an exception occurred while solving the estimation normal equations.
+
+         :type: bool
+
+      )doc" )
             .def_readonly( "exception_during_propagation",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringPropagation_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Whether an exception occurred while propagating the dynamics or variational equations.
+
+         :type: bool
+
+      )doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
-                           R"doc(No documentation found.)doc" )
+                           R"doc(
+
+         **read-only**
+
+         Zero-based index of the estimation iteration selected as the best result.
+
+         :type: int
+
+      )doc" )
             .def_property_readonly( "inter_arc_continuity_cost_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCostHistory,
                                     R"doc(

@@ -1,15 +1,22 @@
+from tudatpy.estimation.observable_models_setup import links
 from tudatpy.kernel.estimation.observations import ObservationSelectionCondition
-from tudatpy.estimation.observable_models_setup.links import (
-    observed_body,
-    observer,
-    receiver,
-    transmitter,
-)
-
-_INCOMPLETE_SELECTOR_MESSAGE = "Incomplete observation query selector. Compare it to a value or call a supported selector method."
 
 
-class _ComparableSelector:
+class _Selector:
+    """Base class of the selectors of :data:`observation_query`.
+
+    A selector must be compared to a value (or one of its functions must be called) to create a
+    condition. Using a selector itself as a boolean raises a ``TypeError``.
+    """
+
+    def __bool__(self):
+        raise TypeError(
+            "Incomplete observation query selector. "
+            "Compare it to a value or call a supported selector method."
+        )
+
+
+class _ComparableSelector(_Selector):
     def __init__(self, factory):
         self._factory = factory
 
@@ -19,15 +26,27 @@ class _ComparableSelector:
     def __ne__(self, value):
         return ~self._factory(value)
 
-    def __bool__(self):
-        raise TypeError(_INCOMPLETE_SELECTOR_MESSAGE)
-
 
 class _TimeSelector(_ComparableSelector):
     def __init__(self):
         super().__init__(lambda time: self.between(time, time))
 
     def between(self, start_time, end_time):
+        """Function to create a condition that selects the observations with a time between (and
+        including) two bounds.
+
+        Parameters
+        ----------
+        start_time : tudatpy.astro.time_representation.Time
+            Lower bound of the observation time, in seconds since J2000 (TDB).
+        end_time : tudatpy.astro.time_representation.Time
+            Upper bound of the observation time, in seconds since J2000 (TDB).
+
+        Returns
+        -------
+        ObservationSelectionCondition
+            Condition selecting the observations within the time bounds.
+        """
         return ObservationSelectionCondition.time_bounds(start_time, end_time)
 
     def __ge__(self, time):
@@ -42,116 +61,138 @@ class _TimeSelector(_ComparableSelector):
     def __lt__(self, time):
         return ObservationSelectionCondition.time_less_than(time)
 
-    def __bool__(self):
-        raise TypeError(_INCOMPLETE_SELECTOR_MESSAGE)
 
-
-class _VectorValueSelector:
-    """Selector for row-level absolute-value comparisons.
-
-    A vector observable row is selected when any scalar component exceeds the
-    supplied absolute limit.
-    """
-
+class _VectorValueSelector(_Selector):
     def __init__(self, abs_greater_than_factory):
         self._abs_greater_than_factory = abs_greater_than_factory
 
     def abs_greater_than(self, limit):
-        """Select rows where any component has absolute value above ``limit``."""
+        """Function to create a condition that selects the observations for which the absolute
+        value of any component is larger than a limit.
+
+        Parameters
+        ----------
+        limit : float or numpy.ndarray
+            Limit on the absolute value, either as a single value for all components, or with one
+            value per observation component.
+
+        Returns
+        -------
+        ObservationSelectionCondition
+            Condition selecting the observations with a value larger than the limit.
+        """
         return self._abs_greater_than_factory(limit)
 
-    def __bool__(self):
-        raise TypeError(_INCOMPLETE_SELECTOR_MESSAGE)
 
-
-class _DependentVariableSelector:
-    """Selector for row-level dependent-variable comparisons.
-
-    Unlike residual and observation selectors, ``greater_than`` compares signed
-    dependent-variable values.
-    """
-
-    def __init__(self, settings, return_first_compatible_settings=False):
+class _DependentVariableSelector(_Selector):
+    def __init__(self, settings, return_first_compatible_settings):
         self._settings = settings
         self._return_first_compatible_settings = return_first_compatible_settings
 
     def greater_than(self, limit):
-        """Select rows where any compatible dependent-variable component is above ``limit``."""
+        """Function to create a condition that selects the observations for which any component of
+        the dependent variable is larger than a limit.
+
+        Parameters
+        ----------
+        limit : float or numpy.ndarray
+            Limit on the (signed) value of the dependent variable, either as a single value for all
+            components, or with one value per dependent variable component.
+
+        Returns
+        -------
+        ObservationSelectionCondition
+            Condition selecting the observations with a dependent variable larger than the limit.
+        """
         return ObservationSelectionCondition.dependent_variable_greater_than(
-            self._settings,
-            limit,
-            self._return_first_compatible_settings,
+            self._settings, limit, self._return_first_compatible_settings
         )
 
-    def __bool__(self):
-        raise TypeError(_INCOMPLETE_SELECTOR_MESSAGE)
+
+def _link_end(link_end_type):
+    return _ComparableSelector(
+        lambda link_end_id: ObservationSelectionCondition.link_end(link_end_type, link_end_id)
+    )
 
 
-class _ObservationQuery:
-    """Query builder for creating ObservationSelectionCondition objects."""
+class _ObservationQuery(_Selector):
+    """Object used to create conditions that select observations in an
+    :class:`~tudatpy.estimation.observations.ObservationDataset`.
 
-    @property
-    def observable_type(self):
-        return _ComparableSelector(ObservationSelectionCondition.observable_type)
+    The attributes of ``observation_query`` are compared to a value to create an
+    :class:`~tudatpy.estimation.observations.ObservationSelectionCondition`, which selects the
+    individual observations for which the comparison is true:
 
-    @property
-    def set_id(self):
-        return _ComparableSelector(ObservationSelectionCondition.set_id)
+    * ``observable_type == ...``, ``set_id == ...`` and ``link_definition == ...``: observations
+      with a given observable type, observation set id or link definition;
+    * ``receiver == ...``, ``transmitter == ...``, ``observer == ...`` and
+      ``observed_body == ...`` (or ``link_end(link_end_type) == ...`` for other link end types):
+      observations with a given link end
+      (:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`);
+    * ``time == ...``, ``time < ...``, ``time <= ...``, ``time > ...``, ``time >= ...`` and
+      ``time.between(start_time, end_time)``: observations with a given time (in seconds since
+      J2000, TDB);
+    * ``active`` and ``rejected``: observations that are not rejected, or that are rejected;
+    * ``residual.abs_greater_than(limit)`` and ``observation.abs_greater_than(limit)``:
+      observations with a residual or value larger than ``limit``;
+    * ``dependent_variable(settings).greater_than(limit)``: observations with a dependent variable
+      larger than ``limit``.
 
-    @property
-    def link_definition(self):
-        return _ComparableSelector(ObservationSelectionCondition.link_definition)
+    ``!=`` creates the opposite condition of ``==``. Conditions are combined with ``&`` (and) and
+    ``|`` (or), and negated with ``~``; Python's ``and``, ``or`` and ``not`` cannot be used.
+    Comparisons must be put in parentheses when they are combined, for example:
 
-    def link_end(self, link_end_type):
-        return _ComparableSelector(
-            lambda link_end_id: ObservationSelectionCondition.link_end(link_end_type, link_end_id)
+    .. code-block:: python
+
+        from tudatpy.estimation.observable_models_setup import model_settings
+        from tudatpy.estimation.observations import observation_query
+
+        condition = (
+            observation_query.observable_type == model_settings.angular_position_type
+        ) & (observation_query.time >= start_time)
+        observation_dataset.reject_observations(
+            condition & observation_query.residual.abs_greater_than(1.0e-6)
         )
+    """
 
-    @property
-    def receiver(self):
-        return self.link_end(receiver)
-
-    @property
-    def transmitter(self):
-        return self.link_end(transmitter)
-
-    @property
-    def observer(self):
-        return self.link_end(observer)
-
-    @property
-    def observed_body(self):
-        return self.link_end(observed_body)
-
-    @property
-    def time(self):
-        return _TimeSelector()
-
-    @property
-    def active(self):
-        return ObservationSelectionCondition.active()
-
-    @property
-    def rejected(self):
-        return ObservationSelectionCondition.rejected()
-
-    @property
-    def residual(self):
-        return _VectorValueSelector(
-            ObservationSelectionCondition.residual_absolute_value_greater_than
-        )
-
-    @property
-    def observation(self):
-        return _VectorValueSelector(
-            ObservationSelectionCondition.observation_absolute_value_greater_than
-        )
+    observable_type = _ComparableSelector(ObservationSelectionCondition.observable_type)
+    set_id = _ComparableSelector(ObservationSelectionCondition.set_id)
+    link_definition = _ComparableSelector(ObservationSelectionCondition.link_definition)
+    link_end = staticmethod(_link_end)
+    receiver = _link_end(links.receiver)
+    transmitter = _link_end(links.transmitter)
+    observer = _link_end(links.observer)
+    observed_body = _link_end(links.observed_body)
+    time = _TimeSelector()
+    active = ObservationSelectionCondition.active()
+    rejected = ObservationSelectionCondition.rejected()
+    residual = _VectorValueSelector(
+        ObservationSelectionCondition.residual_absolute_value_greater_than
+    )
+    observation = _VectorValueSelector(
+        ObservationSelectionCondition.observation_absolute_value_greater_than
+    )
 
     def dependent_variable(self, settings, return_first_compatible_settings=False):
-        return _DependentVariableSelector(settings, return_first_compatible_settings)
+        """Function to select a dependent variable, to create a condition on its value with
+        ``greater_than(limit)``.
 
-    def __bool__(self):
-        raise TypeError(_INCOMPLETE_SELECTOR_MESSAGE)
+        Parameters
+        ----------
+        settings : ObservationDependentVariableSettings
+            Settings of the dependent variable. Observations in sets for which no compatible
+            dependent variable is stored are not selected.
+        return_first_compatible_settings : bool, default = False
+            Whether to use the first compatible dependent variable if a set contains several
+            dependent variables that are compatible with ``settings``. If ``False``, an error is
+            raised in this case.
+
+        Returns
+        -------
+        object
+            Selector, of which the ``greater_than`` function creates the condition.
+        """
+        return _DependentVariableSelector(settings, return_first_compatible_settings)
 
 
 observation_query = _ObservationQuery()

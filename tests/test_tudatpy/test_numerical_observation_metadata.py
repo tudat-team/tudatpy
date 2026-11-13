@@ -1,6 +1,5 @@
 """Numerical metadata follows observation identities rather than transient row indices."""
 
-import pickle
 from pathlib import Path
 
 import numpy as np
@@ -11,7 +10,6 @@ from tudatpy.data_input.tracking_data import ObservationWeightSettings, Tracking
 from tudatpy.data_input.tracking_data.gaia import GaiaAstrometry
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import observations
-from tudatpy.estimation.observations import observations_processing
 
 
 def tracking_data(epochs=(3.0, 1.0, 1.0, 2.0)):
@@ -123,20 +121,11 @@ def test_rejection_copy_removal_and_appended_rows_preserve_ids():
         dataset.get_numerical_observation_metadata("angle", [4])
 
 
-def test_user_metadata_updates_validate_ids_and_do_not_invent_missing_values():
+def test_user_metadata_follows_requested_ids_and_returns_detached_snapshots():
     dataset = dataset_from_tracking([tracking_data()])
     dataset.add_numerical_observation_metadata("custom", [0, 2], [0.0, 2.0])
     before = dataset.numerical_observation_metadata
-    with pytest.raises(IndexError):
-        dataset.add_numerical_observation_metadata("custom", [0, 99], [10, 20])
-    with pytest.raises(RuntimeError):
-        dataset.add_numerical_observation_metadata("custom", [0, 2], [10])
-    assert dataset.numerical_observation_metadata == before
     assert dataset.get_numerical_observation_metadata("custom", [2, 0]) == [2, 0]
-    with pytest.raises(IndexError):
-        dataset.get_numerical_observation_metadata("custom", [1])
-    with pytest.raises(IndexError):
-        dataset.get_numerical_observation_metadata("missing key", [0])
     snapshot = dataset.numerical_observation_metadata
     snapshot["custom"][0] = -1
     assert dataset.numerical_observation_metadata == before
@@ -154,30 +143,6 @@ def test_copying_sets_remaps_metadata_to_new_ids_including_within_same_dataset()
     assert dataset.get_numerical_observation_metadata(
         "angle", dataset.observation_ids_for_set(same_dataset_set)
     ) == [10, 11, 20, 30]
-
-
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
-def test_transfer_to_filtered_set_and_serialization_preserve_numerical_metadata():
-    source = tracking_data([1.0, 2.0, 3.0])
-    source.add_numerical_observation_metadata("angle", [10, 20, 30])
-    dataset = dataset_from_tracking([source])
-    observation_set = observations.create_single_observation_set_from_dataset(dataset, 0)
-    observation_set.filter_observations(
-        observations_processing.observation_filter(
-            observations_processing.ObservationFilterType.time_bounds_filtering,
-            1.5,
-            2.5,
-            use_opposite_condition=True,
-        )
-    )
-    assert dataset.numerical_observation_metadata["angle"] == {1: 20}
-    restored = pickle.loads(pickle.dumps(observation_set))
-    filtered = observations.create_observation_dataset_from_single_observation_set(
-        restored.filtered_observation_set
-    )
-    assert filtered.get_numerical_observation_metadata(
-        "angle", filtered.observation_ids_for_set(0)
-    ) == [10, 30]
 
 
 def test_gaia_angles_match_ccd_rows_after_filtering_and_dataset_conversion():

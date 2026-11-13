@@ -60,26 +60,55 @@ Examples
 
 
       )doc" )
-            .value( "one_way_range_type", tom::ObservableType::one_way_range )
-            .value( "n_way_range_type", tom::ObservableType::n_way_range )
-            .value( "angular_position_type", tom::ObservableType::angular_position )
-            .value( "azimuth_elevation_type", tom::ObservableType::azimuth_elevation_angle )
-            .value( "relative_angular_position_type", tom::ObservableType::relative_angular_position )
-            .value( "position_observable_type", tom::ObservableType::position_observable )
-            .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
-            .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
-            .value( "one_way_instantaneous_doppler_type", tom::ObservableType::one_way_doppler )
-            .value( "one_way_averaged_doppler_type", tom::ObservableType::one_way_differenced_range )
-            .value( "two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
-            .value( "n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
-            .value( "euler_angle_313_observable_type", tom::ObservableType::euler_angle_313_observable )
-            .value( "dsn_one_way_averaged_doppler_type", tom::ObservableType::dsn_one_way_averaged_doppler )
-            .value( "dsn_n_way_averaged_doppler_type", tom::ObservableType::dsn_n_way_averaged_doppler )
-            .value( "doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
-            .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range )
-            .value( "differenced_time_of_arrival_type", tom::ObservableType::differenced_time_of_arrival )
-            .value( "pixel_coordinates_type", tom::ObservableType::pixel_coordinates )
-            .value( "differenced_frequency_of_arrival_type", tom::ObservableType::differenced_frequency_of_arrival )
+            .value( "one_way_range_type", tom::ObservableType::one_way_range, R"doc(One way range observable.)doc" )
+            .value( "n_way_range_type", tom::ObservableType::n_way_range, R"doc(N way range observable.)doc" )
+            .value( "angular_position_type", tom::ObservableType::angular_position, R"doc(Angular position observable.)doc" )
+            .value( "azimuth_elevation_type", tom::ObservableType::azimuth_elevation_angle, R"doc(Azimuth elevation observable.)doc" )
+            .value( "relative_angular_position_type",
+                    tom::ObservableType::relative_angular_position,
+                    R"doc(Relative angular position observable.)doc" )
+            .value( "position_observable_type", tom::ObservableType::position_observable, R"doc(Position observable.)doc" )
+            .value( "velocity_observable_type", tom::ObservableType::velocity_observable, R"doc(Velocity observable.)doc" )
+            .value( "relative_position_observable_type",
+                    tom::ObservableType::relative_position_observable,
+                    R"doc(Relative position observable.)doc" )
+            .value( "one_way_instantaneous_doppler_type",
+                    tom::ObservableType::one_way_doppler,
+                    R"doc(One way instantaneous doppler observable.)doc" )
+            .value( "one_way_averaged_doppler_type",
+                    tom::ObservableType::one_way_differenced_range,
+                    R"doc(One way averaged doppler observable.)doc" )
+            .value( "two_way_instantaneous_doppler_type",
+                    tom::ObservableType::two_way_doppler,
+                    R"doc(Two way instantaneous doppler observable.)doc" )
+            .value( "n_way_averaged_doppler_type",
+                    tom::ObservableType::n_way_differenced_range,
+                    R"doc(N way averaged doppler observable.)doc" )
+            .value( "euler_angle_313_observable_type",
+                    tom::ObservableType::euler_angle_313_observable,
+                    R"doc(Euler angle 313 observable.)doc" )
+            .value( "dsn_one_way_averaged_doppler_type",
+                    tom::ObservableType::dsn_one_way_averaged_doppler,
+                    R"doc(Dsn one way averaged doppler observable.)doc" )
+            .value( "dsn_n_way_averaged_doppler_type",
+                    tom::ObservableType::dsn_n_way_averaged_doppler,
+                    R"doc(Dsn n way averaged doppler observable.)doc" )
+            .value( "doppler_measured_frequency_type",
+                    tom::ObservableType::doppler_measured_frequency,
+                    R"doc(Doppler measured frequency observable.)doc" )
+            .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range, R"doc(Dsn n way range observable.)doc" )
+            .value( "differenced_time_of_arrival_type",
+                    tom::ObservableType::differenced_time_of_arrival,
+                    R"doc(Differenced time of arrival observable.)doc" )
+            .value( "pixel_coordinates_type", tom::ObservableType::pixel_coordinates, R"doc(Pixel coordinates observable.)doc" )
+            .value( "differenced_frequency_of_arrival_type",
+                    tom::ObservableType::differenced_frequency_of_arrival,
+                    R"doc(Differenced frequency of arrival observable.)doc" )
+            .value( "position_angle_type", tom::ObservableType::position_angle, R"doc(Position angle observable.)doc" )
+            .value( "separation_distance_type", tom::ObservableType::separation_distance, R"doc(Angular separation observable.)doc" )
+            .value( "position_angle_and_separation_type",
+                    tom::ObservableType::position_angle_and_separation,
+                    R"doc(Position angle and angular separation observable.)doc" )
             .export_values( );
 }
 
@@ -571,9 +600,9 @@ void expose_model_settings( py::module& m )
  for a single link definition. The associated observation model creates the observable using the following steps (in the unbiased case):
 
  .. math::
-    \Delta\mathbf{r}&=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})\\
+    \Delta\mathbf{r}&=\mathbf{r}_{T}(t_{T})-\mathbf{r}_{R}(t_{R})\\
     \tan\alpha&=\frac{\Delta r_{y}}{\Delta r_{x}}\\
-    \delta&=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
+    \tan\delta&=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
 
  The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`
  The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
@@ -715,64 +744,70 @@ void expose_model_settings( py::module& m )
            py::arg( "correct_for_stellar_aberration" ) = false,
            R"doc(
 
- Function for creating settings for a pixel coordinates observable.
+Function for creating settings for a pixel coordinates observable.
 
- Function for creating observation model settings of pixel coordinates type observables.
- This observable provides the pixel coordinates of the observed object in the camera frame.
- The observable has size 2, and contains the :math:`x` and :math:`y` pixel coordinates.
- One of the link ends should lead to a camera object.
+Function for creating observation model settings of pixel coordinates type observables.
+This observable provides the pixel coordinates of the observed object in the camera frame.
+The observable has size 2, and contains the :math:`x` and :math:`y` pixel coordinates.
+One of the link ends should lead to a camera object.
 
- The observable formulation is as defined in Owen Jr, 2024 (Spacecraft Optical Navigation, Chapter 4)
- This observable is computed in 3 fundamental steps (in the unbiased case):
-    1. The inertial position of the observed object relative to the observer is computed and transformed to the body-fixed frame of
-    the observer (as defined by its rotational ephemeris/model).
-    2. The position of the observed object in the camera frame is computed from the position in the body-fixed frame, using the camera's
-    mounting orientation (as defined by the camera's boresight angles)
-    3. The pixel coordinates of the observed object are computed from the position in the camera frame, using the camera's intrinsic parameters
-    and using the following formulation:
-    .. math::
-        \begin{bmatrix}
-        u\\
-        v
-        \end{bmatrix}
-        =
-        \begin{bmatrix}
-        f_{x} & 0 & c_{x}\\
-        0 & f_{y} & c_{y}
-        \end{bmatrix}
-        \begin{bmatrix}
-        x_{c}/z_{c}\\
-        y_{c}/z_{c}\\
-        1
-        \end{bmatrix}
-    where :math:`(x_{c},y_{c},z_{c})` are the coordinates of the observed object in the camera frame, :math:`f_{x}` and :math:`f_{y}` are the focal
-    lengths of the camera in pixel units, and :math:`c_{x}` and :math:`c_{y}` are the coordinates of the principal point of the camera in pixel units.
-    The output observable is then :math:`\mathbf{h}_{_{\text{camera}}}=[u;v]`
+The observable formulation is as defined in Owen Jr, 2024 (Spacecraft Optical Navigation, Chapter 4)
+This observable is computed in 3 fundamental steps (in the unbiased case):
+
+1. The inertial position of the observed object relative to the observer is computed and transformed to the body-fixed frame of the observer (as defined by its rotational ephemeris/model).
+2. The position of the observed object in the camera frame is computed from the position in the body-fixed frame, using the camera's mounting orientation (as defined by the camera's boresight angles)
+3. The pixel coordinates of the observed object are computed from the position in the camera frame, using the camera's intrinsic parameters and using the following formulation:
+
+.. math::
+    \begin{bmatrix}
+    u\\
+    v
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    f_{x} & 0 & c_{x}\\
+    0 & f_{y} & c_{y}
+    \end{bmatrix}
+    \begin{bmatrix}
+    x_{c}/z_{c}\\
+    y_{c}/z_{c}\\
+    1
+    \end{bmatrix}
+
+where :math:`(x_{c},y_{c},z_{c})` are the coordinates of the observed object in the camera frame, :math:`f_{x}` and :math:`f_{y}` are the focal
+lengths of the camera in pixel units, and :math:`c_{x}` and :math:`c_{y}` are the coordinates of the principal point of the camera in pixel units.
+The output observable is then :math:`\mathbf{h}_{_{\text{camera}}}=[u;v]`
+
+ No lens distortion is modelled. Measured pixel coordinates must therefore be corrected for distortion before they
+ are used as observations.
+
+ The rotation to the camera frame includes the pointing correction of the camera, for which the model is given in
+ :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction`.
 
 
- Parameters
- ----------
- link_ends : LinkDefinition
-     Set of link ends that define the geometry of the observation. This observable requires that the
-     ``transmitter`` (body being observed) and ``receiver`` (body with camera) :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+Parameters
+----------
+link_ends : LinkDefinition
+    Set of link ends that define the geometry of the observation. This observable requires that the
+    ``transmitter`` (body being observed) and ``receiver`` (body with camera) :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
-     List of corrections for the light-time that are to be used. Default is none, which will result
-     in the signal being modelled as moving in a straight line with the speed of light.
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used. Default is none, which will result
+    in the signal being modelled as moving in a straight line with the speed of light.
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
-     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+bias_settings : :class:`ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
-     Settings for convergence of the light-time
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
 
- correct_for_stellar_aberration : bool, default = False
-     If true, the geometric light-time direction is converted to the apparent incoming direction using the receiver velocity before projection to pixel coordinates.
+correct_for_stellar_aberration : bool, default = False
+    If true, the geometric light-time direction is converted to the apparent incoming direction using the receiver velocity before projection to pixel coordinates.
 
- Returns
- -------
- :class:`ObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the camera pixels observable.
+Returns
+-------
+:class:`ObservationModelSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the camera pixels observable.
      )doc" );
 
     m.def( "cartesian_position",
@@ -877,6 +912,39 @@ void expose_model_settings( py::module& m )
 
 
 
+
+     )doc" );
+
+    m.def( "euler_angles_313",
+           &tom::eulerAngle313ObservableSettings,
+           py::arg( "link_ends" ),
+           py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
+           R"doc(
+
+ Function for creating settings for a 3-1-3 Euler angle observable.
+
+ Function for creating observation model settings of 3-1-3 Euler angle type observables, as obtained from e.g. star tracker data.
+ This observable provides the orientation of the ``observed_body`` defined by the `link_ends` input.
+ The observable has size 3, and contains the angles :math:`\alpha`, :math:`\beta` and :math:`\gamma` (in radians), where the rotation matrix from the
+ inertial to the body-fixed frame is :math:`\mathbf{R}=\mathbf{R}_{z}(\alpha)\mathbf{R}_{x}(\beta)\mathbf{R}_{z}(\gamma)`.
+
+ The partial derivatives of :math:`\alpha` and :math:`\gamma` w.r.t. the entries of the quaternion that defines the rotation of the ``observed_body`` are singular at :math:`\beta=0` and :math:`\beta=\pi`.
+ Closer than :math:`10^{-8}` rad to these values, these partial derivatives are evaluated at :math:`10^{-8}` rad from them. The partial derivatives w.r.t. all estimated parameters that affect the rotation are computed from these. Observation time biases that act on the observation cannot be estimated.
+
+
+ Parameters
+ ----------
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+     Set of link ends that define the geometry of the observation. This observable requires that the
+     ``observed_body`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ Returns
+ -------
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the 3-1-3 Euler angle observable.
 
      )doc" );
 
@@ -1718,6 +1786,159 @@ Returns
                Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the one-way Doppler measured frequency observable.
            )doc" );
 
+    m.def( "position_angle",
+           &tom::positionAngleSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
+
+Function for creating settings for a position angle observable.
+
+Function for creating observation model settings of position angle type observables. This observable is the position angle
+:math:`\theta` of the second transmitter w.r.t. the first transmitter, as observed by the receiver, and is identical to the first
+entry of the :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` observable (where the model is described in detail).
+The north pole that is used to define the position angle, and the use of stellar aberration, are defined by
+the ancillary settings of the observations (see :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`).
+
+Parameters
+----------
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+    Set of link ends that define the geometry of the observation. This observable requires the
+    ``transmitter``, ``transmitter2`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used.
+
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation.
+
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the position angle observable.
+
+)doc" );
+
+    m.def( "separation_distance",
+           &tom::separationSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
+
+Function for creating settings for an angular separation observable.
+
+Function for creating observation model settings of angular separation type observables. This observable is the angle
+:math:`\rho` between the directions from the receiver to the two transmitters, and is identical to the second entry of the
+:func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation` observable (where the model is described in detail).
+The use of stellar aberration is defined by the ancillary settings of the observations (see
+:func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`).
+
+Parameters
+----------
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+    Set of link ends that define the geometry of the observation. This observable requires the
+    ``transmitter``, ``transmitter2`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used.
+
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation.
+
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular separation observable.
+
+)doc" );
+
+    m.def( "position_angle_and_separation",
+           &tom::positionAngleAndSeparationSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
+
+Function for creating settings for a combined position angle and angular separation observable.
+
+Function for creating observation model settings of combined position angle and angular separation type observables. This
+observable consists of the position angle :math:`\theta` of the second transmitter (``transmitter2``) w.r.t. the first transmitter
+(``transmitter``), and the angular separation :math:`\rho` between the two, as observed by the receiver. Each of the two
+transmitters has its own light-time solution (including any light-time corrections) to the receiver, which results in emission
+times :math:`t_{1}` and :math:`t_{2}` for a reception time :math:`t_{R}`. The directions from the receiver to the
+transmitters are then:
+
+.. math::
+
+    \mathbf{u}_{i} = \frac{\mathbf{r}_{i}(t_{i})-\mathbf{r}_{R}(t_{R})}{||\mathbf{r}_{i}(t_{i})-\mathbf{r}_{R}(t_{R})||}, \qquad i=1,2
+
+If stellar aberration is selected in the ancillary settings, these directions are corrected for (classical) stellar aberration
+:cite:p:`urban2013`, using the velocity :math:`\mathbf{v}_{R}` of the receiver at :math:`t_{R}`, with
+:math:`\boldsymbol{\beta}_{R}=\mathbf{v}_{R}/c`:
+
+.. math::
+
+    a_{i} &= -\mathbf{u}_{i}\cdot\boldsymbol{\beta}_{R}+\sqrt{1-||\boldsymbol{\beta}_{R}||^{2}+(\mathbf{u}_{i}\cdot\boldsymbol{\beta}_{R})^{2}}\\
+    \mathbf{u}_{i} &\rightarrow a_{i}\mathbf{u}_{i}+\boldsymbol{\beta}_{R}
+
+Light deflection and atmospheric refraction are not included.
+
+With :math:`\mathbf{n}` the unit vector along the north pole (by default the ICRF/J2000 pole), expressed in the same frame as
+the states, the east and north directions at the first transmitter are:
+
+.. math::
+
+    \mathbf{e} &= \frac{\mathbf{n}\times\mathbf{u}_{1}}{||\mathbf{n}\times\mathbf{u}_{1}||}\\
+    \mathbf{m} &= \mathbf{u}_{1}\times\mathbf{e}
+
+and the observable is computed as follows (in the unbiased case):
+
+.. math::
+
+    \theta &= \operatorname{atan2}(\mathbf{u}_{2}\cdot\mathbf{e},\mathbf{u}_{2}\cdot\mathbf{m})\\
+    \rho &= \operatorname{atan2}(||\mathbf{u}_{1}\times\mathbf{u}_{2}||,\mathbf{u}_{1}\cdot\mathbf{u}_{2})
+
+The position angle is measured from north through east, in the range :math:`[-\pi,\pi]`, and the separation is in the range
+:math:`[0,\pi]` (both in radians).
+
+The north pole, and the use of stellar aberration, are not part of the observation model settings, but are defined by the
+ancillary settings of each set of observations (see
+:func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`). If no such settings are
+defined, the ICRF/J2000 north pole is used, without stellar aberration.
+
+Parameters
+----------
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+    Set of link ends that define the geometry of the observation. This observable requires the
+    ``transmitter``, ``transmitter2`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used.
+
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation.
+
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the combined position angle and angular separation observable.
+
+)doc" );
+
     m.def( "get_observable_size",
            &tom::getObservableSize,
            py::arg( "observable_type" ),
@@ -1737,11 +1958,6 @@ Returns
 
     //////////////////////////////////////////// DEPRECATED
     ///////////////////////////////////////////////
-
-    m.def( "euler_angles_313",
-           &tom::eulerAngle313ObservableSettings,
-           py::arg( "link_ends" ),
-           py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ) );
 
     m.def( "one_way_open_loop_doppler",
            &tom::oneWayOpenLoopDoppler,

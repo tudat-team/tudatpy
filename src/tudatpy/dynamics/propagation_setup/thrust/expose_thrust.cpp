@@ -60,13 +60,23 @@ namespace thrust
 
 void expose_thrust_setup( py::module& m )
 {
-    py::enum_< tss::ThrustMagnitudeTypes >( m, "ThrustMagnitudeTypes" )
+    py::enum_< tss::ThrustMagnitudeTypes >( m, "ThrustMagnitudeTypes", R"doc(
+
+         Enumeration of thrust-magnitude models.
+
+      )doc" )
             //                                         get_docstring("ThrustMagnitudeTypes").c_str())
-            .value( "constant_thrust_magnitude", tss::ThrustMagnitudeTypes::constant_thrust_magnitude )
+            .value( "constant_thrust_magnitude",
+                    tss::ThrustMagnitudeTypes::constant_thrust_magnitude,
+                    R"doc(Thrust magnitude specified by a constant value.)doc" )
             //            .value("from_engine_properties_thrust_magnitude",
             //            tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude)
-            .value( "thrust_magnitude_from_time_function", tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function )
-            .value( "thrust_magnitude_from_dependent_variables", tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables );
+            .value( "thrust_magnitude_from_time_function",
+                    tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function,
+                    R"doc(Thrust magnitude evaluated by a function of time.)doc" )
+            .value( "thrust_magnitude_from_dependent_variables",
+                    tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables,
+                    R"doc(Thrust magnitude evaluated from the configured dependent variables.)doc" );
     //            .value("bang_bang_thrust_magnitude_from_mee_costates",
     //            tss::ThrustMagnitudeTypes::bang_bang_thrust_magnitude_from_mee_costates);
 
@@ -77,19 +87,29 @@ void expose_thrust_setup( py::module& m )
          Functional base class to define settings for the thrust magnitude.
 
 
-         Attributes
-         ----------
-         thrust_magnitude_type : ThrustMagnitudeType
-             Thrust magnitude type object.
-         thrust_origin_id : str
-             Reference ID of the thrust origin that should be used (empty if N/A).
+      )doc" )
+            .def_readonly( "thrust_magnitude_type",
+                           &tss::ThrustMagnitudeSettings::thrustMagnitudeType_,
+                           R"doc(
 
+         **read-only**
 
+         Type of thrust magnitude model defined by these settings.
 
+         :type: ThrustMagnitudeTypes
 
       )doc" )
-            .def_readonly( "thrust_magnitude_type", &tss::ThrustMagnitudeSettings::thrustMagnitudeType_ )
-            .def_readonly( "thrust_origin_id", &tss::ThrustMagnitudeSettings::thrustOriginId_ );
+            .def_readonly( "thrust_origin_id",
+                           &tss::ThrustMagnitudeSettings::thrustOriginId_,
+                           R"doc(
+
+         **read-only**
+
+         Identifier of the engine or thrust source associated with the model.
+
+         :type: str
+
+      )doc" );
 
     py::class_< tss::ConstantThrustMagnitudeSettings,
                 std::shared_ptr< tss::ConstantThrustMagnitudeSettings >,
@@ -102,20 +122,29 @@ void expose_thrust_setup( py::module& m )
          Derived class to provide settings for the thrust magnitude. This class should be used to define a constant thrust
          magnitude.
 
+      )doc" )
+            .def_readonly( "thrust_magnitude",
+                           &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_,
+                           R"doc(
 
-         Attributes
-         ----------
-         thrust_magnitude : float
-             Value of the constant thrust magnitude.
-         specific_impulse : float
-             Value of the constant specific impulse.
+         **read-only**
 
+         Constant thrust magnitude, in newtons.
 
-
+         :type: float
 
       )doc" )
-            .def_readonly( "thrust_magnitude", &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_ )
-            .def_readonly( "specific_impulse", &tss::ConstantThrustMagnitudeSettings::specificImpulse_ );
+            .def_readonly( "specific_impulse",
+                           &tss::ConstantThrustMagnitudeSettings::specificImpulse_,
+                           R"doc(
+
+         **read-only**
+
+         Constant specific impulse, in seconds.
+
+         :type: float
+
+      )doc" );
 
     py::class_< tss::CustomThrustMagnitudeSettings, std::shared_ptr< tss::CustomThrustMagnitudeSettings >, tss::ThrustMagnitudeSettings >(
             m,

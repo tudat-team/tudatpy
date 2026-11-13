@@ -1,8 +1,5 @@
-from importlib import import_module
-
 from tudatpy.kernel.estimation import *
 
-# Select the Python packages so fresh parent imports retain their compatibility
-# bridges instead of exposing the raw kernel modules.
-observations = import_module(__name__ + ".observations")
-observations_setup = import_module(__name__ + ".observations_setup")
+# Select the Python packages so fresh parent imports retain their Python-level contents.
+import tudatpy.estimation.observations as observations
+import tudatpy.estimation.observations_setup as observations_setup

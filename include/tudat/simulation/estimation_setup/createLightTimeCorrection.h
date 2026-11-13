@@ -16,6 +16,7 @@
 #include <memory>
 #include <functional>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
@@ -85,9 +86,14 @@ public:
      * Constructor
      * \param perturbingBodies List of bodies for which the point masses are used to compute the light-time correction.
      * \param useBending Boolean flag to determine if light bending should be included, default is true.
+     * \param computeMassiveBodyAtClosestApproach Boolean denoting whether the perturbing body states are evaluated at their
+     * closest approach to the signal path (instead of the link end or light-time midpoint)
      */
-    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies, const bool useBending = false ):
-        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending )
+    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies,
+                                                       const bool useBending = false,
+                                                       const bool computeMassiveBodyAtClosestApproach = false ):
+        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending ),
+        computeMassiveBodyAtClosestApproach_( computeMassiveBodyAtClosestApproach )
     {}
 
     //! Destructor
@@ -113,12 +119,21 @@ public:
         return useBending_;
     }
 
+    //! Function returning whether the perturbing body states are evaluated at their closest approach to the signal path
+    bool getComputeMassiveBodyAtClosestApproach( )
+    {
+        return computeMassiveBodyAtClosestApproach_;
+    }
+
 private:
     //! List of bodies for which the point masses are used to compute the light-time correction.
     std::vector< std::string > perturbingBodies_;
 
     //! Boolean flag to determine if light bending should be included.
     bool useBending_;
+
+    //! Boolean denoting whether the perturbing body states are evaluated at their closest approach to the signal path
+    bool computeMassiveBodyAtClosestApproach_;
 };
 
 // Class defining  settings for tabulated tropospheric corrections
@@ -182,6 +197,83 @@ private:
 
     TroposphericMappingModel troposphericMappingModelType_;
 };
+
+//! Settings for tropospheric correction from measured zenith path delays per ground station, with a fallback (mapped tropospheric
+//! correction) outside of the measurements
+class MeasuredTroposphericCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+    MeasuredTroposphericCorrectionSettings(
+            const std::map< std::string, std::map< double, Eigen::Vector2d > >& zenithDelaysPerStation,
+            const std::shared_ptr< LightTimeCorrectionSettings >& fallbackSettings,
+            const double maximumInterpolationGap,
+            const bool useMeasuredDryDelay = false,
+            const std::string& bodyWithAtmosphere = "Earth",
+            const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell,
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        LightTimeCorrectionSettings( measured_tropospheric ), zenithDelaysPerStation_( zenithDelaysPerStation ),
+        fallbackSettings_( fallbackSettings ), maximumInterpolationGap_( maximumInterpolationGap ),
+        useMeasuredDryDelay_( useMeasuredDryDelay ), bodyWithAtmosphere_( bodyWithAtmosphere ),
+        troposphericMappingModelType_( troposphericMappingModel ), interpolatorSettings_( interpolatorSettings )
+    {}
+
+    const std::map< std::string, std::map< double, Eigen::Vector2d > >& getZenithDelaysPerStation( ) const
+    {
+        return zenithDelaysPerStation_;
+    }
+    std::shared_ptr< LightTimeCorrectionSettings > getFallbackSettings( ) const
+    {
+        return fallbackSettings_;
+    }
+    double getMaximumInterpolationGap( ) const
+    {
+        return maximumInterpolationGap_;
+    }
+    bool getUseMeasuredDryDelay( ) const
+    {
+        return useMeasuredDryDelay_;
+    }
+    std::string getBodyWithAtmosphere( ) const
+    {
+        return bodyWithAtmosphere_;
+    }
+    TroposphericMappingModel getTroposphericMappingModelType( ) const
+    {
+        return troposphericMappingModelType_;
+    }
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( ) const
+    {
+        return interpolatorSettings_;
+    }
+
+private:
+    std::map< std::string, std::map< double, Eigen::Vector2d > > zenithDelaysPerStation_;
+    std::shared_ptr< LightTimeCorrectionSettings > fallbackSettings_;
+    double maximumInterpolationGap_;
+    bool useMeasuredDryDelay_;
+    std::string bodyWithAtmosphere_;
+    TroposphericMappingModel troposphericMappingModelType_;
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+};
+
+//! Function to create settings for tropospheric correction from measured zenith path delays per ground station
+inline std::shared_ptr< LightTimeCorrectionSettings > measuredTroposphericCorrectionSettings(
+        const std::map< std::string, std::map< double, Eigen::Vector2d > >& zenithDelaysPerStation,
+        const std::shared_ptr< LightTimeCorrectionSettings >& fallbackSettings,
+        const double maximumInterpolationGap,
+        const bool useMeasuredDryDelay = false,
+        const std::string& bodyWithAtmosphere = "Earth",
+        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) )
+{
+    return std::make_shared< MeasuredTroposphericCorrectionSettings >( zenithDelaysPerStation,
+                                                                       fallbackSettings,
+                                                                       maximumInterpolationGap,
+                                                                       useMeasuredDryDelay,
+                                                                       bodyWithAtmosphere,
+                                                                       troposphericMappingModel,
+                                                                       interpolatorSettings );
+}
 
 class SaastamoinenTroposphericCorrectionSettings : public LightTimeCorrectionSettings
 {
@@ -474,8 +566,8 @@ private:
 class InversePowerSeriesSolarCoronaCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
-    InversePowerSeriesSolarCoronaCorrectionSettings( const std::vector< double >& coefficients = { 1.31 * 5.97e-6 },
-                                                     const std::vector< double >& positiveExponents = { 2.0 },
+    InversePowerSeriesSolarCoronaCorrectionSettings( const std::vector< double >& coefficients = { 0.12e14, 0.41e12 },
+                                                     const std::vector< double >& positiveExponents = { 6.0, 2.0 },
                                                      const double criticalPlasmaDensityDelayCoefficient = 40.3,
                                                      const std::string& sunBodyName = "Sun" ):
         LightTimeCorrectionSettings( inverse_power_series_solar_corona ), coefficients_( coefficients ),
@@ -510,14 +602,16 @@ private:
 
     const double criticalPlasmaDensityDelayCoefficient_;
 
-    const std::string& sunBodyName_;
+    const std::string sunBodyName_;
 };
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
         const std::vector< std::string >& perturbingBodies,
-        const bool useBending = false )
+        const bool useBending = false,
+        const bool computeMassiveBodyAtClosestApproach = false )
 {
-    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, useBending );
+    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+            perturbingBodies, useBending, computeMassiveBodyAtClosestApproach );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(
@@ -645,13 +739,44 @@ inline std::shared_ptr< LightTimeCorrectionSettings > vmf3oTroposphericCorrectio
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCoronaCorrectionSettings(
-        const std::vector< double >& coefficients = { 1.31 * 5.97e-6 },
-        const std::vector< double >& positiveExponents = { 2.0 },
+        const std::vector< double >& coefficients = { 0.12e14, 0.41e12 },
+        const std::vector< double >& positiveExponents = { 6.0, 2.0 },
         const double criticalPlasmaDensityDelayCoefficient = 40.3,
         const std::string& sunBodyName = "Sun" )
 {
     return std::make_shared< InversePowerSeriesSolarCoronaCorrectionSettings >(
             coefficients, positiveExponents, criticalPlasmaDensityDelayCoefficient, sunBodyName );
+}
+
+//! Published inverse power series models of the solar-corona electron density
+enum SolarCoronaModel {
+    morley_budnik_2007_solar_corona,
+    de102_esoc_solar_corona,
+    muhleman_1977_solar_corona,
+    aksim_pavlov_2022_solar_corona
+};
+
+//! Coefficients [m^-3] and positive exponents (of the distance in solar radii) of a published solar-corona electron density
+//! model, as input for inversePowerSeriesSolarCoronaCorrectionSettings
+inline std::pair< std::vector< double >, std::vector< double > > getSolarCoronaModelCoefficients( const SolarCoronaModel model )
+{
+    switch( model )
+    {
+        // Rosetta 2006 solar conjunction (8.9 cm^-3 at 1 AU)
+        case morley_budnik_2007_solar_corona:
+            return { { 0.12e14, 0.41e12 }, { 6.0, 2.0 } };
+        // 10.8 cm^-3 at 1 AU
+        case de102_esoc_solar_corona:
+            return { { 1.3e14, 0.5e12 }, { 6.0, 2.0 } };
+        // Mariner 7
+        case muhleman_1977_solar_corona:
+            return { { 1.3e14, 0.66e12 }, { 6.0, 2.08 } };
+        // C N_0 (1 AU / R_sun)^2 with N_0 = 5.97 cm^-3 and C = 1.31 (7.8 cm^-3 at 1 AU)
+        case aksim_pavlov_2022_solar_corona:
+            return { { 1.31 * 5.97e6 * std::pow( physical_constants::ASTRONOMICAL_UNIT / 696.0e6, 2.0 ) }, { 2.0 } };
+        default:
+            throw std::runtime_error( "Error, solar corona model " + std::to_string( model ) + " not recognized." );
+    }
 }
 
 //! Function to create object that computes a single (type of) correction to the light-time
@@ -716,11 +841,11 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
  * @param receivingLinkEndType Type of the receiving link end (for this link).
  * @return Function that returns the frequency at the selected link.
  */
-std::function< double( std::vector< FrequencyBands > frequencyBands, double transmissionTime ) > createLinkFrequencyFunction(
-        const simulation_setup::SystemOfBodies& bodies,
-        const LinkEnds& linkEnds,
-        const LinkEndType& transmittingLinkEndType,
-        const LinkEndType& receivingLinkEndType );
+std::function< double( std::vector< basic_astrodynamics::FrequencyBands > frequencyBands, double transmissionTime ) >
+createLinkFrequencyFunction( const simulation_setup::SystemOfBodies& bodies,
+                             const LinkEnds& linkEnds,
+                             const LinkEndType& transmittingLinkEndType,
+                             const LinkEndType& receivingLinkEndType );
 
 }  // namespace observation_models
 

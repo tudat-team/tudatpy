@@ -57,25 +57,32 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   ENUMS
     ///////////////////////////////////////////////////////////
 
-    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel" )
-            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom )
-            .value( "albedo_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke )
-            .value( "emissivity_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke )
+    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel", R"doc(
+
+         Enumeration of predefined and custom Earth albedo and emissivity distributions.
+
+      )doc" )
+            .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom, R"doc(Custom surface property distribution.)doc" )
+            .value( "albedo_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke,
+                    R"doc(Earth albedo distribution from :cite:p:`knocke1988`.)doc" )
+            .value( "emissivity_knocke",
+                    tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke,
+                    R"doc(Earth emissivity distribution from :cite:p:`knocke1988`.)doc" )
             .export_values( );
 
-    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel" )
-            .value( "albedo_dlam1", tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1 )
-            .export_values( );
+    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel", R"doc(
 
-    enum class SphericalHarmonicsSurfacePropertyDistributionModel {
-        custom,
-        albedo_dlam1 /**< DLAM-1 lunar albedo model:
-                        Floberghagen, R. et al. "Lunar
-                        Albedo Force Modeling and its Effect
-                        on Low Lunar Orbit and Gravity Field
-                        Determination". ASR 23. 4(1999):
-                        733-738. */
-    };
+         Enumeration of predefined spherical harmonic surface property distributions.
+
+      )doc" )
+            .value( "albedo_dlam1",
+                    tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1,
+                    R"doc(DLAM-1 lunar albedo distribution from :cite:p:`floberghagen1999`.)doc" )
+            .value( "custom",
+                    tudat::simulation_setup::SphericalHarmonicsSurfacePropertyDistributionModel::custom,
+                    R"doc(Custom surface property distribution.)doc" )
+            .export_values( );
 
     ///////////////////////////////////////////////////////////
     ///////////   LUMINOSITY MODELS
@@ -253,7 +260,13 @@ void expose_radiation_pressure_setup( py::module& m )
       )doc" );
     py::class_< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings,
                 std::shared_ptr< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >,
-                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings" );
+                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings", R"doc(
+
+         Settings returned by
+         :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.knocke_type_surface_property_distribution`,
+         :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.predefined_knocke_type_surface_property_distribution`.
+
+      )doc" );
 
     m.def( "constant_surface_property_distribution",
            &tss::constantSurfacePropertyDistributionSettings,
@@ -305,7 +318,7 @@ void expose_radiation_pressure_setup( py::module& m )
  cosine_coefficients : numpy.ndarray
      Cosine coefficients of surface distribution. Entry (i,j) denotes coefficient :math:`{C}_{ij}` at degree i and order j.
  sine_coefficients : numpy.ndarray
-     Sine coefficients of surface distribution. Entry (i,j) denotes coefficient :math:`{C}_{ij}` at degree i and order j.
+     Sine coefficients of surface distribution. Entry (i,j) denotes coefficient :math:`{S}_{ij}` at degree i and order j.
  Returns
  -------
  SurfacePropertyDistributionSettings
@@ -384,7 +397,7 @@ void expose_radiation_pressure_setup( py::module& m )
      Value of :math:`c_{2}` in above formulation.
  constant_degree_two_contribution : float
      Value of :math:`a_{2}` in above formulation.
-reference_epoch : float
+ reference_epoch : float
      Reference epoch :math:`t_{0}` of the periodic variation, in seconds since J2000 TDB.
  period : float
      Period :math:`T` of the periodic variation.
@@ -518,7 +531,7 @@ reference_epoch : float
  the resulting irradiance :math:`\Phi` (in :math:`W/m^{2}`) at the target is (if the panel is visible from the target and the original source):
 
  .. math::
-    \Phi=\cos\theta_{s}\Phi_{s}\frac{a}{\pi}\frac{A\cos\theta}{\pi ||\mathbf{r}||^{2}}
+    \Phi=\cos\theta_{s}\Phi_{s}\frac{a}{\pi}\frac{A\cos\theta}{||\mathbf{r}||^{2}}
 
  with :math:`\theta_{s}` the angle between :math:`\hat{\mathbf{n}}` and :math:`\mathbf{r_{s}}`, :math:`\Phi_{s}` the irradiance from the original source
  at the panel of the reflecting body, :math:`a` is the albedo coefficient, :math:`A` the panel area, :math:`\theta` is the angle between :math:`\hat{\mathbf{n}}` and :math:`\mathbf{r}`.
@@ -678,7 +691,7 @@ reference_epoch : float
  minimum_temperature : float
      Minimum surface temperature :math:`T_{min}`.
  maximum_temperature : float
-     Maximum surface temperature :math:`T_{min}`.
+     Maximum surface temperature :math:`T_{max}`.
  constant_emissivity : float
      Constant emissivity of the surface :math:`\epsilon`.
  original_source_name : str
@@ -725,7 +738,7 @@ reference_epoch : float
  specular diffuse model. The details of the implementation are given by Montenbruck et al. (2015). The reflection
  law is defined by the absorption coefficient :math:`\alpha`, diffuse reflectivity :math:`\delta` and specular reflectivity
  :math:`\rho`, which must meet the condition :math:`\alpha+\delta+\rho=1`. For the model definition, the user provides
- :math:`\alpha` and :math:`\delta` (and :math:`\rho` is calculated). The reaction vector :math:`\hat{\mathbf{f}}` for a panel
+ :math:`\rho` and :math:`\delta` (and :math:`\alpha` is calculated). The reaction vector :math:`\hat{\mathbf{f}}` for a panel
  with surface normal :math:`\hat{\mathbf{n}}`, and unit vector from panel surface to source :math:`\hat{\mathbf{r}}` then becomes:
 
  .. math::
@@ -874,20 +887,25 @@ reference_epoch : float
  Each time the radiation at a given target is computed, the surface of the body is re-panelled, using the algorithm described by
  Knocke (1989). In short, a single panel is placed at the zenith of the evaluation point, with any number of rings around it, each of
  which has any number of (equispaced) panels on it. The width of each ring is such that all panels have the same projected, attenuated area.
- The panelling settings are defined by the user to this function. The
+ The panelling settings are defined by the user to this function.
  The irradiance :math:`\Phi` at a relative position :math:`\mathbf{r}` from the source's center is then computed from all
  :math:`N` panels, each of which evaluated :math:`M` panel radiosity models
 
  .. math::
-    \Phi=\sum_{i=1}^{N}\sum_{j=1}\Phi_{i,j}
+    \Phi=\sum_{i=1}^{N}\sum_{j=1}^{M}\Phi_{i,j}
 
  where :math:`\Phi_{i,j}` denotes the contribution to the total irradiance of panel radiosity model :math:`j` on panel :math:`i`.
 
 
  Parameters
  ----------
- luminosity_model : LuminosityModelSettings
-     Settings for the luminosity model.
+ panel_radiosity_settings : list[PanelRadiosityModelSettings]
+     Settings for the panel radiosity models.
+ number_of_panels_per_ring : list[int]
+     Number of panels per ring.
+ original_source_occulting_bodies : dict[str, list[str]]
+     Names of bodies to occult the original source as seen from this source.
+
  Returns
  -------
  RadiationSourceModelSettings
@@ -980,7 +998,7 @@ reference_epoch : float
  ----------
  source_to_target_occulting_bodies : dict[str, list[str]]
      Dictionary (source name -> list of occulting body names) of bodies to occult sources as seen from this target.
- maximum_number_of_pixels : Dict[str, int]
+ maximum_number_of_pixels_per_source : Dict[str, int]
      Maximum number of pixels used in the self-shadowing algorithm per source, omitting a the value or setting it to zero equals to not considering self-shadowing for a given source.
  Returns
  -------

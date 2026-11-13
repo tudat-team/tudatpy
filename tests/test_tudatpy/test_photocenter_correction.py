@@ -12,6 +12,7 @@ from tudatpy.dynamics.environment import SphericalBodyShapeModel, TriAxialEllips
 from tudatpy.dynamics.environment_setup import BodyListSettings, create_system_of_bodies
 from tudatpy.dynamics.environment_setup import shape
 from tudatpy.estimation import observations
+from tudatpy.estimation.observable_models_setup import links, model_settings
 from tudatpy.estimation.observations.observation_corrections.photocenter_correction import (
     _photocenter_correction_ellipsoidal,
     photocenter_correction_angular_observations,
@@ -24,16 +25,16 @@ _MODULE = "tudatpy.estimation.observations.observation_corrections.photocenter_c
 def _build_angular_observation_dataset(observation_pairs, times, body_name, observer_body_name):
     """Build a real ObservationDataset holding angular observations of one body by one observer"""
     link_ends = {
-        observations.transmitter: observations.LinkEndId(body_name, ""),
-        observations.receiver: observations.LinkEndId(observer_body_name, ""),
+        links.transmitter: links.LinkEndId(body_name, ""),
+        links.receiver: links.LinkEndId(observer_body_name, ""),
     }
     dataset = observations.ObservationDataset()
     dataset.add_observation_set(
-        observations.angular_position,
-        observations.LinkDefinition(link_ends),
+        model_settings.angular_position_type,
+        links.LinkDefinition(link_ends),
         list(observation_pairs),
         list(times),
-        observations.receiver,
+        links.receiver,
     )
     return dataset
 

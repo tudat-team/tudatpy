@@ -176,11 +176,26 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
+        Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > idealObservation;
+        return computeObservationsWithLinkEndData(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, idealObservation, ancillarySetings );
+    }
+
+    //! Compute the full observation and return its ideal value at the effective observation time by reference.
+    Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >& idealObservation,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
+    {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
-            return computeIdealObservationsWithLinkEndData(
+            idealObservation = computeIdealObservationsWithLinkEndData(
                     time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
+            return idealObservation;
         }
         else
         {
@@ -193,13 +208,13 @@ public:
             }
 
             // Compute ideal observable
-            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
+            idealObservation = computeIdealObservationsWithLinkEndData(
                     observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
             // Add correction
-            return currentObservation +
+            return idealObservation +
                     this->observationBiasCalculator_
-                            ->getObservationBias( linkEndTimes, linkEndStates, currentObservation.template cast< double >( ) )
+                            ->getObservationBias( linkEndTimes, linkEndStates, idealObservation.template cast< double >( ) )
                             .template cast< ObservationScalarType >( );
         }
     }
@@ -326,7 +341,8 @@ public:
 
     virtual void setFrequencyInterpolatorAndTurnaroundRatio(
             std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
-            std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
+            std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
+                    turnaroundRatio )
     {
         frequencyInterpolator_ = frequencyInterpolator;
         turnaroundRatio_ = turnaroundRatio;
@@ -466,11 +482,12 @@ protected:
 
     ObservationScalarType getTurnaroundRatio( const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
     {
-        std::vector< FrequencyBands > frequencyBands;
-        FrequencyBands referenceUplinkBand;
+        std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
+        basic_astrodynamics::FrequencyBands referenceUplinkBand;
         try
         {
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                    ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -486,8 +503,8 @@ protected:
                     std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
                     std::to_string( linkEnds_.size( ) - 1 ) + ")." );
         }
-        FrequencyBands uplinkBand = frequencyBands.at( 0 );
-        FrequencyBands downlinkBand = frequencyBands.at( 1 );
+        basic_astrodynamics::FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        basic_astrodynamics::FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Set approximate up- and down-link frequencies.
         return static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
@@ -520,7 +537,8 @@ protected:
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_ = nullptr;
 
-    std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_ = nullptr;
+    std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
+            turnaroundRatio_ = nullptr;
 };
 //
 // extern template class ObservationModel< 1, double, double >;

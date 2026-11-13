@@ -29,7 +29,6 @@ using ObservableType = tudat::observation_models::ObservableType;
 enum class OutlierRejectionType {
     carpino_outlier_rejection,
     simple_outlier_rejection,
-
 };
 
 inline std::string getOutlierRejectionTypeString( const OutlierRejectionType outlierRejectionType )
@@ -71,13 +70,14 @@ protected:
 
 //! Settings for the outlier rejection algorithm of Carpino et al. (2003).
 /*!
- * This algorithm rejects and recovers observations based on a per-observation chi-squared value. For scalar observations, this is the ratio
- * of the residual to the residual uncertainty. For vector observations, this is the Mahalanobis distance of the residual vector. Note that
- * the residual covariance, that is used in this algorithm, is different from the typical observation covariance. The former also takes into
- * account whether an observation was used in the least-squares inversion or not. An observation that is currently used in the estimation is
- * rejected when its chi-squared value exceeds the rejection threshold. An observation that was rejected in an earlier iteration is
- * recovered when its chi-squared value drops below the recovery threshold. Using a recovery threshold that is lower than the rejection
- * threshold prevents observations from oscillating between the rejected and the accepted state in successive iterations.
+ * This algorithm rejects and recovers observations based on a per-observation chi-squared value. For scalar observations, this is the
+ * square of the ratio of the residual to the residual uncertainty. For vector observations, this is the squared Mahalanobis distance of the
+ * residual vector. Note that the residual covariance, that is used in this algorithm, is different from the typical observation
+ * covariance. The former also takes into account whether an observation was used in the least-squares inversion or not. An observation
+ * that is currently used in the estimation is rejected when its chi-squared value exceeds the rejection threshold. An observation that
+ * was rejected in an earlier iteration is recovered when its chi-squared value drops below the recovery threshold. Using a recovery
+ * threshold that is lower than the rejection threshold prevents observations from oscillating between the rejected and the accepted
+ * state in successive iterations.
  */
 class CarpinoOutlierRejectionSettings : public OutlierRejectionSettings
 {
@@ -87,7 +87,8 @@ public:
      * \param chi2RejectionThreshold Chi-squared value above which an accepted observation is rejected.
      * \param chi2RecoveryThreshold Chi-squared value below which a rejected observation is recovered. Must be smaller
      * than the rejection threshold.
-     * \param maximumRejectedFraction Maximum fraction (0 to 1) of all observations that may be in the rejected state.
+     * \param maximumRejectedFraction Maximum fraction (0 to 1) of the observations that are not rejected before the estimation, that the
+     * algorithm may hold in the rejected state (over all iterations).
      * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be
      * rejected. Iterations are counted from zero, so the default value of 1 leaves the first iteration (which uses
      * the a priori parameter values, and can therefore have large residuals for all observations) untouched.
@@ -152,7 +153,7 @@ protected:
     //! Chi-squared value below which a rejected observation is recovered.
     const double chi2RecoveryThreshold_;
 
-    //! Maximum fraction of all observations that may be in the rejected state.
+    //! Maximum fraction of the observations not rejected before the estimation, that the algorithm may hold in the rejected state.
     const double maximumRejectedFraction_;
 
     //! Index of the first estimation iteration in which observations may be rejected.

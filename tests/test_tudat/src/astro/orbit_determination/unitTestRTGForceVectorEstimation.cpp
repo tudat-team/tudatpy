@@ -305,17 +305,16 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
         }
 
         // Simulate observations.
-        std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
+        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Set weights
-        observationsAndTimes->setConstantSingleObservationScalarWeight(
-                ObservationSelectionCondition< double, double >::observableType( one_way_range ), 1.0 / ( 1.0 * 1.0 ) );
-        observationsAndTimes->setConstantSingleObservationScalarWeight(
-                ObservationSelectionCondition< double, double >::observableType( angular_position ), 1.0 / ( 1.0E-5 * 1.0E-5 ) );
-        observationsAndTimes->setConstantSingleObservationScalarWeight(
-                ObservationSelectionCondition< double, double >::observableType( one_way_doppler ),
-                1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT ) );
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
+        weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
+        weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
+        weightsPerObservationParser[ observationParser( one_way_doppler ) ] =
+                1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+        observationsAndTimes->setConstantWeightPerObservable( weightsPerObservationParser );
 
         // Perturb parameter estimate.
         Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =

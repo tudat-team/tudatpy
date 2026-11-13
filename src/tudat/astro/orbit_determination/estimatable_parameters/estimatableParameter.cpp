@@ -63,6 +63,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case rotation_pole_position:
             parameterDescription = "pole position ";
             break;
+        case shared_observation_bias:
+            parameterDescription = "shared observation bias ";
+            break;
         case constant_additive_observation_bias:
             parameterDescription = "absolute observation bias ";
             break;
@@ -156,6 +159,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case yarkovsky_parameter:
             parameterDescription = " Yarkovsky parameter A2 ";
             break;
+        case relative_gravitational_parameter_rate:
+            parameterDescription = " relative gravitational parameter rate ";
+            break;
         case custom_estimated_parameter:
             parameterDescription = " Custom parameter ";
             break;
@@ -243,6 +249,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case arc_wise_exponential_atmosphere_scale_height:
             parameterDescription = "arc-wise scale height of exponential atmosphere model ";
             break;
+        case camera_pointing_correction:
+            parameterDescription = "camera pointing correction ";
+            break;
+        case ground_station_linear_velocity:
+            parameterDescription = "ground station linear velocity ";
+            break;
+        case displacement_love_number:
+            parameterDescription = "displacement Love number ";
+            break;
+        case displacement_shida_number:
+            parameterDescription = "displacement Shida number ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -312,6 +330,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_pole_position:
             isDoubleParameter = false;
             break;
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             isDoubleParameter = false;
             break;
@@ -403,6 +422,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = true;
             break;
         case yarkovsky_parameter:
+        case relative_gravitational_parameter_rate:
             isDoubleParameter = true;
             break;
         case custom_estimated_parameter:
@@ -487,6 +507,14 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case arc_wise_exponential_atmosphere_scale_height:
             isDoubleParameter = false;
             break;
+        case camera_pointing_correction:
+            isDoubleParameter = false;
+            break;
+        case ground_station_linear_velocity:
+        case displacement_love_number:
+        case displacement_shida_number:
+            isDoubleParameter = false;
+            break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                       " not found when getting parameter type" );
@@ -549,6 +577,7 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     bool flag;
     switch( parameterType )
     {
+        case shared_observation_bias:
         case constant_additive_observation_bias:
             flag = true;
             break;
@@ -678,6 +707,140 @@ bool isParameterClockProperty( const EstimatebleParametersEnum parameterType )
             break;
     }
     return flag;
+}
+
+//! Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics
+bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parameterType )
+{
+    // No default case is used, so that a compiler warning is given if a (new) parameter type is not included here
+    switch( parameterType )
+    {
+        case arc_wise_radiation_pressure_coefficient:
+        case arc_wise_empirical_acceleration_coefficients:
+        case arc_wise_constant_drag_coefficient:
+        case desaturation_delta_v_values:
+        case arc_wise_drag_component_scaling_factor:
+        case arc_wise_side_component_scaling_factor:
+        case arc_wise_lift_component_scaling_factor:
+        case arc_wise_exponential_atmosphere_base_density:
+        case arc_wise_exponential_atmosphere_scale_height:
+            return true;
+        case arc_wise_initial_body_state:
+        case initial_body_state:
+        case initial_rotational_body_state:
+        case initial_mass_state:
+        case gravitational_parameter:
+        case constant_drag_coefficient:
+        case radiation_pressure_coefficient:
+        case spherical_harmonics_cosine_coefficient_block:
+        case spherical_harmonics_sine_coefficient_block:
+        case constant_rotation_rate:
+        case rotation_pole_position:
+        case constant_additive_observation_bias:
+        case arcwise_constant_additive_observation_bias:
+        case constant_relative_observation_bias:
+        case arcwise_constant_relative_observation_bias:
+        case ppn_parameter_gamma:
+        case ppn_parameter_beta:
+        case ground_station_position:
+        case equivalence_principle_lpi_violation_parameter:
+        case empirical_acceleration_coefficients:
+        case full_degree_tidal_love_number:
+        case single_degree_variable_tidal_love_number:
+        case direct_dissipation_tidal_time_lag:
+        case mean_moment_of_inertia:
+        case periodic_spin_variation:
+        case polar_motion_amplitude:
+        case core_factor:
+        case free_core_nutation_rate:
+        case scaled_longitude_libration_amplitude:
+        case constant_thrust_magnitude_parameter:
+        case constant_specific_impulse:
+        case constant_time_drift_observation_bias:
+        case arc_wise_time_drift_observation_bias:
+        case constant_time_observation_bias:
+        case arc_wise_time_observation_bias:
+        case global_polynomial_clock_corrections:
+        case arc_wise_polynomial_clock_corrections:
+        case inverse_tidal_quality_factor:
+        case yarkovsky_parameter:
+        case custom_estimated_parameter:
+        case reference_point_position:
+        case polynomial_gravity_field_variation_amplitudes:
+        case periodic_gravity_field_variation_amplitudes:
+        case source_direction_radiation_pressure_scaling_factor:
+        case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        case specular_reflectivity:
+        case diffuse_reflectivity:
+        case mode_coupled_tidal_love_numbers:
+        case nominal_rotation_pole_position:
+        case rotation_pole_position_rate:
+        case rotation_longitudinal_libration_terms:
+        case rotation_pole_libration_terms:
+        case drag_component_scaling_factor:
+        case side_component_scaling_factor:
+        case lift_component_scaling_factor:
+        case rtg_force_vector:
+        case rtg_force_vector_magnitude:
+        case area_to_mass_scaling_factor:
+        case full_acceleration_scaling_factor:
+        case exponential_atmosphere_base_density:
+        case exponential_atmosphere_scale_height:
+        case energy_accommodation_coefficient:
+        case normal_accommodation_coefficient:
+        case tangential_accommodation_coefficient:
+        case normal_velocity_at_wall_ratio:
+        case three_coefficient_radiation_pressure_coefficients:
+        case shared_observation_bias:
+        case relative_gravitational_parameter_rate:
+        case camera_pointing_correction:
+        case ground_station_linear_velocity:
+        case displacement_love_number:
+        case displacement_shida_number:
+            return false;
+    }
+    throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
+                              " not recognized when checking whether parameter is arc-wise" );
+}
+//! Function to check whether the time intervals of influence of a parameter are consistent with its type
+void checkParameterTimeIntervalsOfInfluence( const std::shared_ptr< EstimatableParameterBase > parameter )
+{
+    int numberOfTimeIntervals = static_cast< int >( parameter->getTimeIntervalsOfInfluencePerEntry( ).size( ) );
+    if( isParameterArcWiseDynamicalProperty( parameter->getParameterName( ).first ) )
+    {
+        if( numberOfTimeIntervals != parameter->getParameterSize( ) )
+        {
+            throw std::runtime_error( "Error, arc-wise parameter " + parameter->getParameterDescription( ) +
+                                      " does not provide a time interval of influence for each entry" );
+        }
+    }
+    else if( numberOfTimeIntervals > 0 )
+    {
+        throw std::runtime_error( "Error, parameter " + parameter->getParameterDescription( ) +
+                                  " provides time intervals of influence, but is not defined as arc-wise parameter "
+                                  "(see isParameterArcWiseDynamicalProperty)" );
+    }
+}
+
+//! Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active
+std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInfluence( const std::vector< double >& arcStartTimes,
+                                                                                        const int numberOfArcs,
+                                                                                        const int entriesPerArc )
+{
+    if( static_cast< int >( arcStartTimes.size( ) ) <= numberOfArcs )
+    {
+        throw std::runtime_error( "Error when getting arc-wise parameter time intervals, number of arc start times is inconsistent" );
+    }
+
+    std::vector< std::pair< double, double > > timeIntervals;
+    for( int i = 0; i < numberOfArcs; i++ )
+    {
+        for( int j = 0; j < entriesPerArc; j++ )
+        {
+            timeIntervals.push_back( std::make_pair( arcStartTimes.at( i ), arcStartTimes.at( i + 1 ) ) );
+        }
+    }
+    return timeIntervals;
 }
 
 }  // namespace estimatable_parameters

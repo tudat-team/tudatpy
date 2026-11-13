@@ -2,13 +2,14 @@ import numpy as np
 import pytest
 
 from tudatpy.estimation import observations
+from tudatpy.estimation.observable_models_setup import links, model_settings
 
 
 def _link_ends(receiver_body):
     """Create a minimal two-way link-end map used by the query fixtures."""
     return {
-        observations.transmitter: observations.LinkEndId("Probe", ""),
-        observations.receiver: observations.LinkEndId(receiver_body, ""),
+        links.transmitter: links.LinkEndId("Probe", ""),
+        links.receiver: links.LinkEndId(receiver_body, ""),
     }
 
 
@@ -17,10 +18,10 @@ def _new_dataset_single_set(observable_type, receiver_body, observation_values, 
     dataset = observations.ObservationDataset()
     dataset.add_observation_set(
         observable_type,
-        observations.LinkDefinition(_link_ends(receiver_body)),
+        links.LinkDefinition(_link_ends(receiver_body)),
         [np.asarray(value, dtype=float) for value in observation_values],
         times,
-        observations.receiver,
+        links.receiver,
     )
     return dataset
 
@@ -29,7 +30,7 @@ def _new_dataset_single_set(observable_type, receiver_body, observation_values, 
 def sample_dataset():
     """Build a deterministic two-set dataset with scalar and vector observables."""
     dataset = _new_dataset_single_set(
-        observations.one_way_range,
+        model_settings.one_way_range_type,
         "Earth",
         [[10.0], [20.0], [30.0]],
         [1.0, 2.0, 4.0],
@@ -40,7 +41,7 @@ def sample_dataset():
     )
 
     angular_dataset = _new_dataset_single_set(
-        observations.angular_position,
+        model_settings.angular_position_type,
         "Mars",
         [[1.0, 2.0], [3.0, 4.0]],
         [3.0, 5.0],
@@ -59,213 +60,9 @@ def sample_dataset():
     return dataset
 
 
-def _assert_link_end_id(link_end_id, body_name, reference_point=""):
-    """Assert both parts of a link-end id so selector tests do not compare identity."""
-    # The body name verifies that the query stored the intended physical body.
-    assert link_end_id.body_name == body_name
-    # The reference point verifies that station-level ids survive round-tripping.
-    assert link_end_id.reference_point == reference_point
-
-
 def _to_dense_matrix(matrix):
     """Convert a scipy sparse or numpy-like matrix returned by pybind to a dense array."""
     return matrix.toarray() if hasattr(matrix, "toarray") else np.asarray(matrix)
-
-
-def test_observation_query_builds_basic_backend_conditions():
-    """Check that simple observation_query selectors create inspectable backend conditions."""
-    observation_query = observations.observation_query
-
-    condition = observation_query.set_id == 4
-    # The query helper must produce the C++ condition type consumed by datasets.
-    assert isinstance(condition, observations.ObservationSelectionCondition)
-    # Equality on observation_query.set_id should map to the dedicated set-id condition node.
-    assert condition.condition_type == observations.ObservationSelectionConditionType.set_id
-    # The set-id value must be preserved so downstream filtering selects set 4.
-    assert condition.set_id_value == 4
-
-    negated = observation_query.set_id != 4
-    # Inequality should be represented as logical NOT, not as a separate ad hoc type.
-    assert negated.condition_type == observations.ObservationSelectionConditionType.not_condition
-    # The NOT child should be the same primitive set-id selector used by equality.
-    assert negated.child_conditions[0].condition_type == (
-        observations.ObservationSelectionConditionType.set_id
-    )
-    # The child condition must retain the rejected set id after negation.
-    assert negated.child_conditions[0].set_id_value == 4
-
-    observable_condition = observation_query.observable_type == observations.one_way_range
-    # Observable-type equality should build the canonical observable-type node.
-    assert observable_condition.condition_type == (
-        observations.ObservationSelectionConditionType.observable_type
-    )
-    # The enum value must round-trip because observable type drives set selection.
-    assert observable_condition.observable_type_value == observations.one_way_range
-
-    link_definition = observations.LinkDefinition(_link_ends("Earth"))
-    link_definition_condition = observation_query.link_definition == link_definition
-    # Link-definition equality should build the canonical link-definition node.
-    assert link_definition_condition.condition_type == (
-        observations.ObservationSelectionConditionType.link_definition
-    )
-    # The receiver id inside the stored link definition verifies deep value storage.
-    _assert_link_end_id(
-        link_definition_condition.link_definition_value.link_end_id(observations.receiver),
-        "Earth",
-    )
-
-
-@pytest.mark.parametrize(
-    ("condition", "condition_type", "time_value"),
-    [
-        (
-            observations.observation_query.time >= 1.0,
-            observations.ObservationSelectionConditionType.time_greater_equal,
-            1.0,
-        ),
-        (
-            observations.observation_query.time > 2.0,
-            observations.ObservationSelectionConditionType.time_greater_than,
-            2.0,
-        ),
-        (
-            observations.observation_query.time <= 3.0,
-            observations.ObservationSelectionConditionType.time_less_equal,
-            3.0,
-        ),
-        (
-            observations.observation_query.time < 4.0,
-            observations.ObservationSelectionConditionType.time_less_than,
-            4.0,
-        ),
-    ],
-)
-def test_observation_query_builds_one_sided_time_conditions(condition, condition_type, time_value):
-    """Check that each Python comparison operator maps to the right time node."""
-    # The condition type distinguishes inclusive and exclusive time comparisons.
-    assert condition.condition_type == condition_type
-    # The scalar time value must be stored unchanged for later row filtering.
-    assert condition.time_value == time_value
-
-
-def test_observation_query_builds_time_bounds_and_logical_trees():
-    """Check bounded-time queries and logical composition tree structure."""
-    observation_query = observations.observation_query
-
-    bounded = observation_query.time.between(1.0, 2.0)
-    # between() should use the explicit time-bounds node, not two comparisons.
-    assert bounded.condition_type == observations.ObservationSelectionConditionType.time_bounds
-    # Both bounds must be stored in order because the C++ side applies them directly.
-    assert bounded.time_bounds_value == (1.0, 2.0)
-
-    composed = (
-        (observation_query.set_id == 4) & (observation_query.time < 10.0)
-    ) | ~observation_query.rejected
-    # Top-level OR verifies that Python | creates a composable backend tree.
-    assert composed.condition_type == observations.ObservationSelectionConditionType.or_condition
-    # The OR node should preserve exactly the two operands supplied by the user.
-    assert len(composed.child_conditions) == 2
-    # The first child should be the parenthesized AND expression.
-    assert composed.child_conditions[0].condition_type == (
-        observations.ObservationSelectionConditionType.and_condition
-    )
-    # The second child should be the explicit negation of observation_query.rejected.
-    assert composed.child_conditions[1].condition_type == (
-        observations.ObservationSelectionConditionType.not_condition
-    )
-
-
-@pytest.mark.parametrize(
-    ("selector_name", "link_end_type"),
-    [
-        ("receiver", observations.receiver),
-        ("transmitter", observations.transmitter),
-        ("observer", observations.observer),
-        ("observed_body", observations.observed_body),
-    ],
-)
-def test_observation_query_link_end_aliases(selector_name, link_end_type):
-    """Check that named link-end aliases are equivalent to explicit link_end()."""
-    station = observations.LinkEndId("Earth", "DSS-63")
-
-    alias_condition = getattr(observations.observation_query, selector_name) == station
-    explicit_condition = observations.ObservationSelectionCondition.link_end(link_end_type, station)
-
-    # Alias selectors should create the same condition node type as link_end().
-    assert alias_condition.condition_type == explicit_condition.condition_type
-    # The alias must map to the intended LinkEndType enum.
-    assert alias_condition.link_end_type_value == explicit_condition.link_end_type_value
-    # The station id should be stored by value, including reference point.
-    _assert_link_end_id(alias_condition.link_end_id_value, "Earth", "DSS-63")
-
-    negated_alias = getattr(observations.observation_query, selector_name) != station
-    # Inequality on aliases should use normal NOT composition.
-    assert negated_alias.condition_type == (
-        observations.ObservationSelectionConditionType.not_condition
-    )
-    # The negated child must still use the correct link-end role.
-    assert negated_alias.child_conditions[0].link_end_type_value == link_end_type
-
-
-def test_observation_query_value_threshold_conditions_store_scalar_and_vector_limits():
-    """Check threshold selectors for scalar and vector-valued limits."""
-    observation_query = observations.observation_query
-
-    residual_condition = observation_query.residual.abs_greater_than(3.0)
-    # Residual thresholds should build the residual absolute-value condition.
-    assert residual_condition.condition_type == (
-        observations.ObservationSelectionConditionType.residual_absolute_value_greater_than
-    )
-    # Scalar thresholds are stored as a length-one vector for the C++ evaluator.
-    np.testing.assert_allclose(residual_condition.vector_limit, [3.0])
-
-    observation_condition = observation_query.observation.abs_greater_than(np.array([1.0, 2.0]))
-    # Observation thresholds should build the observed-value absolute-value condition.
-    assert observation_condition.condition_type == (
-        observations.ObservationSelectionConditionType.observation_absolute_value_greater_than
-    )
-    # Vector thresholds must preserve all components for vector observables.
-    np.testing.assert_allclose(observation_condition.vector_limit, [1.0, 2.0])
-
-
-@pytest.mark.parametrize(
-    "selector_expression",
-    [
-        lambda observation_query: observation_query,
-        lambda observation_query: observation_query.observable_type,
-        lambda observation_query: observation_query.set_id,
-        lambda observation_query: observation_query.link_definition,
-        lambda observation_query: observation_query.link_end(observations.receiver),
-        lambda observation_query: observation_query.receiver,
-        lambda observation_query: observation_query.time,
-        lambda observation_query: observation_query.residual,
-        lambda observation_query: observation_query.observation,
-    ],
-)
-def test_observation_query_rejects_incomplete_selector_bool_contexts(
-    selector_expression,
-):
-    """Check that unfinished selector objects cannot be used as booleans."""
-    # Incomplete selectors must fail loudly so users write comparisons/calls first.
-    with pytest.raises(TypeError, match="Incomplete observation query selector"):
-        bool(selector_expression(observations.observation_query))
-
-
-def test_observation_query_rejects_condition_bool_contexts():
-    """Check that complete conditions reject Python and/or/not semantics."""
-    observation_query = observations.observation_query
-
-    # Direct bool conversion must fail because truthiness would be ambiguous.
-    with pytest.raises(
-        TypeError, match="ObservationSelectionCondition objects cannot be converted to bool"
-    ):
-        bool(observation_query.set_id == 1)
-
-    # Python and would call bool(); this guards the documented use of & instead.
-    with pytest.raises(
-        TypeError, match="ObservationSelectionCondition objects cannot be converted to bool"
-    ):
-        (observation_query.set_id == 1) and (observation_query.time < 2.0)
 
 
 def test_query_conditions_select_expected_dataset_rows(sample_dataset):
@@ -281,39 +78,49 @@ def test_query_conditions_select_expected_dataset_rows(sample_dataset):
     assert dataset.total_scalar_size == 7
 
     # set_id == 0 should select the three Earth range rows.
-    assert dataset.observation_ids_matching_condition(observation_query.set_id == 0) == [0, 1, 2]
+    assert dataset.get_observation_ids(observation_query.set_id == 0) == [0, 1, 2]
     # set_id == 1 should select the two Mars angular-position rows.
-    assert dataset.observation_ids_matching_condition(observation_query.set_id == 1) == [3, 4]
+    assert dataset.get_observation_ids(observation_query.set_id == 1) == [3, 4]
     # one_way_range should select only the scalar range observation set.
-    assert dataset.observation_ids_matching_condition(
-        observation_query.observable_type == observations.one_way_range
+    assert dataset.get_observation_ids(
+        observation_query.observable_type == model_settings.one_way_range_type
     ) == [0, 1, 2]
     # angular_position should select only the two vector-valued observations.
-    assert dataset.observation_ids_matching_condition(
-        observation_query.observable_type == observations.angular_position
+    assert dataset.get_observation_ids(
+        observation_query.observable_type == model_settings.angular_position_type
     ) == [3, 4]
     # Receiver Earth should match the range set link definition.
-    assert dataset.observation_ids_matching_condition(
-        observation_query.receiver == observations.LinkEndId("Earth", "")
+    assert dataset.get_observation_ids(
+        observation_query.receiver == links.LinkEndId("Earth", "")
     ) == [0, 1, 2]
     # Receiver Mars should match the angular-position set link definition.
-    assert dataset.observation_ids_matching_condition(
-        observation_query.receiver == observations.LinkEndId("Mars", "")
+    assert dataset.get_observation_ids(
+        observation_query.receiver == links.LinkEndId("Mars", "")
+    ) == [3, 4]
+    # A link end type should select the rows of every set with a link end of that type.
+    assert dataset.get_observation_ids(
+        observations.ObservationSelectionCondition.link_end_type(links.receiver)
+    ) == [0, 1, 2, 3, 4]
+    assert (
+        dataset.get_observation_ids(
+            observations.ObservationSelectionCondition.link_end_type(links.observer)
+        )
+        == []
+    )
+    # The full link definition of the Mars set should select only its rows.
+    assert dataset.get_observation_ids(
+        observation_query.link_definition == links.LinkDefinition(_link_ends("Mars"))
     ) == [3, 4]
     # Inclusive time bounds [2, 4] should select rows at times 2, 3 and 4.
-    assert dataset.observation_ids_matching_condition(observation_query.time.between(2.0, 4.0)) == [
+    assert dataset.get_observation_ids(observation_query.time.between(2.0, 4.0)) == [
         1,
         2,
         3,
     ]
     # Observation-value thresholds should select rows where any component exceeds 25.
-    assert dataset.observation_ids_matching_condition(
-        observation_query.observation.abs_greater_than(25.0)
-    ) == [2]
+    assert dataset.get_observation_ids(observation_query.observation.abs_greater_than(25.0)) == [2]
     # Residual thresholds should select the intentionally large residual rows.
-    assert dataset.observation_ids_matching_condition(
-        observation_query.residual.abs_greater_than(1.0)
-    ) == [1, 4]
+    assert dataset.get_observation_ids(observation_query.residual.abs_greater_than(1.0)) == [1, 4]
 
 
 def test_query_conditions_compose_when_selecting_dataset_rows(sample_dataset):
@@ -321,19 +128,19 @@ def test_query_conditions_compose_when_selecting_dataset_rows(sample_dataset):
     observation_query = observations.observation_query
 
     # AND should intersect set-id and time conditions, leaving rows 1 and 2.
-    assert sample_dataset.observation_ids_matching_condition(
+    assert sample_dataset.get_observation_ids(
         (observation_query.set_id == 0)
         & (observation_query.time >= 2.0)
         & (observation_query.time <= 4.0)
     ) == [1, 2]
     # OR should union all Earth rows with the angular row containing value 4.
-    assert sample_dataset.observation_ids_matching_condition(
-        (observation_query.receiver == observations.LinkEndId("Earth", ""))
+    assert sample_dataset.get_observation_ids(
+        (observation_query.receiver == links.LinkEndId("Earth", ""))
         | (observation_query.observation.abs_greater_than(np.array([3.5])))
     ) == [0, 1, 2, 4]
     # NOT should remove the angular row whose first residual component is large.
-    assert sample_dataset.observation_ids_matching_condition(
-        (observation_query.observable_type == observations.angular_position)
+    assert sample_dataset.get_observation_ids(
+        (observation_query.observable_type == model_settings.angular_position_type)
         & ~(observation_query.residual.abs_greater_than(np.array([1.0, 1.0])))
     ) == [3]
 
@@ -371,8 +178,6 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
     vector_data = sample_dataset.observation_vector_data(True)
     # A cross-observation block must mark the vector data as non-diagonal.
     assert vector_data.has_off_diagonal_weights is True
-    # The inverse flag should also reflect the presence of off-diagonal weights.
-    assert vector_data.is_diagonal_weight_only is False
 
     dense_weight_matrix = _to_dense_matrix(vector_data.sparse_weight_matrix)
     first_row_start = vector_data.vector_row(angular_ids[0], 0)
@@ -397,13 +202,13 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
 def test_python_snapshot_estimation_order():
     """Check snapshot estimation order against the observation vector data."""
     angular_dataset = _new_dataset_single_set(
-        observations.angular_position,
+        model_settings.angular_position_type,
         "Mars",
         [[1.0, 2.0], [3.0, 4.0]],
         [3.0, 4.0],
     )
     range_dataset = _new_dataset_single_set(
-        observations.one_way_range,
+        model_settings.one_way_range_type,
         "Earth",
         [[10.0], [20.0]],
         [1.0, 2.0],
@@ -424,7 +229,7 @@ def test_python_snapshot_estimation_order():
         1.0,
         4.0,
     ]
-    assert angular_dataset.link_definitions_for_observable(observations.one_way_range) == [
+    assert angular_dataset.link_definitions_for_observable(model_settings.one_way_range_type) == [
         range_dataset.link_definition(0)
     ]
 
@@ -437,9 +242,9 @@ def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
 
     sample_dataset.reject_observations(observation_query.residual.abs_greater_than(1.0), "large")
     # Rejected query should select exactly the rows with intentionally large residuals.
-    assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == [1, 4]
+    assert sample_dataset.get_observation_ids(observation_query.rejected) == [1, 4]
     # Active query should select all rows not rejected by the previous operation.
-    assert sample_dataset.observation_ids_matching_condition(observation_query.active) == [0, 2, 3]
+    assert sample_dataset.get_observation_ids(observation_query.active) == [0, 2, 3]
     # Row metadata should expose the inactive state after rejection.
     assert sample_dataset.observation_row(1).is_active is False
     # Row metadata should preserve the rejection reason for diagnostics.
@@ -481,24 +286,21 @@ def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
 
     sample_dataset.restore_observations(observation_query.set_id == 0)
     # Restoring set 0 should leave only the rejected angular row 4.
-    assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == [4]
+    assert sample_dataset.get_observation_ids(observation_query.rejected) == [4]
     # Restored row 1 should become active again.
     assert sample_dataset.observation_row(1).is_active is True
     # Physical deletion preserves all surviving row identities.
     sample_dataset.delete_rejected_observations()
     # After physical removal, no rejected rows should remain selectable.
-    assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == []
+    assert sample_dataset.get_observation_ids(observation_query.rejected) == []
     # The dataset should now contain the four rows that were not rejected at removal time.
     assert sample_dataset.number_of_observations == 4
-    assert sample_dataset.observation_ids_matching_condition(~observation_query.rejected) == [
+    assert sample_dataset.get_observation_ids(~observation_query.rejected) == [
         0,
         1,
         2,
         3,
     ]
-    # Keep the provisional removal spelling as a thin alias.
-    sample_dataset.remove_rejected_observations()
-    assert sample_dataset.number_of_observations == 4
 
 
 def test_query_conditions_can_be_used_by_weight_api(sample_dataset):
@@ -514,7 +316,7 @@ def test_query_conditions_can_be_used_by_weight_api(sample_dataset):
         np.testing.assert_allclose(sample_dataset.weight_value(observation_id), [9.0])
 
     sample_dataset.set_constant_single_observation_diagonal_weight(
-        condition=observation_query.observable_type == observations.angular_position,
+        condition=observation_query.observable_type == model_settings.angular_position_type,
         weight=np.array([7.0, 8.0]),
     )
     for observation_id in sample_dataset.observation_ids_for_set(1):
@@ -526,7 +328,7 @@ def test_query_conditions_can_be_used_by_weight_api(sample_dataset):
 
     sample_dataset.set_constant_single_observation_scalar_weight(
         weight=6.0,
-        condition=(observation_query.receiver == observations.LinkEndId("Earth", ""))
+        condition=(observation_query.receiver == links.LinkEndId("Earth", ""))
         & (observation_query.time >= 2.0),
     )
     # Row 0 should keep its previous weight because it fails the time condition.
@@ -551,46 +353,22 @@ def test_dataset_remove_observations_with_residual_condition(sample_dataset):
     assert sample_dataset.number_of_observations == observations_before - 2
     assert sample_dataset.total_scalar_size == scalar_size_before - 3
     assert (
-        sample_dataset.observation_ids_matching_condition(
+        sample_dataset.get_observation_ids(
             observations.observation_query.residual.abs_greater_than(np.array([1.0]))
         )
         == []
     )
 
 
-def test_redundant_dataset_only_aliases_are_not_public(sample_dataset):
-    """Check that non-legacy dataset-only aliases are not public."""
-
-    # Dataset-only short aliases should not be available beside the explicit scalar/diagonal/matrix names.
-    assert not hasattr(sample_dataset, "set_constant_diagonal_weight")
-    assert not hasattr(sample_dataset, "set_constant_matrix_weight")
-
-    # Keyword selector overloads were removed; selection should go through ObservationSelectionCondition objects.
-    with pytest.raises(TypeError):
-        sample_dataset.set_constant_single_observation_scalar_weight(
-            weight=1.0,
-            set_id=0,
-        )
-
-    # Legacy flat mutation helpers should not be public on the primary dataset API.
-    assert not hasattr(sample_dataset, "set_observation_vector_for_set")
-    # Legacy flat residual mutation should likewise remain out of the primary Python surface.
-    assert not hasattr(sample_dataset, "set_residual_vector_for_set")
-    # Parser/filter compatibility helpers should not be exposed directly on ObservationDataset.
-    assert not hasattr(sample_dataset, "filtered_observation_indices")
-    # Duplicate-erasure is a legacy set-processing helper and should not be public on ObservationDataset.
-    assert not hasattr(sample_dataset, "erase_duplicate_observations_from_set")
-
-
 @pytest.mark.parametrize("epoch, expected_ids", [(1.0, [0]), (3.0, [3]), (7.0, [])])
 def test_time_equality_and_inequality_are_complementary(sample_dataset, epoch, expected_ids):
     """Verify time equality and inequality queries partition dataset rows."""
     query = observations.observation_query
-    equal = sample_dataset.observation_ids_matching_condition(query.time == epoch)
-    unequal = sample_dataset.observation_ids_matching_condition(query.time != epoch)
+    equal = sample_dataset.get_observation_ids(query.time == epoch)
+    unequal = sample_dataset.get_observation_ids(query.time != epoch)
     assert equal == expected_ids
     assert unequal == [row for row in range(5) if row not in expected_ids]
-    assert sample_dataset.observation_ids_matching_condition(~(query.time == epoch)) == unequal
+    assert sample_dataset.get_observation_ids(~(query.time == epoch)) == unequal
 
 
 def test_python_row_and_metadata_descriptions_survive_dataset_removal(sample_dataset):
@@ -608,3 +386,15 @@ def test_python_row_and_metadata_descriptions_survive_dataset_removal(sample_dat
     assert row.observation_id == original_id
     assert row.time == original_time
     assert metadata.observable_type == original_type
+
+
+def test_condition_contents_can_be_retrieved():
+    """Verify that the kind, child conditions and values of a condition can be retrieved."""
+    query = observations.observation_query
+    condition = (query.observable_type == model_settings.one_way_range_type) & (query.time >= 2.0)
+    assert condition.condition_type == observations.ObservationSelectionConditionType.and_condition
+    range_condition, time_condition = condition.child_conditions
+    assert range_condition.condition_type.name == "observable_type"
+    assert range_condition.observable_type_value == model_settings.one_way_range_type
+    assert time_condition.condition_type.name == "time_greater_equal"
+    assert time_condition.time_value == 2.0

@@ -35,6 +35,10 @@ namespace estimatable_parameters
 {
 
 //! List of parameters that can be estimated by the orbit determination code.
+/*!
+ * List of parameters that can be estimated by the orbit determination code. When adding a parameter type, it must be added
+ * to isParameterArcWiseDynamicalProperty (and to the other type-classification functions below, where applicable).
+ */
 enum EstimatebleParametersEnum {
     arc_wise_initial_body_state,
     initial_body_state,
@@ -110,7 +114,13 @@ enum EstimatebleParametersEnum {
     normal_accommodation_coefficient,
     tangential_accommodation_coefficient,
     normal_velocity_at_wall_ratio,
-    three_coefficient_radiation_pressure_coefficients
+    three_coefficient_radiation_pressure_coefficients,
+    shared_observation_bias,
+    relative_gravitational_parameter_rate,
+    camera_pointing_correction,
+    ground_station_linear_velocity,
+    displacement_love_number,
+    displacement_shida_number
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -176,6 +186,34 @@ bool isParameterNonTidalGravityFieldVariationProperty( const EstimatebleParamete
 bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType );
 
 bool isParameterClockProperty( const EstimatebleParametersEnum parameterType );
+
+//! Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics
+/*!
+ * Function to determine whether the given parameter is an arc-wise (time-limited) property of the dynamics, for which each
+ * (set of) parameter entries only influences the dynamics in a limited time interval, such as arc-wise empirical
+ * accelerations or desaturation maneuver delta Vs. Such parameters must provide their time intervals of influence (see
+ * EstimatableParameterBase::getTimeIntervalsOfInfluencePerEntry, checked by checkParameterTimeIntervalsOfInfluence), and
+ * their partials must be created with StateDerivativePartial::createArcWiseParameterPartialFunction, so that the
+ * cost of propagating the variational equations does not depend on the total number of arcs. Every parameter type must
+ * be included in this function.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is an arc-wise property of the dynamics
+ */
+bool isParameterArcWiseDynamicalProperty( const EstimatebleParametersEnum parameterType );
+
+//! Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active
+/*!
+ * Function to retrieve the time intervals in which each entry of an arc-wise (piecewise constant) parameter is active.
+ * Arc i is active from arcStartTimes[ i ] to arcStartTimes[ i + 1 ] (the partials w.r.t. the parameter are zero before the
+ * start of the first arc).
+ * \param arcStartTimes Start times of the arcs, with a final entry (beyond numberOfArcs) denoting the end of the last arc
+ * \param numberOfArcs Number of arcs in the parameter
+ * \param entriesPerArc Number of parameter entries for each arc (stored consecutively per arc)
+ * \return Start and end time of the interval in which each parameter entry is active
+ */
+std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInfluence( const std::vector< double >& arcStartTimes,
+                                                                                        const int numberOfArcs,
+                                                                                        const int entriesPerArc = 1 );
 
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
@@ -343,7 +381,7 @@ public:
      */
     virtual int getConstraintSize( )
     {
-        return 0;
+        return constraintStateMultiplier_.rows( );
     }
 
     //! Function to retrieve multiplier for parameter linear constraint
@@ -353,7 +391,7 @@ public:
      */
     virtual Eigen::MatrixXd getConstraintStateMultipler( )
     {
-        return Eigen::MatrixXd::Zero( 0, 0 );
+        return constraintStateMultiplier_;
     }
 
     //! Function to retrieve right-hand side for parameter linear constraint
@@ -363,10 +401,47 @@ public:
      */
     virtual Eigen::VectorXd getConstraintRightHandSide( )
     {
-        return Eigen::VectorXd::Zero( 0 );
+        return Eigen::VectorXd::Zero( constraintStateMultiplier_.rows( ) );
+    }
+
+    //! Function to set multiplier G of linear constraint G * dx = 0 on parameter correction dx (one constraint per row)
+    void setConstraintStateMultiplier( const Eigen::MatrixXd& constraintStateMultiplier )
+    {
+        if( constraintStateMultiplier.rows( ) > 0 )
+        {
+            if( constraintStateMultiplier.cols( ) != getParameterSize( ) )
+            {
+                throw std::runtime_error( "Error when setting parameter correction constraint, size (" +
+                                          std::to_string( constraintStateMultiplier.cols( ) ) + ") is not equal to parameter size (" +
+                                          std::to_string( getParameterSize( ) ) + ")" );
+            }
+            if( !constraintStateMultiplier.allFinite( ) || ( constraintStateMultiplier.rowwise( ).norm( ).array( ) == 0.0 ).any( ) )
+            {
+                throw std::runtime_error( "Error when setting parameter correction constraint, constraint must be finite and non-zero" );
+            }
+            if( parameterName_.first == initial_rotational_body_state )
+            {
+                std::cerr << "Warning when setting parameter correction constraint on " << getParameterDescription( )
+                          << " Constraint is not applied, only the quaternion norm constraint is used for this parameter." << std::endl;
+            }
+        }
+        constraintStateMultiplier_ = constraintStateMultiplier;
     }
 
     virtual void throwExceptionIfNotFullyDefined( ) {}
+
+    //! Function to retrieve the time intervals in which each parameter entry can influence the dynamics
+    /*!
+     * Function to retrieve the time intervals in which each parameter entry can influence the dynamics, used to determine
+     * which sensitivity matrix columns are zero in a given propagation arc. Overridden for parameters with a limited
+     * time of influence (e.g. arc-wise parameters).
+     * \return Start and end time of the interval in which each parameter entry can influence the dynamics. An empty
+     * vector (default) denotes that all entries can influence the dynamics at all times.
+     */
+    virtual std::vector< std::pair< double, double > > getTimeIntervalsOfInfluencePerEntry( )
+    {
+        return std::vector< std::pair< double, double > >( );
+    }
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > getCustomPartialSettings( )
     {
@@ -407,6 +482,9 @@ protected:
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
 
+    //! Multiplier G of linear constraint G * dx = 0 on parameter correction dx (no constraint by default)
+    Eigen::MatrixXd constraintStateMultiplier_;
+
     void checkCustomPartialSettings( )
     {
         for( unsigned int i = 0; i < customPartialSettings_.size( ); i++ )
@@ -427,6 +505,37 @@ protected:
         }
     }
 };
+
+//! Function to constrain the correction to an estimated parameter to be orthogonal to a given direction
+/*!
+ * Function to constrain the correction to an estimated parameter to be orthogonal to a given direction, for instance the weak
+ * direction of the covariance of an initial state, to compute points along the line of variations (Milani et al., 2005).
+ * Any constraint previously set on the parameter is replaced. Constraints cannot be combined with consider parameters, and
+ * are not applied to an initial rotational state (a warning is given), which only uses its quaternion norm constraint.
+ * \param parameter Parameter to constrain
+ * \param constraintDirection Direction to which the parameter correction is to be orthogonal
+ */
+inline void setParameterCorrectionConstraint( const std::shared_ptr< EstimatableParameterBase > parameter,
+                                              const Eigen::VectorXd& constraintDirection )
+{
+    parameter->setConstraintStateMultiplier( constraintDirection.transpose( ) );
+}
+
+//! Function to remove the constraint set by setParameterCorrectionConstraint
+inline void removeParameterCorrectionConstraint( const std::shared_ptr< EstimatableParameterBase > parameter )
+{
+    parameter->setConstraintStateMultiplier( Eigen::MatrixXd::Zero( 0, 0 ) );
+}
+
+//! Function to check whether the time intervals of influence of a parameter are consistent with its type
+/*!
+ * Function to check whether the time intervals of influence of a parameter (see
+ * EstimatableParameterBase::getTimeIntervalsOfInfluencePerEntry) are consistent with its type: they must be provided
+ * for each entry of an arc-wise parameter (see isParameterArcWiseDynamicalProperty), and not for any other parameter.
+ * An error is thrown if this is not the case.
+ * \param parameter Parameter that is to be checked
+ */
+void checkParameterTimeIntervalsOfInfluence( const std::shared_ptr< EstimatableParameterBase > parameter );
 
 template< typename ParameterType >
 Eigen::VectorXd convertEstimatableParameterToVector( const ParameterType& parameterValue )

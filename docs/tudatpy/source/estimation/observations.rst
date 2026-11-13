@@ -1,141 +1,243 @@
 .. _observations:
 
 ``observations``
-================
+=====================
 
-This module provides the objects and functions used to store, inspect, select,
-and process observations for estimation. The central container is
-:class:`~tudatpy.estimation.observations.ObservationDataset`, which stores
-observation events together with their link definitions, times, residuals,
-dependent variables, and weights. Observation events with common metadata are
-grouped into logical sets, while vector observables remain single events with
-multiple scalar components.
+This module contains the objects in Tudat that are used to store and process observations. The :class:`~tudatpy.estimation.observations.ObservationDataset` is the object in which a complete set of observations (e.g. all observations to be used in a single estimation) is stored, together with their times, link ends, residuals, weights and dependent variables. Each observation is a measurement at a single time, which may have several components (e.g. right ascension and declination). Observations with a common observable type, link ends, etc. are grouped into observation sets. When using simulated data, an observation dataset is created with :func:`~tudatpy.estimation.observations.simulate_observation_dataset`; real data is converted from :ref:`tracking_data` objects with :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`. The residuals and dependent variables are normally computed during an estimation (see :ref:`estimation_analysis`), but can also be computed outside an estimation loop using the function :func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables`.
 
-Selections are expressed with
-:data:`~tudatpy.estimation.observations.observation_query` and may be used to
-inspect data, assign weights, reject or restore observations, and create reduced
-datasets. A detailed description of the observation-data workflow will be
-provided on the `ObservationDataset user guide page <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-dataset.html>`_.
+Most functions of the :class:`~tudatpy.estimation.observations.ObservationDataset` act on the observations selected by a condition, which is created with :data:`~tudatpy.estimation.observations.observation_query` (see :ref:`below <observation_query>`). Such conditions are used to retrieve data (e.g. observation times, residuals or weights), to set weights, to reject observations (rejected observations remain in the dataset, but are not used in the estimation), or to create a new dataset with a subset of the observations. The weights may be diagonal, or may contain correlations between the components of an observation, between the observations in a set, or between observations in different sets.
 
-User-defined numerical metadata is stored separately as
-``dataset.numerical_observation_metadata[key][observation_id]``. Use
-``add_numerical_observation_metadata(key, observation_ids, values)`` to attach
-values and ``get_numerical_observation_metadata(key, observation_ids)`` to
-retrieve a vector in an explicit observation-ID order. Sorting and rejection
-retain these values; copying and transfers preserve them, remapping IDs when
-needed. Physical removal deletes the corresponding metadata entries. Metadata
-does not change weights or observation models.
+The :class:`~tudatpy.estimation.observations.ObservationCollection` and :class:`~tudatpy.estimation.observations.SingleObservationSet` classes, and the functions that use them, are deprecated, but remain available (see :ref:`below <observation_collection_deprecated>`). Objects of these classes can be converted to and from an :class:`~tudatpy.estimation.observations.ObservationDataset`. Note that the conversion to an observation collection keeps only the diagonal of the weight matrix, and is not possible for a dataset that contains rejected observations.
 
-``dataset.reject_observations(condition, sigma_limit=5.0, reason="...")`` rejects
-an active selected observation when any residual component exceeds five times
-its measurement uncertainty. Residuals and weights remain unchanged. For
-correlated observations, the uncertainty includes the full inverse set weight
-matrix. Omitting ``sigma_limit`` retains selection-only rejection.
 
-``ObservationVectorData.inverse_weight_matrix_for_observation(observation_id)``
-returns a measurement covariance block using the complete correlated set weights,
-including rejected observations. This uses the existing covariance cache.
 
-Translational ephemerides created or reset from tracking supplementary data use
-linear interpolation with silent extrapolation outside the supplied history.
-Their original frame origin is preserved, including Earth's origin for Gaia.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules
+
+   /estimation/observations/observations_geometry
+   /estimation/observations/observations_processing
+   /estimation/observations/observation_corrections
+
 
 Functions
 ---------
-
 .. currentmodule:: tudatpy.estimation.observations
 
 .. autosummary::
 
-   create_observation_dataset_from_tracking_data
-   create_observation_dataset_from_arrays
-   create_single_type_observation_dataset_from_arrays
-   create_pseudo_observation_dataset_and_models
-   create_pseudo_observation_dataset_and_models_from_observation_times
    simulate_observation_dataset
-   create_compressed_doppler_dataset
-   observation_simulation_settings_from_dataset
-   compute_residuals_and_dependent_variables
+
+   create_observation_dataset_from_tracking_data
+
    set_tracking_supplementary_data_in_bodies
 
-.. autofunction:: create_observation_dataset_from_tracking_data
-.. autofunction:: create_observation_dataset_from_arrays
-.. autofunction:: create_single_type_observation_dataset_from_arrays
-.. autofunction:: create_pseudo_observation_dataset_and_models
-.. autofunction:: create_pseudo_observation_dataset_and_models_from_observation_times
-.. autofunction:: simulate_observation_dataset
-.. autofunction:: create_compressed_doppler_dataset
-.. autofunction:: observation_simulation_settings_from_dataset
-.. autofunction:: compute_residuals_and_dependent_variables
-.. autofunction:: set_tracking_supplementary_data_in_bodies
+   compute_residuals_and_dependent_variables
+
+   observation_simulation_settings_from_dataset
+
+   create_observation_dataset_from_arrays
+
+   create_single_type_observation_dataset_from_arrays
+
+   create_pseudo_observation_dataset_and_models
+
+   create_pseudo_observation_dataset_and_models_from_observation_times
+
+   create_compressed_doppler_dataset
+
+   create_count_time_compressed_doppler_dataset
+
+
+.. autofunction:: tudatpy.estimation.observations.simulate_observation_dataset
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_tracking_data
+
+.. autofunction:: tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies
+
+.. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
+
+.. autofunction:: tudatpy.estimation.observations.observation_simulation_settings_from_dataset
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_arrays
+
+.. autofunction:: tudatpy.estimation.observations.create_single_type_observation_dataset_from_arrays
+
+.. autofunction:: tudatpy.estimation.observations.create_pseudo_observation_dataset_and_models
+
+.. autofunction:: tudatpy.estimation.observations.create_pseudo_observation_dataset_and_models_from_observation_times
+
+.. autofunction:: tudatpy.estimation.observations.create_compressed_doppler_dataset
+
+.. autofunction:: tudatpy.estimation.observations.create_count_time_compressed_doppler_dataset
+
 
 Classes
 -------
+.. currentmodule:: tudatpy.estimation.observations
 
 .. autosummary::
 
    ObservationDataset
+
    ObservationSelectionCondition
+
    ObservationSelectionConditionType
+
    ObservationVectorData
+
    ObservationSetMetadata
+
    ObservationDatasetRow
+
    ObservationScalarComponentRow
 
-.. autoclass:: ObservationDataset
+.. autoclass:: tudatpy.estimation.observations.ObservationDataset
    :members:
    :special-members: __init__
 
-.. autoclass:: ObservationSelectionCondition
+.. autoclass:: tudatpy.estimation.observations.ObservationSelectionCondition
+   :members:
+   :special-members: __init__
+
+.. autoclass:: tudatpy.estimation.observations.ObservationSelectionConditionType
    :members:
 
-.. autoclass:: ObservationSelectionConditionType
+.. autoclass:: tudatpy.estimation.observations.ObservationVectorData
    :members:
 
-.. autoclass:: ObservationVectorData
+.. autoclass:: tudatpy.estimation.observations.ObservationSetMetadata
    :members:
 
-.. autoclass:: ObservationSetMetadata
+.. autoclass:: tudatpy.estimation.observations.ObservationDatasetRow
    :members:
 
-.. autoclass:: ObservationDatasetRow
+.. autoclass:: tudatpy.estimation.observations.ObservationScalarComponentRow
    :members:
 
-.. autoclass:: ObservationScalarComponentRow
-   :members:
+
+.. _observation_query:
 
 Observation query
 -----------------
 
-Use :data:`observation_query` to build row-level
-:class:`ObservationSelectionCondition` objects. Conditions may be combined with
-``&`` and ``|`` and negated with ``~``. Parenthesize comparisons, and do not use
-Python's ``and``, ``or``, or ``not`` operators with conditions.
+Observations in an :class:`~tudatpy.estimation.observations.ObservationDataset` are selected with conditions, created by comparing an attribute of ``observation_query`` to a value. For instance, the following retrieves the residuals of the observations received at the DSS-14 ground station that are not rejected:
 
-.. data:: observation_query
+.. code-block:: python
 
-   Query builder exposing selectors for observable type, link definition, link
-   ends, set ID, time, active/rejected status, observations, residuals, and
-   dependent variables.
+    from tudatpy.estimation.observable_models_setup import links
+    from tudatpy.estimation.observations import observation_query
 
-Legacy compatibility
---------------------
+    station = links.body_reference_point_link_end_id("Earth", "DSS-14")
+    condition = (observation_query.receiver == station) & observation_query.active
+    residuals = observation_dataset.get_residuals(condition, ordering="estimation")
 
-:class:`SingleObservationSet` and :class:`ObservationCollection` remain
-available as compatibility facades. New code should use
-:class:`ObservationDataset` and condition-based selection.
+.. autodata:: tudatpy.estimation.observations.observation_query
+   :annotation:
 
-.. autoclass:: SingleObservationSet
+
+.. _observation_collection_deprecated:
+
+Observation collections (deprecated)
+------------------------------------
+
+The :class:`~tudatpy.estimation.observations.ObservationCollection` (composed of a list of :class:`~tudatpy.estimation.observations.SingleObservationSet` objects, each of which stores observations of a common type, link ends, etc.) is deprecated, and replaced by the :class:`~tudatpy.estimation.observations.ObservationDataset`. The classes and functions below remain available for existing code. Observation collections are converted to and from an observation dataset with :func:`~tudatpy.estimation.observations.create_observation_dataset_from_collection` and :func:`~tudatpy.estimation.observations.create_observation_collection_from_dataset`. The observation sets in a collection are selected, filtered and split with the functionality in :ref:`observations_processing`.
+
+Functions
+^^^^^^^^^
+.. currentmodule:: tudatpy.estimation.observations
+
+.. autosummary::
+
+   create_observation_dataset_from_collection
+
+   create_observation_dataset_from_single_observation_set
+
+   create_observation_collection_from_dataset
+
+   create_single_observation_set_from_dataset
+
+   create_single_observation_set
+
+   create_filtered_observation_set
+
+   split_observation_set
+
+   create_filtered_observation_collection
+
+   merge_observation_collections
+
+   split_observation_collection
+
+   create_new_observation_collection
+
+   create_observation_collection_from_tracking_data
+
+   create_count_time_compressed_doppler_collection
+
+   create_observation_collection_from_arrays
+
+   create_single_type_observation_collection_from_arrays
+
+   simulate_observations
+
+   simulate_pseudo_observations
+
+   create_compressed_doppler_collection
+
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_collection
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_single_observation_set
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_dataset
+
+.. autofunction:: tudatpy.estimation.observations.create_single_observation_set_from_dataset
+
+.. autofunction:: tudatpy.estimation.observations.create_single_observation_set
+
+.. autofunction:: tudatpy.estimation.observations.create_filtered_observation_set
+
+.. autofunction:: tudatpy.estimation.observations.split_observation_set
+
+.. autofunction:: tudatpy.estimation.observations.merge_observation_collections
+
+.. autofunction:: tudatpy.estimation.observations.create_filtered_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.split_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.create_new_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_tracking_data
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_arrays
+
+.. autofunction:: tudatpy.estimation.observations.create_single_type_observation_collection_from_arrays
+
+.. autofunction:: tudatpy.estimation.observations.simulate_observations
+
+.. autofunction:: tudatpy.estimation.observations.simulate_pseudo_observations
+
+.. autofunction:: tudatpy.estimation.observations.create_compressed_doppler_collection
+
+.. autofunction:: tudatpy.estimation.observations.create_count_time_compressed_doppler_collection
+
+
+Classes
+^^^^^^^
+.. currentmodule:: tudatpy.estimation.observations
+
+.. autosummary::
+
+   SingleObservationSet
+
+   ObservationCollection
+
+.. autoclass:: tudatpy.estimation.observations.SingleObservationSet
    :members:
+   :special-members: __init__
 
-.. autoclass:: ObservationCollection
+.. autoclass:: tudatpy.estimation.observations.ObservationCollection
    :members:
-
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   /estimation/observations/observations_geometry
-   /estimation/observations/observation_corrections
+   :special-members: __init__

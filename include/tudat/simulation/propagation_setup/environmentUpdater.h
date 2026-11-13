@@ -105,7 +105,7 @@ public:
         }
 
         // Set integrated state variables in environment.
-        setIntegratedStatesInEnvironment( integratedStatesToSet );
+        setIntegratedStatesInEnvironment( integratedStatesToSet, currentTime );
 
         // Set current state from environment for override settings setIntegratedStatesFromEnvironment
         setStatesFromEnvironment( setIntegratedStatesFromEnvironment, currentTime );
@@ -126,9 +126,11 @@ private:
      * convertCurrentStateToGlobalRepresentationPerType function of the
      * DynamicsStateDerivativeModel.
      * \param integratedStatesToSet Integrated states which are to be set in environment.
+     * \param currentTime Time at which the integrated states are set.
      */
     void setIntegratedStatesInEnvironment(
-            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet )
+            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet,
+            const TimeType currentTime )
     {
         // Iterate over state types and set states in environment
         for( integratedStateIterator_ = integratedStatesToSet.begin( ); integratedStateIterator_ != integratedStatesToSet.end( );
@@ -138,15 +140,19 @@ private:
             {
                 case translational_state: {
                     // Set translational states for bodies provided as input.
-                    for( unsigned int i = 0; i < integratedStates_[ translational_state ].size( ); i++ )
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
+                            integratedStates_.at( translational_state );
+                    for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
-                        bodyList_.at( std::get< 0 >( integratedStates_[ translational_state ][ i ] ) )
-                                ->template setTemplatedState< StateScalarType >( integratedStateIterator_->second.segment( i * 6, 6 ) );
+                        // Associate state with current time, so that bodies with an ephemeris defined w.r.t. this body use it
+                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )
+                                ->template setPropagatedState< StateScalarType, TimeType >(
+                                        integratedStateIterator_->second.segment( i * 6, 6 ), currentTime );
                     }
                     break;
                 }
                 case rotational_state: {
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
                             integratedStates_.at( rotational_state );
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
@@ -158,7 +164,7 @@ private:
                 }
                 case body_mass_state: {
                     // Set mass for bodies provided as input.
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedMass =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedMass =
                             integratedStates_.at( body_mass_state );
 
                     for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
@@ -171,7 +177,7 @@ private:
                 case proper_time:
                     break;
                 case custom_state: {
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedCustomStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedCustomStates =
                             integratedStates_.at( custom_state );
                     int currentStartIndex = 0;
                     for( unsigned int i = 0; i < bodiesWithIntegratedCustomStates.size( ); i++ )
@@ -237,17 +243,19 @@ private:
             {
                 case translational_state: {
                     // Iterate over all integrated translational states.
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
                             integratedStates_[ translational_state ];
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
+                        // Ensure that state is taken from ephemeris, not from a previously set propagated state
+                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->recomputeStateOnNextCall( );
                         bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )
                                 ->template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
                     }
                     break;
                 }
                 case rotational_state: {
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
                             integratedStates_.at( rotational_state );
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
@@ -258,7 +266,7 @@ private:
                 }
                 case body_mass_state: {
                     // Iterate over all integrated masses.
-                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                    const std::vector< std::tuple< std::string, std::string, PropagatorType > >& bodiesWithIntegratedStates =
                             integratedStates_.at( body_mass_state );
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {

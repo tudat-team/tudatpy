@@ -15,6 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/observation_models/observationBias.h"
 
 namespace tudat
 {
@@ -218,6 +219,55 @@ public:
 
     //! Maximum order of field that is to be estimated.
     int maximumOrder_;
+};
+
+//! Settings for a bias shared by all models matching an observable and one link end.
+class SharedObservationBiasEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Store the selection and arc settings, rejecting unsupported or inconsistent combinations.
+    SharedObservationBiasEstimatableParameterSettings(
+            observation_models::ObservationBiasTypes biasType,
+            observation_models::ObservableType observableType,
+            observation_models::LinkEndType linkEndType,
+            const observation_models::LinkEndId& linkEndId,
+            const std::vector< double >& arcStartTimes = {},
+            observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end ):
+        EstimatableParameterSettings( linkEndId.bodyName_, shared_observation_bias, linkEndId.getReferencePointName( ) ),
+        biasType_( biasType ), observableType_( observableType ), linkEndType_( linkEndType ), linkEndId_( linkEndId ),
+        arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd )
+    {
+        // Validate at the public factory boundary, using the same rules as the parameter.
+        validate( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Validate settings without constructing an estimatable parameter or binding any models.
+    static void validate( observation_models::ObservationBiasTypes biasType,
+                          observation_models::LinkEndType linkEndType,
+                          const observation_models::LinkEndId& linkEndId,
+                          const std::vector< double >& arcStartTimes,
+                          observation_models::LinkEndType timeLinkEnd )
+    {
+        observation_models::validateSharedObservationBiasSettings( biasType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+    }
+
+    //! Bias model type that each selected observation model must contain.
+    observation_models::ObservationBiasTypes biasType_;
+
+    //! Observable type for which the bias parameter is shared.
+    observation_models::ObservableType observableType_;
+
+    //! Link-end role used to select matching observation links.
+    observation_models::LinkEndType linkEndType_;
+
+    //! Body and reference point required at the selected link-end role.
+    observation_models::LinkEndId linkEndId_;
+
+    //! Shared arc boundaries; empty for constant biases.
+    std::vector< double > arcStartTimes_;
+
+    //! Event time used for arc selection; unidentified_link_end defaults to linkEndType_.
+    observation_models::LinkEndType timeLinkEnd_;
 };
 
 //! Class to define settings for estimation of constant observation biases (absolute or relative)
@@ -1350,6 +1400,19 @@ inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition( std
     return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position );
 }
 
+//! Create settings for one bias vector shared by all observation links matching the selector.
+inline std::shared_ptr< EstimatableParameterSettings > sharedObservationBias(
+        observation_models::ObservationBiasTypes biasType,
+        observation_models::ObservableType observableType,
+        observation_models::LinkEndType linkEndType,
+        const observation_models::LinkEndId& linkEndId,
+        const std::vector< double >& arcStartTimes = {},
+        observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end )
+{
+    return std::make_shared< SharedObservationBiasEstimatableParameterSettings >(
+            biasType, observableType, linkEndType, linkEndId, arcStartTimes, timeLinkEnd );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > observationBias( const observation_models::LinkDefinition& linkEnds,
                                                                         const observation_models::ObservableType observableType )
 {
@@ -1549,6 +1612,44 @@ inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition( c
     return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > groundStationLinearVelocity( const std::string& body,
+                                                                                    const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, ground_station_linear_velocity, groundStationName );
+}
+
+//! Class for settings of the displacement Love number h_n or Shida number l_n of the basic tidal deformation of a body
+class DisplacementLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    DisplacementLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                        const std::vector< int >& degrees,
+                                                        const bool useShidaNumber ):
+        EstimatableParameterSettings( associatedBody, useShidaNumber ? displacement_shida_number : displacement_love_number ),
+        degrees_( degrees )
+    {}
+
+    //! Degree of each estimated number
+    std::vector< int > degrees_;
+};
+
+//! Function to create settings for the displacement Love number h_n of each of the given degrees of a body
+inline std::shared_ptr< EstimatableParameterSettings > displacementLoveNumber( const std::string& body, const std::vector< int >& degrees )
+{
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, false );
+}
+
+//! Function to create settings for the displacement Shida number l_n of each of the given degrees of a body
+inline std::shared_ptr< EstimatableParameterSettings > displacementShidaNumber( const std::string& body, const std::vector< int >& degrees )
+{
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, true );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > cameraPointingCorrection( const std::string& body, const std::string& cameraName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, camera_pointing_correction, cameraName );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime( const std::string& body,
                                                                                       const std::vector< std::string >& deformingBodies )
 {
@@ -1675,6 +1776,11 @@ inline std::shared_ptr< EstimatableParameterSettings > scaledLongitudeLibrationA
 inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const std::string bodyName, const std::string centralBodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > relativeGravitationalParameterRate( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, relative_gravitational_parameter_rate );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetDirectionScaling( const std::string targetName,

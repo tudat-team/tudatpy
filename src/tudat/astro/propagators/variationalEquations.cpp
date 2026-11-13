@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/variationalEquations.h"
 #include "tudat/astro/propagators/rotationalMotionQuaternionsStateDerivative.h"
 
@@ -29,29 +30,6 @@ void VariationalEquations::setBodyStatePartialMatrix( )
 {
     // Initialize partial matrix
     variationalMatrix_.setZero( );
-
-    if( dynamicalStatesToEstimate_.count( propagators::translational_state ) > 0 )
-    {
-        int startIndex = stateTypeStartIndices_.at( propagators::translational_state );
-        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::translational_state ).size( ); i++ )
-        {
-            variationalMatrix_.block( startIndex + i * 6, startIndex + i * 6 + 3, 3, 3 ).setIdentity( );
-        }
-    }
-
-    if( dynamicalStatesToEstimate_.count( propagators::rotational_state ) > 0 )
-    {
-        Eigen::VectorXd rotationalStates = currentStatesPerTypeInConventionalRepresentation_.at( propagators::rotational_state );
-
-        int startIndex = stateTypeStartIndices_.at( propagators::rotational_state );
-        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::rotational_state ).size( ); i++ )
-        {
-            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7, 4, 4 ) =
-                    getQuaterionToQuaternionRateMatrix( rotationalStates.segment( 7 * i + 4, 3 ) );
-            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7 + 4, 4, 3 ) =
-                    getAngularVelocityToQuaternionRateMatrix( rotationalStates.segment( 7 * i, 4 ) );
-        }
-    }
 
     // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
     for( std::map< IntegratedStateType,
@@ -79,10 +57,36 @@ void VariationalEquations::setBodyStatePartialMatrix( )
         }
     }
 
+    // Add partials w.r.t. state of body propagated w.r.t. other propagated body to partials w.r.t. state of its central body.
+    // Both position and velocity are added, since the absolute state of the body is its relative state plus the central body
+    // state. This is done before setting the kinematic (r'=v) entries below, which do not depend on the central body state.
     for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
     {
-        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 3 ) +=
-                variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).first, totalDynamicalStateSize_, 3 );
+        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 6 ) +=
+                variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).first, totalDynamicalStateSize_, 6 );
+    }
+
+    if( dynamicalStatesToEstimate_.count( propagators::translational_state ) > 0 )
+    {
+        int startIndex = stateTypeStartIndices_.at( propagators::translational_state );
+        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::translational_state ).size( ); i++ )
+        {
+            variationalMatrix_.block( startIndex + i * 6, startIndex + i * 6 + 3, 3, 3 ).setIdentity( );
+        }
+    }
+
+    if( dynamicalStatesToEstimate_.count( propagators::rotational_state ) > 0 )
+    {
+        const Eigen::VectorXd& rotationalStates = currentStatesPerTypeInConventionalRepresentation_.at( propagators::rotational_state );
+
+        int startIndex = stateTypeStartIndices_.at( propagators::rotational_state );
+        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::rotational_state ).size( ); i++ )
+        {
+            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7, 4, 4 ) =
+                    getQuaterionToQuaternionRateMatrix( rotationalStates.segment( 7 * i + 4, 3 ) );
+            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7 + 4, 4, 3 ) =
+                    getAngularVelocityToQuaternionRateMatrix( rotationalStates.segment( 7 * i, 4 ) );
+        }
     }
 
     for( unsigned int i = 0; i < inertiaTensorsForMultiplication_.size( ); i++ )
@@ -108,6 +112,20 @@ void VariationalEquations::clearPartials( )
             }
         }
     }
+}
+
+//! Function to set the bodies with an ephemeris defined w.r.t. a body with an estimated translational state
+void VariationalEquations::setEphemerisDependentBodies( const std::map< std::string, std::string >& ephemerisOrigins )
+{
+    std::vector< std::string > estimatedBodies;
+    if( dynamicalStatesToEstimate_.count( translational_state ) > 0 )
+    {
+        for( auto estimatedBody : dynamicalStatesToEstimate_.at( translational_state ) )
+        {
+            estimatedBodies.push_back( estimatedBody.first );
+        }
+    }
+    ephemerisDependentBodies_ = ephemerides::getEphemerisDependentBodies( ephemerisOrigins, estimatedBodies );
 }
 
 //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
@@ -137,18 +155,36 @@ void VariationalEquations::setStatePartialFunctionList( )
                     // Iterate over all bodies to see if body exerting acceleration is also to be estimated (cross-terms)
                     for( unsigned int k = 0; k < estimatedStateIterator->second.size( ); k++ )
                     {
-                        currentDerivativeFunction =
-                                stateDerivativeTypeIterator_->second.at( i ).at( j )->getDerivativeFunctionWrtStateOfIntegratedBody(
-                                        estimatedStateIterator->second.at( k ), estimatedStateIterator->first );
-
-                        // If function is not-empty: add to list.
-                        if( currentDerivativeFunction.second != 0 )
+                        // Partials w.r.t. bodies with an ephemeris defined w.r.t. the current estimated body are added to those
+                        // w.r.t. the estimated body itself, since their state is shifted by the same amount
+                        std::vector< std::pair< std::string, std::string > > bodiesWithCurrentState = { estimatedStateIterator->second.at(
+                                k ) };
+                        if( estimatedStateIterator->first == translational_state )
                         {
-                            currentBodyPartialList.insert(
-                                    std::make_pair( std::make_pair( k * getSingleIntegrationSize( estimatedStateIterator->first ) +
-                                                                            stateTypeStartIndices_.at( estimatedStateIterator->first ),
-                                                                    getSingleIntegrationSize( estimatedStateIterator->first ) ),
-                                                    currentDerivativeFunction.first ) );
+                            for( auto dependentBodyIterator : ephemerisDependentBodies_ )
+                            {
+                                if( dependentBodyIterator.second == estimatedStateIterator->second.at( k ).first )
+                                {
+                                    bodiesWithCurrentState.push_back( std::make_pair( dependentBodyIterator.first, "" ) );
+                                }
+                            }
+                        }
+
+                        for( unsigned int l = 0; l < bodiesWithCurrentState.size( ); l++ )
+                        {
+                            currentDerivativeFunction =
+                                    stateDerivativeTypeIterator_->second.at( i ).at( j )->getDerivativeFunctionWrtStateOfIntegratedBody(
+                                            bodiesWithCurrentState.at( l ), estimatedStateIterator->first );
+
+                            // If function is not-empty: add to list.
+                            if( currentDerivativeFunction.second != 0 )
+                            {
+                                currentBodyPartialList.insert(
+                                        std::make_pair( std::make_pair( k * getSingleIntegrationSize( estimatedStateIterator->first ) +
+                                                                                stateTypeStartIndices_.at( estimatedStateIterator->first ),
+                                                                        getSingleIntegrationSize( estimatedStateIterator->first ) ),
+                                                        currentDerivativeFunction.first ) );
+                            }
                         }
                     }
                 }

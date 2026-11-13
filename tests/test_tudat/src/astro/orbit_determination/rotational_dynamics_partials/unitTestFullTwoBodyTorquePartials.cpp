@@ -65,7 +65,8 @@ SystemOfBodies createTwoBodyTorquePartialTestSystem( const double testTime,
                                                      const std::string& bodyUndergoingTorqueName,
                                                      const std::string& bodyExertingTorqueName,
                                                      const bool useArbitraryRotationStates,
-                                                     const bool useZeroScaledMeanMomentOfInertia = false )
+                                                     const bool useZeroScaledMeanMomentOfInertia = false,
+                                                     const double quaternionSign = 1.0 )
 {
     SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
     bodies.createEmptyBody( bodyUndergoingTorqueName );
@@ -177,6 +178,8 @@ SystemOfBodies createTwoBodyTorquePartialTestSystem( const double testTime,
                         Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitX( ) ) * Eigen::AngleAxisd( 0.45, Eigen::Vector3d::UnitY( ) ) *
                         Eigen::AngleAxisd( -0.5, Eigen::Vector3d::UnitZ( ) ) ) );
 
+        arbitraryRotationStateOfBodyUndergoingTorque.segment( 0, 4 ) *= quaternionSign;
+        arbitraryRotationStateOfBodyExertingTorque.segment( 0, 4 ) *= quaternionSign;
         bodyUndergoingTorque->setCurrentRotationalStateToLocalFrame( arbitraryRotationStateOfBodyUndergoingTorque );
         bodyExertingTorque->setCurrentRotationalStateToLocalFrame( arbitraryRotationStateOfBodyExertingTorque );
     }
@@ -955,10 +958,12 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
     const std::string bodyExertingTorqueName = "BodyB";
     const double testTime = 1250.0;
 
-    for( const bool useArbitraryRotationStates : { false, true } )
+    // Aligned and arbitrary orientations, the latter also with the negatives of the quaternions of both bodies
+    for( const double quaternionSign : { 0.0, 1.0, -1.0 } )
     {
+        const bool useArbitraryRotationStates = ( quaternionSign != 0.0 );
         SystemOfBodies bodies = createTwoBodyTorquePartialTestSystem(
-                testTime, bodyUndergoingTorqueName, bodyExertingTorqueName, useArbitraryRotationStates );
+                testTime, bodyUndergoingTorqueName, bodyExertingTorqueName, useArbitraryRotationStates, false, quaternionSign );
         std::shared_ptr< Body > bodyUndergoingTorque = bodies.at( bodyUndergoingTorqueName );
         std::shared_ptr< Body > bodyExertingTorque = bodies.at( bodyExertingTorqueName );
 

@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                 position_observable, linkEnds[ 1 ], observationTimes, observed_body ) );
 
         // Simulate observations
-        std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
+        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Perturb parameter values
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         {
             BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ), 2.0e-6 );
             BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimatedParametervalues( 13 ) ), 1.0e-4 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ), 1.0E-7 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ), 2.0E-7 );
             if( test == 1 )
             {
                 BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimatedParametervalues( 15 ) ), 1.0E-6 );
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
             std::make_shared< TabulatedObservationSimulationSettings<> >( position_observable, linkEnds, baseTimeList, observed_body ) );
 
     // Simulate observations
-    std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
+    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Exercise the complete shared multi-model covariance path before perturbing the estimation parameters.

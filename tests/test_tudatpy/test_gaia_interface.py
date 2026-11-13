@@ -30,6 +30,7 @@ from tudatpy.astro.element_conversion import j2000_to_eclipj2000
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import get_default_body_settings, create_system_of_bodies
 from tudatpy.estimation import observations
+from tudatpy.estimation.observable_models_setup import links
 from tudatpy.interface import spice
 from tudatpy.math.interpolators import (
     lagrange_interpolation,
@@ -366,9 +367,7 @@ def test_corrections_are_deferred_and_preserve_source_data(gaia_astrometry, bodi
         )
 
     for number in TEST_ASTEROID_MPC:
-        condition = observations.observation_query.transmitter == observations.LinkEndId(
-            str(number), ""
-        )
+        condition = observations.observation_query.transmitter == links.LinkEndId(str(number), "")
         raw_angles = np.asarray(raw.get_data(condition, fields=("observations",))["observations"])
         corrected_angles = np.asarray(
             corrected.get_data(condition, fields=("observations",))["observations"]
@@ -444,9 +443,7 @@ def test_converter_matches_existing_correction_formulas(gaia_astrometry, bodies)
         tracking, bodies, apply_corrections=True
     )
     for number in TEST_ASTEROID_MPC:
-        condition = observations.observation_query.transmitter == observations.LinkEndId(
-            str(number), ""
-        )
+        condition = observations.observation_query.transmitter == links.LinkEndId(str(number), "")
         source = raw.get_data(condition, fields=("times", "observations"))
         angles = np.asarray(source["observations"])
         inputs = np.column_stack(([float(epoch) for epoch in source["times"]], angles))
@@ -587,7 +584,7 @@ def test_covariance_matrix_variance_consistency(gaia_astrometry):
 def test_covariance_weight_matrix_consistency(observation_dataset, gaia_astrometry):
     """Test that the covariance matrix computed from the astrometry table is consistent with weight matrix
     passed to observation_dataset"""
-    condition = observations.observation_query.transmitter == observations.LinkEndId(
+    condition = observations.observation_query.transmitter == links.LinkEndId(
         str(TEST_ASTEROID_MPC[0]), ""
     )
     weight_matrix = observation_dataset.get_weight_matrix(condition).toarray()
@@ -606,7 +603,7 @@ def test_covariance_weight_matrix_consistency(observation_dataset, gaia_astromet
 def test_covariance_matrix_nonzero_entries(observation_dataset, astrometry_table):
     """Test block diagonal structure by checking number of nonzero entries in covariance matrix"""
     # Count number of nonzero entries in covariance matrix
-    condition = observations.observation_query.transmitter == observations.LinkEndId(
+    condition = observations.observation_query.transmitter == links.LinkEndId(
         str(TEST_ASTEROID_MPC[0]), ""
     )
     weight_matrix = observation_dataset.get_weight_matrix(condition).toarray()
@@ -626,7 +623,7 @@ def test_covariance_matrix_nonzero_entries(observation_dataset, astrometry_table
 
 def test_observation_consistency(observation_dataset, astrometry_table):
     """Test if observations in the table are consistent with those in ObservationDataset"""
-    condition = observations.observation_query.transmitter == observations.LinkEndId(
+    condition = observations.observation_query.transmitter == links.LinkEndId(
         str(TEST_ASTEROID_MPC[0]), ""
     )
     observations_from_dataset = np.ravel(observation_dataset.get_observations(condition))

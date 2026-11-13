@@ -5,8 +5,15 @@ from urllib.error import HTTPError, URLError
 import pytest
 import requests
 
-_REMOTE_SERVICE_UNAVAILABLE_STATUSES = (502, 503, 504)
-_REMOTE_SERVICE_UNAVAILABLE_REASONS = ("Bad Gateway", "Service Unavailable", "Gateway Timeout")
+_REMOTE_SERVICE_UNAVAILABLE_STATUSES = (500, 502, 503, 504)
+_GATEWAY_ERROR_MESSAGES = (
+    " 502",
+    " 503",
+    " 504",
+    "Bad Gateway",
+    "Service Unavailable",
+    "Gateway Timeout",
+)
 _JPL_HORIZONS_OUTAGE_SIGNATURES = (
     "wldini(): missing required file LTKERNL",
     "ERROR in VLRDC: Var not declared: IP_ADDR",
@@ -18,21 +25,19 @@ def _is_connectivity_failure(exception):
     if exception.__cause__ is not None and _is_connectivity_failure(exception.__cause__):
         return True
 
-    # Gateways can respond even when the upstream service is unavailable.
+    # Servers and gateways respond with these statuses when the service is failing or unavailable.
     if isinstance(exception, requests.exceptions.HTTPError):
         exception_message = str(exception)
-        # Gaia's TAP backend also returns "Error 500:\nnull" during outages.
-        # Astroquery omits the response object, so match that exact error body
-        # while leaving other HTTP 500 errors (including query errors) as failures.
+        # Astroquery's TAP client omits the response object, so its gateway errors are identified
+        # by their message. Gaia's TAP backend also returns "Error 500:\nnull" during outages:
+        # match that exact error body while leaving other HTTP 500 errors without a response
+        # (including query errors) as failures.
         return (
             (
                 exception.response is not None
                 and exception.response.status_code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
             )
-            or any(
-                f" {status}" in exception_message for status in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
-            )
-            or any(reason in exception_message for reason in _REMOTE_SERVICE_UNAVAILABLE_REASONS)
+            or any(message in exception_message for message in _GATEWAY_ERROR_MESSAGES)
             or exception_message.split() == ["Error", "500:", "null"]
         )
     if isinstance(exception, HTTPError):

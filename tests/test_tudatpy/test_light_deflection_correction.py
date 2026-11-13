@@ -8,6 +8,7 @@ import pytest
 import numpy as np
 from numpy.linalg import norm
 from tudatpy.estimation import observations
+from tudatpy.estimation.observable_models_setup import links, model_settings
 from tudatpy.estimation.observations.observation_corrections.light_deflection_correction import (
     _light_deflection_single_contribution,
     light_deflection_correction_angular_observations,
@@ -23,16 +24,16 @@ _MODULE = "tudatpy.estimation.observations.observation_corrections.light_deflect
 def _build_angular_observation_dataset(observation_pairs, times, body_name, observer_body_name):
     """Build a real ObservationDataset holding angular observations of one body by one observer"""
     link_ends = {
-        observations.transmitter: observations.LinkEndId(body_name, ""),
-        observations.receiver: observations.LinkEndId(observer_body_name, ""),
+        links.transmitter: links.LinkEndId(body_name, ""),
+        links.receiver: links.LinkEndId(observer_body_name, ""),
     }
     dataset = observations.ObservationDataset()
     dataset.add_observation_set(
-        observations.angular_position,
-        observations.LinkDefinition(link_ends),
+        model_settings.angular_position_type,
+        links.LinkDefinition(link_ends),
         list(observation_pairs),
         list(times),
-        observations.receiver,
+        links.receiver,
     )
     return dataset
 

@@ -29,7 +29,7 @@ from tudatpy.estimation.observations_setup import observations_dependent_variabl
 from tudatpy.estimation.observations import (
     SingleObservationSet,
     ObservationCollection,
-)  # noqa: F401 — skipped during refactoring
+)
 from tudatpy.math import root_finders
 from tudatpy.dynamics.propagation_setup import dependent_variable as dep_var
 from tudatpy.dynamics.propagation_setup import torque
@@ -465,9 +465,8 @@ class TestLinkTypesFileIO:
 # ===========================================================================
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestObservationCollectionFileIO:
-    """Binary roundtrip of the supported legacy observation facades."""
+    """Binary roundtrip of the deprecated observation classes."""
 
     @staticmethod
     def _make_single_set():

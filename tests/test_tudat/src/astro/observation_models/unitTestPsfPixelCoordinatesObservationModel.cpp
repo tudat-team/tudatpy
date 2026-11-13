@@ -34,7 +34,7 @@
 #include "tudat/io/readPsfFile.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/system_models/camera.h"
-#include "tudat/simulation/estimation_setup/createObservationDataset.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/processPsfFile.h"
 
@@ -156,12 +156,12 @@ Eigen::Vector2d getRightAscensionAndDeclinationFromAberrationCorrectedPsfPixelLi
         throw std::runtime_error( "No PSF camera data found for camera " + image.cameraId_ + "." );
     }
     const std::shared_ptr< system_models::PsfCameraProjectionModel > cameraProjectionModel =
-            std::make_shared< system_models::PsfCameraProjectionModel >( cameraData->getFocalLength( ),
-                                                                         cameraData->getPrincipalPoint( ),
-                                                                         cameraData->getKMatrix( ),
+            std::make_shared< system_models::PsfCameraProjectionModel >( cameraData->getCalibration( ).focalLength_,
+                                                                         cameraData->getCalibration( ).principalPoint_,
+                                                                         cameraData->getCalibration( ).kMatrix_,
                                                                          cameraData->getDistortionCoefficients( ),
                                                                          cameraData->getMountingOffsets( ),
-                                                                         cameraData->getFieldOfViewBounds( ) );
+                                                                         cameraData->getCalibration( ).fieldOfViewBounds_ );
     const Eigen::Vector3d cameraFrameUnitVector = cameraProjectionModel->pixelLineToUnitVector( pixelLine );
     const Eigen::Vector3d apparentInertialUnitVector =
             observation_models::getPsfPictureRotationFromInertialToCameraFrame( image ).inverse( ) * cameraFrameUnitVector;
@@ -174,17 +174,14 @@ Eigen::Vector2d getRightAscensionAndDeclinationFromAberrationCorrectedPsfPixelLi
 }
 
 Eigen::Vector2d getObservationFromSetAtTime(
-        const std::shared_ptr< observation_models::ObservationDataset< double, double > >& observationDataset,
-        const unsigned int setId,
+        const std::shared_ptr< observation_models::SingleObservationSet< double, double > >& observationSet,
         const double observationTime )
 {
-    const std::vector< double > observationTimes = observationDataset->getObservationTimesForSet( setId );
-    const std::vector< Eigen::VectorXd > observations = observationDataset->getObservationsForSet( setId );
-    for( unsigned int i = 0; i < observationTimes.size( ); ++i )
+    for( unsigned int i = 0; i < observationSet->getNumberOfObservables( ); ++i )
     {
-        if( std::fabs( observationTimes.at( i ) - observationTime ) < 1.0E-6 )
+        if( std::fabs( observationSet->getObservationTime( i ) - observationTime ) < 1.0E-6 )
         {
-            return observations.at( i );
+            return observationSet->getObservation( i );
         }
     }
 
@@ -371,9 +368,8 @@ BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
     }
     std::cerr.rdbuf( originalCerrBuffer );
 
-    const std::shared_ptr< observation_models::ObservationDataset< double, double > > observationDataset =
-            observation_models::createObservationDatasetFromTrackingData< double, double >( trackingDataAndSupplementaryData.first,
-                                                                                            bodies );
+    const std::shared_ptr< observation_models::ObservationCollection< double, double > > observationCollection =
+            observation_models::createObservationCollection< double, double >( trackingDataAndSupplementaryData.first, bodies );
 
     std::map< std::string, std::shared_ptr< observation_models::ObservationModel< 2, double, double > > > observationModelsByCamera;
     const double maximumModelPixelLineDifference = 1.0;
@@ -392,16 +388,12 @@ BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
         linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId( reference.targetName_ );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId( "VGR2", image.cameraId_ );
         const observation_models::LinkDefinition linkDefinition( linkEnds );
-        const observation_models::ObservationSelectionCondition< double, double > selectionCondition =
-                observation_models::ObservationSelectionCondition< double, double >::observableType(
-                        observation_models::pixel_coordinates ) &&
-                observation_models::ObservationSelectionCondition< double, double >::linkDefinition( linkDefinition );
-        const std::vector< unsigned int > observationIds = observationDataset->getObservationIdsMatchingCondition( selectionCondition );
-        BOOST_REQUIRE( !observationIds.empty( ) );
-        const unsigned int setId = observationDataset->getObservationRow( observationIds.at( 0 ) ).setId_;
+        const std::vector< std::shared_ptr< observation_models::SingleObservationSet< double, double > > > observationSets =
+                observationCollection->getSingleLinkAndTypeObservationSets( observation_models::pixel_coordinates, linkDefinition );
+        BOOST_REQUIRE_EQUAL( observationSets.size( ), 1 );
 
         const double observationTime = observation_models::getPsfPictureObservationTime< double >( image, true );
-        const Eigen::Vector2d observationSetPixelLine = getObservationFromSetAtTime( observationDataset, setId, observationTime );
+        const Eigen::Vector2d observationSetPixelLine = getObservationFromSetAtTime( observationSets.at( 0 ), observationTime );
 
         // The observation set should store the PSF effective pixel/line exactly; dynamics only enter when the model is evaluated.
         BOOST_CHECK_SMALL( ( observationSetPixelLine - measurement->getEffectivePixelLine( ) ).norm( ), 1.0E-12 );

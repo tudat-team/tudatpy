@@ -43,10 +43,12 @@ getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes( const observat
     return std::make_pair( observation_models::receiver, observation_models::receiver );
 }
 
-void DifferencedObservablePartialScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                                  const std::vector< double >& times,
-                                                  const observation_models::LinkEndType fixedLinkEnd,
-                                                  const Eigen::VectorXd currentObservation )
+void DifferencedObservablePartialScaling::update(
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType fixedLinkEnd,
+        const Eigen::VectorXd currentObservation,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     try
     {
@@ -61,12 +63,14 @@ void DifferencedObservablePartialScaling::update( const std::vector< Eigen::Vect
         firstPartialScaling_->update( utilities::getVectorEntries( linkEndStates, firstIndices_ ),
                                       utilities::getVectorEntries( times, firstIndices_ ),
                                       differencedReferenceLinkEndTypes.first,
-                                      Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
+                                      Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ),
+                                      ancillarySettings );
 
         secondPartialScaling_->update( utilities::getVectorEntries( linkEndStates, secondIndices_ ),
                                        utilities::getVectorEntries( times, secondIndices_ ),
                                        differencedReferenceLinkEndTypes.second,
-                                       Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
+                                       Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ),
+                                       ancillarySettings );
     }
     catch( const std::exception& caughtException )
     {

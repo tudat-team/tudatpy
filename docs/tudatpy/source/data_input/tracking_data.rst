@@ -17,25 +17,6 @@ Supplementary data that updates bodies, ground stations, or related environment
 objects is applied with
 :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
 
-User-defined numerical metadata
-------------------------------
-
-:meth:`TrackingData.add_numerical_observation_metadata` attaches one numerical
-value per observation event under any string key. The vector follows the order
-of ``observations`` and stays aligned when entries are removed. These values are
-plain data, independent of observation-model ancillary settings.
-
-Conversion to ``ObservationDataset`` preserves the metadata by stable observation
-ID. Gaia attaches its scan angle in radians under ``"along_scan_angle"``. For
-example, to retrieve the angles in the same order as a dataset selection::
-
-    observation_ids = dataset.get_observation_ids(condition, ordering="estimation")
-    scan_angles = dataset.get_numerical_observation_metadata("along_scan_angle", observation_ids)
-
-Select Gaia observations for this example: other observations need not have scan
-angles. Requesting a missing key or value raises an exception rather than
-substituting a numerical value.
-
 For more information on the tracking data architecture, see the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-handling/observation-collection-creation/loading-real-data.html>`_ on real tracking data.
 
 .. toctree::
@@ -44,11 +25,13 @@ For more information on the tracking data architecture, see the `user guide <htt
 
    tracking_data/atdf
    tracking_data/obs_80_cols
+   tracking_data/ades
    tracking_data/fdets
    tracking_data/generic_text_file
    tracking_data/gaia
    tracking_data/ifms
    tracking_data/jpl_radar
+   tracking_data/landmarks
    tracking_data/mpc
    tracking_data/odf
    tracking_data/optical_utilities
@@ -59,8 +42,26 @@ For more information on the tracking data architecture, see the `user guide <htt
 .. automodule:: tudatpy.data_input.tracking_data
    :members:
 
+User-defined numerical metadata
+-------------------------------
+
+:meth:`~tudatpy.data_input.tracking_data.TrackingData.add_numerical_observation_metadata`
+stores a user-defined numerical value for each observation, under a given name.
+These values are not used by the observation models, and are transferred to the
+:class:`~tudatpy.estimation.observations.ObservationDataset` by
+:func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
+For instance, the Gaia reader stores the scan angle (in rad) of each observation
+under ``"along_scan_angle"``. The scan angles of the observations selected by a
+``condition`` are retrieved with::
+
+    observation_ids = dataset.get_observation_ids(condition, ordering="estimation")
+    scan_angles = dataset.get_numerical_observation_metadata("along_scan_angle", observation_ids)
+
+An error is raised if no value is stored for one of the selected observations, so
+the condition should select only Gaia observations.
+
 Tracking epoch bounds
---------------------
+---------------------
 
 .. autofunction:: tudatpy.data_input.tracking_data.get_tracking_data_epoch_bounds
 
@@ -108,8 +109,10 @@ before the supplementary data is applied to the bodies.
    PiecewiseConstantFrequencySupplementaryData
    InstrumentSupplementaryData
    CameraInstrumentSupplementaryData
+   CameraCalibration
    TranslationalStateSupplementaryData
    RotationalStateSupplementaryData
+   ReferencePointSupplementaryData
 
 .. autoclass:: tudatpy.data_input.tracking_data.FrequencySupplementaryData
    :members:
@@ -129,8 +132,14 @@ before the supplementary data is applied to the bodies.
 .. autoclass:: tudatpy.data_input.tracking_data.CameraInstrumentSupplementaryData
    :members:
 
+.. autoclass:: tudatpy.data_input.tracking_data.CameraCalibration
+   :members:
+
 .. autoclass:: tudatpy.data_input.tracking_data.TranslationalStateSupplementaryData
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.RotationalStateSupplementaryData
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ReferencePointSupplementaryData
    :members:

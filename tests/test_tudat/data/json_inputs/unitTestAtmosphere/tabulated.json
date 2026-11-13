@@ -1,0 +1,22 @@
+{
+  "file": { 
+    "0": "@path(atmosphereTable.foo)"
+  },
+  "type": "tabulated",
+  "independentVariablesNames": [
+  	"altitude",
+  	"time"
+  ],
+  "dependentVariablesNames": [
+  	"temperature",
+  	"gasConstant",
+  	"density",
+  	"pressure"
+  ],
+  "specificGasConstant": 10.0,
+  "ratioOfSpecificHeats": 3.0,
+  "boundaryHandling": [
+  	"boundaryValue",
+  	"throwException"
+  ]
+}

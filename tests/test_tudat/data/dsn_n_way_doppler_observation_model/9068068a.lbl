@@ -1,0 +1,1693 @@
+PDS_VERSION_ID               = PDS3                                           
+RECORD_TYPE                  = FIXED_LENGTH                                   
+RECORD_BYTES                 = 36                                             
+FILE_RECORDS                 = 4256                                           
+DATA_SET_ID                  = "MGS-M-RSS-1-MAP-V1.0"                         
+TARGET_NAME                  = "MARS"                                         
+INSTRUMENT_HOST_NAME         = "MARS GLOBAL SURVEYOR"                         
+MISSION_PHASE_NAME           = "MAPPING"                                      
+INSTRUMENT_NAME              = "RADIO SCIENCE SUBSYSTEM"                      
+INSTRUMENT_ID                = "RSS"                                          
+PRODUCER_ID                  = "DSN"                                          
+DSN_STATION_NUMBER           = {34,45,54}                                     
+PRODUCT_CREATION_TIME        = 1999-03-10T17:31:32Z                           
+PRODUCT_TYPE                 = ODF                                            
+PRODUCT_ID                   = "9068068A.ODF"                                 
+ORIGINAL_PRODUCT_ID          = "99068O069_10S.SJO_v1"                         
+START_TIME                   = 1999-03-09T14:59:55Z                           
+STOP_TIME                    = 1999-03-09T23:39:35Z                           
+HARDWARE_MODEL_ID            = "AXP2300"                                      
+SOFTWARE_NAME                = "ODE V2.0"                                     
+DESCRIPTION                  = "Orbit Data Files (ODFs) are                   
+    produced by the NASA/JPL Multi-Mission Navigation Radio                   
+    Metric Data Conditioning Team for use in determining                      
+    spacecraft trajectories, gravity fields affecting them,                   
+    and radio propagation conditions.  Each ODF consists of                   
+    many 36-byte logical records, which fall into 7 primary                   
+    groups plus an End-of-File Group.  An ODF usually                         
+    contains most groups, but may not have all.  The first                    
+    record in each of the 7 primary groups is a header                        
+    record; depending on the group, there may be from zero                    
+    to many data records following each header.  The ODF is                   
+    described in:                                                             
+                  MGSO  System Requirements                                   
+                   Detail Interface Design                                    
+                      SFOC-NAV-TRK-2-18                                       
+               MGSO Tracking System Interfaces                                
+                  Orbit Data File Interface                                   
+                Reissue Date:  August 1, 1996                                 
+                Effective Date: 15 April 1997"                                
+^ODF1A_TABLE                 = ("9068068A.ODF",1)                             
+^ODF1B_TABLE                 = ("9068068A.ODF",2)                             
+^ODF2A_TABLE                 = ("9068068A.ODF",3)                             
+^ODF2B_TABLE                 = ("9068068A.ODF",4)                             
+^ODF3A_TABLE                 = ("9068068A.ODF",5)                             
+^ODF3C_TABLE                 = ("9068068A.ODF",6)                             
+^ODF4A34_TABLE               = ("9068068A.ODF",3268)                          
+^ODF4B34_TABLE               = ("9068068A.ODF",3269)                          
+^ODF4A45_TABLE               = ("9068068A.ODF",3743)                          
+^ODF4B45_TABLE               = ("9068068A.ODF",3744)                          
+^ODF4A54_TABLE               = ("9068068A.ODF",4073)                          
+^ODF4B54_TABLE               = ("9068068A.ODF",4074)                          
+^ODF7A_TABLE                 = ("9068068A.ODF",4077)                          
+^ODF7B_TABLE                 = ("9068068A.ODF",4078)                          
+^ODF8A_TABLE                 = ("9068068A.ODF",4084)                          
+^ODF8B_TABLE                 = ("9068068A.ODF",4085)                          
+                                                                              
+OBJECT                       = ODF1A_TABLE                                    
+  NAME                         = "FILE LABEL GROUP HEADER"                    
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 4                                            
+  ROW_BYTES                    = 16                                           
+  ROW_SUFFIX_BYTES             = 20                                           
+  DESCRIPTION                  = "The File Label Group                        
+     is usually the first of several groups of records in                     
+     an Orbit Data File (ODF). It identifies the spacecraft,                  
+     the file creation time, the hardware, and the software                   
+     associated with the ODF.  The File Label Group Header                    
+     is the first record in the File Label Group.  It is one                  
+     36-byte record and is followed by one 36-byte data                       
+     record.  Occasionally, the File Label Group is omitted                   
+     from an ODF.  The row suffix bytes in the File Label                     
+     Group Header are set to 0."                                              
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "PRIMARY KEY"                                          
+    DATA_TYPE        = MSB_INTEGER                                            
+    START_BYTE       = 1                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 1:  The Primary Key indicates the type                
+       of data records to follow.  In the File Label Group Header             
+       this field is set to 101."                                             
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "SECONDARY KEY"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 5                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 2:  The Secondary Key is not used in                  
+       the ODF.  It is set to 0."                                             
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "LOGICAL RECORD LENGTH"                                
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 9                                                      
+    BYTES            = 4                                                      
+    UNIT             = PACKET                                                 
+    DESCRIPTION = "Item 3:  The Logical Record Length gives the               
+       number of 36-byte physical records making up each logical              
+       record in a File Label Group data record.  For the File Label          
+       Group it is set to 1."                                                 
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "GROUP START PACKET NUMBER"                            
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 13                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 4:  The Group Start Packet Number                     
+       gives the number of the ODF packet containing the File                 
+       Label Group Header.  Set to 0, since the File Label Group              
+       Header, when it appears, is always first."                             
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF1A_TABLE                                    
+                                                                              
+OBJECT                       = ODF1B_TABLE                                    
+  NAME                         = "FILE LABEL GROUP DATA"                      
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 7                                            
+  ROW_BYTES                    = 36                                           
+  DESCRIPTION                  = "The File Label Group                        
+     is usually the first of several groups of records in                     
+     an Orbit Data File (ODF). It identifies the spacecraft,                  
+     the file creation time, the hardware, and the software                   
+     associated with the ODF.  The File Label Group data                      
+     record is the second record in the File Label Group. It                  
+     is one 36-byte record and is preceded by one 36-byte                     
+     File Label Group header record.  Occasionally, the File                  
+     Label Group is omitted from an ODF."                                     
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "SYSTEM ID"                                            
+    DATA_TYPE        = CHARACTER                                              
+    START_BYTE       = 1                                                      
+    BYTES            = 8                                                      
+    DESCRIPTION = "Items 1-8:  A character string identifying                 
+       the hardware on which the ODF was created."                            
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "PROGRAM ID"                                           
+    DATA_TYPE        = CHARACTER                                              
+    START_BYTE       = 9                                                      
+    BYTES            = 8                                                      
+    DESCRIPTION = "Items 9-16:  A character string identifying                
+       the program under which the ODF was created."                          
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "SPACECRAFT ID"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 17                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 17:  ID number for the spacecraft.  These             
+         are specified in DSN document OPS-6-8.  Representative               
+         values include                                                       
+                          Magellan              18                            
+                          Voyager 1             31                            
+                          Voyager 2             32                            
+                          Clementine            64                            
+                          Galileo Orbiter       77                            
+                          Mars Global Surveyor  94"                           
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "FILE CREATION DATE"                                   
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 21                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 18:  The date on which the ODF was                    
+       created, given as a single number of the form YYMMDD.                  
+       where                                                                  
+                YY   is the two least significant digits of the year          
+                MM   is the month (01 through 12)                             
+                DD   is the day of month (01 through 31)"                     
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 5                                                      
+    NAME             = "FILE CREATION TIME"                                   
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 25                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 19:  The time at which the ODF was                    
+       created, given as a single number of the form HHMMSS.                  
+       where                                                                  
+                HH   is the two-digit hour (00 through 23)                    
+                MM   is the two-digit minute (00 through 59)                  
+                SS   is the two-digit second (00 through 59)"                 
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 6                                                      
+    NAME             = "FILE REFERENCE DATE"                                  
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 29                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 20:  The reference date for ODF                       
+                     time tags -- for example, 19500101                       
+                     for EME50.  Older files which have                       
+                     reference dates of zero will be                          
+                     assumed to be EME50."                                    
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 7                                                      
+    NAME             = "FILE REFERENCE TIME"                                  
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 33                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 21:  The reference time for ODF                       
+                     time tags.  Set to 000000."                              
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF1B_TABLE                                    
+                                                                              
+OBJECT                       = ODF2A_TABLE                                    
+  NAME                         = "IDENTIFIER GROUP HEADER"                    
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 4                                            
+  ROW_BYTES                    = 16                                           
+  ROW_SUFFIX_BYTES             = 20                                           
+  DESCRIPTION                  = "The Identifier Group                        
+     is usually the second of several groups of records in                    
+     an Orbit Data File (ODF).  It is sometimes used to                       
+     identify contents of data records that follow.  The                      
+     Identifier Group Header is the first record in the                       
+     Identifier Group.  It is one 36-byte record and is                       
+     followed by one 36-byte Identifier Group data record.                    
+     Occasionally the Identifier Group is omitted from an                     
+     ODF.  The row suffix bytes in the Identifier Group                       
+     Header are set to 0."                                                    
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "PRIMARY KEY"                                          
+    DATA_TYPE        = MSB_INTEGER                                            
+    START_BYTE       = 1                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 1:  The Primary Key indicates the type                
+       of data records to follow.  In the Identifier Group Header             
+       this field is set to 107."                                             
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "SECONDARY KEY"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 5                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 2:  The Secondary Key is not used in                  
+       the ODF.  It is set to 0."                                             
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "LOGICAL RECORD LENGTH"                                
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 9                                                      
+    BYTES            = 4                                                      
+    UNIT             = PACKET                                                 
+    DESCRIPTION = "Item 3:  The Logical Record Length gives the               
+       number of 36-byte physical records making up each logical              
+       record in an Identifier Group data record.  For the                    
+       Identifier Group it is set to 1."                                      
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "GROUP START PACKET NUMBER"                            
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 13                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 4:  The Group Start Packet Number                     
+       gives the number of the ODF packet containing the                      
+       Identifier Group Header.  Usually set to 2, since the                  
+       Identifier Group usually follows the Label Group                       
+       immediately in the ODF."                                               
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF2A_TABLE                                    
+                                                                              
+OBJECT                       = ODF2B_TABLE                                    
+  NAME                         = "IDENTIFIER GROUP DATA"                      
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 3                                            
+  ROW_BYTES                    = 36                                           
+  DESCRIPTION                  = "The Identifier Group                        
+     is usually the second of several groups of records in                    
+     an Orbit Data File (ODF).  It is sometimes used to                       
+     identify contents of data records that follow.  The                      
+     Identifier Group data record is the second record in                     
+     the Identifier Group.  It is one 36-byte record and is                   
+     preceded by one 36-byte Identifier Group header record.                  
+     Occasionally the Identifier Group is omitted from an                     
+     ODF."                                                                    
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 1                                                         
+    NAME          = "ITEM 1"                                                  
+    DATA_TYPE     = CHARACTER                                                 
+    START_BYTE    = 1                                                         
+    BYTES         = 8                                                         
+    DESCRIPTION = "Item 1:  A character string sometimes used to              
+       identify contents of data records to follow.  Often the                
+       ASCII characters 'TIMETAG' followed by one ASCII 'blank'."             
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 2                                                         
+    NAME          = "ITEM 2"                                                  
+    DATA_TYPE     = CHARACTER                                                 
+    START_BYTE    = 9                                                         
+    BYTES         = 8                                                         
+    DESCRIPTION = "Item 2:  A character string sometimes used to              
+       identify contents of data records to follow.  Often the                
+       ASCII characters 'OBSRVBL' followed by one ASCII 'blank'."             
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 3                                                         
+    NAME          = "ITEM 3"                                                  
+    DATA_TYPE     = CHARACTER                                                 
+    START_BYTE    = 17                                                        
+    BYTES         = 20                                                        
+    DESCRIPTION = "Item 3:  A character string sometimes used to              
+       identify contents of data records to follow.  For example,             
+       ASCII characters 'OD-SAMPL-ID FRQ RSD '."                              
+  END_OBJECT    = COLUMN                                                      
+END_OBJECT                   = ODF2B_TABLE                                    
+                                                                              
+OBJECT                       = ODF3A_TABLE                                    
+  NAME                         = "ORBIT DATA GROUP HEADER"                    
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 4                                            
+  ROW_BYTES                    = 16                                           
+  ROW_SUFFIX_BYTES             = 20                                           
+  DESCRIPTION                  = "The Orbit Data Group                        
+     is usually the third of several groups of records in an                  
+     Orbit Data File (ODF).  It contains the majority of the                  
+     data included in the file.  The Orbit Data Group Header                  
+     is the first record in the Orbit Data Group; it is                       
+     usually followed by many Orbit Data Group data records,                  
+     ordered by time.  All records in the Orbit Data Group                    
+     have 36 bytes.  The row suffix bytes in the Orbit Data                   
+     Group Header are set to 0.  This Orbit Data Group                        
+     follows TRK-2-18, version of 1 August 1996."                             
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "PRIMARY KEY"                                          
+    DATA_TYPE        = MSB_INTEGER                                            
+    START_BYTE       = 1                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 1:  The Primary Key indicates the                     
+       type of data records to follow.  In the Orbit Data                     
+       Group Header this field is set to 109."                                
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "SECONDARY KEY"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 5                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 2:  The Secondary Key is not used in                  
+       the ODF.  It is set to 0."                                             
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "LOGICAL RECORD LENGTH"                                
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 9                                                      
+    BYTES            = 4                                                      
+    UNIT             = PACKET                                                 
+    DESCRIPTION = "Item 3:  The Logical Record Length gives the               
+       number of 36-byte physical records making up each logical              
+       record in an Orbit Data Group data record.  For the Orbit              
+       Data Group it is set to 1."                                            
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "GROUP START PACKET NUMBER"                            
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 13                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 4:  The Group Start Packet Number                     
+       gives the number of the ODF packet containing the                      
+       Orbit Data Group Header.  Since the Orbit Data Group                   
+       usually follows immediately after the File Label Group                 
+       and the Identifier Group, it is usually set to 4."                     
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF3A_TABLE                                    
+                                                                              
+OBJECT                       = ODF3C_TABLE                                    
+  NAME                         = "ORBIT DATA GROUP DATA"                      
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 3262                                         
+  COLUMNS                      = 6                                            
+  ROW_BYTES                    = 36                                           
+  DESCRIPTION                  = "The Orbit Data Group                        
+     is usually the third of several groups of records in an                  
+     Orbit Data File (ODF).  It contains the majority of the                  
+     data included in the file.  The Orbit Data Group Header                  
+     is the first record in the Orbit Data Group; it is                       
+     usually followed by many Orbit Data Group data records,                  
+     ordered by time.  All records in the Orbit Data Group                    
+     have 36 bytes.  Their format and content follows the                     
+     specification in TRK-2-18, version of 1 August 1996."                    
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 1                                                         
+    NAME          = "TIME TAG - INTEGER PART"                                 
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 1                                                         
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION = "Item 1:  The integer part of the record                    
+       time tag, measured from 0 hours UTC on 1 January 1950.                 
+       The fractional part of the time tag is in Item 2."                     
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 2                                                         
+    NAME          = "ITEMS 2-3"                                               
+    DATA_TYPE     = MSB_BIT_STRING                                            
+    START_BYTE    = 5                                                         
+    BYTES         = 4                                                         
+    DESCRIPTION = "Items 2-3 of the ODF."                                     
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "TIME TAG - FRACTIONAL PART"                            
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 1                                                       
+      BITS          = 10                                                      
+      UNIT          = MILLISECOND                                             
+      DESCRIPTION = "Item 2:  The fractional part of the record               
+         time tag (see Column 1)."                                            
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "PRIMARY RECEIVING STATION DOWNLINK DELAY"              
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 11                                                      
+      BITS          = 22                                                      
+      UNIT          = NANOSECOND                                              
+      DESCRIPTION = "Item 3:  Downlink delay for the primary                  
+         receiving station."                                                  
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 3                                                         
+    NAME          = "OBSERVABLE - INTEGER PART"                               
+    DATA_TYPE     = MSB_INTEGER                                               
+    START_BYTE    = 9                                                         
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 4:  The integer part of the observable.               
+       The fractional part is in Column 4 (Item 5).  See Item                 
+       10 for the data type stored in these fields.                           
+                                                                              
+       The Doppler observable (in Hertz) is computed according                
+       to the following equation.  The time tag  tr  is the                   
+       mid-point of the compression interval  ti  to  tj.                     
+                                                                              
+          Observable = [B/|B|]*[(Nj-Ni)/(tj-ti) - |Fb*K + B|]                 
+                                                                              
+       where:                                                                 
+          B  = bias placed on receiver                                        
+          Ni = Doppler count at time  ti                                      
+          Nj = Doppler count at time  tj                                      
+          ti = start time of interval                                         
+          tj = end time of interval                                           
+                                                                              
+          K = spacecraft transponder turnaround ratio, which varies           
+               with band used (see Item 11); set to                           
+                    1       for S-band receivers                              
+                    11/3    for X-band receivers                              
+                    176/27  for Ku-band receivers                             
+                    209/15  for Ka-band receivers                             
+                       (Note: future spacecraft transponders may              
+                        require different values of K)                        
+                                                                              
+          Fb = (X1/X2)*(X3*Fr + X4)                                           
+                  -Fsc + R3                     for one-way Doppler           
+             = (X1/X2)*(X3*Fr + X4)                                           
+                  -(T1/T2)*(T3*Ft + T4)         for all other Doppler         
+             where:                                                           
+                Fr  = receiver (VCO) frequency at time  tr                    
+                Fsc = spacecraft (beacon) frequency                           
+                Ft  = transmitter frequency at time  tr-RTLT                  
+                R3  = 0             for S-band receivers                      
+                    = 0             for X-band receivers                      
+                    = 0             for Ku-band receivers                     
+                    = 0             for Ka-band receivers                     
+                T1  = 240  for S-band transmitters (see Item 12)              
+                    = 240  for X-band transmitters                            
+                    = 142  for Ku-band transmitters                           
+                    = 14   for Ka-band transmitters                           
+                T2  = 221  for S-band transmitters                            
+                    = 749  for X-band transmitters                            
+                    = 153  for Ku-band transmitters                           
+                    = 15   for Ka-band transmitters                           
+                T3  =  96  for S-band transmitters                            
+                    =  32  for X-band transmitters                            
+                    = 1000 for Ku-band transmitters                           
+                    = 1000 for Ka-band transmitters                           
+                T4  =    0        for S-band transmitters                     
+                    =  6.5 10^9   for X-band transmitters                     
+                    = -7.0 10^9   for Ku-band transmitters                    
+                    =  1.0 10^10  for Ka-band transmitters                    
+                X1 to X4 have the same values as T1 to T4 but                 
+                     are dependent on the exciter band (Item 13)              
+                RTLT is the round-trip light time                             
+                                                                              
+       For Doppler data the residual (sometimes called the                    
+       pseudo-residual) is the observed Doppler minus the predicted           
+       Doppler                                                                
+                                                                              
+       The range observable is computed as follows:                           
+                                                                              
+          Observable = R - C + Z - S                                          
+                                                                              
+       where:                                                                 
+          R = range measurement                                               
+          C = station delay calibration                                       
+          Z = Z correction, which is the delay resulting from DSN             
+              station optics that is not included in routine closed           
+              loop calibrations (C)                                           
+          S = spacecraft delay"                                               
+                                                                              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 4                                                         
+    NAME          = "OBSERVABLE - FRACTIONAL PART"                            
+    DATA_TYPE     = MSB_INTEGER                                               
+    START_BYTE    = 13                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 5:  The fractional part of the                        
+       observable, scaled by 10^9.  See DESCRIPTION under                     
+       Column 3 for details on definition."                                   
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 5                                                         
+    NAME          = "ITEMS 6-19"                                              
+    DATA_TYPE     = MSB_BIT_STRING                                            
+    START_BYTE    = 17                                                        
+    BYTES         = 12                                                        
+    DESCRIPTION = "Items 6-19 of the ODF."                                    
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "FORMAT ID"                                             
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 1                                                       
+      BITS          = 3                                                       
+      DESCRIPTION = "Item 6:  The Format ID.  Set to 2.  If this              
+         value is 1, the ODF was created on or before 1997-04-14              
+         and will not be accurately described by this set of                  
+         object definitions.  If FORMAT ID = 1, see:                          
+                   JPL/DSN Document 820-13; Rev A                             
+                      DSN System Requirements                                 
+                      Detail Interface Design                                 
+                             TRK-2-18                                         
+                   DSN Tracking System Interfaces                             
+                     Orbit Data File Interface                                
+                             Mark IVA                                         
+                    Effective Date: May 15, 1984"                             
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "PRIMARY RECEIVING STATION ID"                          
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 4                                                       
+      BITS          = 7                                                       
+      DESCRIPTION = "Item 7:  The ID Number of the primary                    
+         Receiving Station."                                                  
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "TRANSMITTING STATION ID"                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 11                                                      
+      BITS          = 7                                                       
+      DESCRIPTION = "Item 8:  Transmitting Station ID Number.                 
+         Set to zero if quasar VLBI, one-way (Dippler, phase,                 
+          or range), or angles data."                                         
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "NETWORK ID"                                            
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 18                                                      
+      BITS          = 2                                                       
+      DESCRIPTION = "Item 9:  Network ID Number for primary                   
+         Receiving  Station:  Set to:                                         
+                      0   for DSN, Block V exciter                            
+                      1   for other                                           
+                      2   for OTS (OVLBI Tracking Subnet, where               
+                            OVLBI is Orbiting VLBI)"                          
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "DATA TYPE ID"                                          
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 20                                                      
+      BITS          = 6                                                       
+      DESCRIPTION = "Item 10:  Data Type ID Number.                           
+         Allowed data type values include:                                    
+            01 = Narrowband spacecraft VLBI, Doppler mode; cycles             
+            02 = Narrowband spacecraft VLBI, phase mode; cycles               
+            03 = Narrowband quasar VLBI, Doppler mode; cycles                 
+            04 = Narrowband quasar VLBI, phase mode; cycles                   
+            05 = Wideband spacecraft VLBI; nanoseconds                        
+            06 = Wideband quasar VLBI; nanoseconds                            
+            11 = One-way Doppler; Hertz                                       
+            12 = Two-way Doppler; Hertz                                       
+            13 = Three-way Doppler; Hertz                                     
+            21 = One-way total-count phase; cycles                            
+            22 = Two-way total-count phase; cycles                            
+            23 = Three-way total-count phase; cycles                          
+            36 = PRA Planetary operational discrete spectrum range;           
+                   range units                                                
+            37 = SRA Planetary operational discrete spectrum range;           
+                   range units                                                
+            41 = RE [GSTDN] Range; nanoseconds                                
+            51 = Azimuth angle; degrees                                       
+            52 = Elevation angle; degrees                                     
+            53 = Hour angle; degrees                                          
+            54 = Declination angle; degrees                                   
+            55 = X angle (where +X is east); degrees                          
+            56 = Y angle (where +X is east); degrees                          
+            57 = X angle (where +X is south); degrees                         
+            58 = Y angle (where +X is south); degrees                         
+                                                                              
+         Notes:  Some of the descriptions below refer to 'generic'            
+                 data types.  These are defined as follows:                   
+                                                                              
+                 Data Types     Generic Term                                  
+                 ----------     ------------                                  
+                    01-06       VLBI                                          
+                    01-04       Narrowband VLBI                               
+                    05-06       Wideband VLBI                                 
+                 03, 04, 06     Quasar                                        
+                    11-58       Tracking or TRK                               
+                    01-58       Radiometric"                                  
+                                                                              
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "DOWNLINK BAND ID"                                      
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 26                                                      
+      BITS          = 2                                                       
+      DESCRIPTION = "Item 11:  Downlink Band ID.  Allowed                     
+         values include:                                                      
+            0 = Not applicable if angle data,                                 
+                Ku-band otherwise                                             
+            1 = S-band                                                        
+            2 = X-band                                                        
+            3 = Ka-band"                                                      
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "UPLINK BAND ID"                                        
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 28                                                      
+      BITS          = 2                                                       
+      DESCRIPTION = "Item 12:  Uplink Band ID.  Allowed                       
+         values include:                                                      
+            0 = Not applicable if angle data or 1-way data,                   
+                Ku-band otherwise                                             
+            1 = S-band                                                        
+            2 = X-band                                                        
+            3 = Ka-band"                                                      
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "EXCITER BAND ID"                                       
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 30                                                      
+      BITS          = 2                                                       
+      DESCRIPTION = "Item 13: Exciter Band ID.  Allowed                       
+         values include:                                                      
+            0 = Not applicable if angle data,                                 
+                Ku-band otherwise                                             
+            1 = S-band                                                        
+            2 = X-band                                                        
+            3 = Ka-band"                                                      
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "DATA VALIDITY INDICATOR"                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 32                                                      
+      BITS          = 1                                                       
+      DESCRIPTION = "Item 14:  The data validity flag.  Values are:           
+         0 = good                                                             
+         1 = bad"                                                             
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "ITEM 15"                                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 33                                                      
+      BITS          = 7                                                       
+      DESCRIPTION = "Item 15:                                                 
+                      Second receiving station ID number, if VLBI data;       
+                      Lowest (last) component, if PRA/SRA range data;         
+                      Integer seconds of observable, if RE range data;        
+                      Set to  0,  otherwise."                                 
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "ITEM 16"                                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 40                                                      
+      BITS          = 10                                                      
+      DESCRIPTION = "Item 16:                                                 
+                      Quasar ID, if VLBI quasar data;                         
+                      Spaceraft ID,  otherwise."                              
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "ITEM 17"                                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 50                                                      
+      BITS          = 1                                                       
+      DESCRIPTION = "Item 17:                                                 
+                      Modulus indicator, if wideband VLBI data;               
+                      Phase Point indicator, if narrowband                    
+                        VLBI data;                                            
+                      Receiver/exciter independent flag, if Doppler,          
+                        phase, or range data (0=no, 1=yes);                   
+                      Set to  0,  otherwise."                                 
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "ITEM 18"                                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 51                                                      
+      BITS          = 22                                                      
+      DESCRIPTION = "Item 18:                                                 
+                      Reference frequency, high part, milliHertz:             
+                        Transponder frequency, if one-way Doppler             
+                          or phase;                                           
+                        Receiver frequency, if ramped and not                 
+                          one-way;                                            
+                        Transmitter frequency otherwise;                      
+                      Set to  0,  if angles data."                            
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "ITEM 19"                                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 73                                                      
+      BITS          = 24                                                      
+      DESCRIPTION = "Item 19:  Reference frequency, low part,                 
+         milliHertz.  See DESCRIPTION under Item 18 for details."             
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 6                                                         
+    NAME          = "ITEMS 20-22"                                             
+    DATA_TYPE     = MSB_BIT_STRING                                            
+    START_BYTE    = 29                                                        
+    BYTES         = 8                                                         
+    DESCRIPTION = "Items 20-22 of the ODF."                                   
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "ITEM 20"                                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 1                                                       
+      BITS          = 20                                                      
+      DESCRIPTION = "Item 20:                                                 
+         If narrowband VLBI data:                                             
+           (Phase Calibration Flag minus 1) times 100000, plus                
+             Channel ID Number times 10000.                                   
+         If wideband VLBI data:                                               
+           (Channel Sampling Flag minus 1) times 100000, plus                 
+             Mode ID number times 10000, plus Modulus high-part               
+             in 10^-1 nanoseconds.                                            
+         If OTS Doppler data:                                                 
+           Train Axis Angle in millidegrees.                                  
+         If PRA/SRA range data:                                               
+           Uplink Ranging Transmitter In-Phase Time Offset from               
+             Sample Timetag in seconds                                        
+         Otherwise, set to 0."                                                
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "ITEM 21"                                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 21                                                      
+      BITS          = 22                                                      
+      DESCRIPTION = "Item 21:                                                 
+         If wideband VLBI data:                                               
+           Modulus low-part (units are nanoseconds after the value            
+             is multiplied by 10^-7).                                         
+         If Doppler, phase, or narrowband VLBI data:                          
+           Compression time in hundredths of a second.                        
+         If PRA/SRA range data:                                               
+           Highest (first) Component times 100000, plus                       
+             Downlink Ranging Transmitter Coder In-Phase                      
+             Time Offset from Sample Timetag in seconds.                      
+         Otherwise, set to 0."                                                
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "ITEM 22"                                               
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 43                                                      
+      BITS          = 22                                                      
+      DESCRIPTION = "Item 22:                                                 
+         If VLBI data:                                                        
+           Second Receiving Station Downlink Delay in nanoseconds.            
+         If Doppler, phase, or range data:                                    
+           Transmitting Station Uplink Delay in nanoseconds.                  
+         Otherwise, set to 0."                                                
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+  END_OBJECT    = COLUMN                                                      
+END_OBJECT                   = ODF3C_TABLE                                    
+                                                                              
+OBJECT                       = ODF4A34_TABLE                                  
+  NAME                         = "RAMP GROUP 34 HEADER"                       
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 4                                            
+  ROW_BYTES                    = 16                                           
+  ROW_SUFFIX_BYTES             = 20                                           
+  DESCRIPTION                  = "Ramp Groups are                             
+     usually the fourth of several groups of records in an                    
+     Orbit Data File (ODF).  They contain information on                      
+     tuning of receivers or transmitters.  There is usually                   
+     one Ramp Group for each DSN station.  The Ramp Group                     
+     Header is the first record in each Ramp Group.  It is                    
+     one 36-byte record and is followed by one or more 36-                    
+     byte Ramp Group data records.  Data records are time                     
+     ordered within each Ramp Group.  The Ramp Group may be                   
+     omitted from an ODF.  The row suffix bytes in the Ramp                   
+     Group Header are set to 0."                                              
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "PRIMARY KEY"                                          
+    DATA_TYPE        = MSB_INTEGER                                            
+    START_BYTE       = 1                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 1:  The Primary Key indicates the type                
+       of data records to follow.  In the Ramp Group Header                   
+       this field is set to 2030."                                            
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "SECONDARY KEY"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 5                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 2: Set to the Station ID Number."                     
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "LOGICAL RECORD LENGTH"                                
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 9                                                      
+    BYTES            = 4                                                      
+    UNIT             = PACKET                                                 
+    DESCRIPTION = "Item 3:  The Logical Record Length gives the               
+       number of 36-byte physical records making up each logical              
+       record in a Ramp Group data record.  For the Ramp Group                
+       it is set to 1."                                                       
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "GROUP START PACKET NUMBER"                            
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 13                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 4:  The Group Start Packet Number                     
+       gives the number of the ODF packet containing the                      
+       Ramp Group Header; packet numbering starts with 0                      
+       for the File Label Group Header."                                      
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF4A34_TABLE                                  
+                                                                              
+OBJECT                       = ODF4B34_TABLE                                  
+  NAME                         = "RAMP GROUP 34 DATA"                         
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 474                                          
+  COLUMNS                      = 9                                            
+  ROW_BYTES                    = 36                                           
+  DESCRIPTION                  = "Ramp Groups are                             
+     usually the fourth of several groups of records in an                    
+     Orbit Data File (ODF).  They contain information on                      
+     tuning of receivers or transmitters.  There is usually                   
+     one Ramp Group for each DSN station.  The Ramp Group                     
+     Header is the first record in each Ramp Group.  It is                    
+     one 36-byte record and is followed by one or more 36-                    
+     byte Ramp Group data records.  Data records are time                     
+     ordered within each Ramp Group.  The Ramp Group may be                   
+     omitted from an ODF."                                                    
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 1                                                         
+    NAME          = "RAMP START TIME - INTEGER PART"                          
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 1                                                         
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION = "Item 1:  The integer part of the ramp                      
+       start time, measured from 0 hours UTC on 1 January 1950."              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 2                                                         
+    NAME          = "RAMP START TIME - FRACTIONAL PART"                       
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 5                                                         
+    BYTES         = 4                                                         
+    UNIT          = NANOSECOND                                                
+    DESCRIPTION = "Item 2:  The fractional part of the ramp                   
+       start time - see Column 1 (Item 1)."                                   
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 3                                                         
+    NAME          = "RAMP RATE - INTEGER PART"                                
+    DATA_TYPE     = MSB_INTEGER                                               
+    START_BYTE    = 9                                                         
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 3:  The integer part of the ramp                      
+       rate."                                                                 
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 4                                                         
+    NAME          = "RAMP RATE - FRACTIONAL PART"                             
+    DATA_TYPE     = MSB_INTEGER                                               
+    START_BYTE    = 13                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 4:  The fractional part of the ramp                   
+       rate, in units of 10^-9 of Column 3."                                  
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 5                                                         
+    NAME          = "ITEMS 5-6"                                               
+    DATA_TYPE     = MSB_BIT_STRING                                            
+    START_BYTE    = 17                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Items 5-6 of the ODF."                                     
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "RAMP START FREQUENCY - GHZ"                            
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 1                                                       
+      BITS          = 22                                                      
+      UNIT          = GIGAHERTZ                                               
+      DESCRIPTION   = "Item 5: Ramp Start Frequency, integer GHz.             
+         If this value is non-zero, Ramp Start Frequency and Ramp             
+         Rate are at sky level."                                              
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "STATION ID"                                            
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 23                                                      
+      BITS          = 10                                                      
+      DESCRIPTION   = "Item 6: Receiving/Transmitting Station                 
+         ID Number."                                                          
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 6                                                         
+    NAME          = "RAMP START FREQUENCY - INTEGER PART"                     
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 21                                                        
+    BYTES         = 4                                                         
+    UNIT          = HERTZ                                                     
+    DESCRIPTION = "Item 7:  The integer part of the                           
+       Ramp Start Frequency, modulo 10^9."                                    
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 7                                                         
+    NAME          = "RAMP START FREQUENCY - FRACTIONAL PART"                  
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 25                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 8:  The fractional part of the                        
+       Ramp Start Frequency, in units of 10^-9 of                             
+       Column 6."                                                             
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 8                                                         
+    NAME          = "RAMP END TIME - INTEGER PART"                            
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 29                                                        
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION = "Item 9:  The integer part of the ramp                      
+       end time, measured from 0 hours UTC on 1 January 1950."                
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 9                                                         
+    NAME          = "RAMP END TIME - FRACTIONAL PART"                         
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 33                                                        
+    BYTES         = 4                                                         
+    UNIT          = NANOSECOND                                                
+    DESCRIPTION = "Item 10:  The fractional part of the ramp                  
+       end time (see Column 8)."                                              
+  END_OBJECT    = COLUMN                                                      
+END_OBJECT                   = ODF4B34_TABLE                                  
+                                                                              
+OBJECT                       = ODF4A45_TABLE                                  
+  NAME                         = "RAMP GROUP 45 HEADER"                       
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 4                                            
+  ROW_BYTES                    = 16                                           
+  ROW_SUFFIX_BYTES             = 20                                           
+  DESCRIPTION                  = "Ramp Groups are                             
+     usually the fourth of several groups of records in an                    
+     Orbit Data File (ODF).  They contain information on                      
+     tuning of receivers or transmitters.  There is usually                   
+     one Ramp Group for each DSN station.  The Ramp Group                     
+     Header is the first record in each Ramp Group.  It is                    
+     one 36-byte record and is followed by one or more 36-                    
+     byte Ramp Group data records.  Data records are time                     
+     ordered within each Ramp Group.  The Ramp Group may be                   
+     omitted from an ODF.  The row suffix bytes in the Ramp                   
+     Group Header are set to 0."                                              
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "PRIMARY KEY"                                          
+    DATA_TYPE        = MSB_INTEGER                                            
+    START_BYTE       = 1                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 1:  The Primary Key indicates the type                
+       of data records to follow.  In the Ramp Group Header                   
+       this field is set to 2030."                                            
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "SECONDARY KEY"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 5                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 2: Set to the Station ID Number."                     
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "LOGICAL RECORD LENGTH"                                
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 9                                                      
+    BYTES            = 4                                                      
+    UNIT             = PACKET                                                 
+    DESCRIPTION = "Item 3:  The Logical Record Length gives the               
+       number of 36-byte physical records making up each logical              
+       record in a Ramp Group data record.  For the Ramp Group                
+       it is set to 1."                                                       
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "GROUP START PACKET NUMBER"                            
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 13                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 4:  The Group Start Packet Number                     
+       gives the number of the ODF packet containing the                      
+       Ramp Group Header; packet numbering starts with 0                      
+       for the File Label Group Header."                                      
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF4A45_TABLE                                  
+                                                                              
+OBJECT                       = ODF4B45_TABLE                                  
+  NAME                         = "RAMP GROUP 45 DATA"                         
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 329                                          
+  COLUMNS                      = 9                                            
+  ROW_BYTES                    = 36                                           
+  DESCRIPTION                  = "Ramp Groups are                             
+     usually the fourth of several groups of records in an                    
+     Orbit Data File (ODF).  They contain information on                      
+     tuning of receivers or transmitters.  There is usually                   
+     one Ramp Group for each DSN station.  The Ramp Group                     
+     Header is the first record in each Ramp Group.  It is                    
+     one 36-byte record and is followed by one or more 36-                    
+     byte Ramp Group data records.  Data records are time                     
+     ordered within each Ramp Group.  The Ramp Group may be                   
+     omitted from an ODF."                                                    
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 1                                                         
+    NAME          = "RAMP START TIME - INTEGER PART"                          
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 1                                                         
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION = "Item 1:  The integer part of the ramp                      
+       start time, measured from 0 hours UTC on 1 January 1950."              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 2                                                         
+    NAME          = "RAMP START TIME - FRACTIONAL PART"                       
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 5                                                         
+    BYTES         = 4                                                         
+    UNIT          = NANOSECOND                                                
+    DESCRIPTION = "Item 2:  The fractional part of the ramp                   
+       start time - see Column 1 (Item 1)."                                   
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 3                                                         
+    NAME          = "RAMP RATE - INTEGER PART"                                
+    DATA_TYPE     = MSB_INTEGER                                               
+    START_BYTE    = 9                                                         
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 3:  The integer part of the ramp                      
+       rate."                                                                 
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 4                                                         
+    NAME          = "RAMP RATE - FRACTIONAL PART"                             
+    DATA_TYPE     = MSB_INTEGER                                               
+    START_BYTE    = 13                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 4:  The fractional part of the ramp                   
+       rate, in units of 10^-9 of Column 3."                                  
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 5                                                         
+    NAME          = "ITEMS 5-6"                                               
+    DATA_TYPE     = MSB_BIT_STRING                                            
+    START_BYTE    = 17                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Items 5-6 of the ODF."                                     
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "RAMP START FREQUENCY - GHZ"                            
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 1                                                       
+      BITS          = 22                                                      
+      UNIT          = GIGAHERTZ                                               
+      DESCRIPTION   = "Item 5: Ramp Start Frequency, integer GHz.             
+         If this value is non-zero, Ramp Start Frequency and Ramp             
+         Rate are at sky level."                                              
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "STATION ID"                                            
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 23                                                      
+      BITS          = 10                                                      
+      DESCRIPTION   = "Item 6: Receiving/Transmitting Station                 
+         ID Number."                                                          
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 6                                                         
+    NAME          = "RAMP START FREQUENCY - INTEGER PART"                     
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 21                                                        
+    BYTES         = 4                                                         
+    UNIT          = HERTZ                                                     
+    DESCRIPTION = "Item 7:  The integer part of the                           
+       Ramp Start Frequency, modulo 10^9."                                    
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 7                                                         
+    NAME          = "RAMP START FREQUENCY - FRACTIONAL PART"                  
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 25                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 8:  The fractional part of the                        
+       Ramp Start Frequency, in units of 10^-9 of                             
+       Column 6."                                                             
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 8                                                         
+    NAME          = "RAMP END TIME - INTEGER PART"                            
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 29                                                        
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION = "Item 9:  The integer part of the ramp                      
+       end time, measured from 0 hours UTC on 1 January 1950."                
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 9                                                         
+    NAME          = "RAMP END TIME - FRACTIONAL PART"                         
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 33                                                        
+    BYTES         = 4                                                         
+    UNIT          = NANOSECOND                                                
+    DESCRIPTION = "Item 10:  The fractional part of the ramp                  
+       end time (see Column 8)."                                              
+  END_OBJECT    = COLUMN                                                      
+END_OBJECT                   = ODF4B45_TABLE                                  
+                                                                              
+OBJECT                       = ODF4A54_TABLE                                  
+  NAME                         = "RAMP GROUP 54 HEADER"                       
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 4                                            
+  ROW_BYTES                    = 16                                           
+  ROW_SUFFIX_BYTES             = 20                                           
+  DESCRIPTION                  = "Ramp Groups are                             
+     usually the fourth of several groups of records in an                    
+     Orbit Data File (ODF).  They contain information on                      
+     tuning of receivers or transmitters.  There is usually                   
+     one Ramp Group for each DSN station.  The Ramp Group                     
+     Header is the first record in each Ramp Group.  It is                    
+     one 36-byte record and is followed by one or more 36-                    
+     byte Ramp Group data records.  Data records are time                     
+     ordered within each Ramp Group.  The Ramp Group may be                   
+     omitted from an ODF.  The row suffix bytes in the Ramp                   
+     Group Header are set to 0."                                              
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "PRIMARY KEY"                                          
+    DATA_TYPE        = MSB_INTEGER                                            
+    START_BYTE       = 1                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 1:  The Primary Key indicates the type                
+       of data records to follow.  In the Ramp Group Header                   
+       this field is set to 2030."                                            
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "SECONDARY KEY"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 5                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 2: Set to the Station ID Number."                     
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "LOGICAL RECORD LENGTH"                                
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 9                                                      
+    BYTES            = 4                                                      
+    UNIT             = PACKET                                                 
+    DESCRIPTION = "Item 3:  The Logical Record Length gives the               
+       number of 36-byte physical records making up each logical              
+       record in a Ramp Group data record.  For the Ramp Group                
+       it is set to 1."                                                       
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "GROUP START PACKET NUMBER"                            
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 13                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 4:  The Group Start Packet Number                     
+       gives the number of the ODF packet containing the                      
+       Ramp Group Header; packet numbering starts with 0                      
+       for the File Label Group Header."                                      
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF4A54_TABLE                                  
+                                                                              
+OBJECT                       = ODF4B54_TABLE                                  
+  NAME                         = "RAMP GROUP 54 DATA"                         
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 3                                            
+  COLUMNS                      = 9                                            
+  ROW_BYTES                    = 36                                           
+  DESCRIPTION                  = "Ramp Groups are                             
+     usually the fourth of several groups of records in an                    
+     Orbit Data File (ODF).  They contain information on                      
+     tuning of receivers or transmitters.  There is usually                   
+     one Ramp Group for each DSN station.  The Ramp Group                     
+     Header is the first record in each Ramp Group.  It is                    
+     one 36-byte record and is followed by one or more 36-                    
+     byte Ramp Group data records.  Data records are time                     
+     ordered within each Ramp Group.  The Ramp Group may be                   
+     omitted from an ODF."                                                    
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 1                                                         
+    NAME          = "RAMP START TIME - INTEGER PART"                          
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 1                                                         
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION = "Item 1:  The integer part of the ramp                      
+       start time, measured from 0 hours UTC on 1 January 1950."              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 2                                                         
+    NAME          = "RAMP START TIME - FRACTIONAL PART"                       
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 5                                                         
+    BYTES         = 4                                                         
+    UNIT          = NANOSECOND                                                
+    DESCRIPTION = "Item 2:  The fractional part of the ramp                   
+       start time - see Column 1 (Item 1)."                                   
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 3                                                         
+    NAME          = "RAMP RATE - INTEGER PART"                                
+    DATA_TYPE     = MSB_INTEGER                                               
+    START_BYTE    = 9                                                         
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 3:  The integer part of the ramp                      
+       rate."                                                                 
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 4                                                         
+    NAME          = "RAMP RATE - FRACTIONAL PART"                             
+    DATA_TYPE     = MSB_INTEGER                                               
+    START_BYTE    = 13                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 4:  The fractional part of the ramp                   
+       rate, in units of 10^-9 of Column 3."                                  
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 5                                                         
+    NAME          = "ITEMS 5-6"                                               
+    DATA_TYPE     = MSB_BIT_STRING                                            
+    START_BYTE    = 17                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Items 5-6 of the ODF."                                     
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "RAMP START FREQUENCY - GHZ"                            
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 1                                                       
+      BITS          = 22                                                      
+      UNIT          = GIGAHERTZ                                               
+      DESCRIPTION   = "Item 5: Ramp Start Frequency, integer GHz.             
+         If this value is non-zero, Ramp Start Frequency and Ramp             
+         Rate are at sky level."                                              
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+    OBJECT        = BIT_COLUMN                                                
+      NAME          = "STATION ID"                                            
+      BIT_DATA_TYPE = MSB_UNSIGNED_INTEGER                                    
+      START_BIT     = 23                                                      
+      BITS          = 10                                                      
+      DESCRIPTION   = "Item 6: Receiving/Transmitting Station                 
+         ID Number."                                                          
+    END_OBJECT    = BIT_COLUMN                                                
+                                                                              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 6                                                         
+    NAME          = "RAMP START FREQUENCY - INTEGER PART"                     
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 21                                                        
+    BYTES         = 4                                                         
+    UNIT          = HERTZ                                                     
+    DESCRIPTION = "Item 7:  The integer part of the                           
+       Ramp Start Frequency, modulo 10^9."                                    
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 7                                                         
+    NAME          = "RAMP START FREQUENCY - FRACTIONAL PART"                  
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 25                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 8:  The fractional part of the                        
+       Ramp Start Frequency, in units of 10^-9 of                             
+       Column 6."                                                             
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 8                                                         
+    NAME          = "RAMP END TIME - INTEGER PART"                            
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 29                                                        
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION = "Item 9:  The integer part of the ramp                      
+       end time, measured from 0 hours UTC on 1 January 1950."                
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 9                                                         
+    NAME          = "RAMP END TIME - FRACTIONAL PART"                         
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 33                                                        
+    BYTES         = 4                                                         
+    UNIT          = NANOSECOND                                                
+    DESCRIPTION = "Item 10:  The fractional part of the ramp                  
+       end time (see Column 8)."                                              
+  END_OBJECT    = COLUMN                                                      
+END_OBJECT                   = ODF4B54_TABLE                                  
+                                                                              
+OBJECT                       = ODF7A_TABLE                                    
+  NAME                         = "DATA SUMMARY GROUP HEADER"                  
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 4                                            
+  ROW_BYTES                    = 16                                           
+  ROW_SUFFIX_BYTES             = 20                                           
+  DESCRIPTION                  = "The Data Summary Group                      
+     is usually the 7th of several groups of records in an                    
+     Orbit Data File (ODF).  It contains summary information                  
+     on contents of the ODF.  The Data Summary Group Header                   
+     is the first record in the Data Summary Group.  It is                    
+     one 36-byte record and is followed by one or more 36-                    
+     byte Data Summary Group data records.  The Data Summary                  
+     Group may be omitted from an ODF.  The row suffix bytes                  
+     in the Data Summary Group Header are set to 0."                          
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "PRIMARY KEY"                                          
+    DATA_TYPE        = MSB_INTEGER                                            
+    START_BYTE       = 1                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 1:  The Primary Key indicates the type                
+       of data records to follow.  In the Data Summary Group                  
+       Header this field is set to 105."                                      
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "SECONDARY KEY"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 5                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 2:  Set to 0."                                        
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "LOGICAL RECORD LENGTH"                                
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 9                                                      
+    BYTES            = 4                                                      
+    UNIT             = PACKET                                                 
+    DESCRIPTION = "Item 3:  The Logical Record Length gives the               
+       number of 36-byte physical records making up each logical              
+       record in a Data Summary Group data record.  For the                   
+       Data Summary Group it is set to 1."                                    
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "GROUP START PACKET NUMBER"                            
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 13                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 4:  The Group Start Packet Number                     
+       gives the number of the ODF packet containing the                      
+       Data Summary Group Header; packet numbering starts                     
+       with 0 for the File Label Group Header."                               
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF7A_TABLE                                    
+                                                                              
+OBJECT                       = ODF7B_TABLE                                    
+  NAME                         = "DATA SUMMARY GROUP DATA"                    
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 6                                            
+  COLUMNS                      = 9                                            
+  ROW_BYTES                    = 36                                           
+  DESCRIPTION                  = "The Data Summary Group                      
+     is usually the 7th of several groups of records in an                    
+     Orbit Data File (ODF).  It contains summary information                  
+     on contents of the ODF.  The Data Summary Group Header                   
+     is the first record in the Data Summary Group.  It is                    
+     one 36-byte record and is followed by one or more 36-                    
+     byte Data Summary Group data records ordered by                          
+     station, band, and data type.  The Data Summary Group                    
+     may be omitted from an ODF."                                             
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 1                                                         
+    NAME          = "FIRST SAMPLE TIME - INTEGER PART"                        
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 1                                                         
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION   = "Item 1:  The integer part of the first                   
+       sample time, measured from 0 hours UTC on 1 January 1950."             
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 2                                                         
+    NAME          = "FIRST SAMPLE TIME - FRACTIONAL PART"                     
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 5                                                         
+    BYTES         = 4                                                         
+    UNIT          = NANOSECOND                                                
+    DESCRIPTION = "Item 2:  The fractional part of the first                  
+       sample time (see Column 1)."                                           
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 3                                                         
+    NAME          = "STATION ID"                                              
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 9                                                         
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 3:  The Station ID Number."                           
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 4                                                         
+    NAME          = "NETWORK OR DOPPLER ID"                                   
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 13                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 3:                                                    
+       If FORMAT ID = 2 (Item 5 or 6, Orbit Data Group Data):                 
+         The Doppler Channel Number (or set to 0 if VLBI,                     
+           range, or angles summary).                                         
+       Otherwise, the Network ID Number."                                     
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 5                                                         
+    NAME          = "BAND ID"                                                 
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 17                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 5:  The Band ID Number."                              
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 6                                                         
+    NAME          = "DATA TYPE ID"                                            
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 21                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 6:  The Data Type ID Number."                         
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 7                                                         
+    NAME          = "NUMBER OF SAMPLES"                                       
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 25                                                        
+    BYTES         = 4                                                         
+    DESCRIPTION = "Item 7:  Number of samples in ODF."                        
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 8                                                         
+    NAME          = "LAST SAMPLE TIME - INTEGER PART"                         
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 29                                                        
+    BYTES         = 4                                                         
+    UNIT          = SECOND                                                    
+    DESCRIPTION = "Item 8:  Last Sample Time, integer                         
+       part."                                                                 
+  END_OBJECT    = COLUMN                                                      
+                                                                              
+  OBJECT        = COLUMN                                                      
+    COLUMN_NUMBER = 9                                                         
+    NAME          = "LAST SAMPLE TIME - FRACTIONAL PART"                      
+    DATA_TYPE     = MSB_UNSIGNED_INTEGER                                      
+    START_BYTE    = 33                                                        
+    BYTES         = 4                                                         
+    UNIT          = NANOSECOND                                                
+    DESCRIPTION = "Item 9:  Last Sample Time, fractional                      
+       part."                                                                 
+  END_OBJECT    = COLUMN                                                      
+END_OBJECT                   = ODF7B_TABLE                                    
+                                                                              
+OBJECT                       = ODF8A_TABLE                                    
+  NAME                         = "END OF FILE GROUP HEADER"                   
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 1                                            
+  COLUMNS                      = 4                                            
+  ROW_BYTES                    = 16                                           
+  ROW_SUFFIX_BYTES             = 20                                           
+  DESCRIPTION                  = "The End of File Group                       
+     is usually the eighth and last of several groups of                      
+     records in an Orbit Data File (ODF).  It is a single                     
+     record of 36-bytes and denotes the logical end of the                    
+     ODF.  Row  suffix bytes are set to 0."                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 1                                                      
+    NAME             = "PRIMARY KEY"                                          
+    DATA_TYPE        = MSB_INTEGER                                            
+    START_BYTE       = 1                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 1:  The Primary Key indicates the type                
+       of data records to follow.  In the End of File Group                   
+       this field is set to -1."                                              
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 2                                                      
+    NAME             = "SECONDARY KEY"                                        
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 5                                                      
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 2:  The Secondary Key is not used in                  
+       the ODF.  It is set to 0."                                             
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 3                                                      
+    NAME             = "LOGICAL RECORD LENGTH"                                
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 9                                                      
+    BYTES            = 4                                                      
+    UNIT             = PACKET                                                 
+    DESCRIPTION = "Item 3:  The Logical Record Length is set                  
+       to 0 in the End of File Group, indicating that no                      
+       logical records follow."                                               
+  END_OBJECT       = COLUMN                                                   
+                                                                              
+  OBJECT           = COLUMN                                                   
+    COLUMN_NUMBER    = 4                                                      
+    NAME             = "GROUP START PACKET NUMBER"                            
+    DATA_TYPE        = MSB_UNSIGNED_INTEGER                                   
+    START_BYTE       = 13                                                     
+    BYTES            = 4                                                      
+    DESCRIPTION = "Item 4:  The Group Start Packet Number                     
+       gives the number of the ODF packet containing the                      
+       End of File Group; packet numbering starts with 0                      
+       for the File Label Group Header."                                      
+  END_OBJECT       = COLUMN                                                   
+END_OBJECT                   = ODF8A_TABLE                                    
+                                                                              
+OBJECT                       = ODF8B_TABLE                                    
+  NAME                         = "END OF FILE GROUP DATA"                     
+  INTERCHANGE_FORMAT           = BINARY                                       
+  ROWS                         = 171                                          
+  COLUMNS                      = 1                                            
+  ROW_BYTES                    = 36                                           
+  DESCRIPTION                  = "The End of File Group Data                  
+     are the last several records in an Orbit Data File                       
+     (ODF).  They are not defined, and simply fill out                        
+     the final 8064-byte logical blocks in the file."                         
+  OBJECT                       = COLUMN                                       
+    NAME                         = "SPARE"                                    
+    DATA_TYPE                    = MSB_INTEGER                                
+    BYTES                        = 36                                         
+    START_BYTE                   = 1                                          
+    ITEMS                        = 9                                          
+    ITEM_BYTES                   = 4                                          
+    ITEM_OFFSET                  = 4                                          
+  END_OBJECT                   = COLUMN                                       
+END_OBJECT                   = ODF8B_TABLE                                    
+                                                                              
+END                                                                           

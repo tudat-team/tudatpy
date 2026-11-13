@@ -56,33 +56,6 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObserva
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndDrop(
-        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
-{
-    return createNewAndKeep( !condition );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeObservations(
-        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
-{
-    retainObservationRows( getObservationIdsMatchingCondition( !condition ) );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeRejectedObservations( )
-{
-    removeObservations( ObservationSelectionCondition< ObservationScalarType, TimeType >::rejected( ) );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObservations(
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
         const std::string& reason )
@@ -114,6 +87,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::restoreObserv
     {
         auto& row = mutableObservationRow( id );
         row.isActive_ = true;
+        row.rejectionReason_.clear( );
     }
     if( !selected.empty( ) )
     {

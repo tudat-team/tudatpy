@@ -13,11 +13,8 @@
 
 #include <Eigen/Core>
 #include <functional>
-#include <cstdint>
 #include <iostream>
-#include <limits>
 #include <memory>
-#include <set>
 #include <vector>
 
 #include <cereal/access.hpp>
@@ -34,7 +31,6 @@
 #include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
-#include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 
 namespace tudat
@@ -76,6 +72,7 @@ public:
     ObservationCollection( const SortedObservationSets& observationSetList = SortedObservationSets( ) ):
         observationSetList_( observationSetList )
     {
+        printObservationCollectionDeprecationWarning( );
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
     }
@@ -84,50 +81,23 @@ public:
             const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSetList ):
         observationSetList_( createSortedObservationSetList< ObservationScalarType, TimeType >( observationSetList ) )
     {
+        printObservationCollectionDeprecationWarning( );
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
     }
 
-    //! Create a legacy collection facade backed by a live observation dataset.
-    ObservationCollection( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
-        observationDataset_( observationDataset )
-    {
-        if( observationDataset_ == nullptr )
-        {
-            throw std::runtime_error( "Error when creating observation collection wrapper, input dataset is null." );
-        }
-
-        for( std::size_t setIndex = 0; setIndex < observationDataset_->getNumberOfObservationSets( ); ++setIndex )
-        {
-            const int setId = static_cast< int >( setIndex );
-            const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
-                    observationDataset_->getObservationSetMetadata( setId );
-            const LinkEnds linkEnds = observationDataset_->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
-            std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
-                    std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observationDataset_, setId );
-            observationSetList_[ metadata.observableType_ ][ linkEnds ].push_back( observationSet );
-            observationSetWrappersByDatasetSetId_.push_back( observationSet );
-        }
-
-        setObservationSetIndices( );
-        setConcatenatedObservationsAndTimes( false );
-    }
-
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVector( )
     {
-        refreshLegacyConcatenatedDataFromObservationDataset( );
         return concatenatedObservations_;
     }
 
     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& getObservationVectorReference( )
     {
-        refreshLegacyConcatenatedDataFromObservationDataset( );
         return concatenatedObservations_;
     }
 
     void setObservations( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& newObservations )
     {
-        refreshFromDatasetIfNeeded( );
         if( newObservations.size( ) != totalObservableSize_ )
         {
             throw std::runtime_error(
@@ -148,12 +118,10 @@ public:
                 }
             }
         }
-        refreshLegacyConcatenatedDataFromObservationDataset( );
     }
 
     void setResiduals( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& newResiduals )
     {
-        refreshFromDatasetIfNeeded( );
         if( newResiduals.size( ) != totalObservableSize_ )
         {
             throw std::runtime_error(
@@ -208,7 +176,6 @@ public:
                     "should be consistent with "
                     "the combined size of all required observation sets." );
         }
-        refreshLegacyConcatenatedDataFromObservationDataset( );
     }
 
     void setObservations( const std::map< std::shared_ptr< ObservationCollectionParser >,
@@ -265,32 +232,18 @@ public:
 
     std::vector< TimeType > getConcatenatedTimeVector( )
     {
-        refreshLegacyConcatenatedDataFromObservationDataset( );
         return concatenatedTimes_;
     }
 
     std::vector< double > getConcatenatedDoubleTimeVector( )
     {
-        refreshLegacyConcatenatedDataFromObservationDataset( );
         return utilities::staticCastVector< double, TimeType >( concatenatedTimes_ );
-    }
-
-    //! A dataset-backed collection returns its live backend. A legacy grouping returns an independent snapshot.
-    std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( ) const
-    {
-        refreshFromDatasetIfNeeded( );
-        return observationDataset_ ? observationDataset_ : createObservationDatasetSnapshot( );
     }
 
     std::pair< TimeType, TimeType > getTimeBounds( )
     {
-        refreshLegacyConcatenatedDataFromObservationDataset( );
-        if( concatenatedTimes_.empty( ) )
-        {
-            return { TUDAT_NAN, TUDAT_NAN };
-        }
-        return { *std::min_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ),
-                 *std::max_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ) };
+        return std::make_pair( *std::min_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ),
+                               *std::max_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ) );
     }
 
     std::pair< double, double > getTimeBoundsDouble( )
@@ -302,7 +255,6 @@ public:
     std::vector< std::pair< TimeType, TimeType > > getTimeBoundsPerSet(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
-        refreshFromDatasetIfNeeded( );
         std::vector< std::pair< TimeType, TimeType > > timeBounds;
         for( auto observableIt : getSingleObservationSetsIndices( observationParser ) )
         {
@@ -334,13 +286,11 @@ public:
 
     std::vector< int > getConcatenatedLinkEndIds( )
     {
-        refreshFromDatasetIfNeeded( );
         return concatenatedLinkEndIds_;
     }
 
     std::vector< int > getConcatenatedLinkEndIds( std::shared_ptr< ObservationCollectionParser > observationParser )
     {
-        refreshFromDatasetIfNeeded( );
         std::vector< int > subsetConcatenatedLinkEndIds;
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices =
                 getSingleObservationSetsIndices( observationParser );
@@ -366,85 +316,71 @@ public:
 
     std::map< observation_models::LinkEnds, int > getLinkEndIdentifierMap( )
     {
-        refreshFromDatasetIfNeeded( );
         return linkEndIds_;
     }
 
     std::map< int, observation_models::LinkEnds > getInverseLinkEndIdentifierMap( )
     {
-        refreshFromDatasetIfNeeded( );
         return inverseLinkEndIds_;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSize( )
     {
-        refreshFromDatasetIfNeeded( );
         return observationSetStartAndSize_;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > >& getObservationSetStartAndSizeReference( )
     {
-        refreshFromDatasetIfNeeded( );
         return observationSetStartAndSize_;
     }
 
     std::vector< std::pair< int, int > > getConcatenatedObservationSetStartAndSize( )
     {
-        refreshFromDatasetIfNeeded( );
         return concatenatedObservationSetStartAndSize_;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > getObservationTypeAndLinkEndStartAndSize( )
     {
-        refreshFromDatasetIfNeeded( );
         return observationTypeAndLinkEndStartAndSize_;
     }
 
     std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizePerLinkEndIndex( )
     {
-        refreshFromDatasetIfNeeded( );
         return observationSetStartAndSizePerLinkEndIndex_;
     }
 
     std::map< ObservableType, std::pair< int, int > > getObservationTypeStartAndSize( )
     {
-        refreshFromDatasetIfNeeded( );
         return observationTypeStartAndSize_;
     }
 
     int getTotalObservableSize( )
     {
-        refreshFromDatasetIfNeeded( );
         return totalObservableSize_;
     }
 
     SortedObservationSets getObservationsSets( )
     {
-        refreshFromDatasetIfNeeded( );
         return observationSetList_;
     }
 
     const SortedObservationSets& getObservationsReference( ) const
     {
-        refreshFromDatasetIfNeeded( );
         return observationSetList_;
     }
 
     std::vector< LinkEnds > getConcatenatedLinkEndIdNames( )
     {
-        refreshFromDatasetIfNeeded( );
         return concatenatedLinkEndIdNames_;
     }
 
     std::map< ObservableType, std::vector< LinkDefinition > > getLinkDefinitionsPerObservable( )
     {
-        refreshFromDatasetIfNeeded( );
         return linkDefinitionsPerObservable_;
     }
 
     std::vector< LinkDefinition > getLinkDefinitionsForSingleObservable( const ObservableType observableType )
     {
-        refreshFromDatasetIfNeeded( );
         if( linkDefinitionsPerObservable_.count( observableType ) > 0 )
         {
             return linkDefinitionsPerObservable_.at( observableType );
@@ -458,7 +394,6 @@ public:
     std::map< ObservableType, std::map< int, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
     getSortedObservationSets( )
     {
-        refreshFromDatasetIfNeeded( );
         std::map< ObservableType,
                   std::map< int, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
                 observationSetListIndexSorted;
@@ -474,7 +409,6 @@ public:
 
     std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > getSortedObservationSetsTimeBounds( )
     {
-        refreshFromDatasetIfNeeded( );
         std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > observationSetTimeBounds;
         for( auto it1 : observationSetList_ )
         {
@@ -494,7 +428,6 @@ public:
 
     std::map< ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( )
     {
-        refreshFromDatasetIfNeeded( );
         std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservableType;
 
         for( auto observableTypeIt = observationSetList_.begin( ); observableTypeIt != observationSetList_.end( ); ++observableTypeIt )
@@ -1101,11 +1034,40 @@ public:
                          "for specified observation parser. Weights not set";
         }
 
-        observation_legacy_detail::setTabulatedWeights(
-                singleObsSets,
-                tabulatedWeights,
-                []( const auto& set ) { return set->getTotalObservationSetSize( ); },
-                []( const auto& set, const Eigen::VectorXd& weights ) { set->setTabulatedWeights( weights ); } );
+        bool areObsSetsSameSize = true;
+        int totalSizeAllObsSets = singleObsSets.at( 0 )->getTotalObservationSetSize( );
+        for( unsigned int k = 1; k < singleObsSets.size( ); k++ )
+        {
+            unsigned int currentObsSetSize = singleObsSets.at( k )->getTotalObservationSetSize( );
+            totalSizeAllObsSets += currentObsSetSize;
+            if( currentObsSetSize != singleObsSets.at( 0 )->getTotalObservationSetSize( ) )
+            {
+                areObsSetsSameSize = false;
+            }
+        }
+
+        unsigned int startObsSet = 0;
+        for( auto obsSet : singleObsSets )
+        {
+            if( tabulatedWeights.size( ) == totalSizeAllObsSets )
+            {
+                Eigen::VectorXd singleSetWeights = tabulatedWeights.segment( startObsSet, obsSet->getTotalObservationSetSize( ) );
+                startObsSet += obsSet->getTotalObservationSetSize( );
+                obsSet->setTabulatedWeights( singleSetWeights );
+            }
+            else if( areObsSetsSameSize && ( tabulatedWeights.size( ) == singleObsSets.at( 0 )->getTotalObservationSetSize( ) ) )
+            {
+                obsSet->setTabulatedWeights( tabulatedWeights );
+            }
+            else
+            {
+                throw std::runtime_error(
+                        "Error when setting tabulated weights, the size of the input weight vector "
+                        "should be consistent with "
+                        "either the size of each individual observation set, or the combined size "
+                        "of all required observation sets." );
+            }
+        }
     }
 
     void setTabulatedWeights(
@@ -1146,7 +1108,9 @@ public:
             }
         }
 
-        rebuildObservationDatasetFromObservationSetList( );
+        // Reset observation set indices and concatenated observations and times
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void filterObservations(
@@ -1172,7 +1136,7 @@ public:
 
         // Reset observation set indices and concatenated observations and times
         setObservationSetIndices( );
-        setConcatenatedObservationsAndTimes( false );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void filterObservations(
@@ -1210,11 +1174,6 @@ public:
                 unsigned int obsSetCounter = 0;
                 for( auto indexSetToSplit : linkEndsIt.second )
                 {
-                    if( singleObsSets.at( indexSetToSplit + obsSetCounter )->getNumberOfObservables( ) == 0 )
-                    {
-                        continue;
-                    }
-
                     // Get new observation sets after splitting
                     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newObsSets =
                             splitObservationSet(
@@ -1238,7 +1197,9 @@ public:
             }
         }
 
-        rebuildObservationDatasetFromObservationSetList( );
+        // Reset observation set indices and concatenated observations and times
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void replaceSingleObservationSet( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& newSet,
@@ -1264,7 +1225,9 @@ public:
         }
         observationSetList_.at( newSet->getObservableType( ) ).at( newSet->getLinkEnds( ).linkEnds_ ).at( setIndex ) = newSet;
 
-        rebuildObservationDatasetFromObservationSetList( );
+        // Reset observation set indices and concatenated observations and times
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void removeSingleObservationSets( const std::shared_ptr< ObservationCollectionParser > observationParser )
@@ -1301,8 +1264,6 @@ public:
     void removeSingleObservationSets(
             const std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > >& indicesSetsToRemove )
     {
-        bool removedAnySet = false;
-
         // Parse observation set list and remove selected sets
         for( auto observableIt : indicesSetsToRemove )
         {
@@ -1336,39 +1297,512 @@ public:
                             .erase( observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).begin( ) + indexToRemove -
                                     counterRemovedSets );
                     counterRemovedSets += 1;
-                    removedAnySet = true;
                 }
             }
         }
 
-        if( removedAnySet )
-        {
-            rebuildObservationDatasetFromObservationSetList( );
-        }
+        // Reset observation set indices and concatenated observations and times
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > getSingleObservationSetsIndices(
             const std::shared_ptr< ObservationCollectionParser > observationParser =
                     std::make_shared< ObservationCollectionParser >( ) ) const
     {
-        refreshFromDatasetIfNeeded( );
-        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > selected;
-        for( const auto& observable : observationSetList_ )
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices;
+
+        ObservationParserType parserType = observationParser->getObservationParserType( );
+        switch( parserType )
         {
-            for( const auto& link : observable.second )
-            {
-                for( std::size_t i = 0; i < link.second.size( ); ++i )
+            case empty_parser: {
+                for( auto observableIt : observationSetList_ )
                 {
-                    const auto& set = link.second.at( i );
-                    if( isObservationSetSelectedByLegacyParser(
-                                *set->getObservationDataset( ), set->getObservationSetId( ), observationParser ) )
+                    std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                    for( auto linkEndsIt : observableIt.second )
                     {
-                        selected[ observable.first ][ link.first ].push_back( i );
+                        for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
+                        {
+                            indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                        }
+                    }
+                    observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                }
+                break;
+            }
+            case observable_type_parser: {
+                std::vector< ObservableType > observableTypes =
+                        std::dynamic_pointer_cast< ObservationCollectionObservableTypeParser >( observationParser )->getObservableTypes( );
+                for( auto observableIt : observationSetList_ )
+                {
+                    if( ( ( std::count( observableTypes.begin( ), observableTypes.end( ), observableIt.first ) ) &&
+                          ( !observationParser->useOppositeCondition( ) ) ) ||
+                        ( ( std::count( observableTypes.begin( ), observableTypes.end( ), observableIt.first ) == 0 ) &&
+                          ( observationParser->useOppositeCondition( ) ) ) )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        for( auto linkEndsIt : observableIt.second )
+                        {
+                            for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
+                            {
+                                indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                            }
+                        }
+                        observationSetsIndices[ observableIt.first ] = indicesPerObservable;
                     }
                 }
+
+                break;
             }
+            case link_ends_parser: {
+                std::vector< LinkEnds > linkEndsVector =
+                        std::dynamic_pointer_cast< ObservationCollectionLinkEndsParser >( observationParser )->getLinkEndsVector( );
+                std::vector< LinkEnds > allLinkEnds = getLinkEnds( );
+                for( auto linkEnds : allLinkEnds )
+                {
+                    if( ( ( std::count( linkEndsVector.begin( ), linkEndsVector.end( ), linkEnds ) ) &&
+                          ( !observationParser->useOppositeCondition( ) ) ) ||
+                        ( ( std::count( linkEndsVector.begin( ), linkEndsVector.end( ), linkEnds ) == 0 ) &&
+                          ( observationParser->useOppositeCondition( ) ) ) )
+                    {
+                        for( auto observableIt : observationSetList_ )
+                        {
+                            std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                            if( observationSetsIndices.count( observableIt.first ) )
+                            {
+                                indicesPerObservable = observationSetsIndices.at( observableIt.first );
+                            }
+
+                            if( observableIt.second.count( linkEnds ) )
+                            {
+                                for( unsigned int k = 0; k < observableIt.second.at( linkEnds ).size( ); k++ )
+                                {
+                                    indicesPerObservable[ linkEnds ].push_back( k );
+                                }
+                            }
+                            if( indicesPerObservable.size( ) > 0 )
+                            {
+                                observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case link_end_string_parser: {
+                std::shared_ptr< ObservationCollectionLinkEndStringParser > linkEndStringObservationParser =
+                        std::dynamic_pointer_cast< ObservationCollectionLinkEndStringParser >( observationParser );
+                std::vector< std::string > linkEndsNames = linkEndStringObservationParser->getLinkEndNames( );
+                bool isReferencePoint = linkEndStringObservationParser->isReferencePoint( );
+
+                // Retrieve all body names
+                std::vector< std::string > allLinkEndsNames;
+                if( !isReferencePoint )
+                {
+                    allLinkEndsNames = getBodiesInLinkEnds( );
+                }
+                else
+                {
+                    allLinkEndsNames = getReferencePointsInLinkEnds( );
+                }
+
+                for( auto name : allLinkEndsNames )
+                {
+                    if( ( ( std::count( linkEndsNames.begin( ), linkEndsNames.end( ), name ) ) &&
+                          ( !observationParser->useOppositeCondition( ) ) ) ||
+                        ( ( std::count( linkEndsNames.begin( ), linkEndsNames.end( ), name ) == 0 ) &&
+                          ( observationParser->useOppositeCondition( ) ) ) )
+                    {
+                        for( auto observableIt : observationSetList_ )
+                        {
+                            std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                            if( observationSetsIndices.count( observableIt.first ) )
+                            {
+                                indicesPerObservable = observationSetsIndices.at( observableIt.first );
+                            }
+
+                            for( auto linkEndsIt : observableIt.second )
+                            {
+                                // FIX!
+                                bool isBodyInLinkEnds = false;
+                                bool isGroundStationInLinkEnds = false;
+                                for( auto it : linkEndsIt.first )
+                                {
+                                    if( it.second.bodyName_ == name )
+                                    {
+                                        isBodyInLinkEnds = true;
+                                    }
+                                    if( it.second.getReferencePointName( ) == name )
+                                    {
+                                        isGroundStationInLinkEnds = true;
+                                    }
+                                }
+
+                                if( ( !isReferencePoint && isBodyInLinkEnds /*( linkEndsIt.first, name )*/ ) ||
+                                    ( isReferencePoint && isGroundStationInLinkEnds /*( linkEndsIt.first, name )*/ ) )
+                                {
+                                    for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
+                                    {
+                                        indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                    }
+                                }
+                            }
+                            if( indicesPerObservable.size( ) > 0 )
+                            {
+                                observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case link_end_id_parser: {
+                std::shared_ptr< ObservationCollectionLinkEndIdParser > linkEndIdObservationParser =
+                        std::dynamic_pointer_cast< ObservationCollectionLinkEndIdParser >( observationParser );
+                std::vector< LinkEndId > linkEndIds = linkEndIdObservationParser->getLinkEndIds( );
+
+                for( auto linkEndId : linkEndIds )
+                {
+                    for( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        if( observationSetsIndices.count( observableIt.first ) )
+                        {
+                            indicesPerObservable = observationSetsIndices.at( observableIt.first );
+                        }
+
+                        for( auto linkEndsIt : observableIt.second )
+                        {
+                            LinkEnds linkEnds = linkEndsIt.first;
+
+                            // Check whether relevant link end id is present in linkEnds
+                            bool isLinkEndIdInLinkEnds = false;
+                            for( auto it : linkEnds )
+                            {
+                                if( it.second == linkEndId )
+                                {
+                                    isLinkEndIdInLinkEnds = true;
+                                }
+                            }
+
+                            if( ( isLinkEndIdInLinkEnds && ( !observationParser->useOppositeCondition( ) ) ) ||
+                                ( !isLinkEndIdInLinkEnds && ( observationParser->useOppositeCondition( ) ) ) )
+                            {
+                                for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
+                                {
+                                    indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                }
+                            }
+                        }
+                        if( indicesPerObservable.size( ) > 0 )
+                        {
+                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                        }
+                    }
+                }
+                break;
+            }
+            case link_end_type_parser: {
+                std::shared_ptr< ObservationCollectionLinkEndTypeParser > linkEndTypeObservationParser =
+                        std::dynamic_pointer_cast< ObservationCollectionLinkEndTypeParser >( observationParser );
+                std::vector< LinkEndType > linkEndTypes = linkEndTypeObservationParser->getLinkEndTypes( );
+
+                for( auto linkEndType : linkEndTypes )
+                {
+                    for( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        if( observationSetsIndices.count( observableIt.first ) )
+                        {
+                            indicesPerObservable = observationSetsIndices.at( observableIt.first );
+                        }
+
+                        for( auto linkEndsIt : observableIt.second )
+                        {
+                            LinkEnds linkEnds = linkEndsIt.first;
+
+                            // Check whether relevant link end id is present in linkEnds
+                            bool isLinkEndTypeInLinkEnds = false;
+                            for( auto it : linkEnds )
+                            {
+                                if( it.first == linkEndType )
+                                {
+                                    isLinkEndTypeInLinkEnds = true;
+                                }
+                            }
+
+                            if( ( isLinkEndTypeInLinkEnds && ( !observationParser->useOppositeCondition( ) ) ) ||
+                                ( !isLinkEndTypeInLinkEnds && ( observationParser->useOppositeCondition( ) ) ) )
+                            {
+                                for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
+                                {
+                                    indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                }
+                            }
+                        }
+                        if( indicesPerObservable.size( ) > 0 )
+                        {
+                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                        }
+                    }
+                }
+                break;
+            }
+            case single_link_end_parser: {
+                std::shared_ptr< ObservationCollectionSingleLinkEndParser > singleLinkEndObservationParser =
+                        std::dynamic_pointer_cast< ObservationCollectionSingleLinkEndParser >( observationParser );
+                std::vector< std::pair< LinkEndType, LinkEndId > > singleLinkEnds = singleLinkEndObservationParser->getSingleLinkEnds( );
+
+                for( auto singleLinkEnd : singleLinkEnds )
+                {
+                    for( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        if( observationSetsIndices.count( observableIt.first ) )
+                        {
+                            indicesPerObservable = observationSetsIndices.at( observableIt.first );
+                        }
+
+                        for( auto linkEndsIt : observableIt.second )
+                        {
+                            LinkEnds linkEnds = linkEndsIt.first;
+
+                            // Check whether relevant link end type is present in linkEnds
+                            bool isInLinkEnds = false;
+                            for( auto it : linkEnds )
+                            {
+                                if( ( it.first == singleLinkEnd.first ) && ( it.second == singleLinkEnd.second ) )
+                                {
+                                    isInLinkEnds = true;
+                                }
+                            }
+
+                            if( ( isInLinkEnds && ( !observationParser->useOppositeCondition( ) ) ) ||
+                                ( !isInLinkEnds && ( observationParser->useOppositeCondition( ) ) ) )
+                            {
+                                for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
+                                {
+                                    indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                }
+                            }
+                        }
+                        if( indicesPerObservable.size( ) > 0 )
+                        {
+                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                        }
+                    }
+                }
+                break;
+            }
+            case time_bounds_parser: {
+                std::vector< std::pair< double, double > > timeBoundsVector =
+                        std::dynamic_pointer_cast< ObservationCollectionTimeBoundsParser >( observationParser )->getTimeBoundsVector( );
+
+                for( auto timeBounds : timeBoundsVector )
+                {
+                    for( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        if( observationSetsIndices.count( observableIt.first ) )
+                        {
+                            indicesPerObservable = observationSetsIndices.at( observableIt.first );
+                        }
+
+                        for( auto linkEndsIt : observableIt.second )
+                        {
+                            for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
+                            {
+                                bool isInTimeBounds = false;
+                                if( ( linkEndsIt.second.at( k )->getTimeBounds( ).first >= timeBounds.first ) &&
+                                    ( linkEndsIt.second.at( k )->getTimeBounds( ).second <= timeBounds.second ) )
+                                {
+                                    isInTimeBounds = true;
+                                }
+
+                                if( ( isInTimeBounds && ( !observationParser->useOppositeCondition( ) ) ) ||
+                                    ( !isInTimeBounds && ( observationParser->useOppositeCondition( ) ) ) )
+                                {
+                                    indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                }
+                            }
+                        }
+                        if( indicesPerObservable.size( ) > 0 )
+                        {
+                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                        }
+                    }
+                }
+                break;
+            }
+            case ancillary_settings_parser: {
+                std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettings =
+                        std::dynamic_pointer_cast< ObservationCollectionAncillarySettingsParser >( observationParser )
+                                ->getAncillarySettings( );
+
+                for( auto setting : ancillarySettings )
+                {
+                    for( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        if( observationSetsIndices.count( observableIt.first ) )
+                        {
+                            indicesPerObservable = observationSetsIndices.at( observableIt.first );
+                        }
+
+                        for( auto linkEndsIt : observableIt.second )
+                        {
+                            for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
+                            {
+                                bool identicalAncillarySettings = false;
+                                if( ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleData( ) == setting->getDoubleData( ) ) &&
+                                    ( linkEndsIt.second.at( k )->getAncillarySettings( )->getIntData( ) == setting->getIntData( ) ) &&
+                                    ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleVectorData( ) ==
+                                      setting->getDoubleVectorData( ) ) )
+                                {
+                                    identicalAncillarySettings = true;
+                                }
+                                if( ( identicalAncillarySettings && !observationParser->useOppositeCondition( ) ) ||
+                                    ( !identicalAncillarySettings && observationParser->useOppositeCondition( ) ) )
+                                {
+                                    indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                }
+                            }
+                        }
+                        if( indicesPerObservable.size( ) > 0 )
+                        {
+                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                        }
+                    }
+                }
+                break;
+            }
+            case multi_type_parser: {
+                std::shared_ptr< ObservationCollectionMultiTypeParser > multiTypeParser =
+                        std::dynamic_pointer_cast< ObservationCollectionMultiTypeParser >( observationParser );
+                std::vector< std::shared_ptr< ObservationCollectionParser > > observationParsers =
+                        multiTypeParser->getObservationParsers_( );
+
+                bool areConditionsCombined = multiTypeParser->areConditionsCombined( );
+
+                if( !areConditionsCombined )
+                {
+                    for( auto parser : observationParsers )
+                    {
+                        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > currentObservationSetsIndices =
+                                getSingleObservationSetsIndices( parser );
+
+                        for( auto observableIt : currentObservationSetsIndices )
+                        {
+                            if( observationSetsIndices.count( observableIt.first ) == 0 )
+                            {
+                                observationSetsIndices[ observableIt.first ] = observableIt.second;
+                            }
+                            else
+                            {
+                                for( auto linkEndsIt : observableIt.second )
+                                {
+                                    if( observationSetsIndices.at( observableIt.first ).count( linkEndsIt.first ) == 0 )
+                                    {
+                                        observationSetsIndices.at( observableIt.first )[ linkEndsIt.first ] = linkEndsIt.second;
+                                    }
+                                    else
+                                    {
+                                        std::vector< unsigned int > indices =
+                                                observationSetsIndices.at( observableIt.first ).at( linkEndsIt.first );
+                                        for( auto index : linkEndsIt.second )
+                                        {
+                                            if( std::count( indices.begin( ), indices.end( ), index ) == 0 )
+                                            {
+                                                observationSetsIndices.at( observableIt.first ).at( linkEndsIt.first ).push_back( index );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                else
+                {
+                    // First retrieve all observation sets
+                    std::vector< std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > > allObservationSetsIndices;
+                    for( auto parser : observationParsers )
+                    {
+                        allObservationSetsIndices.push_back( getSingleObservationSetsIndices( parser ) );
+                    }
+
+                    if( allObservationSetsIndices.size( ) > 0 )
+                    {
+                        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > originalSetsIndices =
+                                allObservationSetsIndices.at( 0 );
+
+                        // Retrieve common observable types
+                        std::vector< ObservableType > commonObsTypes = utilities::createVectorFromMapKeys( originalSetsIndices );
+                        for( unsigned int k = 1; k < allObservationSetsIndices.size( ); k++ )
+                        {
+                            std::vector< ObservableType > currentObsTypes =
+                                    utilities::createVectorFromMapKeys( allObservationSetsIndices.at( k ) );
+                            std::vector< ObservableType > newCommonTypes;
+                            std::set_intersection( commonObsTypes.begin( ),
+                                                   commonObsTypes.end( ),
+                                                   currentObsTypes.begin( ),
+                                                   currentObsTypes.end( ),
+                                                   std::back_inserter( newCommonTypes ) );
+                            commonObsTypes = newCommonTypes;
+                        }
+
+                        for( auto obsType : commonObsTypes )
+                        {
+                            std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+
+                            // For given observable type, retrieve common link ends
+                            std::vector< LinkEnds > commonLinkEndsList =
+                                    utilities::createVectorFromMapKeys( originalSetsIndices.at( obsType ) );
+                            for( unsigned int k = 1; k < allObservationSetsIndices.size( ); k++ )
+                            {
+                                std::vector< LinkEnds > currentLinkEndsList =
+                                        utilities::createVectorFromMapKeys( allObservationSetsIndices.at( k ).at( obsType ) );
+                                std::vector< LinkEnds > newCommonLinkEndsList;
+                                std::set_intersection( commonLinkEndsList.begin( ),
+                                                       commonLinkEndsList.end( ),
+                                                       currentLinkEndsList.begin( ),
+                                                       currentLinkEndsList.end( ),
+                                                       std::back_inserter( newCommonLinkEndsList ) );
+                                commonLinkEndsList = newCommonLinkEndsList;
+                            }
+
+                            for( auto linkEnds : commonLinkEndsList )
+                            {
+                                // For given observable type and link ends, retrieve common
+                                // observation set indices
+                                std::vector< unsigned int > commonIndices = originalSetsIndices.at( obsType ).at( linkEnds );
+                                for( unsigned int k = 1; k < allObservationSetsIndices.size( ); k++ )
+                                {
+                                    std::vector< unsigned int > currentIndices =
+                                            allObservationSetsIndices.at( k ).at( obsType ).at( linkEnds );
+                                    std::vector< unsigned int > newCommonIndices;
+                                    std::set_intersection( commonIndices.begin( ),
+                                                           commonIndices.end( ),
+                                                           currentIndices.begin( ),
+                                                           currentIndices.end( ),
+                                                           std::back_inserter( newCommonIndices ) );
+                                    commonIndices = newCommonIndices;
+                                }
+                                indicesPerObservable[ linkEnds ] = commonIndices;
+                            }
+                            observationSetsIndices[ obsType ] = indicesPerObservable;
+                        }
+                    }
+                }
+
+                break;
+            }
+            default:
+                throw std::runtime_error( "Observation parser type not recognised." );
         }
-        return selected;
+
+        return observationSetsIndices;
     }
 
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleObservationSets(
@@ -1463,15 +1897,8 @@ public:
         }
 
         observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
-        if( observationDataset_ == nullptr )
-        {
-            rebuildObservationDatasetFromObservationSetList( );
-        }
-        else
-        {
-            setObservationSetIndices( );
-            setConcatenatedObservationsAndTimes( false );
-        }
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void setReferencePoints(
@@ -1526,13 +1953,6 @@ public:
         std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets =
                 getSingleObservationSets( observationParser );
 
-        singleSets.erase( std::remove_if( singleSets.begin( ),
-                                          singleSets.end( ),
-                                          []( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& set ) {
-                                              return set->getNumberOfObservables( ) == 0;
-                                          } ),
-                          singleSets.end( ) );
-
         for( auto set : singleSets )
         {
             TimeType setStartTime = set->getTimeBounds( ).first;
@@ -1552,7 +1972,8 @@ public:
         }
 
         observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
-        rebuildObservationDatasetFromObservationSetList( );
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void setReferencePoint(
@@ -1590,15 +2011,8 @@ public:
         }
 
         observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
-        if( observationDataset_ == nullptr )
-        {
-            rebuildObservationDatasetFromObservationSetList( );
-        }
-        else
-        {
-            setObservationSetIndices( );
-            setConcatenatedObservationsAndTimes( false );
-        }
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void setTransponderDelay( const std::string& spacecraftName,
@@ -1921,7 +2335,6 @@ public:
 
     std::map< ObservableType, std::pair< int, int > > getObservableTypeStartAndEndIndices( ) const
     {
-        refreshFromDatasetIfNeeded( );
         std::map< ObservableType, std::pair< int, int > > observableTypeIndices;
 
         int currentIndex = 0;
@@ -1963,154 +2376,6 @@ public:
     }
 
 private:
-    //! Rebuild the dataset after structural edits made through legacy set wrappers.
-    void rebuildObservationDatasetFromObservationSetList( )
-    {
-        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > existingWrappers;
-        for( const auto& observable : observationSetList_ )
-        {
-            for( const auto& link : observable.second )
-            {
-                existingWrappers.insert( existingWrappers.end( ), link.second.begin( ), link.second.end( ) );
-            }
-        }
-
-        observationDataset_ = createObservationDatasetSnapshot( );
-        observationSetList_.clear( );
-        observationSetWrappersByDatasetSetId_.clear( );
-        for( std::size_t setIndex = 0; setIndex < existingWrappers.size( ); ++setIndex )
-        {
-            const int setId = static_cast< int >( setIndex );
-            existingWrappers.at( setIndex )->resetObservationDatasetReference( observationDataset_, setId );
-            const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
-                    observationDataset_->getObservationSetMetadata( setId );
-            const LinkEnds linkEnds = observationDataset_->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
-            observationSetList_[ metadata.observableType_ ][ linkEnds ].push_back( existingWrappers.at( setIndex ) );
-            observationSetWrappersByDatasetSetId_.push_back( existingWrappers.at( setIndex ) );
-        }
-        setObservationSetIndices( );
-        setConcatenatedObservationsAndTimes( false );
-    }
-
-    //! Rebuild legacy set wrappers after structural edits made through the dataset.
-    void rebuildObservationSetListFromObservationDataset( ) const
-    {
-        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > existingWrappersBySetId =
-                observationSetWrappersByDatasetSetId_;
-        observationSetList_.clear( );
-        observationSetWrappersByDatasetSetId_.clear( );
-
-        for( std::size_t setIndex = 0; setIndex < observationDataset_->getNumberOfObservationSets( ); ++setIndex )
-        {
-            const int setId = static_cast< int >( setIndex );
-            const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
-                    observationDataset_->getObservationSetMetadata( setId );
-            const LinkEnds linkEnds = observationDataset_->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
-            std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
-                    setIndex < existingWrappersBySetId.size( ) && existingWrappersBySetId.at( setIndex ) != nullptr
-                    ? existingWrappersBySetId.at( setIndex )
-                    : std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observationDataset_, setId );
-            observationSetList_[ metadata.observableType_ ][ linkEnds ].push_back( observationSet );
-            observationSetWrappersByDatasetSetId_.push_back( observationSet );
-        }
-    }
-
-    //! Conversion boundary for legacy groupings. Never migrates or rebinds shared sets.
-    std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createObservationDatasetSnapshot( ) const
-    {
-        auto result = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
-        using Dataset = ObservationDataset< ObservationScalarType, TimeType >;
-        using Ids = std::vector< unsigned int >;
-        std::map< std::shared_ptr< Dataset >, std::pair< Ids, Ids > > copiedRows;
-        for( const auto& observable : observationSetList_ )
-        {
-            for( const auto& link : observable.second )
-            {
-                for( const auto& set : link.second )
-                {
-                    const auto source = set->getObservationDataset( );
-                    const unsigned int targetSet = result->addObservationSetFromDataset( *source, set->getObservationSetId( ) );
-                    auto& mapping = copiedRows[ source ];
-                    const auto& sourceIds = source->getObservationIdsForSet( set->getObservationSetId( ) );
-                    const auto& targetIds = result->getObservationIdsForSet( targetSet );
-                    mapping.first.insert( mapping.first.end( ), sourceIds.begin( ), sourceIds.end( ) );
-                    mapping.second.insert( mapping.second.end( ), targetIds.begin( ), targetIds.end( ) );
-                }
-            }
-        }
-        // Copy correlations across retained sets together, rather than losing them in per-set imports.
-        for( const auto& source : copiedRows )
-        {
-            if( source.first->observationWeights_.hasOffDiagonalWeights( ) )
-            {
-                result->observationWeights_.copyBlock(
-                        source.first->observationWeights_.restricted(
-                                source.first->getScalarComponentIdsForObservationSelection( source.second.first, {} ) ),
-                        result->getScalarComponentIdsForObservationSelection( source.second.second, {} ) );
-            }
-        }
-        result->refreshWeightStructures( );
-        return result;
-    }
-
-    //! Refresh legacy concatenated values from the current dataset-backed sets.
-    void refreshLegacyConcatenatedDataFromObservationDataset( )
-    {
-        refreshFromDatasetIfNeeded( );
-        // Value/status changes do not change the dataset structural version, so
-        // concatenated legacy vectors must be refreshed even when wrappers are current.
-        setLegacyConcatenatedDataFromObservationSets( );
-    }
-
-    //! Refresh wrapper structure when an observed dataset revision has changed.
-    void refreshFromDatasetIfNeeded( ) const
-    {
-        bool changed = false;
-        if( observationDataset_ )
-        {
-            changed = cachedDatasetStructuralVersion_ != observationDataset_->getStructuralVersion( ) ||
-                    cachedDatasetLifetimeToken_.lock( ) != observationDataset_->getLifetimeToken( ).lock( );
-        }
-        else
-        {
-            for( const auto& observable : observationSetList_ )
-            {
-                for( const auto& link : observable.second )
-                {
-                    for( const auto& set : link.second )
-                    {
-                        const auto dataset = set->getObservationDataset( );
-                        const auto cached = cachedSourceVersions_.find( dataset->getLifetimeToken( ) );
-                        changed = changed || cached == cachedSourceVersions_.end( ) || cached->second != dataset->getStructuralVersion( );
-                    }
-                }
-            }
-        }
-        if( changed )
-        {
-            auto* self = const_cast< ObservationCollection* >( this );
-            if( observationDataset_ )
-            {
-                self->rebuildObservationSetListFromObservationDataset( );
-            }
-            else
-            {
-                // Metadata changes may move a shared set to a different legacy observable/link group.
-                std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > sets;
-                for( const auto& observable : observationSetList_ )
-                {
-                    for( const auto& link : observable.second )
-                    {
-                        sets.insert( sets.end( ), link.second.begin( ), link.second.end( ) );
-                    }
-                }
-                self->observationSetList_ = createSortedObservationSetList( sets );
-            }
-            self->setObservationSetIndices( );
-            self->setConcatenatedObservationsAndTimes( false );
-        }
-    }
-
     void setObservationSetIndices( )
     {
         int currentStartIndex = 0;
@@ -2159,16 +2424,10 @@ private:
         }
     }
 
-    //! Recompute legacy vector indexing and optionally rebuild the dataset backend.
-    void setConcatenatedObservationsAndTimes( const bool rebuildObservationDataset = true )
+    void setConcatenatedObservationsAndTimes( )
     {
-        if( rebuildObservationDataset )
-        {
-            // A legacy membership edit makes this a grouping facade over its selected sets.
-            observationDataset_.reset( );
-        }
-
-        setLegacyConcatenatedDataFromObservationSets( );
+        concatenatedObservations_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservableSize_ );
+        concatenatedTimes_.resize( totalObservableSize_ );
         concatenatedLinkEndIds_.resize( totalObservableSize_ );
         concatenatedLinkEndIdNames_.resize( totalObservableSize_ );
 
@@ -2219,16 +2478,26 @@ private:
                                 "same link ends are not equal " );
                     }
 
-                    const unsigned int numberOfObservations = linkEndIterator.second.at( i )->getNumberOfObservables( );
-                    for( unsigned int j = 0; j < numberOfObservations; j++ )
+                    std::pair< int, int > startAndSize =
+                            observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
+                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentObservables =
+                            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( startAndSize.second );
+
+                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > currentObservationSet =
+                            linkEndIterator.second.at( i )->getObservations( );
+                    std::vector< TimeType > currentObservationTimes = linkEndIterator.second.at( i )->getObservationTimes( );
+                    for( unsigned int j = 0; j < currentObservationSet.size( ); j++ )
                     {
+                        currentObservables.segment( j * observableSize, observableSize ) = currentObservationSet.at( j );
                         for( int k = 0; k < observableSize; k++ )
                         {
+                            concatenatedTimes_[ observationCounter ] = currentObservationTimes.at( j );
                             concatenatedLinkEndIds_[ observationCounter ] = currentStationId;
                             concatenatedLinkEndIdNames_[ observationCounter ] = currentLinkEnds;
                             observationCounter++;
                         }
                     }
+                    concatenatedObservations_.segment( startAndSize.first, startAndSize.second ) = currentObservables;
                 }
             }
         }
@@ -2239,68 +2508,6 @@ private:
             {
                 observationSetStartAndSizePerLinkEndIndex_[ it1.first ][ linkEndIds_[ it2.first ] ] = it2.second;
             }
-        }
-
-        cachedDatasetStructuralVersion_ = observationDataset_ ? observationDataset_->getStructuralVersion( ) : 0;
-        cachedDatasetLifetimeToken_ = observationDataset_ ? observationDataset_->getLifetimeToken( ) : std::weak_ptr< const int >( );
-        cachedSourceVersions_.clear( );
-        for( const auto& observable : observationSetList_ )
-        {
-            for( const auto& link : observable.second )
-            {
-                for( const auto& set : link.second )
-                {
-                    const auto dataset = set->getObservationDataset( );
-                    cachedSourceVersions_[ dataset->getLifetimeToken( ) ] = dataset->getStructuralVersion( );
-                }
-            }
-        }
-    }
-
-    //! Regenerate legacy concatenated values and times from the current set list.
-    void setLegacyConcatenatedDataFromObservationSets( )
-    {
-        concatenatedObservations_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservableSize_ );
-        concatenatedTimes_.clear( );
-        concatenatedTimes_.reserve( totalObservableSize_ );
-
-        int currentIndex = 0;
-        for( const auto& observationIterator : observationSetList_ )
-        {
-            const int observableSize = getObservableSize( observationIterator.first );
-            for( const auto& linkEndIterator : observationIterator.second )
-            {
-                for( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& observationSet :
-                     linkEndIterator.second )
-                {
-                    const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentObservations =
-                            observationSet->getObservationsVector( );
-                    const std::vector< TimeType > currentTimes = observationSet->getObservationTimes( );
-
-                    if( currentObservations.size( ) != static_cast< int >( currentTimes.size( ) ) * observableSize )
-                    {
-                        throw std::runtime_error(
-                                "Error when creating legacy observation collection concatenated data, observation and time sizes are "
-                                "inconsistent." );
-                    }
-
-                    concatenatedObservations_.segment( currentIndex, currentObservations.size( ) ) = currentObservations;
-                    for( const TimeType& observationTime : currentTimes )
-                    {
-                        for( int i = 0; i < observableSize; ++i )
-                        {
-                            concatenatedTimes_.push_back( observationTime );
-                        }
-                    }
-                    currentIndex += currentObservations.size( );
-                }
-            }
-        }
-
-        if( currentIndex != totalObservableSize_ )
-        {
-            throw std::runtime_error(
-                    "Error when creating legacy observation collection concatenated data, total observation size is inconsistent." );
         }
     }
 
@@ -2405,7 +2612,7 @@ private:
         return observationParser;
     }
 
-    mutable SortedObservationSets observationSetList_;
+    SortedObservationSets observationSetList_;
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedObservations_;
 
@@ -2437,15 +2644,6 @@ private:
 
     int totalNumberOfObservables_;
 
-    mutable std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
-
-    mutable std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSetWrappersByDatasetSetId_;
-
-    mutable std::weak_ptr< const int > cachedDatasetLifetimeToken_;
-    mutable std::map< std::weak_ptr< const int >, std::size_t, std::owner_less< std::weak_ptr< const int > > > cachedSourceVersions_;
-
-    mutable std::size_t cachedDatasetStructuralVersion_ = std::numeric_limits< std::size_t >::max( );
-
 public:
     bool operator==( const ObservationCollection& rhs ) const
     {
@@ -2460,13 +2658,6 @@ public:
     //! Equality comparison via equals method
     bool equals( const ObservationCollection& rhs ) const
     {
-        refreshFromDatasetIfNeeded( );
-        rhs.refreshFromDatasetIfNeeded( );
-        if( !( *createObservationDatasetSnapshot( ) == *rhs.createObservationDatasetSnapshot( ) ) )
-        {
-            return false;
-        }
-
         if( observationSetList_.size( ) != rhs.observationSetList_.size( ) )
         {
             return false;
@@ -2509,100 +2700,24 @@ public:
 private:
     friend class cereal::access;
 
-    //! Binary tag distinguishing the dataset-backed serialization layout.
-    static constexpr std::uint64_t binaryFormatTag_ = 0x544F434F4C4C3031ULL;
-
-    //! Serialize both the dataset backend and compatibility set wrappers.
     template< class Archive >
     void save( Archive& ar ) const
     {
-        refreshFromDatasetIfNeeded( );
-        ar( binaryFormatTag_, observationDataset_, observationSetList_ );
+        // Only serialize the core data - all index maps are reconstructed
+        ar( observationSetList_ );
     }
 
-    //! Deserialize current or legacy collection layouts and rebuild derived indices.
     template< class Archive >
     void load( Archive& ar )
     {
-        std::uint64_t tag;
-        ar( tag );
-        if( tag == binaryFormatTag_ )
-        {
-            ar( observationDataset_, observationSetList_ );
-        }
-        else
-        {
-            // The base format was the sorted map itself. Its first binary field
-            // was the group count; the base enum had 21 supported observable types.
-            if( tag > 21 )
-            {
-                throw std::runtime_error( "Unsupported ObservationCollection serialization format." );
-            }
-            SortedObservationSets legacySets;
-            for( std::uint64_t i = 0; i < tag; ++i )
-            {
-                ObservableType observable;
-                typename SortedObservationSets::mapped_type setsByLink;
-                ar( observable, setsByLink );
-                if( !legacySets.emplace( observable, std::move( setsByLink ) ).second )
-                {
-                    throw std::runtime_error( "Legacy observation archive contains duplicate observable groups." );
-                }
-            }
-            observationDataset_.reset( );
-            observationSetList_ = std::move( legacySets );
-        }
+        // Only serialize the core data - all index maps are reconstructed
+        ar( observationSetList_ );
 
-        // Reconstruct only derived indices; serialized wrappers retain their shared backends.
-        observationSetWrappersByDatasetSetId_.clear( );
-        if( observationDataset_ )
-        {
-            observationSetWrappersByDatasetSetId_.resize( observationDataset_->getNumberOfObservationSets( ) );
-            for( const auto& observable : observationSetList_ )
-            {
-                for( const auto& link : observable.second )
-                {
-                    for( const auto& set : link.second )
-                    {
-                        observationSetWrappersByDatasetSetId_.at( set->getObservationSetId( ) ) = set;
-                    }
-                }
-            }
-        }
+        // Reconstruct all derived data after loading
         setObservationSetIndices( );
-        setConcatenatedObservationsAndTimes( false );
+        setConcatenatedObservationsAndTimes( );
     }
 };
-
-//! Convert a legacy observation collection to its dataset backend or snapshot.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createObservationDataset(
-        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >& observationCollection )
-{
-    if( observationCollection == nullptr )
-    {
-        throw std::runtime_error( "Error when creating observation dataset, input collection is null." );
-    }
-
-    return observationCollection->getObservationDataset( );
-}
-
-//! Create a legacy collection facade backed by an observation dataset.
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createObservationCollection(
-        const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& observationDataset )
-{
-    if( observationDataset == nullptr )
-    {
-        throw std::runtime_error( "Error when creating observation collection, input dataset is null." );
-    }
-
-    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationDataset );
-}
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -2611,9 +2726,28 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
         const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
         const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
 {
-    ObservationCollection< ObservationScalarType, TimeType > selected(
-            observationCollection->getSingleObservationSets( observationParser ) );
-    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( selected.getObservationDataset( ) );
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > oldObservationSets =
+            observationCollection->getSingleObservationSets( observationParser );
+
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newSingleObservationSets;
+    for( auto oldObsSet : oldObservationSets )
+    {
+        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObsSet =
+                std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                        oldObsSet->getObservableType( ),
+                        oldObsSet->getLinkEnds( ),
+                        oldObsSet->getObservations( ),
+                        oldObsSet->getObservationTimes( ),
+                        oldObsSet->getReferenceLinkEnd( ),
+                        oldObsSet->getObservationsDependentVariablesReference( ),
+                        oldObsSet->getDependentVariableBookkeeping( ),
+                        oldObsSet->getAncillarySettings( ) );
+        newObsSet->setTabulatedWeights( oldObsSet->getWeightsVector( ) );
+        newObsSet->setResiduals( oldObsSet->getResiduals( ) );
+
+        newSingleObservationSets.push_back( newObsSet );
+    }
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( newSingleObservationSets );
 }
 
 template< typename ObservationScalarType = double,

@@ -29,7 +29,7 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class ObservationDataset;
 
-//! Output sequence for detached dataset inspection; membership is specified separately.
+//! Order of the data returned by the ObservationDataset functions that retrieve the data of selected observations.
 enum class ObservationOrdering { internal, estimation };
 
 //! Weight block sizes, ordered from independent scalar components to correlations between sets.
@@ -39,12 +39,6 @@ enum class ObservationWeightStructure {
     per_set,           //!< Different observations in one set may be correlated.
     inter_set_weights  //!< Nonzero weight entries connect observations belonging to different sets.
 };
-
-namespace detail
-{
-template< typename ObservationScalarType, typename TimeType >
-struct ObservationSelectionIndices;
-}
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -58,12 +52,9 @@ class ObservationVectorData;
 
 //! Metadata shared by all observations in one logical observation set.
 /*!
- * An observation set is the dataset-backed replacement for the common metadata
- * formerly owned by a SingleObservationSet. Individual observation rows only
- * store a set id; this struct stores the observable type, link definition,
- * reference link end, observable size, ancillary-settings id and dependent-
- * variable bookkeeping id that apply to all observations in the set, together
- * with its weight structure.
+ * Individual observation rows only store a set id; this struct stores the observable type, link definition id,
+ * reference link end, observable size, ancillary-settings id and dependent-variable bookkeeping id that apply to all
+ * observations in the set, together with its weight structure.
  */
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -90,28 +81,6 @@ struct ObservationSetMetadata {
     //! Weight structure of this set, initialized directly from ObservationWeightSettings when supplied.
     //! Within-set block sizes are conservative: removing correlations need not reduce the recorded block size.
     ObservationWeightStructure weightStructure_ = ObservationWeightStructure::diagonal;
-
-    //! Serialize the metadata identifiers, observable description, and weight structure for this set.
-    template< class Archive >
-    void serialize( Archive& ar )
-    {
-        ar( observableType_,
-            linkDefinitionId_,
-            referenceLinkEnd_,
-            observableSize_,
-            ancillarySettingsId_,
-            dependentVariableLayoutId_,
-            weightStructure_ );
-    }
-
-    //! Compare every metadata field for exact equality.
-    bool operator==( const ObservationSetMetadata& rhs ) const
-    {
-        return observableType_ == rhs.observableType_ && linkDefinitionId_ == rhs.linkDefinitionId_ &&
-                referenceLinkEnd_ == rhs.referenceLinkEnd_ && observableSize_ == rhs.observableSize_ &&
-                ancillarySettingsId_ == rhs.ancillarySettingsId_ && dependentVariableLayoutId_ == rhs.dependentVariableLayoutId_ &&
-                weightStructure_ == rhs.weightStructure_;
-    }
 };
 
 //! One row per observation event, independent of observable dimension.
@@ -125,7 +94,7 @@ struct ObservationSetMetadata {
  */
 template< typename TimeType = double >
 struct ObservationDatasetRow {
-    //! Stable identity within the owning dataset; never reused after removal.
+    //! Id of the observation in the dataset; ids are not reused after observations are removed.
     unsigned int observationId_;
 
     //! Observation time at the row's reference link end.
@@ -146,62 +115,20 @@ struct ObservationDatasetRow {
     //! Dependent-variable values computed for this observation event.
     Eigen::VectorXd dependentVariableValues_;
 
-    //! Status flag used by vector-data objects that exclude inactive observations.
+    //! Whether the observation is used in the estimation (false if it is rejected).
     bool isActive_;
 
     //! Optional human-readable reason for rejection or deactivation.
     std::string rejectionReason_;
-
-    //! Serialize the observation row, including status and dependent-variable values.
-    template< class Archive >
-    void serialize( Archive& ar )
-    {
-        ar( observationId_,
-            time_,
-            setId_,
-            firstScalarComponent_,
-            scalarSize_,
-            indexInSet_,
-            dependentVariableValues_,
-            isActive_,
-            rejectionReason_ );
-    }
-
-    //! Compare every stored row field for exact equality.
-    bool operator==( const ObservationDatasetRow& rhs ) const
-    {
-        return observationId_ == rhs.observationId_ && time_ == rhs.time_ && setId_ == rhs.setId_ &&
-                firstScalarComponent_ == rhs.firstScalarComponent_ && scalarSize_ == rhs.scalarSize_ && indexInSet_ == rhs.indexInSet_ &&
-                dependentVariableValues_ == rhs.dependentVariableValues_ && isActive_ == rhs.isActive_ &&
-                rejectionReason_ == rhs.rejectionReason_;
-    }
 };
 
-//! Reverse mapping from scalar component storage to its observation event.
-/*!
- * Each returned component descriptor maps a scalar
- * index in observedValues_/residualValues_ back to the owning observation event
- * and its component number within that event.
- */
+//! Observation id and component index of one entry in the component storage of an ObservationDataset.
 struct ObservationScalarComponentRow {
-    //! Observation event that owns this scalar component.
+    //! Id of the observation to which the component belongs.
     unsigned int observationId_;
 
-    //! Component number inside the owning observation event.
+    //! Index of the component within the observation.
     unsigned int componentIndex_;
-
-    //! Serialize the observation identity and component index.
-    template< class Archive >
-    void serialize( Archive& ar )
-    {
-        ar( observationId_, componentIndex_ );
-    }
-
-    //! Compare both scalar-component mapping fields.
-    bool operator==( const ObservationScalarComponentRow& rhs ) const
-    {
-        return observationId_ == rhs.observationId_ && componentIndex_ == rhs.componentIndex_;
-    }
 };
 
 }  // namespace observation_models

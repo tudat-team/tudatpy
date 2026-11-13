@@ -97,7 +97,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const double celestialPoleX
             ( -2.0 * mathematical_constants::PI / 86400.0 * 1.00273781191135448 );
 
     return ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
-             calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 - 1.42E-3 ) ) )
+             calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) ) )
                    .toRotationMatrix( ) *
             auxiliaryMatrix * calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator ).toRotationMatrix( );
 }
@@ -333,7 +333,7 @@ private:
  * \return Default Earth rotation parameter object.
  */
 std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
-        const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
+        const std::shared_ptr< EOPReader > eopReader = getDefaultEOPReader( ) );
 
 //! Function to create an interpolator for the Earth orientation angles and UT1
 /*!

@@ -4,13 +4,12 @@ Utility functions for observation corrections
 
 import numpy as np
 from numpy.linalg import norm
+from tudatpy.estimation.observable_models_setup.links import LinkEndId, receiver
+from tudatpy.estimation.observable_models_setup.model_settings import angular_position_type
 from tudatpy.estimation.observations import (
     ObservationDataset,
     ObservationSelectionCondition,
-    LinkEndId,
-    angular_position,
     observation_query,
-    receiver,
 )
 from tudatpy.dynamics.environment import SystemOfBodies
 from collections.abc import Callable
@@ -80,7 +79,7 @@ def _apply_corrections_to_observation_dataset(
     # Query to obtain angular observations for specified observer
     observer_link_end = LinkEndId(observer_body_name, observer_reference_name or "")
     condition = (
-        (observation_query.observable_type == angular_position)
+        (observation_query.observable_type == angular_position_type)
         & (observation_query.transmitter == LinkEndId(body_name, ""))
         & (observation_query.receiver == observer_link_end)
     )

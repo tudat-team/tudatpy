@@ -115,6 +115,8 @@ Functions
 
    free_core_nutation_rate
 
+   shared_observation_bias
+
    absolute_observation_bias
 
    relative_observation_bias
@@ -125,7 +127,15 @@ Functions
 
    ground_station_position
 
+   ground_station_linear_velocity
+
    reference_point_position
+
+   displacement_love_number
+
+   displacement_shida_number
+
+   camera_pointing_correction
 
    ppn_parameter_gamma
 
@@ -274,6 +284,8 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.free_core_nutation_rate
 
+.. autofunction:: tudatpy.dynamics.parameters_setup.shared_observation_bias
+
 .. autofunction:: tudatpy.dynamics.parameters_setup.absolute_observation_bias
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.relative_observation_bias
@@ -284,7 +296,15 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.ground_station_position
 
+.. autofunction:: tudatpy.dynamics.parameters_setup.ground_station_linear_velocity
+
 .. autofunction:: tudatpy.dynamics.parameters_setup.reference_point_position
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.displacement_love_number
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.displacement_shida_number
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.camera_pointing_correction
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.ppn_parameter_gamma
 

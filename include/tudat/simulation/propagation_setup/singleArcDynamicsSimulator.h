@@ -203,11 +203,7 @@ public:
                                      const std::shared_ptr< SimulationResults > propagationResults )
     {
         performPropagationPreProcessingSteps( propagationResults );
-        propagateDynamics< SimulationResults >(
-                processedInitialState,
-                propagationResults,
-                PostProcessingFunctionProvider< StateScalarType, TimeType, SimulationResults::number_of_columns >::
-                        getPostProcessingFunction( dynamicsStateDerivative_ ) );
+        propagateDynamics< SimulationResults >( processedInitialState, propagationResults );
         performPropagationPostProcessingSteps( propagationResults );
     }
 
@@ -656,9 +652,7 @@ private:
     template< typename SimulationResults >
     void propagateDynamics(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >& processedInitialState,
-            const std::shared_ptr< SimulationResults > propagationResults,
-            const std::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >& ) >
-                    statePostProcessingFunction )
+            const std::shared_ptr< SimulationResults > propagationResults )
     {
         // Integrate equations of motion numerically.
         simulation_setup::setAreBodiesInPropagation( bodies_, true );
@@ -667,53 +661,44 @@ private:
 
         if( sequentialPropagation_ )
         {
-            integrateEquations< SimulationResults,
-                                Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >,
-                                TimeType >( stateDerivativeFunction_,
-                                            processedInitialState,
-                                            propagatorSettings_->getInitialTime( ),
-                                            integratorSettings_,
-                                            propagationTerminationCondition_,
-                                            propagationResults,
-                                            dependentVariablesFunctions_,
-                                            statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ),
-                                            dynamicsStateDerivative_ );
+            propagateUntilTermination( processedInitialState, propagationResults, propagationTerminationCondition_ );
         }
         else
         {
             std::shared_ptr< NonSequentialPropagationTerminationCondition > nonSequentialTerminations =
                     std::dynamic_pointer_cast< NonSequentialPropagationTerminationCondition >( propagationTerminationCondition_ );
-            integrateEquations< SimulationResults,
-                                Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >,
-                                TimeType >( stateDerivativeFunction_,
-                                            processedInitialState,
-                                            propagatorSettings_->getInitialTime( ),
-                                            integratorSettings_,
-                                            nonSequentialTerminations->getForwardPropagationTerminationCondition( ),
-                                            propagationResults,
-                                            dependentVariablesFunctions_,
-                                            statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ),
-                                            dynamicsStateDerivative_ );
+            propagateUntilTermination(
+                    processedInitialState, propagationResults, nonSequentialTerminations->getForwardPropagationTerminationCondition( ) );
 
             integratorSettings_->initialTimeStep_ *= -1.0;
-            integrateEquations< SimulationResults,
-                                Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >,
-                                TimeType >( stateDerivativeFunction_,
-                                            processedInitialState,
-                                            propagatorSettings_->getInitialTime( ),
-                                            integratorSettings_,
-                                            nonSequentialTerminations->getBackwardPropagationTerminationCondition( ),
-                                            propagationResults,
-                                            dependentVariablesFunctions_,
-                                            statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ),
-                                            dynamicsStateDerivative_ );
+            propagateUntilTermination(
+                    processedInitialState, propagationResults, nonSequentialTerminations->getBackwardPropagationTerminationCondition( ) );
             integratorSettings_->initialTimeStep_ *= -1.0;
         }
 
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
+    }
+
+    //! Function that propagates the dynamics and (if requested) variational equations until a given termination condition.
+    /*
+     *  Function that propagates the dynamics and (if requested) variational equations from the initial state until a given
+     *  termination condition, and writes the results to the propagationResults object.
+     */
+    template< typename SimulationResults >
+    void propagateUntilTermination(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >& processedInitialState,
+            const std::shared_ptr< SimulationResults > propagationResults,
+            const std::shared_ptr< PropagationTerminationCondition > terminationCondition )
+    {
+        SingleArcPropagationController< Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >
+                propagationController( dynamicsStateDerivative_,
+                                       integratorSettings_,
+                                       terminationCondition,
+                                       dependentVariablesFunctions_,
+                                       propagatorSettings_->getOutputSettings( ) );
+        propagationController.initialize( processedInitialState, propagatorSettings_->getInitialTime( ) );
+        propagationController.propagate( );
+        propagationController.writeResults( propagationResults );
     }
 
     //! Function to perform steps necessary to reset all relevant models for the upcoming propagation

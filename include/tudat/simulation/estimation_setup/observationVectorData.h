@@ -30,7 +30,7 @@ namespace tudat
 namespace observation_models
 {
 
-//! Scalar-aligned vector representation of an ObservationDataset selection.
+//! Concatenated observations, residuals and weights of (a selection of) an ObservationDataset, as used in the estimation.
 /*!
  * This object is not primary storage. It stores selected observation rows as
  * observation, residual and diagonal weight vectors in a fixed scalar order.
@@ -44,7 +44,7 @@ template< typename ObservationScalarType,
 class ObservationVectorData
 {
 public:
-    //! Return the scalar observation vector represented by this snapshot.
+    //! Return the concatenated observation vector.
     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& getObservationVector( ) const
     {
         return observations_;
@@ -64,13 +64,13 @@ public:
 
     //! Return one observation's measurement covariance, using the complete weights captured from the dataset.
     /*!
-     * observationId identifies any observation stored in the dataset when this snapshot was created,
+     * observationId identifies any observation stored in the dataset when this object was created,
      * including rejected observations and observations outside this object's vector selection.
      * The returned matrix has one row and column per observable component (e.g. 2 by 2 for angular position).
      * For correlated observations, invert the complete set, including rejected observations, and return
      * the requested observation's diagonal block of that inverse. Do not invert only its own weight block.
      * Weights connecting different sets, and singular or non-positive-definite weights, are unsupported.
-     * Results are shared by snapshots with unchanged weights; concurrent queries sharing these weights are not supported.
+     * Results are stored for reuse by all objects created while the weights are unchanged; concurrent calls are not supported.
      */
     const Eigen::MatrixXd& getInverseWeightMatrixForObservation( const unsigned int observationId ) const
     {
@@ -142,10 +142,10 @@ public:
         return data.inverseWeightsByObservation_.at( observationId );
     }
 
-    //! Return the full sparse weight matrix, materializing diagonal storage on demand.
+    //! Return the full sparse weight matrix (for diagonal weights, created on the first call).
     const Eigen::SparseMatrix< double >& getSparseWeightMatrix( ) const
     {
-        // This lazy materialization mutates cached storage and is not safe for concurrent const access.
+        // The matrix is created on the first call, so concurrent calls are not supported.
         if( weightMatrix_.rows( ) == 0 && weights_.size( ) > 0 )
         {
             // Diagonal-only data keep only the vector form until a matrix is explicitly requested.
@@ -163,13 +163,7 @@ public:
         return weightMatrix_;
     }
 
-    //! Return whether this snapshot contains diagonal weights only.
-    bool isDiagonalWeightOnly( ) const
-    {
-        return isDiagonalWeightOnly_;
-    }
-
-    //! Return whether this snapshot contains at least one off-diagonal weight.
+    //! Return whether this object contains at least one off-diagonal weight.
     bool hasOffDiagonalWeights( ) const
     {
         return !isDiagonalWeightOnly_;
@@ -205,13 +199,13 @@ public:
         return linkDefinitionIds;
     }
 
-    //! Return each component's index within its vector-valued observation.
+    //! Return, for every entry, the index of the corresponding scalar component in the dataset.
     const std::vector< unsigned int >& getScalarComponentIds( ) const
     {
         return scalarComponentIds_;
     }
 
-    //! Resolve an observation/component pair to its scalar row in this snapshot.
+    //! Return the index in the observation vector of one component of an observation.
     int getVectorRow( const unsigned int observationId, const unsigned int componentIndex ) const
     {
         const auto row = rowMapping_.find( observationId );
@@ -222,7 +216,7 @@ public:
         return row->second.first + componentIndex;
     }
 
-    //! Return the first scalar row of an observation, or -1 when absent from this snapshot.
+    //! Return the first index of an observation in the observation vector, or -1 if the observation is not in this object.
     int getFirstVectorRowForObservation( const unsigned int observationId ) const
     {
         const auto row = rowMapping_.find( observationId );
@@ -236,7 +230,7 @@ public:
         return row == rowMapping_.end( ) ? 0 : row->second.second;
     }
 
-    //! Return set identities in their first-appearance order in this snapshot.
+    //! Return the set ids, in the order in which they first appear in this object.
     const std::vector< unsigned int >& getSetIdsInRowOrder( ) const
     {
         return setIdsInRowOrder_;
@@ -267,11 +261,6 @@ public:
     {
         const auto& settings = ancillaryBySet_.at( setId );
         return settings ? std::make_shared< ObservationAncillarySimulationSettings >( *settings ) : nullptr;
-    }
-    //! Return captured dependent-variable values for one observation identity.
-    const Eigen::VectorXd& getDependentVariables( const unsigned int observationId ) const
-    {
-        return dependentVariables_.at( observationId );
     }
 
 private:
@@ -321,20 +310,18 @@ private:
 
     //! Mapping from observation identity to its first scalar row and component count.
     std::unordered_map< unsigned int, std::pair< unsigned int, unsigned int > > rowMapping_;
-    //! Weak identity token for validating writeback to the originating dataset.
+    //! Identifier of the dataset from which this object was created.
     std::weak_ptr< const int > source_;
-    //! Structural revision captured when this snapshot was created.
+    //! Structural version of the dataset when this object was created.
     std::size_t structuralVersion_ = 0;
-    //! Value/selection revision captured when this snapshot was created.
+    //! Value and rejection-status version of the dataset when this object was created.
     std::size_t vectorDataVersion_ = 0;
-    //! Detached set metadata keyed by stable set identity.
+    //! Copy of the metadata of each set, with the set id as key.
     std::unordered_map< unsigned int, ObservationSetMetadata< ObservationScalarType, TimeType > > metadataBySet_;
-    //! Detached link definitions keyed by stable set identity.
+    //! Copy of the link definition of each set, with the set id as key.
     std::unordered_map< unsigned int, LinkDefinition > linksBySet_;
-    //! Detached ancillary settings keyed by stable set identity.
+    //! Copy of the ancillary settings of each set, with the set id as key.
     std::unordered_map< unsigned int, std::shared_ptr< ObservationAncillarySimulationSettings > > ancillaryBySet_;
-    //! Dependent-variable values keyed by stable observation identity.
-    std::unordered_map< unsigned int, Eigen::VectorXd > dependentVariables_;
 
     //! Unique observation ids grouped by set, preserving this object's row order.
     std::vector< std::vector< unsigned int > > uniqueObservationIdsBySet_;

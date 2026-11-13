@@ -1000,7 +1000,7 @@ def get_kepler_covariance_from_gaia_archive(
 def gaia_object_catalog(parquet_path: Path | str) -> pd.DataFrame:
     """
     Retrieve the Gaia object catalog (sso_source in Gaia documentation). This table contains primarily the state
-    and covariance of asteroids that were derived using the latest Gaia dataset (see Gaia Collaboration (2023)). The functions
+    and covariance of asteroids that were derived using the latest Gaia dataset (see :cite:t:`gaiacollaboration2023`). The functions
     :func:`~tudatpy.data_input.tracking_data.gaia.get_state_from_gaia_archive`, :func:`~tudatpy.data_input.tracking_data.gaia.get_state_covariance_from_gaia_archive`,
     and :func:`~tudatpy.data_input.tracking_data.gaia.get_kepler_covariance_from_gaia_archive` can be used to obtain this information for a
     single object queried by MPC number.

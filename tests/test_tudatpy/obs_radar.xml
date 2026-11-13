@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ades version="2022">
+  <obsBlock>
+    <obsContext>
+      <observatory>
+        <mpcCode>253</mpcCode>
+      </observatory>
+      <observers>
+        <name>L. A. M. Benner</name>
+        <name> M. Brozovic</name>
+        <name> S. P. Naidu</name>
+      </observers>
+      <comment>
+        <line>Last modified 2025-08-11 18:57:25</line>
+        <line>Correction of 0 Hz to solution 202 from a weighted sum of 8 CW runs</line>
+        <line>with 0.2 Hz resolution. Bandwidth is about 1 Hz.</line>
+      </comment>
+    </obsContext>
+    <obsData>
+      <radar>
+        <permID>99942</permID>
+        <trx>253</trx>
+        <rcv>253</rcv>
+        <obsTime>2021-03-03T06:40:00Z</obsTime>
+        <doppler>+29329.8</doppler>
+        <rmsDoppler>.400</rmsDoppler>
+        <com>1</com>
+        <frq>8560.</frq>
+        <ref>JPLRS</ref>
+      </radar>
+    </obsData>
+  </obsBlock>
+  <obsBlock>
+    <obsContext>
+      <observatory>
+        <mpcCode>251</mpcCode>
+      </observatory>
+      <observers>
+        <name>M. C. Nolan</name>
+      </observers>
+      <comment>
+        <line>Last modified 2025-08-11 18:57:25</line>
+        <line>2004MN4.PRDX.OUT.s50:  Doppler was -100851.9434371 added 2.8 Hz. From</line>
+        <line>0.03 Hz CW</line>
+      </comment>
+    </obsContext>
+    <obsData>
+      <radar>
+        <permID>99942</permID>
+        <trx>251</trx>
+        <rcv>251</rcv>
+        <obsTime>2005-01-27T23:31:00Z</obsTime>
+        <doppler>-100849.1434</doppler>
+        <rmsDoppler>.250</rmsDoppler>
+        <com>1</com>
+        <frq>2380.</frq>
+        <ref>JPLRS</ref>
+      </radar>
+    </obsData>
+  </obsBlock>  
+</ades>

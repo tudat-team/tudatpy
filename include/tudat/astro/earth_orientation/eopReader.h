@@ -13,6 +13,7 @@
 #define TUDAT_EOPREADER_H
 
 #include <map>
+#include <memory>
 #include <string>
 #include <Eigen/Core>
 
@@ -38,9 +39,10 @@ class EOPReader
 public:
     //! Constructor
     /*!
-     * Constructor
+     * Constructor. For C04 files, the polar motion before the start of the file is taken from the IERS EOP C01 series
+     * (eopc01_polar_motion_1846-1961.txt, from 1846), which must be available.
      * \param eopFile Name of EOP file that is to be used
-     * \param format Identifier for file format that is provied
+     * \param format Identifier for file format that is provided: "C04" (14 C04 or 20 C04 series) or "finals2000A"
      * \param nutationTheory Nutation theory w.r.t. which the EOP data is given.
      */
     EOPReader( const std::string& eopFile = tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
@@ -87,8 +89,9 @@ public:
 
     //! Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file.
     /*!
-     *  Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file.
-     *  \return Data of CIP in ITRS correction (polar motion), as provided in the EOP file.
+     *  Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file. For C04 files, the
+     *  IERS EOP C01 polar motion is added for the epochs before the start of the file (back to 1846).
+     *  \return Data of CIP in ITRS correction (polar motion), as provided in the EOP file, extended with C01 data for C04 files.
      */
     std::map< double, Eigen::Vector2d > getCipInItrsMapRaw( )
     {
@@ -97,7 +100,8 @@ public:
 
     //! Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000
     /*!
-     *  Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000
+     *  Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000. For C04 files, the
+     *  IERS EOP C01 polar motion is added for the epochs before the start of the file (back to 1846).
      *  \return Data of CIP in ITRS correction (polar motion), with map key seconds since J2000
      */
     std::map< double, Eigen::Vector2d > getCipInItrsMapInSecondsSinceJ2000( )
@@ -132,13 +136,6 @@ public:
     }
 
 private:
-    //! Function to read EOP file
-    /*!
-     * Function to read EOP file
-     * \param fileName EOP file name.
-     */
-    void readEopFile( const std::string& fileName );
-
     //! Terrestrial pole position corrections (CIP in ITRS; polar motion), read from file
     std::map< double, Eigen::Vector2d > cipInItrs;
 
@@ -151,6 +148,13 @@ private:
     //! Corrections to LOD, read from file
     std::map< double, double > lengthOfDayOffset;
 };
+
+//! Function to retrieve the EOPReader for the default EOP file, which is read only once.
+inline std::shared_ptr< EOPReader > getDefaultEOPReader( )
+{
+    static const std::shared_ptr< EOPReader > defaultEopReader = std::make_shared< EOPReader >( );
+    return defaultEopReader;
+}
 
 }  // namespace earth_orientation
 

@@ -39,7 +39,11 @@ namespace ground_station
 void expose_ground_station_setup( py::module& m )
 {
     // Ground station motion settings
-    py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes" )
+    py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes", R"doc(
+
+         Enumeration of ground station displacement models.
+
+      )doc" )
             .value( "linear", tss::StationMotionModelTypes::linear_station_motion )
             .value( "piecewise_constant", tss::StationMotionModelTypes::piecewise_constant_station_motion )
             .value( "custom", tss::StationMotionModelTypes::custom_station_motion )
@@ -61,7 +65,15 @@ void expose_ground_station_setup( py::module& m )
 
 
       )doc" )
-            .def_property_readonly( "model_type", &tss::GroundStationMotionSettings::getModelType );
+            .def_property_readonly( "model_type", &tss::GroundStationMotionSettings::getModelType, R"doc(
+
+         **read-only**
+
+         Type of ground station motion model defined by these settings.
+
+         :type: StationMotionModelTypes
+
+      )doc" );
 
     py::class_< tss::LinearGroundStationMotionSettings,
                 std::shared_ptr< tss::LinearGroundStationMotionSettings >,
@@ -85,7 +97,7 @@ void expose_ground_station_setup( py::module& m )
 Parameters
 ----------
 
-linear_velocity: 
+linear_velocity:
     Constant velocity of the station in body-fixed reference frame
 reference_epoch:
     Epoch at which the position of the station is known
@@ -122,8 +134,20 @@ reference_epoch:
                                                     "BodyDeformationStationMotionSettings",
                                                     R"doc(
                     Define station motion settings based on body deformation
-                    )doc" )
-            .def( py::init< const bool >( ), py::arg( "fail_if_not_available" ) = true );
+                    )doc" );
+
+    py::class_< tss::BodyCentricToBarycentricGroundStationMotionSettings,
+                std::shared_ptr< tss::BodyCentricToBarycentricGroundStationMotionSettings >,
+                tss::GroundStationMotionSettings >( m,
+                                                    "BodyCentricToBarycentricGroundStationMotionSettings",
+                                                    R"doc(
+
+         Class for defining the relativistic correction of the station position w.r.t. the solar system barycenter.
+
+         `GroundStationMotionSettings` derived class for the relativistic correction of the station position w.r.t. the solar
+         system barycenter (see :func:`~tudatpy.dynamics.environment_setup.ground_station.bodycentric_to_barycentric_station_motion`).
+
+      )doc" );
 
     py::class_< tss::CustomGroundStationMotionSettings,
                 std::shared_ptr< tss::CustomGroundStationMotionSettings >,
@@ -185,9 +209,9 @@ reference_epoch:
                            &tss::GroundStationSettings::resetGroundStationPosition,
                            R"doc(
                            Position of the ground station in body-fixed frame. The position is interpreted based on the value of the ``position_element_type`` property.
-                           
+
                            :type: numpy.ndarray([3,1])
-                           
+
                            )doc" )
 
             .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName, R"doc(
@@ -197,11 +221,11 @@ reference_epoch:
 
                 )doc" )
             .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType, R"doc(
-                
+
             Element type of the ground station position, defining the interpretation of the ``station_position`` property.
 
             :type: ~tudatpy.astro.element_conversion.PositionElementTypes
-                
+
                 )doc" )
             .def_property( "station_motion_settings",
                            &tss::GroundStationSettings::getStationMotionSettings,
@@ -211,7 +235,7 @@ reference_epoch:
                 List of motion settings for the ground station, defining time-variations of the station position.
 
                 :type: list[ GroundStationMotionSettings ]
-                    
+
                     )doc" )
             .def_property( "weather_data_settings",
                            &tss::GroundStationSettings::getWeatherDataSettings,
@@ -239,7 +263,22 @@ reference_epoch:
     m.def( "add_motion_model_to_each_ground_station",
            &tss::addStationMotionModelToEachGroundStation,
            py::arg( "ground_station_settings_list" ),
-           py::arg( "station_motion_setting" ) );
+           py::arg( "station_motion_setting" ),
+           R"doc(
+
+         Add a station motion model to each ground station in a settings list.
+
+         The motion model is appended to the models already present in each settings object. The supplied ground station
+         settings are modified in place.
+
+         Parameters
+         ----------
+         ground_station_settings_list : list[GroundStationSettings]
+             Settings of the ground stations to which the motion model is added.
+         station_motion_setting : GroundStationMotionSettings
+             Settings defining the motion model to add to each station.
+
+      )doc" );
 
     m.def( "set_dsn_weather_data_in_ground_station_settings",
            py::overload_cast< const std::vector< std::shared_ptr< tss::GroundStationSettings > >&,
@@ -547,6 +586,41 @@ reference_epoch:
 
      )doc" );
 
+    m.def( "bodycentric_to_barycentric_station_motion",
+           &tss::bodycentricToBarycentricStationMotionSettings,
+           py::arg( "central_body_name" ) = "Sun",
+           py::arg( "use_general_relativistic_correction" ) = true,
+           py::arg( "scale_to_tdb_compatible_coordinates" ) = true,
+           R"doc(
+
+ Function for creating settings for the relativistic correction of the station position w.r.t. the solar system barycenter
+
+ Function for creating settings for the relativistic correction of the station position, applied when SSB is the global frame origin. The correction is from
+ Eqs. (11.18) and (11.19) of the IERS Conventions 2010 :cite:p:`Petit2010`, with acceleration terms omitted
+
+ .. math::
+    \Delta\mathbf{r}=-\left(\frac{U}{c^{2}}+L_{C}\right)\mathbf{r}-\frac{1}{2c^{2}}\left(\mathbf{v}\cdot\mathbf{r}\right)\mathbf{v}
+
+ with :math:`\mathbf{r}` the nominal station position w.r.t. the centre of its body (in inertial orientation), :math:`\mathbf{v}`
+ the barycentric velocity of that body, :math:`U=\mu/d` the gravitational potential of the central body (with gravitational
+ parameter :math:`\mu`) at the centre of the station's body (at distance :math:`d`), and :math:`L_{C}=1.48082686741\cdot 10^{-8}`.
+
+
+ Parameters
+ ----------
+ central_body_name : str, default = "Sun"
+     Name of the body whose gravitational potential :math:`U` is used.
+ use_general_relativistic_correction : bool, default = True
+     Boolean denoting whether the term with :math:`U` is included.
+ scale_to_tdb_compatible_coordinates : bool, default = True
+     Boolean denoting whether the term with :math:`L_{C}` (scaling of TT-compatible to TDB-compatible coordinates, Eq. (11.19)) is included.
+ Returns
+ -------
+ GroundStationMotionSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.dynamics.environment_setup.ground_station.BodyCentricToBarycentricGroundStationMotionSettings` class
+
+     )doc" );
+
     m.def( "custom_station_motion",
            &tss::customGroundStationMotionSettings,
            py::arg( "custom_displacement_function" ),
@@ -611,7 +685,19 @@ reference_epoch:
 
         )doc" );
 
-    m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(No documentation found.)doc" );
+    m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(
+
+         Retrieve approximate body-fixed positions of DSN and VLBI stations.
+
+         This function returns the same station catalogue as :func:`~get_radio_telescope_positions`, combining the positions
+         returned by :func:`~get_approximate_dsn_ground_station_positions` and :func:`~get_vlbi_station_positions`.
+
+         Returns
+         -------
+         dict[str, numpy.ndarray[numpy.float64[3, 1]]]
+             Dictionary mapping each station name to its Earth-fixed Cartesian position, in m.
+
+      )doc" );
 
     m.def( "get_vlbi_station_positions", &tss::getVlbiStationPositions, R"doc(
 

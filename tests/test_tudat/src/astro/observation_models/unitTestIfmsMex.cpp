@@ -24,8 +24,8 @@
 #include "tudat/io/preProcessIfmsFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
-#include "tudat/simulation/estimation_setup/createObservationDataset.h"
-#include "tudat/simulation/estimation_setup/compressDopplerObservationDataset.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
@@ -69,10 +69,10 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
     for( int i = 0; i < 1; i++ )
     {
-        FrequencyBands currentReceptionBand = x_band;
+        FrequencyBands currentReceptionBand = FrequencyBands::x_band;
         if( i < 2 )
         {
-            currentReceptionBand = s_band;
+            currentReceptionBand = FrequencyBands::s_band;
         }
 
         // Create settings for default bodies
@@ -101,31 +101,32 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.at( "MeX" )->setVehicleSystems( vehicleSystems );
 
         /****************************************************************************************
          ************************** LOAD IFMS FILES
          *****************************************************************************************/
 
-        auto trackingDataAndSupplementaryData = readIfmsFiles< long double, Time >(
-                { ifmsFileNames.at( i ) },
-                "MeX",
-                "NWNORCIA",
-                "Earth",
-                true,
-                true,
-                std::vector< std::string >( { getFrequencyBandString( x_band ), getFrequencyBandString( currentReceptionBand ) } ),
-                getFrequencyBandString( currentReceptionBand ),
-                0.0 );
+        auto trackingDataAndSupplementaryData =
+                readIfmsFiles< long double, Time >( { ifmsFileNames.at( i ) },
+                                                    "MeX",
+                                                    "NWNORCIA",
+                                                    "Earth",
+                                                    true,
+                                                    true,
+                                                    std::vector< std::string >( { getFrequencyBandString( FrequencyBands::x_band ),
+                                                                                  getFrequencyBandString( currentReceptionBand ) } ),
+                                                    getFrequencyBandString( currentReceptionBand ),
+                                                    0.0 );
 
         setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
 
-        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedUncompressedObservationDataset =
-                createObservationDatasetFromTrackingData< long double, Time >( trackingDataAndSupplementaryData.first, bodies );
+        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedUncompressedObservationCollection =
+                createObservationCollection< long double, Time >( trackingDataAndSupplementaryData.first, bodies );
 
-        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
-                createCompressedDopplerDataset( observedUncompressedObservationDataset, 60.0 );
+        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+                createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
 
         /****************************************************************************************
          ************************** CREATE OBSERVATION MODEL SETTINGS
@@ -135,17 +136,22 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
         std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
         lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
-        for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
+        std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
+                observedObservationCollection->getLinkEndsPerObservableType( );
+
+        for( auto it = linkEndsPerObservable.begin( ); it != linkEndsPerObservable.end( ); ++it )
         {
-            const ObservationSetMetadata< long double, Time >& metadata = observedObservationDataset->getObservationSetMetadata( setId );
-            if( metadata.observableType_ == observation_models::dsn_n_way_averaged_doppler )
+            for( unsigned int i = 0; i < it->second.size( ); ++i )
             {
-                observationModelSettingsList.push_back( observation_models::dsnNWayAveragedDopplerObservationSettings(
-                        observedObservationDataset->getLinkDefinition( metadata.linkDefinitionId_ ),
-                        lightTimeCorrectionSettings,
-                        constantAbsoluteBias( Eigen::Vector1d::Zero( ) ),
-                        std::make_shared< LightTimeConvergenceCriteria >( true ),
-                        false ) );
+                if( it->first == observation_models::dsn_n_way_averaged_doppler )
+                {
+                    observationModelSettingsList.push_back( observation_models::dsnNWayAveragedDopplerObservationSettings(
+                            it->second.at( i ),
+                            lightTimeCorrectionSettings,
+                            constantAbsoluteBias( Eigen::Vector1d::Zero( ) ),
+                            std::make_shared< LightTimeConvergenceCriteria >( true ),
+                            false ) );
+                }
             }
         }
 
@@ -158,13 +164,12 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
          *****************************************************************************************/
 
         std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-                getObservationSimulationSettingsFromObservationDataset( observedObservationDataset, bodies );
-        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > computedObservationDataset =
-                simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
+                getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
+        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
+                simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
         Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector =
-                observedObservationDataset->createObservationVectorData( ).getObservationVector( ) -
-                computedObservationDataset->createObservationVectorData( ).getObservationVector( );
+                observedObservationCollection->getObservationVector( ) - computedObservationCollection->getObservationVector( );
         double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
         double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
 

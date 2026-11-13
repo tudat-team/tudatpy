@@ -18,7 +18,7 @@
 
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"  // Include this header
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"  // Include this header
 #include "tudat/astro/ground_stations/groundStationState.h"
@@ -31,17 +31,19 @@ namespace observation_models
 {
 
 inline double getMeasuredFrequencyDopplerScalingFactor(
-        const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > receivedFrequencyFunction,
+        const std::function< double( std::vector< basic_astrodynamics::FrequencyBands > frequencyBands, double time ) >
+                receivedFrequencyFunction,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
         const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
 {
     double integrationTime;
-    std::vector< FrequencyBands > frequencyBands;
+    std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
     try
     {
-        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+        frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -79,8 +81,8 @@ public:
             const LinkEnds& linkEnds,
             const std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel,
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-            const std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >&
-                    turnaroundRatio,
+            const std::function< double( basic_astrodynamics::FrequencyBands uplinkBand,
+                                         basic_astrodynamics::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
@@ -149,11 +151,12 @@ public:
                     "settings found. " );
         }
 
-        std::vector< FrequencyBands > frequencyBands;
+        std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
 
         try
         {
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                    ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -172,8 +175,8 @@ public:
                     std::to_string( numberOfLinkEnds_ - 1 ) + ")." );
         }
 
-        FrequencyBands uplinkBand = frequencyBands.at( 0 );
-        FrequencyBands downlinkBand = frequencyBands.at( 1 );
+        basic_astrodynamics::FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        basic_astrodynamics::FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         double currentTurnAroundRatio = turnaroundRatio_( uplinkBand, downlinkBand );
         std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
