@@ -503,6 +503,16 @@ void expose_propagation_results_bindings( py::module& m )
          Boolean indicating whether the propagation for which this object stores the results has been performed or not
 
          :type: int
+)doc" )
+            .def_property_readonly(
+                    "dynamics_results",
+                    []( std::shared_ptr< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > self ) { return self; },
+                    R"doc(
+         **read-only**
+
+         This object itself, for compatibility with :class:`~SingleArcVariationalSimulationResults`.
+
+         :type: SingleArcSimulationResults
 )doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
             .def( "clear_data",
                   py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),

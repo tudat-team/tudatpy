@@ -222,7 +222,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                         "Error when saving state history for each estimation iteration: no propagation results exist "
                         "in observation-only estimation." );
             }
-            simulationResultsPerIteration.push_back( simulationResults->clone( ) );
+            if( estimationInput->getSaveVariationalResultsForEachIteration( ) )
+            {
+                simulationResultsPerIteration.push_back( simulationResults->clone( ) );
+            }
+            else
+            {
+                simulationResultsPerIteration.push_back( simulationResults->cloneDynamicsOnly( ) );
+            }
         }
 
         // Normalise estimated parameters partials and inverse apriori covariance
