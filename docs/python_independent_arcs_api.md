@@ -4,6 +4,8 @@ Design decision, 2026-11-11. This extends the native opt-in route described in
 `independent_arc_execution.md`; it does not change sequential defaults.
 
 The executable example is [python_independent_arcs.py](../benchmarks/python_independent_arcs.py).
+For repeated Python scaling measurements and their timing/validation contract,
+see [PYTHON_SCALING.md](../benchmarks/PYTHON_SCALING.md).
 This first API is intentionally limited to one supported model; expanding the
 model catalogue requires a corresponding isolation/callback audit.
 

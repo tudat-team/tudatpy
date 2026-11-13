@@ -1,5 +1,9 @@
 # Multi-arc variatiepropagatie: benchmark en C++-analyse
 
+De nieuwe parallelle Python-schaalbenchmark staat in
+[PYTHON_SCALING.md](PYTHON_SCALING.md). Het script hieronder blijft de oudere
+sequentiële profileringsroute.
+
 `profile_multi_arc.py` roept eenmaal Tudats native multi-arc variatiesolver aan.
 De Python-lus bouwt alleen instellingen op; hij plant geen parallelle taken en
 integreert geen afzonderlijke arcs. Dit is de sequentiële uitgangsmeting voor

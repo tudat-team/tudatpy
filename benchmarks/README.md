@@ -1,5 +1,8 @@
 # C++-profilering met een LEO-propagatie
 
+Voor de parallelle Python-API, een korte schaalbenchmark en expliciete zwaardere
+metingen: zie [PYTHON_SCALING.md](PYTHON_SCALING.md).
+
 Voor native multi-arc variatiepropagatie en de C++-taakgrens voor
 arc-parallellisatie: zie [MULTI_ARC.md](MULTI_ARC.md).
 Het [C++-prototype](cpp/README.md) voert onafhankelijke arcs met threads uit.
