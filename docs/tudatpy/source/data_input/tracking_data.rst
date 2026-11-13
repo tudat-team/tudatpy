@@ -78,6 +78,9 @@ the same source that must be applied to the simulation environment.
 
    TrackingData
    ObservationWeightSettings
+   NamedWeightingMethod
+   ObservationBlockDefinition
+   BlockDeweightingRule
    AngularObservationCorrectionSettings
    TrackingSupplementaryData
 
@@ -85,6 +88,15 @@ the same source that must be applied to the simulation environment.
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.ObservationWeightSettings
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.NamedWeightingMethod
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ObservationBlockDefinition
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.BlockDeweightingRule
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings

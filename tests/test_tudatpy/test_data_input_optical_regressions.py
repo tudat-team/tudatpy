@@ -85,7 +85,7 @@ def test_adopted_biases_are_applied(optical_table):
         rtol=1.0e-10,
     )
     data, _ = read_optical_data(table.assign(biasTime=2.0))
-    assert data[0].observation_time_biases == [-2.0]
+    assert data[0].astrometric_time_biases == [-2.0]
 
 
 @pytest.mark.parametrize("source", ["file", "mpc"])
@@ -109,7 +109,7 @@ def test_mpc80_catalog_reaches_weights_and_corrections(
         path = tmp_path / "observations.txt"
         path.write_text(line + "\n")
         data, _ = read_80_column_data(
-            [str(path)], add_weights=True, add_star_catalog_corrections=True
+            [str(path)], vfcc17_weights=True, add_star_catalog_corrections=True
         )
     else:
         monkeypatch.setattr(
@@ -160,7 +160,7 @@ def weighting_bodies():
 def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, technique, sigma):
     """Without extra details, assign catalogue U's weight for CCD and photographic data."""
     optical_table["note2"] = technique
-    data, _ = read_optical_data(optical_table, add_weights=True, add_ancillary_data=False)
+    data, _ = read_optical_data(optical_table, vfcc17_weights=True, add_ancillary_data=False)
     # The observing method and catalogue must remain available to choose the weight.
     metadata = data[0].get_ancillary_settings_string_vector()
     assert metadata["note2"] == [technique]
@@ -171,25 +171,28 @@ def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, t
     np.testing.assert_allclose(collection.concatenated_weights, expected, rtol=1.0e-13)
 
 
+@pytest.mark.parametrize("correlation", [0.4, np.nan])
 @pytest.mark.parametrize(
-    "scheme,observations_per_night", [("ADES", [1, 1, 1]), ("ADES_NIGHT", [2, 2, 1])]
+    "nightly_deweighting,observations_per_night", [(False, [1, 1, 1]), (True, [2, 2, 1])]
 )
 def test_ades_weights_from_uncertainties_and_local_night(
-    optical_table, scheme, observations_per_night
+    optical_table, nightly_deweighting, observations_per_night, correlation
 ):
-    """Weight positions by their uncertainties and correlation, or by VFCC17 without; for ADES_NIGHT the first two share a night."""
+    """Weight positions by their uncertainties and correlation, or by VFCC17 without; per night, the first two share a night."""
     table = pd.concat([optical_table] * 3, ignore_index=True)
     # Station 500 is at zero longitude, so the local night is the integer part of the Julian date.
     table["epoch"] = [2460310.55, 2460310.65, 2460311.65]
     table["DEC"] = [0.0, 30.0, 60.0]
     table["rmsRA"] = [0.15, 0.2, np.nan]
     table["rmsDec"] = [0.13, 0.1, np.nan]
-    table["rmsCorr"] = [0.4, np.nan, np.nan]
-    data, _ = read_optical_data(table, weighing_scheme=scheme)
+    table["rmsCorr"] = [correlation, np.nan, np.nan]
+    data, _ = read_optical_data(
+        table, ades_weights=True, vfcc17_weights=True, nightly_deweighting=nightly_deweighting
+    )
     dataset = create_observation_dataset_from_tracking_data(data, weighting_bodies())
 
     # The weights are the inverse of the covariance of each observation, with the RA uncertainty scaled by 1/cos(Dec);
-    # for ADES_NIGHT, weights are divided by N.
+    # with nightly deweighting, weights are divided by N.
     arcsec = np.deg2rad(1.0 / 3600.0)
     expected = np.zeros((6, 6))
     for i in range(2):

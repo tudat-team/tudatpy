@@ -189,9 +189,15 @@ def test_read_pandas_optical_data_returns_tracking_data(valid_obs_table):
 
 
 def test_read_pandas_optical_data_marks_vfcc17_weighing_scheme(valid_obs_table):
-    tracking_data, supplementary_data = read_pandas_optical_data(valid_obs_table, add_weights=True)
+    tracking_data, supplementary_data = read_pandas_optical_data(
+        valid_obs_table, vfcc17_weights=True
+    )
     assert supplementary_data == []
-    assert all(data.weighing_scheme == "VFCC17" for data in tracking_data)
+    # the VFCC17 weights use the observation technique and star catalog of each observation
+    assert all(
+        {"note2", "catalog"} <= set(data.get_ancillary_settings_string_vector())
+        for data in tracking_data
+    )
 
 
 def test_read_astropy_optical_data_returns_tracking_data(valid_obs_table):

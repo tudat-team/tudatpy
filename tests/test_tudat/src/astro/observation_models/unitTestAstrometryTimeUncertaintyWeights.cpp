@@ -41,7 +41,8 @@ Eigen::Vector2d computeRightAscensionAndDeclination( const Eigen::Vector3d& rela
 }
 
 //! Check that observation time biases and uncertainties are applied to angular position observations and weights, using the rates
-//! of right ascension and declination w.r.t. J2000 (for an ECLIPJ2000 global frame), for per-observation and set-level weights
+//! of right ascension and declination w.r.t. J2000 (for an ECLIPJ2000 global frame), for per-observation and set-level weights, with
+//! and without a reduction of the weights per local night (both observations are in the same night)
 BOOST_AUTO_TEST_CASE( testAngularPositionTimeBiasesAndUncertainties )
 {
     Eigen::Vector6d observerState, observedBodyState;
@@ -76,34 +77,45 @@ BOOST_AUTO_TEST_CASE( testAngularPositionTimeBiasesAndUncertainties )
 
     for( const bool useSetLevelWeights : { false, true } )
     {
-        const data::PlainLinkDefinition linkEnds = { { { "Asteroid", "" }, "transmitter" }, { { "Observer", "" }, "receiver" } };
-        std::shared_ptr< data::TrackingData< double, double > > trackingData =
-                std::make_shared< data::TrackingData< double, double > >( "AngularPosition",
-                                                                          linkEnds,
-                                                                          std::vector< Eigen::VectorXd >( 2, Eigen::Vector2d::Zero( ) ),
-                                                                          std::vector< double >{ 0.0, 100.0 },
-                                                                          "receiver" );
-        trackingData->setObservationWeightSettings(
-                useSetLevelWeights ? ObservationWeightSettings::setBlock( correlatedCovariance.inverse( ) )
-                                   : ObservationWeightSettings::diagonalPerObservation(
-                                             std::vector< Eigen::VectorXd >( 2, Eigen::Vector2d::Constant( 1.0 / positionalVariance ) ) ) );
-        trackingData->setAstrometricTimeUncertainties( timeUncertainties );
-        trackingData->setAstrometricTimeBiases( timeBiases );
-
-        const ObservationVectorData< double, double > vectorData =
-                createObservationDatasetFromTrackingData< double, double >( { trackingData }, bodies, true )
-                        ->createObservationVectorData( );
-
-        Eigen::Matrix4d expectedCovariance = useSetLevelWeights ? correlatedCovariance : uncorrelatedCovariance;
-        for( unsigned int i = 0; i < 2; i++ )
+        for( const bool useNightlyDeweighting : { false, true } )
         {
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    vectorData.getObservationVector( ).segment( 2 * i, 2 ), Eigen::Vector2d( -timeBiases.at( i ) * angularRates ), 1.0E-8 );
-            expectedCovariance.block( 2 * i, 2 * i, 2, 2 ) +=
-                    timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates * angularRates.transpose( );
+            const data::PlainLinkDefinition linkEnds = { { { "Asteroid", "" }, "transmitter" }, { { "Observer", "" }, "receiver" } };
+            std::shared_ptr< data::TrackingData< double, double > > trackingData =
+                    std::make_shared< data::TrackingData< double, double > >( "AngularPosition",
+                                                                              linkEnds,
+                                                                              std::vector< Eigen::VectorXd >( 2, Eigen::Vector2d::Zero( ) ),
+                                                                              std::vector< double >{ 0.0, 100.0 },
+                                                                              "receiver" );
+            trackingData->setObservationWeightSettings(
+                    useSetLevelWeights ? ObservationWeightSettings::setBlock( correlatedCovariance.inverse( ) )
+                                       : ObservationWeightSettings::diagonalPerObservation( std::vector< Eigen::VectorXd >(
+                                                 2, Eigen::Vector2d::Constant( 1.0 / positionalVariance ) ) ) );
+            trackingData->setAstrometricTimeUncertainties( timeUncertainties );
+            trackingData->setAstrometricTimeBiases( timeBiases );
+            if( useNightlyDeweighting )
+            {
+                trackingData->setBlockDeweighting( data::ObservationBlockDefinition::local_night,
+                                                   data::BlockDeweightingRule::divide_by_number_of_observations );
+            }
+
+            const ObservationVectorData< double, double > vectorData =
+                    createObservationDatasetFromTrackingData< double, double >( { trackingData }, bodies, true )
+                            ->createObservationVectorData( );
+
+            // With the reduction per local night, the positional covariance is multiplied by the number of observations in the night (2)
+            Eigen::Matrix4d expectedCovariance =
+                    ( useNightlyDeweighting ? 2.0 : 1.0 ) * ( useSetLevelWeights ? correlatedCovariance : uncorrelatedCovariance );
+            for( unsigned int i = 0; i < 2; i++ )
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( vectorData.getObservationVector( ).segment( 2 * i, 2 ),
+                                                   Eigen::Vector2d( -timeBiases.at( i ) * angularRates ),
+                                                   1.0E-8 );
+                expectedCovariance.block( 2 * i, 2 * i, 2, 2 ) +=
+                        timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates * angularRates.transpose( );
+            }
+            const Eigen::MatrixXd computedCovariance = vectorData.getSparseWeightMatrix( ).toDense( ).inverse( );
+            BOOST_CHECK_SMALL( ( computedCovariance - expectedCovariance ).norm( ) / expectedCovariance.norm( ), 1.0E-8 );
         }
-        const Eigen::MatrixXd computedCovariance = vectorData.getSparseWeightMatrix( ).toDense( ).inverse( );
-        BOOST_CHECK_SMALL( ( computedCovariance - expectedCovariance ).norm( ) / expectedCovariance.norm( ), 1.0E-8 );
     }
 }
 
