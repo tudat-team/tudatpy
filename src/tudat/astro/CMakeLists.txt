@@ -14,6 +14,7 @@
 add_subdirectory("system_models")
 add_subdirectory("aerodynamics")
 add_subdirectory("basic_astro")
+add_subdirectory("close_encounters")
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
     add_subdirectory("earth_orientation")
 endif ()
