@@ -1,8 +1,31 @@
 # Overdracht: parallellisatie van Tudat-arcs
 
-Bijgewerkt op **11 november 2026**, voor een nieuwe sessie op een andere machine
-op **12 november 2026** (Europe/Amsterdam). Dit document beschrijft de actuele
-stand; de opdracht om de eerste Python-bindings te maken is **afgerond**.
+Bijgewerkt op **13 november 2026** (Europe/Amsterdam), na de commits voor
+serialisatie/testselectie en de Python-schaalbenchmark. De eerste Python-bindings
+én de aanbevolen benchmark zijn **afgerond en gecommit**. De gebruiker heeft op
+dezelfde AMD-machine verder gewerkt; dit document blijft bruikbaar voor een
+volgende sessie op een andere machine.
+
+De actuele benchmark en het meet-/validatiecontract staan in
+[PYTHON_SCALING.md](../benchmarks/PYTHON_SCALING.md). Acht arcs van zes uur,
+graad 50 en drie herhalingen geven lokaal **5,38× totale versnelling bij acht
+workers**, met nul waargenomen verschillen ten opzichte van de sequentiële
+referentie. De 28 drivertests slagen, opnieuw gecontroleerd op 13 november.
+De tweedaagse preset is niet uitgevoerd. De CPU heeft **12 fysieke kernen en
+24 logische processors**; de aanvankelijke aanname van 24 fysieke kernen was
+onjuist. Een aanvullende gebruikersrun met 24 arcs schaalde het beste tot acht
+workers (5,40×); de uitvoer blijft lokaal in
+`local-profiles/20261112/python-scaling-24-arcs.jsonl`. De oorzaak van het afvlakken
+is nog niet door profiling vastgesteld.
+
+De volledige offline-suite is op 12 november zonder handmatige uitsluitingen
+gevalideerd: **694 passed, 329 skipped** met de behouden serialisatie-OFF-binary
+en **915 passed, 108 skipped** met een afzonderlijke serialisatie-ON-build.
+Deze aantallen omvatten de 28 benchmarktests. Daarnaast slaagden 235 gerichte
+serialisatie-/policytests (twee refactoringskips) en vier native
+serialisatiedoelen. Zie [het ON-verslag](serialization_validation_20261112.md)
+voor omgeving, opdrachten, gevonden fixtures en gelijkheidsbugs. De oude
+uitgesloten testselecties verderop zijn uitsluitend historische informatie.
 
 ## Begin hier
 
@@ -64,9 +87,9 @@ Global state-transition/sensitivity matrix: (6, 13)
 
 ## Git en overdracht
 
-Deze acht commits staan op `parallellization_inquiry`, plus de aanvullende
-actualisering van dit overdrachtsdocument. Basis-HEAD vóór deze actualisering:
-`990b7b4fa`.
+Deze twaalf commits staan op `parallellization_inquiry`, plus de actualisering
+van dit overdrachtsdocument. Code-/benchmark-HEAD vóór deze documentatiecommit:
+`bc682fefc`.
 
 | Commit | Inhoud |
 |---|---|
@@ -78,6 +101,10 @@ actualisering van dit overdrachtsdocument. Basis-HEAD vóór deze actualisering:
 | `fb07784bf` | Bouwfix voor Python met serialisatie uitgeschakeld |
 | `7688a026b` | Python-API, native Mars-model, voorbeeld, tests en API-contract |
 | `990b7b4fa` | Overdracht en Intel-reproductieverslag in Git |
+| `9be245b4c` | Actualisering overdracht voor de volgende machine |
+| `83c0f289d` | Aanbeveling voor de Python-schaalbenchmark |
+| `eba2dca47` | Serialisatievalidatie, gelijkheidsfixes en serialisatiecontract |
+| `bc682fefc` | Python-schaalbenchmark, 28 drivertests en klein AMD-meetverslag |
 
 Er is in deze sessie **niet gepusht**. Beschikbaarheid op een remote is niet
 gecontroleerd. Zorg dus dat ook de laatste documentatiecommit wordt meegenomen.
@@ -194,6 +221,9 @@ niet de Python-build en de 22 bindingtests.
 
 ## Bewijs en grenzen
 
+De actuele resultaten van 12–13 november staan bovenaan; onderstaande
+11-novemberresultaten beschrijven de toestand vóór de test-/serialisatiefix.
+
 Op de **AMD-machine, 11 november 2026**:
 
 - Verse Release-kernel, publiek Python-voorbeeld en **22 nieuwe Python-tests**
@@ -207,8 +237,7 @@ Op de **AMD-machine, 11 november 2026**:
   en faalden op sandbox-DNS. Dit is geen volledig groene all-features-suite.
 - Passende selectie voor serialisatie-OFF/offline: **652 passed, 104 skipped,
   2 deselected**. Exacte uitsluitingen en commando staan in het API-document.
-- Black, clang-format en whitespacecontrole geslaagd. Na de codecommits is
-  uitsluitend documentatie/lokale bestandsorganisatie gewijzigd.
+- Black, clang-format en whitespacecontrole geslaagd bij die eerdere controles.
 
 Op de **Intel-machine, 9 november 2026**: drie native tests geslaagd, native
 acceptatie 30 keer en coëfficiëntencontrole 20 keer achtereen geslaagd. De korte
@@ -280,71 +309,40 @@ menselijke/scientifieke goedkeuring van de nieuwe bindings uitgevoerd.
 | `benchmarks/cpp/parallelMultiArc.cpp` | Eerder zelfstandig prototype; referentie behouden |
 | `src/tudat/math/integrators/rungeKuttaCoefficients.cpp` | Constante RK-tabellen |
 
-### Mijn aanbeveling: eerst een representatieve Python-schaalbenchmark
+### Afgeronde benchmark en mijn aanbeveling voor vervolg
 
-**Ik zou als eerstvolgende ontwikkeltaak een afzonderlijke, reproduceerbare
-schaalbenchmark via de nieuwe publieke Python-API bouwen.** De gebruiker heeft
-gevraagd deze mening vast te leggen; dit is een aanbeveling voor de volgende
-sessie, nog geen opdracht om nu een lange meting te starten.
+De eerdere aanbeveling om een Python-schaalbenchmark te bouwen is uitgevoerd
+in `bc682fefc`. De driver ondersteunt instelbare arcs, graad/orde, duur, stap,
+workers en herhalingen, een korte smoke-default en een expliciete zwaardere
+preset. Eén worker gebruikt de echte sequentiële default. Iedere gemeten run
+krijgt verse modellen en een facade; alle opgeslagen toestanden, STM's en
+gevoeligheden worden met een sequentiële referentie vergeleken. De globale
+matrixinterface wordt eveneens gecontroleerd. Opbouw, integratie en totale tijd
+worden afzonderlijk gerapporteerd, met mediaan en spreiding. Het kleine
+[AMD-meetverslag](../benchmarks/python-scaling-amd-20261112.jsonl) staat bewust
+in Git; grotere uitvoer blijft lokaal.
 
-De native route heeft al overtuigende lokale schaalmetingen, en de Python-API
-heeft korte correctheids-/lifetime-tests. Wat nog ontbreekt is het bewijs dat
-een representatieve aanroep vanuit Python dezelfde nuttige versnelling behoudt,
-inclusief modelopbouw en nabewerking. Het bestaande voorbeeld is daarvoor te
-klein. Deze stap levert met beperkte uitbreiding direct bruikbaar bewijs voor
-de centrale onderzoeksvraag en legt vast waar eventuele overhead ontstaat.
-Daarna kunnen we gericht kiezen tussen bredere modelondersteuning en verdere
-optimalisatie. Ik zou niet eerst free-threading toevoegen: de C++-workers
-rekenen al parallel, terwijl GIL-loos gebruik een aparte synchronisatieopgave is.
+Voor gebruik en exacte meetgrenzen geldt het benchmarkdocument. De historische
+native tijden zijn niet rechtstreeks vergelijkbaar met deze Python-tijden:
+onder meer tijdtype, opgeslagen afhankelijke variabelen, sequentiële route en
+meetgrenzen verschillen.
 
-Concreet zou ik het volgende laten ontwikkelen:
+**Mijn aanbeveling voor de volgende ontwikkeltaak is gericht onderzoeken waarom
+de schaalbaarheid boven acht workers afvlakt.** Dit is een voorstel, nog geen
+opdracht voor een nieuwe meting of codewijziging. Begin met de bestaande
+24-arc-uitvoer en CPU-topologie. Profileer vervolgens, indien gekozen, een
+beperkte run met acht en twaalf workers om seriële modelopbouw, workerwerk,
+SPICE-synchronisatie en native nabewerking te onderscheiden. Deel geen caches
+en versoepel geen isolatie- of GIL-afspraken om alleen de speedup te verhogen.
+Kies pas een optimalisatie wanneer de meting het knelpunt aantoont.
 
-1. **Een aparte benchmarkdriver**, bijvoorbeeld
-   `benchmarks/benchmark_python_independent_arcs.py`; behoud het korte bestaande
-   voorbeeld. Maak arc-aantal, graad/orde, duur, stap, workers en herhalingen
-   instelbaar. Gebruik uitsluitend het ondersteunde native Mars-model en echte
-   onafhankelijke arcs; verander het productie-API-contract niet voor de meting.
-2. **Twee duidelijk gescheiden instellingen:** een snelle smoke-run voor
-   gebruikscontrole en een expliciete zwaardere run. Begin voor die laatste
-   met acht arcs, graad/orde 50, twee dagen per arc en een stap van 30 seconden,
-   aansluitend bij de historische native meting. Controleer daarvoor ook
-   beginstaten, epochs en modelkeuzes tegen de native benchmark; alleen dezelfde
-   graad en duur maken twee runs nog niet vergelijkbaar. Pas duur/omvang aan
-   als het werk op de nieuwe machine te licht of te zwaar blijkt.
-3. **Dezelfde berekening bij 1/2/4/8 workers**, met een verse facade per run en
-   ongewijzigde invoer. Eén worker moet de echte sequentiële default gebruiken.
-   Bij acht ingestelde workers moeten er minstens acht onafhankelijke arcs
-   zijn. Controleer de native uitvoeringsvlag. Behandel gekoppelde arcs via de
-   bestaande fallbacktests, niet als een parallelle snelheidsmeting.
-4. **Correctheid vóór een snelheidsclaim:** vergelijk toestanden, STM's en
-   gevoeligheden op alle opgeslagen epochs met de sequentiële referentie;
-   controleer ook de globale gedeelde-mu-mapping via de native matrixinterface.
-   Gebruik de bestaande eindigheidscontroles en toleranties. Neem deze
-   Python-uitlezing/vergelijking niet ongemerkt mee in de integratietijd.
-5. **Eerlijke tijdmeting:** rapporteer facade-/modelconstructie en integratie
-   afzonderlijk, plus hun som als totale gebruikersrelevante tijd. Integratie
-   omvat de seriële workerfactory en native nabewerking; noem het geen zuivere
-   workerkerneltijd. Houd resultaatuitlezing en destructie buiten die som en
-   vermeld dat expliciet; behandel eenmalige kernel-/pakketinitialisatie bij
-   iedere workerstand hetzelfde. Claim alleen directe overeenkomst met de historische
-   native tijden als ook de meetgrenzen gelijk zijn. Doe bijvoorbeeld drie
-   herhalingen, wissel de worker-volgorde en rapporteer mediaan én spreiding.
-   Gebruik geen harde minimale speedup als platformonafhankelijke testassertie.
-6. **Een klein machineleesbaar meetverslag** (bijvoorbeeld JSONL) met branch/HEAD
-   en dirty-status, machine/CPU, relevante dependency- en buildversies,
-   threadinstellingen, alle model-/integratieparameters, ingestelde workers,
-   gebruikte route, tijden en numerieke vergelijking. Leg opdracht en uitleg
-   bij de benchmark vast. Bewaar grote uitvoer lokaal; neem alleen bewust
-   gekozen kleine meetverslagen in Git op, zonder bestaande meetdata te
-   overschrijven. Voeg hiervoor geen zware benchmarkdependency toe.
-
-De taak is klaar als een gedocumenteerde smoke-run werkt, een expliciet gekozen
-representatieve meetreeks reproduceerbaar is, en zowel numerieke overeenkomst
-als de gemeten versnelling (of het uitblijven daarvan) eerlijk worden getoond.
-Als de schaalbaarheid tegenvalt, profileer eerst opbouw, factory en nabewerking;
-versoepel geen isolatie- of GIL-afspraken om alleen het benchmarkgetal te verhogen.
-Kies de meetomvang op de nieuwe machine na de korte reproductie; start niet
-automatisch de langste instelling.
+Het serialisatiecontract staat in het API-document: integratie is synchroon;
+na worker-join en native nabewerking mogen resultaten sequentieel worden
+opgeslagen. Verkregen resultaatobjecten zijn live objecten, geen snapshots.
+Gelijktijdig muteren en serialiseren van dezelfde objectgraph is niet
+ondersteund. De workers gebruiken geen Cereal-archives; parallelle integratie
+vereist daarom op zichzelf geen parallelle serialisatie. Checkpoints,
+achtergrondserialisatie en snapshots vragen een afzonderlijk ontwerp.
 
 Meer modellen, gerichte ThreadSanitizer-controle, andere platformen en generieke
 Python-factories zijn afzonderlijke vervolgstappen. De oude sequentiële
@@ -357,22 +355,23 @@ projectbrede metadata/tooling is geen nieuw gekozen ontwikkeldoel. Code, tests
 en documentatie zijn AI-assisted; menselijke review van modelbeperking, GIL,
 lifetime en parameter-resetcontract blijft gewenst vóór bredere opname.
 
-## Starttekst voor de sessie van 12 november
+## Starttekst voor een volgende sessie
 
 > Lees `docs/codex_handoff_parallel_arcs.md`, daarna
-> `docs/python_independent_arcs_api.md` en `docs/independent_arc_execution.md`.
-> De eerste beperkte Python-API voor native C++-multithreading over geïsoleerde
-> Mars-arcs is geïmplementeerd en gecommit. Controleer de branch
-> `parallellization_inquiry`, de acht vermelde commits en de laatste
-> overdrachtsactualisering. Doe op deze machine een verse bouw-/omgevingscontrole
-> en reproduceer het korte Python-voorbeeld, de 22 nieuwe Python-tests en de
-> drie native CTests. Lees het Intel-reproductieverslag van 9 november als
-> historische native testinformatie; de Python-bindings waren toen nog niet
-> aanwezig. Behoud de sequentiële defaults, modelisolatie, native resultaten,
-> gelatchte fallback voor gekoppelde arcs en het huidige GIL/callbackcontract.
-> Lees daarna de concrete aanbeveling voor een representatieve
-> Python-schaalbenchmark en bespreek die als eerstvolgende ontwikkeltaak met de
-> gebruiker. Het is een onderbouwd voorstel, nog geen opdracht voor een lange
-> meetreeks. Start geen lange benchmark automatisch.
-> Agent-tooling en profieldata zijn bewust alleen lokaal bewaard en gaan niet
-> mee via Git. Communiceer in het Nederlands en maak afgebakende commits.
+> `docs/python_independent_arcs_api.md`, `docs/independent_arc_execution.md`,
+> `docs/serialization_validation_20261112.md` en `benchmarks/PYTHON_SCALING.md`.
+> Controleer branch `parallellization_inquiry`, de twaalf genoemde commits en
+> de laatste overdrachtscommit. Python-bindings, serialisatie-/testfixes en de
+> schaalbenchmark zijn gecommit. Doe op een andere machine eerst een verse
+> bouw-/omgevingscontrole en reproduceer het korte Python-voorbeeld, de 22
+> bindingtests, de 28 benchmarktests en de drie native arc/RK-CTests.
+> Voer de volledige offline-suite uit met `--no-remote-data`, zonder handmatige
+> uitsluitingen; gebruik de expliciete serialisatiebouwvlag voor testselectie.
+> Valideer ON en OFF in afzonderlijke buildmappen als beide nodig zijn.
+> Behoud sequentiële defaults, modelisolatie, native resultaten, gelatchte
+> fallback voor gekoppelde arcs en het GIL/callback-/serialisatiecontract.
+> Een volgende ontwikkeltaak is nog niet gekozen. Bespreek de aanbeveling om
+> het afvlakken boven acht workers gericht te profilen. Start geen lange
+> benchmark automatisch. Agent-tooling en grote profieldata blijven lokaal;
+> het kleine gekozen benchmarkverslag staat in Git. Communiceer in het
+> Nederlands en maak afgebakende commits.
