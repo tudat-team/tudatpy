@@ -59,7 +59,6 @@ function("TUDAT_ADD_TEST_CASE" arg1)
                 "${Boost_INCLUDE_DIRS}"
                 "${CSpice_INCLUDE_DIRS}"
                 "${Sofa_INCLUDE_DIRS}"
-                "${TudatResources_INCLUDE_DIRS}"
                 )
 
         set(test_private_links ${PARSED_ARGS_PRIVATE_LINKS})
