@@ -9,6 +9,7 @@
  */
 
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat
@@ -46,7 +47,17 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGra
     {
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > accelerationPartialFunction =
                 accelerationPartial_->getParameterPartialFunction( parameter );
-        if( accelerationPartialFunction.second > 0 )
+        if( perturberMassIsGravityDerived_ && parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter &&
+            parameter->getParameterName( ).second.first == bodyExertingTorque_ )
+        {
+            partialFunctionPair =
+                    std::make_pair( std::bind( &SphericalHarmonicGravitationalTorquePartial::getPerturberGravitationalParameterPartial,
+                                               this,
+                                               std::placeholders::_1,
+                                               accelerationPartialFunction ),
+                                    1 );
+        }
+        else if( accelerationPartialFunction.second > 0 )
         {
             partialFunctionPair = std::make_pair(
                     std::bind( &SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction,
@@ -145,7 +156,21 @@ void SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAcceler
     Eigen::MatrixXd accelerationPartialsMatrix = Eigen::MatrixXd( 3, accelerationPartialFunction.second );
     accelerationPartialFunction.first( accelerationPartialsMatrix );
 
-    partialMatrix += currentParameterPartialPreMultiplier_ * accelerationPartialsMatrix;
+    partialMatrix = currentParameterPartialPreMultiplier_ * accelerationPartialsMatrix;
+}
+
+void SphericalHarmonicGravitationalTorquePartial::getPerturberGravitationalParameterPartial(
+        Eigen::MatrixXd& partialMatrix,
+        const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction )
+{
+    partialMatrix.setZero( );
+    if( accelerationPartialFunction.second > 0 )
+    {
+        getParameterPartialFromAccelerationPartialFunction( partialMatrix, accelerationPartialFunction );
+    }
+
+    // Torque is linear in perturber mass M = mu/G, so its partial w.r.t. mu is T/(G M)
+    partialMatrix.block( 0, 0, 3, 1 ) += torqueModel_->getTorque( ) / ( physical_constants::GRAVITATIONAL_CONSTANT * currentMass_ );
 }
 
 }  // namespace acceleration_partials

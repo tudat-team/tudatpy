@@ -694,7 +694,9 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque,
-        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque ):
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque,
+        const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyExertingTorque ):
     TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::fourth_degree_full_two_body_gravitational_torque ),
     torqueModel_( torqueModel ), gravityFieldOfBodyUndergoingTorque_( gravityFieldOfBodyUndergoingTorque ),
     gravityFieldOfBodyExertingTorque_( gravityFieldOfBodyExertingTorque ),
@@ -713,11 +715,29 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
     currentRelativePositionOfBodyExertingTorqueInBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Vector3d::Zero( ) ),
     currentInertiaTensorOfBodyExertingTorque_( Eigen::Matrix3d::Zero( ) ),
     rotationMatrixPartialsOfBodyUndergoingTorque_( rotationMatrixPartialsOfBodyUndergoingTorque ),
-    rotationMatrixPartialsOfBodyExertingTorque_( rotationMatrixPartialsOfBodyExertingTorque )
+    rotationMatrixPartialsOfBodyExertingTorque_( rotationMatrixPartialsOfBodyExertingTorque ),
+    gravitationalParameterOfBodyUndergoingTorqueFunction_(
+            simulation_setup::getGravitationalParameterFunctionOfGravityDerivedProperties( rigidBodyPropertiesOfBodyUndergoingTorque ) ),
+    gravitationalParameterOfBodyExertingTorqueFunction_(
+            simulation_setup::getGravitationalParameterFunctionOfGravityDerivedProperties( rigidBodyPropertiesOfBodyExertingTorque ) ),
+    rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived_(
+            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                    rigidBodyPropertiesOfBodyUndergoingTorque ) != nullptr ),
+    rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived_(
+            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( rigidBodyPropertiesOfBodyExertingTorque ) !=
+            nullptr )
 {
     if( torqueModel_ == nullptr )
     {
         throw std::runtime_error( "Error when creating FourthDegreeFullTwoBodyGravitationalTorquePartial, torque model is nullptr." );
+    }
+    if( ( rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived_ &&
+          gravitationalParameterOfBodyUndergoingTorqueFunction_ == nullptr ) ||
+        ( rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived_ && gravitationalParameterOfBodyExertingTorqueFunction_ == nullptr ) )
+    {
+        throw std::runtime_error(
+                "Error when creating FourthDegreeFullTwoBodyGravitationalTorquePartial, gravitational parameter function is required for "
+                "a body with rigid body properties derived from its gravity field." );
     }
 }
 
@@ -727,10 +747,23 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
             std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
-    if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
+    const bool isBodyExertingTorqueParameter = parameter->getParameterName( ).second.first == bodyExertingTorque_;
+    if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
     {
-        const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
-        const bool isBodyExertingTorqueParameter = parameter->getParameterName( ).second.first == bodyExertingTorque_;
+        // Torque depends on gravitational parameter only through gravity-derived mass and inertia tensor
+        if( ( isBodyUndergoingTorqueParameter && rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived_ ) ||
+            ( isBodyExertingTorqueParameter && rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived_ ) )
+        {
+            partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtGravitationalParameter,
+                                                         this,
+                                                         std::placeholders::_1,
+                                                         isBodyUndergoingTorqueParameter ),
+                                              1 );
+        }
+    }
+    else if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
         if( isBodyUndergoingTorqueParameter || isBodyExertingTorqueParameter )
         {
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials = isBodyUndergoingTorqueParameter
@@ -764,6 +797,13 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
             std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
+    // Gravity field coefficients and their variations only influence the torque through an inertia tensor that is derived from the
+    // gravity field
+    const bool isInertiaTensorOfParameterBodyGravityDerived = ( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ &&
+                                                                rigidBodyPropertiesOfBodyUndergoingTorqueAreGravityDerived_ ) ||
+            ( parameter->getParameterName( ).second.first == bodyExertingTorque_ &&
+              rigidBodyPropertiesOfBodyExertingTorqueAreGravityDerived_ );
+
     if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
     {
         const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
@@ -792,8 +832,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
     else if( estimatable_parameters::isParameterNonTidalGravityFieldVariationProperty( parameter->getParameterName( ).first ) )
     {
         const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
-        const bool isBodyExertingTorqueParameter = parameter->getParameterName( ).second.first == bodyExertingTorque_;
-        if( isBodyUndergoingTorqueParameter || isBodyExertingTorqueParameter )
+        if( isInertiaTensorOfParameterBodyGravityDerived )
         {
             switch( parameter->getParameterName( ).first )
             {
@@ -862,7 +901,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                         std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
                 int c20Index, c21Index, c22Index;
                 coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
-                if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
+                if( isInertiaTensorOfParameterBodyGravityDerived && ( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 ) )
                 {
                     partialFunction =
                             std::make_pair( std::bind( static_cast< void ( FourthDegreeFullTwoBodyGravitationalTorquePartial::* )(
@@ -883,7 +922,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                         std::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
                 int s21Index, s22Index;
                 coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
-                if( s21Index >= 0 || s22Index >= 0 )
+                if( isInertiaTensorOfParameterBodyGravityDerived && ( s21Index >= 0 || s22Index >= 0 ) )
                 {
                     partialFunction =
                             std::make_pair( std::bind( static_cast< void ( FourthDegreeFullTwoBodyGravitationalTorquePartial::* )(
@@ -919,7 +958,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                         std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
                 int c20Index, c21Index, c22Index;
                 coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
-                if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
+                if( isInertiaTensorOfParameterBodyGravityDerived && ( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 ) )
                 {
                     partialFunction =
                             std::make_pair( std::bind( static_cast< void ( FourthDegreeFullTwoBodyGravitationalTorquePartial::* )(
@@ -940,7 +979,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                         std::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
                 int s21Index, s22Index;
                 coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
-                if( s21Index >= 0 || s22Index >= 0 )
+                if( isInertiaTensorOfParameterBodyGravityDerived && ( s21Index >= 0 || s22Index >= 0 ) )
                 {
                     partialFunction = std::make_pair( std::bind( static_cast< void ( FourthDegreeFullTwoBodyGravitationalTorquePartial::* )(
                                                                          Eigen::MatrixXd&, const int, const int ) >(
@@ -1430,6 +1469,26 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtPeriodicGravityFieldV
 void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtMassOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix )
 {
     partialMatrix = currentPartialWrtMassOfBodyExertingTorque_;
+}
+
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix,
+                                                                                   const bool wrtBodyUndergoingTorque )
+{
+    // Gravity-derived mass and inertia tensor are proportional to the gravitational parameter, so that dX/dmu = X/mu
+    if( wrtBodyUndergoingTorque )
+    {
+        partialMatrix = currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
+                detail::getIndependentInertiaTensorComponentsFromMatrix( torqueModel_->getCurrentInertiaTensorOfBodyUndergoingTorque( ) ) /
+                gravitationalParameterOfBodyUndergoingTorqueFunction_( );
+    }
+    else
+    {
+        partialMatrix = ( currentPartialWrtMassOfBodyExertingTorque_ * torqueModel_->getCurrentMassOfBodyExertingTorque( ) +
+                          currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *
+                                  detail::getIndependentInertiaTensorComponentsFromMatrix(
+                                          torqueModel_->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ) ) ) /
+                gravitationalParameterOfBodyExertingTorqueFunction_( );
+    }
 }
 
 void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtRotationModelParameter(
