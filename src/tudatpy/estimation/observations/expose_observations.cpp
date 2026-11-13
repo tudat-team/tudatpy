@@ -2090,8 +2090,8 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
            py::arg( "minimum_number_of_observations" ) = 10,
            py::arg( "max_arc_gap" ) = 300.0,
            py::arg_v( "earth_fixed_ground_station_positions",
-                      tss::getApproximateDsnGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
            R"doc(
         Create a compressed Doppler observation collection.
 
