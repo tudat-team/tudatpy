@@ -113,6 +113,45 @@ void expose_shape_setup( py::module& m )
          :type: float
       )doc" );
 
+    py::class_< tss::TriAxialEllipsoidBodyShapeSettings,
+                std::shared_ptr< tss::TriAxialEllipsoidBodyShapeSettings >,
+                tss::BodyShapeSettings >( m,
+                                          "TriAxialEllipsoidBodyShapeSettings",
+                                          R"doc(
+
+         Class for defining model settings of a tri-axial ellipsoid body shape.
+
+         `BodyShapeSettings` derived class for tri-axial ellipsoid body shape model settings.
+
+      )doc" )
+            .def_property( "semi_axis_a",
+                           &tss::TriAxialEllipsoidBodyShapeSettings::getSemiAxisA,
+                           &tss::TriAxialEllipsoidBodyShapeSettings::resetSemiAxisA,
+                           R"doc(
+
+         Semi-axis of the ellipsoid along the body-fixed x-axis (m).
+
+         :type: float
+      )doc" )
+            .def_property( "semi_axis_b",
+                           &tss::TriAxialEllipsoidBodyShapeSettings::getSemiAxisB,
+                           &tss::TriAxialEllipsoidBodyShapeSettings::resetSemiAxisB,
+                           R"doc(
+
+         Semi-axis of the ellipsoid along the body-fixed y-axis (m).
+
+         :type: float
+      )doc" )
+            .def_property( "semi_axis_c",
+                           &tss::TriAxialEllipsoidBodyShapeSettings::getSemiAxisC,
+                           &tss::TriAxialEllipsoidBodyShapeSettings::resetSemiAxisC,
+                           R"doc(
+
+         Semi-axis of the ellipsoid along the body-fixed z-axis (m).
+
+         :type: float
+      )doc" );
+
     py::class_< tss::PolyhedronBodyShapeSettings, std::shared_ptr< tss::PolyhedronBodyShapeSettings >, tss::BodyShapeSettings >(
             m,
             "PolyhedronBodyShapeSettings",
@@ -336,6 +375,55 @@ BodyShapeSettings
 
 
 )doc" );
+
+    m.def( "triaxial_ellipsoid",
+           &tss::triAxialEllipsoidBodyShapeSettings,
+           py::arg( "semi_axis_a" ),
+           py::arg( "semi_axis_b" ),
+           py::arg( "semi_axis_c" ),
+           R"doc(
+
+ Function for creating tri-axial ellipsoid body shape model settings.
+
+ Function for creating settings for a tri-axial ellipsoid body shape model from its three semi-axes. The principal
+ axes of the ellipsoid are always along the axes of the body-fixed frame: ``semi_axis_a``, ``semi_axis_b`` and
+ ``semi_axis_c`` are the semi-axes along the body-fixed x-, y- and z-axes, respectively.
+
+ The average radius of the shape model is the radius of a sphere with the same volume, :math:`(abc)^{1/3}`.
+
+
+ Parameters
+ ----------
+ semi_axis_a : float
+     Semi-axis of the ellipsoid along the body-fixed x-axis (m).
+ semi_axis_b : float
+     Semi-axis of the ellipsoid along the body-fixed y-axis (m).
+ semi_axis_c : float
+     Semi-axis of the ellipsoid along the body-fixed z-axis (m).
+ Returns
+ -------
+ TriAxialEllipsoidBodyShapeSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.dynamics.environment_setup.shape.TriAxialEllipsoidBodyShapeSettings` class
+
+
+
+
+
+ Examples
+ --------
+ In this example, we create a :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` using a tri-axial ellipsoid shape model:
+
+ .. code-block:: python
+
+    # define semi-axes of the ellipsoid
+    semi_axis_a = 17.0E3
+    semi_axis_b = 5.5E3
+    semi_axis_c = 5.5E3
+    # create shape model settings
+    body_settings.get( "Eros" ).shape_settings = environment_setup.shape.triaxial_ellipsoid( semi_axis_a, semi_axis_b, semi_axis_c )
+
+
+     )doc" );
 
     m.def( "polyhedron",
            &tss::polyhedronBodyShapeSettings,
