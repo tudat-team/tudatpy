@@ -161,6 +161,45 @@ struct ObservationWeightSettings {
         }
     }
 
+    //! Remove the weights of a single observation (for the types that store weights per observation, or for the complete set)
+    void removeObservation( const std::size_t observationIndex, const unsigned int singleObservationSize )
+    {
+        switch( type_ )
+        {
+            case WeightsBlockType::scalar_per_observation:
+                scalarWeights_.erase( scalarWeights_.begin( ) + observationIndex );
+                break;
+            case WeightsBlockType::diagonal_per_observation:
+                diagonalWeights_.erase( diagonalWeights_.begin( ) + observationIndex );
+                break;
+            case WeightsBlockType::block_per_observation:
+                weightBlocks_.erase( weightBlocks_.begin( ) + observationIndex );
+                break;
+            case WeightsBlockType::set_block: {
+                // The set-level matrix is ordered by observation and then by scalar component. Remove the rows and columns belonging
+                // to the deleted observation.
+                const Eigen::Index removedStart = static_cast< Eigen::Index >( observationIndex * singleObservationSize );
+                const Eigen::Index remainingSize = weightBlock_.rows( ) - singleObservationSize;
+                const Eigen::Index trailingSize = remainingSize - removedStart;
+                Eigen::MatrixXd reducedMatrix( remainingSize, remainingSize );
+                reducedMatrix.topLeftCorner( removedStart, removedStart ) = weightBlock_.topLeftCorner( removedStart, removedStart );
+                reducedMatrix.topRightCorner( removedStart, trailingSize ) = weightBlock_.topRightCorner( removedStart, trailingSize );
+                reducedMatrix.bottomLeftCorner( trailingSize, removedStart ) = weightBlock_.bottomLeftCorner( trailingSize, removedStart );
+                reducedMatrix.bottomRightCorner( trailingSize, trailingSize ) =
+                        weightBlock_.bottomRightCorner( trailingSize, trailingSize );
+                weightBlock_ = reducedMatrix;
+                break;
+            }
+            case WeightsBlockType::default_weights:
+            case WeightsBlockType::constant_scalar:
+            case WeightsBlockType::constant_block:
+                // These representations do not store values separately for each observation.
+                break;
+            default:
+                throw std::runtime_error( "Error when removing an observation from weight settings, weight type is not recognized." );
+        }
+    }
+
     //! Selected weight representation.
     WeightsBlockType type_ = WeightsBlockType::default_weights;
     //! Scalar value used by the constant-scalar representation.

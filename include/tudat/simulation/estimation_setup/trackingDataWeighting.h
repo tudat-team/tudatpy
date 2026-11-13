@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 #include <map>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -36,56 +37,32 @@ namespace observation_models
 Eigen::Vector3d getGroundStationPositionForTrackingDataLinkEnd( const simulation_setup::SystemOfBodies& bodies,
                                                                 const LinkEndId& linkEndId );
 
+//! Function to retrieve, for each observation, the metadata used by the VFCC17 weights (observatory, note2 and catalog)
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setObservationWeightsFromTrackingDataScheme(
+std::vector< std::map< std::string, std::string > > getVfcc17Metadata(
         const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
-        const simulation_setup::SystemOfBodies& bodies,
-        const observation_models::LinkEnds& rawLinkEnds,
-        const observation_models::LinkEndType referenceLinkEnd )
+        const std::string& stationCode )
 {
-    if( trackingData->getWeighingScheme( ).empty( ) )
-    {
-        return;
-    }
-
-    // A named scheme is only evaluated when the tracking data contains no explicit weights yet.
-    if( trackingData->hasObservationWeightSettings( ) )
-    {
-        return;
-    }
-
-    const std::string weighingScheme = trackingData->getWeighingScheme( );
-    if( weighingScheme != "VFCC17" && weighingScheme != "ADES" && weighingScheme != "ADES_NIGHT" )
-    {
-        throw std::runtime_error( "Error when setting observation weights from TrackingData, weighing scheme '" +
-                                  trackingData->getWeighingScheme( ) + "' is not recognized." );
-    }
-
-    const Eigen::Vector3d stationPosition = getGroundStationPositionForTrackingDataLinkEnd( bodies, rawLinkEnds.at( referenceLinkEnd ) );
-    const std::string stationCode = rawLinkEnds.at( referenceLinkEnd ).getReferencePointName( );
-    std::vector< Eigen::Vector3d > stationPositions( trackingData->getNumberOfObservations( ), stationPosition );
-
     std::vector< std::map< std::string, std::string > > stringMetadata( trackingData->getNumberOfObservations( ) );
     for( unsigned int i = 0; i < trackingData->getNumberOfObservations( ); ++i )
     {
         stringMetadata.at( i )[ "observatory" ] = stationCode;
     }
 
-    const std::map< std::string, std::vector< std::string > > ancillaryStringVectorSettings =
+    const std::map< std::string, std::vector< std::string > >& ancillarySettingsStringVector =
             trackingData->getAncillarySettingsStringVector( );
-
-    for( const std::string metadataKey : { "note2", "catalog", "rmsRA", "rmsDec", "rmsCorr" } )
+    for( const std::string metadataKey : { "note2", "catalog" } )
     {
-        auto metadataIterator = ancillaryStringVectorSettings.find( metadataKey );
-        if( metadataIterator == ancillaryStringVectorSettings.end( ) )
+        auto metadataIterator = ancillarySettingsStringVector.find( metadataKey );
+        if( metadataIterator == ancillarySettingsStringVector.end( ) )
         {
             continue;
         }
         if( metadataIterator->second.size( ) != trackingData->getNumberOfObservations( ) )
         {
-            throw std::runtime_error( "Error when setting " + weighingScheme + " weights from TrackingData, metadata key '" + metadataKey +
+            throw std::runtime_error( "Error when setting VFCC17 weights from TrackingData, metadata key '" + metadataKey +
                                       "' has an inconsistent number of entries." );
         }
         for( unsigned int i = 0; i < trackingData->getNumberOfObservations( ); ++i )
@@ -93,16 +70,7 @@ void setObservationWeightsFromTrackingDataScheme(
             stringMetadata.at( i )[ metadataKey ] = metadataIterator->second.at( i );
         }
     }
-
-    if( weighingScheme == "VFCC17" )
-    {
-        data::setVFCC17Weights< ObservationScalarType, TimeType >( trackingData, stationPositions, stringMetadata );
-    }
-    else
-    {
-        data::setAdesWeights< ObservationScalarType, TimeType >(
-                trackingData, stationPositions, stringMetadata, weighingScheme == "ADES_NIGHT" );
-    }
+    return stringMetadata;
 }
 
 //! Function to compute the rates of right ascension and declination (w.r.t. J2000) of the observed body (transmitter), as seen by
@@ -179,6 +147,147 @@ inline ObservationWeightSettings getAngularPositionWeightsWithTimeUncertainty( c
         weightBlocks.push_back( covariance.inverse( ) );
     }
     return ObservationWeightSettings::blockPerObservation( weightBlocks );
+}
+
+//! Function to compute the weights of the observations in a TrackingData object from its weight settings, when creating an
+//! observation dataset
+/*!
+ * Function to compute the weights of the observations in a TrackingData object from its weight settings: the positional weights,
+ * the named weights (for the observations without positional weights), the reduction of the weights per block of observations,
+ * and the contribution of the uncertainties of the observation epochs (in this order).
+ * \param trackingData Tracking data with the weight settings
+ * \param bodies System of bodies (used for the station position and the rates of the observations)
+ * \param rawLinkEnds Link ends of the observations
+ * \param referenceLinkEnd Reference link end of the observations
+ * \param angularRates Rates of right ascension and declination at each observation epoch (only used for astrometric time
+ * uncertainties)
+ * \return Weights of the observations (empty if no weights are defined, in which case unit weights are used)
+ */
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::optional< ObservationWeightSettings > computeObservationWeights(
+        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
+        const simulation_setup::SystemOfBodies& bodies,
+        const observation_models::LinkEnds& rawLinkEnds,
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector2d >& angularRates )
+{
+    const std::shared_ptr< data::TrackingDataWeightSettings > weightSettings = trackingData->getWeightSettings( );
+    const std::shared_ptr< data::PositionalWeightSettings > positionalWeights = weightSettings->positionalWeights_;
+    if( positionalWeights == nullptr && weightSettings->namedWeights_ == nullptr )
+    {
+        if( weightSettings->blockDeweighting_ != nullptr || weightSettings->timingUncertainties_ != nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when computing TrackingData weights, a reduction of the weights per block or timing uncertainties are "
+                    "defined, but no positional or named weights." );
+        }
+        return std::nullopt;
+    }
+
+    // Positional weights for all observations, without further contributions, are used directly
+    if( positionalWeights != nullptr && positionalWeights->observationIndices_.empty( ) && weightSettings->blockDeweighting_ == nullptr &&
+        weightSettings->timingUncertainties_ == nullptr )
+    {
+        return positionalWeights->weights_;
+    }
+
+    const unsigned int numberOfObservations = trackingData->getNumberOfObservations( );
+    const unsigned int singleObservationSize = trackingData->getSingleObservationSize( );
+    const std::vector< TimeType >& epochs = trackingData->getObservationEpochs( );
+
+    // Number of observations in the same local night (used by the VFCC17 weights and the reduction of the weights per local night)
+    std::vector< int > observationsPerLocalNight;
+    if( weightSettings->namedWeights_ != nullptr || weightSettings->blockDeweighting_ != nullptr )
+    {
+        observationsPerLocalNight = data::getNumberOfObservationsPerLocalNight(
+                epochs,
+                std::vector< Eigen::Vector3d >(
+                        numberOfObservations,
+                        getGroundStationPositionForTrackingDataLinkEnd( bodies, rawLinkEnds.at( referenceLinkEnd ) ) ) );
+    }
+    if( weightSettings->blockDeweighting_ != nullptr &&
+        ( weightSettings->blockDeweighting_->blockDefinition_ != data::ObservationBlockDefinition::local_night ||
+          weightSettings->blockDeweighting_->rule_ != data::BlockDeweightingRule::divide_by_number_of_observations ) )
+    {
+        throw std::runtime_error( "Error when computing TrackingData weights, block definition or deweighting rule not recognized." );
+    }
+
+    ObservationWeightSettings weights;
+    if( positionalWeights != nullptr && positionalWeights->weights_.type_ == ObservationWeightSettings::WeightsBlockType::set_block )
+    {
+        Eigen::MatrixXd weightMatrix = positionalWeights->weights_.weightBlock_;
+        if( weightSettings->blockDeweighting_ != nullptr )
+        {
+            // Covariance of each observation multiplied by N (W -> D W D, with D containing 1/sqrt(N) for each observation)
+            Eigen::VectorXd scaling( numberOfObservations * singleObservationSize );
+            for( unsigned int i = 0; i < numberOfObservations; ++i )
+            {
+                scaling.segment( i * singleObservationSize, singleObservationSize )
+                        .setConstant( 1.0 / std::sqrt( static_cast< double >( observationsPerLocalNight.at( i ) ) ) );
+            }
+            weightMatrix = scaling.asDiagonal( ) * weightMatrix * scaling.asDiagonal( );
+        }
+        weights = ObservationWeightSettings::setBlock( weightMatrix );
+    }
+    else
+    {
+        std::vector< Eigen::MatrixXd > weightBlocks( numberOfObservations );
+        std::vector< bool > hasPositionalWeights( numberOfObservations, false );
+        if( positionalWeights != nullptr )
+        {
+            const std::vector< unsigned int >& observationIndices = positionalWeights->observationIndices_;
+            const unsigned int numberOfWeights = observationIndices.empty( ) ? numberOfObservations : observationIndices.size( );
+            for( unsigned int i = 0; i < numberOfWeights; ++i )
+            {
+                const unsigned int observationIndex = observationIndices.empty( ) ? i : observationIndices.at( i );
+                weightBlocks.at( observationIndex ) = positionalWeights->weights_.getObservationWeightBlock( i, singleObservationSize );
+                hasPositionalWeights.at( observationIndex ) = true;
+            }
+        }
+
+        // Named weights for the observations without positional weights
+        std::vector< std::map< std::string, std::string > > vfcc17Metadata;
+        if( weightSettings->namedWeights_ != nullptr )
+        {
+            if( weightSettings->namedWeights_->method_ != data::NamedWeightingMethod::vfcc17 )
+            {
+                throw std::runtime_error( "Error when computing TrackingData weights, named weighting method not recognized." );
+            }
+            vfcc17Metadata = getVfcc17Metadata( trackingData, rawLinkEnds.at( referenceLinkEnd ).getReferencePointName( ) );
+        }
+        for( unsigned int i = 0; i < numberOfObservations; ++i )
+        {
+            if( !hasPositionalWeights.at( i ) )
+            {
+                if( weightSettings->namedWeights_ == nullptr )
+                {
+                    throw std::runtime_error( "Error when computing TrackingData weights, observation " + std::to_string( i ) +
+                                              " has no positional weights, and no named weights are defined." );
+                }
+                weightBlocks.at( i ) = data::getVfcc17Weight( epochs.at( i ), vfcc17Metadata.at( i ), observationsPerLocalNight.at( i ) ) *
+                        Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
+            }
+            if( weightSettings->blockDeweighting_ != nullptr )
+            {
+                weightBlocks.at( i ) /= static_cast< double >( observationsPerLocalNight.at( i ) );
+            }
+        }
+        weights = ObservationWeightSettings::blockPerObservation( weightBlocks );
+    }
+
+    // Contribution of the uncertainties of the observation epochs
+    if( weightSettings->timingUncertainties_ != nullptr )
+    {
+        if( std::dynamic_pointer_cast< data::AstrometricTimeUncertaintySettings >( weightSettings->timingUncertainties_ ) == nullptr )
+        {
+            throw std::runtime_error( "Error when computing TrackingData weights, type of timing uncertainties not recognized." );
+        }
+        weights = getAngularPositionWeightsWithTimeUncertainty(
+                weights, weightSettings->timingUncertainties_->timeUncertainties_, angularRates );
+    }
+    return weights;
 }
 
 }  // namespace observation_models

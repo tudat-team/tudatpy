@@ -13,8 +13,15 @@ namespace tudat
 namespace data
 {
 
+//! Base class for observation corrections that are computed from models of the environment when creating an observation dataset
+class ModelBasedCorrectionSettings
+{
+public:
+    virtual ~ModelBasedCorrectionSettings( ) {}
+};
+
 //! Plain settings for angular corrections that require an environment during dataset conversion.
-struct AngularObservationCorrectionSettings {
+struct AngularObservationCorrectionSettings : public ModelBasedCorrectionSettings {
     AngularObservationCorrectionSettings( const std::vector< std::string >& lightDeflectionBodies = {},
                                           const Eigen::VectorXd& photocenterBodyDimensions = Eigen::VectorXd( ) ):
         lightDeflectionBodies_( lightDeflectionBodies ), photocenterBodyDimensions_( photocenterBodyDimensions )

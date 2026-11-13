@@ -59,7 +59,7 @@ std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > evaluateTra
     {
         throw std::runtime_error( "Angular observation corrections require an SSB global frame origin." );
     }
-    const auto& settings = trackingData->getObservationCorrectionSettings( ).value( );
+    const auto& settings = *trackingData->getObservationCorrectionSettings( );
     const auto linkEnds = tom::getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
     const auto& target = linkEnds.at( tom::transmitter );
     const auto& observer = linkEnds.at( tom::receiver );

@@ -27,8 +27,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/io/observationWeightSettings.h"
-#include "tudat/io/angularObservationCorrectionSettings.h"
+#include "tudat/io/trackingDataSettings.h"
 
 namespace tudat
 {
@@ -55,11 +54,9 @@ public:
                   const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                   const std::vector< TimeType > epochs,
                   const std::string referenceLinkEnd,
-                  const std::string timeScale = "TDB",
-                  const std::string weighingScheme = "" ):
+                  const std::string timeScale = "TDB" ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), epochs_( epochs ),
-        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), weighingScheme_( weighingScheme ),
-        numberOfObservations_( observations.size( ) ),
+        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), numberOfObservations_( observations.size( ) ),
         singleObservationSize_( !observations.empty( ) ? static_cast< unsigned int >( observations[ 0 ].size( ) ) : 0 )
     {
         // Check inputs size consistency
@@ -130,12 +127,6 @@ public:
     const std::string& getTimeScale( ) const
     {
         return timeScale_;
-    }
-
-    //! Function that returns the requested weighing scheme
-    const std::string& getWeighingScheme( ) const
-    {
-        return weighingScheme_;
     }
 
     //! Function that returns observation values
@@ -314,7 +305,19 @@ public:
         return ancillarySettingsDoubleVector_;
     }
 
-    //! Backwards-compatible interface for setting one diagonal weight vector per observation.
+    //! Function that returns the settings that define the observation weights
+    const std::shared_ptr< TrackingDataWeightSettings >& getWeightSettings( ) const
+    {
+        return weightSettings_;
+    }
+
+    //! Function that returns the settings that define the observation corrections
+    const std::shared_ptr< TrackingDataCorrectionSettings< ObservationScalarType > >& getCorrectionSettings( ) const
+    {
+        return correctionSettings_;
+    }
+
+    //! Backwards-compatible interface for setting one diagonal weight vector per observation (stored as positional weights).
     //! New code should use setObservationWeightSettings, which supports every weight representation.
     void setObservationWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& observationWeights )
     {
@@ -339,88 +342,135 @@ public:
 
         // Warn only after the complete replacement has passed validation. Rejected
         // replacements must leave the existing weights untouched.
-        if( observationWeightSettings_.has_value( ) )
+        if( weightSettings_->positionalWeights_ != nullptr )
         {
             std::cerr << "Warning when adding observation weights to tracking data object, weights already existed and are overwritten ."
                       << std::endl;
         }
 
-        // Preserve the existing diagonal-weight interface while storing all
-        // weight definitions through ObservationWeightSettings.
-        observationWeightSettings_ = observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights );
+        weightSettings_->positionalWeights_ = std::make_shared< PositionalWeightSettings >(
+                observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
     }
 
-    //! Set the representation and values used to weight these observations.
-    void setObservationWeightSettings( const observation_models::ObservationWeightSettings& observationWeightSettings )
+    //! Set the positional weights (known before creating an observation dataset), for all observations or for the observations
+    //! given by observationIndices (in which case the other observations require named weights, see setNamedWeights).
+    void setObservationWeightSettings( const observation_models::ObservationWeightSettings& observationWeightSettings,
+                                       const std::vector< unsigned int >& observationIndices = std::vector< unsigned int >( ) )
     {
-        observationWeightSettings.validateDimensions( numberOfObservations_, singleObservationSize_ );
-        observationWeightSettings_ = observationWeightSettings;
+        if( !observationIndices.empty( ) )
+        {
+            if( observationWeightSettings.type_ == observation_models::ObservationWeightSettings::WeightsBlockType::set_block )
+            {
+                throw std::runtime_error(
+                        "Error when setting TrackingData weights, set-level weights must be given for all observations." );
+            }
+            const std::set< unsigned int > uniqueIndices( observationIndices.begin( ), observationIndices.end( ) );
+            if( uniqueIndices.size( ) != observationIndices.size( ) || *uniqueIndices.rbegin( ) >= numberOfObservations_ )
+            {
+                throw std::runtime_error(
+                        "Error when setting TrackingData weights, observation indices must be unique and smaller than the number of "
+                        "observations (" +
+                        std::to_string( numberOfObservations_ ) + ")." );
+            }
+        }
+        observationWeightSettings.validateDimensions( observationIndices.empty( ) ? numberOfObservations_ : observationIndices.size( ),
+                                                      singleObservationSize_ );
+        weightSettings_->positionalWeights_ = std::make_shared< PositionalWeightSettings >( observationWeightSettings, observationIndices );
     }
 
-    //! Return the settings that define the observation weights.
+    //! Return the positional weights of the observations (for all observations, or for those given by the indices of the positional
+    //! weight settings, see getWeightSettings).
     const observation_models::ObservationWeightSettings& getObservationWeightSettings( ) const
     {
-        if( !observationWeightSettings_.has_value( ) )
+        if( weightSettings_->positionalWeights_ == nullptr )
         {
-            throw std::runtime_error( "Error when retrieving TrackingData weight settings, no weights have been defined." );
+            throw std::runtime_error( "Error when retrieving TrackingData weight settings, no positional weights have been defined." );
         }
-        return observationWeightSettings_.value( );
+        return weightSettings_->positionalWeights_->weights_;
     }
 
-    //! Return whether observation weights have been defined.
+    //! Return whether positional weights have been defined.
     bool hasObservationWeightSettings( ) const
     {
-        return observationWeightSettings_.has_value( );
+        return weightSettings_->positionalWeights_ != nullptr;
     }
 
-    //! Remove any observation weights currently stored.
+    //! Remove all weight settings currently stored.
     void clearObservationWeightSettings( )
     {
-        observationWeightSettings_.reset( );
+        weightSettings_ = std::make_shared< TrackingDataWeightSettings >( );
     }
 
-    //! Set the (1-sigma) uncertainties of the observation epochs (in seconds), one per observation (angular position only). When
-    //! creating an observation dataset, their contribution is added to the covariance of the observations.
-    void setObservationTimeUncertainties( const std::vector< double >& timeUncertainties )
+    //! Set weights computed with a named method when creating an observation dataset, for all observations without positional weights
+    void setNamedWeights( const NamedWeightingMethod method )
     {
-        if( timeUncertainties.size( ) != numberOfObservations_ )
+        checkAngularPositionObservable( "named weights" );
+        weightSettings_->namedWeights_ = std::make_shared< NamedWeightSettings >( method );
+    }
+
+    //! Set a reduction of the weights of all observations in the same block (e.g. local night), applied when creating an
+    //! observation dataset
+    void setBlockDeweighting( const ObservationBlockDefinition blockDefinition, const BlockDeweightingRule rule )
+    {
+        weightSettings_->blockDeweighting_ = std::make_shared< BlockDeweightingSettings >( blockDefinition, rule );
+    }
+
+    //! Set the uncertainties of the observation epochs, which are added to the observation covariance when creating an observation
+    //! dataset
+    void setTimingUncertainties( const std::shared_ptr< TimingBasedUncertaintySettings > timingUncertainties )
+    {
+        if( timingUncertainties->timeUncertainties_.size( ) != numberOfObservations_ )
         {
             throw std::runtime_error( "Error when setting observation time uncertainties, one entry per observation is required." );
         }
-        observationTimeUncertainties_ = timeUncertainties;
+        if( std::dynamic_pointer_cast< AstrometricTimeUncertaintySettings >( timingUncertainties ) != nullptr )
+        {
+            checkAngularPositionObservable( "astrometric time uncertainties" );
+        }
+        weightSettings_->timingUncertainties_ = timingUncertainties;
     }
 
-    //! Return the uncertainties of the observation epochs (empty if not provided)
-    const std::vector< double >& getObservationTimeUncertainties( ) const
+    //! Set the (1-sigma) uncertainties of the epochs of angular position observations (in seconds), one per observation
+    void setAstrometricTimeUncertainties( const std::vector< double >& timeUncertainties )
     {
-        return observationTimeUncertainties_;
+        setTimingUncertainties( std::make_shared< AstrometricTimeUncertaintySettings >( timeUncertainties ) );
     }
 
-    //! Set the biases of the observation epochs (in seconds), one per observation (angular position only). An observation with
-    //! time bias c is taken to be h(t+c), with t its epoch. When creating an observation dataset with corrections applied, each
+    //! Return the uncertainties of the epochs of angular position observations (empty if not provided)
+    std::vector< double > getAstrometricTimeUncertainties( ) const
+    {
+        std::shared_ptr< AstrometricTimeUncertaintySettings > timingUncertainties =
+                std::dynamic_pointer_cast< AstrometricTimeUncertaintySettings >( weightSettings_->timingUncertainties_ );
+        return timingUncertainties != nullptr ? timingUncertainties->timeUncertainties_ : std::vector< double >( );
+    }
+
+    //! Set the biases of the epochs of angular position observations (in seconds), one per observation. An observation with time
+    //! bias c is taken to be h(t+c), with t its epoch. When creating an observation dataset with corrections applied, each
     //! observation is corrected to h(t) using its time derivative.
-    void setObservationTimeBiases( const std::vector< double >& timeBiases )
+    void setAstrometricTimeBiases( const std::vector< double >& timeBiases )
     {
         if( timeBiases.size( ) != numberOfObservations_ )
         {
             throw std::runtime_error( "Error when setting observation time biases, one entry per observation is required." );
         }
-        observationTimeBiases_ = timeBiases;
+        checkAngularPositionObservable( "astrometric time biases" );
+        correctionSettings_->timeBiases_ = std::make_shared< AstrometricTimeBiasSettings >( timeBiases );
     }
 
-    //! Return the biases of the observation epochs (empty if not provided)
-    const std::vector< double >& getObservationTimeBiases( ) const
+    //! Return the biases of the epochs of angular position observations (empty if not provided)
+    std::vector< double > getAstrometricTimeBiases( ) const
     {
-        return observationTimeBiases_;
+        std::shared_ptr< AstrometricTimeBiasSettings > timeBiases =
+                std::dynamic_pointer_cast< AstrometricTimeBiasSettings >( correctionSettings_->timeBiases_ );
+        return timeBiases != nullptr ? timeBiases->timeBiases_ : std::vector< double >( );
     }
 
     //! Backwards-compatible interface for resetting one diagonal weight vector set through setObservationWeights.
-    //! It cannot modify scalar, matrix-block, or set-level weight representations.
+    //! It cannot modify scalar, matrix-block, set-level or partial weight representations.
     void setSingleObservationWeight( const unsigned int index, const Eigen::Matrix< double, Eigen::Dynamic, 1 >& observationWeight )
     {
         // Check if weights are already available
-        if( !observationWeightSettings_.has_value( ) ||
-            observationWeightSettings_->type_ != observation_models::ObservationWeightSettings::WeightsBlockType::diagonal_per_observation )
+        if( !hasDiagonalWeightsPerObservation( ) )
         {
             throw std::runtime_error(
                     "Error when resetting single observation weight in TrackingData object, per-observation diagonal weights not yet "
@@ -444,24 +494,23 @@ public:
         }
 
         // Overwrites specific weight entry
-        observationWeightSettings_->diagonalWeights_.at( index ) = observationWeight;
+        weightSettings_->positionalWeights_->weights_.diagonalWeights_.at( index ) = observationWeight;
     }
 
     //! Backwards-compatible accessor for diagonal weight vectors set through setObservationWeights.
-    //! Use getObservationWeightSettings for all representations; this function returns an empty vector for every other representation.
+    //! Use getWeightSettings for all representations; this function returns an empty vector for every other representation.
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getObservationWeights( ) const
     {
-        if( observationWeightSettings_.has_value( ) &&
-            observationWeightSettings_->type_ == observation_models::ObservationWeightSettings::WeightsBlockType::diagonal_per_observation )
+        if( hasDiagonalWeightsPerObservation( ) )
         {
-            return observationWeightSettings_->diagonalWeights_;
+            return weightSettings_->positionalWeights_->weights_.diagonalWeights_;
         }
         static const std::vector< Eigen::VectorXd > emptyWeights;
         return emptyWeights;
     }
 
     //! Backwards-compatible accessor that concatenates diagonal weights set through setObservationWeights.
-    //! Use getObservationWeightSettings for all representations; this function returns a size-zero vector for every other representation.
+    //! Use getWeightSettings for all representations; this function returns a size-zero vector for every other representation.
     Eigen::VectorXd getObservationWeightsVector( ) const
     {
         const std::vector< Eigen::VectorXd >& observationWeights = getObservationWeights( );
@@ -481,17 +530,19 @@ public:
         {
             throw std::runtime_error( "Angular correction settings require two-component reception-time angular observations." );
         }
-        observationCorrectionSettings_ = settings;
+        correctionSettings_->modelCorrections_ = std::make_shared< AngularObservationCorrectionSettings >( settings );
     }
 
-    const std::optional< AngularObservationCorrectionSettings >& getObservationCorrectionSettings( ) const
+    //! Return the angular correction settings (nullptr if not provided)
+    std::shared_ptr< AngularObservationCorrectionSettings > getObservationCorrectionSettings( ) const
     {
-        return observationCorrectionSettings_;
+        return std::dynamic_pointer_cast< AngularObservationCorrectionSettings >( correctionSettings_->modelCorrections_ );
     }
 
     bool hasObservationCorrectionSettings( ) const
     {
-        return observationCorrectionSettings_.has_value( ) && observationCorrectionSettings_->hasCorrections( );
+        const std::shared_ptr< AngularObservationCorrectionSettings > settings = getObservationCorrectionSettings( );
+        return settings != nullptr && settings->hasCorrections( );
     }
 
     //! Set corrections to the observations (optional)
@@ -518,7 +569,7 @@ public:
 
         // Warn only after the complete replacement has passed validation. Rejected
         // replacements must leave the existing corrections untouched.
-        if( !observationCorrections_.empty( ) )
+        if( correctionSettings_->explicitCorrections_ != nullptr )
         {
             std::cerr << "Warning when adding observation corrections to tracking data object, corrections already existed and are "
                          "overwritten ."
@@ -526,7 +577,8 @@ public:
         }
 
         // If all sizes are consistent, store observation corrections
-        observationCorrections_ = observationCorrections;
+        correctionSettings_->explicitCorrections_ =
+                std::make_shared< ExplicitCorrectionSettings< ObservationScalarType > >( observationCorrections );
     }
 
     //! Function that (re-)sets a single observation correction
@@ -534,7 +586,7 @@ public:
                                          Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationCorrection )
     {
         // Check that observation corrections are already defined
-        if( observationCorrections_.empty( ) )
+        if( correctionSettings_->explicitCorrections_ == nullptr )
         {
             throw std::runtime_error(
                     "Error when resetting single observation correction in TrackingData object, corrections not yet defined." );
@@ -557,13 +609,18 @@ public:
         }
 
         // Overwrites specific correction entry
-        observationCorrections_.at( index ) = observationCorrection;
+        correctionSettings_->explicitCorrections_->corrections_.at( index ) = observationCorrection;
     }
 
     //! Function that return a vector of observation corrections (empty of observation corrections are not provided)
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getObservationCorrections( ) const
     {
-        return observationCorrections_;
+        if( correctionSettings_->explicitCorrections_ != nullptr )
+        {
+            return correctionSettings_->explicitCorrections_->corrections_;
+        }
+        static const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > emptyCorrections;
+        return emptyCorrections;
     }
 
     //! Function that remove a single observation entry
@@ -591,80 +648,32 @@ public:
             metadata.second.erase( metadata.second.begin( ) + index );
         }
 
-        // Keep any per-observation weight values aligned with the remaining observations.
-        if( observationWeightSettings_.has_value( ) )
-        {
-            using WeightsBlockType = observation_models::ObservationWeightSettings::WeightsBlockType;
-            switch( observationWeightSettings_->type_ )
-            {
-                case WeightsBlockType::scalar_per_observation:
-                    observationWeightSettings_->scalarWeights_.erase( observationWeightSettings_->scalarWeights_.begin( ) + index );
-                    break;
-                case WeightsBlockType::diagonal_per_observation:
-                    observationWeightSettings_->diagonalWeights_.erase( observationWeightSettings_->diagonalWeights_.begin( ) + index );
-                    break;
-                case WeightsBlockType::block_per_observation:
-                    observationWeightSettings_->weightBlocks_.erase( observationWeightSettings_->weightBlocks_.begin( ) + index );
-                    break;
-                case WeightsBlockType::set_block: {
-                    // A set-level matrix is ordered by observation and then by
-                    // scalar component. Remove the rows and columns belonging
-                    // to the deleted observation.
-                    const Eigen::MatrixXd originalMatrix = observationWeightSettings_->weightBlock_;
-                    const Eigen::Index removedScalarStart = static_cast< Eigen::Index >( index * singleObservationSize_ );
-                    Eigen::MatrixXd reducedMatrix( originalMatrix.rows( ) - singleObservationSize_,
-                                                   originalMatrix.cols( ) - singleObservationSize_ );
-                    Eigen::Index newRow = 0;
-                    for( Eigen::Index oldRow = 0; oldRow < originalMatrix.rows( ); ++oldRow )
-                    {
-                        if( oldRow >= removedScalarStart && oldRow < removedScalarStart + singleObservationSize_ )
-                        {
-                            continue;
-                        }
-                        Eigen::Index newColumn = 0;
-                        for( Eigen::Index oldColumn = 0; oldColumn < originalMatrix.cols( ); ++oldColumn )
-                        {
-                            if( oldColumn >= removedScalarStart && oldColumn < removedScalarStart + singleObservationSize_ )
-                            {
-                                continue;
-                            }
-                            reducedMatrix( newRow, newColumn++ ) = originalMatrix( oldRow, oldColumn );
-                        }
-                        ++newRow;
-                    }
-                    observationWeightSettings_->weightBlock_ = reducedMatrix;
-                    break;
-                }
-                case WeightsBlockType::default_weights:
-                case WeightsBlockType::constant_scalar:
-                case WeightsBlockType::constant_block:
-                    // These representations do not store values separately for each observation.
-                    break;
-                default: {
-                    throw std::runtime_error( "Error when removing TrackingData observation, weight type is not recognized." );
-                }
-            }
-        }
-
-        // Remove associated correction, time uncertainty and time bias (if they exist)
-        if( !observationCorrections_.empty( ) )
-        {
-            observationCorrections_.erase( observationCorrections_.begin( ) + index );
-        }
-        if( !observationTimeUncertainties_.empty( ) )
-        {
-            observationTimeUncertainties_.erase( observationTimeUncertainties_.begin( ) + index );
-        }
-        if( !observationTimeBiases_.empty( ) )
-        {
-            observationTimeBiases_.erase( observationTimeBiases_.begin( ) + index );
-        }
+        // Keep the per-observation weight and correction settings aligned with the remaining observations.
+        weightSettings_->removeObservation( index, singleObservationSize_ );
+        correctionSettings_->removeObservation( index );
 
         // Update total number of observations contained in TrackingData object
         numberOfObservations_ = observations_.size( );
     }
 
 private:
+    //! Check that the observations are angular positions, for settings that are only available for these
+    void checkAngularPositionObservable( const std::string& settingsName ) const
+    {
+        if( observableType_ != "AngularPosition" )
+        {
+            throw std::runtime_error( "Error in TrackingData, " + settingsName + " are only available for angular position observations." );
+        }
+    }
+
+    //! Check whether the positional weights are diagonal weights given for every observation
+    bool hasDiagonalWeightsPerObservation( ) const
+    {
+        return weightSettings_->positionalWeights_ != nullptr && weightSettings_->positionalWeights_->observationIndices_.empty( ) &&
+                weightSettings_->positionalWeights_->weights_.type_ ==
+                observation_models::ObservationWeightSettings::WeightsBlockType::diagonal_per_observation;
+    }
+
     const std::string observableType_;
 
     const PlainLinkDefinition linkEnds_;
@@ -677,21 +686,16 @@ private:
 
     const std::string timeScale_;
 
-    const std::string weighingScheme_;
-
     unsigned int numberOfObservations_;
 
     const unsigned int singleObservationSize_;
 
-    std::optional< observation_models::ObservationWeightSettings > observationWeightSettings_;
+    //! Settings that define the weights of the observations
+    std::shared_ptr< TrackingDataWeightSettings > weightSettings_ = std::make_shared< TrackingDataWeightSettings >( );
 
-    std::vector< double > observationTimeUncertainties_;
-
-    std::vector< double > observationTimeBiases_;
-
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationCorrections_;
-
-    std::optional< AngularObservationCorrectionSettings > observationCorrectionSettings_;
+    //! Settings that define the corrections to the observations
+    std::shared_ptr< TrackingDataCorrectionSettings< ObservationScalarType > > correctionSettings_ =
+            std::make_shared< TrackingDataCorrectionSettings< ObservationScalarType > >( );
 
     std::map< std::string, std::string > ancillarySettingsString_;
 

@@ -59,9 +59,10 @@ void expose_tracking_data( py::module& m )
              Earliest and latest observation epoch, in seconds since J2000 in ``output_time_scale``.
       )doc" );
 
-    py::class_< tdat::AngularObservationCorrectionSettings >( m,
-                                                              "AngularObservationCorrectionSettings",
-                                                              R"doc(
+    py::class_< tdat::AngularObservationCorrectionSettings, std::shared_ptr< tdat::AngularObservationCorrectionSettings > >(
+            m,
+            "AngularObservationCorrectionSettings",
+            R"doc(
          Class defining the corrections to angular position observations that are computed when converting tracking data to an
          observation dataset.
 
@@ -213,6 +214,28 @@ void expose_tracking_data( py::module& m )
              Weight settings.
       )doc" );
 
+    py::enum_< tdat::NamedWeightingMethod >(
+            m, "NamedWeightingMethod", R"doc(Named methods to compute observation weights when creating an observation dataset.)doc" )
+            .value( "vfcc17",
+                    tdat::NamedWeightingMethod::vfcc17,
+                    R"doc(Weights of :cite:p:`veres2017`, including the reduction for more than four observations in the same local
+night, computed from the observatory, the epoch and the ``note2`` and ``catalog`` metadata of each observation.)doc" )
+            .export_values( );
+
+    py::enum_< tdat::ObservationBlockDefinition >(
+            m, "ObservationBlockDefinition", R"doc(Definitions of blocks of observations for which the weights are reduced.)doc" )
+            .value( "local_night",
+                    tdat::ObservationBlockDefinition::local_night,
+                    R"doc(Observations taken in the same local night (as defined for the VFCC17 weights), from the same station.)doc" )
+            .export_values( );
+
+    py::enum_< tdat::BlockDeweightingRule >(
+            m, "BlockDeweightingRule", R"doc(Rules to reduce the weights of the observations in a block.)doc" )
+            .value( "divide_by_number_of_observations",
+                    tdat::BlockDeweightingRule::divide_by_number_of_observations,
+                    R"doc(Weights divided by the number of observations :math:`N` in the block.)doc" )
+            .export_values( );
+
     py::class_< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >, std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m,
             "TrackingData",
@@ -222,7 +245,6 @@ void expose_tracking_data( py::module& m )
                             const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
                             const std::vector< TIME_TYPE >,
                             const std::string,
-                            const std::string,
                             const std::string >( ),
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
@@ -230,7 +252,6 @@ void expose_tracking_data( py::module& m )
                   py::arg( "epochs" ),
                   py::arg( "reference_link_end" ),
                   py::arg( "time_scale" ) = "TDB",
-                  py::arg( "weighing_scheme" ) = "",
                   R"doc(
          Create a container for source-loaded tracking observations. Note that this constructor is typically not called directly by users,
          but that an instance of this class is created by one of the functions in this module's submodules.
@@ -249,16 +270,6 @@ void expose_tracking_data( py::module& m )
              Reference link end for the observation epochs.
          time_scale : str, default "TDB"
              Time scale of the observation epochs.
-         weighing_scheme : str, default ""
-             Name of the weighing scheme assigned to the observations (``"VFCC17"``, ``"ADES"`` or
-             ``"ADES_NIGHT"``). The weights are computed when an observation collection is created
-             from this object, unless weights have been set manually. For ``"ADES"`` and
-             ``"ADES_NIGHT"``, the weights are computed from the rmsRA and rmsDec uncertainties
-             stored in the metadata, and from their correlation rmsCorr (if available), which gives
-             a non-diagonal weight block for each observation. For ``"ADES_NIGHT"``, the weights are
-             additionally divided by the number of observations in the same local night (using the
-             same definition of a local night as for ``"VFCC17"``). In both ADES schemes, observations
-             without rmsRA and rmsDec get ``"VFCC17"`` weights.
       )doc" )
             .def_property_readonly( "observable_type",
                                     &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,
@@ -311,15 +322,6 @@ void expose_tracking_data( py::module& m )
          **read-only**
 
          Time scale of the observation epochs.
-
-         :type: str
-      )doc" )
-            .def_property_readonly( "weighing_scheme",
-                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeighingScheme,
-                                    R"doc(
-         **read-only**
-
-         Name of the weighing scheme assigned to the observations.
 
          :type: str
       )doc" )
@@ -495,17 +497,23 @@ void expose_tracking_data( py::module& m )
             .def( "set_observation_weight_settings",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeightSettings,
                   py::arg( "observation_weight_settings" ),
+                  py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
                   R"doc(
-         Set the weights of the observations.
+         Set the positional weights of the observations, which are known before creating an observation dataset.
 
-         The weights are transferred to the observation dataset by
-         :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`. Weights that were set before
-         (also with :meth:`set_observation_weights`) are replaced.
+         The weights may be given for all observations, or (except for set-level weights) for a subset of the observations, in
+         which case the other observations get weights from a named method (see :meth:`set_named_weights`). When converting to an
+         observation dataset with :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`, these
+         weights are combined with the other weight settings (see :meth:`set_named_weights`, :meth:`set_block_deweighting` and
+         :meth:`set_astrometric_time_uncertainties`). Positional weights that were set before (also with
+         :meth:`set_observation_weights`) are replaced.
 
          Parameters
          ----------
          observation_weight_settings : ObservationWeightSettings
-             Settings defining the weights of all observations in this object.
+             Settings defining the weights of the observations given by ``observation_indices``.
+         observation_indices : list[int], default []
+             Indices of the observations for which the weights are given (all observations if empty).
 
          Returns
          -------
@@ -515,19 +523,19 @@ void expose_tracking_data( py::module& m )
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightSettings,
                   py::return_value_policy::copy,
                   R"doc(
-         Return the settings defining the weights of the observations.
+         Return the positional weights of the observations (see :meth:`set_observation_weight_settings`).
 
          Returns
          -------
          ObservationWeightSettings
-             Weight settings of the observations. An error is raised if no weights are set.
+             Positional weights of the observations. An error is raised if no positional weights are set.
       )doc" )
             .def_property_readonly( "has_observation_weight_settings",
                                     &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::hasObservationWeightSettings,
                                     R"doc(
          **read-only**
 
-         Whether weights are set for the observations (with :meth:`set_observation_weight_settings` or
+         Whether positional weights are set for the observations (with :meth:`set_observation_weight_settings` or
          :meth:`set_observation_weights`).
 
          :type: bool
@@ -535,7 +543,48 @@ void expose_tracking_data( py::module& m )
             .def( "clear_observation_weight_settings",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::clearObservationWeightSettings,
                   R"doc(
-         Remove the weights of the observations, so that all weights are equal to 1 when converting to an observation dataset.
+         Remove all weight settings of the observations, so that all weights are equal to 1 when converting to an observation
+         dataset.
+
+         Returns
+         -------
+         None
+      )doc" )
+            .def( "set_named_weights",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setNamedWeights,
+                  py::arg( "method" ),
+                  R"doc(
+         Set weights computed with a named method, for all observations without positional weights (angular position
+         observations only).
+
+         The weights are computed when converting to an observation dataset. If no positional weights are set (see
+         :meth:`set_observation_weight_settings`), the named method is used for all observations.
+
+         Parameters
+         ----------
+         method : NamedWeightingMethod
+             Method used to compute the weights.
+
+         Returns
+         -------
+         None
+      )doc" )
+            .def( "set_block_deweighting",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setBlockDeweighting,
+                  py::arg( "block_definition" ),
+                  py::arg( "rule" ),
+                  R"doc(
+         Set a reduction of the weights of all observations that belong to the same block (e.g. the same local night).
+
+         The reduction is applied when converting to an observation dataset, to the positional and named weights, before the
+         contribution of the timing uncertainties is added (see :meth:`set_astrometric_time_uncertainties`).
+
+         Parameters
+         ----------
+         block_definition : ObservationBlockDefinition
+             Definition of the blocks of observations.
+         rule : BlockDeweightingRule
+             Rule to reduce the weights of the observations in a block.
 
          Returns
          -------
@@ -671,15 +720,15 @@ void expose_tracking_data( py::module& m )
 
          :type: dict[str, list[float]]
       )doc" )
-            .def( "set_observation_time_uncertainties",
-                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationTimeUncertainties,
+            .def( "set_astrometric_time_uncertainties",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setAstrometricTimeUncertainties,
                   py::arg( "time_uncertainties" ),
                   R"doc(
          Set the uncertainties of the observation epochs, one value per observation (angular position observations only).
 
          When the tracking data is converted to an observation dataset, the contribution of the epoch uncertainty
          :math:`\sigma_{T}` is added to the covariance :math:`\mathbf{C}_{P}` of each observation (the inverse of its
-         positional weights, which must be defined), following :cite:p:`farnocchia2022`:
+         positional and named weights, which must be defined), following :cite:p:`farnocchia2022`:
 
          .. math::
             \mathbf{C}=\mathbf{C}_{P}+\sigma_{T}^{2}\begin{pmatrix}\dot{\alpha}^{2} & \dot{\alpha}\dot{\delta}\\ \dot{\alpha}\dot{\delta} & \dot{\delta}^{2}\end{pmatrix}
@@ -694,42 +743,40 @@ void expose_tracking_data( py::module& m )
          time_uncertainties : list[float]
              (1-sigma) uncertainties of the observation epochs, in seconds, one per observation.
       )doc" )
-            .def_property_readonly( "observation_time_uncertainties",
-                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimeUncertainties,
-                                    py::return_value_policy::copy,
+            .def_property_readonly( "astrometric_time_uncertainties",
+                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAstrometricTimeUncertainties,
                                     R"doc(
          **read-only**
 
          (1-sigma) uncertainties of the observation epochs (in seconds), one per observation (empty if not set), see
-         :meth:`set_observation_time_uncertainties`.
+         :meth:`set_astrometric_time_uncertainties`.
 
          :type: list[float]
       )doc" )
-            .def( "set_observation_time_biases",
-                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationTimeBiases,
+            .def( "set_astrometric_time_biases",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setAstrometricTimeBiases,
                   py::arg( "time_biases" ),
                   R"doc(
          Set the biases of the observation epochs, one value per observation (angular position observations only).
 
-         An observation with epoch :math:`t` and time bias :math:`c` is taken to be the observable at :math:`t+c`,
-         consistent with the time bias estimatable parameters. When the tracking data is converted to an observation
+         An observation with epoch :math:`t` and time bias :math:`c` is taken to be the observable at :math:`t+c`. When
+         the tracking data is converted to an observation
          dataset with ``apply_corrections=True``, each observation is corrected to epoch :math:`t` as
          :math:`(\alpha,\delta)\rightarrow(\alpha-c\dot{\alpha},\delta-c\dot{\delta})`, with the rates computed as for
-         :meth:`set_observation_time_uncertainties`.
+         :meth:`set_astrometric_time_uncertainties`.
 
          Parameters
          ----------
          time_biases : list[float]
              Biases of the observation epochs, in seconds, one per observation.
       )doc" )
-            .def_property_readonly( "observation_time_biases",
-                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimeBiases,
-                                    py::return_value_policy::copy,
+            .def_property_readonly( "astrometric_time_biases",
+                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAstrometricTimeBiases,
                                     R"doc(
          **read-only**
 
          Biases of the observation epochs (in seconds), one per observation (empty if not set), see
-         :meth:`set_observation_time_biases`.
+         :meth:`set_astrometric_time_biases`.
 
          :type: list[float]
       )doc" )

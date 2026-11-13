@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE( testAngularPositionTimeBiasesAndUncertainties )
                 useSetLevelWeights ? ObservationWeightSettings::setBlock( correlatedCovariance.inverse( ) )
                                    : ObservationWeightSettings::diagonalPerObservation(
                                              std::vector< Eigen::VectorXd >( 2, Eigen::Vector2d::Constant( 1.0 / positionalVariance ) ) ) );
-        trackingData->setObservationTimeUncertainties( timeUncertainties );
-        trackingData->setObservationTimeBiases( timeBiases );
+        trackingData->setAstrometricTimeUncertainties( timeUncertainties );
+        trackingData->setAstrometricTimeBiases( timeBiases );
 
         const ObservationVectorData< double, double > vectorData =
                 createObservationDatasetFromTrackingData< double, double >( { trackingData }, bodies, true )

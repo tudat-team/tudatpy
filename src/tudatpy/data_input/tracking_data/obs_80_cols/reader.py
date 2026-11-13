@@ -20,7 +20,9 @@ def read_80_column_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str | None = "",
+    *,
+    vfcc17_weights: bool = False,
+    nightly_deweighting: bool = False,
 ):
     """Read MPC 80-column files into TrackingData objects.
 
@@ -48,17 +50,20 @@ def read_80_column_data(
         Optional target name assigned to all observations, to be used if the
         file-provided object name is different from the Tudat body name.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
+        Deprecated, use ``vfcc17_weights`` instead.
     add_star_catalog_corrections : bool, default False
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata. To be used only
         in special cases where additional metadata is to be associated with the
         observations.
-    weighing_scheme : str, default ""
-        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
-        :cite:p:`veres2017`). The weights are computed when the observation collection is
-        created. If empty, no weights are assigned.
+    vfcc17_weights : bool, default False
+        Whether the observations get the weights of :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_named_weights`).
+    nightly_deweighting : bool, default False
+        Whether the weights are divided by the number of observations of the same target, from the
+        same observatory, in the same local night (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_block_deweighting`).
 
     Returns
     -------
@@ -70,11 +75,6 @@ def read_80_column_data(
     For radar range observation-model time-scale requirements, see
     :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`.
     """
-    if weighing_scheme in ("ADES", "ADES_NIGHT"):
-        raise ValueError(
-            f"Weighing scheme '{weighing_scheme}' requires ADES uncertainties, which the MPC "
-            "80-column format does not contain."
-        )
     parsed_table = parse_80cols_file(file_names)
     optical_tracking_data, supplementary_data = [], []
     if len(parsed_table) > 0:
@@ -86,7 +86,8 @@ def read_80_column_data(
             add_weights=add_weights,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
-            weighing_scheme=weighing_scheme,
+            vfcc17_weights=vfcc17_weights,
+            nightly_deweighting=nightly_deweighting,
         )
     radar_data = radar_data_from_table(parsed_table)
     if custom_name is not None:
