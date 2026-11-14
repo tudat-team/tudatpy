@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from tudatpy.astro.time_representation import Time
-from tudatpy.data_input.tracking_data import ObservationWeightSettings, TrackingData
+from tudatpy.data_input.tracking_data import TrackingData, set_block_weights
 from tudatpy.data_input.tracking_data.gaia import GaiaAstrometry
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import observations
@@ -50,9 +50,7 @@ def test_conversion_sorts_duplicate_epochs_without_changing_weights(weighted):
     source.add_numerical_observation_metadata("along_scan_angle", [0.3, 0.1, 0.11, 0.2])
     weight_matrix = np.diag(np.arange(1.0, 9.0)) + 0.01 * np.ones((8, 8))
     if weighted:
-        source.weight_settings.set_observation_weight_settings(
-            ObservationWeightSettings.set_block(weight_matrix)
-        )
+        source.weight_settings.set_observation_weight_settings(set_block_weights(weight_matrix))
     dataset = dataset_from_tracking([source])
     ids = dataset.observation_ids_for_set(0)
     np.testing.assert_array_equal(
@@ -83,9 +81,7 @@ def test_native_precision_sorting_does_not_match_metadata_by_float_epoch():
 def test_covariance_accessor_includes_rejected_rows_of_full_correlated_set():
     source = tracking_data()
     weights = np.diag(np.arange(1.0, 9.0)) + 0.1 * np.ones((8, 8))
-    source.weight_settings.set_observation_weight_settings(
-        ObservationWeightSettings.set_block(weights)
-    )
+    source.weight_settings.set_observation_weight_settings(set_block_weights(weights))
     dataset = dataset_from_tracking([source])
     dataset.reject_observations(observations.observation_query.time == 1)
     snapshot = dataset.observation_vector_data(include_rejected=False)

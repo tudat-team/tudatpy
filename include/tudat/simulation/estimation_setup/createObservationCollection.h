@@ -298,11 +298,11 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingData );
 
     // Compute the weights from the weight settings of the tracking data
-    const std::optional< ObservationWeightSettings > observationWeightSettings =
+    const std::shared_ptr< ObservationWeightSettings > observationWeightSettings =
             computeObservationWeights( trackingData, bodies, rawLinkEnds, referenceLinkEnd, angularRates );
 
     int setId;
-    if( observationWeightSettings.has_value( ) )
+    if( observationWeightSettings != nullptr )
     {
         setId = observationDataset.addObservationSetWithWeights(
                 observableType,
@@ -310,7 +310,7 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
                 observations,
                 epochsTdb,
                 referenceLinkEnd,
-                observationWeightSettings.value( ),
+                observationWeightSettings,
                 std::vector< Eigen::VectorXd >( ),
                 nullptr,
                 ancillarySettings,

@@ -14,7 +14,6 @@
 #include <Eigen/Core>
 #include <map>
 #include <memory>
-#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -124,29 +123,31 @@ std::vector< Eigen::Vector2d > getRightAscensionAndDeclinationRates( const simul
  * \param angularRates Rates of right ascension and declination (in rad/s), at each observation epoch
  * \return Weights of the angular position observations, including the contribution of the epoch uncertainties
  */
-inline ObservationWeightSettings getAngularPositionWeightsWithTimeUncertainty( const ObservationWeightSettings& positionalWeightSettings,
-                                                                               const std::vector< double >& timeUncertainties,
-                                                                               const std::vector< Eigen::Vector2d >& angularRates )
+inline std::shared_ptr< ObservationWeightSettings > getAngularPositionWeightsWithTimeUncertainty(
+        const std::shared_ptr< ObservationWeightSettings >& positionalWeightSettings,
+        const std::vector< double >& timeUncertainties,
+        const std::vector< Eigen::Vector2d >& angularRates )
 {
-    if( positionalWeightSettings.type_ == ObservationWeightSettings::WeightsBlockType::set_block )
+    if( std::shared_ptr< SetBlockWeightSettings > setLevelWeights =
+                std::dynamic_pointer_cast< SetBlockWeightSettings >( positionalWeightSettings ) )
     {
-        Eigen::MatrixXd covariance = positionalWeightSettings.weightBlock_.inverse( );
+        Eigen::MatrixXd covariance = setLevelWeights->getWeightMatrix( ).inverse( );
         for( unsigned int i = 0; i < angularRates.size( ); ++i )
         {
             covariance.block( 2 * i, 2 * i, 2, 2 ) +=
                     timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates.at( i ) * angularRates.at( i ).transpose( );
         }
-        return ObservationWeightSettings::setBlock( covariance.inverse( ) );
+        return setBlockWeights( covariance.inverse( ) );
     }
 
     std::vector< Eigen::MatrixXd > weightBlocks;
     for( unsigned int i = 0; i < angularRates.size( ); ++i )
     {
-        const Eigen::Matrix2d covariance = positionalWeightSettings.getObservationWeightBlock( i, 2 ).inverse( ) +
+        const Eigen::Matrix2d covariance = positionalWeightSettings->getWeightBlock( i, 2 ).inverse( ) +
                 timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates.at( i ) * angularRates.at( i ).transpose( );
         weightBlocks.push_back( covariance.inverse( ) );
     }
-    return ObservationWeightSettings::blockPerObservation( weightBlocks );
+    return blockPerObservationWeights( weightBlocks );
 }
 
 //! Function to compute the weights of the observations in a TrackingData object from its weight settings, when creating an
@@ -161,12 +162,12 @@ inline ObservationWeightSettings getAngularPositionWeightsWithTimeUncertainty( c
  * \param referenceLinkEnd Reference link end of the observations
  * \param angularRates Rates of right ascension and declination at each observation epoch (only used for astrometric time
  * uncertainties)
- * \return Weights of the observations (empty if no weights are defined, in which case unit weights are used)
+ * \return Weights of the observations (nullptr if no weights are defined, in which case unit weights are used)
  */
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-std::optional< ObservationWeightSettings > computeObservationWeights(
+std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
         const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
         const simulation_setup::SystemOfBodies& bodies,
         const observation_models::LinkEnds& rawLinkEnds,
@@ -174,7 +175,7 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
         const std::vector< Eigen::Vector2d >& angularRates )
 {
     const std::shared_ptr< data::TrackingDataWeightSettings > weightSettings = trackingData->getWeightSettings( );
-    const std::shared_ptr< data::ExplicitWeightSettings > explicitWeights = weightSettings->getExplicitWeights( );
+    const std::shared_ptr< ObservationWeightSettings > explicitWeights = weightSettings->getObservationWeightSettings( );
     if( explicitWeights == nullptr && weightSettings->getNamedWeightingMethod( ) == data::no_named_weighting )
     {
         if( weightSettings->getBlockDeweighting( ) != nullptr || weightSettings->getTimingBasedUncertaintySettings( ) != nullptr )
@@ -183,14 +184,14 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
                     "Error when computing TrackingData weights, a reduction of the weights per block or timing uncertainties are "
                     "defined, but no explicit or named weights." );
         }
-        return std::nullopt;
+        return nullptr;
     }
 
     // Explicit weights for all observations, without further contributions, are used directly
-    if( explicitWeights != nullptr && explicitWeights->observationIndices_.empty( ) && weightSettings->getBlockDeweighting( ) == nullptr &&
-        weightSettings->getTimingBasedUncertaintySettings( ) == nullptr )
+    if( explicitWeights != nullptr && explicitWeights->getObservationIndices( ).empty( ) &&
+        weightSettings->getBlockDeweighting( ) == nullptr && weightSettings->getTimingBasedUncertaintySettings( ) == nullptr )
     {
-        return explicitWeights->weights_;
+        return explicitWeights;
     }
 
     const unsigned int numberOfObservations = trackingData->getNumberOfObservations( );
@@ -214,10 +215,10 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
         throw std::runtime_error( "Error when computing TrackingData weights, block definition or deweighting rule not recognized." );
     }
 
-    ObservationWeightSettings weights;
-    if( explicitWeights != nullptr && explicitWeights->weights_.type_ == ObservationWeightSettings::WeightsBlockType::set_block )
+    std::shared_ptr< ObservationWeightSettings > weights;
+    if( std::shared_ptr< SetBlockWeightSettings > setLevelWeights = std::dynamic_pointer_cast< SetBlockWeightSettings >( explicitWeights ) )
     {
-        Eigen::MatrixXd weightMatrix = explicitWeights->weights_.weightBlock_;
+        Eigen::MatrixXd weightMatrix = setLevelWeights->getWeightMatrix( );
         if( weightSettings->getBlockDeweighting( ) != nullptr )
         {
             // Covariance of each observation multiplied by N (W -> D W D, with D containing 1/sqrt(N) for each observation)
@@ -229,7 +230,7 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
             }
             weightMatrix = scaling.asDiagonal( ) * weightMatrix * scaling.asDiagonal( );
         }
-        weights = ObservationWeightSettings::setBlock( weightMatrix );
+        weights = setBlockWeights( weightMatrix );
     }
     else
     {
@@ -237,12 +238,12 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
         std::vector< bool > hasExplicitWeights( numberOfObservations, false );
         if( explicitWeights != nullptr )
         {
-            const std::vector< unsigned int >& observationIndices = explicitWeights->observationIndices_;
+            const std::vector< unsigned int >& observationIndices = explicitWeights->getObservationIndices( );
             const unsigned int numberOfWeights = observationIndices.empty( ) ? numberOfObservations : observationIndices.size( );
             for( unsigned int i = 0; i < numberOfWeights; ++i )
             {
                 const unsigned int observationIndex = observationIndices.empty( ) ? i : observationIndices.at( i );
-                weightBlocks.at( observationIndex ) = explicitWeights->weights_.getObservationWeightBlock( i, singleObservationSize );
+                weightBlocks.at( observationIndex ) = explicitWeights->getWeightBlock( i, singleObservationSize );
                 hasExplicitWeights.at( observationIndex ) = true;
             }
         }
@@ -274,7 +275,7 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
                 weightBlocks.at( i ) /= static_cast< double >( observationsPerLocalNight.at( i ) );
             }
         }
-        weights = ObservationWeightSettings::blockPerObservation( weightBlocks );
+        weights = blockPerObservationWeights( weightBlocks );
     }
 
     // Contribution of the uncertainties of the observation epochs

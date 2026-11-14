@@ -104,7 +104,8 @@ set(io_HEADERS
         "comaModelInputOutput.h"
         "observationWeightSettings.h"
         "trackingData.h"
-        "trackingDataSettings.h"
+        "trackingDataWeightSettings.h"
+        "trackingDataCorrectionSettings.h"
         "readSp3File.h"
         )
 

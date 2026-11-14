@@ -28,7 +28,8 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/io/trackingDataSettings.h"
+#include "tudat/io/trackingDataCorrectionSettings.h"
+#include "tudat/io/trackingDataWeightSettings.h"
 
 namespace tudat
 {

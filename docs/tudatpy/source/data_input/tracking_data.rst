@@ -65,6 +65,54 @@ Tracking epoch bounds
 
 .. autofunction:: tudatpy.data_input.tracking_data.get_tracking_data_epoch_bounds
 
+Enumerations
+------------
+.. currentmodule:: tudatpy.data_input.tracking_data
+
+.. autosummary::
+
+   NamedWeightingMethod
+   ObservationBlockDefinition
+   BlockDeweightingRule
+
+.. autoclass:: tudatpy.data_input.tracking_data.NamedWeightingMethod
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ObservationBlockDefinition
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.BlockDeweightingRule
+   :members:
+
+Observation weight settings
+---------------------------
+.. currentmodule:: tudatpy.data_input.tracking_data
+
+These functions create :class:`ObservationWeightSettings` objects, which define the weights of the observations in a
+:class:`TrackingData` object (see :meth:`TrackingDataWeightSettings.set_observation_weight_settings`) or in an observation set
+of an :class:`~tudatpy.estimation.observations.ObservationDataset`.
+
+.. autosummary::
+
+   constant_scalar_weights
+   scalar_per_observation_weights
+   diagonal_per_observation_weights
+   constant_block_weights
+   block_per_observation_weights
+   set_block_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.constant_scalar_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.scalar_per_observation_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.diagonal_per_observation_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.constant_block_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.block_per_observation_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.set_block_weights
+
 Tracking data containers
 ------------------------
 .. currentmodule:: tudatpy.data_input.tracking_data
@@ -80,9 +128,6 @@ the same source that must be applied to the simulation environment.
    TrackingDataWeightSettings
    TrackingDataCorrectionSettings
    ObservationWeightSettings
-   NamedWeightingMethod
-   ObservationBlockDefinition
-   BlockDeweightingRule
    AngularObservationCorrectionSettings
    TrackingSupplementaryData
 
@@ -96,15 +141,6 @@ the same source that must be applied to the simulation environment.
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.ObservationWeightSettings
-   :members:
-
-.. autoclass:: tudatpy.data_input.tracking_data.NamedWeightingMethod
-   :members:
-
-.. autoclass:: tudatpy.data_input.tracking_data.ObservationBlockDefinition
-   :members:
-
-.. autoclass:: tudatpy.data_input.tracking_data.BlockDeweightingRule
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings

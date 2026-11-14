@@ -19,7 +19,8 @@ from tudatpy.data_input.tracking_data import (
     BlockDeweightingRule,
     NamedWeightingMethod,
     ObservationBlockDefinition,
-    ObservationWeightSettings,
+    block_per_observation_weights,
+    diagonal_per_observation_weights,
     TrackingData,
     TrackingSupplementaryData,
     TranslationalStateSupplementaryData,
@@ -591,18 +592,16 @@ def _set_ades_explicit_weights(tracking_data_object, group):
         ).transpose(2, 0, 1)
         / (1.0 - correlation**2)[:, None, None]
     )
-    if (correlation != 0.0).any():
-        weights = ObservationWeightSettings.block_per_observation(list(weight_blocks))
-    else:
-        weights = ObservationWeightSettings.diagonal_per_observation(
-            [np.diagonal(block).copy() for block in weight_blocks]
-        )
     observation_indices = (
         [] if has_uncertainties.all() else np.flatnonzero(has_uncertainties).tolist()
     )
-    tracking_data_object.weight_settings.set_observation_weight_settings(
-        weights, observation_indices
-    )
+    if (correlation != 0.0).any():
+        weights = block_per_observation_weights(list(weight_blocks), observation_indices)
+    else:
+        weights = diagonal_per_observation_weights(
+            [np.diagonal(block).copy() for block in weight_blocks], observation_indices
+        )
+    tracking_data_object.weight_settings.set_observation_weight_settings(weights)
 
 
 def optical_table_to_tracking_data(

@@ -15,7 +15,7 @@ from tudatpy.astro.time_representation import (
 )
 from tudatpy.data_input.tracking_data import (
     AngularObservationCorrectionSettings,
-    ObservationWeightSettings,
+    set_block_weights,
     TrackingData,
     TrackingSupplementaryData,
     TranslationalStateSupplementaryData,
@@ -355,7 +355,7 @@ class GaiaAstrometry:
 
                 weight_matrix = force_symmetric(np.linalg.inv(covariance_matrix))
                 tracking_data.weight_settings.set_observation_weight_settings(
-                    ObservationWeightSettings.set_block(weight_matrix)
+                    set_block_weights(weight_matrix)
                 )
                 tracking_data.correction_settings.set_observation_correction_settings(
                     correction_settings
