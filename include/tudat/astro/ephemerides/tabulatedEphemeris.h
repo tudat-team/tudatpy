@@ -134,6 +134,27 @@ public:
      */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& time );
 
+    //! Function to compute the acceleration, as the derivative of the interpolated velocity.
+    /*!
+     * Function to compute the acceleration, as the derivative of the interpolated velocity. For the Chebyshev interpolator, for
+     * which this derivative is not implemented, the central difference of Ephemeris::getCartesianAcceleration is used.
+     * \param time Time at which the acceleration is to be computed.
+     * \param finiteDifferenceStep Time step of the central difference (only used for the Chebyshev interpolator).
+     * \return Acceleration from ephemeris.
+     */
+    Eigen::Vector3d getCartesianAcceleration( const double time, const double finiteDifferenceStep )
+    {
+        if( interpolator_ == nullptr )
+        {
+            throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+        }
+        if( interpolator_->getInterpolatorType( ) == interpolators::chebyshev_interpolator )
+        {
+            return Ephemeris::getCartesianAcceleration( time, finiteDifferenceStep );
+        }
+        return interpolator_->interpolateDerivative( TimeType( time ) ).template segment< 3 >( 3 ).template cast< double >( );
+    }
+
     //! Function to return the interpolator
     /*!
      *  Function to return the interpolator that is to be used to calculate the state.

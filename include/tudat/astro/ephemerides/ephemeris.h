@@ -159,7 +159,9 @@ public:
         return referenceFrameOrientation_;
     }
 
-    Eigen::Vector3d getCartesianAcceleration( const double time, const double finiteDifferenceStep )
+    //! Function to compute the acceleration, from a central difference of the velocity with the given time step (overridden by
+    //! ephemerides that compute it directly)
+    virtual Eigen::Vector3d getCartesianAcceleration( const double time, const double finiteDifferenceStep )
     {
         return ( -getCartesianVelocity( time + 2.0 * finiteDifferenceStep ) + 8.0 * getCartesianVelocity( time + finiteDifferenceStep ) -
                  8.0 * getCartesianVelocity( time - finiteDifferenceStep ) + getCartesianVelocity( time - 2.0 * finiteDifferenceStep ) ) /

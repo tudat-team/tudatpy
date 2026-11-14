@@ -2102,6 +2102,89 @@ BOOST_AUTO_TEST_CASE( test_DefaultSettingsDifferentBody )
     BOOST_CHECK_EQUAL( bodies.at( "Mars" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Mars" );
 }
 
+//! Function to compute the acceleration of a body in the global frame, from a central difference of its state from its ephemeris (with
+//! the same fourth-order stencil as ephemerides::Ephemeris::getCartesianAcceleration)
+Eigen::Vector3d getBodyAccelerationFromStateCentralDifference( const std::shared_ptr< Body > body,
+                                                               const double time,
+                                                               const double timeStep )
+{
+    return ( -body->getStateInBaseFrameFromEphemeris( time + 2.0 * timeStep ).segment( 3, 3 ) +
+             8.0 * body->getStateInBaseFrameFromEphemeris( time + timeStep ).segment( 3, 3 ) -
+             8.0 * body->getStateInBaseFrameFromEphemeris( time - timeStep ).segment( 3, 3 ) +
+             body->getStateInBaseFrameFromEphemeris( time - 2.0 * timeStep ).segment( 3, 3 ) ) /
+            ( 12.0 * timeStep );
+}
+
+//! Test the acceleration of bodies in the global frame from their ephemerides (and those of their ephemeris origins), and from the
+//! frame manager, against a central difference of their state, for global frame origins at the SSB and at the Earth. The vehicle has
+//! a multi-arc ephemeris of tabulated Kepler orbits, of which the acceleration is the derivative of the interpolated velocity.
+BOOST_AUTO_TEST_CASE( test_ephemerisAccelerationSetup )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double finiteDifferenceStep = 10.0;
+    const std::vector< double > testTimes = { 1.0E7 + 2.5E3, 1.0E7 + 2.25E4 };
+
+    // Kepler orbit of the vehicle around the Moon, tabulated with a 60 s time step in two arcs
+    const double moonGravitationalParameter = spice_interface::getBodyGravitationalParameter( "Moon" );
+    const Eigen::Vector6d vehicleKeplerElements = ( Eigen::Vector6d( ) << 2.0E6, 0.05, 0.5, 1.0, 2.0, 0.3 ).finished( );
+    std::map< double, std::shared_ptr< EphemerisSettings > > vehicleArcEphemerisSettings;
+    for( const double arcStartTime : { 1.0E7, 1.0E7 + 2.0E4 } )
+    {
+        vehicleArcEphemerisSettings[ arcStartTime ] = tabulatedEphemerisSettings(
+                keplerEphemerisSettings( vehicleKeplerElements, 1.0E7, moonGravitationalParameter, "Moon", "ECLIPJ2000" ),
+                arcStartTime,
+                arcStartTime + 5.0E3,
+                60.0 );
+    }
+
+    for( const std::string globalFrameOrigin : { "SSB", "Earth" } )
+    {
+        // Sun and Earth w.r.t. the SSB, Moon w.r.t. the Earth and vehicle w.r.t. the Moon, so that each type of ephemeris origin
+        // (global frame origin, SSB, other body) is used for both global frame origins
+        BodyListSettings bodySettings( globalFrameOrigin, "ECLIPJ2000" );
+        bodySettings.addSettings( "Sun" );
+        bodySettings.at( "Sun" )->ephemerisSettings = std::make_shared< DirectSpiceEphemerisSettings >( "SSB", "ECLIPJ2000" );
+        bodySettings.addSettings( "Earth" );
+        bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< DirectSpiceEphemerisSettings >( "SSB", "ECLIPJ2000" );
+        bodySettings.addSettings( "Moon" );
+        bodySettings.at( "Moon" )->ephemerisSettings = std::make_shared< DirectSpiceEphemerisSettings >( "Earth", "ECLIPJ2000" );
+        bodySettings.addSettings( "Vehicle" );
+        bodySettings.at( "Vehicle" )->ephemerisSettings = multiArcEphemerisSettings( vehicleArcEphemerisSettings, "Moon", "ECLIPJ2000" );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+        std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager = createFrameManager( bodies.getMap( ) );
+
+        for( const double testTime : testTimes )
+        {
+            // Acceleration of the tabulated vehicle ephemeris against the Kepler acceleration. The large time step would give a
+            // relative error of about 1E-2 if the acceleration were computed by central differences.
+            Eigen::Vector3d vehiclePosition = bodies.at( "Vehicle" )->getEphemeris( )->getCartesianState( testTime ).segment( 0, 3 );
+            Eigen::Vector3d keplerAcceleration = -moonGravitationalParameter * vehiclePosition / std::pow( vehiclePosition.norm( ), 3 );
+            Eigen::Vector3d vehicleAcceleration = bodies.at( "Vehicle" )->getEphemeris( )->getCartesianAcceleration( testTime, 1.0E3 );
+            BOOST_CHECK_SMALL( ( vehicleAcceleration - keplerAcceleration ).norm( ) / keplerAcceleration.norm( ), 1.0E-8 );
+
+            for( const std::string bodyName : { "Sun", "Earth", "Moon", "Vehicle" } )
+            {
+                if( bodyName != globalFrameOrigin )
+                {
+                    // Central differences of the SPICE ephemerides are evaluated at the same epochs in both cases, so that only the
+                    // vehicle's interpolated derivative differs from the central difference
+                    Eigen::Vector3d expectedAcceleration =
+                            getBodyAccelerationFromStateCentralDifference( bodies.at( bodyName ), testTime, finiteDifferenceStep );
+                    Eigen::Vector3d bodyAcceleration =
+                            bodies.at( bodyName )->getAccelerationInBaseFrameFromEphemeris( testTime, finiteDifferenceStep );
+                    BOOST_CHECK_SMALL( ( bodyAcceleration - expectedAcceleration ).norm( ) / expectedAcceleration.norm( ), 1.0E-7 );
+
+                    // Frame manager (composite) ephemeris, which sums the same ephemeris accelerations
+                    Eigen::Vector3d frameManagerAcceleration = frameManager->getEphemeris( globalFrameOrigin, bodyName )
+                                                                       ->getCartesianAcceleration( testTime, finiteDifferenceStep );
+                    BOOST_CHECK_SMALL( ( frameManagerAcceleration - bodyAcceleration ).norm( ) / bodyAcceleration.norm( ), 1.0E-12 );
+                }
+            }
+        }
+    }
+}
+
 //! Test reading of gravity field from a SHADR file (header and coefficients of example in PDS SHADR specification)
 BOOST_AUTO_TEST_CASE( test_shadrGravityFieldFileReading )
 {

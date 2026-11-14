@@ -81,6 +81,29 @@ Eigen::Vector6d MultiArcEphemeris::getCartesianState( const double currentTime )
     }
 }
 
+Eigen::Vector3d MultiArcEphemeris::getCartesianAcceleration( const double time, const double finiteDifferenceStep )
+{
+    std::pair< bool, int > currentArc = getCurrentEphemerisArc( time );
+    if( currentArc.first )
+    {
+        return singleArcEphemerides_.at( currentArc.second )->getCartesianAcceleration( time, finiteDifferenceStep );
+    }
+    else
+    {
+        if( defaultEphemeris_ == nullptr )
+        {
+            throw exceptions::MultiArcEphemerisError< double >(
+                    time,
+                    std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ),
+                    currentArc.second );
+        }
+        else
+        {
+            return defaultEphemeris_->getCartesianAcceleration( time, finiteDifferenceStep );
+        }
+    }
+}
+
 Eigen::Matrix< long double, 6, 1 > MultiArcEphemeris::getCartesianLongState( const double currentTime )
 {
     std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );

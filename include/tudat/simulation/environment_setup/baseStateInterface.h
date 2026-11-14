@@ -12,6 +12,7 @@
 #define TUDAT_BASESTATEINTERFACE_H
 
 #include <functional>
+#include <stdexcept>
 #include <string>
 
 #include <Eigen/Core>
@@ -51,6 +52,16 @@ public:
      */
     template< typename OutputTimeType, typename OutputStateScalarType >
     Eigen::Matrix< OutputStateScalarType, 6, 1 > getBaseFrameState( const OutputTimeType time );
+
+    //! Function through which the acceleration of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the acceleration of baseFrameId_ in the inertial frame can be determined
+     *  \param time Time at which acceleration is to be computed
+     *  \param finiteDifferenceStep Time step of the central differences, for ephemerides that use them (see
+     *  ephemerides::Ephemeris::getCartesianAcceleration)
+     *  \return Inertial acceleration of frame origin at requested time
+     */
+    virtual Eigen::Vector3d getBaseFrameAcceleration( const double time, const double finiteDifferenceStep ) = 0;
 
     std::string getBaseFrameId( )
     {
@@ -109,7 +120,8 @@ public:
      * \param baseFrameId Name of frame origin for which inertial state is computed by this class
      */
     BaseStateInterfaceImplementation( const std::string baseFrameId ):
-        BaseStateInterface( baseFrameId ), stateFunction_( &BaseStateInterfaceImplementation::getDefaultZeroState ), stateMultiplier_( 1 )
+        BaseStateInterface( baseFrameId ), stateFunction_( &BaseStateInterfaceImplementation::getDefaultZeroState ), stateMultiplier_( 1 ),
+        accelerationFunction_( &BaseStateInterfaceImplementation::getDefaultZeroAcceleration )
     {}
 
     //! Constructor
@@ -119,15 +131,36 @@ public:
      * \param stateFunction Function returning frame's inertial state as a function of time.
      * \param subtractStateFunction Boolean denoting whether to subtract or add the state function (i.e. whether to multiply
      * result of stateFunction by -1).
+     * \param accelerationFunction Function returning frame's inertial acceleration as a function of time and the time step of the
+     * central differences (subtracted or added as the state function). If not provided, the acceleration is not available.
      */
     BaseStateInterfaceImplementation( const std::string baseFrameId,
                                       const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction,
-                                      const bool subtractStateFunction = 0 ):
-        BaseStateInterface( baseFrameId ), stateFunction_( stateFunction ), stateMultiplier_( ( subtractStateFunction == 0 ) ? 1.0 : -1.0 )
+                                      const bool subtractStateFunction = 0,
+                                      const std::function< Eigen::Vector3d( const double, const double ) > accelerationFunction = nullptr ):
+        BaseStateInterface( baseFrameId ), stateFunction_( stateFunction ), stateMultiplier_( ( subtractStateFunction == 0 ) ? 1.0 : -1.0 ),
+        accelerationFunction_( accelerationFunction )
     {}
 
     //! Destructor
     ~BaseStateInterfaceImplementation( ) {}
+
+    //! Function through which the acceleration of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the acceleration of baseFrameId_ in the inertial frame can be determined
+     *  \param time Time at which acceleration is to be computed
+     *  \param finiteDifferenceStep Time step of the central differences, for ephemerides that use them
+     *  \return Inertial acceleration of frame origin at requested time
+     */
+    Eigen::Vector3d getBaseFrameAcceleration( const double time, const double finiteDifferenceStep )
+    {
+        if( !accelerationFunction_ )
+        {
+            throw std::runtime_error( "Error when computing inertial acceleration of frame origin " + baseFrameId_ +
+                                      ", no acceleration function defined" );
+        }
+        return static_cast< double >( stateMultiplier_ ) * accelerationFunction_( time, finiteDifferenceStep );
+    }
 
 protected:
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -185,11 +218,20 @@ private:
         return Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
     }
 
+    //! Default acceleration function returning a zero vector for all inputs.
+    static Eigen::Vector3d getDefaultZeroAcceleration( const double, const double )
+    {
+        return Eigen::Vector3d::Zero( );
+    }
+
     //! Function returning frame's inertial state as a function of time.
     std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction_;
 
     //! Value (1 or -1) by which to multiply the state returned by stateFunction_.
     int stateMultiplier_;
+
+    //! Function returning frame's inertial acceleration as a function of time and the time step of the central differences.
+    std::function< Eigen::Vector3d( const double, const double ) > accelerationFunction_;
 };
 
 }  // namespace simulation_setup

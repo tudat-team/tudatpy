@@ -284,6 +284,34 @@ void expose_environment( py::module& m )
 
 
      )doc" )
+            .def( "cartesian_acceleration",
+                  &te::Ephemeris::getCartesianAcceleration,
+                  py::arg( "current_time" ),
+                  py::arg( "finite_difference_step" ),
+                  R"doc(
+
+         This function returns the Cartesian acceleration at the given time, w.r.t. the ``frame_origin``. Tabulated ephemerides
+         (except those using Chebyshev interpolation) compute it from the derivative of the interpolated velocity; other
+         ephemerides use a fourth-order central difference of the velocity, with the given time step.
+
+
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 in TDB time scale) at which the acceleration is to be computed.
+         finite_difference_step : float
+             Time step (in seconds) of the central difference, for ephemerides that use it.
+
+         Returns
+         -------
+         numpy.ndarray
+             Requested Cartesian acceleration
+
+
+
+
+
+     )doc" )
             .def_property_readonly( "frame_origin",
                                     &te::Ephemeris::getReferenceFrameOrigin,
                                     R"doc(
@@ -4181,6 +4209,34 @@ bool
          -------
          numpy.ndarray
              Cartesian state (position and velocity) of the body w.r.t. the global frame origin at the requested time.
+
+
+
+
+
+     )doc" )
+            .def( "acceleration_in_base_frame_from_ephemeris",
+                  &tss::Body::getAccelerationInBaseFrameFromEphemeris,
+                  py::arg( "time" ),
+                  py::arg( "finite_difference_step" ),
+                  R"doc(
+
+         This function returns the body's acceleration w.r.t. the global frame origin, as computed from its ephemeris model (see
+         :meth:`~Ephemeris.cartesian_acceleration`) and, if needed, from the ephemerides of other bodies, in the same manner as
+         :meth:`~Body.state_in_base_frame_from_ephemeris`.
+
+
+         Parameters
+         ----------
+         time : float
+             Time (in seconds since J2000 in TDB time scale) at which the acceleration is to be computed.
+         finite_difference_step : float
+             Time step (in seconds) of the central difference, for ephemerides that use it.
+
+         Returns
+         -------
+         numpy.ndarray
+             Cartesian acceleration of the body w.r.t. the global frame origin at the requested time.
 
 
 

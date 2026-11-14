@@ -313,6 +313,53 @@ public:
         return getStateInBaseFrameFromEphemeris< StateScalarType, TimeType, setStateInBody >( time ).segment( 0, 3 );
     }
 
+    //! Function to compute the acceleration of the body in the global frame from its ephemeris.
+    /*!
+     * Function to compute the acceleration of the body in the global frame from its ephemeris, and the ephemerides of its
+     * ephemeris origin(s) (see ephemerides::Ephemeris::getCartesianAcceleration).
+     * \param time Time at which acceleration is to be computed.
+     * \param finiteDifferenceStep Time step of the central differences, for ephemerides that use them.
+     * \return Acceleration of the body in the global frame.
+     */
+    Eigen::Vector3d getAccelerationInBaseFrameFromEphemeris( const double time, const double finiteDifferenceStep )
+    {
+        if( bodyEphemeris_ == nullptr )
+        {
+            throw std::runtime_error( "Error when requesting acceleration from ephemeris of body " + bodyName_ +
+                                      ", body has no ephemeris" );
+        }
+        else if( bodyIsGlobalFrameOrigin_ == 1 )
+        {
+            return Eigen::Vector3d::Zero( );
+        }
+        else if( bodyIsGlobalFrameOrigin_ == 0 )
+        {
+            return bodyEphemeris_->getCartesianAcceleration( time, finiteDifferenceStep ) +
+                    ephemerisFrameToBaseFrame_->getBaseFrameAcceleration( time, finiteDifferenceStep );
+        }
+        throw std::runtime_error( "Error when requesting acceleration from ephemeris of body " + bodyName_ +
+                                  ", global origin not yet defined." );
+    }
+
+    //! Function to compute the barycentric acceleration of the global frame origin from its ephemeris.
+    /*!
+     * Function to compute the barycentric acceleration of the global frame origin from its ephemeris (see
+     * getGlobalFrameOriginBarycentricStateFromEphemeris). This function can ONLY be called if this body is the global frame
+     * origin, otherwise an exception is thrown
+     * \param time Time at which acceleration is to be computed.
+     * \param finiteDifferenceStep Time step of the central differences, for ephemerides that use them.
+     * \return Barycentric acceleration of the global frame origin.
+     */
+    Eigen::Vector3d getGlobalFrameOriginBarycentricAccelerationFromEphemeris( const double time, const double finiteDifferenceStep )
+    {
+        if( bodyIsGlobalFrameOrigin_ != 1 )
+        {
+            throw std::runtime_error(
+                    "Error, calling global frame origin barycentric acceleration on body that is not global frame origin" );
+        }
+        return ephemerisFrameToBaseFrame_->getBaseFrameAcceleration( time, finiteDifferenceStep );
+    }
+
     //! Templated function to get the current berycentric state of the body from its ephemeris andcglobal-to-ephemeris-frame
     //! function.
     /*!
@@ -1068,9 +1115,14 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                                 std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
                                            bodies.at( ephemerisFrameOrigin ),
                                            std::placeholders::_1 );
+                        std::function< Eigen::Vector3d( const double, const double ) > accelerationFunction =
+                                std::bind( &Body::getAccelerationInBaseFrameFromEphemeris,
+                                           bodies.at( ephemerisFrameOrigin ),
+                                           std::placeholders::_1,
+                                           std::placeholders::_2 );
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
-                                std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >( ephemerisFrameOrigin,
-                                                                                                                   stateFunction );
+                                std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
+                                        ephemerisFrameOrigin, stateFunction, false, accelerationFunction );
                         bodyIterator.second->setEphemerisFrameToBaseFrame( baseStateInterface );
                     }
                 }
@@ -1081,16 +1133,23 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                     if( globalFrameOrigin == bodyIterator.first )
                     {
                         std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager = createFrameManager( bodies );
-                        frameManager->getEphemeris< StateScalarType, TimeType >( globalFrameOrigin, "SSB" );
+                        std::shared_ptr< ephemerides::Ephemeris > barycenterEphemeris =
+                                frameManager->getEphemeris< StateScalarType, TimeType >( globalFrameOrigin, "SSB" );
 
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                 std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >,
                                            frameManager->getEphemeris< StateScalarType, TimeType >( globalFrameOrigin, "SSB" ),
                                            std::placeholders::_1 );
 
+                        std::function< Eigen::Vector3d( const double, const double ) > accelerationFunction =
+                                std::bind( &ephemerides::Ephemeris::getCartesianAcceleration,
+                                           barycenterEphemeris,
+                                           std::placeholders::_1,
+                                           std::placeholders::_2 );
+
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
                                 std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
-                                        globalFrameOrigin, stateFunction, true );
+                                        globalFrameOrigin, stateFunction, true, accelerationFunction );
                         bodyIterator.second->setEphemerisFrameToBaseFrame( baseStateInterface );
                     }
                     // Set correction function if ephemeris origin is SSB
@@ -1100,9 +1159,14 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                                 std::bind( &Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
                                            bodies.at( globalFrameOrigin ),
                                            std::placeholders::_1 );
+                        std::function< Eigen::Vector3d( const double, const double ) > accelerationFunction =
+                                std::bind( &Body::getGlobalFrameOriginBarycentricAccelerationFromEphemeris,
+                                           bodies.at( globalFrameOrigin ),
+                                           std::placeholders::_1,
+                                           std::placeholders::_2 );
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
                                 std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
-                                        globalFrameOrigin, stateFunction, true );
+                                        globalFrameOrigin, stateFunction, true, accelerationFunction );
                         bodyIterator.second->setEphemerisFrameToBaseFrame( baseStateInterface );
                     }
                     else
@@ -1121,9 +1185,14 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                                     std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
                                                bodies.at( ephemerisFrameOrigin ),
                                                std::placeholders::_1 );
+                            std::function< Eigen::Vector3d( const double, const double ) > accelerationFunction =
+                                    std::bind( &Body::getAccelerationInBaseFrameFromEphemeris,
+                                               bodies.at( ephemerisFrameOrigin ),
+                                               std::placeholders::_1,
+                                               std::placeholders::_2 );
                             std::shared_ptr< BaseStateInterface > baseStateInterface =
                                     std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
-                                            ephemerisFrameOrigin, stateFunction, false );
+                                            ephemerisFrameOrigin, stateFunction, false, accelerationFunction );
                             bodyIterator.second->setEphemerisFrameToBaseFrame( baseStateInterface );
                         }
                     }
@@ -1430,24 +1499,6 @@ std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair<
 bool isReferencePointGroundStation( const std::shared_ptr< Body > body, const std::string& referencePointName );
 
 bool isReferencePointGroundStation( const SystemOfBodies& bodies, const std::string& bodyName, const std::string& referencePointName );
-
-//! Function to compute the acceleration of a body, using its ephemeris and finite differences
-/*!
- *  Function to compute the acceleration of a body, using its ephemeris and 8th order finite difference and 100 s time step
- *  \param bodyWithAcceleration Body for which acceleration is to be computed
- *  \param nominalEvalutationTime Time at which acceleration is to be evaluated.
- */
-template< typename StateScalarType = double, typename TimeType = double >
-Eigen::Matrix< StateScalarType, 3, 1 > getBodyAccelerationInBaseFramefromNumericalDifferentiation(
-        const std::shared_ptr< Body > bodyWithAcceleration,
-        const TimeType nominalEvalutationTime )
-{
-    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > bodyStateFunction =
-            std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >, bodyWithAcceleration, std::placeholders::_1 );
-    return numerical_derivatives::computeCentralDifferenceFromFunction(
-                   bodyStateFunction, nominalEvalutationTime, 100.0, numerical_derivatives::order8 )
-            .segment( 3, 3 );
-}
 
 }  // namespace simulation_setup
 

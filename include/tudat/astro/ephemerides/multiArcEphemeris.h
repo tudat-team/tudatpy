@@ -63,6 +63,15 @@ public:
      */
     Eigen::Vector6d getCartesianState( const double currentTime );
 
+    //! Function to compute the acceleration, from the ephemeris of the arc at the given time (see getCartesianState).
+    /*!
+     * Function to compute the acceleration, from the ephemeris of the arc at the given time (see getCartesianState).
+     * \param time Time at which the acceleration is to be computed.
+     * \param finiteDifferenceStep Time step of the central differences, for ephemerides that use them.
+     * \return Acceleration from ephemeris.
+     */
+    Eigen::Vector3d getCartesianAcceleration( const double time, const double finiteDifferenceStep );
+
     //! Get state from ephemeris (long double state output).
     /*!
      * Returns state from ephemeris at given Julian date.

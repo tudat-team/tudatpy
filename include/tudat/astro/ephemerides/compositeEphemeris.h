@@ -257,6 +257,48 @@ public:
         return state.template cast< OutputStateScalarType >( );
     }
 
+    //! Function to set the ephemerides of the translations in the chain, from which the acceleration is computed.
+    /*!
+     *  Function to set the ephemerides of the translations in the chain, in the order in which they are applied, from which
+     *  getCartesianAcceleration computes the acceleration (with the addition or subtraction of the chain). Only possible for a
+     *  chain without rotations.
+     *  \param accelerationEphemerides Ephemeris of each translation in the chain.
+     */
+    void setAccelerationEphemerides( const std::vector< std::shared_ptr< Ephemeris > >& accelerationEphemerides )
+    {
+        if( rotationalEphemerides_.size( ) > 0 || accelerationEphemerides.size( ) != translationalEphemerides_.size( ) )
+        {
+            throw std::runtime_error(
+                    "Error when setting ephemerides for acceleration of composite ephemeris, chain contains rotations or number of "
+                    "ephemerides is inconsistent" );
+        }
+        accelerationEphemerides_ = accelerationEphemerides;
+    }
+
+    //! Function to compute the acceleration.
+    /*!
+     *  Function to compute the acceleration, as the sum of the accelerations of the ephemerides set by setAccelerationEphemerides,
+     *  or from a central difference of the velocity (see Ephemeris::getCartesianAcceleration) if these are not set.
+     *  \param time Time at which the acceleration is to be computed.
+     *  \param finiteDifferenceStep Time step of the central differences.
+     *  \return Acceleration from ephemeris.
+     */
+    Eigen::Vector3d getCartesianAcceleration( const double time, const double finiteDifferenceStep )
+    {
+        if( accelerationEphemerides_.empty( ) )
+        {
+            return Ephemeris::getCartesianAcceleration( time, finiteDifferenceStep );
+        }
+
+        Eigen::Vector3d acceleration = Eigen::Vector3d::Zero( );
+        for( unsigned int i = 0; i < accelerationEphemerides_.size( ); i++ )
+        {
+            acceleration += static_cast< double >( translationalEphemerides_.at( i ).second ) *
+                    accelerationEphemerides_.at( i )->getCartesianAcceleration( time, finiteDifferenceStep );
+        }
+        return acceleration;
+    }
+
     //! Add an additional translational ephemeris at the end of the chain.
     /*!
      *  Function to add an additional translational ephemeris at the end of the chain.
@@ -275,6 +317,9 @@ public:
         // Add translational ephemeris to end of chain
         isCurrentEphemerisTranslational_.push_back( 1 );
         translationalEphemerides_.push_back( std::make_pair( stateFunction, add ) );
+
+        // The ephemerides set for the acceleration no longer match the chain, so that it is computed by central differences
+        accelerationEphemerides_.clear( );
     }
 
 private:
@@ -295,6 +340,9 @@ private:
      *  Vector indicating order of translational and rotational ephemeris (0 is first, highest is last)
      */
     std::vector< bool > isCurrentEphemerisTranslational_;
+
+    //! Ephemeris of each translation in the chain, from which the acceleration is computed (empty if not set)
+    std::vector< std::shared_ptr< Ephemeris > > accelerationEphemerides_;
 };
 
 //! Interface function used to change the state scalar type of the output of a state function

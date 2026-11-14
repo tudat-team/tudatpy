@@ -106,12 +106,16 @@ public:
             // Initialize list of ephemeris functions for composite ephemeris creation
             std::map< int, std::pair< std::function< StateType( const TimeType& ) >, bool > > totalEphemerisList;
 
+            // Ephemerides of the complete chain, in the order of the composite ephemeris, from which its acceleration is computed
+            std::vector< std::shared_ptr< Ephemeris > > accelerationEphemerides;
+
             // If body is nearest common frame, get set of ephemeris and set to subtract them when
             // making composite ephemeris.
             std::vector< std::shared_ptr< Ephemeris > > ephemerisList;
             if( nearestCommonFrame.first == body )
             {
                 ephemerisList = getDirectEphemerisFromLowerToUpperFrame( body, origin );
+                accelerationEphemerides.insert( accelerationEphemerides.end( ), ephemerisList.begin( ), ephemerisList.end( ) );
                 for( unsigned int i = 0; i < ephemerisList.size( ); i++ )
                 {
                     totalEphemerisList[ i ] =
@@ -126,6 +130,7 @@ public:
             else if( nearestCommonFrame.first == origin )
             {
                 ephemerisList = getDirectEphemerisFromLowerToUpperFrame( origin, body );
+                accelerationEphemerides.insert( accelerationEphemerides.end( ), ephemerisList.begin( ), ephemerisList.end( ) );
                 for( unsigned int i = 0; i < ephemerisList.size( ); i++ )
                 {
                     totalEphemerisList[ i ] =
@@ -141,6 +146,7 @@ public:
                 // Get set of ephemeris from nearest common frame to body and set to add them when
                 // making composite ephemeris.
                 ephemerisList = getDirectEphemerisFromLowerToUpperFrame( nearestCommonFrame.first, body );
+                accelerationEphemerides.insert( accelerationEphemerides.end( ), ephemerisList.begin( ), ephemerisList.end( ) );
                 for( unsigned int i = 0; i < ephemerisList.size( ); i++ )
                 {
                     totalEphemerisList[ i ] =
@@ -154,6 +160,7 @@ public:
                 // Get set of ephemeris from nearest common frame to origin and set to subtract them
                 // when making composite ephemeris.
                 ephemerisList = getDirectEphemerisFromLowerToUpperFrame( nearestCommonFrame.first, origin );
+                accelerationEphemerides.insert( accelerationEphemerides.end( ), ephemerisList.begin( ), ephemerisList.end( ) );
                 for( unsigned int i = 0; i < ephemerisList.size( ); i++ )
                 {
                     totalEphemerisList[ i + firstListSize ] =
@@ -165,8 +172,13 @@ public:
             }
 
             // Create composite ephemeris
-            ephemerisBetweenFrames = std::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
-                    totalEphemerisList, std::map< int, std::function< StateType( const TimeType, const StateType& ) > >( ), origin );
+            std::shared_ptr< CompositeEphemeris< TimeType, StateScalarType > > compositeEphemeris =
+                    std::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
+                            totalEphemerisList,
+                            std::map< int, std::function< StateType( const TimeType, const StateType& ) > >( ),
+                            origin );
+            compositeEphemeris->setAccelerationEphemerides( accelerationEphemerides );
+            ephemerisBetweenFrames = compositeEphemeris;
         }
 
         return ephemerisBetweenFrames;
