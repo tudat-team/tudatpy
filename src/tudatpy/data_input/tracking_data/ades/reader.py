@@ -117,23 +117,23 @@ def read_ades_data(
         Whether to attach available optical ancillary metadata.
     ades_weights : bool, default False
         Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds), and their
-        correlation rmsCorr (if available), are used as positional weights (see
-        :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_observation_weight_settings`).
+        correlation rmsCorr (if available), are used as explicit weights (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
         Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation of 1
         (or -1) is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
     vfcc17_weights : bool, default False
-        Whether the observations without positional weights (all observations if ``ades_weights``
+        Whether the observations without explicit weights (all observations if ``ades_weights``
         is False, and including those for which ``minimum_ades_uncertainty`` removes the ADES
         uncertainties) get the weights of :cite:p:`veres2017` (see
-        :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_named_weights`).
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
     nightly_deweighting : bool, default False
         Whether the weights are divided by the number of observations of the same target, from the
         same observatory, in the same local night (see
-        :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_block_deweighting`).
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
     time_uncertainties : bool, default False
         Whether the rmsTime timing uncertainties (in seconds) are added to the observation
         covariance (see
-        :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_astrometric_time_uncertainties`).
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
     minimum_ades_uncertainty : float | None, default None
         Minimum rmsRA and rmsDec (in arcseconds) for which the ADES uncertainties of an
@@ -152,8 +152,8 @@ def read_ades_data(
         adopted biases (only available in the residual fields) are applied when the observations
         are converted with ``apply_corrections=True``, assuming that the reported values are the
         true values plus the bias: biasTime (in seconds) is
-        set as the negative astrometric time bias (see
-        :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_astrometric_time_biases`), and
+        set as the negative time bias (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataCorrectionSettings.set_time_biases`), and
         biasRA (of RA cos(Dec)) and biasDec (in arcseconds) are subtracted as observation
         corrections, replacing the star-catalog corrections of these observations.
 

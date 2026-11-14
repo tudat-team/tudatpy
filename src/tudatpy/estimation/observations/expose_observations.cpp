@@ -59,7 +59,7 @@ std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > evaluateTra
     {
         throw std::runtime_error( "Angular observation corrections require an SSB global frame origin." );
     }
-    const auto& settings = *trackingData->getObservationCorrectionSettings( );
+    const auto& settings = *trackingData->getCorrectionSettings( )->getObservationCorrectionSettings( );
     const auto linkEnds = tom::getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
     const auto& target = linkEnds.at( tom::transmitter );
     const auto& observer = linkEnds.at( tom::receiver );
@@ -2768,7 +2768,7 @@ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
 apply_corrections : bool, default = False
     Whether to apply the corrections stored in the tracking data to the observation values. If ``True``, the
     corrections requested with
-    :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_observation_correction_settings` (light deflection and
+    :meth:`~tudatpy.data_input.tracking_data.TrackingDataCorrectionSettings.set_observation_correction_settings` (light deflection and
     photocenter offset) are also computed and applied, using the environment in ``bodies``. The tracking data objects
     are not modified.
 

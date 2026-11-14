@@ -86,16 +86,16 @@ BOOST_AUTO_TEST_CASE( testAngularPositionTimeBiasesAndUncertainties )
                                                                               std::vector< Eigen::VectorXd >( 2, Eigen::Vector2d::Zero( ) ),
                                                                               std::vector< double >{ 0.0, 100.0 },
                                                                               "receiver" );
-            trackingData->setObservationWeightSettings(
+            trackingData->getWeightSettings( )->setObservationWeightSettings(
                     useSetLevelWeights ? ObservationWeightSettings::setBlock( correlatedCovariance.inverse( ) )
                                        : ObservationWeightSettings::diagonalPerObservation( std::vector< Eigen::VectorXd >(
                                                  2, Eigen::Vector2d::Constant( 1.0 / positionalVariance ) ) ) );
-            trackingData->setAstrometricTimeUncertainties( timeUncertainties );
-            trackingData->setAstrometricTimeBiases( timeBiases );
+            trackingData->getWeightSettings( )->setTimeUncertainties( timeUncertainties );
+            trackingData->getCorrectionSettings( )->setTimeBiases( timeBiases );
             if( useNightlyDeweighting )
             {
-                trackingData->setBlockDeweighting( data::ObservationBlockDefinition::local_night,
-                                                   data::BlockDeweightingRule::divide_by_number_of_observations );
+                trackingData->getWeightSettings( )->setBlockDeweighting( data::ObservationBlockDefinition::local_night,
+                                                                         data::BlockDeweightingRule::divide_by_number_of_observations );
             }
 
             const ObservationVectorData< double, double > vectorData =

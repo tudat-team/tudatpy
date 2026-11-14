@@ -85,7 +85,7 @@ def test_adopted_biases_are_applied(optical_table):
         rtol=1.0e-10,
     )
     data, _ = read_optical_data(table.assign(biasTime=2.0))
-    assert data[0].astrometric_time_biases == [-2.0]
+    assert data[0].correction_settings.time_biases == [-2.0]
 
 
 @pytest.mark.parametrize("source", ["file", "mpc"])

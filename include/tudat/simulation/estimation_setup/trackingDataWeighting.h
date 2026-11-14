@@ -152,8 +152,8 @@ inline ObservationWeightSettings getAngularPositionWeightsWithTimeUncertainty( c
 //! Function to compute the weights of the observations in a TrackingData object from its weight settings, when creating an
 //! observation dataset
 /*!
- * Function to compute the weights of the observations in a TrackingData object from its weight settings: the positional weights,
- * the named weights (for the observations without positional weights), the reduction of the weights per block of observations,
+ * Function to compute the weights of the observations in a TrackingData object from its weight settings: the explicit weights,
+ * the named weights (for the observations without explicit weights), the reduction of the weights per block of observations,
  * and the contribution of the uncertainties of the observation epochs (in this order).
  * \param trackingData Tracking data with the weight settings
  * \param bodies System of bodies (used for the station position and the rates of the observations)
@@ -174,23 +174,23 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
         const std::vector< Eigen::Vector2d >& angularRates )
 {
     const std::shared_ptr< data::TrackingDataWeightSettings > weightSettings = trackingData->getWeightSettings( );
-    const std::shared_ptr< data::PositionalWeightSettings > positionalWeights = weightSettings->positionalWeights_;
-    if( positionalWeights == nullptr && weightSettings->namedWeights_ == nullptr )
+    const std::shared_ptr< data::ExplicitWeightSettings > explicitWeights = weightSettings->getExplicitWeights( );
+    if( explicitWeights == nullptr && weightSettings->getNamedWeightingMethod( ) == data::no_named_weighting )
     {
-        if( weightSettings->blockDeweighting_ != nullptr || weightSettings->timingUncertainties_ != nullptr )
+        if( weightSettings->getBlockDeweighting( ) != nullptr || weightSettings->getTimingBasedUncertaintySettings( ) != nullptr )
         {
             throw std::runtime_error(
                     "Error when computing TrackingData weights, a reduction of the weights per block or timing uncertainties are "
-                    "defined, but no positional or named weights." );
+                    "defined, but no explicit or named weights." );
         }
         return std::nullopt;
     }
 
-    // Positional weights for all observations, without further contributions, are used directly
-    if( positionalWeights != nullptr && positionalWeights->observationIndices_.empty( ) && weightSettings->blockDeweighting_ == nullptr &&
-        weightSettings->timingUncertainties_ == nullptr )
+    // Explicit weights for all observations, without further contributions, are used directly
+    if( explicitWeights != nullptr && explicitWeights->observationIndices_.empty( ) && weightSettings->getBlockDeweighting( ) == nullptr &&
+        weightSettings->getTimingBasedUncertaintySettings( ) == nullptr )
     {
-        return positionalWeights->weights_;
+        return explicitWeights->weights_;
     }
 
     const unsigned int numberOfObservations = trackingData->getNumberOfObservations( );
@@ -199,7 +199,7 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
 
     // Number of observations in the same local night (used by the VFCC17 weights and the reduction of the weights per local night)
     std::vector< int > observationsPerLocalNight;
-    if( weightSettings->namedWeights_ != nullptr || weightSettings->blockDeweighting_ != nullptr )
+    if( weightSettings->getNamedWeightingMethod( ) != data::no_named_weighting || weightSettings->getBlockDeweighting( ) != nullptr )
     {
         observationsPerLocalNight = data::getNumberOfObservationsPerLocalNight(
                 epochs,
@@ -207,18 +207,18 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
                         numberOfObservations,
                         getGroundStationPositionForTrackingDataLinkEnd( bodies, rawLinkEnds.at( referenceLinkEnd ) ) ) );
     }
-    if( weightSettings->blockDeweighting_ != nullptr &&
-        ( weightSettings->blockDeweighting_->blockDefinition_ != data::ObservationBlockDefinition::local_night ||
-          weightSettings->blockDeweighting_->rule_ != data::BlockDeweightingRule::divide_by_number_of_observations ) )
+    if( weightSettings->getBlockDeweighting( ) != nullptr &&
+        ( weightSettings->getBlockDeweighting( )->blockDefinition_ != data::ObservationBlockDefinition::local_night ||
+          weightSettings->getBlockDeweighting( )->rule_ != data::BlockDeweightingRule::divide_by_number_of_observations ) )
     {
         throw std::runtime_error( "Error when computing TrackingData weights, block definition or deweighting rule not recognized." );
     }
 
     ObservationWeightSettings weights;
-    if( positionalWeights != nullptr && positionalWeights->weights_.type_ == ObservationWeightSettings::WeightsBlockType::set_block )
+    if( explicitWeights != nullptr && explicitWeights->weights_.type_ == ObservationWeightSettings::WeightsBlockType::set_block )
     {
-        Eigen::MatrixXd weightMatrix = positionalWeights->weights_.weightBlock_;
-        if( weightSettings->blockDeweighting_ != nullptr )
+        Eigen::MatrixXd weightMatrix = explicitWeights->weights_.weightBlock_;
+        if( weightSettings->getBlockDeweighting( ) != nullptr )
         {
             // Covariance of each observation multiplied by N (W -> D W D, with D containing 1/sqrt(N) for each observation)
             Eigen::VectorXd scaling( numberOfObservations * singleObservationSize );
@@ -234,24 +234,24 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
     else
     {
         std::vector< Eigen::MatrixXd > weightBlocks( numberOfObservations );
-        std::vector< bool > hasPositionalWeights( numberOfObservations, false );
-        if( positionalWeights != nullptr )
+        std::vector< bool > hasExplicitWeights( numberOfObservations, false );
+        if( explicitWeights != nullptr )
         {
-            const std::vector< unsigned int >& observationIndices = positionalWeights->observationIndices_;
+            const std::vector< unsigned int >& observationIndices = explicitWeights->observationIndices_;
             const unsigned int numberOfWeights = observationIndices.empty( ) ? numberOfObservations : observationIndices.size( );
             for( unsigned int i = 0; i < numberOfWeights; ++i )
             {
                 const unsigned int observationIndex = observationIndices.empty( ) ? i : observationIndices.at( i );
-                weightBlocks.at( observationIndex ) = positionalWeights->weights_.getObservationWeightBlock( i, singleObservationSize );
-                hasPositionalWeights.at( observationIndex ) = true;
+                weightBlocks.at( observationIndex ) = explicitWeights->weights_.getObservationWeightBlock( i, singleObservationSize );
+                hasExplicitWeights.at( observationIndex ) = true;
             }
         }
 
-        // Named weights for the observations without positional weights
+        // Named weights for the observations without explicit weights
         std::vector< std::map< std::string, std::string > > vfcc17Metadata;
-        if( weightSettings->namedWeights_ != nullptr )
+        if( weightSettings->getNamedWeightingMethod( ) != data::no_named_weighting )
         {
-            if( weightSettings->namedWeights_->method_ != data::NamedWeightingMethod::vfcc17 )
+            if( weightSettings->getNamedWeightingMethod( ) != data::vfcc17 )
             {
                 throw std::runtime_error( "Error when computing TrackingData weights, named weighting method not recognized." );
             }
@@ -259,17 +259,17 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
         }
         for( unsigned int i = 0; i < numberOfObservations; ++i )
         {
-            if( !hasPositionalWeights.at( i ) )
+            if( !hasExplicitWeights.at( i ) )
             {
-                if( weightSettings->namedWeights_ == nullptr )
+                if( weightSettings->getNamedWeightingMethod( ) == data::no_named_weighting )
                 {
                     throw std::runtime_error( "Error when computing TrackingData weights, observation " + std::to_string( i ) +
-                                              " has no positional weights, and no named weights are defined." );
+                                              " has no explicit weights, and no named weights are defined." );
                 }
                 weightBlocks.at( i ) = data::getVfcc17Weight( epochs.at( i ), vfcc17Metadata.at( i ), observationsPerLocalNight.at( i ) ) *
                         Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
             }
-            if( weightSettings->blockDeweighting_ != nullptr )
+            if( weightSettings->getBlockDeweighting( ) != nullptr )
             {
                 weightBlocks.at( i ) /= static_cast< double >( observationsPerLocalNight.at( i ) );
             }
@@ -278,14 +278,10 @@ std::optional< ObservationWeightSettings > computeObservationWeights(
     }
 
     // Contribution of the uncertainties of the observation epochs
-    if( weightSettings->timingUncertainties_ != nullptr )
+    if( weightSettings->getTimingBasedUncertaintySettings( ) != nullptr )
     {
-        if( std::dynamic_pointer_cast< data::AstrometricTimeUncertaintySettings >( weightSettings->timingUncertainties_ ) == nullptr )
-        {
-            throw std::runtime_error( "Error when computing TrackingData weights, type of timing uncertainties not recognized." );
-        }
         weights = getAngularPositionWeightsWithTimeUncertainty(
-                weights, weightSettings->timingUncertainties_->timeUncertainties_, angularRates );
+                weights, weightSettings->getTimingBasedUncertaintySettings( )->timeUncertainties_, angularRates );
     }
     return weights;
 }

@@ -180,9 +180,10 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = trackingData->getObservations( );
 
     // Apply corrections if requested (and if they exist)
-    if( applyCorrections && !trackingData->getObservationCorrections( ).empty( ) )
+    if( applyCorrections && !trackingData->getCorrectionSettings( )->getObservationCorrections( ).empty( ) )
     {
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections = trackingData->getObservationCorrections( );
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections =
+                trackingData->getCorrectionSettings( )->getObservationCorrections( );
 
         // Check size consistency
         if( corrections.size( ) != observations.size( ) )
@@ -238,18 +239,12 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
         epochsTdb = epochsInput;
     }
 
-    // Rates of right ascension and declination, used to convert astrometric time biases (if corrections are applied) and time
-    // uncertainties to corrections and uncertainties of the observations
-    const std::shared_ptr< data::TimingBasedCorrectionSettings > timeBiases = trackingData->getCorrectionSettings( )->timeBiases_;
+    // Time biases and uncertainties are currently only supported for angular position observations, for which they are converted
+    // to corrections and uncertainties of the observations using the rates of right ascension and declination
+    const std::shared_ptr< data::TimingBasedCorrectionSettings > timeBiases =
+            trackingData->getCorrectionSettings( )->getTimingBasedCorrectionSettings( );
     const std::shared_ptr< data::TimingBasedUncertaintySettings > timeUncertainties =
-            trackingData->getWeightSettings( )->timingUncertainties_;
-    if( ( timeBiases != nullptr && std::dynamic_pointer_cast< data::AstrometricTimeBiasSettings >( timeBiases ) == nullptr ) ||
-        ( timeUncertainties != nullptr &&
-          std::dynamic_pointer_cast< data::AstrometricTimeUncertaintySettings >( timeUncertainties ) == nullptr ) )
-    {
-        throw std::runtime_error(
-                "Error when adding tracking data to an observation dataset, type of time biases or uncertainties not recognized." );
-    }
+            trackingData->getWeightSettings( )->getTimingBasedUncertaintySettings( );
     if( ( timeBiases != nullptr || timeUncertainties != nullptr ) && observableType != observation_models::angular_position )
     {
         throw std::runtime_error(
@@ -270,7 +265,7 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     }
 
     // Evaluate environment-dependent corrections at TDB reception times using the original observations.
-    if( applyCorrections && trackingData->hasObservationCorrectionSettings( ) )
+    if( applyCorrections && trackingData->getCorrectionSettings( )->hasObservationCorrectionSettings( ) )
     {
         if( !correctionFunction )
         {
