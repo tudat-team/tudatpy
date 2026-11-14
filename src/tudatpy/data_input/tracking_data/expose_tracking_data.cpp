@@ -506,7 +506,8 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
          observation dataset with :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`, these
          weights are combined with the other weight settings (see :meth:`set_named_weights`, :meth:`set_block_deweighting` and
          :meth:`set_astrometric_time_uncertainties`). Positional weights that were set before (also with
-         :meth:`set_observation_weights`) are replaced.
+         :meth:`set_observation_weights`) are replaced. For angular position observations, each observation must have a weight
+         for both right ascension and declination, or for neither of the two.
 
          Parameters
          ----------

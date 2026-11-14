@@ -340,6 +340,10 @@ public:
             }
         }
 
+        const observation_models::ObservationWeightSettings diagonalWeights =
+                observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights );
+        checkAngularPositionWeights( diagonalWeights, numberOfObservations_ );
+
         // Warn only after the complete replacement has passed validation. Rejected
         // replacements must leave the existing weights untouched.
         if( weightSettings_->positionalWeights_ != nullptr )
@@ -348,8 +352,7 @@ public:
                       << std::endl;
         }
 
-        weightSettings_->positionalWeights_ = std::make_shared< PositionalWeightSettings >(
-                observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
+        weightSettings_->positionalWeights_ = std::make_shared< PositionalWeightSettings >( diagonalWeights );
     }
 
     //! Set the positional weights (known before creating an observation dataset), for all observations or for the observations
@@ -375,6 +378,8 @@ public:
         }
         observationWeightSettings.validateDimensions( observationIndices.empty( ) ? numberOfObservations_ : observationIndices.size( ),
                                                       singleObservationSize_ );
+        checkAngularPositionWeights( observationWeightSettings,
+                                     observationIndices.empty( ) ? numberOfObservations_ : observationIndices.size( ) );
         weightSettings_->positionalWeights_ = std::make_shared< PositionalWeightSettings >( observationWeightSettings, observationIndices );
     }
 
@@ -492,6 +497,10 @@ public:
                                       std::to_string( observationWeight.size( ) ) + ") inconsistent with observation size (" +
                                       std::to_string( singleObservationSize_ ) + ")." );
         }
+
+        checkAngularPositionWeights( observation_models::ObservationWeightSettings::diagonalPerObservation(
+                                             std::vector< Eigen::VectorXd >( 1, observationWeight ) ),
+                                     1 );
 
         // Overwrites specific weight entry
         weightSettings_->positionalWeights_->weights_.diagonalWeights_.at( index ) = observationWeight;
@@ -663,6 +672,29 @@ private:
         if( observableType_ != "AngularPosition" )
         {
             throw std::runtime_error( "Error in TrackingData, " + settingsName + " are only available for angular position observations." );
+        }
+    }
+
+    //! Check that, for angular position observations, each observation has a weight for both right ascension and declination, or for
+    //! neither of the two
+    void checkAngularPositionWeights( const observation_models::ObservationWeightSettings& weightSettings,
+                                      const unsigned int numberOfWeights ) const
+    {
+        if( observableType_ != "AngularPosition" || singleObservationSize_ != 2 )
+        {
+            return;
+        }
+        for( unsigned int i = 0; i < numberOfWeights; ++i )
+        {
+            const Eigen::Vector2d weights =
+                    weightSettings.type_ == observation_models::ObservationWeightSettings::WeightsBlockType::set_block
+                    ? Eigen::Vector2d( weightSettings.weightBlock_.diagonal( ).segment< 2 >( 2 * i ) )
+                    : Eigen::Vector2d( weightSettings.getObservationWeightBlock( i, 2 ).diagonal( ) );
+            if( ( weights( 0 ) == 0.0 ) != ( weights( 1 ) == 0.0 ) )
+            {
+                throw std::runtime_error( "Error when setting TrackingData weights, weight entry " + std::to_string( i ) +
+                                          " has a weight for only one of right ascension and declination." );
+            }
         }
     }
 

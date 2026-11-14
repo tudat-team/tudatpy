@@ -119,7 +119,8 @@ def read_ades_data(
         Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds), and their
         correlation rmsCorr (if available), are used as positional weights (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_observation_weight_settings`).
-        Observations without rmsRA and rmsDec require ``vfcc17_weights``.
+        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation of 1
+        (or -1) is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
     vfcc17_weights : bool, default False
         Whether the observations without positional weights (all observations if ``ades_weights``
         is False, and including those for which ``minimum_ades_uncertainty`` removes the ADES
