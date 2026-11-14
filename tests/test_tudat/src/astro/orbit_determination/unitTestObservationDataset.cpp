@@ -211,13 +211,15 @@ BOOST_AUTO_TEST_CASE( test_dataset_empty_sets )
     BOOST_CHECK_EQUAL( dataset.getTotalScalarSizeForSet( emptySetId ), 0 );
     BOOST_CHECK_EQUAL( dataset.createObservationVectorData( ).getObservationVector( ).size( ), 0 );
 
-    // An empty metadata group needs neither a simulator nor an environment,
+    // An empty metadata group needs neither a simulator nor an environment (also for observables with residual wrapping),
     // and must retain its set position through simulation and residual update.
     auto emptyDataset = std::make_shared< ObservationDataset<> >( dataset );
+    emptyDataset->addObservationSet(
+            angular_position, linkDefinition, std::vector< Eigen::VectorXd >( ), std::vector< double >( ), receiver );
     const simulation_setup::SystemOfBodies emptyBodies;
     const auto emptySettings = simulation_setup::getObservationSimulationSettingsFromObservationDataset( emptyDataset, emptyBodies );
     const auto simulatedEmpty = simulation_setup::simulateObservationDataset< double, double >( emptySettings, {}, emptyBodies );
-    BOOST_CHECK_EQUAL( simulatedEmpty->getNumberOfObservationSets( ), 1 );
+    BOOST_CHECK_EQUAL( simulatedEmpty->getNumberOfObservationSets( ), 2 );
     BOOST_CHECK_EQUAL( simulatedEmpty->getNumberOfObservationsForSet( emptySetId ), 0 );
     BOOST_CHECK( simulatedEmpty->getLinkDefinition( simulatedEmpty->getObservationSetMetadata( emptySetId ).linkDefinitionId_ ) ==
                  linkDefinition );
@@ -391,6 +393,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
     checkIds( dataset.getObservationIdsMatchingCondition(
                       ObservationSelectionCondition< double, double >::dependentVariableGreaterThan( elevationSettings, elevationLimit ) ),
               { 1 } );
+
+    // A less-than condition selects only rows that store the dependent variable, unlike the negated greater-than condition.
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      ObservationSelectionCondition< double, double >::dependentVariableLessThan( elevationSettings, elevationLimit ) ),
+              { 0, 2 } );
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      !ObservationSelectionCondition< double, double >::dependentVariableGreaterThan( elevationSettings, elevationLimit ) ),
+              { 0, 2, 3, 4 } );
 
     // Length-one limits broadcast across vector-valued observations and select a row when any component exceeds the limit.
     checkIds( dataset.getObservationIdsMatchingCondition(
@@ -1242,6 +1252,15 @@ BOOST_AUTO_TEST_CASE( test_dataset_copies_own_mutable_metadata_and_support_self_
             1 );
     BOOST_CHECK_EQUAL( bookkeeping->getTotalDependentVariableSize( ), 1 );
 
+    // Adding a dependent variable fails if a selected set already stores dependent-variable values, in which case no set is changed
+    copyOnWriteDataset.setDependentVariablesForSet( 1, { Eigen::VectorXd::Constant( 1, 0.1 ) } );
+    const unsigned int layoutIdBeforeFailedAddition = copyOnWriteDataset.getObservationSetMetadata( 0 ).dependentVariableLayoutId_;
+    BOOST_CHECK_THROW( copyOnWriteDataset.addDependentVariableToSets(
+                               simulation_setup::azimuthAngleDependentVariable( transmitter, LinkEndId( "Earth", "Station1" ) ),
+                               ObservationSelectionCondition< double, double >::all( ) ),
+                       std::runtime_error );
+    BOOST_CHECK_EQUAL( copyOnWriteDataset.getObservationSetMetadata( 0 ).dependentVariableLayoutId_, layoutIdBeforeFailedAddition );
+
     ObservationDataset< double, double > selfCopyDataset;
     const unsigned int selfCopySetId = selfCopyDataset.addObservationSet(
             one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ) }, { 1.0, 2.0 }, receiver );
@@ -1335,6 +1354,11 @@ BOOST_AUTO_TEST_CASE( test_observation_vector_data_writeback_requires_unchanged_
                                                           receiver );
     const auto vectorData = dataset.createObservationVectorData( );
     const Eigen::Vector2d residuals( 3.0, 4.0 );
+
+    // The reference point can only be changed for complete sets
+    BOOST_CHECK_THROW( dataset.setLinkEndReferencePoint(
+                               "Earth", "Station2", transmitter, ObservationSelectionCondition< double, double >::timeBounds( 0.5, 1.5 ) ),
+                       std::runtime_error );
 
     // A metadata change can alter design-matrix ordering without changing vector dimensions.
     dataset.setLinkEndReferencePoint( "Earth", "Station2", transmitter );
@@ -1739,6 +1763,10 @@ BOOST_AUTO_TEST_CASE( test_inspection_snapshots_survive_mutation_and_destruction
                 .front( )
                 ->linkEndId_ = LinkEndId( "Moon", "" );
         dataset.setLinkEndReferencePoint( "Earth", "OtherStation", transmitter );
+        // The dependent-variable bookkeeping of the set follows the new link ends
+        BOOST_CHECK(
+                ( dataset.getDependentVariableBookkeeping( dataset.getObservationSetMetadata( 0 ).dependentVariableLayoutId_ )
+                          ->getLinkEnds( ) == dataset.getLinkDefinition( dataset.getObservationSetMetadata( 0 ).linkDefinitionId_ ) ) );
         dataset.rejectObservations( ObservationSelectionCondition<>::all( ), "test" );
         dataset.restoreObservations( ObservationSelectionCondition<>::all( ) );
         dataset.addObservationsToSet( 0, {}, {}, {}, {}, {}, true );

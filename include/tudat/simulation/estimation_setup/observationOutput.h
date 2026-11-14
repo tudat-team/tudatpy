@@ -106,6 +106,48 @@ public:
         return copy;
     }
 
+    //! Deep snapshot of the layout after changing the link end of one type (e.g. its reference point), also in the dependent-variable
+    //! settings for that link end type (and in settings without a link end type, if the old link end no longer occurs).
+    std::shared_ptr< ObservationDependentVariableBookkeeping > cloneWithChangedLinkEnd(
+            const observation_models::LinkDefinition& linkEnds,
+            const observation_models::LinkEndType changedLinkEndType,
+            const observation_models::LinkEndId& oldLinkEndId,
+            const observation_models::LinkEndId& newLinkEndId ) const
+    {
+        bool isOldLinkEndPresent = false;
+        for( const auto& linkEnd : linkEnds.linkEnds_ )
+        {
+            isOldLinkEndPresent = isOldLinkEndPresent || linkEnd.second == oldLinkEndId;
+        }
+
+        std::shared_ptr< ObservationDependentVariableBookkeeping > copy = clone( );
+        copy->linkEnds_ = linkEnds;
+        for( std::vector< std::shared_ptr< ObservationDependentVariableSettings > >* settingsList :
+             { &copy->settingsList_, &copy->deferredSettings_ } )
+        {
+            for( std::shared_ptr< ObservationDependentVariableSettings >& settings : *settingsList )
+            {
+                if( settings == nullptr )
+                {
+                    continue;
+                }
+                if( settings->linkEndId_ == oldLinkEndId &&
+                    ( settings->linkEndType_ == changedLinkEndType ||
+                      ( settings->linkEndType_ == observation_models::unidentified_link_end && !isOldLinkEndPresent ) ) )
+                {
+                    settings->linkEndId_ = newLinkEndId;
+                }
+                if( settings->originatingLinkEndId_ == oldLinkEndId &&
+                    ( settings->originatingLinkEndType_ == changedLinkEndType ||
+                      ( settings->originatingLinkEndType_ == observation_models::unidentified_link_end && !isOldLinkEndPresent ) ) )
+                {
+                    settings->originatingLinkEndId_ = newLinkEndId;
+                }
+            }
+        }
+        return copy;
+    }
+
     //! Register a new dependent variable entry. Returns (startIndex, size).
     //!
     //! When `sizeOverride` is non-negative it is used verbatim (needed for dependent variables

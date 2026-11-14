@@ -398,3 +398,146 @@ def test_condition_contents_can_be_retrieved():
     assert range_condition.observable_type_value == model_settings.one_way_range_type
     assert time_condition.condition_type.name == "time_greater_equal"
     assert time_condition.time_value == 2.0
+
+
+def test_query_conveniences(sample_dataset):
+    """Check selection of all observations and by id, link ends given as tuples, dates as times, and dataset copies."""
+    import copy
+    import datetime
+
+    from tudatpy.astro.time_representation import DateTime
+
+    observation_query = observations.observation_query
+    dataset = sample_dataset
+
+    assert dataset.get_observation_ids(observation_query.all) == [0, 1, 2, 3, 4]
+    # Single-precision time arrays are rejected, since they cannot represent epochs accurately
+    with pytest.raises(TypeError, match="single-precision"):
+        _new_dataset_single_set(
+            model_settings.one_way_range_type,
+            "Earth",
+            [[10.0]],
+            np.array([1.0], dtype=np.float32),
+        )
+    # A per-component limit is only evaluated for the observations selected by the other condition, also when the limit is
+    # given first, negated, or in a chain of conditions
+    angular = observation_query.observable_type == model_settings.angular_position_type
+    large_residual = observation_query.residual.abs_greater_than(np.array([1.0, 1.0]))
+    assert dataset.get_observation_ids(large_residual & angular) == [4]
+    assert dataset.get_observation_ids(
+        large_residual & (observation_query.time >= 0.0) & angular
+    ) == [4]
+    assert dataset.get_observation_ids(~large_residual & angular) == [3]
+    assert dataset.get_observation_ids(observation_query.observation_id == 3) == [3]
+    assert dataset.get_observation_ids(observation_query.observation_id.isin([4, 1, 99])) == [1, 4]
+    assert dataset.get_observation_ids(observation_query.receiver == ("Mars", "")) == [3, 4]
+    with pytest.raises(TypeError):
+        observation_query.receiver == "Mars"
+
+    # Dates are interpreted as TDB epochs
+    epoch = DateTime.from_epoch(3.0)
+    assert dataset.get_observation_ids(observation_query.time >= epoch) == [2, 3, 4]
+    assert dataset.get_observation_ids(observation_query.time < epoch.to_python_datetime()) == [
+        0,
+        1,
+    ]
+    assert isinstance(epoch.to_python_datetime(), datetime.datetime)
+
+    duplicate = copy.copy(dataset)
+    duplicate.reject_observations(observation_query.set_id == 0)
+    assert dataset.get_observation_ids(observation_query.rejected) == []
+    assert duplicate.get_observation_ids(observation_query.rejected) == [0, 1, 2]
+
+    # Rejecting an observation again keeps its first reason; observations can be selected by rejection reason
+    dataset.reject_observations(observation_query.observation_id == 0, "first")
+    dataset.reject_observations(observation_query.observation_id.isin([0, 2]), "second")
+    assert dataset.observation_row(0).rejection_reason == "first"
+    assert dataset.get_observation_ids(observation_query.rejection_reason == "second") == [2]
+
+
+def test_time_and_limit_inputs(sample_dataset):
+    """Check that epochs and limits given as numpy, pandas or Python objects are converted correctly or rejected clearly."""
+    import datetime
+
+    observation_query = observations.observation_query
+
+    def times_of(times):
+        dataset = _new_dataset_single_set(
+            model_settings.one_way_range_type, "Earth", [[1.0], [2.0]], times
+        )
+        return [float(time) for time in dataset.get_times()]
+
+    # Sequences whose items are created on access, and are indexed by label (pandas), and generators
+    pandas = pytest.importorskip("pandas")
+    assert times_of(pandas.Series([3.0, 5.0], index=[7, 8])) == [3.0, 5.0]
+    assert times_of(x for x in [3.0, 5.0]) == [3.0, 5.0]
+    # Calendar dates in arrays are not epochs in seconds since J2000
+    for times in [
+        np.array(["2020-01-01", "2020-01-02"], dtype="datetime64[s]"),
+        np.array([True, False]),
+    ]:
+        with pytest.raises(TypeError, match="times"):
+            times_of(times)
+    with pytest.raises(TypeError, match="times"):
+        times_of(pandas.Series(pandas.to_datetime(["2020-01-01", "2020-01-02"])))
+
+    # Queries: time zones are rejected, ids must be integers, and numpy scalars may be on the left of a comparison
+    with pytest.raises(ValueError, match="time zone"):
+        observation_query.time > datetime.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc)
+    with pytest.raises(TypeError):
+        observation_query.observation_id == 1.5
+    assert sample_dataset.get_observation_ids(np.float64(2.0) <= observation_query.time) == [
+        1,
+        2,
+        3,
+        4,
+    ]
+    assert sample_dataset.get_observation_ids(observation_query.observation_id == np.int64(3)) == [
+        3
+    ]
+    with pytest.raises(ValueError, match="NaN"):
+        observation_query.residual.abs_greater_than(np.nan)
+    assert sample_dataset.get_observation_ids(
+        observation_query.residual.abs_greater_than(np.float32(1.0))
+        & (observation_query.observable_type == model_settings.one_way_range_type)
+    ) == sample_dataset.get_observation_ids(
+        observation_query.residual.abs_greater_than(1.0)
+        & (observation_query.observable_type == model_settings.one_way_range_type)
+    )
+
+
+def test_dataset_pickle_and_binary_file_round_trip(sample_dataset, tmp_path):
+    """Check that a dataset with residuals, correlated weights, rejections and metadata is stored and restored."""
+    import pickle
+
+    observation_query = observations.observation_query
+    dataset = sample_dataset
+    angular_ids = dataset.observation_ids_for_set(1)
+    dataset.set_weight_block(
+        row_observation_ids=[angular_ids[0]],
+        column_observation_ids=[angular_ids[1]],
+        weight_block=np.array([[0.2, 0.3], [0.4, 0.5]]),
+    )
+    dataset.reject_observations(observation_query.observation_id == 1, "test rejection")
+    dataset.add_numerical_observation_metadata("snr", [0, 2], [10.0, 20.0])
+
+    dataset.save_to_binary(str(tmp_path / "dataset.bin"))
+    for restored in (
+        pickle.loads(pickle.dumps(dataset)),
+        observations.ObservationDataset.load_from_binary(str(tmp_path / "dataset.bin")),
+    ):
+        assert restored.get_observation_ids() == dataset.get_observation_ids()
+        assert restored.get_observation_ids(observation_query.rejected) == [1]
+        assert restored.observation_row(1).rejection_reason == "test rejection"
+        assert restored.get_numerical_observation_metadata("snr", [0, 2]) == [10.0, 20.0]
+        for name in ("times", "observations", "residuals"):
+            values = [restored.get_data(fields=[name])[name], dataset.get_data(fields=[name])[name]]
+            restored_values, original_values = (
+                np.concatenate([np.atleast_1d(np.asarray(value, dtype=float)) for value in data])
+                for data in values
+            )
+            assert np.array_equal(restored_values, original_values)
+        assert np.array_equal(
+            _to_dense_matrix(restored.observation_vector_data(True).sparse_weight_matrix),
+            _to_dense_matrix(dataset.observation_vector_data(True).sparse_weight_matrix),
+        )

@@ -11,6 +11,8 @@
 #ifndef TUDAT_ORBITDETERMINATIONMANAGERESTIMATIONIMPLEMENTATION_H
 #define TUDAT_ORBITDETERMINATIONMANAGERESTIMATIONIMPLEMENTATION_H
 
+#include <cmath>
+#include <exception>
 #include <iostream>
 #include <stdexcept>
 
@@ -57,6 +59,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             observationDataset->createObservationVectorData( false );
     int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
     const int initialNumberOfObservations = totalNumberOfObservations;
+    for( int i = 0; i < totalNumberOfObservations; i++ )
+    {
+        if( !std::isfinite( static_cast< double >( estimationData.getObservationVector( )( i ) ) ) )
+        {
+            throw std::runtime_error( "Error in estimation, observation " + std::to_string( estimationData.getObservationIds( ).at( i ) ) +
+                                      " (at time " + std::to_string( static_cast< double >( estimationData.getTimes( ).at( i ) ) ) +
+                                      ") is not finite; remove or reject it before the estimation." );
+        }
+    }
 
     if( totalNumberOfObservations == 0 )
     {
@@ -90,6 +101,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Declare variables to be returned (i.e. results from best iteration)
     double bestCostFunction = TUDAT_NAN;
     double bestSelectionCostFunction = TUDAT_NAN;
+    bool isBestIterationPreferred = false;
     std::vector< bool > bestRejectionStatus;
     double bestRmsResidual = TUDAT_NAN;
     ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
@@ -146,6 +158,28 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Iterate until convergence (at least once)
     int bestIteration = -1;
     int numberOfIterations = 0;
+
+    // If an exception leaves the iteration loop, the rejection status of the observations is reset to that of the best iteration
+    // (or to that at the start of the estimation), so that the observation dataset is not left with that of an unfinished iteration
+    struct RejectionStatusGuard {
+        const std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > >& outlierRejection;
+        const int& bestIteration;
+        const std::vector< bool >& bestRejectionStatus;
+        const std::vector< bool > initialRejectionStatus;
+        ~RejectionStatusGuard( )
+        {
+            if( outlierRejection != nullptr && std::uncaught_exceptions( ) > 0 )
+            {
+                outlierRejection->resetRejectionStatus( bestIteration >= 0 ? bestRejectionStatus : initialRejectionStatus );
+            }
+        }
+    };
+    const RejectionStatusGuard rejectionStatusGuard{ outlierRejection,
+                                                     bestIteration,
+                                                     bestRejectionStatus,
+                                                     applyOutlierRejection ? outlierRejection->getRejectionStatus( )
+                                                                           : std::vector< bool >( ) };
+
     while( true )
     {
         oldParameterEstimate = newParameterEstimate;
@@ -477,9 +511,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             }
         }
 
-        // If current iteration is better than previous one, update 'best' data.
-        if( selectionCostFunction < bestSelectionCostFunction || !( bestSelectionCostFunction == bestSelectionCostFunction ) )
+        // If current iteration is better than previous one, update 'best' data. With outlier rejection, iterations that used more
+        // observations than there are estimated parameters are preferred, since the cost of the other iterations does not measure
+        // the fit.
+        const bool isIterationPreferred =
+                !applyOutlierRejection || totalNumberOfObservations > static_cast< int >( numberEstimatedParameters_ );
+        if( ( isIterationPreferred && !isBestIterationPreferred ) ||
+            ( isIterationPreferred == isBestIterationPreferred &&
+              ( selectionCostFunction < bestSelectionCostFunction || !( bestSelectionCostFunction == bestSelectionCostFunction ) ) ) )
         {
+            isBestIterationPreferred = isIterationPreferred;
             bestSelectionCostFunction = selectionCostFunction;
             bestCostFunction = costFunction;
             if( applyOutlierRejection )
@@ -623,6 +664,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                      activeFlagsPerIteration,
                                                                                      bestWeightsMatrix );
     estimationOutput->setResidualTimes( utilities::staticCastVector< double, TimeType >( bestResidualTimes ) );
+    estimationOutput->setResidualHistoryObservationIds( computationData.getObservationIds( ) );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {

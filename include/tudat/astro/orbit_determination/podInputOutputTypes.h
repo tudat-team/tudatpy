@@ -133,7 +133,7 @@ public:
         }
         else if( inverseOfAprioriCovariance_.rows( ) != numberOfParameters || inverseOfAprioriCovariance_.cols( ) != numberOfParameters )
         {
-            throw std::runtime_error( "Error whenr retrieving invers a priori covariance; size is incompatible" );
+            throw std::runtime_error( "Error when retrieving inverse a priori covariance; size is incompatible" );
         }
         else
         {
@@ -430,9 +430,9 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
             const bool applyFinalParameterCorrection = true,
-            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr,
             const bool applyAprioriParameterDeviation = false,
-            const bool resetParametersToBestIteration = false ):
+            const bool resetParametersToBestIteration = false,
+            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr ):
         EstimationInput( std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( ),
                          inverseOfAprioriCovariance,
                          convergenceChecker,
@@ -1284,6 +1284,17 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return residualTimes_;
     }
 
+    void setResidualHistoryObservationIds( const std::vector< unsigned int >& residualHistoryObservationIds )
+    {
+        residualHistoryObservationIds_ = residualHistoryObservationIds;
+    }
+
+    //! Return the id of the observation (in the observation dataset) to which each entry of the residual history belongs.
+    const std::vector< unsigned int >& getResidualHistoryObservationIds( ) const
+    {
+        return residualHistoryObservationIds_;
+    }
+
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
     {
         return simulationResultsPerIteration_.at( bestIteration_ );
@@ -1305,6 +1316,9 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 
     //! Observation times corresponding to the entries of the residual vectors
     std::vector< double > residualTimes_;
+
+    //! Observation ids corresponding to the entries of the residual history vectors
+    std::vector< unsigned int > residualHistoryObservationIds_;
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > parameterHistory_;
@@ -1368,6 +1382,7 @@ protected:
                 ( bestIteration_ == rhs.bestIteration_ ) && ( residualStandardDeviation_ == rhs.residualStandardDeviation_ ) &&
                 ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
                 ( activeFlagsPerIteration_ == rhs.activeFlagsPerIteration_ ) &&
+                ( residualHistoryObservationIds_ == rhs.residualHistoryObservationIds_ ) &&
                 ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
                 ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
                 ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ );
@@ -1393,6 +1408,7 @@ private:
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
         ar( CEREAL_NVP( activeFlagsPerIteration_ ) );
+        ar( CEREAL_NVP( residualHistoryObservationIds_ ) );
     }
 
     template< class Archive >
@@ -1415,9 +1431,11 @@ private:
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
         activeFlagsPerIteration_.clear( );
+        residualHistoryObservationIds_.clear( );
         if( version >= 1 )
         {
             ar( CEREAL_NVP( activeFlagsPerIteration_ ) );
+            ar( CEREAL_NVP( residualHistoryObservationIds_ ) );
         }
     }
 };

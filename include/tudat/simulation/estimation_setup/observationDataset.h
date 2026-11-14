@@ -30,7 +30,14 @@
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
+#include <cereal/access.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/simulation/estimation_setup/observationVectorData.h"
 #include "tudat/simulation/estimation_setup/observationDatasetRows.h"
@@ -348,7 +355,12 @@ public:
     //! Return metadata for one observation set.
     const ObservationSetMetadata< ObservationScalarType, TimeType >& getObservationSetMetadata( const unsigned int setId ) const
     {
-        return setMetadata_.at( setId );
+        if( setId >= setMetadata_.size( ) )
+        {
+            throw std::out_of_range( "Error in observation dataset, observation set " + std::to_string( setId ) +
+                                     " does not exist (the dataset has " + std::to_string( setMetadata_.size( ) ) + " sets)." );
+        }
+        return setMetadata_[ setId ];
     }
 
     //! Return all event rows in internal storage order.
@@ -360,7 +372,13 @@ public:
     //! Return the row of one observation.
     const ObservationDatasetRow< TimeType >& getObservationRow( const unsigned int observationId ) const
     {
-        return observationRows_.at( rowPositionById_.at( observationId ) );
+        const auto rowPosition = rowPositionById_.find( observationId );
+        if( rowPosition == rowPositionById_.end( ) )
+        {
+            throw std::out_of_range( "Error in observation dataset, observation " + std::to_string( observationId ) +
+                                     " does not exist (it may have been removed)." );
+        }
+        return observationRows_.at( rowPosition->second );
     }
 
     //! Return the observation id and component index of one entry in the component storage.
@@ -369,6 +387,7 @@ public:
     //! Return the ids of the observations in one set.
     const std::vector< unsigned int >& getObservationIdsForSet( const unsigned int setId ) const
     {
+        static_cast< void >( getObservationSetMetadata( setId ) );
         return observationIdsBySet_.at( setId );
     }
 
@@ -480,7 +499,7 @@ public:
     //! Return the number of observation events in one set.
     std::size_t getNumberOfObservationsForSet( const unsigned int setId ) const
     {
-        return observationIdsBySet_.at( setId ).size( );
+        return getObservationIdsForSet( setId ).size( );
     }
 
     //! Return the scalar observation size of one set.
@@ -587,6 +606,13 @@ public:
     void setResidualVector( const ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
                             const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
 
+    //! Replace dependent-variable bookkeeping associated with one set (the stored values must be consistent with it).
+    void resetDependentVariableBookkeepingForSet(
+            const unsigned int setId,
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping );
+
+    TUDAT_DEFINE_BINARY_IO( ObservationDataset< ObservationScalarType, TimeType > )
+
 private:
     //////////////////////////////////////////////////////////
     /////////////////       PRIVATE HELPERS         //////////
@@ -598,11 +624,6 @@ private:
         setMetadata_.at( setId ).linkDefinitionId_ = registerEntry( linkDefinitionRegistry_, linkDefinition );
         ++structuralVersion_;
     }
-
-    //! Replace dependent-variable bookkeeping associated with one set.
-    void resetDependentVariableBookkeepingForSet(
-            const unsigned int setId,
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping );
 
     //! Return all observation ids in dataset row order.
     std::vector< unsigned int > getAllObservationIds( ) const;
@@ -674,6 +695,50 @@ private:
     //! Return the index of the first registry entry equal to entry, appending entry if none is equal.
     template< typename EntryType >
     static unsigned int registerEntry( std::vector< EntryType >& registry, const EntryType& entry );
+
+    friend class cereal::access;
+
+    //! Serialize the observations, their sets, weights and metadata.
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( observationRows_,
+            nextObservationId_,
+            setMetadata_,
+            observationIdsBySet_,
+            linkDefinitionRegistry_,
+            ancillarySettingsRegistry_,
+            dependentVariableLayoutRegistry_,
+            observedValues_,
+            residualValues_,
+            observationWeights_,
+            numericalObservationMetadata_ );
+    }
+
+    //! Deserialize the observations, their sets, weights and metadata, and rebuild the index of the rows.
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( observationRows_,
+            nextObservationId_,
+            setMetadata_,
+            observationIdsBySet_,
+            linkDefinitionRegistry_,
+            ancillarySettingsRegistry_,
+            dependentVariableLayoutRegistry_,
+            observedValues_,
+            residualValues_,
+            observationWeights_,
+            numericalObservationMetadata_ );
+        rowPositionById_.clear( );
+        for( std::size_t i = 0; i < observationRows_.size( ); ++i )
+        {
+            rowPositionById_.emplace( observationRows_.at( i ).observationId_, i );
+        }
+        completeWeightData_.reset( );
+        ++structuralVersion_;
+        ++vectorDataVersion_;
+    }
 
     //////////////////////////////////////////////////////////
     /////////////////       MEMBER VARIABLES        //////////

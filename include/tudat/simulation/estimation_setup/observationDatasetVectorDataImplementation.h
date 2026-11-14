@@ -66,9 +66,30 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setLinkEndRef
         {
             continue;
         }
+        const long numberOfSelectedObservations = std::count( matchingSetIds.begin( ), matchingSetIds.end( ), setId );
+        if( numberOfSelectedObservations != static_cast< long >( getNumberOfObservationsForSet( setId ) ) )
+        {
+            throw std::runtime_error(
+                    "Error when setting link end reference point, the condition selects " + std::to_string( numberOfSelectedObservations ) +
+                    " of the " + std::to_string( getNumberOfObservationsForSet( setId ) ) + " observations of set " +
+                    std::to_string( setId ) + ", but the reference point can only be changed for complete observation sets." );
+        }
 
+        const LinkEndId oldLinkEndId = linkEndIterator->second;
         linkEndIterator->second = LinkEndId( linkEndIterator->second.bodyName_, referencePointName );
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > oldBookkeeping =
+                getDependentVariableBookkeeping( setMetadata_.at( setId ).dependentVariableLayoutId_ );
         resetLinkDefinitionForSet( setId, LinkDefinition( linkEnds ) );
+
+        // The dependent variables of the set are defined for the new link ends (their stored values, like the residuals, are not
+        // recomputed here)
+        if( oldBookkeeping != nullptr )
+        {
+            resetDependentVariableBookkeepingForSet(
+                    setId,
+                    oldBookkeeping->cloneWithChangedLinkEnd(
+                            LinkDefinition( linkEnds ), linkEndType, oldLinkEndId, linkEndIterator->second ) );
+        }
     }
 }
 

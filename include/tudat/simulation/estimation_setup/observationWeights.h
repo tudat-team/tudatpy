@@ -23,6 +23,11 @@
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
+#include <cereal/access.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "tudat/io/observationWeightSettings.h"
 
 namespace tudat
@@ -158,6 +163,9 @@ public:
             throw std::runtime_error( "Observation weight block must have matching dimensions and finite entries." );
         }
         std::map< Entry, double > assignments;
+        // The symmetry tolerance is relative to the largest entry of the block, so that rounding errors in small off-diagonal
+        // entries (e.g. of an inverted covariance matrix) are accepted
+        const double blockScale = block.size( ) > 0 ? block.cwiseAbs( ).maxCoeff( ) : 0.0;
         for( std::size_t i = 0; i < rows.size( ); ++i )
         {
             for( std::size_t j = 0; j < columns.size( ); ++j )
@@ -172,7 +180,7 @@ public:
                 if( !inserted.second )
                 {
                     const double previous = inserted.first->second;
-                    if( std::abs( previous - value ) > 1.0E-12 * std::max( { 1.0, std::abs( previous ), std::abs( value ) } ) )
+                    if( std::abs( previous - value ) > 1.0E-12 * std::max( { std::abs( previous ), std::abs( value ), blockScale } ) )
                     {
                         throw std::runtime_error( "Overlapping observation weight entries must be symmetric." );
                     }
@@ -294,6 +302,15 @@ private:
         {
             offDiagonal_[ key ] = value;
         }
+    }
+
+    friend class cereal::access;
+
+    //! Serialize the diagonal and off-diagonal weights.
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( diagonal_, offDiagonal_ );
     }
 
     //! Diagonal coefficients in dataset scalar-storage order.
