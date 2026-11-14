@@ -156,15 +156,21 @@ def weighting_bodies():
     return bodies
 
 
-@pytest.mark.parametrize("technique,sigma", [("C", 1.0), ("P", 2.5)])
-def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, technique, sigma):
-    """Without extra details, assign catalogue U's weight for CCD and photographic data."""
+@pytest.mark.parametrize(
+    "technique,catalog,sigma",
+    [("C", "U", 1.0), ("P", "U", 2.5), (" ", "U", 2.5), ("C", " ", 1.5)],
+)
+def test_vfcc17_assigns_weight_without_requesting_extra_details(
+    optical_table, technique, catalog, sigma
+):
+    """Without extra details, assign the weight for CCD and photographic data; blank codes count as unknown."""
     optical_table["note2"] = technique
+    optical_table["catalog"] = catalog
     data, _ = read_optical_data(optical_table, vfcc17_weights=True, add_ancillary_data=False)
     # The observing method and catalogue must remain available to choose the weight.
     metadata = data[0].get_ancillary_settings_string_vector()
     assert metadata["note2"] == [technique]
-    assert metadata["catalog"] == ["U"]
+    assert metadata["catalog"] == [catalog]
     # The final weight must match the published value for the selected observing method.
     collection = create_observation_collection_from_tracking_data(data, weighting_bodies())
     expected = 1.0 / np.deg2rad(sigma / 3600.0) ** 2

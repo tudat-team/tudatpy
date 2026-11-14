@@ -38,10 +38,12 @@ inline bool isVfcc17ValueInSet( const std::string& value, const std::set< std::s
     return acceptedValues.count( value ) > 0;
 }
 
+//! Function to retrieve a VFCC17 metadata value (e.g. note2 or catalog code), "unknown" if it is missing or blank (as for a blank
+//! code in the MPC 80-column format)
 inline std::string getVfcc17MetadataValue( const std::map< std::string, std::string >& stringMetadata, const std::string& key )
 {
     const auto metadataIterator = stringMetadata.find( key );
-    if( metadataIterator == stringMetadata.end( ) || metadataIterator->second.empty( ) )
+    if( metadataIterator == stringMetadata.end( ) || metadataIterator->second.find_first_not_of( " \t" ) == std::string::npos )
     {
         return "unknown";
     }
