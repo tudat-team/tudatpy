@@ -11,11 +11,9 @@
 #ifndef TUDAT_TRACKING_DATA_WEIGHT_SETTINGS_H
 #define TUDAT_TRACKING_DATA_WEIGHT_SETTINGS_H
 
-#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <memory>
-#include <set>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -59,8 +57,8 @@ public:
     BlockDeweightingRule rule_;
 };
 
-//! Base class for uncertainties of the observation epochs, that are converted to observation uncertainties when creating an
-//! observation dataset (using the time derivatives of the observations)
+//! Uncertainties of the observation epochs, that are converted to observation uncertainties when creating an observation dataset
+//! (using the time derivatives of the observations; currently for angular position observations only)
 class TimingBasedUncertaintySettings
 {
 public:
@@ -74,16 +72,6 @@ public:
     //! (1-sigma) uncertainties of the observation epochs (in seconds), one per observation
     std::vector< double > timeUncertainties_;
 };
-
-//! Function to check that settings that are only available for angular position observations are not used for other observables
-inline void checkAngularPositionObservable( const std::string& observableType, const std::string& settingsName )
-{
-    if( observableType != "AngularPosition" )
-    {
-        throw std::runtime_error( "Error in TrackingData settings, " + settingsName +
-                                  " are only available for angular position observations." );
-    }
-}
 
 //! Settings that define the weights of the observations in a TrackingData object
 class TrackingDataWeightSettings
@@ -100,21 +88,6 @@ public:
                                 const std::string& observableType ):
         numberOfObservations_( numberOfObservations ), singleObservationSize_( singleObservationSize ), observableType_( observableType )
     {}
-
-    unsigned int getNumberOfObservations( ) const
-    {
-        return numberOfObservations_;
-    }
-
-    unsigned int getSingleObservationSize( ) const
-    {
-        return singleObservationSize_;
-    }
-
-    const std::string& getObservableType( ) const
-    {
-        return observableType_;
-    }
 
     //! Backwards-compatible interface for setting one diagonal weight vector per observation (stored as explicit weights).
     //! New code should use setObservationWeightSettings, which supports every weight representation.
@@ -154,9 +127,9 @@ public:
         explicitWeights_ = diagonalWeights;
     }
 
-    //! Set the explicit weights (known before creating an observation dataset), for all observations or for the observations given by
-    //! the observation indices of the weight settings (in which case the other observations require named weights, see
-    //! setNamedWeights).
+    //! Set the explicit weights of the observations (known before creating an observation dataset), for all observations or for the
+    //! observations given by the observation indices of the weight settings (in which case the other observations require named
+    //! weights, see setNamedWeights).
     void setObservationWeightSettings( const std::shared_ptr< observation_models::ObservationWeightSettings > observationWeightSettings )
     {
         if( observationWeightSettings == nullptr )
@@ -183,9 +156,10 @@ public:
     //! Set weights computed with a named method when creating an observation dataset, for all observations without explicit weights
     void setNamedWeights( const NamedWeightingMethod method )
     {
-        if( method != no_named_weighting )
+        if( method != no_named_weighting && observableType_ != "AngularPosition" )
         {
-            checkAngularPositionObservable( observableType_, "named weights" );
+            throw std::runtime_error(
+                    "Error in TrackingData settings, named weights are only available for angular position observations." );
         }
         namedWeightingMethod_ = method;
     }
@@ -246,7 +220,7 @@ public:
     void setSingleObservationWeight( const unsigned int index, const Eigen::Matrix< double, Eigen::Dynamic, 1 >& observationWeight )
     {
         // Check if weights are already available
-        if( !hasDiagonalWeightsPerObservation( ) )
+        if( getDiagonalWeightsPerObservation( ) == nullptr )
         {
             throw std::runtime_error(
                     "Error when resetting single observation weight in TrackingData object, per-observation diagonal weights not yet "
@@ -273,8 +247,7 @@ public:
                                                                                     std::vector< unsigned int >( 1, index ) ) );
 
         // Overwrites specific weight entry
-        std::dynamic_pointer_cast< observation_models::DiagonalPerObservationWeightSettings >( explicitWeights_ )
-                ->setWeight( index, observationWeight );
+        getDiagonalWeightsPerObservation( )->setWeight( index, observationWeight );
     }
 
     //! Backwards-compatible accessor for diagonal weight vectors set through setObservationWeights.
@@ -282,9 +255,9 @@ public:
     //! representation.
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getObservationWeights( ) const
     {
-        if( hasDiagonalWeightsPerObservation( ) )
+        if( getDiagonalWeightsPerObservation( ) != nullptr )
         {
-            return std::dynamic_pointer_cast< observation_models::DiagonalPerObservationWeightSettings >( explicitWeights_ )->getWeights( );
+            return getDiagonalWeightsPerObservation( )->getWeights( );
         }
         static const std::vector< Eigen::VectorXd > emptyWeights;
         return emptyWeights;
@@ -355,11 +328,12 @@ private:
         }
     }
 
-    //! Check whether the explicit weights are diagonal weights given for every observation
-    bool hasDiagonalWeightsPerObservation( ) const
+    //! Return the explicit weights if these are diagonal weights given for every observation (nullptr otherwise)
+    std::shared_ptr< observation_models::DiagonalPerObservationWeightSettings > getDiagonalWeightsPerObservation( ) const
     {
-        return explicitWeights_ != nullptr && explicitWeights_->getObservationIndices( ).empty( ) &&
-                std::dynamic_pointer_cast< observation_models::DiagonalPerObservationWeightSettings >( explicitWeights_ ) != nullptr;
+        return explicitWeights_ != nullptr && explicitWeights_->getObservationIndices( ).empty( )
+                ? std::dynamic_pointer_cast< observation_models::DiagonalPerObservationWeightSettings >( explicitWeights_ )
+                : nullptr;
     }
 
     //! Number of observations
@@ -374,7 +348,7 @@ private:
     //! Weights that are known before creating the observation dataset (nullptr if none)
     std::shared_ptr< observation_models::ObservationWeightSettings > explicitWeights_;
 
-    //! Weights computed with a named method, for the observations without explicit weights (nullptr if none)
+    //! Weights computed with a named method (no_named_weighting if none)
     NamedWeightingMethod namedWeightingMethod_ = no_named_weighting;
 
     //! Reduction of the weights of observations in the same block (nullptr if none)

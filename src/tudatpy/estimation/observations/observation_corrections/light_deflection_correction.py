@@ -131,14 +131,15 @@ def light_deflection_correction_angular_observations(
     # Input validation
     if observations.shape[1] != 3:
         raise ValueError(f"Observations must be in shape N x 3 with columns time, RA, DEC")
-    body_or_ephemeris_undefined = [
-        not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
+    bodies_without_ephemeris = [
+        name
         for name in list(perturbing_bodies_list) + [body_name, observer_body_name]
+        if not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
     ]
-    if any(body_or_ephemeris_undefined):
+    if bodies_without_ephemeris:
         raise ValueError(
-            "Some or all included bodies in the relativistic light deflection computation are missing"
-            "from SystemOfBodies or their associated ephemerides are not specified."
+            "The following bodies in the relativistic light deflection computation are missing from the "
+            f"SystemOfBodies, or have no ephemeris: {', '.join(bodies_without_ephemeris)}."
         )
 
     # Get observer reference point ephemeris if it exists

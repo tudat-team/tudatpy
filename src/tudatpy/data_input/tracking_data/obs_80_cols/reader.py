@@ -58,10 +58,10 @@ def read_80_column_data(
     weighing_scheme : str, default ""
         Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
         :cite:p:`veres2017`, and
-        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`). The weights are
-        computed when the observation collection is created. If empty, no weights are assigned.
-        The ADES weighing schemes (``"ADES"`` and ``"ADES_NIGHT"``) are not supported, since the
-        MPC 80-column format contains no observation uncertainties, and raise an error.
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`). The
+        weights are computed when the observation collection is created. If empty, no weights are
+        assigned. The ADES weighing schemes (``"ADES"`` and ``"ADES_NIGHT"``) are not supported,
+        since the MPC 80-column format contains no observation uncertainties, and raise an error.
 
     Returns
     -------

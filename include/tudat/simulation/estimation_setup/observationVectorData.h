@@ -112,7 +112,10 @@ public:
         const Eigen::VectorXd diagonal = data.weights_.getDiagonal( indices );
         if( ( diagonal.array( ) <= 0.0 ).any( ) )
         {
-            throw std::runtime_error( "Measurement covariance requires strictly positive observation weights." );
+            throw std::runtime_error(
+                    "Measurement covariance requires strictly positive observation weights, but the weight of observation " +
+                    std::to_string( observationId ) +
+                    " (or of an observation correlated with it) is zero; reject observations with zero weight instead." );
         }
         Eigen::MatrixXd covariance;
         if( metadata.weightStructure_ == ObservationWeightStructure::diagonal )

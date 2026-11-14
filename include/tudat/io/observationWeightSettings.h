@@ -44,12 +44,12 @@ inline void checkWeightMatrix( const Eigen::MatrixXd& weightMatrix, const std::s
         throw std::runtime_error( "Error in observation weight settings, " + weightDescription + " must be square and finite." );
     }
     checkWeightValues( weightMatrix.diagonal( ), "the diagonal of " + weightDescription );
+    const double matrixScale = weightMatrix.size( ) > 0 ? weightMatrix.cwiseAbs( ).maxCoeff( ) : 0.0;
     for( Eigen::Index i = 0; i < weightMatrix.rows( ); ++i )
     {
         for( Eigen::Index j = i + 1; j < weightMatrix.cols( ); ++j )
         {
-            if( std::abs( weightMatrix( i, j ) - weightMatrix( j, i ) ) >
-                1.0E-12 * std::max( { 1.0, std::abs( weightMatrix( i, j ) ), std::abs( weightMatrix( j, i ) ) } ) )
+            if( std::abs( weightMatrix( i, j ) - weightMatrix( j, i ) ) > 1.0E-12 * matrixScale )
             {
                 throw std::runtime_error( "Error in observation weight settings, " + weightDescription + " must be symmetric." );
             }
@@ -156,11 +156,6 @@ public:
         checkWeightValues( Eigen::VectorXd::Constant( 1, weight ), "the weight" );
     }
 
-    double getWeight( ) const
-    {
-        return weight_;
-    }
-
     Eigen::MatrixXd getWeightBlock( const std::size_t, const unsigned int singleObservationSize ) const override
     {
         return weight_ * Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
@@ -184,11 +179,6 @@ public:
         ObservationWeightSettings( observationIndices ), weights_( weights )
     {
         checkWeightValues( Eigen::Map< const Eigen::VectorXd >( weights.data( ), weights.size( ) ), "the weights" );
-    }
-
-    const std::vector< double >& getWeights( ) const
-    {
-        return weights_;
     }
 
     Eigen::MatrixXd getWeightBlock( const std::size_t weightIndex, const unsigned int singleObservationSize ) const override
@@ -319,11 +309,6 @@ public:
                 throw std::runtime_error( "Error in observation weight settings, all weight blocks must have the same size." );
             }
         }
-    }
-
-    const std::vector< Eigen::MatrixXd >& getWeightBlocks( ) const
-    {
-        return weightBlocks_;
     }
 
     Eigen::MatrixXd getWeightBlock( const std::size_t weightIndex, const unsigned int ) const override

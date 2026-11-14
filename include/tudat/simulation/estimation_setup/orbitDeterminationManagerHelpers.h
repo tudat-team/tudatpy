@@ -11,8 +11,10 @@
 #ifndef TUDAT_ORBITDETERMINATIONMANAGERHELPERS_H
 #define TUDAT_ORBITDETERMINATIONMANAGERHELPERS_H
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
+#include <numeric>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -352,18 +354,54 @@ void calculateDesignMatrixAndResiduals(
             times.push_back( observationVectorData.getTimes( ).at( observationVectorData.getVectorRow( observationId, 0 ) ) );
         }
 
+        // The observation manager returns the observations and partials ordered by time, while the observations of a set in an
+        // ObservationDataset need not be sorted by time: compute them for the sorted times, and put them back in the order of the set
+        std::vector< std::size_t > timeOrder( times.size( ) );
+        std::iota( timeOrder.begin( ), timeOrder.end( ), 0 );
+        std::stable_sort( timeOrder.begin( ), timeOrder.end( ), [ &times ]( const std::size_t first, const std::size_t second ) {
+            return times.at( first ) < times.at( second );
+        } );
+        std::vector< TimeType > sortedTimes;
+        sortedTimes.reserve( times.size( ) );
+        for( const std::size_t index : timeOrder )
+        {
+            sortedTimes.push_back( times.at( index ) );
+        }
+
         // Compute estimated ranges and range partials from current parameter estimate.
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
-        Eigen::MatrixXd partialsMatrix;
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > sortedObservationsVector;
+        Eigen::MatrixXd sortedPartialsMatrix;
         observationManagers.at( currentObservableType )
-                ->computeObservationsWithPartials( times,
+                ->computeObservationsWithPartials( sortedTimes,
                                                    currentLinkEnds,
                                                    metadata.referenceLinkEnd_,
                                                    observationVectorData.getAncillarySettingsForSet( setId ),
-                                                   observationsVector,
-                                                   partialsMatrix,
+                                                   sortedObservationsVector,
+                                                   sortedPartialsMatrix,
                                                    calculateResiduals,
                                                    calculatePartials );
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector = sortedObservationsVector;
+        Eigen::MatrixXd partialsMatrix = sortedPartialsMatrix;
+        const int observableSize = static_cast< int >( metadata.observableSize_ );
+        if( ( calculatePartials && sortedPartialsMatrix.rows( ) != static_cast< Eigen::Index >( times.size( ) * observableSize ) ) ||
+            ( calculateResiduals && sortedObservationsVector.rows( ) != static_cast< Eigen::Index >( times.size( ) * observableSize ) ) )
+        {
+            throw std::runtime_error( "Error when computing observations and partials of observation set " + std::to_string( setId ) +
+                                      ", the number of computed values is inconsistent with the number of observations." );
+        }
+        for( std::size_t i = 0; i < timeOrder.size( ); ++i )
+        {
+            if( calculateResiduals )
+            {
+                observationsVector.segment( timeOrder.at( i ) * observableSize, observableSize ) =
+                        sortedObservationsVector.segment( i * observableSize, observableSize );
+            }
+            if( calculatePartials )
+            {
+                partialsMatrix.block( timeOrder.at( i ) * observableSize, 0, observableSize, partialsMatrix.cols( ) ) =
+                        sortedPartialsMatrix.block( i * observableSize, 0, observableSize, partialsMatrix.cols( ) );
+            }
+        }
 
         if( calculatePartials )
         {

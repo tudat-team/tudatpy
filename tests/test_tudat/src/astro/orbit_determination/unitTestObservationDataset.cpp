@@ -397,6 +397,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
                       ObservationSelectionCondition< double, double >::dependentVariableGreaterThan( elevationSettings, elevationLimit ) ),
               { 1 } );
 
+    // A less-than condition selects only rows that store the dependent variable, unlike the negated greater-than condition.
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      ObservationSelectionCondition< double, double >::dependentVariableLessThan( elevationSettings, elevationLimit ) ),
+              { 0, 2 } );
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      !ObservationSelectionCondition< double, double >::dependentVariableGreaterThan( elevationSettings, elevationLimit ) ),
+              { 0, 2, 3, 4 } );
+
     // Length-one limits broadcast across vector-valued observations and select a row when any component exceeds the limit.
     checkIds( dataset.getObservationIdsMatchingCondition(
                       ObservationSelectionCondition< double, double >::observableType( angular_position ) &&

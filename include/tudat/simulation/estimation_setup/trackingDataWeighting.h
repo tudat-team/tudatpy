@@ -12,6 +12,7 @@
 #define TUDAT_TRACKING_DATA_WEIGHTING_H
 
 #include <Eigen/Core>
+#include <cmath>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -157,11 +158,10 @@ inline std::shared_ptr< ObservationWeightSettings > getAngularPositionWeightsWit
  * the named weights (for the observations without explicit weights), the reduction of the weights per block of observations,
  * and the contribution of the uncertainties of the observation epochs (in this order).
  * \param trackingData Tracking data with the weight settings
- * \param bodies System of bodies (used for the station position and the rates of the observations)
+ * \param bodies System of bodies (used for the station position)
  * \param rawLinkEnds Link ends of the observations
  * \param referenceLinkEnd Reference link end of the observations
- * \param angularRates Rates of right ascension and declination at each observation epoch (only used for astrometric time
- * uncertainties)
+ * \param angularRates Rates of right ascension and declination at each observation epoch (only used for time uncertainties)
  * \return Weights of the observations (nullptr if no weights are defined, in which case unit weights are used)
  */
 template< typename ObservationScalarType = double,
@@ -176,12 +176,13 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
 {
     const std::shared_ptr< data::TrackingDataWeightSettings > weightSettings = trackingData->getWeightSettings( );
     const std::shared_ptr< ObservationWeightSettings > explicitWeights = weightSettings->getObservationWeightSettings( );
+    const std::shared_ptr< data::TimingBasedUncertaintySettings > timeUncertainties = weightSettings->getTimingBasedUncertaintySettings( );
     if( explicitWeights == nullptr && weightSettings->getNamedWeightingMethod( ) == data::no_named_weighting )
     {
-        if( weightSettings->getBlockDeweighting( ) != nullptr || weightSettings->getTimingBasedUncertaintySettings( ) != nullptr )
+        if( weightSettings->getBlockDeweighting( ) != nullptr || timeUncertainties != nullptr )
         {
             throw std::runtime_error(
-                    "Error when computing TrackingData weights, a reduction of the weights per block or timing uncertainties are "
+                    "Error when computing TrackingData weights, a reduction of the weights per block or time uncertainties are "
                     "defined, but no explicit or named weights." );
         }
         return nullptr;
@@ -189,7 +190,7 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
 
     // Explicit weights for all observations, without further contributions, are used directly
     if( explicitWeights != nullptr && explicitWeights->getObservationIndices( ).empty( ) &&
-        weightSettings->getBlockDeweighting( ) == nullptr && weightSettings->getTimingBasedUncertaintySettings( ) == nullptr )
+        weightSettings->getBlockDeweighting( ) == nullptr && timeUncertainties == nullptr )
     {
         return explicitWeights;
     }
@@ -209,8 +210,8 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
                         getGroundStationPositionForTrackingDataLinkEnd( bodies, rawLinkEnds.at( referenceLinkEnd ) ) ) );
     }
     if( weightSettings->getBlockDeweighting( ) != nullptr &&
-        ( weightSettings->getBlockDeweighting( )->blockDefinition_ != data::ObservationBlockDefinition::local_night ||
-          weightSettings->getBlockDeweighting( )->rule_ != data::BlockDeweightingRule::divide_by_number_of_observations ) )
+        ( weightSettings->getBlockDeweighting( )->blockDefinition_ != data::local_night ||
+          weightSettings->getBlockDeweighting( )->rule_ != data::divide_by_number_of_observations ) )
     {
         throw std::runtime_error( "Error when computing TrackingData weights, block definition or deweighting rule not recognized." );
     }
@@ -218,10 +219,10 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
     std::shared_ptr< ObservationWeightSettings > weights;
     if( std::shared_ptr< SetBlockWeightSettings > setLevelWeights = std::dynamic_pointer_cast< SetBlockWeightSettings >( explicitWeights ) )
     {
+        // Covariance of each observation multiplied by N (W -> D W D, with D containing 1/sqrt(N) for each observation)
         Eigen::MatrixXd weightMatrix = setLevelWeights->getWeightMatrix( );
         if( weightSettings->getBlockDeweighting( ) != nullptr )
         {
-            // Covariance of each observation multiplied by N (W -> D W D, with D containing 1/sqrt(N) for each observation)
             Eigen::VectorXd scaling( numberOfObservations * singleObservationSize );
             for( unsigned int i = 0; i < numberOfObservations; ++i )
             {
@@ -234,6 +235,7 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
     }
     else
     {
+        // Explicit weights, for all observations or for those given by their observation indices
         std::vector< Eigen::MatrixXd > weightBlocks( numberOfObservations );
         std::vector< bool > hasExplicitWeights( numberOfObservations, false );
         if( explicitWeights != nullptr )
@@ -275,14 +277,28 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
                 weightBlocks.at( i ) /= static_cast< double >( observationsPerLocalNight.at( i ) );
             }
         }
-        weights = blockPerObservationWeights( weightBlocks );
+
+        // Keep diagonal weights (named weights, or explicit weights other than weight blocks) diagonal
+        if( std::dynamic_pointer_cast< ConstantBlockWeightSettings >( explicitWeights ) == nullptr &&
+            std::dynamic_pointer_cast< BlockPerObservationWeightSettings >( explicitWeights ) == nullptr )
+        {
+            std::vector< Eigen::VectorXd > diagonalWeights;
+            for( const Eigen::MatrixXd& weightBlock : weightBlocks )
+            {
+                diagonalWeights.push_back( weightBlock.diagonal( ) );
+            }
+            weights = diagonalPerObservationWeights( diagonalWeights );
+        }
+        else
+        {
+            weights = blockPerObservationWeights( weightBlocks );
+        }
     }
 
     // Contribution of the uncertainties of the observation epochs
-    if( weightSettings->getTimingBasedUncertaintySettings( ) != nullptr )
+    if( timeUncertainties != nullptr )
     {
-        weights = getAngularPositionWeightsWithTimeUncertainty(
-                weights, weightSettings->getTimingBasedUncertaintySettings( )->timeUncertainties_, angularRates );
+        weights = getAngularPositionWeightsWithTimeUncertainty( weights, timeUncertainties->timeUncertainties_, angularRates );
     }
     return weights;
 }

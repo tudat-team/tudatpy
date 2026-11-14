@@ -46,8 +46,8 @@ public:
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections_;
 };
 
-//! Base class for biases of the observation epochs, that are converted to observation corrections when creating an observation
-//! dataset (using the time derivatives of the observations)
+//! Biases of the observation epochs, that are converted to observation corrections when creating an observation dataset (using the
+//! time derivatives of the observations; currently for angular position observations only)
 class TimingBasedCorrectionSettings
 {
 public:
@@ -83,26 +83,6 @@ public:
         numberOfObservations_( numberOfObservations ), singleObservationSize_( singleObservationSize ), observableType_( observableType ),
         referenceLinkEnd_( referenceLinkEnd )
     {}
-
-    unsigned int getNumberOfObservations( ) const
-    {
-        return numberOfObservations_;
-    }
-
-    unsigned int getSingleObservationSize( ) const
-    {
-        return singleObservationSize_;
-    }
-
-    const std::string& getObservableType( ) const
-    {
-        return observableType_;
-    }
-
-    const std::string& getReferenceLinkEnd( ) const
-    {
-        return referenceLinkEnd_;
-    }
 
     //! Set corrections to the observations (optional)
     void setObservationCorrections( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationCorrections )
@@ -181,12 +161,6 @@ public:
         return emptyCorrections;
     }
 
-    //! Return the corrections that are known before creating the observation dataset (nullptr if none)
-    std::shared_ptr< ExplicitCorrectionSettings< ObservationScalarType > > getExplicitCorrections( ) const
-    {
-        return explicitCorrections_;
-    }
-
     //! Set the biases of the observation epochs (in seconds), one per observation (currently for angular position observations only).
     //! An observation with time bias c is taken to be h(t+c), with t its epoch. When creating an observation dataset with
     //! corrections applied, each observation is corrected to h(t) using its time derivative.
@@ -226,25 +200,18 @@ public:
         {
             throw std::runtime_error( "Angular correction settings require two-component reception-time angular observations." );
         }
-        modelCorrections_ = std::make_shared< AngularObservationCorrectionSettings >( settings );
+        angularCorrectionSettings_ = std::make_shared< AngularObservationCorrectionSettings >( settings );
     }
 
     //! Return the angular correction settings (nullptr if not provided)
     std::shared_ptr< AngularObservationCorrectionSettings > getObservationCorrectionSettings( ) const
     {
-        return std::dynamic_pointer_cast< AngularObservationCorrectionSettings >( modelCorrections_ );
+        return angularCorrectionSettings_;
     }
 
     bool hasObservationCorrectionSettings( ) const
     {
-        const std::shared_ptr< AngularObservationCorrectionSettings > settings = getObservationCorrectionSettings( );
-        return settings != nullptr && settings->hasCorrections( );
-    }
-
-    //! Return the corrections computed from models of the environment (nullptr if none)
-    std::shared_ptr< ModelBasedCorrectionSettings > getModelCorrections( ) const
-    {
-        return modelCorrections_;
+        return angularCorrectionSettings_ != nullptr && angularCorrectionSettings_->hasCorrections( );
     }
 
     //! Remove a single observation from all settings
@@ -280,8 +247,8 @@ private:
     //! Biases of the observation epochs (nullptr if none)
     std::shared_ptr< TimingBasedCorrectionSettings > timeBiases_;
 
-    //! Corrections computed from models of the environment (nullptr if none)
-    std::shared_ptr< ModelBasedCorrectionSettings > modelCorrections_;
+    //! Angular corrections computed from the environment when creating the observation dataset (nullptr if none)
+    std::shared_ptr< AngularObservationCorrectionSettings > angularCorrectionSettings_;
 };
 
 }  // namespace data

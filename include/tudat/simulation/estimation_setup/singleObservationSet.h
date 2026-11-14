@@ -48,7 +48,7 @@ inline void printObservationCollectionDeprecationWarning( )
     static const bool warningPrinted =
             ( std::cerr << "Warning: SingleObservationSet and ObservationCollection are deprecated and will be removed in a future "
                            "version. Use ObservationDataset instead, see the migration guide: "
-                           "MIGRATION_GUIDE_URL_PLACEHOLDER"
+                           "https://docs.tudat.space/en/latest/user-guide/project-updates/migration-guide.html"
                         << std::endl,
               true );
     static_cast< void >( warningPrinted );

@@ -14,6 +14,8 @@
 #include <Eigen/LU>
 
 #include <cmath>
+#include <filesystem>
+#include <algorithm>
 #include <limits>
 #include <Eigen/Cholesky>
 
@@ -311,7 +313,6 @@ void checkAPrioriParameterDeviation( const bool correlated )
                                                                      Eigen::MatrixXd::Zero( 0, 0 ),
                                                                      Eigen::VectorXd::Zero( 0 ),
                                                                      true,
-                                                                     nullptr,
                                                                      true )
             : std::make_shared< EstimationInput< double, double > >( createObservationCollection( simulatedObservations ),
                                                                      fullEstimationInverseAprioriCovariance,
@@ -403,6 +404,101 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviationWithCorrelatedWeights )
 }
 
 //! Test a constrained least-squares orbit estimation with position and velocity corrections at different scales.
+// Test that the residuals and partials are computed for the correct observations when the observations of a set are not
+// sorted by time: noise-free observations must give zero residuals at the true parameters.
+BOOST_AUTO_TEST_CASE( test_EstimationWithUnsortedObservationSet )
+{
+    using namespace observation_models;
+    using namespace orbital_element_conversions;
+
+    const double initialTime = 1.0E7;
+    const double finalTime = initialTime + 6.0 * 3600.0;
+
+    spice_interface::loadStandardSpiceKernels( );
+    SystemOfBodies bodies = createSystemOfBodies( getDefaultBodySettings( { "Earth" }, "Earth", "ECLIPJ2000" ) );
+    bodies.createEmptyBody( "Satellite" );
+
+    const std::vector< std::string > bodiesToPropagate = { "Satellite" };
+    const std::vector< std::string > centralBodies = { "Earth" };
+    SelectedAccelerationMap accelerationSettings;
+    accelerationSettings[ "Satellite" ][ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    const AccelerationMap accelerationModels =
+            createAccelerationModelsMap( bodies, accelerationSettings, bodiesToPropagate, centralBodies );
+
+    Eigen::Vector6d initialKeplerianState;
+    initialKeplerianState << 7.0E6, 1.0E-2, 1.0, 0.3, 0.5, 0.1;
+    const std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                    centralBodies,
+                    accelerationModels,
+                    bodiesToPropagate,
+                    convertKeplerianToCartesianElements( initialKeplerianState,
+                                                         bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) ),
+                    initialTime,
+                    rungeKuttaFixedStepSettings( 30.0, CoefficientSets::rungeKuttaFehlberg78 ),
+                    propagationTimeTerminationSettings( finalTime ) );
+    const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double, double >(
+                    getInitialStateParameterSettings< double, double >( propagatorSettings, bodies ), bodies, propagatorSettings );
+
+    LinkEnds linkEnds;
+    linkEnds[ observed_body ] = LinkEndId( "Satellite", "" );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies,
+            parametersToEstimate,
+            { std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) },
+            propagatorSettings );
+
+    std::vector< double > observationTimes;
+    for( double observationTime = initialTime + 600.0; observationTime < finalTime - 600.0; observationTime += 600.0 )
+    {
+        observationTimes.push_back( observationTime );
+    }
+    const std::shared_ptr< ObservationDataset< double, double > > sortedObservations =
+            simulateObservationDataset< double, double >( { std::make_shared< TabulatedObservationSimulationSettings< double > >(
+                                                                  position_observable, linkEnds, observationTimes, observed_body ) },
+                                                          orbitDeterminationManager.getObservationSimulators( ),
+                                                          bodies );
+
+    // Store the same observations in reversed order, without sorting them
+    std::vector< Eigen::VectorXd > reversedObservations = sortedObservations->getObservationsForSet( 0 );
+    std::vector< double > reversedTimes = sortedObservations->getObservationTimesForSet( 0 );
+    std::reverse( reversedObservations.begin( ), reversedObservations.end( ) );
+    std::reverse( reversedTimes.begin( ), reversedTimes.end( ) );
+    const std::shared_ptr< ObservationDataset< double, double > > unsortedObservations =
+            std::make_shared< ObservationDataset< double, double > >( );
+    unsortedObservations->addObservationSet( position_observable, linkEnds, reversedObservations, reversedTimes, observed_body );
+
+    // At the true parameters, the residuals must be zero; from perturbed parameters, the first parameter update must be the same for
+    // both orderings of the observations (which requires the partials to be assigned to the correct observations)
+    const Eigen::VectorXd trueParameters = parametersToEstimate->getFullParameterValues< double >( );
+    Eigen::VectorXd perturbedParameters = trueParameters;
+    perturbedParameters.segment( 0, 3 ) += Eigen::Vector3d( 10.0, -20.0, 30.0 );
+    std::vector< Eigen::VectorXd > parameterUpdates;
+    for( const auto& observations : { sortedObservations, unsortedObservations } )
+    {
+        for( const bool perturbed : { false, true } )
+        {
+            orbitDeterminationManager.resetParameterEstimate( perturbed ? perturbedParameters : trueParameters, true );
+            const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+                    std::make_shared< EstimationInput< double, double > >( observations );
+            estimationInput->defineEstimationSettings( true, true, true, false, true, false );
+            estimationInput->setConvergenceChecker( estimationConvergenceChecker( 1 ) );
+            const std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
+                    orbitDeterminationManager.estimateParameters( estimationInput );
+            if( perturbed )
+            {
+                parameterUpdates.push_back( estimationOutput->parameterHistory_.at( 1 ) - estimationOutput->parameterHistory_.at( 0 ) );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( estimationOutput->residualHistory_.at( 0 ).cwiseAbs( ).maxCoeff( ), 1.0E-3 );
+            }
+        }
+    }
+    BOOST_CHECK_SMALL( ( parameterUpdates.at( 0 ) - parameterUpdates.at( 1 ) ).norm( ), 1.0E-6 * parameterUpdates.at( 0 ).norm( ) );
+}
+
 BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
 {
     using namespace observation_models;
@@ -1031,6 +1127,15 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     {
         BOOST_CHECK_EQUAL( activeFlags( row, 0 ), weightData.getObservationIds( ).at( row ) != rejectedObservationId );
     }
+    // The observation ids of the residual history rows are stored in the output.
+    BOOST_CHECK( rejectedEstimationOutput->getResidualHistoryObservationIds( ) == weightData.getObservationIds( ) );
+#if TUDAT_BUILD_WITH_SERIALIZATION
+    // The observation ids of the residual history rows are kept when the output is saved and loaded
+    const std::string outputFile = ( std::filesystem::temp_directory_path( ) / "tudat_test_estimation_output" ).string( );
+    rejectedEstimationOutput->saveToBinary( outputFile );
+    BOOST_CHECK( EstimationOutput< double, double >::loadFromBinary( outputFile ).getResidualHistoryObservationIds( ) ==
+                 weightData.getObservationIds( ) );
+#endif
 
     // The rejected observation remains stored and must still receive an updated residual during estimation.
     BOOST_CHECK( !simulatedObservations->getObservationRow( rejectedObservationId ).isActive_ );

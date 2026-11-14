@@ -270,11 +270,24 @@ void computeDatasetResiduals(
 
 Eigen::VectorXd castObservationSelectionConditionVectorLimit( const py::object& value )
 {
-    if( py::isinstance< py::float_ >( value ) || py::isinstance< py::int_ >( value ) )
+    Eigen::VectorXd limit;
+    if( !py::isinstance< py::str >( value ) )
     {
-        return ( Eigen::VectorXd( 1 ) << value.cast< double >( ) ).finished( );
+        const auto array = py::array_t< double, py::array::forcecast >::ensure( value );
+        if( array && array.ndim( ) <= 1 )
+        {
+            limit = Eigen::Map< const Eigen::VectorXd >( array.data( ), array.size( ) );
+        }
     }
-    return value.cast< Eigen::VectorXd >( );
+    if( limit.size( ) == 0 )
+    {
+        throw py::type_error( "limit must be a number or a one-dimensional array of numbers (one per component)." );
+    }
+    if( limit.hasNaN( ) )
+    {
+        throw py::value_error( "limit must not be NaN." );
+    }
+    return limit;
 }
 
 template< typename ScalarType >
@@ -378,6 +391,17 @@ std::vector< TimeType > castObservationTimeList( const py::object& value, const 
     // sequences are converted one element at a time below.
     if( py::isinstance< py::array >( value ) && py::reinterpret_borrow< py::array >( value ).dtype( ).kind( ) != 'O' )
     {
+        const py::dtype dtype = py::reinterpret_borrow< py::array >( value ).dtype( );
+        if( dtype.kind( ) != 'f' && dtype.kind( ) != 'i' && dtype.kind( ) != 'u' )
+        {
+            throw py::type_error( argumentName +
+                                  " must be an array of numbers (seconds since J2000 in TDB); numpy datetime64, timedelta64 and "
+                                  "boolean arrays are not supported." );
+        }
+        if( dtype.kind( ) == 'f' && dtype.itemsize( ) < static_cast< py::ssize_t >( sizeof( double ) ) )
+        {
+            throw py::type_error( argumentName + " must not be a single-precision array, which cannot represent epochs accurately." );
+        }
         auto array = py::array_t< double, py::array::c_style | py::array::forcecast >::ensure( value );
         if( !array || array.ndim( ) != 1 )
         {
@@ -396,16 +420,21 @@ std::vector< TimeType > castObservationTimeList( const py::object& value, const 
 
     try
     {
-        py::sequence sequence = value.cast< py::sequence >( );
+        // A list owns its items (e.g. those of a pandas Series, which are created on access), and is iterated by value
+        const py::list items( value );
         std::vector< TimeType > result;
-        result.reserve( static_cast< std::size_t >( py::len( sequence ) ) );
-        for( py::handle item : sequence )
+        result.reserve( items.size( ) );
+        for( py::handle item : items )
         {
             result.push_back( castObservationTime< TimeType >( py::reinterpret_borrow< py::object >( item ) ) );
         }
         return result;
     }
     catch( const py::cast_error& )
+    {
+        throw py::type_error( argumentName + " must be convertible to a sequence of Time objects or numeric epochs." );
+    }
+    catch( const py::error_already_set& )
     {
         throw py::type_error( argumentName + " must be convertible to a sequence of Time objects or numeric epochs." );
     }
@@ -811,6 +840,7 @@ functions of :class:`~tudatpy.estimation.observations.ObservationSelectionCondit
             .value( "residual_absolute_value_greater_than", InspectionCondition::Type::residual_absolute_value_greater_than )
             .value( "observation_absolute_value_greater_than", InspectionCondition::Type::observation_absolute_value_greater_than )
             .value( "dependent_variable_greater_than", InspectionCondition::Type::dependent_variable_greater_than )
+            .value( "dependent_variable_less_than", InspectionCondition::Type::dependent_variable_less_than )
             .value( "and_condition", InspectionCondition::Type::and_condition )
             .value( "or_condition", InspectionCondition::Type::or_condition )
             .value( "not_condition", InspectionCondition::Type::not_condition )
@@ -1097,6 +1127,77 @@ Returns
 ObservationSelectionCondition
     Condition selecting the observations with a dependent variable larger than the limit.
 )doc" )
+            .def_static( "rejection_reason",
+                         &InspectionCondition::rejectionReason,
+                         py::arg( "reason" ),
+                         R"doc(
+Function to create a condition that selects the observations with a given rejection reason (see
+:attr:`ObservationDatasetRow.rejection_reason`). The outlier rejection during an estimation uses the reasons
+``"simple_outlier_rejection"`` and ``"carpino_outlier_rejection"``.
+
+Parameters
+----------
+reason : str
+    Rejection reason. An empty string also selects the observations that are not rejected.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with the given rejection reason.
+)doc" )
+            .def_static( "observation_ids",
+                         &InspectionCondition::observationIds,
+                         py::arg( "observation_ids" ),
+                         R"doc(
+Function to create a condition that selects the observations with the given ids (see
+:meth:`ObservationDataset.get_observation_ids`).
+
+Parameters
+----------
+observation_ids : list[int]
+    Ids of the observations to select. Ids that do not exist in the dataset are ignored.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with the given ids.
+)doc" )
+            .def_static(
+                    "dependent_variable_less_than",
+                    []( const std::shared_ptr< tss::ObservationDependentVariableSettings >& dependentVariableSettings,
+                        const py::object& limit,
+                        const bool returnFirstCompatibleSettings ) {
+                        return InspectionCondition::dependentVariableLessThan( dependentVariableSettings,
+                                                                               castObservationSelectionConditionVectorLimit( limit ),
+                                                                               returnFirstCompatibleSettings );
+                    },
+                    py::arg( "dependent_variable_settings" ),
+                    py::arg( "limit" ),
+                    py::arg( "return_first_compatible_settings" ) = false,
+                    R"doc(
+Function to create a condition that selects the observations for which any component of a dependent variable is
+smaller than a limit.
+
+Unlike the negation of :meth:`dependent_variable_greater_than`, this condition does not select observations in
+sets for which no compatible dependent variable is stored.
+
+Parameters
+----------
+dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+    Settings of the dependent variable. Observations in sets for which no compatible dependent variable is stored
+    are not selected.
+limit : float or numpy.ndarray[numpy.float64[m, 1]]
+    Limit on the (signed) value of the dependent variable, either as a single value for all components, or with one
+    value per dependent variable component.
+return_first_compatible_settings : bool, default = False
+    Whether to use the first compatible dependent variable if a set contains several dependent variables that are
+    compatible with ``dependent_variable_settings``. If ``False``, an error is raised in this case.
+
+Returns
+-------
+ObservationSelectionCondition
+    Condition selecting the observations with a dependent variable smaller than the limit.
+)doc" )
             .def_property_readonly( "condition_type", &InspectionCondition::getType, R"doc(
 **read-only**
 
@@ -1162,14 +1263,14 @@ Time (in seconds since J2000, TDB) to which the observation time is compared by 
 **read-only**
 
 Limit used by a ``residual_absolute_value_greater_than``, ``observation_absolute_value_greater_than`` or
-``dependent_variable_greater_than`` condition (not used by other kinds of conditions).
+dependent-variable condition (not used by other kinds of conditions).
 
 :type: numpy.ndarray[numpy.float64[m, 1]]
 )doc" )
             .def_property_readonly( "dependent_variable_settings", &InspectionCondition::getDependentVariableSettings, R"doc(
 **read-only**
 
-Settings of the dependent variable used by a ``dependent_variable_greater_than`` condition (``None`` for other kinds
+Settings of the dependent variable used by a dependent-variable condition (``None`` for other kinds
 of conditions).
 
 :type: tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
@@ -1177,7 +1278,7 @@ of conditions).
             .def_property_readonly( "return_first_compatible_settings", &InspectionCondition::getReturnFirstCompatibleSettings, R"doc(
 **read-only**
 
-Whether a ``dependent_variable_greater_than`` condition uses the first compatible dependent variable if a set
+Whether a dependent-variable condition uses the first compatible dependent variable if a set
 contains several (not used by other kinds of conditions).
 
 :type: bool
@@ -1202,7 +1303,8 @@ contains several (not used by other kinds of conditions).
                     []( const InspectionCondition& ) {
                         throw py::type_error(
                                 "ObservationSelectionCondition objects cannot be converted to bool. Use &, |, and ~ to combine conditions, "
-                                "not and/or/not." );
+                                "not and/or/not; use observation_query.time.between( t0, t1 ) instead of a chained comparison, and "
+                                ".isin( [...] ) instead of 'in'." );
                     },
                     R"doc(Raises an error, since conditions cannot be converted to a boolean: combine them with ``&``, ``|`` and ``~`` instead of ``and``, ``or`` and ``not``.)doc" );
 
@@ -1246,14 +1348,14 @@ This class replaces the (deprecated) :class:`~tudatpy.estimation.observations.Ob
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return self.getTimes( condition, inspectionOrdering( ordering ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the times of the selected observations.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1269,14 +1371,14 @@ list[tudatpy.astro.time_representation.Time]
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return self.getObservations( condition, inspectionOrdering( ordering ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the values of the selected observations.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1292,14 +1394,14 @@ list[numpy.ndarray[numpy.float64[m, 1]]]
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return self.getResiduals( condition, inspectionOrdering( ordering ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the residuals of the selected observations.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1315,14 +1417,14 @@ list[numpy.ndarray[numpy.float64[m, 1]]]
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return self.getObservationIds( condition, inspectionOrdering( ordering ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the ids of the selected observations.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1338,14 +1440,14 @@ list[int]
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return self.getSetIds( condition, inspectionOrdering( ordering ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the observation set ids of the selected observations.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1354,21 +1456,22 @@ ordering : str, default = "internal"
 Returns
 -------
 list[int]
-    Id of the observation set of each selected observation.
+    Id of the observation set of each selected observation (so a set id is repeated for every selected observation of
+    the set; use, e.g., ``numpy.unique`` for the distinct set ids).
 )doc" )
                 .def(
                         "get_rows",
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return inspectionRows( self.getRows( condition, inspectionOrdering( ordering ) ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the properties of the selected observations, as dictionaries.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1391,7 +1494,7 @@ list[dict]
                             return self.getDependentVariableValues(
                                     condition, inspectionOrdering( ordering ), dependentVariableSettings, returnFirstCompatibleSettings );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         py::arg( "dependent_variable_settings" ) = nullptr,
                         py::arg( "return_first_compatible_settings" ) = false,
@@ -1403,7 +1506,7 @@ settings are provided as ``dependent_variable_settings``.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1432,14 +1535,14 @@ list[numpy.ndarray[numpy.float64[m, 1]]]
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return self.getScalarComponents( condition, inspectionOrdering( ordering ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the observation id and component index of each component of the selected observations.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1456,14 +1559,14 @@ list[tuple[int, int]]
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return self.getWeightDiagonal( condition, inspectionOrdering( ordering ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the diagonal of the weight matrix of the selected observations.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1479,14 +1582,14 @@ numpy.ndarray[numpy.float64[m, 1]]
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return self.getWeightMatrix( condition, inspectionOrdering( ordering ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the weight matrix of the selected observations, including the correlations between them.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1502,14 +1605,14 @@ scipy.sparse.csc_matrix
                         []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
                             return inspectionMetadata( self.getMetadata( condition, inspectionOrdering( ordering ) ) );
                         },
-                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                         py::arg( "ordering" ) = "internal",
                         R"doc(
 Function to retrieve the properties of the observation sets that contain the selected observations.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 ordering : str, default = "internal"
@@ -1527,7 +1630,7 @@ dict[int, dict]
 )doc" )
                 .def( "get_data",
                       &inspectionData,
-                      py::arg( "condition" ) = InspectionCondition::all( ),
+                      py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
                       py::arg( "fields" ) = std::vector< std::string >{ "times", "observations" },
                       py::arg( "ordering" ) = "internal",
                       R"doc(
@@ -1535,7 +1638,7 @@ Function to retrieve several types of data of the selected observations at once.
 
 Parameters
 ----------
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
 fields : list[str], default = ["times", "observations"]
@@ -1936,8 +2039,10 @@ different sets.
 
 The block defines the weights between the components of the observations in ``row_observation_ids`` (rows) and
 those of the observations in ``column_observation_ids`` (columns). The transposed block is set as well, so that the
-weight matrix remains symmetric; where the rows and columns overlap, the block must be consistent with this. Each
-observation id may be given only once in each list.
+weight matrix remains symmetric; where the rows and columns overlap, the block must be consistent with this (to a
+relative accuracy of :math:`10^{-12}` of its largest entry). Each observation id may be given only once in each list.
+Weights that correlate observations in different sets cannot be used with the Carpino outlier rejection or the
+rejection of observations based on a sigma limit, which require the covariance of single observations.
 
 Parameters
 ----------
@@ -2459,20 +2564,22 @@ dependent_variables : list[numpy.ndarray[numpy.float64[k, 1]]]
                 .def( "add_dependent_variable",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addDependentVariableToSets,
                       py::arg( "dependent_variable_settings" ),
-                      py::arg( "condition" ) = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ),
+                      py::arg_v( "condition", tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ), "observation_query.all" ),
                       R"doc(
 Function to add a dependent variable to the observation sets that contain the selected observations.
 
 The dependent variable is added to each of these sets for which it is compatible with the observable type and link
 ends. Its values are not computed by this function, but by
 :func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables`. A dependent variable cannot be
-added to a set for which dependent variable values are already stored.
+added to a set for which dependent variable values are already stored. The estimation does not compute dependent
+variables: values stored before an estimation are kept, and dependent variables added afterwards are computed by
+:func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables`, which also replaces the residuals.
 
 Parameters
 ----------
 dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
     Settings of the dependent variable to add.
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations; the dependent variable is added to each set that contains at least one
     selected observation.
 )doc" )
@@ -2529,7 +2636,7 @@ tudatpy.estimation.observable_models_setup.links.LinkDefinition
                       py::arg( "body_name" ),
                       py::arg( "reference_point_name" ),
                       py::arg( "link_end_type" ),
-                      py::arg( "condition" ) = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ),
+                      py::arg_v( "condition", tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ), "observation_query.all" ),
                       R"doc(
 Function to change the reference point of a link end, in the observation sets that contain the selected
 observations.
@@ -2546,7 +2653,7 @@ reference_point_name : str
     Name of the new reference point.
 link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType
     Role of the link end in the observations (e.g. receiver or transmitter).
-condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = ObservationSelectionCondition.all()
+condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations; the link end is changed in each set that contains at least one selected
     observation.
 )doc" )
@@ -2634,6 +2741,19 @@ Returns
 tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableBookkeeping
     Object defining the dependent variables (``None`` if the id corresponds to sets without dependent variables).
 )doc" )
+                .def(
+                        "__copy__",
+                        []( const tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& dataset ) {
+                            return std::make_shared< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >( dataset );
+                        },
+                        R"doc(Returns an independent copy of the dataset (used through ``copy.copy``).)doc" )
+                .def(
+                        "__deepcopy__",
+                        []( const tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& dataset, const py::dict& ) {
+                            return std::make_shared< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >( dataset );
+                        },
+                        py::arg( "memo" ),
+                        R"doc(Returns an independent copy of the dataset (used through ``copy.deepcopy``).)doc" )
                 .def( "create_new_and_keep",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createNewAndKeep,
                       py::arg( "condition" ),
@@ -2687,7 +2807,7 @@ condition : tudatpy.estimation.observations.ObservationSelectionCondition
     Condition selecting the observations to reject.
 reason : str, default = ""
     Reason for the rejection, stored with each rejected observation (see
-    :attr:`ObservationDatasetRow.rejection_reason`).
+    :attr:`ObservationDatasetRow.rejection_reason`). Observations that are already rejected keep their reason.
 )doc" )
                 .def( "reject_observations",
                       py::overload_cast< const InspectionCondition&, const double, const std::string& >(
@@ -2702,7 +2822,8 @@ uncertainty.
 A selected observation is rejected if the absolute value of any component of its residual is larger than
 ``sigma_limit`` times the standard deviation of that component. The standard deviations are computed from the
 weights, as described for :meth:`ObservationVectorData.inverse_weight_matrix_for_observation`. The residuals must
-be computed beforehand, for instance with :func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables`.
+be computed beforehand, for instance with :func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables`
+or by an estimation: residuals that have not been computed are zero, so that no observations are rejected.
 
 Parameters
 ----------
@@ -2742,7 +2863,8 @@ Returns
 -------
 tudatpy.estimation.observations.ObservationVectorData
     Concatenated data, in the ``"estimation"`` order (see :class:`ObservationDataset`).
-)doc" );
+)doc" ) TUDATPY_DEF_PICKLE( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > )
+                        TUDATPY_DEF_BINARY_IO( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > );
     }
 
     m.def( "create_observation_dataset_from_tracking_data",
@@ -4712,23 +4834,23 @@ tudatpy.estimation.observations.ObservationCollection
             py::arg( "observation_simulators" ),
             py::arg( "bodies" ),
             R"doc(
-        Computes residuals and dependent variables for a given observation collection.
+Computes residuals and dependent variables for a given observation collection.
 
-        This function simulates observations based on the settings of the input `observation_collection`
-        (which typically contains real data). It then computes the residuals by subtracting the
-        simulated observations from the original observations. The computed residuals and any
-        observation-dependent variables are then stored in the input `observation_collection`.
+This function simulates observations based on the settings of the input `observation_collection`
+(which typically contains real data). It then computes the residuals by subtracting the
+simulated observations from the original observations. The computed residuals and any
+observation-dependent variables are then stored in the input `observation_collection`.
 
-        Parameters
-        ----------
-        observation_collection : tudatpy.estimation.observations.ObservationCollection
-            The collection of observations for which to compute residuals and dependent variables.
-            This object is modified in-place.
-        observation_simulators : list[tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator]
-            List of observation simulators to be used for computing the observations.
-        bodies : tudatpy.dynamics.environment.SystemOfBodies
-            The system of bodies required for the observation simulation.
-        )doc" );
+Parameters
+----------
+observation_collection : tudatpy.estimation.observations.ObservationCollection
+    The collection of observations for which to compute residuals and dependent variables.
+    This object is modified in-place.
+observation_simulators : list[tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator]
+    List of observation simulators to be used for computing the observations.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    The system of bodies required for the observation simulation.
+)doc" );
 
     m.def( "observation_simulation_settings_from_dataset",
            &tss::getObservationSimulationSettingsFromObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -4741,7 +4863,8 @@ observations in an observation dataset.
 One set of (tabulated) observation simulation settings is created per observation set in the dataset, with the
 same observation times, reference link end, ancillary settings and dependent variables. These settings can be used
 to simulate observations at the times of (real) observations, for instance with
-:func:`~tudatpy.estimation.observations.simulate_observation_dataset`.
+:func:`~tudatpy.estimation.observations.simulate_observation_dataset`. The weights are not part of these settings: the
+observations simulated with them have unit weights.
 
 Parameters
 ----------
@@ -4770,6 +4893,11 @@ then computes the residuals by subtracting the simulated observations from the o
 residuals, and the dependent variables defined for each observation set (see
 :meth:`~tudatpy.estimation.observations.ObservationDataset.add_dependent_variable`), are then stored in the input
 ``observation_dataset``. Residuals are computed for all observations, including rejected observations.
+
+The observations are simulated with the current environment. After an estimation, the ephemerides of the propagated
+bodies correspond to the last propagation of the estimation (also if the parameters were reset to those of the best
+iteration), so the residuals stored in the dataset by the estimation (those of the best iteration) can be replaced
+by different values.
 
 Parameters
 ----------

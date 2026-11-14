@@ -11,6 +11,8 @@
 #ifndef TUDAT_ORBITDETERMINATIONMANAGERESTIMATIONIMPLEMENTATION_H
 #define TUDAT_ORBITDETERMINATIONMANAGERESTIMATIONIMPLEMENTATION_H
 
+#include <cmath>
+#include <exception>
 #include <iostream>
 #include <stdexcept>
 
@@ -57,6 +59,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             observationDataset->createObservationVectorData( false );
     int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
     const int initialNumberOfObservations = totalNumberOfObservations;
+    for( int i = 0; i < totalNumberOfObservations; i++ )
+    {
+        if( !std::isfinite( static_cast< double >( estimationData.getObservationVector( )( i ) ) ) )
+        {
+            throw std::runtime_error( "Error in estimation, observation " + std::to_string( estimationData.getObservationIds( ).at( i ) ) +
+                                      " (at time " + std::to_string( static_cast< double >( estimationData.getTimes( ).at( i ) ) ) +
+                                      ") is not finite; remove or reject it before the estimation." );
+        }
+    }
 
     if( totalNumberOfObservations == 0 )
     {
@@ -146,6 +157,28 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Iterate until convergence (at least once)
     int bestIteration = -1;
     int numberOfIterations = 0;
+
+    // If an exception leaves the iteration loop, the rejection status of the observations is reset to that of the best iteration
+    // (or to that at the start of the estimation), so that the observation dataset is not left with that of an unfinished iteration
+    struct RejectionStatusGuard {
+        const std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > >& outlierRejection;
+        const int& bestIteration;
+        const std::vector< bool >& bestRejectionStatus;
+        const std::vector< bool > initialRejectionStatus;
+        ~RejectionStatusGuard( )
+        {
+            if( outlierRejection != nullptr && std::uncaught_exceptions( ) > 0 )
+            {
+                outlierRejection->resetRejectionStatus( bestIteration >= 0 ? bestRejectionStatus : initialRejectionStatus );
+            }
+        }
+    };
+    const RejectionStatusGuard rejectionStatusGuard{ outlierRejection,
+                                                     bestIteration,
+                                                     bestRejectionStatus,
+                                                     applyOutlierRejection ? outlierRejection->getRejectionStatus( )
+                                                                           : std::vector< bool >( ) };
+
     while( true )
     {
         oldParameterEstimate = newParameterEstimate;
@@ -222,7 +255,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                         "Error when saving state history for each estimation iteration: no propagation results exist "
                         "in observation-only estimation." );
             }
-            simulationResultsPerIteration.push_back( simulationResults->clone( ) );
+            if( estimationInput->getSaveVariationalResultsForEachIteration( ) )
+            {
+                simulationResultsPerIteration.push_back( simulationResults->clone( ) );
+            }
+            else
+            {
+                simulationResultsPerIteration.push_back( simulationResults->cloneDynamicsOnly( ) );
+            }
         }
 
         // Normalise estimated parameters partials and inverse apriori covariance
@@ -616,6 +656,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                      activeFlagsPerIteration,
                                                                                      bestWeightsMatrix );
     estimationOutput->setResidualTimes( utilities::staticCastVector< double, TimeType >( bestResidualTimes ) );
+    estimationOutput->setResidualHistoryObservationIds( computationData.getObservationIds( ) );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {

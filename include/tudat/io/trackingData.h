@@ -12,7 +12,6 @@
 #define TUDAT_TRACKING_DATA_H
 
 #include <Eigen/Core>
-#include <cmath>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -313,36 +312,11 @@ public:
         return weightSettings_;
     }
 
-    //! Function that replaces the settings that define the observation weights
-    void setWeightSettings( const std::shared_ptr< TrackingDataWeightSettings > weightSettings )
-    {
-        if( weightSettings == nullptr || weightSettings->getNumberOfObservations( ) != numberOfObservations_ ||
-            weightSettings->getSingleObservationSize( ) != singleObservationSize_ ||
-            weightSettings->getObservableType( ) != observableType_ )
-        {
-            throw std::runtime_error( "Error when setting TrackingData weight settings, settings are not defined for these observations." );
-        }
-        weightSettings_ = weightSettings;
-    }
-
     //! Function that returns the settings that define the observation corrections (set and retrieve the corrections through these
     //! settings)
     const std::shared_ptr< TrackingDataCorrectionSettings< ObservationScalarType > >& getCorrectionSettings( ) const
     {
         return correctionSettings_;
-    }
-
-    //! Function that replaces the settings that define the observation corrections
-    void setCorrectionSettings( const std::shared_ptr< TrackingDataCorrectionSettings< ObservationScalarType > > correctionSettings )
-    {
-        if( correctionSettings == nullptr || correctionSettings->getNumberOfObservations( ) != numberOfObservations_ ||
-            correctionSettings->getSingleObservationSize( ) != singleObservationSize_ ||
-            correctionSettings->getObservableType( ) != observableType_ || correctionSettings->getReferenceLinkEnd( ) != referenceLinkEnd_ )
-        {
-            throw std::runtime_error(
-                    "Error when setting TrackingData correction settings, settings are not defined for these observations." );
-        }
-        correctionSettings_ = correctionSettings;
     }
 
     //! Function that remove a single observation entry

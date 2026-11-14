@@ -19,11 +19,11 @@ from tudatpy.data_input.tracking_data import (
     BlockDeweightingRule,
     NamedWeightingMethod,
     ObservationBlockDefinition,
-    block_per_observation_weights,
-    diagonal_per_observation_weights,
     TrackingData,
     TrackingSupplementaryData,
     TranslationalStateSupplementaryData,
+    block_per_observation_weights,
+    diagonal_per_observation_weights,
 )
 
 BIAS_LOWRES_FILE = os.path.join(

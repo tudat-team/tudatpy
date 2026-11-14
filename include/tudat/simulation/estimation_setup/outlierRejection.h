@@ -287,17 +287,19 @@ public:
             throw std::runtime_error( "Error when creating Carpino outlier rejection object, settings are null." );
         }
 
-        // If the weights of the observation dataset are all equal to 1 (i.e. default), they are not meaningful and the Carpino outlier
-        // rejection algorithm produces garbage results
+        // If the weights of the observation dataset are all equal to 1 (the default), they are most likely not set, in which case the
+        // Carpino outlier rejection algorithm gives meaningless results. Unit weights are correct for an uncertainty of 1 (in
+        // the unit of the observations), so this is a warning.
         ObservationVectorData< ObservationScalarType, TimeType > flattenedData = observationDataset->createObservationVectorData( true );
         const Eigen::VectorXd& observationWeightVector = flattenedData.getWeightVector( );
         const bool hasOffDiagonalWeights = flattenedData.hasOffDiagonalWeights( );
         const bool hasDefaultWeights = ( observationWeightVector.array( ) == 1.0 ).all( );
         if( !hasOffDiagonalWeights && hasDefaultWeights )
         {
-            throw std::runtime_error(
-                    "Error in outlier rejection: Carpino algorithm expects observation weights to be compatible with the "
-                    "per-observation uncertainty, but default weights were found on the ObservationDataset" );
+            std::cerr << "Warning in outlier rejection: the Carpino algorithm requires observation weights equal to the inverse of "
+                         "the squared observation uncertainty, but all weights of the ObservationDataset are equal to 1 (the "
+                         "default). Set the weights, unless an uncertainty of 1 is intended."
+                      << std::endl;
         }
     }
 
@@ -417,9 +419,14 @@ protected:
             newRejectionStatus.at( newlyRejectedObservationIndices.at( i ) ) = false;
         }
 
-        std::cerr << "Warning during outlier rejection, " << newlyRejectedObservationIndices.size( ) - allowedNumberOfNewRejections
-                  << " observations that met the rejection criterion were kept, since the maximum rejected fraction of "
-                  << outlierRejectionSettings_->getMaximumRejectedFraction( ) << " was reached." << std::endl;
+        if( !isMaximumRejectedFractionWarningPrinted_ )
+        {
+            std::cerr << "Warning during outlier rejection, " << newlyRejectedObservationIndices.size( ) - allowedNumberOfNewRejections
+                      << " observations that met the rejection criterion were kept, since the maximum rejected fraction of "
+                      << outlierRejectionSettings_->getMaximumRejectedFraction( )
+                      << " was reached (this warning is printed once per estimation)." << std::endl;
+            isMaximumRejectedFractionWarningPrinted_ = true;
+        }
     }
 
     double getRejectionThreshold( const std::vector< double >& chiSquaredPerObservation ) const
@@ -506,6 +513,9 @@ protected:
 
     //! Settings defining the thresholds of the algorithm.
     std::shared_ptr< CarpinoOutlierRejectionSettings > outlierRejectionSettings_;
+
+    //! Whether the warning that the maximum rejected fraction was reached has been printed (it is printed once per estimation).
+    mutable bool isMaximumRejectedFractionWarningPrinted_ = false;
 };
 
 //! Simple outlier rejection algorithm
