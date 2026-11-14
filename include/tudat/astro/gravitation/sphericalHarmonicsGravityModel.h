@@ -182,6 +182,15 @@ public:
      */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {
+#ifdef TUDAT_EXPERIMENT_PARALLEL_ACCELERATION
+        updateMembersWithTermBuffer( currentTime, nullptr );
+    }
+
+    // Experimental hook: scratch is owned by the caller/model, not shared.
+    // Adds no fields or virtual slots to the existing acceleration model.
+    void updateMembersWithTermBuffer( const double currentTime, std::vector< Eigen::Vector3d >* reusableTerms )
+    {
+#endif
         if( !( this->currentTime_ == currentTime ) )
         {
             cosineSphericalHarmonicsBlock.update( );
@@ -204,7 +213,12 @@ public:
                                                                                          saveSphericalHarmonicTermsSeparately_,
                                                                                          rotationToIntegrationFrame_.toRotationMatrix( ),
                                                                                          false,
-                                                                                         colatitudeCutoffForBoschFormulation_ );
+                                                                                         colatitudeCutoffForBoschFormulation_
+#ifdef TUDAT_EXPERIMENT_PARALLEL_ACCELERATION
+                                                                                         ,
+                                                                                         reusableTerms
+#endif
+            );
             currentAccelerationInBodyFixedFrame_ = rotationToIntegrationFrame_.inverse( ) * currentAcceleration_;
 
             if( this->updatePotential_ )

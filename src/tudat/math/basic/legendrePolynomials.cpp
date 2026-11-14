@@ -78,21 +78,53 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
         LegendreCache& thisReference = *this;
 
         int jMax = -1;
-        for( int i = 0; i <= maximumDegree_; i++ )
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+        ++experimentLegendreUpdates;
+        if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
         {
-            jMax = std::min( i, maximumOrder_ );
-            for( int j = 0; j <= jMax; j++ )
+            // Sectoral terms depend on the previous diagonal; seed these serially.
+            for( int order = 0; order <= std::min( maximumDegree_, maximumOrder_ ); ++order )
             {
-                // Compute legendre polynomial
-                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = checkConsistency
-                        ? legendrePolynomialFunction_( i, j, thisReference )
-                        : legendrePolynomialFunctionWithoutCheck_( i, j, thisReference );
+                legendreValues_[ order * ( maximumOrder_ + 1 ) + order ] = checkConsistency
+                        ? legendrePolynomialFunction_( order, order, thisReference )
+                        : legendrePolynomialFunctionWithoutCheck_( order, order, thisReference );
+            }
+            // Each vertical recurrence subsequently reads only its own column
+            // and the completed diagonal. Upper-triangle entries remain zero.
+#pragma omp parallel for schedule( static, 8 )
+            for( int order = 0; order <= std::min( maximumDegree_, maximumOrder_ ); ++order )
+            {
+                if( order == 0 ) experimentLegendreThreads = omp_get_num_threads( );
+                for( int degree = order + 1; degree <= maximumDegree_; ++degree )
+                {
+                    legendreValues_[ degree * ( maximumOrder_ + 1 ) + order ] = checkConsistency
+                            ? legendrePolynomialFunction_( degree, order, thisReference )
+                            : legendrePolynomialFunctionWithoutCheck_( degree, order, thisReference );
+                }
+            }
+        }
+        else
+#endif
+        {
+            for( int i = 0; i <= maximumDegree_; i++ )
+            {
+                jMax = std::min( i, maximumOrder_ );
+                for( int j = 0; j <= jMax; j++ )
+                {
+                    // Compute legendre polynomial
+                    legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = checkConsistency
+                            ? legendrePolynomialFunction_( i, j, thisReference )
+                            : legendrePolynomialFunctionWithoutCheck_( i, j, thisReference );
+                }
             }
         }
 
         // Compute first derivatives of Legendre polynomials if needed
         if( computeFirstDerivatives_ )
         {
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+#pragma omp parallel for schedule( static ) private( jMax ) if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
+#endif
             for( int i = 0; i <= maximumDegree_; i++ )
             {
                 jMax = std::min( i, maximumOrder_ );
@@ -149,6 +181,9 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
         // Compute second derivatives of Legendre polynomials if needed
         if( computeSecondDerivatives_ )
         {
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+#pragma omp parallel for schedule( static ) private( jMax ) if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
+#endif
             for( int i = 0; i <= maximumDegree_; i++ )
             {
                 jMax = std::min( i, maximumOrder_ );
