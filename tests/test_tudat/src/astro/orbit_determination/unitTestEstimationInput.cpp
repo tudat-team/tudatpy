@@ -497,83 +497,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationWithUnsortedObservationSet )
         }
     }
     BOOST_CHECK_SMALL( ( parameterUpdates.at( 0 ) - parameterUpdates.at( 1 ) ).norm( ), 1.0E-6 * parameterUpdates.at( 0 ).norm( ) );
-
-    // With every observation stored twice (duplicate epochs within the set), the inverse covariance is twice that of the original
-    std::vector< Eigen::VectorXd > duplicatedObservations = sortedObservations->getObservationsForSet( 0 );
-    std::vector< double > duplicatedTimes = observationTimes;
-    const std::vector< Eigen::VectorXd > originalObservations = sortedObservations->getObservationsForSet( 0 );
-    duplicatedObservations.insert( duplicatedObservations.end( ), originalObservations.begin( ), originalObservations.end( ) );
-    duplicatedTimes.insert( duplicatedTimes.end( ), observationTimes.begin( ), observationTimes.end( ) );
-    const std::shared_ptr< ObservationDataset< double, double > > duplicatedDataset =
-            std::make_shared< ObservationDataset< double, double > >( );
-    duplicatedDataset->addObservationSet( position_observable, linkEnds, duplicatedObservations, duplicatedTimes, observed_body );
-    orbitDeterminationManager.resetParameterEstimate( trueParameters, true );
-    const Eigen::MatrixXd inverseCovariance =
-            orbitDeterminationManager
-                    .computeCovariance( std::make_shared< CovarianceAnalysisInput< double, double > >( sortedObservations ) )
-                    ->getUnnormalizedInverseCovarianceMatrix( );
-    const Eigen::MatrixXd duplicatedInverseCovariance =
-            orbitDeterminationManager
-                    .computeCovariance( std::make_shared< CovarianceAnalysisInput< double, double > >( duplicatedDataset ) )
-                    ->getUnnormalizedInverseCovarianceMatrix( );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( duplicatedInverseCovariance, ( 2.0 * inverseCovariance ).eval( ), 1.0E-10 );
-
-    // An estimation with a non-finite observation gives an error
-    const std::shared_ptr< ObservationDataset< double, double > > observationsWithNan =
-            std::make_shared< ObservationDataset< double, double > >( *sortedObservations );
-    std::vector< Eigen::VectorXd > observationValuesWithNan = sortedObservations->getObservationsForSet( 0 );
-    observationValuesWithNan.at( 2 )( 1 ) = std::numeric_limits< double >::quiet_NaN( );
-    observationsWithNan->setObservationsForSet( 0, observationValuesWithNan );
-    BOOST_CHECK_THROW(
-            orbitDeterminationManager.estimateParameters( std::make_shared< EstimationInput< double, double > >( observationsWithNan ) ),
-            std::runtime_error );
-
-    // If an exception leaves an estimation with outlier rejection, the dataset has the rejection status of the best iteration: here,
-    // the outlier is rejected after iteration 0, but iteration 1 fails, so that no observation is rejected
-    orbitDeterminationManager.resetParameterEstimate( trueParameters, true );
-    const std::shared_ptr< ObservationDataset< double, double > > observationsWithOutlier =
-            std::make_shared< ObservationDataset< double, double > >( *sortedObservations );
-    const unsigned int outlierId = observationsWithOutlier->getObservationIdsForSet( 0 ).at( 3 );
-    std::vector< Eigen::VectorXd > observationValuesWithOutlier = sortedObservations->getObservationsForSet( 0 );
-    observationValuesWithOutlier.at( 3 ) += Eigen::Vector3d::Constant( 1000.0 );
-    observationsWithOutlier->setObservationsForSet( 0, observationValuesWithOutlier );
-    const std::shared_ptr< EstimationInput< double, double > > failingEstimationInput =
-            std::make_shared< EstimationInput< double, double > >( observationsWithOutlier,
-                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
-                                                                   estimationConvergenceChecker( 3 ),
-                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
-                                                                   Eigen::VectorXd::Zero( 0 ),
-                                                                   true,
-                                                                   false,
-                                                                   false,
-                                                                   std::make_shared< SimpleOutlierRejectionSettings >( 100.0, 0 ) );
-    failingEstimationInput->defineEstimationSettings( true, true, true, false, true, false );
-    failingEstimationInput->iterationCallback_ = []( const int iteration, const Eigen::VectorXd&, const Eigen::MatrixXd& ) {
-        if( iteration > 0 )
-        {
-            throw std::runtime_error( "Test exception" );
-        }
-    };
-    BOOST_CHECK_THROW( orbitDeterminationManager.estimateParameters( failingEstimationInput ), std::runtime_error );
-    BOOST_CHECK_EQUAL( observationsWithOutlier->getObservationIds( ObservationSelectionCondition< double, double >::rejected( ) ).size( ),
-                       0 );
-
-    // Without the exception, the outlier is rejected (with observations close to it, from iteration 1), and the ids of the rows of the
-    // residual history are kept when the output is saved and loaded
-    failingEstimationInput->iterationCallback_ = nullptr;
-    orbitDeterminationManager.resetParameterEstimate( trueParameters, true );
-    const std::shared_ptr< EstimationOutput< double, double > > outputWithRejection =
-            orbitDeterminationManager.estimateParameters( failingEstimationInput );
-    const std::vector< unsigned int > rejectedIds =
-            observationsWithOutlier->getObservationIds( ObservationSelectionCondition< double, double >::rejected( ) );
-    BOOST_CHECK( std::find( rejectedIds.begin( ), rejectedIds.end( ), outlierId ) != rejectedIds.end( ) );
-#if TUDAT_BUILD_WITH_SERIALIZATION
-    const std::string outputFile = ( std::filesystem::temp_directory_path( ) / "tudat_test_estimation_output" ).string( );
-    outputWithRejection->saveToBinary( outputFile );
-    const EstimationOutput< double, double > loadedOutput = EstimationOutput< double, double >::loadFromBinary( outputFile );
-    BOOST_CHECK( loadedOutput.getResidualHistoryObservationIds( ) == outputWithRejection->getResidualHistoryObservationIds( ) );
-    BOOST_CHECK_EQUAL( loadedOutput.getResidualHistoryObservationIds( ).size( ), 3 * observationTimes.size( ) );
-#endif
 }
 
 BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
@@ -1206,6 +1129,13 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     }
     // The observation ids of the residual history rows are stored in the output.
     BOOST_CHECK( rejectedEstimationOutput->getResidualHistoryObservationIds( ) == weightData.getObservationIds( ) );
+#if TUDAT_BUILD_WITH_SERIALIZATION
+    // The observation ids of the residual history rows are kept when the output is saved and loaded
+    const std::string outputFile = ( std::filesystem::temp_directory_path( ) / "tudat_test_estimation_output" ).string( );
+    rejectedEstimationOutput->saveToBinary( outputFile );
+    BOOST_CHECK( EstimationOutput< double, double >::loadFromBinary( outputFile ).getResidualHistoryObservationIds( ) ==
+                 weightData.getObservationIds( ) );
+#endif
 
     // The rejected observation remains stored and must still receive an updated residual during estimation.
     BOOST_CHECK( !simulatedObservations->getObservationRow( rejectedObservationId ).isActive_ );

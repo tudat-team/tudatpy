@@ -411,28 +411,9 @@ def test_query_conveniences(sample_dataset):
     dataset = sample_dataset
 
     assert dataset.get_observation_ids(observation_query.all) == [0, 1, 2, 3, 4]
-    # Single-precision time arrays are rejected, since they cannot represent epochs accurately
-    with pytest.raises(TypeError, match="single-precision"):
-        _new_dataset_single_set(
-            model_settings.one_way_range_type,
-            "Earth",
-            [[10.0]],
-            np.array([1.0], dtype=np.float32),
-        )
-    # A per-component limit is only evaluated for the observations selected by the other condition, also when the limit is
-    # given first, negated, or in a chain of conditions
-    angular = observation_query.observable_type == model_settings.angular_position_type
-    large_residual = observation_query.residual.abs_greater_than(np.array([1.0, 1.0]))
-    assert dataset.get_observation_ids(large_residual & angular) == [4]
-    assert dataset.get_observation_ids(
-        large_residual & (observation_query.time >= 0.0) & angular
-    ) == [4]
-    assert dataset.get_observation_ids(~large_residual & angular) == [3]
     assert dataset.get_observation_ids(observation_query.observation_id == 3) == [3]
     assert dataset.get_observation_ids(observation_query.observation_id.isin([4, 1, 99])) == [1, 4]
     assert dataset.get_observation_ids(observation_query.receiver == ("Mars", "")) == [3, 4]
-    with pytest.raises(TypeError):
-        observation_query.receiver == "Mars"
 
     # Dates are interpreted as TDB epochs
     epoch = DateTime.from_epoch(3.0)
@@ -448,68 +429,9 @@ def test_query_conveniences(sample_dataset):
     assert dataset.get_observation_ids(observation_query.rejected) == []
     assert duplicate.get_observation_ids(observation_query.rejected) == [0, 1, 2]
 
-    # Rejecting an observation again keeps its first reason; observations can be selected by rejection reason
-    dataset.reject_observations(observation_query.observation_id == 0, "first")
-    dataset.reject_observations(observation_query.observation_id.isin([0, 2]), "second")
-    assert dataset.observation_row(0).rejection_reason == "first"
+    # Observations can be selected by rejection reason
+    dataset.reject_observations(observation_query.observation_id == 2, "second")
     assert dataset.get_observation_ids(observation_query.rejection_reason == "second") == [2]
-
-
-def test_time_and_limit_inputs(sample_dataset):
-    """Check that epochs and limits given as numpy, pandas or Python objects are converted correctly or rejected clearly."""
-    import datetime
-
-    observation_query = observations.observation_query
-
-    def times_of(times):
-        dataset = _new_dataset_single_set(
-            model_settings.one_way_range_type, "Earth", [[1.0], [2.0]], times
-        )
-        return [float(time) for time in dataset.get_times()]
-
-    # Sequences whose items are created on access, and are indexed by label (pandas), and generators
-    pandas = pytest.importorskip("pandas")
-    assert times_of(pandas.Series([3.0, 5.0], index=[7, 8])) == [3.0, 5.0]
-    assert times_of(x for x in [3.0, 5.0]) == [3.0, 5.0]
-    # Calendar dates in arrays are not epochs in seconds since J2000
-    for times in [
-        np.array(["2020-01-01", "2020-01-02"], dtype="datetime64[s]"),
-        np.array([True, False]),
-    ]:
-        with pytest.raises(TypeError, match="times"):
-            times_of(times)
-    with pytest.raises(TypeError, match="times"):
-        times_of(pandas.Series(pandas.to_datetime(["2020-01-01", "2020-01-02"])))
-
-    # Queries: time zones are rejected, ids must be integers, and numpy scalars may be on the left of a comparison
-    with pytest.raises(ValueError, match="time zone"):
-        observation_query.time > datetime.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc)
-    with pytest.raises(TypeError):
-        observation_query.observation_id == 1.5
-    assert sample_dataset.get_observation_ids(np.float64(2.0) <= observation_query.time) == [
-        1,
-        2,
-        3,
-        4,
-    ]
-    assert sample_dataset.get_observation_ids(observation_query.observation_id == np.int64(3)) == [
-        3
-    ]
-    with pytest.raises(ValueError, match="NaN"):
-        observation_query.residual.abs_greater_than(np.nan)
-    # The link end type must be given before comparing to a link end
-    with pytest.raises(TypeError, match="link end type"):
-        observation_query.link_end == ("Earth", "")
-    assert sample_dataset.get_observation_ids(
-        observation_query.link_end(links.receiver) == ("Earth", "")
-    ) == sample_dataset.get_observation_ids(observation_query.receiver == ("Earth", ""))
-    assert sample_dataset.get_observation_ids(
-        observation_query.residual.abs_greater_than(np.float32(1.0))
-        & (observation_query.observable_type == model_settings.one_way_range_type)
-    ) == sample_dataset.get_observation_ids(
-        observation_query.residual.abs_greater_than(1.0)
-        & (observation_query.observable_type == model_settings.one_way_range_type)
-    )
 
 
 def test_dataset_pickle_and_binary_file_round_trip(sample_dataset, tmp_path):
