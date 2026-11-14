@@ -101,7 +101,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Declare variables to be returned (i.e. results from best iteration)
     double bestCostFunction = TUDAT_NAN;
     double bestSelectionCostFunction = TUDAT_NAN;
-    bool isBestIterationPreferred = false;
     std::vector< bool > bestRejectionStatus;
     double bestRmsResidual = TUDAT_NAN;
     ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
@@ -511,16 +510,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             }
         }
 
-        // If current iteration is better than previous one, update 'best' data. With outlier rejection, iterations that used more
-        // observations than there are estimated parameters are preferred, since the cost of the other iterations does not measure
-        // the fit.
-        const bool isIterationPreferred =
-                !applyOutlierRejection || totalNumberOfObservations > static_cast< int >( numberEstimatedParameters_ );
-        if( ( isIterationPreferred && !isBestIterationPreferred ) ||
-            ( isIterationPreferred == isBestIterationPreferred &&
-              ( selectionCostFunction < bestSelectionCostFunction || !( bestSelectionCostFunction == bestSelectionCostFunction ) ) ) )
+        // If current iteration is better than previous one, update 'best' data.
+        if( selectionCostFunction < bestSelectionCostFunction || !( bestSelectionCostFunction == bestSelectionCostFunction ) )
         {
-            isBestIterationPreferred = isIterationPreferred;
             bestSelectionCostFunction = selectionCostFunction;
             bestCostFunction = costFunction;
             if( applyOutlierRejection )

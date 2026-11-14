@@ -2642,13 +2642,7 @@ observations.
 
 In each of these sets, the reference point of the link end of type ``link_end_type`` is set to
 ``reference_point_name``, if this link end is on the body ``body_name``. Only the link definition stored in the
-dataset is changed: the reference point must be created separately in the system of bodies (e.g. with
-:func:`~tudatpy.dynamics.environment_setup.add_ground_station` for a ground station, or with
-:meth:`~tudatpy.dynamics.environment.VehicleSystems.set_reference_point` for a spacecraft antenna).
-The dependent variables of these sets are defined for the new link ends. Their stored values and the residuals are
-not changed: they are recomputed for the new link ends by
-:func:`~tudatpy.estimation.observations.compute_residuals_and_dependent_variables` (or, for the residuals, by an
-estimation).
+dataset is changed: the reference point (e.g. a ground station) must be created separately in the system of bodies.
 
 Parameters
 ----------
@@ -2659,9 +2653,8 @@ reference_point_name : str
 link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType
     Role of the link end in the observations (e.g. receiver or transmitter).
 condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
-    Condition selecting the observations; the link end is changed in each set that contains selected observations. An
-    error is raised if the condition selects only part of a set in which the link end would be changed, since the
-    reference point can only be changed for complete sets.
+    Condition selecting the observations; the link end is changed in each set that contains at least one selected
+    observation.
 )doc" )
                 .def(
                         "link_definitions_for_observable",

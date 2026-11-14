@@ -227,6 +227,22 @@ def _link_end(link_end_type):
     )
 
 
+class _LinkEndSelector(_Selector):
+    """Selector of a link end of a given type: ``observation_query.link_end(link_end_type) == link_end_id``."""
+
+    def __call__(self, link_end_type):
+        return _link_end(link_end_type)
+
+    def __eq__(self, other):
+        raise TypeError(
+            "observation_query.link_end must first be called with a link end type, e.g. "
+            "observation_query.link_end(links.reflector1) == ('Moon', 'Reflector')."
+        )
+
+    __ne__ = __eq__
+    __hash__ = object.__hash__
+
+
 class _ObservationQuery(_Selector):
     """Object used to create conditions that select observations in an
     :class:`~tudatpy.estimation.observations.ObservationDataset`.
@@ -288,7 +304,7 @@ class _ObservationQuery(_Selector):
     set_id = _ComparableSelector(ObservationSelectionCondition.set_id)
     observation_id = _ObservationIdSelector()
     link_definition = _ComparableSelector(ObservationSelectionCondition.link_definition)
-    link_end = staticmethod(_link_end)
+    link_end = _LinkEndSelector()
     receiver = _link_end(links.receiver)
     transmitter = _link_end(links.transmitter)
     retransmitter = _link_end(links.retransmitter)

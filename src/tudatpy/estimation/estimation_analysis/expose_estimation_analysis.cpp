@@ -636,8 +636,11 @@ void expose_estimation_analysis( py::module& m )
              outlier rejection is performed when this input is left empty. After the estimation, the observations that
              are rejected in the ``observation_dataset`` are those that were not used in the best iteration, to which the
              estimation output belongs. Since the number of observations that is used can differ per iteration, the best
-             iteration is selected using the cost function per used observation when outlier rejection is applied, preferring
-             iterations that used more observations than there are estimated parameters.
+             iteration is selected using the cost function per used observation when outlier rejection is applied. If the
+             rejected observations still change between the last iterations, the best iteration may be one in which valid
+             observations were rejected (since this lowers its cost): check
+             :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.active_flags_per_iteration`, and use more
+             iterations if needed.
 
          Returns
          -------
@@ -666,7 +669,9 @@ void expose_estimation_analysis( py::module& m )
          matrix of this iteration (as in
          :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.inverse_covariance`).
          It can be used to monitor a long estimation while it runs. The observation dataset must not be modified in the
-         callback (e.g. by rejecting observations or changing weights). Default is ``None`` (no callback).
+         callback (e.g. by rejecting observations or changing weights); its residuals are only updated after the callback
+         (for the best iteration). The observation set of each residual is given by
+         ``dataset.get_set_ids(observation_query.active, ordering="estimation")``. Default is ``None`` (no callback).
 
          :type: Callable[[int, numpy.ndarray, numpy.ndarray], None]
       )doc" )

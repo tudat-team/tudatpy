@@ -497,6 +497,12 @@ def test_time_and_limit_inputs(sample_dataset):
     ]
     with pytest.raises(ValueError, match="NaN"):
         observation_query.residual.abs_greater_than(np.nan)
+    # The link end type must be given before comparing to a link end
+    with pytest.raises(TypeError, match="link end type"):
+        observation_query.link_end == ("Earth", "")
+    assert sample_dataset.get_observation_ids(
+        observation_query.link_end(links.receiver) == ("Earth", "")
+    ) == sample_dataset.get_observation_ids(observation_query.receiver == ("Earth", ""))
     assert sample_dataset.get_observation_ids(
         observation_query.residual.abs_greater_than(np.float32(1.0))
         & (observation_query.observable_type == model_settings.one_way_range_type)

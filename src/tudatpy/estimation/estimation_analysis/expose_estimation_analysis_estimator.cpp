@@ -183,7 +183,7 @@ void expose_estimation_analysis_estimator( py::module& m )
          equation is unchanged. With outlier rejection (see
          :attr:`~tudatpy.estimation.estimation_analysis.EstimationInput.outlier_rejection_settings`), the number of
          observations used can differ per iteration, and the best iteration is selected using the cost per used
-         observation, preferring iterations that used more observations than there are estimated parameters.
+         observation.
 
          The results of the estimation are stored in an :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` object
          (which contains the results from the iteration with the lowest cost defined above), with

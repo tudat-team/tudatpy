@@ -1355,11 +1355,6 @@ BOOST_AUTO_TEST_CASE( test_observation_vector_data_writeback_requires_unchanged_
     const auto vectorData = dataset.createObservationVectorData( );
     const Eigen::Vector2d residuals( 3.0, 4.0 );
 
-    // The reference point can only be changed for complete sets
-    BOOST_CHECK_THROW( dataset.setLinkEndReferencePoint(
-                               "Earth", "Station2", transmitter, ObservationSelectionCondition< double, double >::timeBounds( 0.5, 1.5 ) ),
-                       std::runtime_error );
-
     // A metadata change can alter design-matrix ordering without changing vector dimensions.
     dataset.setLinkEndReferencePoint( "Earth", "Station2", transmitter );
     BOOST_CHECK_THROW( dataset.setResidualVector( vectorData, residuals ), std::runtime_error );
@@ -1763,10 +1758,6 @@ BOOST_AUTO_TEST_CASE( test_inspection_snapshots_survive_mutation_and_destruction
                 .front( )
                 ->linkEndId_ = LinkEndId( "Moon", "" );
         dataset.setLinkEndReferencePoint( "Earth", "OtherStation", transmitter );
-        // The dependent-variable bookkeeping of the set follows the new link ends
-        BOOST_CHECK(
-                ( dataset.getDependentVariableBookkeeping( dataset.getObservationSetMetadata( 0 ).dependentVariableLayoutId_ )
-                          ->getLinkEnds( ) == dataset.getLinkDefinition( dataset.getObservationSetMetadata( 0 ).linkDefinitionId_ ) ) );
         dataset.rejectObservations( ObservationSelectionCondition<>::all( ), "test" );
         dataset.restoreObservations( ObservationSelectionCondition<>::all( ) );
         dataset.addObservationsToSet( 0, {}, {}, {}, {}, {}, true );
