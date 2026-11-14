@@ -33,7 +33,7 @@ observation_models::ObservableType getObservableTypeFromTrackingDataString( cons
     }
     catch( const std::exception& e )
     {
-        throw std::runtime_error( "Error when creating ObservationCollection from TrackingData: observable type '" + observableTypeString +
+        throw std::runtime_error( "Error when creating observations from TrackingData: observable type '" + observableTypeString +
                                   "' is not recognised. Underlying error: " + e.what( ) );
     }
 }
@@ -61,15 +61,14 @@ void checkTrackingDataLinkEnds( const observation_models::ObservableType observa
     // Check that link ends are provided
     if( linkEnds.empty( ) )
     {
-        throw std::runtime_error(
-                "Error when creating ObservationCollection from TrackingData object: no link ends provided for observable " +
-                observation_models::getObservableName( observableType ) + "." );
+        throw std::runtime_error( "Error when creating observations from TrackingData object: no link ends provided for observable " +
+                                  observation_models::getObservableName( observableType ) + "." );
     }
 
     // Check that the reference link end is defined
     if( linkEnds.count( referenceLinkEnd ) == 0 )
     {
-        throw std::runtime_error( "Error when creating ObservationCollection from TrackingData object: the reference link end " +
+        throw std::runtime_error( "Error when creating observations from TrackingData object: the reference link end " +
                                   observation_models::getLinkEndTypeString( referenceLinkEnd ) + " is not defined." );
     }
 
@@ -403,7 +402,10 @@ void setTranslationalStateSupplementaryDataInBodies(
             utilities::castMatrixMap< double, double, Time, double, 6, 1 >( stateHistory, timeStateHistory );
             bodies.at( bodyName )
                     ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< double, Time > >(
-                            interpolators::createOneDimensionalInterpolator( timeStateHistory, interpolators::linearInterpolation( ) ),
+                            interpolators::createOneDimensionalInterpolator(
+                                    timeStateHistory,
+                                    interpolators::linearInterpolation( interpolators::huntingAlgorithm,
+                                                                        interpolators::extrapolate_at_boundary ) ),
                             frameOrigin,
                             frameOrientation ) );
         }

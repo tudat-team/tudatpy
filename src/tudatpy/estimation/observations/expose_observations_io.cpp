@@ -23,6 +23,7 @@
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 namespace tba = tudat::basic_astrodynamics;
 namespace tom = tudat::observation_models;
@@ -470,6 +471,84 @@ void expose_observations_io_bindings( py::module& m )
         -------
         tudatpy.estimation.observations.ObservationCollection
             Observation collection.
+        )doc" );
+
+    m.def( "create_compressed_doppler_dataset",
+           &tom::createCompressedDopplerDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_dataset" ),
+           py::arg( "compression_ratio" ),
+           py::arg( "minimum_number_of_observations" ) = 10,
+           py::arg( "max_arc_gap" ) = 300.0,
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
+           R"doc(
+        Create a compressed Doppler observation dataset.
+
+        This function takes the ``dsn_n_way_averaged_doppler`` observation sets of a dataset, splits them into arcs, and
+        compresses each arc by averaging blocks of ``compression_ratio`` consecutive observations. Arcs with fewer than
+        ``minimum_number_of_observations`` observations are not included in the compressed dataset. Observation sets of other
+        observable types (including other Doppler observables) are copied without modification.
+
+        Each compressed arc becomes a separate observation set (so the set ids differ from those of the original dataset).
+        Within an arc, only consecutive observations at the count-time cadence are averaged: a gap (also one left by a
+        rejected observation) starts a new block, and observations that do not fill a complete block are discarded.
+        Rejected observations are not used, and are not copied. The weights of the compressed observations are equal to 1
+        and their residuals are zero, so the weights should be set after the compression.
+
+        Parameters
+        ----------
+        original_observation_dataset : tudatpy.estimation.observations.ObservationDataset
+            The original observation dataset containing Doppler data.
+        compression_ratio : int
+            The number of observations to average into a single compressed observation.
+        minimum_number_of_observations : int, optional
+            The minimum number of observations required in an arc to be considered for compression, by default 10.
+        max_arc_gap : float, optional
+            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+        earth_fixed_ground_station_positions : dict[str, numpy.ndarray[numpy.float64[3, 1]]], optional
+            Approximate Earth-fixed positions (in meters) of the ground stations, used for the time scale conversions of the
+            compressed observation times. By default, the positions given by
+            :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` are used.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationDataset
+            A new observation dataset with compressed Doppler data.
+        )doc" );
+
+    m.def( "create_count_time_compressed_doppler_dataset",
+           &tom::createCountTimeCompressedDopplerDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_dataset" ),
+           py::arg( "bodies" ),
+           py::arg( "target_count_time" ),
+           py::arg( "minimum_number_of_observations" ) = 10,
+           py::arg( "max_arc_gap" ) = 300.0,
+           R"doc(
+        Create a Doppler observation dataset compressed to a target count time.
+
+        Same as :func:`create_compressed_doppler_dataset`, but with the number of observations to average determined
+        separately for each observation set, from its count time and the ``target_count_time``. The ground station
+        positions used for the time scale conversions are taken from the ground stations on Earth in ``bodies``.
+
+        Parameters
+        ----------
+        original_observation_dataset : tudatpy.estimation.observations.ObservationDataset
+            The original observation dataset containing Doppler data.
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
+            System of bodies, containing the Earth with the ground stations of the Doppler observations.
+        target_count_time : float
+            Count time (in seconds) of the compressed observations, which must be an integer multiple of the count time of each
+            observation set.
+        minimum_number_of_observations : int, optional
+            The minimum number of observations required in an arc to be considered for compression, by default 10.
+        max_arc_gap : float, optional
+            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationDataset
+            A new observation dataset with compressed Doppler data.
         )doc" );
 }
 

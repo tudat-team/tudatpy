@@ -133,6 +133,9 @@ int convertBodyNameToNaifId( const std::string& bodyName );
 //! Convert a NAIF identification number to its body name.
 std::string convertNaifIdToBodyName( int bodyNaifId );
 
+//! Return the original seven-digit SPICE asteroid identifier, 2000000 + number.
+std::string getAsteroidSpiceId( const int asteroidNumber );
+
 //! @get_docstring(check_body_property_in_kernel_pool)
 bool checkBodyPropertyInKernelPool( const std::string& bodyName, const std::string& bodyProperty );
 

@@ -11,8 +11,8 @@ objects, optionally with
 containing auxiliary information such as station frequency ramps or camera
 settings, as well as identifiers for passive radar reflectors. The tracking
 data can then be converted to an
-:class:`~tudatpy.estimation.observations.ObservationCollection` with
-:func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data`.
+:class:`~tudatpy.estimation.observations.ObservationDataset` with
+:func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
 Supplementary data that updates bodies, ground stations, or related environment
 objects is applied with
 :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
@@ -28,6 +28,7 @@ For more information on the tracking data architecture, see the `user guide <htt
    tracking_data/ades
    tracking_data/fdets
    tracking_data/generic_text_file
+   tracking_data/gaia
    tracking_data/ifms
    tracking_data/jpl_radar
    tracking_data/landmarks
@@ -41,6 +42,29 @@ For more information on the tracking data architecture, see the `user guide <htt
 .. automodule:: tudatpy.data_input.tracking_data
    :members:
 
+User-defined numerical metadata
+-------------------------------
+
+:meth:`~tudatpy.data_input.tracking_data.TrackingData.add_numerical_observation_metadata`
+stores a user-defined numerical value for each observation, under a given name.
+These values are not used by the observation models, and are transferred to the
+:class:`~tudatpy.estimation.observations.ObservationDataset` by
+:func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
+For instance, the Gaia reader stores the scan angle (in rad) of each observation
+under ``"along_scan_angle"``. The scan angles of the observations selected by a
+``condition`` are retrieved with::
+
+    observation_ids = dataset.get_observation_ids(condition, ordering="estimation")
+    scan_angles = dataset.get_numerical_observation_metadata("along_scan_angle", observation_ids)
+
+An error is raised if no value is stored for one of the selected observations, so
+the condition should select only Gaia observations.
+
+Tracking epoch bounds
+---------------------
+
+.. autofunction:: tudatpy.data_input.tracking_data.get_tracking_data_epoch_bounds
+
 Tracking data containers
 ------------------------
 .. currentmodule:: tudatpy.data_input.tracking_data
@@ -53,9 +77,17 @@ the same source that must be applied to the simulation environment.
 .. autosummary::
 
    TrackingData
+   ObservationWeightSettings
+   AngularObservationCorrectionSettings
    TrackingSupplementaryData
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingData
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ObservationWeightSettings
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingSupplementaryData

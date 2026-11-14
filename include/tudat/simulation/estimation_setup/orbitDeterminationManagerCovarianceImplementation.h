@@ -38,8 +38,21 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                 "Error when computing covariance, linear parameter constraints cannot be combined with consider parameters" );
     }
 
+    const auto observationDataset = estimationInput->getObservationDataset( );
+    const observation_models::ObservationVectorData< ObservationScalarType, TimeType > weightData =
+            observationDataset->createObservationVectorData( );
+
     // Get total number of observations
-    int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+    const int totalNumberOfObservations = static_cast< int >( weightData.getObservationVector( ).size( ) );
+    if( totalNumberOfObservations == 0 )
+    {
+        throw std::runtime_error( "Cannot run estimation or covariance analysis without active observations." );
+    }
+    Eigen::VectorXd weightsMatrixDiagonal;
+    Eigen::SparseMatrix< double > weightsMatrix;
+    bool hasOffDiagonalWeights = false;
+    retrieveObservationWeights< ObservationScalarType, TimeType >(
+            weightData, weightsMatrixDiagonal, weightsMatrix, hasOffDiagonalWeights );
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
         estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
@@ -56,8 +69,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     bool exceptionDuringPropagation = false;
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-            designMatricesAndResiduals =
-                    performPreEstimationSteps( estimationInput, parameterValues, false, 0, exceptionDuringPropagation, simulationResults );
+            designMatricesAndResiduals = performPreEstimationSteps( estimationInput,
+                                                                    observationDataset,
+                                                                    parameterValues,
+                                                                    weightData,
+                                                                    false,
+                                                                    0,
+                                                                    exceptionDuringPropagation,
+                                                                    simulationResults );
     Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
     Eigen::MatrixXd designMatrixConsiderParameters;
     designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
@@ -88,13 +107,27 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     normalizeLinearConstraints( constraintStateMultiplier, constraintRightHandSide, normalizationTerms );
 
     // Compute inverse of updated covariance
-    Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
-            designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ ),
-            estimationInput->getWeightsMatrixDiagonals( ),
-            normalizedInverseAprioriCovarianceMatrix,
-            constraintStateMultiplier,
-            constraintRightHandSide,
-            estimationInput->getLimitConditionNumberForWarning( ) );
+    Eigen::MatrixXd inverseNormalizedCovariance;
+    if( hasOffDiagonalWeights )
+    {
+        inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
+                designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ ),
+                weightsMatrix,
+                normalizedInverseAprioriCovarianceMatrix,
+                constraintStateMultiplier,
+                constraintRightHandSide,
+                estimationInput->getLimitConditionNumberForWarning( ) );
+    }
+    else
+    {
+        inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
+                designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ ),
+                weightsMatrixDiagonal,
+                normalizedInverseAprioriCovarianceMatrix,
+                constraintStateMultiplier,
+                constraintRightHandSide,
+                estimationInput->getLimitConditionNumberForWarning( ) );
+    }
 
     const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
     InterArcConstraintContribution interArcContribution;
@@ -121,12 +154,24 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     Eigen::MatrixXd covarianceContributionConsiderParameters;
     if( considerParametersIncluded_ )
     {
-        covarianceContributionConsiderParameters =
-                linear_algebra::calculateConsiderParametersCovarianceContribution( inverseNormalizedCovariance.inverse( ),
-                                                                                   designMatrixEstimatedParameters,
-                                                                                   estimationInput->getWeightsMatrixDiagonals( ),
-                                                                                   designMatrixConsiderParameters,
-                                                                                   normalizedConsiderCovariance );
+        if( hasOffDiagonalWeights )
+        {
+            covarianceContributionConsiderParameters =
+                    linear_algebra::calculateConsiderParametersCovarianceContribution( inverseNormalizedCovariance.inverse( ),
+                                                                                       designMatrixEstimatedParameters,
+                                                                                       weightsMatrix,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderCovariance );
+        }
+        else
+        {
+            covarianceContributionConsiderParameters =
+                    linear_algebra::calculateConsiderParametersCovarianceContribution( inverseNormalizedCovariance.inverse( ),
+                                                                                       designMatrixEstimatedParameters,
+                                                                                       weightsMatrixDiagonal,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderCovariance );
+        }
     }
     else
     {
@@ -137,7 +182,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput =
             std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
                     estimationInput->getSaveDesignMatrix( ) ? designMatrixEstimatedParameters : Eigen::MatrixXd::Zero( 0, 0 ),
-                    estimationInput->getWeightsMatrixDiagonals( ),
+                    weightsMatrixDiagonal,
                     normalizationTerms,
                     inverseNormalizedCovariance,
                     estimationInput->getSaveDesignMatrix( ) ? designMatrixConsiderParameters : Eigen::MatrixXd::Zero( 0, 0 ),
@@ -146,7 +191,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                     estimationInput->getConsiderCovariance( ),
                     exceptionDuringPropagation,
                     interArcContribution.totalConstraintCost,
-                    interArcContribution.perPairDiscrepancies );
+                    interArcContribution.perPairDiscrepancies,
+                    hasOffDiagonalWeights ? weightsMatrix : Eigen::SparseMatrix< double >( ) );
 
     return estimationOutput;
 }

@@ -366,7 +366,8 @@ void setAdesWeights( const std::shared_ptr< TrackingData< ObservationScalarType,
         observationWeights.push_back( weight / static_cast< double >( observationsPerLocalNight.at( i ) ) );
     }
 
-    trackingData->setObservationWeights( observationWeights );
+    trackingData->setObservationWeightSettings(
+            observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
 }
 
 }  // namespace data

@@ -35,6 +35,7 @@
 #include "tudat/simulation/estimation_setup/trackingDataWeighting.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationCollectionConversion.h"
 
 namespace tudat
 {
@@ -66,7 +67,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     // Parse and add ancillary settings of type scalar doubles
     for( auto& it : trackingData->getAncillarySettingsDouble( ) )
     {
-        if( shouldSkipObservationCollectionAncillarySetting( it.first ) )
+        if( trackingData->isObservationMetadata( it.first ) || shouldSkipObservationCollectionAncillarySetting( it.first ) )
         {
             continue;
         }
@@ -76,7 +77,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     // Parse and add ancillary settings of type double vectors
     for( auto& it : trackingData->getAncillarySettingsDoubleVector( ) )
     {
-        if( shouldSkipObservationCollectionAncillarySetting( it.first ) )
+        if( trackingData->isObservationMetadata( it.first ) || shouldSkipObservationCollectionAncillarySetting( it.first ) )
         {
             continue;
         }
@@ -116,7 +117,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     // Parse and add ancillary settings of type string (reception reference frequency band)
     for( auto& it : trackingData->getAncillarySettingsString( ) )
     {
-        if( shouldSkipObservationCollectionAncillarySetting( it.first ) )
+        if( trackingData->isObservationMetadata( it.first ) || shouldSkipObservationCollectionAncillarySetting( it.first ) )
         {
             continue;
         }
@@ -147,14 +148,22 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     return ancillarySettings;
 }
 
-// Create single observation set object from tracking data object
+//! Estimation-side evaluator; tracking data stores only plain correction settings.
+template< typename ObservationScalarType, typename TimeType >
+using TrackingDataCorrectionFunction = std::function< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >(
+        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > >&,
+        const simulation_setup::SystemOfBodies&,
+        const std::vector< TimeType >& ) >;
+
+//! Add the observations in one tracking-data object as one dataset set.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSetFromTrackingData(
-        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
-        const SystemOfBodies& bodies,
-        const bool applyCorrections = false )
+int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
+                                         const simulation_setup::SystemOfBodies& bodies,
+                                         ObservationDataset< ObservationScalarType, TimeType >& observationDataset,
+                                         const bool applyCorrections = false,
+                                         const TrackingDataCorrectionFunction< ObservationScalarType, TimeType >& correctionFunction = {} )
 {
     // Identify observable type from tracking data object
     observation_models::ObservableType observableType = getObservableTypeFromTrackingDataString( trackingData->getObservableType( ) );
@@ -231,46 +240,126 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
         epochsTdb = epochsInput;
     }
 
+    // Evaluate environment-dependent corrections at TDB reception times using the original observations.
+    if( applyCorrections && trackingData->hasObservationCorrectionSettings( ) )
+    {
+        if( !correctionFunction )
+        {
+            throw std::runtime_error( "Tracking data requests environment-dependent angular corrections, but no evaluator was supplied." );
+        }
+        const auto corrections = correctionFunction( trackingData, bodies, epochsTdb );
+        if( corrections.size( ) != observations.size( ) )
+        {
+            throw std::runtime_error( "Computed angular corrections have an inconsistent number of observations." );
+        }
+        for( unsigned int i = 0; i < observations.size( ); ++i )
+        {
+            if( corrections[ i ].size( ) != observations[ i ].size( ) )
+            {
+                throw std::runtime_error( "Computed angular corrections have an inconsistent observable size." );
+            }
+            observations[ i ] += corrections[ i ];
+            const ObservationScalarType pi = std::acos( static_cast< ObservationScalarType >( -1 ) );
+            observations[ i ]( 0 ) = std::fmod( observations[ i ]( 0 ) + pi, 2 * pi );
+            if( observations[ i ]( 0 ) < 0 )
+            {
+                observations[ i ]( 0 ) += 2 * pi;
+            }
+            observations[ i ]( 0 ) -= pi;
+        }
+    }
+
     // Convert ancillary settings information from tracking data object to ObservationAncillarySimulationSettings
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingData );
 
-    // Check and add weights to single observation set if stored in TrackingData object
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights = trackingData->getObservationWeights( );
-    if( !weights.empty( ) )
+    int setId;
+    if( trackingData->hasObservationWeightSettings( ) )
     {
-        // Check size consistency for weights
-        if( weights.size( ) != observations.size( ) )
-        {
-            throw std::runtime_error( "Error when creating single observation set from tracking data, the number of weights (" +
-                                      std::to_string( weights.size( ) ) + ") is inconsistent with the number of observations (" +
-                                      std::to_string( observations.size( ) ) + ")." );
-        }
-
-        for( unsigned int i = 0; i < weights.size( ); i++ )
-        {
-            // Check size consistency of each single weight entry
-            if( weights[ i ].size( ) != observations[ i ].size( ) )
-            {
-                throw std::runtime_error( "Error when creating single observation set from tracking data, size of single weight (" +
-                                          std::to_string( weights[ i ].size( ) ) + ") does not match the single observation size (" +
-                                          std::to_string( observations[ i ].size( ) ) + ")." );
-            }
-        }
+        setId = observationDataset.addObservationSetWithWeights(
+                observableType,
+                linkEnds,
+                observations,
+                epochsTdb,
+                referenceLinkEnd,
+                trackingData->getObservationWeightSettings( ),
+                std::vector< Eigen::VectorXd >( ),
+                nullptr,
+                ancillarySettings,
+                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                true );
+    }
+    else
+    {
+        setId = observationDataset.addObservationSet( observableType,
+                                                      linkEnds,
+                                                      observations,
+                                                      epochsTdb,
+                                                      referenceLinkEnd,
+                                                      std::vector< Eigen::VectorXd >( ),
+                                                      nullptr,
+                                                      ancillarySettings,
+                                                      std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
+                                                      std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                                      true );
     }
 
-    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
-            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
-                                                                                         linkEnds,
-                                                                                         observations,
-                                                                                         epochsTdb,
-                                                                                         referenceLinkEnd,
-                                                                                         std::vector< Eigen::VectorXd >( ),
-                                                                                         nullptr,
-                                                                                         ancillarySettings,
-                                                                                         weights );
+    // Match the stable time ordering used when the observation set was created.
+    if( !trackingData->getNumericalObservationMetadata( ).empty( ) )
+    {
+        std::vector< std::size_t > permutation( epochsTdb.size( ) );
+        for( std::size_t i = 0; i < permutation.size( ); ++i )
+        {
+            permutation[ i ] = i;
+        }
+        std::stable_sort( permutation.begin( ), permutation.end( ), [ &epochsTdb ]( std::size_t i, std::size_t j ) {
+            return epochsTdb[ i ] < epochsTdb[ j ];
+        } );
+        const auto& observationIds = observationDataset.getObservationIdsForSet( setId );
+        for( const auto& metadata : trackingData->getNumericalObservationMetadata( ) )
+        {
+            std::vector< double > values;
+            values.reserve( permutation.size( ) );
+            for( const auto index : permutation )
+            {
+                values.push_back( metadata.second.at( index ) );
+            }
+            observationDataset.addNumericalObservationMetadata( metadata.first, observationIds, values );
+        }
+    }
+    return setId;
+}
 
-    return observationSet;
+// Create single observation set object from tracking data object
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSetFromTrackingData(
+        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
+        const SystemOfBodies& bodies,
+        const bool applyCorrections = false )
+{
+    auto dataset = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
+    const int setId = addTrackingDataToObservationDataset( trackingData, bodies, *dataset, applyCorrections );
+    return createSingleObservationSet( dataset, setId );
+}
+
+//! Create a dataset from one or more generic tracking-data objects.
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createObservationDatasetFromTrackingData(
+        const std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > trackingDataList,
+        simulation_setup::SystemOfBodies& bodies,
+        const bool applyCorrections = false,
+        const TrackingDataCorrectionFunction< ObservationScalarType, TimeType >& correctionFunction = {} )
+{
+    auto observationDataset = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
+    for( const auto& trackingData : trackingDataList )
+    {
+        addTrackingDataToObservationDataset( trackingData, bodies, *observationDataset, applyCorrections, correctionFunction );
+    }
+    return observationDataset;
 }
 
 template< typename ObservationScalarType = double,
@@ -281,14 +370,8 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
         SystemOfBodies& bodies,
         const bool applyCorrections = false )
 {
-    // Create list of single observation sets
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets;
-    for( auto trackingData : trackingDataList )
-    {
-        // Convert single tracking data object to a single observation set
-        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies, applyCorrections ) );
-    }
-    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
+    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
+            createObservationDatasetFromTrackingData< ObservationScalarType, TimeType >( trackingDataList, bodies, applyCorrections ) );
 }
 
 template< typename EphemerisScalarType, typename EphemerisTimeType >
@@ -299,8 +382,9 @@ inline void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
     std::map< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 6, 1 > > castStateHistory;
     utilities::castMatrixMap< double, double, EphemerisTimeType, EphemerisScalarType, 6, 1 >( stateHistory, castStateHistory );
 
-    tabulatedEphemeris->resetInterpolator(
-            interpolators::createOneDimensionalInterpolator( castStateHistory, interpolators::linearInterpolation( ) ) );
+    tabulatedEphemeris->resetInterpolator( interpolators::createOneDimensionalInterpolator(
+            castStateHistory,
+            interpolators::linearInterpolation( interpolators::huntingAlgorithm, interpolators::extrapolate_at_boundary ) ) );
 }
 void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory( const std::map< double, Eigen::Vector6d >& stateHistory,
                                                                    const std::shared_ptr< ephemerides::Ephemeris > ephemeris,
