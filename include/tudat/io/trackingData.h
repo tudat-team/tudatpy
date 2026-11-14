@@ -12,6 +12,7 @@
 #define TUDAT_TRACKING_DATA_H
 
 #include <Eigen/Core>
+#include <cmath>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -342,7 +343,7 @@ public:
 
         const observation_models::ObservationWeightSettings diagonalWeights =
                 observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights );
-        checkAngularPositionWeights( diagonalWeights, numberOfObservations_ );
+        checkAngularPositionWeights( diagonalWeights );
 
         // Warn only after the complete replacement has passed validation. Rejected
         // replacements must leave the existing weights untouched.
@@ -378,8 +379,7 @@ public:
         }
         observationWeightSettings.validateDimensions( observationIndices.empty( ) ? numberOfObservations_ : observationIndices.size( ),
                                                       singleObservationSize_ );
-        checkAngularPositionWeights( observationWeightSettings,
-                                     observationIndices.empty( ) ? numberOfObservations_ : observationIndices.size( ) );
+        checkAngularPositionWeights( observationWeightSettings, observationIndices );
         weightSettings_->positionalWeights_ = std::make_shared< PositionalWeightSettings >( observationWeightSettings, observationIndices );
     }
 
@@ -424,9 +424,22 @@ public:
     //! dataset
     void setTimingUncertainties( const std::shared_ptr< TimingBasedUncertaintySettings > timingUncertainties )
     {
+        if( timingUncertainties == nullptr )
+        {
+            throw std::runtime_error( "Error when setting observation time uncertainties, no settings provided." );
+        }
         if( timingUncertainties->timeUncertainties_.size( ) != numberOfObservations_ )
         {
             throw std::runtime_error( "Error when setting observation time uncertainties, one entry per observation is required." );
+        }
+        for( const double timeUncertainty : timingUncertainties->timeUncertainties_ )
+        {
+            if( !std::isfinite( timeUncertainty ) || timeUncertainty < 0.0 )
+            {
+                throw std::runtime_error(
+                        "Error when setting observation time uncertainties, values must be finite and non-negative, found " +
+                        std::to_string( timeUncertainty ) + "." );
+            }
         }
         if( std::dynamic_pointer_cast< AstrometricTimeUncertaintySettings >( timingUncertainties ) != nullptr )
         {
@@ -457,6 +470,14 @@ public:
         if( timeBiases.size( ) != numberOfObservations_ )
         {
             throw std::runtime_error( "Error when setting observation time biases, one entry per observation is required." );
+        }
+        for( const double timeBias : timeBiases )
+        {
+            if( !std::isfinite( timeBias ) )
+            {
+                throw std::runtime_error( "Error when setting observation time biases, values must be finite, found " +
+                                          std::to_string( timeBias ) + "." );
+            }
         }
         checkAngularPositionObservable( "astrometric time biases" );
         correctionSettings_->timeBiases_ = std::make_shared< AstrometricTimeBiasSettings >( timeBiases );
@@ -500,7 +521,7 @@ public:
 
         checkAngularPositionWeights( observation_models::ObservationWeightSettings::diagonalPerObservation(
                                              std::vector< Eigen::VectorXd >( 1, observationWeight ) ),
-                                     1 );
+                                     std::vector< unsigned int >( 1, index ) );
 
         // Overwrites specific weight entry
         weightSettings_->positionalWeights_->weights_.diagonalWeights_.at( index ) = observationWeight;
@@ -678,12 +699,13 @@ private:
     //! Check that, for angular position observations, each observation has a weight for both right ascension and declination, or for
     //! neither of the two
     void checkAngularPositionWeights( const observation_models::ObservationWeightSettings& weightSettings,
-                                      const unsigned int numberOfWeights ) const
+                                      const std::vector< unsigned int >& observationIndices = std::vector< unsigned int >( ) ) const
     {
         if( observableType_ != "AngularPosition" || singleObservationSize_ != 2 )
         {
             return;
         }
+        const unsigned int numberOfWeights = observationIndices.empty( ) ? numberOfObservations_ : observationIndices.size( );
         for( unsigned int i = 0; i < numberOfWeights; ++i )
         {
             const Eigen::Vector2d weights =
@@ -692,7 +714,8 @@ private:
                     : Eigen::Vector2d( weightSettings.getObservationWeightBlock( i, 2 ).diagonal( ) );
             if( ( weights( 0 ) == 0.0 ) != ( weights( 1 ) == 0.0 ) )
             {
-                throw std::runtime_error( "Error when setting TrackingData weights, weight entry " + std::to_string( i ) +
+                throw std::runtime_error( "Error when setting TrackingData weights, observation " +
+                                          std::to_string( observationIndices.empty( ) ? i : observationIndices.at( i ) ) +
                                           " has a weight for only one of right ascension and declination." );
             }
         }

@@ -109,7 +109,7 @@ def test_mpc80_catalog_reaches_weights_and_corrections(
         path = tmp_path / "observations.txt"
         path.write_text(line + "\n")
         data, _ = read_80_column_data(
-            [str(path)], vfcc17_weights=True, add_star_catalog_corrections=True
+            [str(path)], add_weights=True, add_star_catalog_corrections=True
         )
     else:
         monkeypatch.setattr(

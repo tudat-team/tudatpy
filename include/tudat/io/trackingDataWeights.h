@@ -24,7 +24,6 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/basics/tudatTypeTraits.h"
-#include "tudat/io/trackingData.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
