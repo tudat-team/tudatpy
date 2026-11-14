@@ -41,7 +41,7 @@ def get_weights_VFCC17(
         (
             "There is no one-to-one equivalent in the new data_input workflow. "
             "The old function remains supported during the deprecation period. "
-            "In the new setup, request VFCC17 weighting with add_weights=True "
+            "In the new setup, request VFCC17 weighting with vfcc17_weights=True "
             "when creating optical TrackingData from MPC, 80-column, pandas, "
             "or astropy data; direct weight arrays and intermediate weighting "
             "tables are no longer exposed as a standalone public interface. "

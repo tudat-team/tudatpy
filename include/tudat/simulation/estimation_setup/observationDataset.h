@@ -121,7 +121,7 @@ public:
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType >& times,
             const LinkEndType referenceLinkEnd,
-            const ObservationWeightSettings& weightSettings,
+            const std::shared_ptr< ObservationWeightSettings >& weightSettings,
             const std::vector< Eigen::VectorXd >& dependentVariables = std::vector< Eigen::VectorXd >( ),
             const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping = nullptr,
             const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,

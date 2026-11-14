@@ -67,9 +67,9 @@ BOOST_AUTO_TEST_CASE( testConcatenatedWeightsForVectorObservables )
     std::vector< Eigen::VectorXd > weights( 2 );
     weights[ 0 ] = Eigen::Vector2d( 0.1, 0.2 );
     weights[ 1 ] = Eigen::Vector2d( 0.3, 0.4 );
-    trackingData.setObservationWeights( weights );
+    trackingData.getWeightSettings( )->setObservationWeights( weights );
 
-    const Eigen::VectorXd concatenatedWeights = trackingData.getObservationWeightsVector( );
+    const Eigen::VectorXd concatenatedWeights = trackingData.getWeightSettings( )->getObservationWeightsVector( );
 
     BOOST_REQUIRE_EQUAL( concatenatedWeights.rows( ), 4 );
     BOOST_CHECK_EQUAL( concatenatedWeights( 0 ), 0.1 );
@@ -84,21 +84,21 @@ BOOST_AUTO_TEST_CASE( testVectorObservableSizeValidation )
 
     std::vector< Eigen::VectorXd > wrongNumberOfWeights( 1 );
     wrongNumberOfWeights[ 0 ] = Eigen::Vector2d( 0.1, 0.2 );
-    BOOST_CHECK_THROW( trackingData.setObservationWeights( wrongNumberOfWeights ), std::runtime_error );
+    BOOST_CHECK_THROW( trackingData.getWeightSettings( )->setObservationWeights( wrongNumberOfWeights ), std::runtime_error );
 
     std::vector< Eigen::VectorXd > wrongSingleWeightSize( 2 );
     wrongSingleWeightSize[ 0 ] = Eigen::Vector3d( 0.1, 0.2, 0.3 );
     wrongSingleWeightSize[ 1 ] = Eigen::Vector3d( 0.4, 0.5, 0.6 );
-    BOOST_CHECK_THROW( trackingData.setObservationWeights( wrongSingleWeightSize ), std::runtime_error );
+    BOOST_CHECK_THROW( trackingData.getWeightSettings( )->setObservationWeights( wrongSingleWeightSize ), std::runtime_error );
 
     std::vector< Eigen::VectorXd > wrongNumberOfCorrections( 1 );
     wrongNumberOfCorrections[ 0 ] = Eigen::Vector2d( 0.1, 0.2 );
-    BOOST_CHECK_THROW( trackingData.setObservationCorrections( wrongNumberOfCorrections ), std::runtime_error );
+    BOOST_CHECK_THROW( trackingData.getCorrectionSettings( )->setObservationCorrections( wrongNumberOfCorrections ), std::runtime_error );
 
     std::vector< Eigen::VectorXd > wrongSingleCorrectionSize( 2 );
     wrongSingleCorrectionSize[ 0 ] = Eigen::Vector3d( 0.1, 0.2, 0.3 );
     wrongSingleCorrectionSize[ 1 ] = Eigen::Vector3d( 0.4, 0.5, 0.6 );
-    BOOST_CHECK_THROW( trackingData.setObservationCorrections( wrongSingleCorrectionSize ), std::runtime_error );
+    BOOST_CHECK_THROW( trackingData.getCorrectionSettings( )->setObservationCorrections( wrongSingleCorrectionSize ), std::runtime_error );
 }
 
 // Start with valid weights and corrections, reject an incorrectly sized replacement,
@@ -107,19 +107,19 @@ BOOST_AUTO_TEST_CASE( testRejectedReplacementPreservesWeightsAndCorrections )
 {
     auto trackingData = createVectorTrackingData( );
     const std::vector< Eigen::VectorXd > original = { Eigen::Vector2d( 3.0, 4.0 ), Eigen::Vector2d( 5.0, 6.0 ) };
-    trackingData.setObservationWeights( original );
-    trackingData.setObservationCorrections( original );
+    trackingData.getWeightSettings( )->setObservationWeights( original );
+    trackingData.getCorrectionSettings( )->setObservationCorrections( original );
     const std::vector< Eigen::VectorXd > invalid = { Eigen::Vector2d( 7.0, 8.0 ) };
 
     // Both rejected changes must leave the two previously stored rows untouched.
-    BOOST_CHECK_THROW( trackingData.setObservationWeights( invalid ), std::runtime_error );
-    BOOST_CHECK_THROW( trackingData.setObservationCorrections( invalid ), std::runtime_error );
-    BOOST_REQUIRE_EQUAL( trackingData.getObservationWeights( ).size( ), original.size( ) );
-    BOOST_REQUIRE_EQUAL( trackingData.getObservationCorrections( ).size( ), original.size( ) );
+    BOOST_CHECK_THROW( trackingData.getWeightSettings( )->setObservationWeights( invalid ), std::runtime_error );
+    BOOST_CHECK_THROW( trackingData.getCorrectionSettings( )->setObservationCorrections( invalid ), std::runtime_error );
+    BOOST_REQUIRE_EQUAL( trackingData.getWeightSettings( )->getObservationWeights( ).size( ), original.size( ) );
+    BOOST_REQUIRE_EQUAL( trackingData.getCorrectionSettings( )->getObservationCorrections( ).size( ), original.size( ) );
     for( unsigned int i = 0; i < original.size( ); ++i )
     {
-        BOOST_CHECK( trackingData.getObservationWeights( ).at( i ).isApprox( original.at( i ) ) );
-        BOOST_CHECK( trackingData.getObservationCorrections( ).at( i ).isApprox( original.at( i ) ) );
+        BOOST_CHECK( trackingData.getWeightSettings( )->getObservationWeights( ).at( i ).isApprox( original.at( i ) ) );
+        BOOST_CHECK( trackingData.getCorrectionSettings( )->getObservationCorrections( ).at( i ).isApprox( original.at( i ) ) );
     }
 }
 

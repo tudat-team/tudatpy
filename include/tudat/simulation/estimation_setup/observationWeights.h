@@ -324,83 +324,53 @@ private:
  * \param numberOfObservations Number of observation events in the set.
  * \param singleObservationSize Number of scalar components in each observation event. For example, this is two for
  * angular-position observations.
- * \param weightSettings Representation and numerical weight values to apply. For scalar_per_observation,
- * scalarWeights_ must contain numberOfObservations entries. For diagonal_per_observation, diagonalWeights_ must contain
- * numberOfObservations vectors of length singleObservationSize. For constant_block, weightBlock_ must be a
- * singleObservationSize-by-singleObservationSize matrix. For block_per_observation, weightBlocks_ must contain
- * numberOfObservations matrices of that size. For set_block, weightBlock_ must have
- * numberOfObservations * singleObservationSize rows and columns.
+ * \param weightSettings Weights to apply.
  * \return Validated weights ordered by observation event and then by scalar component within each event.
  */
 inline ObservationWeights createObservationWeightsForSet( const std::size_t numberOfObservations,
                                                           const unsigned int singleObservationSize,
-                                                          const ObservationWeightSettings& weightSettings )
+                                                          const std::shared_ptr< ObservationWeightSettings >& weightSettings )
 {
-    using WeightsBlockType = ObservationWeightSettings::WeightsBlockType;
     if( singleObservationSize == 0 ||
         numberOfObservations > std::numeric_limits< ObservationWeights::Index >::max( ) / singleObservationSize )
     {
         throw std::runtime_error( "Observation weight dimensions exceed scalar storage capacity." );
     }
-    weightSettings.validateDimensions( numberOfObservations, singleObservationSize );
+    if( weightSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating the weights of an observation set, no weight settings provided." );
+    }
+    weightSettings->validateDimensions( numberOfObservations, singleObservationSize );
 
     ObservationWeights result;
-    Eigen::VectorXd diagonal = Eigen::VectorXd::Ones( numberOfObservations * singleObservationSize );
-    switch( weightSettings.type_ )
+    if( std::shared_ptr< SetBlockWeightSettings > setLevelWeights = std::dynamic_pointer_cast< SetBlockWeightSettings >( weightSettings ) )
     {
-        case WeightsBlockType::constant_scalar:
-            ObservationWeights::validateDiagonal( Eigen::VectorXd::Constant( 1, weightSettings.scalarWeight_ ) );
-            diagonal.setConstant( weightSettings.scalarWeight_ );
-            break;
-        case WeightsBlockType::scalar_per_observation:
-            for( std::size_t i = 0; i < numberOfObservations; ++i )
-            {
-                diagonal.segment( i * singleObservationSize, singleObservationSize ).setConstant( weightSettings.scalarWeights_.at( i ) );
-            }
-            break;
-        case WeightsBlockType::diagonal_per_observation:
-            for( std::size_t i = 0; i < numberOfObservations; ++i )
-            {
-                const Eigen::VectorXd& observationDiagonal = weightSettings.diagonalWeights_.at( i );
-                ObservationWeights::validateDiagonal( observationDiagonal );
-                diagonal.segment( i * singleObservationSize, singleObservationSize ) = observationDiagonal;
-            }
-            break;
-        case WeightsBlockType::default_weights:
-        case WeightsBlockType::constant_block:
-        case WeightsBlockType::block_per_observation:
-        case WeightsBlockType::set_block:
-            break;
-        default:
-            throw std::runtime_error( "Unknown observation weight policy." );
-    }
-
-    result.appendDiagonal( diagonal );
-    if( weightSettings.type_ == WeightsBlockType::set_block )
-    {
+        result.appendDiagonal( Eigen::VectorXd::Ones( numberOfObservations * singleObservationSize ) );
         std::vector< ObservationWeights::Index > indices( numberOfObservations * singleObservationSize );
         std::iota( indices.begin( ), indices.end( ), 0 );
-        result.setBlock( indices, indices, weightSettings.weightBlock_ );
+        result.setBlock( indices, indices, setLevelWeights->getWeightMatrix( ) );
     }
-    else if( weightSettings.type_ == WeightsBlockType::constant_block || weightSettings.type_ == WeightsBlockType::block_per_observation )
+    else if( std::dynamic_pointer_cast< ConstantBlockWeightSettings >( weightSettings ) != nullptr ||
+             std::dynamic_pointer_cast< BlockPerObservationWeightSettings >( weightSettings ) != nullptr )
     {
+        result.appendDiagonal( Eigen::VectorXd::Ones( numberOfObservations * singleObservationSize ) );
         std::vector< ObservationWeights::Index > indices( singleObservationSize );
-        if( weightSettings.type_ == WeightsBlockType::constant_block )
-        {
-            // Validate a constant block even for an empty observation set.
-            ObservationWeights singleObservationWeights;
-            singleObservationWeights.appendDiagonal( Eigen::VectorXd::Ones( singleObservationSize ) );
-            std::iota( indices.begin( ), indices.end( ), 0 );
-            singleObservationWeights.setBlock( indices, indices, weightSettings.weightBlock_ );
-        }
         for( std::size_t i = 0; i < numberOfObservations; ++i )
         {
             std::iota( indices.begin( ), indices.end( ), i * singleObservationSize );
-            result.setBlock( indices,
-                             indices,
-                             weightSettings.type_ == WeightsBlockType::constant_block ? weightSettings.weightBlock_
-                                                                                      : weightSettings.weightBlocks_.at( i ) );
+            result.setBlock( indices, indices, weightSettings->getWeightBlock( i, singleObservationSize ) );
         }
+    }
+    else
+    {
+        // Settings with diagonal weights (constant scalar, scalar per observation or diagonal per observation)
+        Eigen::VectorXd diagonal( numberOfObservations * singleObservationSize );
+        for( std::size_t i = 0; i < numberOfObservations; ++i )
+        {
+            diagonal.segment( i * singleObservationSize, singleObservationSize ) =
+                    weightSettings->getWeightBlock( i, singleObservationSize ).diagonal( );
+        }
+        result.appendDiagonal( diagonal );
     }
     return result;
 }

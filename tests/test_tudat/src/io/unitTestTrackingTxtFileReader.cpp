@@ -666,7 +666,7 @@ BOOST_AUTO_TEST_CASE( testVectorWeightSetterShapeAndExceptionSafety )
 BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
 {
     auto corrected = angularTracking( );
-    corrected->setObservationCorrections( { Eigen::Vector2d( -0.1, -0.2 ) } );
+    corrected->getCorrectionSettings( )->setObservationCorrections( { Eigen::Vector2d( -0.1, -0.2 ) } );
     auto uncorrected = std::make_shared< data::TrackingData<> >( "OneWayRange",
                                                                  corrected->getLinkEnds( ),
                                                                  std::vector< Eigen::VectorXd >{ Eigen::VectorXd::Constant( 1, 1000.0 ) },

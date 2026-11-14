@@ -179,12 +179,11 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     // Get observations from tracking data
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = trackingData->getObservations( );
 
-    setObservationWeightsFromTrackingDataScheme< ObservationScalarType, TimeType >( trackingData, bodies, rawLinkEnds, referenceLinkEnd );
-
     // Apply corrections if requested (and if they exist)
-    if( applyCorrections && !trackingData->getObservationCorrections( ).empty( ) )
+    if( applyCorrections && !trackingData->getCorrectionSettings( )->getObservationCorrections( ).empty( ) )
     {
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections = trackingData->getObservationCorrections( );
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections =
+                trackingData->getCorrectionSettings( )->getObservationCorrections( );
 
         // Check size consistency
         if( corrections.size( ) != observations.size( ) )
@@ -241,7 +240,7 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     }
 
     // Evaluate environment-dependent corrections at TDB reception times using the original observations.
-    if( applyCorrections && trackingData->hasObservationCorrectionSettings( ) )
+    if( applyCorrections && trackingData->getCorrectionSettings( )->hasObservationCorrectionSettings( ) )
     {
         if( !correctionFunction )
         {
@@ -273,8 +272,12 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingData );
 
+    // Compute the weights from the weight settings of the tracking data
+    const std::shared_ptr< ObservationWeightSettings > observationWeightSettings =
+            computeObservationWeights( trackingData, bodies, rawLinkEnds, referenceLinkEnd );
+
     int setId;
-    if( trackingData->hasObservationWeightSettings( ) )
+    if( observationWeightSettings != nullptr )
     {
         setId = observationDataset.addObservationSetWithWeights(
                 observableType,
@@ -282,7 +285,7 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
                 observations,
                 epochsTdb,
                 referenceLinkEnd,
-                trackingData->getObservationWeightSettings( ),
+                observationWeightSettings,
                 std::vector< Eigen::VectorXd >( ),
                 nullptr,
                 ancillarySettings,

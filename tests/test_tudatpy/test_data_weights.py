@@ -96,7 +96,11 @@ def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_s
         add_weights=True,
     )
     assert supplementary_data == []
-    assert all(data.weighing_scheme == "VFCC17" for data in tracking_data)
+    # the VFCC17 weights use the observation technique and star catalog of each observation
+    assert all(
+        {"note2", "catalog"} <= set(data.get_ancillary_settings_string_vector())
+        for data in tracking_data
+    )
     observation_collection = create_observation_collection_from_tracking_data(tracking_data, bodies)
 
     # tudat's observationcollection sorts by observatory then time

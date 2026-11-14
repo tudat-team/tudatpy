@@ -24,7 +24,6 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/basics/tudatTypeTraits.h"
-#include "tudat/io/trackingData.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -277,97 +276,15 @@ std::vector< int > getNumberOfObservationsPerLocalNight( const std::vector< Time
     return observationsPerLocalNight;
 }
 
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > trackingData,
-                       const std::vector< Eigen::Vector3d >& stationPositions,
-                       const std::vector< std::map< std::string, std::string > >& stringMetadata )
+//! Function to compute the VFCC17 weight of a single observation, deweighted for the number of observations in the same local night
+template< typename TimeType = double >
+double getVfcc17Weight( const TimeType epoch,
+                        const std::map< std::string, std::string >& stringMetadata,
+                        const int observationsInLocalNight )
 {
-    if( stationPositions.size( ) != trackingData->getNumberOfObservations( ) )
-    {
-        throw std::runtime_error( "Error when setting VFCC17 weights, number of station positions (" +
-                                  std::to_string( stationPositions.size( ) ) + ") is inconsistent with number of observations (" +
-                                  std::to_string( trackingData->getNumberOfObservations( ) ) + ")." );
-    }
-    if( stringMetadata.size( ) != trackingData->getNumberOfObservations( ) )
-    {
-        throw std::runtime_error( "Error when setting VFCC17 weights, number of string metadata entries (" +
-                                  std::to_string( stringMetadata.size( ) ) + ") is inconsistent with number of observations (" +
-                                  std::to_string( trackingData->getNumberOfObservations( ) ) + ")." );
-    }
-
-    const std::vector< TimeType > epochs = trackingData->getObservationEpochs( );
-    const std::vector< int > observationsPerLocalNight = getNumberOfObservationsPerLocalNight( epochs, stationPositions );
-
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observationWeights;
-    observationWeights.reserve( trackingData->getNumberOfObservations( ) );
-    for( unsigned int i = 0; i < trackingData->getNumberOfObservations( ); ++i )
-    {
-        const double julianDate =
-                basic_astrodynamics::convertSecondsSinceEpochToJulianDay< double >( static_cast< double >( epochs.at( i ) ) );
-        const double preliminaryWeight = getVfcc17PreliminaryWeight( julianDate, stringMetadata.at( i ) );
-        const double multipleObservationDeweightingFactor =
-                std::max( static_cast< double >( observationsPerLocalNight.at( i ) ) / 4.0, 1.0 );
-        observationWeights.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Constant(
-                trackingData->getSingleObservationSize( ), preliminaryWeight / multipleObservationDeweightingFactor ) );
-    }
-
-    trackingData->setObservationWeights( observationWeights );
-}
-
-//! Function to set the observation weights of angular position TrackingData for the ADES and ADES_NIGHT weighing schemes. The weights are
-//! computed from the rmsRA and rmsDec uncertainties (in arcseconds, stored as string metadata); the RA uncertainty is divided by cos(Dec).
-//! For ADES_NIGHT, each weight is additionally divided by N, with N the number of observations in the same local night (identical
-//! night definition as used for the VFCC17 weighing scheme)
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setAdesWeights( const std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > trackingData,
-                     const std::vector< Eigen::Vector3d >& stationPositions,
-                     const std::vector< std::map< std::string, std::string > >& stringMetadata,
-                     const bool deweightPerLocalNight )
-{
-    if( stringMetadata.size( ) != trackingData->getNumberOfObservations( ) )
-    {
-        throw std::runtime_error( "Error when setting ADES weights, number of string metadata entries (" +
-                                  std::to_string( stringMetadata.size( ) ) + ") is inconsistent with number of observations (" +
-                                  std::to_string( trackingData->getNumberOfObservations( ) ) + ")." );
-    }
-    if( trackingData->getSingleObservationSize( ) != 2 )
-    {
-        throw std::runtime_error( "Error when setting ADES weights, only angular position (RA, Dec) observations are supported." );
-    }
-
-    const std::vector< TimeType > epochs = trackingData->getObservationEpochs( );
-    const std::vector< int > observationsPerLocalNight = deweightPerLocalNight
-            ? getNumberOfObservationsPerLocalNight( epochs, stationPositions )
-            : std::vector< int >( epochs.size( ), 1 );
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations = trackingData->getObservations( );
-
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observationWeights;
-    observationWeights.reserve( trackingData->getNumberOfObservations( ) );
-    for( unsigned int i = 0; i < trackingData->getNumberOfObservations( ); ++i )
-    {
-        const auto rmsRaIterator = stringMetadata.at( i ).find( "rmsRA" );
-        const auto rmsDecIterator = stringMetadata.at( i ).find( "rmsDec" );
-        if( rmsRaIterator == stringMetadata.at( i ).end( ) || rmsDecIterator == stringMetadata.at( i ).end( ) )
-        {
-            throw std::runtime_error( "Error when setting ADES weights, rmsRA and rmsDec metadata are required for every observation." );
-        }
-
-        const double declination = static_cast< double >( observations.at( i )( 1 ) );
-        const double raUncertainty =
-                unit_conversions::convertArcSecondsToRadians( std::stod( rmsRaIterator->second ) ) / std::cos( declination );
-        const double decUncertainty = unit_conversions::convertArcSecondsToRadians( std::stod( rmsDecIterator->second ) );
-
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > weight( 2 );
-        weight << 1.0 / ( raUncertainty * raUncertainty ), 1.0 / ( decUncertainty * decUncertainty );
-        observationWeights.push_back( weight / static_cast< double >( observationsPerLocalNight.at( i ) ) );
-    }
-
-    trackingData->setObservationWeightSettings(
-            observation_models::ObservationWeightSettings::diagonalPerObservation( observationWeights ) );
+    const double julianDate = basic_astrodynamics::convertSecondsSinceEpochToJulianDay< double >( static_cast< double >( epoch ) );
+    return getVfcc17PreliminaryWeight( julianDate, stringMetadata ) /
+            std::max( static_cast< double >( observationsInLocalNight ) / 4.0, 1.0 );
 }
 
 }  // namespace data
