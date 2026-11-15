@@ -117,7 +117,14 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
             observationDataset->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
     const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings =
             observationDataset->getAncillarySettings( metadata.ancillarySettingsId_ );
-    const std::vector< Eigen::VectorXd > dependentVariables = observationDataset->getDependentVariablesForSet( setId );
+    std::vector< Eigen::VectorXd > dependentVariables = observationDataset->getDependentVariablesForSet( setId );
+    // A set with dependent-variable bookkeeping without dependent variables (such as a set simulated without dependent variables)
+    // stores one empty dependent-variable vector per observation
+    if( dependentVariables.empty( ) && dependentVariableBookkeeping != nullptr &&
+        dependentVariableBookkeeping->getTotalDependentVariableSize( ) == 0 )
+    {
+        dependentVariables.resize( observationDataset->getObservationIdsForSet( setId ).size( ), Eigen::VectorXd::Zero( 0 ) );
+    }
     if( !dependentVariables.empty( ) && dependentVariableBookkeeping == nullptr )
     {
         throw std::runtime_error(

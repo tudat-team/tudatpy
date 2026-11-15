@@ -260,7 +260,7 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType >& times,
         const LinkEndType referenceLinkEnd,
-        const ObservationWeightSettings& weightSettings,
+        const std::shared_ptr< ObservationWeightSettings >& weightSettings,
         const std::vector< Eigen::VectorXd >& dependentVariables,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping,
         const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings,
@@ -300,19 +300,16 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
                                                   sortObservations );
     observationWeights_.copyBlock( weights, getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) );
     // Set the weight structure of the new set from the type of weight settings, which never correlate different sets.
-    using WeightsBlockType = ObservationWeightSettings::WeightsBlockType;
-    switch( weightSettings.type_ )
+    if( std::dynamic_pointer_cast< SetBlockWeightSettings >( weightSettings ) != nullptr )
     {
-        case WeightsBlockType::constant_block:
-        case WeightsBlockType::block_per_observation:
-            setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_observation;
-            break;
-        case WeightsBlockType::set_block:
-            setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_set;
-            break;
-        default:
-            break;  // All other settings supply diagonal weights; the metadata already have this default.
+        setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_set;
     }
+    else if( std::dynamic_pointer_cast< ConstantBlockWeightSettings >( weightSettings ) != nullptr ||
+             std::dynamic_pointer_cast< BlockPerObservationWeightSettings >( weightSettings ) != nullptr )
+    {
+        setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_observation;
+    }
+    // All other settings supply diagonal weights; the metadata already have this default.
     return setId;
 }
 

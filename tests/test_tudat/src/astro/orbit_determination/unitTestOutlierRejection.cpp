@@ -255,6 +255,8 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionSettings )
                                                        Eigen::MatrixXd::Zero( 0, 0 ),
                                                        Eigen::VectorXd::Zero( 0 ),
                                                        true,
+                                                       false,
+                                                       false,
                                                        settings );
     BOOST_CHECK( estimationInput.getOutlierRejectionSettings( ) == settings );
 

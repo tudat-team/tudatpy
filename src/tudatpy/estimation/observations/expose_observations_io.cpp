@@ -485,9 +485,16 @@ void expose_observations_io_bindings( py::module& m )
            R"doc(
         Create a compressed Doppler observation dataset.
 
-        This function takes a dataset of Doppler observations, splits them into arcs, and compresses each arc by averaging
-        observations. Arcs with fewer than ``minimum_number_of_observations`` observations are not included in the compressed
-        dataset. Observation sets of other observable types are copied without modification.
+        This function takes the ``dsn_n_way_averaged_doppler`` observation sets of a dataset, splits them into arcs, and
+        compresses each arc by averaging blocks of ``compression_ratio`` consecutive observations. Arcs with fewer than
+        ``minimum_number_of_observations`` observations are not included in the compressed dataset. Observation sets of other
+        observable types (including other Doppler observables) are copied without modification.
+
+        Each compressed arc becomes a separate observation set (so the set ids differ from those of the original dataset).
+        Within an arc, only consecutive observations at the count-time cadence are averaged: a gap (also one left by a
+        rejected observation) starts a new block, and observations that do not fill a complete block are discarded.
+        Rejected observations are not used, and are not copied. The weights of the compressed observations are equal to 1
+        and their residuals are zero, so the weights should be set after the compression.
 
         Parameters
         ----------

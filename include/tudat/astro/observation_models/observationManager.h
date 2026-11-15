@@ -271,7 +271,7 @@ public:
             }
 
             TimeType saveTime = times[ i ];
-            while( observations.count( saveTime ) != 0 )
+            while( observations.count( saveTime ) != 0 || partialsMatrices.count( saveTime ) != 0 )
             {
                 saveTime += std::numeric_limits< double >::epsilon( ) * 10.0 * times[ i ];
             }

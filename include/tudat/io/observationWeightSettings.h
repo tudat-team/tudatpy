@@ -12,7 +12,10 @@
 #define TUDAT_OBSERVATION_WEIGHT_SETTINGS_H
 
 #include <algorithm>
+#include <cmath>
+#include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include <Eigen/Core>
@@ -22,135 +25,314 @@ namespace tudat
 namespace observation_models
 {
 
-//! Settings describing observation weights before an ObservationDataset is created or extended.
-struct ObservationWeightSettings {
-    //! Supported ways to represent the observation weights.
-    enum class WeightsBlockType {
-        default_weights,           //!< Unit weight for every scalar observation component.
-        constant_scalar,           //!< One scalar weight used for every observation and component.
-        scalar_per_observation,    //!< One scalar weight per observation, repeated over its components.
-        diagonal_per_observation,  //!< A separate component-level diagonal for every observation.
-        constant_block,            //!< One component-level matrix used for every observation.
-        block_per_observation,     //!< A separate component-level matrix for every observation.
-        set_block                  //!< One matrix covering every component of every observation in the set.
-    };
-
-    //! Create settings that assign unit diagonal weights.
-    static ObservationWeightSettings defaultWeights( )
+//! Function to check that weight values are finite and non-negative
+inline void checkWeightValues( const Eigen::VectorXd& weights, const std::string& weightDescription )
+{
+    if( !weights.allFinite( ) || ( weights.array( ) < 0.0 ).any( ) )
     {
-        return ObservationWeightSettings( );
+        throw std::runtime_error( "Error in observation weight settings, " + weightDescription + " must be finite and non-negative." );
     }
+}
 
-    //! Create settings for one scalar weight repeated over all observations and components.
-    static ObservationWeightSettings constantScalar( const double weight )
+//! Function to check that a weight matrix is square, finite and symmetric, with non-negative diagonal
+inline void checkWeightMatrix( const Eigen::MatrixXd& weightMatrix, const std::string& weightDescription )
+{
+    if( weightMatrix.rows( ) != weightMatrix.cols( ) || !weightMatrix.allFinite( ) )
     {
-        ObservationWeightSettings settings;
-        settings.type_ = WeightsBlockType::constant_scalar;
-        settings.scalarWeight_ = weight;
-        return settings;
+        throw std::runtime_error( "Error in observation weight settings, " + weightDescription + " must be square and finite." );
     }
-
-    //! Create settings with one scalar weight per observation event.
-    static ObservationWeightSettings scalarPerObservation( const std::vector< double >& weights )
+    checkWeightValues( weightMatrix.diagonal( ), "the diagonal of " + weightDescription );
+    const double matrixScale = weightMatrix.size( ) > 0 ? weightMatrix.cwiseAbs( ).maxCoeff( ) : 0.0;
+    for( Eigen::Index i = 0; i < weightMatrix.rows( ); ++i )
     {
-        ObservationWeightSettings settings;
-        settings.type_ = WeightsBlockType::scalar_per_observation;
-        settings.scalarWeights_ = weights;
-        return settings;
-    }
-
-    //! Create settings with one component-level diagonal per observation event.
-    static ObservationWeightSettings diagonalPerObservation( const std::vector< Eigen::VectorXd >& weights )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = WeightsBlockType::diagonal_per_observation;
-        settings.diagonalWeights_ = weights;
-        return settings;
-    }
-
-    //! Create settings with one component block repeated for every observation event.
-    static ObservationWeightSettings constantBlock( const Eigen::MatrixXd& weightBlock )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = WeightsBlockType::constant_block;
-        settings.weightBlock_ = weightBlock;
-        return settings;
-    }
-
-    //! Create settings with a separate component block for every observation event.
-    static ObservationWeightSettings blockPerObservation( const std::vector< Eigen::MatrixXd >& weightBlocks )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = WeightsBlockType::block_per_observation;
-        settings.weightBlocks_ = weightBlocks;
-        return settings;
-    }
-
-    //! Create settings with one full principal block for the complete set.
-    static ObservationWeightSettings setBlock( const Eigen::MatrixXd& weightBlock )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = WeightsBlockType::set_block;
-        settings.weightBlock_ = weightBlock;
-        return settings;
-    }
-
-    //! Validate sizes before storing settings or constructing numerical weights.
-    void validateDimensions( const std::size_t numberOfObservations, const unsigned int singleObservationSize ) const
-    {
-        bool valid = false;
-        switch( type_ )
+        for( Eigen::Index j = i + 1; j < weightMatrix.cols( ); ++j )
         {
-            case WeightsBlockType::default_weights:
-            case WeightsBlockType::constant_scalar:
-                return;
-            case WeightsBlockType::scalar_per_observation:
-                valid = scalarWeights_.size( ) == numberOfObservations;
-                break;
-            case WeightsBlockType::diagonal_per_observation:
-                valid = diagonalWeights_.size( ) == numberOfObservations &&
-                        std::all_of( diagonalWeights_.begin( ),
-                                     diagonalWeights_.end( ),
-                                     [ singleObservationSize ]( const Eigen::VectorXd& diagonal ) {
-                                         return diagonal.size( ) == singleObservationSize;
-                                     } );
-                break;
-            case WeightsBlockType::constant_block:
-                valid = weightBlock_.rows( ) == singleObservationSize && weightBlock_.cols( ) == singleObservationSize;
-                break;
-            case WeightsBlockType::block_per_observation:
-                valid = weightBlocks_.size( ) == numberOfObservations &&
-                        std::all_of(
-                                weightBlocks_.begin( ), weightBlocks_.end( ), [ singleObservationSize ]( const Eigen::MatrixXd& block ) {
-                                    return block.rows( ) == singleObservationSize && block.cols( ) == singleObservationSize;
-                                } );
-                break;
-            case WeightsBlockType::set_block:
-                valid = weightBlock_.rows( ) == static_cast< Eigen::Index >( numberOfObservations * singleObservationSize ) &&
-                        weightBlock_.cols( ) == weightBlock_.rows( );
-                break;
-            default:
-                break;
+            if( std::abs( weightMatrix( i, j ) - weightMatrix( j, i ) ) > 1.0E-12 * matrixScale )
+            {
+                throw std::runtime_error( "Error in observation weight settings, " + weightDescription + " must be symmetric." );
+            }
         }
-        if( !valid )
+    }
+}
+
+//! Base class for the weights of the observations in a single observation set
+class ObservationWeightSettings
+{
+public:
+    virtual ~ObservationWeightSettings( ) {}
+
+    //! Check that the weights are consistent with the number of observations and the size of a single observation
+    virtual void validateDimensions( const std::size_t numberOfObservations, const unsigned int singleObservationSize ) const = 0;
+
+    //! Return the weight block of a single observation. Not available for set-level weights.
+    virtual Eigen::MatrixXd getWeightBlock( const std::size_t observationIndex, const unsigned int singleObservationSize ) const = 0;
+
+    //! Remove the weights of a single observation
+    virtual void removeObservation( const std::size_t observationIndex, const unsigned int singleObservationSize ) = 0;
+
+protected:
+    //! Function to throw an error for inconsistent dimensions
+    void throwDimensionError( ) const
+    {
+        throw std::runtime_error( "Error in observation weight settings, dimensions are inconsistent with the observations." );
+    }
+};
+
+//! One scalar weight for every observation and component
+class ConstantScalarWeightSettings : public ObservationWeightSettings
+{
+public:
+    ConstantScalarWeightSettings( const double weight ): weight_( weight )
+    {
+        checkWeightValues( Eigen::VectorXd::Constant( 1, weight ), "the weight" );
+    }
+
+    Eigen::MatrixXd getWeightBlock( const std::size_t, const unsigned int singleObservationSize ) const override
+    {
+        return weight_ * Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
+    }
+
+    void validateDimensions( const std::size_t, const unsigned int ) const override {}
+
+    void removeObservation( const std::size_t, const unsigned int ) override {}
+
+private:
+    double weight_;
+};
+
+//! One scalar weight per observation, for all its components
+class ScalarPerObservationWeightSettings : public ObservationWeightSettings
+{
+public:
+    ScalarPerObservationWeightSettings( const std::vector< double >& weights ): weights_( weights )
+    {
+        checkWeightValues( Eigen::Map< const Eigen::VectorXd >( weights.data( ), weights.size( ) ), "the weights" );
+    }
+
+    Eigen::MatrixXd getWeightBlock( const std::size_t observationIndex, const unsigned int singleObservationSize ) const override
+    {
+        return weights_.at( observationIndex ) * Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
+    }
+
+    void validateDimensions( const std::size_t numberOfObservations, const unsigned int ) const override
+    {
+        if( weights_.size( ) != numberOfObservations )
         {
-            throw std::runtime_error( "Observation weight settings have an invalid type or inconsistent dimensions." );
+            throwDimensionError( );
         }
     }
 
-    //! Selected weight representation.
-    WeightsBlockType type_ = WeightsBlockType::default_weights;
-    //! Scalar value used by the constant-scalar representation.
-    double scalarWeight_ = 1.0;
-    //! Per-observation values used by the scalar-per-observation representation.
-    std::vector< double > scalarWeights_;
-    //! Per-observation component diagonals used by the diagonal-per-observation representation.
-    std::vector< Eigen::VectorXd > diagonalWeights_;
-    //! Shared component block or complete set block, depending on type_.
+    void removeObservation( const std::size_t observationIndex, const unsigned int ) override
+    {
+        weights_.erase( weights_.begin( ) + observationIndex );
+    }
+
+private:
+    std::vector< double > weights_;
+};
+
+//! One diagonal (one weight per component) per observation
+class DiagonalPerObservationWeightSettings : public ObservationWeightSettings
+{
+public:
+    DiagonalPerObservationWeightSettings( const std::vector< Eigen::VectorXd >& weights ): weights_( weights )
+    {
+        for( const Eigen::VectorXd& weight : weights_ )
+        {
+            checkWeightValues( weight, "the weights" );
+            if( weight.size( ) != weights_.front( ).size( ) )
+            {
+                throw std::runtime_error( "Error in observation weight settings, all diagonals must have the same size." );
+            }
+        }
+    }
+
+    const std::vector< Eigen::VectorXd >& getWeights( ) const
+    {
+        return weights_;
+    }
+
+    //! Replace the diagonal weights of a single observation
+    void setWeight( const std::size_t observationIndex, const Eigen::VectorXd& weight )
+    {
+        checkWeightValues( weight, "the weights" );
+        if( weight.size( ) != weights_.at( observationIndex ).size( ) )
+        {
+            throwDimensionError( );
+        }
+        weights_.at( observationIndex ) = weight;
+    }
+
+    Eigen::MatrixXd getWeightBlock( const std::size_t observationIndex, const unsigned int ) const override
+    {
+        return weights_.at( observationIndex ).asDiagonal( );
+    }
+
+    void validateDimensions( const std::size_t numberOfObservations, const unsigned int singleObservationSize ) const override
+    {
+        if( weights_.size( ) != numberOfObservations ||
+            ( !weights_.empty( ) && weights_.front( ).size( ) != static_cast< Eigen::Index >( singleObservationSize ) ) )
+        {
+            throwDimensionError( );
+        }
+    }
+
+    void removeObservation( const std::size_t observationIndex, const unsigned int ) override
+    {
+        weights_.erase( weights_.begin( ) + observationIndex );
+    }
+
+private:
+    std::vector< Eigen::VectorXd > weights_;
+};
+
+//! One weight matrix (over the components of a single observation), the same for every observation
+class ConstantBlockWeightSettings : public ObservationWeightSettings
+{
+public:
+    ConstantBlockWeightSettings( const Eigen::MatrixXd& weightBlock ): weightBlock_( weightBlock )
+    {
+        checkWeightMatrix( weightBlock_, "the weight block" );
+    }
+
+    Eigen::MatrixXd getWeightBlock( const std::size_t, const unsigned int ) const override
+    {
+        return weightBlock_;
+    }
+
+    void validateDimensions( const std::size_t, const unsigned int singleObservationSize ) const override
+    {
+        if( weightBlock_.rows( ) != static_cast< Eigen::Index >( singleObservationSize ) )
+        {
+            throwDimensionError( );
+        }
+    }
+
+    void removeObservation( const std::size_t, const unsigned int ) override {}
+
+private:
     Eigen::MatrixXd weightBlock_;
-    //! Per-observation component blocks used by the block-per-observation representation.
+};
+
+//! One weight matrix (over the components of a single observation) per observation
+class BlockPerObservationWeightSettings : public ObservationWeightSettings
+{
+public:
+    BlockPerObservationWeightSettings( const std::vector< Eigen::MatrixXd >& weightBlocks ): weightBlocks_( weightBlocks )
+    {
+        for( const Eigen::MatrixXd& weightBlock : weightBlocks_ )
+        {
+            checkWeightMatrix( weightBlock, "the weight blocks" );
+            if( weightBlock.rows( ) != weightBlocks_.front( ).rows( ) )
+            {
+                throw std::runtime_error( "Error in observation weight settings, all weight blocks must have the same size." );
+            }
+        }
+    }
+
+    Eigen::MatrixXd getWeightBlock( const std::size_t observationIndex, const unsigned int ) const override
+    {
+        return weightBlocks_.at( observationIndex );
+    }
+
+    void validateDimensions( const std::size_t numberOfObservations, const unsigned int singleObservationSize ) const override
+    {
+        if( weightBlocks_.size( ) != numberOfObservations ||
+            ( !weightBlocks_.empty( ) && weightBlocks_.front( ).rows( ) != static_cast< Eigen::Index >( singleObservationSize ) ) )
+        {
+            throwDimensionError( );
+        }
+    }
+
+    void removeObservation( const std::size_t observationIndex, const unsigned int ) override
+    {
+        weightBlocks_.erase( weightBlocks_.begin( ) + observationIndex );
+    }
+
+private:
     std::vector< Eigen::MatrixXd > weightBlocks_;
 };
+
+//! One weight matrix for all components of all observations in the set (including correlations between observations)
+class SetBlockWeightSettings : public ObservationWeightSettings
+{
+public:
+    SetBlockWeightSettings( const Eigen::MatrixXd& weightMatrix ): weightMatrix_( weightMatrix )
+    {
+        checkWeightMatrix( weightMatrix_, "the weight matrix" );
+    }
+
+    const Eigen::MatrixXd& getWeightMatrix( ) const
+    {
+        return weightMatrix_;
+    }
+
+    Eigen::MatrixXd getWeightBlock( const std::size_t, const unsigned int ) const override
+    {
+        throw std::runtime_error( "Error, single-observation weight blocks cannot be retrieved for set-level observation weights." );
+    }
+
+    void validateDimensions( const std::size_t numberOfObservations, const unsigned int singleObservationSize ) const override
+    {
+        if( weightMatrix_.rows( ) != static_cast< Eigen::Index >( numberOfObservations * singleObservationSize ) )
+        {
+            throwDimensionError( );
+        }
+    }
+
+    //! Remove the rows and columns of a single observation (the matrix is ordered by observation and then by component)
+    void removeObservation( const std::size_t observationIndex, const unsigned int singleObservationSize ) override
+    {
+        const Eigen::Index removedStart = static_cast< Eigen::Index >( observationIndex * singleObservationSize );
+        const Eigen::Index remainingSize = weightMatrix_.rows( ) - singleObservationSize;
+        const Eigen::Index trailingSize = remainingSize - removedStart;
+        Eigen::MatrixXd reducedMatrix( remainingSize, remainingSize );
+        reducedMatrix.topLeftCorner( removedStart, removedStart ) = weightMatrix_.topLeftCorner( removedStart, removedStart );
+        reducedMatrix.topRightCorner( removedStart, trailingSize ) = weightMatrix_.topRightCorner( removedStart, trailingSize );
+        reducedMatrix.bottomLeftCorner( trailingSize, removedStart ) = weightMatrix_.bottomLeftCorner( trailingSize, removedStart );
+        reducedMatrix.bottomRightCorner( trailingSize, trailingSize ) = weightMatrix_.bottomRightCorner( trailingSize, trailingSize );
+        weightMatrix_ = reducedMatrix;
+    }
+
+private:
+    Eigen::MatrixXd weightMatrix_;
+};
+
+//! Create settings for one scalar weight for every observation and component
+inline std::shared_ptr< ObservationWeightSettings > constantScalarWeights( const double weight )
+{
+    return std::make_shared< ConstantScalarWeightSettings >( weight );
+}
+
+//! Create settings for one scalar weight per observation
+inline std::shared_ptr< ObservationWeightSettings > scalarPerObservationWeights( const std::vector< double >& weights )
+{
+    return std::make_shared< ScalarPerObservationWeightSettings >( weights );
+}
+
+//! Create settings for one diagonal (one weight per component) per observation
+inline std::shared_ptr< ObservationWeightSettings > diagonalPerObservationWeights( const std::vector< Eigen::VectorXd >& weights )
+{
+    return std::make_shared< DiagonalPerObservationWeightSettings >( weights );
+}
+
+//! Create settings for one weight matrix (over the components of a single observation), the same for every observation
+inline std::shared_ptr< ObservationWeightSettings > constantBlockWeights( const Eigen::MatrixXd& weightBlock )
+{
+    return std::make_shared< ConstantBlockWeightSettings >( weightBlock );
+}
+
+//! Create settings for one weight matrix (over the components of a single observation) per observation
+inline std::shared_ptr< ObservationWeightSettings > blockPerObservationWeights( const std::vector< Eigen::MatrixXd >& weightBlocks )
+{
+    return std::make_shared< BlockPerObservationWeightSettings >( weightBlocks );
+}
+
+//! Create settings for one weight matrix for all components of all observations in the set
+inline std::shared_ptr< ObservationWeightSettings > setBlockWeights( const Eigen::MatrixXd& weightMatrix )
+{
+    return std::make_shared< SetBlockWeightSettings >( weightMatrix );
+}
 
 }  // namespace observation_models
 }  // namespace tudat

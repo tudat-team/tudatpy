@@ -17,7 +17,10 @@ def read_ades_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str | None = "",
+    *,
+    ades_weights: bool = False,
+    vfcc17_weights: bool = False,
+    nightly_deweighting: bool = False,
 ):
     """Function to read an MPC ADES file into TrackingData objects.
 
@@ -41,19 +44,26 @@ def read_ades_data(
         Optional target name assigned to all observations, to be used if the
         file-provided object name is different from the Tudat body name.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
+        Deprecated, use ``vfcc17_weights`` instead.
     add_star_catalog_corrections : bool, default False
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
-        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
-        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
-        weights divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
-        weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+    ades_weights : bool, default False
+        Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds) are used as
+        weights (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
+        Requires rmsRA and rmsDec for every observation.
+    vfcc17_weights : bool, default False
+        Whether the observations get the weights of :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
+        Cannot be combined with ``ades_weights``.
+    nightly_deweighting : bool, default False
+        Whether the ADES weights are divided by the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for the weights of
+        :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
 
     Returns
     -------
@@ -77,7 +87,9 @@ def read_ades_data(
             add_weights=add_weights,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
-            weighing_scheme=weighing_scheme,
+            ades_weights=ades_weights,
+            vfcc17_weights=vfcc17_weights,
+            nightly_deweighting=nightly_deweighting,
         )
     radar_data = radar_data_from_table(parsed_table)
     if custom_name is not None:

@@ -398,3 +398,74 @@ def test_condition_contents_can_be_retrieved():
     assert range_condition.observable_type_value == model_settings.one_way_range_type
     assert time_condition.condition_type.name == "time_greater_equal"
     assert time_condition.time_value == 2.0
+
+
+def test_query_conveniences(sample_dataset):
+    """Check selection of all observations and by id, link ends given as tuples, dates as times, and dataset copies."""
+    import copy
+    import datetime
+
+    from tudatpy.astro.time_representation import DateTime
+
+    observation_query = observations.observation_query
+    dataset = sample_dataset
+
+    assert dataset.get_observation_ids(observation_query.all) == [0, 1, 2, 3, 4]
+    assert dataset.get_observation_ids(observation_query.observation_id == 3) == [3]
+    assert dataset.get_observation_ids(observation_query.observation_id.isin([4, 1, 99])) == [1, 4]
+    assert dataset.get_observation_ids(observation_query.receiver == ("Mars", "")) == [3, 4]
+
+    # Dates are interpreted as TDB epochs
+    epoch = DateTime.from_epoch(3.0)
+    assert dataset.get_observation_ids(observation_query.time >= epoch) == [2, 3, 4]
+    assert dataset.get_observation_ids(observation_query.time < epoch.to_python_datetime()) == [
+        0,
+        1,
+    ]
+    assert isinstance(epoch.to_python_datetime(), datetime.datetime)
+
+    duplicate = copy.copy(dataset)
+    duplicate.reject_observations(observation_query.set_id == 0)
+    assert dataset.get_observation_ids(observation_query.rejected) == []
+    assert duplicate.get_observation_ids(observation_query.rejected) == [0, 1, 2]
+
+    # Observations can be selected by rejection reason
+    dataset.reject_observations(observation_query.observation_id == 2, "second")
+    assert dataset.get_observation_ids(observation_query.rejection_reason == "second") == [2]
+
+
+def test_dataset_pickle_and_binary_file_round_trip(sample_dataset, tmp_path):
+    """Check that a dataset with residuals, correlated weights, rejections and metadata is stored and restored."""
+    import pickle
+
+    observation_query = observations.observation_query
+    dataset = sample_dataset
+    angular_ids = dataset.observation_ids_for_set(1)
+    dataset.set_weight_block(
+        row_observation_ids=[angular_ids[0]],
+        column_observation_ids=[angular_ids[1]],
+        weight_block=np.array([[0.2, 0.3], [0.4, 0.5]]),
+    )
+    dataset.reject_observations(observation_query.observation_id == 1, "test rejection")
+    dataset.add_numerical_observation_metadata("snr", [0, 2], [10.0, 20.0])
+
+    dataset.save_to_binary(str(tmp_path / "dataset.bin"))
+    for restored in (
+        pickle.loads(pickle.dumps(dataset)),
+        observations.ObservationDataset.load_from_binary(str(tmp_path / "dataset.bin")),
+    ):
+        assert restored.get_observation_ids() == dataset.get_observation_ids()
+        assert restored.get_observation_ids(observation_query.rejected) == [1]
+        assert restored.observation_row(1).rejection_reason == "test rejection"
+        assert restored.get_numerical_observation_metadata("snr", [0, 2]) == [10.0, 20.0]
+        for name in ("times", "observations", "residuals"):
+            values = [restored.get_data(fields=[name])[name], dataset.get_data(fields=[name])[name]]
+            restored_values, original_values = (
+                np.concatenate([np.atleast_1d(np.asarray(value, dtype=float)) for value in data])
+                for data in values
+            )
+            assert np.array_equal(restored_values, original_values)
+        assert np.array_equal(
+            _to_dense_matrix(restored.observation_vector_data(True).sparse_weight_matrix),
+            _to_dense_matrix(dataset.observation_vector_data(True).sparse_weight_matrix),
+        )

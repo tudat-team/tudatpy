@@ -16,6 +16,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include <Eigen/Core>
@@ -56,6 +57,7 @@ public:
         residual_absolute_value_greater_than,
         observation_absolute_value_greater_than,
         dependent_variable_greater_than,
+        dependent_variable_less_than,
         and_condition,
         or_condition,
         not_condition,
@@ -106,6 +108,7 @@ public:
             case Type::observation_absolute_value_greater_than:
                 return isAnyComponentGreaterThanLimit( dataset.getObservationValue( observationId ), true, "observation" );
             case Type::dependent_variable_greater_than:
+            case Type::dependent_variable_less_than:
                 return evaluateDependentVariable( dataset, observationId );
             case Type::and_condition:
                 return children_.at( 0 )( dataset, observationId ) && children_.at( 1 )( dataset, observationId );
@@ -120,9 +123,15 @@ public:
         }
     }
 
-    //! Combine two conditions with logical AND.
+    //! Combine two conditions with logical AND. A condition containing a value condition is evaluated after the other condition, so
+    //! that a limit with one value per component is only evaluated for the observations selected by the other condition (e.g. an
+    //! observable type).
     ObservationSelectionCondition operator&&( const ObservationSelectionCondition& other ) const
     {
+        if( containsValueCondition( ) && !other.containsValueCondition( ) )
+        {
+            return ObservationSelectionCondition( Type::and_condition, { other, *this } );
+        }
         return ObservationSelectionCondition( Type::and_condition, { *this, other } );
     }
 
@@ -289,6 +298,26 @@ public:
         return condition;
     }
 
+    //! Create a condition matching the observations with the given ids.
+    static ObservationSelectionCondition observationIds( const std::vector< unsigned int >& observationIds )
+    {
+        return ObservationSelectionCondition(
+                [ selectedIds = std::unordered_set< unsigned int >( observationIds.begin( ), observationIds.end( ) ) ](
+                        const ObservationDataset< ObservationScalarType, TimeType >&, const unsigned int observationId ) {
+                    return selectedIds.count( observationId ) > 0;
+                } );
+    }
+
+    //! Create a condition matching the observations with the given rejection reason (empty for observations that are not rejected
+    //! or were rejected without a reason).
+    static ObservationSelectionCondition rejectionReason( const std::string& reason )
+    {
+        return ObservationSelectionCondition(
+                [ reason ]( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) {
+                    return dataset.getObservationRow( observationId ).rejectionReason_ == reason;
+                } );
+    }
+
     //! Create a condition matching active observation rows.
     static ObservationSelectionCondition active( )
     {
@@ -336,11 +365,43 @@ public:
         return condition;
     }
 
+    //! Create a condition matching rows where any compatible dependent-variable component is less than its signed limit (rows
+    //! without the dependent variable are not selected).
+    static ObservationSelectionCondition dependentVariableLessThan(
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
+            const Eigen::VectorXd& dependentVariableLimit,
+            const bool returnFirstCompatibleSettings = false )
+    {
+        ObservationSelectionCondition condition =
+                dependentVariableGreaterThan( dependentVariableSettings, dependentVariableLimit, returnFirstCompatibleSettings );
+        condition.type_ = Type::dependent_variable_less_than;
+        return condition;
+    }
+
 private:
     //! Create a condition of the given kind, with child conditions for logical operators.
     explicit ObservationSelectionCondition( const Type type, const std::vector< ObservationSelectionCondition >& children = {} ):
         type_( type ), children_( children )
     {}
+
+    //! Return whether this condition, or any condition it combines, compares observation, residual or dependent-variable values to a
+    //! limit.
+    bool containsValueCondition( ) const
+    {
+        if( type_ == Type::residual_absolute_value_greater_than || type_ == Type::observation_absolute_value_greater_than ||
+            type_ == Type::dependent_variable_greater_than || type_ == Type::dependent_variable_less_than )
+        {
+            return true;
+        }
+        for( const ObservationSelectionCondition& child : children_ )
+        {
+            if( child.containsValueCondition( ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     //! Return the metadata of the observation set containing one observation.
     static const ObservationSetMetadata< ObservationScalarType, TimeType >& getSetMetadata(
@@ -356,22 +417,32 @@ private:
     {
         const Eigen::VectorXd dependentVariable =
                 dataset.getSingleDependentVariable( observationId, dependentVariableSettings_, returnFirstCompatibleSettings_ );
-        return dependentVariable.size( ) > 0 && isAnyComponentGreaterThanLimit( dependentVariable, false, "dependent-variable" );
+        return dependentVariable.size( ) > 0 &&
+                isAnyComponentGreaterThanLimit(
+                        dependentVariable, false, "dependent-variable", type_ == Type::dependent_variable_less_than );
     }
 
-    //! Return whether any (absolute) value is greater than vectorLimit_, which has length one or the size of values.
+    //! Return whether any (absolute) value is greater (or, if lessThan, less) than vectorLimit_, which has length one or the size
+    //! of values.
     template< typename VectorType >
-    bool isAnyComponentGreaterThanLimit( const VectorType& values, const bool useAbsoluteValues, const std::string& valueName ) const
+    bool isAnyComponentGreaterThanLimit( const VectorType& values,
+                                         const bool useAbsoluteValues,
+                                         const std::string& valueName,
+                                         const bool lessThan = false ) const
     {
+        if( vectorLimit_.size( ) != 1 && vectorLimit_.size( ) != values.size( ) )
+        {
+            throw std::runtime_error( "Error when evaluating " + valueName + " condition, the limit has " +
+                                      std::to_string( vectorLimit_.size( ) ) + " components, but the observation has " +
+                                      std::to_string( values.size( ) ) +
+                                      ". Use a single limit, or combine the condition (using &) with an observable-type condition "
+                                      "so that it is only evaluated for observations with as many components as the limit." );
+        }
         for( int i = 0; i < values.size( ); ++i )
         {
-            if( vectorLimit_.size( ) != 1 && vectorLimit_.size( ) != values.size( ) )
-            {
-                throw std::runtime_error( "Error when evaluating " + valueName + " condition, limit size is " +
-                                          std::to_string( vectorLimit_.size( ) ) + " but expected either 1 or " +
-                                          std::to_string( values.size( ) ) + "." );
-            }
-            if( ( useAbsoluteValues ? std::fabs( values( i ) ) : values( i ) ) > vectorLimit_( vectorLimit_.size( ) == 1 ? 0 : i ) )
+            const double value = useAbsoluteValues ? std::fabs( values( i ) ) : values( i );
+            const double limit = vectorLimit_( vectorLimit_.size( ) == 1 ? 0 : i );
+            if( lessThan ? value < limit : value > limit )
             {
                 return true;
             }

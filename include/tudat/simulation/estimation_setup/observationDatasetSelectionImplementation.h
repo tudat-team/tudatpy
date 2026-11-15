@@ -63,10 +63,11 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObserva
     const auto selected = getObservationIdsMatchingCondition( condition );
     for( const unsigned int id : selected )
     {
+        // Observations that are already rejected keep their rejection reason
         auto& row = mutableObservationRow( id );
-        row.isActive_ = false;
-        if( !reason.empty( ) )
+        if( row.isActive_ )
         {
+            row.isActive_ = false;
             row.rejectionReason_ = reason;
         }
     }

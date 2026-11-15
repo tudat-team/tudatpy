@@ -239,7 +239,7 @@ def test_scalar_setters_accept_one_dimensional_arrays(sample_dataset):
 
 @pytest.mark.parametrize("positional", [False, True])
 def test_estimation_input_combines_outlier_and_apriori_settings(sample_dataset, positional):
-    """The dataset interface retains the seventh outlier argument when enabling a priori deviations."""
+    """The dataset interface has the arguments of the collection interface, followed by the outlier rejection settings."""
     outliers = estimation_analysis.simple_outlier_rejection_settings(10.0)
     if positional:
         estimation_input = estimation_analysis.EstimationInput(
@@ -249,8 +249,9 @@ def test_estimation_input_combines_outlier_and_apriori_settings(sample_dataset, 
             np.empty((0, 0)),
             np.empty(0),
             True,
-            outliers,
             True,
+            False,
+            outliers,
         )
     else:
         estimation_input = estimation_analysis.EstimationInput(

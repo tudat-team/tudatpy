@@ -15,12 +15,22 @@ std::vector< double > ObservationDataset< ObservationScalarType, TimeType, Dummy
         const std::string& key,
         const std::vector< unsigned int >& observationIds ) const
 {
-    const auto& metadata = numericalObservationMetadata_.at( key );
+    const auto metadataIterator = numericalObservationMetadata_.find( key );
+    if( metadataIterator == numericalObservationMetadata_.end( ) )
+    {
+        throw std::out_of_range( "Error when retrieving numerical observation metadata, there is no metadata with key '" + key + "'." );
+    }
     std::vector< double > values;
     values.reserve( observationIds.size( ) );
     for( const auto id : observationIds )
     {
-        values.push_back( metadata.at( id ) );
+        const auto value = metadataIterator->second.find( id );
+        if( value == metadataIterator->second.end( ) )
+        {
+            throw std::out_of_range( "Error when retrieving numerical observation metadata, observation " + std::to_string( id ) +
+                                     " has no value for key '" + key + "'." );
+        }
+        values.push_back( value->second );
     }
     return values;
 }
@@ -181,11 +191,13 @@ Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::ge
     }
 
     std::vector< std::pair< int, int > > compatibleIndicesAndSizes;
+    std::string compatibleDependentVariableNames;
     for( const auto& settingsIterator : dependentVariableBookkeeping->getSettingsIndicesAndSizes( ) )
     {
         if( dependentVariableSettings->areSettingsCompatible( settingsIterator.second ) )
         {
             compatibleIndicesAndSizes.push_back( settingsIterator.first );
+            compatibleDependentVariableNames += "\n  " + simulation_setup::getObservationDependentVariableId( settingsIterator.second );
         }
     }
 
@@ -196,8 +208,11 @@ Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::ge
     if( compatibleIndicesAndSizes.size( ) > 1 && !returnFirstCompatibleSettings )
     {
         throw std::runtime_error(
-                "Error when retrieving single dependent variable from observation dataset, multiple compatible "
-                "dependent variables found." );
+                "Error when retrieving single dependent variable from observation dataset, multiple compatible dependent variables "
+                "found in observation set " +
+                std::to_string( getObservationRow( observationId ).setId_ ) + ":" + compatibleDependentVariableNames +
+                "\nUse more specific dependent-variable settings (e.g. with the originating link end), or select the first "
+                "compatible dependent variable (return_first_compatible_settings)." );
     }
 
     const std::pair< int, int >& indexAndSize = compatibleIndicesAndSizes.at( 0 );

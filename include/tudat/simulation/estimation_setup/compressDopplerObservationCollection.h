@@ -26,6 +26,23 @@ namespace tudat
 {
 namespace observation_models
 {
+//! Function to retrieve the Doppler integration (count) time of an observation set from its ancillary settings
+template< typename ObservationScalarType, typename TimeType >
+double getDopplerIntegrationTimeOfSet(
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& dopplerData,
+        const unsigned int setId )
+{
+    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& ancillarySettings =
+            dopplerData->getAncillarySettings( dopplerData->getObservationSetMetadata( setId ).ancillarySettingsId_ );
+    if( ancillarySettings == nullptr )
+    {
+        throw std::runtime_error( "Error when compressing Doppler data, observation set " + std::to_string( setId ) +
+                                  " has no ancillary settings, so its Doppler integration time is unknown." );
+    }
+    return ancillarySettings->getAncillaryDoubleData(
+            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
+}
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressDopplerData(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
@@ -49,8 +66,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& originalAncillarySettings =
             originalDopplerData->getAncillarySettings( metadata.ancillarySettingsId_ );
 
-    double currentCompressionTime = originalAncillarySettings->getAncillaryDoubleData(
-            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
+    double currentCompressionTime = getDopplerIntegrationTimeOfSet( originalDopplerData, setId );
 
     // Rejected observations are not used in the compression
     const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > activeObservationsInSet =
@@ -175,9 +191,7 @@ unsigned int getDopplerCompressionRatio(
         const double targetCountTime )
 {
     const double countTimeTolerance = 1.0e-4;
-    double currentCountTime =
-            originalDopplerData->getAncillarySettings( originalDopplerData->getObservationSetMetadata( setId ).ancillarySettingsId_ )
-                    ->getAncillaryDoubleData( observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
+    double currentCountTime = getDopplerIntegrationTimeOfSet( originalDopplerData, setId );
 
     unsigned int compressionRatio = static_cast< unsigned int >( std::round( targetCountTime / currentCountTime ) );
     if( compressionRatio == 0 ||

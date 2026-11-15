@@ -81,6 +81,19 @@ struct ObservationSetMetadata {
     //! Weight structure of this set, initialized directly from ObservationWeightSettings when supplied.
     //! Within-set block sizes are conservative: removing correlations need not reduce the recorded block size.
     ObservationWeightStructure weightStructure_ = ObservationWeightStructure::diagonal;
+
+    //! Serialize the metadata of the set.
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( observableType_,
+            linkDefinitionId_,
+            referenceLinkEnd_,
+            observableSize_,
+            ancillarySettingsId_,
+            dependentVariableLayoutId_,
+            weightStructure_ );
+    }
 };
 
 //! One row per observation event, independent of observable dimension.
@@ -120,6 +133,21 @@ struct ObservationDatasetRow {
 
     //! Optional human-readable reason for rejection or deactivation.
     std::string rejectionReason_;
+
+    //! Serialize the observation row.
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( observationId_,
+            time_,
+            setId_,
+            firstScalarComponent_,
+            scalarSize_,
+            indexInSet_,
+            dependentVariableValues_,
+            isActive_,
+            rejectionReason_ );
+    }
 };
 
 //! Observation id and component index of one entry in the component storage of an ObservationDataset.

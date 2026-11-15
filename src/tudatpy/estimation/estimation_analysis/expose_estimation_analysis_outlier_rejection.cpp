@@ -129,11 +129,14 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  before the estimation remain rejected, and are not considered by the algorithm.
 
  Note that this algorithm requires that the observation covariance (or the inverse weight matrix) is compatible with the
- true errors. If no weights are set on the observations (all weights equal to 1), the algorithm will throw an error. If
+ true errors. If all weights are equal to 1 (the default), a warning is printed, since the results are then only meaningful
+ if the observation uncertainty is 1. If
  inaccurate weights are set, it may produce unexpected results. The observation covariance is the inverse of the
  complete weight matrix of the observation dataset, including the observations that are rejected, whereas the
  least-squares inversion uses the rows and columns of the weight matrix of the observations that are not rejected. The
  two are only consistent if the weights do not correlate rejected observations with observations that are not rejected.
+ This algorithm cannot be used with weights that correlate observations in different observation sets (see
+ :meth:`~tudatpy.estimation.observations.ObservationDataset.set_weight_block`).
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.
@@ -231,6 +234,11 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  observation based on the absolute residual value of the observation (or the largest element in the residual vector in case of
  vector observations). If it exceeds the threshold, it will be excluded from the next iteration. If ``allow_restore`` is true,
  it can be recovered again in a later iteration. One threshold is used for all observable types in the estimation (in SI units).
+
+ The threshold should be larger than the residuals of the observations that are not outliers at the iteration
+ ``first_iteration_with_rejection``: otherwise many valid observations are rejected, and the estimation may select an
+ iteration that used only part of the data as its best iteration (check
+ :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.active_flags_per_iteration`).
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.

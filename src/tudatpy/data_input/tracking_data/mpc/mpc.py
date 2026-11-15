@@ -823,9 +823,9 @@ class BatchMPC:
         else:
             optical_tracking_data, optical_supplementary_data = optical_table_to_tracking_data(
                 self._table,
-                add_weights=add_weights,
                 add_star_catalog_corrections=add_star_catalog_corrections,
                 add_ancillary_data=add_ancillary_data,
+                vfcc17_weights=bool(add_weights),
             )
         radar_tracking_data, radar_supplementary_data = radar_data_to_tracking_data(
             self._radar_table

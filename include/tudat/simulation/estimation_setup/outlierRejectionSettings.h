@@ -187,7 +187,7 @@ public:
             throw std::runtime_error(
                     "Error when creating simple outlier rejection settings, the first iteration with rejection must not be negative." );
         }
-        if( maximumAllowedResidualValue <= 0.0 )
+        if( !( maximumAllowedResidualValue > 0.0 ) )
         {
             throw std::runtime_error(
                     "Error when creating simple outlier rejection settings. The maximum allowed residual value must be a positive value" );
@@ -221,7 +221,7 @@ public:
         }
         for( const auto& pair : maximumAllowedResidualValueMap )
         {
-            if( pair.second <= 0.0 )
+            if( !( pair.second > 0.0 ) )
             {
                 throw std::runtime_error(
                         "Error when creating simple outlier rejection settings. The maximum allowed residual value must be a positive "

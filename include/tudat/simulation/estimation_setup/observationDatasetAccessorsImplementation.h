@@ -80,7 +80,9 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentV
     {
         throw std::runtime_error( "Error when adding dependent variable settings to observation dataset, settings are null." );
     }
+    // Create the new bookkeeping of all sets before changing any of them, so that the dataset is unchanged if an error occurs
     const std::vector< unsigned int > matchingSetIds = getSetIds( condition );
+    std::map< unsigned int, std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > > newBookkeepingPerSet;
     for( const unsigned int setId : std::set< unsigned int >( matchingSetIds.begin( ), matchingSetIds.end( ) ) )
     {
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
@@ -103,14 +105,20 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentV
         else if( !getDependentVariablesForSet( setId ).empty( ) )
         {
             throw std::runtime_error(
-                    "Error when adding dependent variable settings to observation dataset, dependent-variable values already exist." );
+                    "Error when adding dependent variable settings to observation dataset, dependent-variable values "
+                    "already exist in observation set " +
+                    std::to_string( setId ) + "." );
         }
         else
         {
             bookkeeping = bookkeeping->clone( );
         }
         bookkeeping->addDependentVariables( allSettingsToCreate );
-        resetDependentVariableBookkeepingForSet( setId, bookkeeping );
+        newBookkeepingPerSet[ setId ] = bookkeeping;
+    }
+    for( const auto& setBookkeeping : newBookkeepingPerSet )
+    {
+        resetDependentVariableBookkeepingForSet( setBookkeeping.first, setBookkeeping.second );
     }
 }
 

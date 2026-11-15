@@ -133,7 +133,7 @@ public:
         }
         else if( inverseOfAprioriCovariance_.rows( ) != numberOfParameters || inverseOfAprioriCovariance_.cols( ) != numberOfParameters )
         {
-            throw std::runtime_error( "Error whenr retrieving invers a priori covariance; size is incompatible" );
+            throw std::runtime_error( "Error when retrieving inverse a priori covariance; size is incompatible" );
         }
         else
         {
@@ -392,9 +392,10 @@ public:
             const bool resetParametersToBestIteration = false ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
-        convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
-        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
-        applyAprioriParameterDeviation_( applyAprioriParameterDeviation ), resetParametersToBestIteration_( resetParametersToBestIteration )
+        saveVariationalResultsForEachIteration_( true ), convergenceChecker_( convergenceChecker ),
+        considerParametersDeviations_( considerParametersDeviations ), conditionNumberWarningEachIteration_( true ),
+        applyFinalParameterCorrection_( applyFinalParameterCorrection ), applyAprioriParameterDeviation_( applyAprioriParameterDeviation ),
+        resetParametersToBestIteration_( resetParametersToBestIteration )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -429,9 +430,9 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
             const bool applyFinalParameterCorrection = true,
-            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr,
             const bool applyAprioriParameterDeviation = false,
-            const bool resetParametersToBestIteration = false ):
+            const bool resetParametersToBestIteration = false,
+            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr ):
         EstimationInput( std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( ),
                          inverseOfAprioriCovariance,
                          convergenceChecker,
@@ -464,6 +465,8 @@ public:
      *  \param saveResidualsAndParametersFromEachIteration Boolean denoting whether the residuals and parameters from the each
      *  iteration are to be saved
      *  \param saveStateHistoryForEachIteration Boolean denoting whether the state history is to be saved on each iteration
+     *  \param saveVariationalResultsForEachIteration Boolean denoting whether the state transition and sensitivity
+     *  matrices are to be saved on each iteration (only used if saveStateHistoryForEachIteration is true)
      */
     void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
                                    const bool reintegrateVariationalEquations = 1,
@@ -472,7 +475,8 @@ public:
                                    const bool saveResidualsAndParametersFromEachIteration = 1,
                                    const bool saveStateHistoryForEachIteration = 0,
                                    const double limitConditionNumberForWarning = 1.0E8,
-                                   const bool conditionNumberWarningEachIteration = true )
+                                   const bool conditionNumberWarningEachIteration = true,
+                                   const bool saveVariationalResultsForEachIteration = 1 )
     {
         this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
         this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
@@ -480,6 +484,7 @@ public:
         this->printOutput_ = printOutput;
         this->saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
         this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+        this->saveVariationalResultsForEachIteration_ = saveVariationalResultsForEachIteration;
         this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
         this->conditionNumberWarningEachIteration_ = conditionNumberWarningEachIteration;
     }
@@ -532,6 +537,12 @@ public:
         outlierRejectionSettings_ = outlierRejectionSettings;
     }
 
+    //! Function to return the boolean denoting whether the state transition and sensitivity matrices are to be saved on each iteration
+    bool getSaveVariationalResultsForEachIteration( )
+    {
+        return saveVariationalResultsForEachIteration_;
+    }
+
     //! Return whether the a priori constraint is applied to the total deviation from the initial parameter vector.
     bool getApplyAprioriParameterDeviation( ) const
     {
@@ -547,6 +558,9 @@ public:
 
     //! Boolean denoting whether the state history is to be saved on each iteration.
     bool saveStateHistoryForEachIteration_;
+
+    //! Boolean denoting whether the state transition and sensitivity matrices are to be saved on each iteration.
+    bool saveVariationalResultsForEachIteration_;
 
     std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
 
@@ -1270,6 +1284,17 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return residualTimes_;
     }
 
+    void setResidualHistoryObservationIds( const std::vector< unsigned int >& residualHistoryObservationIds )
+    {
+        residualHistoryObservationIds_ = residualHistoryObservationIds;
+    }
+
+    //! Return the id of the observation (in the observation dataset) to which each entry of the residual history belongs.
+    const std::vector< unsigned int >& getResidualHistoryObservationIds( ) const
+    {
+        return residualHistoryObservationIds_;
+    }
+
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
     {
         return simulationResultsPerIteration_.at( bestIteration_ );
@@ -1291,6 +1316,9 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 
     //! Observation times corresponding to the entries of the residual vectors
     std::vector< double > residualTimes_;
+
+    //! Observation ids corresponding to the entries of the residual history vectors
+    std::vector< unsigned int > residualHistoryObservationIds_;
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > parameterHistory_;
@@ -1354,6 +1382,7 @@ protected:
                 ( bestIteration_ == rhs.bestIteration_ ) && ( residualStandardDeviation_ == rhs.residualStandardDeviation_ ) &&
                 ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
                 ( activeFlagsPerIteration_ == rhs.activeFlagsPerIteration_ ) &&
+                ( residualHistoryObservationIds_ == rhs.residualHistoryObservationIds_ ) &&
                 ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
                 ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
                 ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ );
@@ -1379,6 +1408,7 @@ private:
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
         ar( CEREAL_NVP( activeFlagsPerIteration_ ) );
+        ar( CEREAL_NVP( residualHistoryObservationIds_ ) );
     }
 
     template< class Archive >
@@ -1401,9 +1431,11 @@ private:
         ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
         ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
         activeFlagsPerIteration_.clear( );
+        residualHistoryObservationIds_.clear( );
         if( version >= 1 )
         {
             ar( CEREAL_NVP( activeFlagsPerIteration_ ) );
+            ar( CEREAL_NVP( residualHistoryObservationIds_ ) );
         }
     }
 };

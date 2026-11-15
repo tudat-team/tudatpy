@@ -758,8 +758,12 @@ getObservationSimulationSettingsFromObservationDataset(
                 observedObservationDataset->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
         if( dependentVariableBookkeeping != nullptr )
         {
-            const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
+            // Deferred dependent variables (light-time correction components) get their size when they are computed
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
                     dependentVariableBookkeeping->getDependentVariableSettings( );
+            const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& deferredSettings =
+                    dependentVariableBookkeeping->getDeferredSettings( );
+            dependentVariablesList.insert( dependentVariablesList.end( ), deferredSettings.begin( ), deferredSettings.end( ) );
             if( dependentVariablesList.size( ) > 0 )
             {
                 singleSetSimulationSettings->getObservationDependentVariableBookkeeping( )->addDependentVariables( dependentVariablesList );
@@ -803,6 +807,11 @@ void computeResidualsAndDependentVariables(
 
     for( unsigned int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
+        // Empty sets (e.g. left by create_new_and_keep) have no residuals, and need no observation simulator
+        if( observationDataset->getNumberOfObservationsForSet( setId ) == 0 )
+        {
+            continue;
+        }
         const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& observedMetadata =
                 observationDataset->getObservationSetMetadata( setId );
         const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& computedMetadata =
@@ -883,6 +892,19 @@ void computeResidualsAndDependentVariables(
         observationDataset->setResidualsForSet( setId, residuals );
         if( !reorderedDependentVariables.empty( ) )
         {
+            // The layout of the computed dependent variables differs from that of the dataset if it contained deferred dependent
+            // variables (light-time correction components), which get their size when they are computed
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& computedBookkeeping =
+                    computedObservationDataset->getDependentVariableBookkeeping(
+                            computedObservationDataset->getObservationSetMetadata( setId ).dependentVariableLayoutId_ );
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& observedBookkeeping =
+                    observationDataset->getDependentVariableBookkeeping( observedMetadata.dependentVariableLayoutId_ );
+            if( computedBookkeeping != nullptr && observedBookkeeping != nullptr &&
+                computedBookkeeping->getTotalDependentVariableSize( ) != observedBookkeeping->getTotalDependentVariableSize( ) )
+            {
+                observationDataset->setDependentVariablesForSet( setId, std::vector< Eigen::VectorXd >( ) );
+                observationDataset->resetDependentVariableBookkeepingForSet( setId, computedBookkeeping->clone( ) );
+            }
             observationDataset->setDependentVariablesForSet( setId, reorderedDependentVariables );
         }
     }
