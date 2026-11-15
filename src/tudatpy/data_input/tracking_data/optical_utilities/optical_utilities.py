@@ -654,8 +654,8 @@ def optical_table_to_tracking_data(
         Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds), and their
         correlation rmsCorr (if available), are used as explicit weights (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
-        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation of 1
-        (or -1) is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
+        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation with
+        an absolute value above 1 - 1e-8 is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
     vfcc17_weights : bool, default False
         Whether the observations without explicit weights (all observations if ``ades_weights``
         is False) get the weights of :cite:p:`veres2017` (see
@@ -728,14 +728,20 @@ def optical_table_to_tracking_data(
             raw_values.apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float, na_value=np.nan)
         )
         missing = raw_values.isna().to_numpy()
-        # a correlation of +/-1 gives a singular covariance, and is replaced by +/-(1 - 1e-8)
-        perfect_correlation = np.abs(values[:, 2]) == 1.0
-        if perfect_correlation.any():
+        # a correlation of +/-1 gives a singular covariance; a correlation with an absolute value above
+        # 1 - 1e-8 (up to 1) is replaced by +/-(1 - 1e-8), retaining its sign
+        maximum_correlation = 1.0 - 1.0e-8
+        near_perfect_correlation = (np.abs(values[:, 2]) > maximum_correlation) & (
+            np.abs(values[:, 2]) <= 1.0
+        )
+        if near_perfect_correlation.any():
             warnings.warn(
-                f"rmsCorr is 1 or -1 for {int(perfect_correlation.sum())} observation(s); "
-                "replaced by 1 - 1e-8 or -(1 - 1e-8)"
+                f"|rmsCorr| is above 1 - 1e-8 for {int(near_perfect_correlation.sum())} "
+                "observation(s); replaced by 1 - 1e-8 or -(1 - 1e-8)"
             )
-            values[perfect_correlation, 2] *= 1.0 - 1.0e-8
+            values[near_perfect_correlation, 2] = (
+                np.sign(values[near_perfect_correlation, 2]) * maximum_correlation
+            )
         valid_uncertainties = (np.isfinite(values[:, :2]) & (values[:, :2] > 0)).all(axis=1)
         valid_correlation = missing[:, 2] | (np.abs(values[:, 2]) < 1)
         if not (missing[:, :2].all(axis=1) | (valid_uncertainties & valid_correlation)).all():
@@ -931,8 +937,8 @@ def read_optical_data(
         Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds), and their
         correlation rmsCorr (if available), are used as explicit weights (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
-        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation of 1
-        (or -1) is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
+        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation with
+        an absolute value above 1 - 1e-8 is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
     vfcc17_weights : bool, default False
         Whether the observations without explicit weights (all observations if ``ades_weights``
         is False) get the weights of :cite:p:`veres2017` (see
@@ -1039,8 +1045,8 @@ def read_pandas_optical_data(
         Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds), and their
         correlation rmsCorr (if available), are used as explicit weights (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
-        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation of 1
-        (or -1) is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
+        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation with
+        an absolute value above 1 - 1e-8 is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
     vfcc17_weights : bool, default False
         Whether the observations without explicit weights (all observations if ``ades_weights``
         is False) get the weights of :cite:p:`veres2017` (see
@@ -1125,8 +1131,8 @@ def read_astropy_optical_data(
         Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds), and their
         correlation rmsCorr (if available), are used as explicit weights (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
-        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation of 1
-        (or -1) is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
+        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation with
+        an absolute value above 1 - 1e-8 is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
     vfcc17_weights : bool, default False
         Whether the observations without explicit weights (all observations if ``ades_weights``
         is False) get the weights of :cite:p:`veres2017` (see
