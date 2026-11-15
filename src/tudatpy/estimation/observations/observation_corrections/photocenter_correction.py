@@ -5,19 +5,21 @@ Functions to calculate photocenter corrections to observations
 import numpy as np
 from tudatpy.estimation.observations import ObservationDataset
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
-from tudatpy.dynamics.environment import SystemOfBodies
+from tudatpy.dynamics.environment import (
+    SystemOfBodies,
+    SphericalBodyShapeModel,
+    TriAxialEllipsoidBodyShapeModel,
+)
 from ._correction_utils import (
     _offset_vector_to_corrections,
     _unit,
     _apply_corrections_to_observation_dataset,
 )
 from tudatpy.constants import SPEED_OF_LIGHT
-from collections.abc import Iterable
 
 
 def apply_photocenter_correction_to_observation_dataset(
     observation_dataset: ObservationDataset,
-    body_dimensions: float | Iterable[float],
     bodies: SystemOfBodies,
     body_name: str,
     observer_body_name: str,
@@ -36,13 +38,12 @@ def apply_photocenter_correction_to_observation_dataset(
     ----------
     observation_dataset : :class:`~tudatpy.estimation.observations.ObservationDataset`
         ObservationDataset containing angular observations on specified link-ends
-    body_dimensions : float | list[float]
-        Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of 3 floats, they are
-        assumed to be ellipsoid semi-axes.
     bodies : SystemOfBodies
         The SystemOfBodies object
     body_name : str
-        Name of the body being observed, in the SystemOfBodies object
+        Name of the body being observed, in the SystemOfBodies object. Its shape model must be a
+        :class:`~tudatpy.dynamics.environment.SphericalBodyShapeModel` or a
+        :class:`~tudatpy.dynamics.environment.TriAxialEllipsoidBodyShapeModel`.
     observer_body_name : str
         Name of the observing (base) body in the SystemOfBodies object
     observer_reference_name : str | None
@@ -65,7 +66,6 @@ def apply_photocenter_correction_to_observation_dataset(
         observer_reference_name=observer_reference_name,
         in_place=in_place,
         correction_function=photocenter_correction_angular_observations,
-        body_dimensions=body_dimensions,
     )
 
 
@@ -235,7 +235,6 @@ def _photocenter_correction_ellipsoidal(
 
 def photocenter_correction_angular_observations(
     observations: np.ndarray,
-    body_dimensions: float | Iterable[float],
     bodies: SystemOfBodies,
     body_name: str,
     observer_body_name: str,
@@ -264,10 +263,12 @@ def photocenter_correction_angular_observations(
     by the relative position vector to the sun and observer. For the full derivation, the reader is referred to the
     original reference paper.
 
-    An apriori ephemeris should be loaded for the observer, observed body and sun. Furthermore, if the observed body
-    is an ellipsoid, it must have a rotational ephemeris loaded, where the body-fixed X, Y and Z-axes must align with
-    the principal axes of the ellipsoid in the same order as the body_dimensions parameter. The corrections returned
-    by this function should be added to observations (or the apply_* function should be used).
+    An apriori ephemeris should be loaded for the observer, observed body and sun. The size of the observed body is
+    taken from its shape model, which must be a :class:`~tudatpy.dynamics.environment.SphericalBodyShapeModel` or a
+    :class:`~tudatpy.dynamics.environment.TriAxialEllipsoidBodyShapeModel`. If the observed body is a tri-axial
+    ellipsoid, it must also have a rotation model, whose body-fixed X, Y and Z-axes are aligned with the semi-axes of
+    the ellipsoid. The corrections returned by this function should be added to observations (or the apply_* function
+    should be used).
 
     The observation epochs are assumed to be reception times. A one-step geometric light-time approximation is used
     to determine the emission epoch: the target and observer positions at reception are used to estimate the light
@@ -278,9 +279,6 @@ def photocenter_correction_angular_observations(
     ----------
     observations : np.ndarray
         Observations with columns [time, RA, DEC] in seconds since J2000 and radians, respectively
-    body_dimensions : float | list[float]
-        Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of 3 floats, they are
-        assumed to be ellipsoid semi-axes.
     bodies : SystemOfBodies
         The SystemOfBodies object
     body_name : str
@@ -307,20 +305,19 @@ def photocenter_correction_angular_observations(
             f"associated ephemerides do not exist"
         )
 
-    # Check body shape parameters
-    if np.isscalar(body_dimensions):  # -> body is a sphere
-        if body_dimensions <= 0:
-            raise ValueError("Observed body radius must be positive")
-        body_dimensions = 3 * [body_dimensions]
+    # Get body shape parameters from the shape model
+    shape_model = bodies.get(body_name).shape_model
+    if shape_model is None:
+        raise ValueError(f"Body {body_name} needs a shape model for the photocenter correction")
+
+    if isinstance(shape_model, SphericalBodyShapeModel):
+        body_dimensions = 3 * [shape_model.radius]
         inertial_to_body_fixed_rotation = lambda epoch: np.eye(
             3
         )  # Rotational state irrelevant for a sphere
 
-    else:
-        if len(body_dimensions) != 3:
-            raise ValueError("body_dimensions must be a float or iterable of length 3")
-        if any([axis <= 0 for axis in body_dimensions]):
-            raise ValueError("Semi-axes must be positive")
+    elif isinstance(shape_model, TriAxialEllipsoidBodyShapeModel):
+        body_dimensions = np.asarray(shape_model.semi_axes, dtype=float).flatten()
         if bodies.get(body_name).rotation_model is None:
             raise ValueError(
                 f"Body {body_name} needs a rotation model for the photocenter correction"
@@ -328,6 +325,12 @@ def photocenter_correction_angular_observations(
         inertial_to_body_fixed_rotation = bodies.get(
             body_name
         ).rotation_model.inertial_to_body_fixed_rotation
+
+    else:
+        raise ValueError(
+            f"Body {body_name} has a {type(shape_model).__name__}, but the photocenter correction only supports a "
+            f"SphericalBodyShapeModel or a TriAxialEllipsoidBodyShapeModel"
+        )
 
     if observations.shape[1] != 3:
         raise ValueError("Observations must be shaped N x 3")

@@ -252,6 +252,22 @@ def _verify_sha256(path: Path, expected_hash: str) -> bool:
     return _sha256_file(path).lower() == expected_hash.lower()
 
 
+def _md5sum(path: Path) -> str:
+    """Compute the MD5 checksum of a file."""
+    md5 = hashlib.md5()
+
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            md5.update(chunk)
+
+    return md5.hexdigest()
+
+
+def _verify_md5(path: Path, expected_md5: str) -> bool:
+    """Check whether the computed MD5 matches the expected value"""
+    return _md5sum(path).lower() == expected_md5.lower()
+
+
 def _checksum_mismatch_message(path: Path, expected_hash: str) -> str:
     """Return a diagnostic for a file that failed checksum verification.
 
@@ -328,11 +344,10 @@ def _download_file(
         ``True`` when downloaded, or ``False`` when an existing file was kept.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    if dest_path.exists():
-        if not force:
-            return False
-        dest_path.unlink()
+    if dest_path.exists() and not force:
+        return False
 
+    # Replaces an existing file only after a completed download
     _download_with_requests(url, dest_path)
 
     if expected_hash and not _verify_sha256(dest_path, expected_hash):
