@@ -349,9 +349,12 @@ def test_ades_minimum_uncertainty_time_uncertainties_and_adopted_biases():
         )
     ).reshape(-1, 2)
     assert np.abs(corrections[0]).min() > 0.0
-    np.testing.assert_allclose(corrections[1:3], corrections[[0, 0]], rtol=1.0e-12)
+    np.testing.assert_allclose(corrections[1:3], corrections[[0, 0]], rtol=0.0, atol=1.0e-15)
     np.testing.assert_allclose(
-        corrections[3], -arcsec * np.array([0.2 / np.cos(declination), -0.1]), rtol=1.0e-12
+        corrections[3],
+        -arcsec * np.array([0.2 / np.cos(declination), -0.1]),
+        rtol=0.0,
+        atol=1.0e-15,
     )
 
 
