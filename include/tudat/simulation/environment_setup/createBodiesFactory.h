@@ -308,10 +308,6 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
     }
 
     // Apply closure of environment models (links between models), after which the frames are processed
-    for( auto bodyIterator : bodyList.getMap( ) )
-    {
-        registerEnvironmentModelClosures( bodyIterator.second );
-    }
     closeSystemOfBodies( bodyList );
     bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
 

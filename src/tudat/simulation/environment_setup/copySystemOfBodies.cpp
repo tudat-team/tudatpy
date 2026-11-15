@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <algorithm>
 #include <typeinfo>
 
 #include "tudat/simulation/environment_setup/copySystemOfBodies.h"
@@ -1151,29 +1150,7 @@ SystemOfBodies copySystemOfBodiesWithoutFrameProcessing( const SystemOfBodies& b
     }
 
     // Apply closure of copied environment models (links to models in the copied system of bodies)
-    for( auto bodyIterator : bodiesCopy.getMap( ) )
-    {
-        registerEnvironmentModelClosures( bodyIterator.second );
-    }
-    std::map< std::string, std::vector< EnvironmentModelClosureType > > modelsWithoutClosure = closeSystemOfBodies( bodiesCopy, false );
-    std::map< std::string, std::vector< EnvironmentModelClosureType > > originalModelsWithoutClosure =
-            getEnvironmentModelsWithoutClosure( bodies );
-    for( auto bodyModelsWithoutClosure : modelsWithoutClosure )
-    {
-        for( EnvironmentModelClosureType closureType : bodyModelsWithoutClosure.second )
-        {
-            bool isOriginalWithoutClosure = originalModelsWithoutClosure.count( bodyModelsWithoutClosure.first ) > 0 &&
-                    std::find( originalModelsWithoutClosure.at( bodyModelsWithoutClosure.first ).begin( ),
-                               originalModelsWithoutClosure.at( bodyModelsWithoutClosure.first ).end( ),
-                               closureType ) != originalModelsWithoutClosure.at( bodyModelsWithoutClosure.first ).end( );
-            if( !isOriginalWithoutClosure )
-            {
-                throw std::runtime_error( "Error when copying system of bodies, closure of environment model (type " +
-                                          std::to_string( closureType ) + ") of body " + bodyModelsWithoutClosure.first +
-                                          " could not be applied to the copy" );
-            }
-        }
-    }
+    closeSystemOfBodies( bodiesCopy );
 
     // Custom aerodynamic angle interfaces are shared with the copy (other interfaces are set by closure, or by the propagation
     // setup for the angles from the body)

@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
+#include <algorithm>
 
 #include "tudat/simulation/environment_setup/environmentModelClosure.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
@@ -321,10 +321,8 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< basic_astrodynam
     return false;
 }
 
-}  // namespace
-
 //! Function to apply the closure of a single type of environment model of a body. Returns false if the closure cannot yet be
-//! applied (environment models it depends on are not yet closed).
+//! applied (environment models it depends on are not yet closed, or do not yet exist).
 bool applyEnvironmentModelClosure( const EnvironmentModelClosureType closureType,
                                    const std::string& bodyName,
                                    const SystemOfBodies& bodies )
@@ -382,121 +380,106 @@ bool applyEnvironmentModelClosure( const EnvironmentModelClosureType closureType
     }
 }
 
-void registerEnvironmentModelClosures( const std::shared_ptr< Body > body )
+//! Function to determine which environment models (types) of a body require closure
+std::vector< EnvironmentModelClosureType > getEnvironmentModelClosureTypes( const std::shared_ptr< Body > body )
 {
+    std::vector< EnvironmentModelClosureType > closureTypes;
     if( doesEnvironmentModelRequireClosure( body->getRotationalEphemeris( ) ) )
     {
-        body->setEnvironmentModelRequiresClosure( rotation_model_closure );
+        closureTypes.push_back( rotation_model_closure );
     }
     if( doesEnvironmentModelRequireClosure( body->getGravityFieldVariationSet( ) ) )
     {
-        body->setEnvironmentModelRequiresClosure( gravity_field_variations_closure );
+        closureTypes.push_back( gravity_field_variations_closure );
     }
     if( doesEnvironmentModelRequireClosure( body->getFlightConditions( ) ) )
     {
-        body->setEnvironmentModelRequiresClosure( flight_conditions_closure );
+        closureTypes.push_back( flight_conditions_closure );
     }
     if( doesEnvironmentModelRequireClosure( body->getAerodynamicCoefficientInterface( ) ) )
     {
-        body->setEnvironmentModelRequiresClosure( aerodynamic_coefficients_closure );
+        closureTypes.push_back( aerodynamic_coefficients_closure );
     }
     if( doesEnvironmentModelRequireClosure( body->getVehicleSystems( ) ) )
     {
-        body->setEnvironmentModelRequiresClosure( vehicle_systems_closure );
+        closureTypes.push_back( vehicle_systems_closure );
     }
     if( doesEnvironmentModelRequireClosure( body->getRadiationSourceModel( ) ) )
     {
-        body->setEnvironmentModelRequiresClosure( radiation_source_closure );
+        closureTypes.push_back( radiation_source_closure );
     }
     for( auto targetModel : body->getRadiationPressureTargetModels( ) )
     {
         if( doesEnvironmentModelRequireClosure( targetModel ) )
         {
-            body->setEnvironmentModelRequiresClosure( radiation_pressure_target_closure );
+            closureTypes.push_back( radiation_pressure_target_closure );
         }
     }
     if( doesEnvironmentModelRequireClosure( body->getAtmosphereModel( ) ) )
     {
-        body->setEnvironmentModelRequiresClosure( atmosphere_closure );
+        closureTypes.push_back( atmosphere_closure );
     }
     for( auto groundStation : body->getGroundStationMap( ) )
     {
         if( doesEnvironmentModelRequireClosure( groundStation.second ) )
         {
-            body->setEnvironmentModelRequiresClosure( ground_stations_closure );
+            closureTypes.push_back( ground_stations_closure );
         }
     }
     for( auto deformationModel : body->getBodyDeformationModels( ) )
     {
         if( doesEnvironmentModelRequireClosure( deformationModel ) )
         {
-            body->setEnvironmentModelRequiresClosure( body_deformation_closure );
+            closureTypes.push_back( body_deformation_closure );
         }
     }
+
+    // Closure types of models of which a body may have several are added once
+    closureTypes.erase( std::unique( closureTypes.begin( ), closureTypes.end( ) ), closureTypes.end( ) );
+    return closureTypes;
 }
 
-std::map< std::string, std::vector< EnvironmentModelClosureType > > getEnvironmentModelsWithoutClosure( const SystemOfBodies& bodies )
+}  // namespace
+
+void closeEnvironmentModels( const std::string& bodyName,
+                             const SystemOfBodies& bodies,
+                             const std::vector< EnvironmentModelClosureType >& closureTypes )
 {
-    std::map< std::string, std::vector< EnvironmentModelClosureType > > modelsWithoutClosure;
-    for( auto bodyIterator : bodies.getMap( ) )
+    std::vector< EnvironmentModelClosureType > closuresToApply;
+    for( EnvironmentModelClosureType closureType : getEnvironmentModelClosureTypes( bodies.at( bodyName ) ) )
     {
-        for( auto closureState : bodyIterator.second->getEnvironmentModelClosureStates( ) )
+        if( closureTypes.size( ) == 0 || std::find( closureTypes.begin( ), closureTypes.end( ), closureType ) != closureTypes.end( ) )
         {
-            if( !closureState.second )
-            {
-                modelsWithoutClosure[ bodyIterator.first ].push_back( closureState.first );
-            }
+            closuresToApply.push_back( closureType );
         }
     }
-    return modelsWithoutClosure;
-}
 
-std::map< std::string, std::vector< EnvironmentModelClosureType > > closeSystemOfBodies( const SystemOfBodies& bodies,
-                                                                                         const bool printWarnings )
-{
+    // Closures are applied repeatedly, since some closures require other closures (of the same body) to be applied first
     bool isAnyClosureApplied = true;
     while( isAnyClosureApplied )
     {
         isAnyClosureApplied = false;
-        for( auto modelsWithoutClosure : getEnvironmentModelsWithoutClosure( bodies ) )
+        for( auto closureIterator = closuresToApply.begin( ); closureIterator != closuresToApply.end( ); )
         {
-            for( EnvironmentModelClosureType closureType : modelsWithoutClosure.second )
+            if( applyEnvironmentModelClosure( *closureIterator, bodyName, bodies ) )
             {
-                if( applyEnvironmentModelClosure( closureType, modelsWithoutClosure.first, bodies ) )
-                {
-                    bodies.at( modelsWithoutClosure.first )->setEnvironmentModelClosureApplied( closureType );
-                    isAnyClosureApplied = true;
-                }
+                closureIterator = closuresToApply.erase( closureIterator );
+                isAnyClosureApplied = true;
+            }
+            else
+            {
+                closureIterator++;
             }
         }
     }
+}
 
-    std::map< std::string, std::vector< EnvironmentModelClosureType > > modelsWithoutClosure = getEnvironmentModelsWithoutClosure( bodies );
-    if( printWarnings )
+void closeSystemOfBodies( const SystemOfBodies& bodies )
+{
+    for( auto bodyIterator : bodies.getMap( ) )
     {
-        // Names of closure types, in order of EnvironmentModelClosureType
-        const std::vector< std::string > closureTypeNames = { "rotation model",
-                                                              "gravity field variations",
-                                                              "flight conditions",
-                                                              "aerodynamic coefficients",
-                                                              "vehicle systems",
-                                                              "radiation source model",
-                                                              "radiation pressure target model",
-                                                              "atmosphere model",
-                                                              "ground stations",
-                                                              "body deformation models" };
-        for( auto bodyModelsWithoutClosure : modelsWithoutClosure )
-        {
-            for( EnvironmentModelClosureType closureType : bodyModelsWithoutClosure.second )
-            {
-                std::cerr << "Warning, closure of " << closureTypeNames.at( closureType ) << " of body " << bodyModelsWithoutClosure.first
-                          << " could not (yet) be applied: links to other environment models are missing (for instance, flight "
-                             "conditions that are yet to be created). The model cannot be used until its closure is applied."
-                          << std::endl;
-            }
-        }
+        closeEnvironmentModels( bodyIterator.first, bodies );
     }
-    return modelsWithoutClosure;
 }
 
 }  // namespace simulation_setup

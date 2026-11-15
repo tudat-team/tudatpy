@@ -33,24 +33,36 @@ bool isModelOfType( const std::shared_ptr< BaseType > model )
 
 /*
  *  Closure of environment models: links of an environment model to environment models of other bodies (or of the same body). Models
- *  are created (or copied) without closure, after which the closure is applied by closeSystemOfBodies. Which environment models
- *  require closure is defined (in a single place) in environmentModelClosure.cpp; the closure itself is applied by the
- *  applyEnvironmentModelClosure functions of each type of environment model (in the setup layer), which use the
- *  applyEnvironmentModelClosure member function of the model.
+ *  are created (or copied) without closure, after which the closure is applied by closeSystemOfBodies, or, for models added
+ *  later, by the function adding them. Which environment models require closure is defined (in a single place) in
+ *  environmentModelClosure.cpp; the closure itself is applied by the applyEnvironmentModelClosure functions of each type of
+ *  environment model (in the setup layer), which use the applyEnvironmentModelClosure member function of the model.
  */
 
-//! Function to register (in the body) which of the environment models of a body require closure, to be called after the models
-//! have been created or copied without closure
-void registerEnvironmentModelClosures( const std::shared_ptr< Body > body );
+//! Types of environment models of a body that may require closure
+enum EnvironmentModelClosureType {
+    rotation_model_closure,
+    gravity_field_variations_closure,
+    flight_conditions_closure,
+    aerodynamic_coefficients_closure,
+    vehicle_systems_closure,
+    radiation_source_closure,
+    radiation_pressure_target_closure,
+    atmosphere_closure,
+    ground_stations_closure,
+    body_deformation_closure
+};
 
-//! Function to apply all closures of environment models (registered in the bodies) that have not yet been applied. Closures are
-//! applied repeatedly, until no more closures can be applied (since some closures require other closures to be applied first).
-//! Returns the closures that could not be applied, per body (for which a warning is printed if printWarnings is true).
-std::map< std::string, std::vector< EnvironmentModelClosureType > > closeSystemOfBodies( const SystemOfBodies& bodies,
-                                                                                         const bool printWarnings = true );
+//! Function to apply the closure of the environment models of a body (of the given types, or of all types if none are given) that
+//! require closure. Closures that require other closures are applied after these. Closures that require flight conditions that do
+//! not yet exist are not applied; they are applied when the flight conditions are added (see addFlightConditions)
+void closeEnvironmentModels(
+        const std::string& bodyName,
+        const SystemOfBodies& bodies,
+        const std::vector< EnvironmentModelClosureType >& closureTypes = std::vector< EnvironmentModelClosureType >( ) );
 
-//! Function to retrieve the closures of environment models (registered in the bodies) that have not been applied, per body
-std::map< std::string, std::vector< EnvironmentModelClosureType > > getEnvironmentModelsWithoutClosure( const SystemOfBodies& bodies );
+//! Function to apply the closure of the environment models of all bodies (see closeEnvironmentModels)
+void closeSystemOfBodies( const SystemOfBodies& bodies );
 
 }  // namespace simulation_setup
 

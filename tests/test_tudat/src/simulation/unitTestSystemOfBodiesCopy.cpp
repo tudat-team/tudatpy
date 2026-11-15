@@ -490,38 +490,18 @@ BOOST_AUTO_TEST_CASE( testClosureOfEnvironmentModels )
 {
     SystemOfBodies bodies = createSystemOfBodies( getTestBodySettings( ) );
 
-    // All closures are applied, except the moment contribution of the aerodynamic force, which requires flight conditions
-    std::map< std::string, std::map< EnvironmentModelClosureType, bool > > expectedClosureStates;
-    expectedClosureStates[ "Earth" ] = { { gravity_field_variations_closure, true }, { radiation_source_closure, true } };
-    expectedClosureStates[ "Moon" ] = { { rotation_model_closure, true } };
-    expectedClosureStates[ "Vehicle" ] = { { rotation_model_closure, true }, { aerodynamic_coefficients_closure, false } };
-    expectedClosureStates[ "Vehicle2" ] = { { rotation_model_closure, true } };
-    expectedClosureStates[ "Vehicle3" ] = { { vehicle_systems_closure, true }, { radiation_pressure_target_closure, true } };
-    for( auto bodyIterator : bodies.getMap( ) )
-    {
-        std::map< EnvironmentModelClosureType, bool > expectedStates;
-        if( expectedClosureStates.count( bodyIterator.first ) > 0 )
-        {
-            expectedStates = expectedClosureStates.at( bodyIterator.first );
-        }
-        BOOST_CHECK( bodyIterator.second->getEnvironmentModelClosureStates( ) == expectedStates );
-    }
+    // The moment contribution of the aerodynamic force requires flight conditions, so that its closure is not yet applied
     BOOST_CHECK( bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( )->getMomentContributionInterface( ) == nullptr );
 
     // Adding flight conditions applies their closure, and that of the moment contribution
     addAtmosphericFlightConditions( bodies, "Vehicle", "Earth" );
-    BOOST_CHECK_EQUAL( getEnvironmentModelsWithoutClosure( bodies ).size( ), 0 );
-    BOOST_CHECK( bodies.at( "Vehicle" )->getEnvironmentModelClosureStates( ).at( flight_conditions_closure ) );
-    BOOST_CHECK( bodies.at( "Vehicle" )->getEnvironmentModelClosureStates( ).at( aerodynamic_coefficients_closure ) );
+    BOOST_CHECK( bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ) != nullptr );
     BOOST_CHECK( bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( )->getMomentContributionInterface( ) != nullptr );
 
-    // Copy requires and applies the same closures
+    // Copy applies the same closures
     SystemOfBodies bodiesCopy = createTestBodiesCopy( bodies, false );
-    for( auto bodyIterator : bodies.getMap( ) )
-    {
-        BOOST_CHECK( bodiesCopy.at( bodyIterator.first )->getEnvironmentModelClosureStates( ) ==
-                     bodyIterator.second->getEnvironmentModelClosureStates( ) );
-    }
+    BOOST_CHECK( bodiesCopy.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ) != nullptr );
+    BOOST_CHECK( bodiesCopy.at( "Vehicle" )->getAerodynamicCoefficientInterface( )->getMomentContributionInterface( ) != nullptr );
 
     // Models without closure throw an exception when used
     BOOST_CHECK_THROW( SynchronousRotationalEphemeris( nullptr, "Earth", "J2000", "IAU_Moon" ).getRotationToBaseFrame( initialTime ),
@@ -866,13 +846,6 @@ BOOST_AUTO_TEST_CASE( testCopyOfStationsDeformationMetricAndOtherModels )
 
     SystemOfBodies bodiesCopy = createTestBodiesCopy( bodies, false );
 
-    // Closures of the models in the copy are registered and applied
-    std::map< EnvironmentModelClosureType, bool > earthClosureStates = bodiesCopy.at( "Earth" )->getEnvironmentModelClosureStates( );
-    BOOST_CHECK( earthClosureStates.at( ground_stations_closure ) );
-    BOOST_CHECK( earthClosureStates.at( body_deformation_closure ) );
-    BOOST_CHECK( bodiesCopy.at( "Vehicle" )->getEnvironmentModelClosureStates( ).at( vehicle_systems_closure ) );
-    BOOST_CHECK_EQUAL( getEnvironmentModelsWithoutClosure( bodiesCopy ).size( ), 0 );
-
     // Models are copied
     std::shared_ptr< ground_stations::GroundStation > station = bodies.at( "Earth" )->getGroundStation( "Station" );
     std::shared_ptr< ground_stations::GroundStation > stationCopy = bodiesCopy.at( "Earth" )->getGroundStation( "Station" );
@@ -1007,9 +980,7 @@ BOOST_AUTO_TEST_CASE( testCopyOfComaModel )
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     SystemOfBodies bodiesCopy = createSystemOfBodiesCopy( bodies, false );
 
-    // Coma and wind models are copied, and closed in the copy
-    BOOST_CHECK( bodies.at( "Comet" )->getEnvironmentModelClosureStates( ).at( atmosphere_closure ) );
-    BOOST_CHECK( bodiesCopy.at( "Comet" )->getEnvironmentModelClosureStates( ).at( atmosphere_closure ) );
+    // Coma and wind models are copied
     std::shared_ptr< AtmosphereModel > comaModel = bodies.at( "Comet" )->getAtmosphereModel( );
     std::shared_ptr< AtmosphereModel > comaModelCopy = bodiesCopy.at( "Comet" )->getAtmosphereModel( );
     BOOST_CHECK( std::dynamic_pointer_cast< ComaModel >( comaModelCopy ) != nullptr );

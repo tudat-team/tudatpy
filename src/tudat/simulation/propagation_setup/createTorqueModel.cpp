@@ -333,6 +333,11 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel( const std
             break;
         }
         case basic_astrodynamics::aerodynamic_torque: {
+            // Flight conditions are added (with the closure of the models that require them), if not yet extant
+            if( bodyUndergoingTorque->getFlightConditions( ) == nullptr )
+            {
+                addAtmosphericFlightConditions( bodies, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque );
+            }
             torqueModel = createAerodynamicTorqueModel(
                     bodyUndergoingTorque, bodyExertingTorque, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque );
             break;
