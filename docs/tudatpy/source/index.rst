@@ -43,6 +43,7 @@ Package Updates
    :maxdepth: 1
    :caption: Package Updates
 
+   Optional gravity threads <installation_openmp>
    Release Notes <release_notes>
    Migration Guides <migration_guide>
 

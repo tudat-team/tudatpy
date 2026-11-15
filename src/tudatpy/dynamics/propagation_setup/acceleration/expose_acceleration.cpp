@@ -48,7 +48,6 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
-namespace tse = tudat::serialization;
 
 namespace tudat
 {
@@ -77,6 +76,17 @@ namespace acceleration
 
 void expose_acceleration_setup( py::module& m )
 {
+    m.def(
+            "is_openmp_available",
+            []( ) {
+#if defined( TUDAT_BUILD_WITH_OPENMP ) && TUDAT_BUILD_WITH_OPENMP
+                return true;
+#else
+                return false;
+#endif
+            },
+            R"doc(Return whether this Tudat build supports parallel spherical-harmonic gravity.)doc" );
+
     /*
      * This contains the addition of IntegratorSettings and
      * AvailableIntegrators and AvailableAccelerations which
@@ -231,8 +241,16 @@ void expose_acceleration_setup( py::module& m )
          Class for providing settings for spherical harmonics acceleration model,
          including the maximum degree and order up to which the field is to be expanded. Note that
          the minimum degree and order are currently always set to zero.
-      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
-            TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
+      )doc" )
+            .def_property_readonly(
+                    "number_of_threads",
+                    []( const tss::SphericalHarmonicAccelerationSettings& settings ) { return settings.numberOfThreads_; },
+                    R"doc(Requested upper bound on inner gravity threads; defaults to one.
+
+This execution policy is not stored in scientific archives or pickle data.
+Deserialized settings use one thread. Construct new settings to change it.
+)doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
+                    TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
 
     //            .def(py::init<const int, const int>(),
     //            py::arg("maximum_degree"),
@@ -671,12 +689,14 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
     m.def(
             "spherical_harmonic_gravity",
-            []( const int maximumDegree, const int maximumOrder, const bool removePointMass ) {
-                return tss::sphericalHarmonicAcceleration( maximumDegree, maximumOrder, removePointMass );
+            []( const int maximumDegree, const int maximumOrder, const bool removePointMass, const int numberOfThreads ) {
+                return tss::sphericalHarmonicAcceleration( maximumDegree, maximumOrder, removePointMass, numberOfThreads );
             },
             py::arg( "maximum_degree" ),
             py::arg( "maximum_order" ),
             py::arg( "remove_point_mass" ) = false,
+            py::kw_only( ),
+            py::arg( "number_of_threads" ) = 1,
             R"doc(
 
  Creates settings for the spherical harmonic gravity acceleration.
@@ -705,6 +725,26 @@ ThreeCoefficientRadiationPressureAccelerationSettings
  remove_point_mass : bool, default=False
      Whether the central (degree zero) term is excluded, e.g. when the point mass of the body is part of another
      acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
+ number_of_threads : int, default=1
+     Positive upper bound on native threads for this acceleration model and its Legendre cache.
+     More than one requires a build configured with ``TUDAT_BUILD_WITH_OPENMP=ON``;
+     see :func:`is_openmp_available`. Existing scripts remain sequential by default.
+     Runtime limits can reduce the actual team size. Inner execution is sequential inside
+     an active OpenMP region. When combining with independent arc workers, budget both
+     levels explicitly. Saved-per-term output and near-pole force branches retain their
+     serial evaluation. Execution policy is not serialized; loaded settings use one thread.
+
+     Buffers belong to each native model. The calling thread updates the environment
+     before native workers read it; inner workers do not invoke Python callbacks.
+     This option adds no GIL release or change to callback lifetime rules of the caller.
+     Worker exceptions are rethrown on the calling thread after all workers finish.
+
+ Raises
+ ------
+ ValueError
+     If ``number_of_threads`` is not positive.
+ RuntimeError
+     If multiple threads are requested without the optional OpenMP backend.
  Returns
  -------
  SphericalHarmonicAccelerationSettings

@@ -1,13 +1,15 @@
 # Parallel spherical-harmonic gravity: implementation contract
 
-Status: initial native implementation, 14 November 2026. The C++ settings
-factory, model-local policy, reusable storage and optional OpenMP backend are
-implemented. The Python keyword and full production acceptance gates below
-remain pending. The existing Python factory still constructs sequential models.
-The [buffer-reuse experiment](../benchmarks/inner_loop/BUFFER_REUSE.md) measured
-2.17x dynamics-only speedup at degree/order 100 with four threads. That number
-belongs to the feasibility executable; this native implementation has not yet
-been benchmarked. No speedup is claimed for it yet.
+Status: native and Python implementation with focused validation, 15 November
+2026. Model-local thread configuration, reusable storage and the optional OpenMP
+backend are available through the ordinary Python factory. Separate complete
+native-library/kernel builds with OpenMP ON and OFF have been exercised.
+The [Python benchmark](../benchmarks/PYTHON_SPHERICAL_HARMONICS.md) measures
+2.41x dynamics-only and 1.55x variational integration speedup at four requested
+threads on its degree/order-100 Mars workloads. The earlier 2.17x number belongs
+to the feasibility executable and is not the native acceptance measurement.
+The broad offline suite remains blocked by missing resources; this is not a
+claim that all acceptance gates below have passed.
 
 ## Current native entry points
 
@@ -73,11 +75,10 @@ changes into one gravity PR. Free-threaded Python is outside both tasks.
 
 ## User-facing configuration
 
-Use an explicit, model-local number of threads, defaulting to one. The intended
-Python shape is an additional optional keyword on the existing factory:
+Use an explicit, model-local number of threads, defaulting to one. The Python
+factory accepts an additional optional keyword:
 
 ```python
-# Proposed API, not yet implemented:
 gravity = propagation_setup.acceleration.spherical_harmonic_gravity(
     maximum_degree=100,
     maximum_order=100,
@@ -225,7 +226,43 @@ the existing serial path is non-finite at the exact-pole fixtures; fallback test
 use finite points near each pole.
 
 These are focused native gates, not a full solver/binding acceptance report.
-Full factory-to-solver state/STM/sensitivity integration, Python exposure and
-consistent complete builds, installed-consumer execution and remeasurement
-remain to be completed. The previously missing Earth-orientation resource is
+Factory-to-solver state/STM/sensitivity integration, Python exposure, complete
+native-library/kernel builds and remeasurement are now covered by the Python
+validation described below. Installed-consumer execution and a fully green
+broad suite remain outstanding. The previously missing Earth-orientation resource is
 not hidden or worked around by these tests.
+
+## Python validation and measurements
+
+The ordinary Python factory accepts keyword-only `number_of_threads=1`, exposes
+its requested value as a read-only settings property, and provides
+`acceleration.is_openmp_available()`. Current lifetime/GIL rules are unchanged;
+a custom Python rotation callback is tested for caller-thread execution and
+native ownership after local Python references are deleted.
+
+The regular [installation page](tudatpy/source/installation_openmp.rst) and
+[acceleration API page](tudatpy/source/dynamics/propagation_setup/acceleration.rst)
+now document availability, both defaults, errors, ownership, callback handling,
+archive reset and combining outer workers with inner threads. A focused strict Sphinx build of the new installation page and bound API
+docstrings passes; a full site build has not been claimed.
+
+The test `tests/test_tudatpy/test_parallel_spherical_harmonic_gravity.py` exercises
+both backend configurations. In the current builds OpenMP ON has Cereal OFF
+(9 pass, one explicit pickle skip), while OpenMP OFF has Cereal ON (10 pass,
+including pickle). Four native CTest targets also pass in each configuration.
+The benchmark exercises 24 longer propagations, comparing every state, STM and
+Mars-mu sensitivity entry against a sequential reference; all observed maximum
+absolute differences are zero. The older complete Python kernel was also run
+as a sequential control, with no observed result differences or evidence of a
+sequential slowdown. See the benchmark report for absolute times and limits.
+
+The normal unfiltered `--no-remote-data` suite stops at collection because
+`earth_orientation/eopc01_polar_motion_1846-1961.txt` is still absent. A diagnostic
+run using `--continue-on-collection-errors`, after `copy_test_data`, gives
+824 passed, 45 failed, 96 skipped, one xpassed and seven errors. Its failures
+include the missing resource and two GRAIL/MRO fixture downloads blocked in the
+sandbox. Repeating those two tests with network access successfully retrieves
+the fixtures and reaches the same missing Earth-orientation resource. These
+failures are recorded rather than hidden with exclusions. This diagnostic is not a
+passing full-suite result. Logs, raw timings, configuration and hashes are local
+under `local-profiles/20261115/python-gravity/`.
