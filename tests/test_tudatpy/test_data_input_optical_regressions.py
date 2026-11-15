@@ -1,6 +1,7 @@
 """Check names, catalogue corrections, and weights when optical observations are read."""
 
 import importlib
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -71,10 +72,14 @@ def test_catalog_bias_is_subtracted_in_final_collection(optical_table, monkeypat
 
 
 def test_adopted_biases_are_applied(optical_table):
-    """Subtract adopted RA cos(Dec) and Dec biases, and use the negative adopted time bias."""
+    """Subtract adopted RA cos(Dec) and Dec biases instead of the star-catalog corrections, and use
+    the negative adopted time bias."""
     arcsec = np.deg2rad(1.0 / 3600.0)
+    index = pd.MultiIndex.from_product([range(12), ["U", "unknown"]])
+    bias_map = pd.DataFrame(1.0, index=index, columns=["RA", "DEC", "PMRA", "PMDEC"])
     table = optical_table.assign(DEC=60.0, biasRA=0.5, biasDec=0.25)
-    data, _ = read_optical_data(table)
+    with patch.object(optical, "load_bias_file", lambda **kwargs: (bias_map, 1)):
+        data, _ = read_optical_data(table, add_star_catalog_corrections=True)
     raw = np.array(data[0].observations).reshape(-1)
     collection = create_observation_collection_from_tracking_data(
         data, empty_bodies(), apply_corrections=True

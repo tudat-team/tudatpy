@@ -14,8 +14,10 @@ import astropy.units as u
 import warnings
 import os
 import re
+from collections.abc import Iterable
 from tudatpy.astro import time_representation
 from tudatpy.data_input.tracking_data import (
+    AngularObservationCorrectionSettings,
     BlockDeweightingRule,
     NamedWeightingMethod,
     ObservationBlockDefinition,
@@ -604,6 +606,22 @@ def _set_ades_explicit_weights(tracking_data_object, group):
     tracking_data_object.weight_settings.set_observation_weight_settings(weights)
 
 
+# correction types for which a warning was given that they are not applied to observations with
+# adopted biases (to warn once per correction type)
+_corrections_skipped_for_adopted_biases = set()
+
+
+def _warn_correction_skipped_for_adopted_biases(correction_name: str):
+    """Warn (once per correction type) that a correction is not applied to observations with adopted biases."""
+    if correction_name not in _corrections_skipped_for_adopted_biases:
+        _corrections_skipped_for_adopted_biases.add(correction_name)
+        warnings.warn(
+            f"The {correction_name} correction is not applied to observations with biases adopted by "
+            "an orbit computing center (ADES biasRA, biasDec or biasTime), for which these biases are "
+            "applied instead"
+        )
+
+
 def optical_table_to_tracking_data(
     table: pd.DataFrame,
     add_weights: bool | None = False,
@@ -614,6 +632,8 @@ def optical_table_to_tracking_data(
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
     time_uncertainties: bool = False,
+    light_deflection_bodies: Iterable[str] | None = None,
+    photocenter_correction: bool = False,
 ):
     """Convert an augmented optical table to TrackingData and supplementary data lists.
 
@@ -650,6 +670,13 @@ def optical_table_to_tracking_data(
         covariance (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
+    light_deflection_bodies : Iterable[str] | None, default None
+        Names of the bodies for which the relativistic light deflection correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
+    photocenter_correction : bool, default False
+        Whether the photocenter correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`), for which
+        the size of the observed body is taken from its shape model.
 
     Returns
     -------
@@ -659,13 +686,14 @@ def optical_table_to_tracking_data(
     Notes
     -----
     The biases adopted by an orbit computing center (the ADES residual fields biasRA, biasDec
-    and biasTime, see :func:`~tudatpy.data_input.tracking_data.ades.read_ades_data`) are applied
-    if they are present in the table (when the observations are converted with
-    ``apply_corrections=True``), assuming that the reported values are the true values
-    plus the bias: biasRA (of RA cos(Dec)) and biasDec (in arcseconds) are subtracted as
-    observation corrections (replacing the star-catalog corrections of these observations),
-    and the negative of biasTime (in seconds) is set as time bias (see
+    and biasTime, see :func:`~tudatpy.data_input.tracking_data.ades.read_ades_data`) are always
+    stored if they are present in the table (and applied when the observations are converted with
+    ``apply_corrections=True``), assuming that the reported values are the true values plus the
+    bias: biasRA (of RA cos(Dec)) and biasDec (in arcseconds) are subtracted as observation
+    corrections, and the negative of biasTime (in seconds) is set as time bias (see
     :meth:`~tudatpy.data_input.tracking_data.TrackingDataCorrectionSettings.set_time_biases`).
+    The observations with any of these biases do not get the star-catalog, light deflection and
+    photocenter corrections (with a warning, once per correction type).
     """
     table = create_augmented_optical_table(table, in_degrees=False)
 
@@ -723,26 +751,37 @@ def optical_table_to_tracking_data(
         # use the checked numerical values (NaN if missing) for the weights
         table = table.assign(**dict(zip(ades_columns, values.T)))
 
-    if add_star_catalog_corrections:
-        RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)
-        table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
-
-    # biases adopted by an orbit computing center (ADES biasRA of RA cos(Dec) and biasDec, in arcsec)
-    # replace the star-catalog corrections of the corresponding observations
-    adopted_biases = table.reindex(columns=["biasRA", "biasDec"])
+    # biases adopted by an orbit computing center (ADES biasRA of RA cos(Dec) and biasDec, in arcsec,
+    # and biasTime, in s); the observations with these biases get no star-catalog, light deflection
+    # and photocenter corrections
+    adopted_biases = table.reindex(columns=["biasRA", "biasDec", "biasTime"])
     has_adopted_bias = adopted_biases.notna().any(axis=1).to_numpy()
-    add_corrections = add_star_catalog_corrections or has_adopted_bias.any()
+    table = table.assign(_has_adopted_bias=has_adopted_bias)
     if has_adopted_bias.any():
+        for correction_name, requested in (
+            ("star-catalog", add_star_catalog_corrections),
+            ("light deflection", light_deflection_bodies is not None),
+            ("photocenter", photocenter_correction),
+        ):
+            if requested:
+                _warn_correction_skipped_for_adopted_biases(correction_name)
+
+    # the adopted biases replace the star-catalog corrections
+    add_corrections = add_star_catalog_corrections or has_adopted_bias.any()
+    if add_corrections:
+        RA_corr, DEC_corr = (
+            get_biases_EFCC18(mpc_table=table) if add_star_catalog_corrections else (0.0, 0.0)
+        )
         table = table.assign(
             _RA_corr=np.where(
                 has_adopted_bias,
                 np.deg2rad(adopted_biases["biasRA"].fillna(0.0) / 3600.0) / np.cos(table["DEC"]),
-                table["_RA_corr"] if add_star_catalog_corrections else 0.0,
+                RA_corr,
             ),
             _DEC_corr=np.where(
                 has_adopted_bias,
                 np.deg2rad(adopted_biases["biasDec"].fillna(0.0) / 3600.0),
-                table["_DEC_corr"] if add_star_catalog_corrections else 0.0,
+                DEC_corr,
             ),
         )
 
@@ -819,6 +858,21 @@ def optical_table_to_tracking_data(
                 (-pd.to_numeric(group["biasTime"]).fillna(0.0)).tolist()
             )
 
+        # light deflection and photocenter corrections, for the observations without adopted biases
+        group_has_adopted_bias = group["_has_adopted_bias"].to_numpy()
+        if (light_deflection_bodies or photocenter_correction) and not group_has_adopted_bias.all():
+            tracking_data_object.correction_settings.set_observation_correction_settings(
+                AngularObservationCorrectionSettings(
+                    light_deflection_bodies=list(light_deflection_bodies or []),
+                    photocenter_correction=photocenter_correction,
+                    observation_indices=(
+                        np.flatnonzero(~group_has_adopted_bias).tolist()
+                        if group_has_adopted_bias.any()
+                        else []
+                    ),
+                )
+            )
+
         tracking_data_objects.append(tracking_data_object)
 
     return tracking_data_objects, supplementary_data
@@ -837,6 +891,8 @@ def read_optical_data(
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
     time_uncertainties: bool = False,
+    light_deflection_bodies: Iterable[str] | None = None,
+    photocenter_correction: bool = False,
 ):
     """Read optical astrometry from a table into TrackingData objects.
 
@@ -885,6 +941,13 @@ def read_optical_data(
         covariance (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
+    light_deflection_bodies : Iterable[str] | None, default None
+        Names of the bodies for which the relativistic light deflection correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
+    photocenter_correction : bool, default False
+        Whether the photocenter correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`), for which
+        the size of the observed body is taken from its shape model.
 
     Returns
     -------
@@ -904,6 +967,8 @@ def read_optical_data(
             vfcc17_weights=vfcc17_weights,
             nightly_deweighting=nightly_deweighting,
             time_uncertainties=time_uncertainties,
+            light_deflection_bodies=light_deflection_bodies,
+            photocenter_correction=photocenter_correction,
         )
 
     if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
@@ -919,6 +984,8 @@ def read_optical_data(
             vfcc17_weights=vfcc17_weights,
             nightly_deweighting=nightly_deweighting,
             time_uncertainties=time_uncertainties,
+            light_deflection_bodies=light_deflection_bodies,
+            photocenter_correction=photocenter_correction,
         )
 
     raise TypeError("read_optical_data expects a pandas DataFrame or astropy Table/QTable.")
@@ -937,6 +1004,8 @@ def read_pandas_optical_data(
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
     time_uncertainties: bool = False,
+    light_deflection_bodies: Iterable[str] | None = None,
+    photocenter_correction: bool = False,
 ):
     """Read optical astrometry from a pandas table into TrackingData objects.
 
@@ -978,6 +1047,13 @@ def read_pandas_optical_data(
         covariance (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
+    light_deflection_bodies : Iterable[str] | None, default None
+        Names of the bodies for which the relativistic light deflection correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
+    photocenter_correction : bool, default False
+        Whether the photocenter correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`), for which
+        the size of the observed body is taken from its shape model.
 
     Returns
     -------
@@ -994,6 +1070,8 @@ def read_pandas_optical_data(
         vfcc17_weights=vfcc17_weights,
         nightly_deweighting=nightly_deweighting,
         time_uncertainties=time_uncertainties,
+        light_deflection_bodies=light_deflection_bodies,
+        photocenter_correction=photocenter_correction,
     )
 
 
@@ -1010,6 +1088,8 @@ def read_astropy_optical_data(
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
     time_uncertainties: bool = False,
+    light_deflection_bodies: Iterable[str] | None = None,
+    photocenter_correction: bool = False,
 ):
     """Read optical astrometry from an astropy table into TrackingData objects.
 
@@ -1051,6 +1131,13 @@ def read_astropy_optical_data(
         covariance (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
+    light_deflection_bodies : Iterable[str] | None, default None
+        Names of the bodies for which the relativistic light deflection correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
+    photocenter_correction : bool, default False
+        Whether the photocenter correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`), for which
+        the size of the observed body is taken from its shape model.
 
     Returns
     -------
@@ -1067,6 +1154,8 @@ def read_astropy_optical_data(
         vfcc17_weights=vfcc17_weights,
         nightly_deweighting=nightly_deweighting,
         time_uncertainties=time_uncertainties,
+        light_deflection_bodies=light_deflection_bodies,
+        photocenter_correction=photocenter_correction,
     )
 
 

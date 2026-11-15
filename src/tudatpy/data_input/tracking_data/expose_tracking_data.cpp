@@ -72,9 +72,10 @@ void expose_tracking_data( py::module& m )
          :ref:`observation_corrections`. The observed body and the observer are taken from the link ends of the tracking data.
          The observations stored in the tracking data are not modified.
       )doc" )
-            .def( py::init< const std::vector< std::string >&, const bool >( ),
+            .def( py::init< const std::vector< std::string >&, const bool, const std::vector< unsigned int >& >( ),
                   py::arg( "light_deflection_bodies" ) = std::vector< std::string >( ),
                   py::arg( "photocenter_correction" ) = false,
+                  py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
                   R"doc(
          Class constructor.
 
@@ -86,9 +87,12 @@ void expose_tracking_data( py::module& m )
          photocenter_correction : bool, default = False
              Request a photocenter correction. The photocenter correction takes the target's size from its shape model,
              which must be a spherical or tri-axial ellipsoid shape model.
+         observation_indices : list[int], default = []
+             Indices of the observations that are corrected (empty for all observations).
       )doc" )
             .def_readonly( "light_deflection_bodies", &tdat::AngularObservationCorrectionSettings::lightDeflectionBodies_ )
-            .def_readonly( "photocenter_correction", &tdat::AngularObservationCorrectionSettings::photocenterCorrection_ );
+            .def_readonly( "photocenter_correction", &tdat::AngularObservationCorrectionSettings::photocenterCorrection_ )
+            .def_readonly( "observation_indices", &tdat::AngularObservationCorrectionSettings::observationIndices_ );
 
     py::class_< tom::ObservationWeightSettings, std::shared_ptr< tom::ObservationWeightSettings > >( m,
                                                                                                      "ObservationWeightSettings",

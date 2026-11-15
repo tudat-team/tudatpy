@@ -2,6 +2,8 @@
 MPC ADES tracking-data loading.
 """
 
+from collections.abc import Iterable
+
 import numpy as np
 
 from .parsers import (
@@ -87,6 +89,8 @@ def read_ades_data(
     time_uncertainties: bool = False,
     minimum_ades_uncertainty: float | None = None,
     prefer_residual_fields: bool = False,
+    light_deflection_bodies: Iterable[str] | None = None,
+    photocenter_correction: bool = False,
 ):
     """Function to read an MPC ADES file into TrackingData objects.
 
@@ -149,13 +153,23 @@ def read_ades_data(
         uses either all fields of one kind or all fields of the other: those of the preferred
         kind if any of them is available, otherwise those of the other kind. The residual uncertainties then
         take the place of rmsRA, rmsDec, rmsCorr and rmsTime in the weights. The
-        adopted biases (only available in the residual fields) are applied when the observations
-        are converted with ``apply_corrections=True``, assuming that the reported values are the
-        true values plus the bias: biasTime (in seconds) is
-        set as the negative time bias (see
+        adopted biases (only available in the residual fields) are always stored (and applied when
+        the observations are converted with ``apply_corrections=True``), assuming that the reported
+        values are the true values plus the bias: biasTime (in seconds) is set as the negative time
+        bias (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataCorrectionSettings.set_time_biases`), and
         biasRA (of RA cos(Dec)) and biasDec (in arcseconds) are subtracted as observation
-        corrections, replacing the star-catalog corrections of these observations.
+        corrections.
+        The observations with adopted biases do not get the star-catalog, light deflection and
+        photocenter corrections (with a warning, once per correction type).
+    light_deflection_bodies : Iterable[str] | None, default None
+        Names of the bodies for which the relativistic light deflection correction is requested for
+        the optical observations (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
+    photocenter_correction : bool, default False
+        Whether the photocenter correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`), for which
+        the size of the observed body is taken from its shape model.
 
     Returns
     -------
@@ -191,6 +205,8 @@ def read_ades_data(
             vfcc17_weights=vfcc17_weights,
             nightly_deweighting=nightly_deweighting,
             time_uncertainties=time_uncertainties,
+            light_deflection_bodies=light_deflection_bodies,
+            photocenter_correction=photocenter_correction,
         )
     radar_data = radar_data_from_table(parsed_table)
     if custom_name is not None:

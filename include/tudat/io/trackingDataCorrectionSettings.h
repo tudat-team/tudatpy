@@ -11,6 +11,7 @@
 #ifndef TUDAT_TRACKING_DATA_CORRECTION_SETTINGS_H
 #define TUDAT_TRACKING_DATA_CORRECTION_SETTINGS_H
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <memory>
@@ -200,6 +201,11 @@ public:
         {
             throw std::runtime_error( "Angular correction settings require two-component reception-time angular observations." );
         }
+        if( !settings.observationIndices_.empty( ) &&
+            *std::max_element( settings.observationIndices_.begin( ), settings.observationIndices_.end( ) ) >= numberOfObservations_ )
+        {
+            throw std::runtime_error( "Error when setting angular correction settings, observation index exceeds number of observations." );
+        }
         angularCorrectionSettings_ = std::make_shared< AngularObservationCorrectionSettings >( settings );
     }
 
@@ -224,6 +230,10 @@ public:
         if( timeBiases_ != nullptr )
         {
             timeBiases_->removeObservation( observationIndex );
+        }
+        if( angularCorrectionSettings_ != nullptr && !angularCorrectionSettings_->removeObservation( observationIndex ) )
+        {
+            angularCorrectionSettings_ = nullptr;
         }
         numberOfObservations_--;
     }

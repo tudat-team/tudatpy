@@ -106,6 +106,16 @@ std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > evaluateTra
                                      py::arg( "perturbing_bodies_list" ) = settings.lightDeflectionBodies_ )
                                .cast< Eigen::MatrixXd >( );
     }
+    // Only the selected observations are corrected (all observations if none are selected)
+    if( !settings.observationIndices_.empty( ) )
+    {
+        Eigen::MatrixXd selectedCorrections = Eigen::MatrixXd::Zero( corrections.rows( ), corrections.cols( ) );
+        for( const unsigned int index : settings.observationIndices_ )
+        {
+            selectedCorrections.row( index ) = corrections.row( index );
+        }
+        corrections = selectedCorrections;
+    }
     std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > result;
     result.reserve( sourceObservations.size( ) );
     for( Eigen::Index i = 0; i < corrections.rows( ); ++i )
