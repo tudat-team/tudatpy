@@ -669,12 +669,15 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
 )doc" );
 
-    m.def( "spherical_harmonic_gravity",
-           &tss::sphericalHarmonicAcceleration,
-           py::arg( "maximum_degree" ),
-           py::arg( "maximum_order" ),
-           py::arg( "remove_point_mass" ) = false,
-           R"doc(
+    m.def(
+            "spherical_harmonic_gravity",
+            []( const int maximumDegree, const int maximumOrder, const bool removePointMass ) {
+                return tss::sphericalHarmonicAcceleration( maximumDegree, maximumOrder, removePointMass );
+            },
+            py::arg( "maximum_degree" ),
+            py::arg( "maximum_order" ),
+            py::arg( "remove_point_mass" ) = false,
+            R"doc(
 
  Creates settings for the spherical harmonic gravity acceleration.
 

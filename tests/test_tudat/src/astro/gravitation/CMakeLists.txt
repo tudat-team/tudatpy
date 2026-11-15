@@ -113,3 +113,6 @@ TUDAT_ADD_TEST_CASE(RingGravityField
 
 TUDAT_ADD_TEST_CASE(RingGravityModel
         PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(ParallelSphericalHarmonics
+    PRIVATE_LINKS tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics tudat_numerical_integrators cereal::cereal)

@@ -1,5 +1,11 @@
 # Isolated term-buffer reuse experiment
 
+**Historical feasibility measurements.** Native model/cache layouts subsequently
+changed. The original measurements refer to commit `c51e8611d`; never link current
+headers or replacement objects against libraries compiled with older layouts.
+Rebuild compatible libraries and all consumers before rerunning these helpers.
+
+
 14 November 2026. This follow-up changes only the lifetime of the acceleration
 term buffer in the [gravity/Legendre trial](GRAVITY_BLOCK.md). Parallel-region
 boundaries, scheduling, recurrence formulas and final sum order stay unchanged.

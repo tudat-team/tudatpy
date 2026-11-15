@@ -1,5 +1,11 @@
 # Second candidate: acceleration summation and Legendre cache
 
+**Historical feasibility measurements.** Native model/cache layouts subsequently
+changed. The original measurements refer to commit `c51e8611d`; never link current
+headers or replacement objects against libraries compiled with older layouts.
+Rebuild compatible libraries and all consumers before rerunning these helpers.
+
+
 This experiment isolates two parts of a single Mars propagation: the
 spherical-harmonic acceleration sum and the Legendre values/derivatives used by
 that sum. It does **not** enable the earlier Hessian experiment. Panel methods,

@@ -37,6 +37,8 @@
 #include <vector>
 #endif
 
+#include "tudat/basics/parallelFor.h"
+
 namespace tudat
 {
 
@@ -179,8 +181,11 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         ,
         std::vector< Eigen::Vector3d >* reusableTerms = nullptr
 #endif
-)
+        ,
+        const int numberOfThreads = 1,
+        std::vector< Eigen::Vector3d >* modelTerms = nullptr )
 {
+    utilities::validateNumberOfThreads( numberOfThreads );
     // Set highest degree and order.
     const int highestDegree = cosineHarmonicCoefficients.rows( );
     const int highestOrder = cosineHarmonicCoefficients.cols( );
@@ -208,6 +213,46 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
 
     Eigen::Matrix3d transformationToCartesianCoordinates =
             coordinate_conversions::getSphericalToCartesianGradientMatrix( positionOfBodySubjectToAcceleration );
+
+    const bool nearPole = std::fabs( mathematical_constants::PI / 2.0 -
+                                     sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) <
+            colatitudeCutoffForBoschFormulation;
+    if( utilities::useParallelTeam( numberOfThreads ) && !saveSeparateTerms && !nearPole )
+    {
+        std::vector< Eigen::Vector3d > temporaryTerms;
+        auto& terms = modelTerms ? *modelTerms : temporaryTerms;
+        terms.resize( static_cast< std::size_t >( highestDegree ) * highestOrder );
+        utilities::parallelFor( highestDegree, numberOfThreads, 1, [ & ]( const int degree ) {
+            for( int order = 0; order <= degree && order < highestOrder; ++order )
+            {
+                const double value = checkSphericalHarmonicsConsistency
+                        ? legendreCacheReference.getLegendrePolynomial( degree, order )
+                        : legendreCacheReference.getLegendrePolynomialWithoutCheck( degree, order );
+                const double derivative = checkSphericalHarmonicsConsistency
+                        ? legendreCacheReference.getLegendrePolynomialDerivative( degree, order )
+                        : legendreCacheReference.getLegendrePolynomialDerivativeWithoutCheck( degree, order );
+                terms[ degree * highestOrder + order ] =
+                        basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
+                                                                     preMultiplier,
+                                                                     degree,
+                                                                     order,
+                                                                     cosineHarmonicCoefficients( degree, order ),
+                                                                     sineHarmonicCoefficients( degree, order ),
+                                                                     value,
+                                                                     derivative,
+                                                                     sphericalHarmonicsCache );
+            }
+        } );
+        // Preserve the original floating-point accumulation order.
+        for( int degree = 0; degree < highestDegree; ++degree )
+        {
+            for( int order = 0; order <= degree && order < highestOrder; ++order )
+            {
+                sphericalGradient += terms[ degree * highestOrder + order ];
+            }
+        }
+        return accelerationRotation * ( transformationToCartesianCoordinates * sphericalGradient );
+    }
 
 #ifdef TUDAT_EXPERIMENT_PARALLEL_ACCELERATION
     ++experimentAccelerationCalls;

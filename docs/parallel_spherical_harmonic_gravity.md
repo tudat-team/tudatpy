@@ -1,13 +1,55 @@
 # Parallel spherical-harmonic gravity: implementation contract
 
-Status: proposed production contract, 14 November 2026. The current branch
-contains feasibility experiments, not an implementation of this API. The
-[acceleration/Legendre experiment](../benchmarks/inner_loop/GRAVITY_BLOCK.md)
-provides the measured motivation: approximately 1.85x dynamics-only speedup
-on a one-day degree/order-100 Mars workload with four threads. Variational
-propagation measured a smaller gain in its separate workload. These measurements
-are conditional on the documented reused-library setup and are not acceptance
-evidence for a fresh production build.
+Status: initial native implementation, 14 November 2026. The C++ settings
+factory, model-local policy, reusable storage and optional OpenMP backend are
+implemented. The Python keyword and full production acceptance gates below
+remain pending. The existing Python factory still constructs sequential models.
+The [buffer-reuse experiment](../benchmarks/inner_loop/BUFFER_REUSE.md) measured
+2.17x dynamics-only speedup at degree/order 100 with four threads. That number
+belongs to the feasibility executable; this native implementation has not yet
+been benchmarked. No speedup is claimed for it yet.
+
+## Current native entry points
+
+```cpp
+// Existing arguments retain their positions; the fourth argument is opt-in.
+auto settings = tudat::simulation_setup::sphericalHarmonicAcceleration(
+    100, 100, false, 4 );
+// For a directly constructed native acceleration model:
+model.setNumberOfThreads( 4 );
+```
+
+The ordinary acceleration factory transfers the settings into the new model.
+`getNumberOfThreads()` reports the requested policy on a model/cache, not the
+actual OpenMP team size. The model owns its term vector; its Legendre cache owns
+its polynomial/derivative vectors and policy. A mutable model is still for one
+caller at a time. Different models may run on different outer threads, with an
+explicit combined thread budget chosen by the caller.
+
+```mermaid
+flowchart LR
+    S[Acceleration settings] --> M[Model-local policy and term buffer]
+    M --> C[Legendre cache: values then derivatives]
+    C --> T[Independent acceleration terms]
+    T --> R[Original-order sum on caller]
+```
+
+The settings configure one model and its cache. Completed cache phases precede
+independent force terms; the final summation remains on the caller. No model
+callbacks are invoked in the inner teams.
+
+Configure with `-DTUDAT_BUILD_WITH_OPENMP=ON` to enable the optional backend.
+OFF is the default and rejects explicit multi-thread requests. Library targets
+export the feature definition and, when enabled, `OpenMP::OpenMP_CXX`; the
+installed package config discovers OpenMP for consumers. No global OpenMP
+settings are changed. Each worker failure is captured, the region joins, and
+the caller receives the exception. A failed cache/model update invalidates its
+input/time marker. Team creation is bypassed within an active OpenMP region.
+
+The earlier experiment hooks remain compile-guarded for feasibility comparison;
+normal native builds do not enable their macros or use their global controls.
+Do not mix these new model/cache definitions with old library objects: rebuild
+all consumers, including Python bindings, before using them together.
 
 ## Scope and branch boundaries
 
@@ -56,7 +98,7 @@ process-global enable switches or diagnostic counters belong in the public
 implementation. Changing one model must not change another model's policy.
 
 Thread count is a local execution policy, not a physical estimated parameter.
-The first implementation should keep the existing scientific archive schema:
+The native implementation keeps the existing scientific archive schema:
 execution policy is not persisted in old acceleration-setting archives and
 loads default to one thread. Document this explicitly on the factory/property
 and cover it in roundtrip tests. Equality of the scientific settings retains
@@ -130,6 +172,12 @@ incompatible definitions of those classes.
 
 ## Acceptance gates
 
+- Before exposing/releasing the feature, add the OpenMP build option and compiler
+  requirements to the regular installation documentation, and document the
+  per-model thread setting in the user/API documentation. Explain both defaults
+  (backend OFF; one thread per model even when ON), the unsupported-backend error,
+  and budgeting inner threads together with outer arc workers. This developer
+  contract alone is not sufficient user documentation.
 - Test validated defaults and object-local policy transfer through C++ and the
   existing Python acceleration factory. Check that separate models do not
   inherit each other's settings or share scratch buffers.
@@ -152,3 +200,32 @@ incompatible definitions of those classes.
 The contract and experiments are AI-assisted. Maintainer review should focus on
 cache ownership, recurrence dependencies, failure recovery, archive semantics
 and build/export consistency before exposing the production API.
+
+## Focused native validation
+
+Separate fresh native OFF and ON build directories are used; the earlier Python
+build directories are untouched. The focused targets are:
+
+```bash
+cmake --build build-gravity-native-on --parallel 4 --target \
+  test_gravitation_ParallelSphericalHarmonics \
+  test_basic_LegendrePolynomials test_basic_SphericalHarmonics \
+  test_gravitation_SphericalHarmonicsGravityModel
+ctest --test-dir build-gravity-native-on --output-on-failure \
+  -R '^(test_gravitation_ParallelSphericalHarmonics|test_basic_LegendrePolynomials|test_basic_SphericalHarmonics|test_gravitation_SphericalHarmonicsGravityModel)$'
+```
+
+Repeat in an OFF build. The new test covers policy validation, cache values and
+first/second derivatives, checked/unchecked access, independent cache copies,
+worker exceptions and retry, buffer resizing/NaN overwrite, per-term-output and
+near-pole fallbacks, independent outer threads, nested OpenMP fallback, unchanged
+scientific archive bytes with policy reset on load, and a 500-step propagation
+using Tudat's RK4 integrator. Exact-pole finite acceleration is not newly promised:
+the existing serial path is non-finite at the exact-pole fixtures; fallback tests
+use finite points near each pole.
+
+These are focused native gates, not a full solver/binding acceptance report.
+Full factory-to-solver state/STM/sensitivity integration, Python exposure and
+consistent complete builds, installed-consumer execution and remeasurement
+remain to be completed. The previously missing Earth-orientation resource is
+not hidden or worked around by these tests.
