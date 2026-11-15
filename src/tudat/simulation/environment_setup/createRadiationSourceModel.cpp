@@ -153,16 +153,6 @@ std::vector< std::string > getOriginalSourceBodyNames( const std::vector< std::s
 }
 
 std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSourcePanelRadiosityModelUpdater(
-        const std::vector< std::shared_ptr< PanelRadiosityModelSettings > >& modelSettings,
-        const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodiesMap,
-        const std::string& sourceBodyName,
-        const SystemOfBodies& bodies )
-{
-    return createSourcePanelRadiosityModelUpdater(
-            getOriginalSourceBodyNames( modelSettings ), originalSourceToSourceOccultingBodiesMap, sourceBodyName, bodies );
-}
-
-std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSourcePanelRadiosityModelUpdater(
         const std::vector< std::string >& originalSourceBodyNames,
         const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodiesMap,
         const std::string& sourceBodyName,

@@ -191,9 +191,18 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< system_models::V
     }
     for( auto engineModel : vehicleSystems->getEngineModels( ) )
     {
-        if( isModelOfType< propulsion::ParameterizedThrustMagnitudeWrapper >( engineModel.second->getThrustMagnitudeWrapper( ) ) )
+        std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = engineModel.second->getThrustMagnitudeWrapper( );
+        if( isModelOfType< propulsion::ParameterizedThrustMagnitudeWrapper >( thrustMagnitude ) )
         {
             return true;
+        }
+        else if( !isModelOfType< propulsion::ConstantThrustMagnitudeWrapper >( thrustMagnitude ) &&
+                 !isModelOfType< propulsion::CustomThrustMagnitudeWrapper >( thrustMagnitude ) &&
+                 !isModelOfType< propulsion::CustomThrustAccelerationMagnitudeWrapper >( thrustMagnitude ) &&
+                 !isModelOfType< propulsion::MeeCostatesBangBangThrustMagnitudeWrapper >( thrustMagnitude ) &&
+                 !isModelOfType< propulsion::CustomThrustVectorWrapper >( thrustMagnitude ) )
+        {
+            throwUnknownModelTypeError( "thrust magnitude model" );
         }
     }
     return false;

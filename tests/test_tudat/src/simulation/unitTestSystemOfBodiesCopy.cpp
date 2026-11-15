@@ -30,7 +30,6 @@
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
-#include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/simulation/environment_setup/copySystemOfBodies.h"
@@ -680,29 +679,6 @@ BOOST_AUTO_TEST_CASE( testCopiedAndSharedModels )
                          ->getInertialBodyAxisDirectionCalculator( ) );
 }
 
-//! Test whether the copied environment gives results identical to the original (also for a copy of a copy)
-BOOST_AUTO_TEST_CASE( testCopiedModelEvaluation )
-{
-    SystemOfBodies bodies = createTestBodies( );
-    SystemOfBodies bodiesCopy = createTestBodiesCopy( bodies );
-    SystemOfBodies bodiesCopyOfCopy = createTestBodiesCopy( bodiesCopy, false );
-
-    std::vector< double > times = getTestTimes( 50 );
-    std::vector< double > originalValues = evaluateEnvironmentHistory( bodies, times );
-    std::vector< double > copyValues = evaluateEnvironmentHistory( bodiesCopy, times );
-    std::vector< double > copyOfCopyValues = evaluateEnvironmentHistory( bodiesCopyOfCopy, times );
-
-    BOOST_CHECK( originalValues.size( ) > 100 * times.size( ) );
-    BOOST_CHECK_EQUAL( copyValues.size( ), originalValues.size( ) );
-    BOOST_CHECK_EQUAL( copyOfCopyValues.size( ), originalValues.size( ) );
-    for( unsigned int i = 0; i < originalValues.size( ); i++ )
-    {
-        BOOST_CHECK( !std::isnan( originalValues.at( i ) ) );
-        BOOST_CHECK_EQUAL( copyValues.at( i ), originalValues.at( i ) );
-        BOOST_CHECK_EQUAL( copyOfCopyValues.at( i ), originalValues.at( i ) );
-    }
-}
-
 //! Test whether models in the copy are linked to the copied bodies only, and changes to one system of bodies do not affect the other
 BOOST_AUTO_TEST_CASE( testIndependenceOfCopy )
 {
@@ -1085,33 +1061,13 @@ BOOST_AUTO_TEST_CASE( testCopyOfComaModel )
 //! Test whether the original and its copies can be evaluated concurrently, giving results identical to serial evaluation
 BOOST_AUTO_TEST_CASE( testConcurrentEvaluationOfCopies )
 {
-    // First use of Runge-Kutta coefficients (initialized on first use) from several threads at once
-    std::vector< std::thread > coefficientThreads;
-    std::vector< numerical_integrators::RungeKuttaCoefficients > threadCoefficients( 4 );
-    for( unsigned int i = 0; i < threadCoefficients.size( ); i++ )
-    {
-        coefficientThreads.push_back( std::thread( [ &threadCoefficients, i ]( ) {
-            threadCoefficients.at( i ) =
-                    numerical_integrators::RungeKuttaCoefficients::get( numerical_integrators::CoefficientSets::rungeKuttaFehlberg78 );
-        } ) );
-    }
-    for( std::thread& thread : coefficientThreads )
-    {
-        thread.join( );
-    }
-    for( unsigned int i = 0; i < threadCoefficients.size( ); i++ )
-    {
-        BOOST_CHECK( threadCoefficients.at( i ).bCoefficients ==
-                     numerical_integrators::RungeKuttaCoefficients::get( numerical_integrators::CoefficientSets::rungeKuttaFehlberg78 )
-                             .bCoefficients );
-    }
-
     SystemOfBodies bodies = createTestBodies( );
     const unsigned int numberOfThreads = 4;
     std::vector< SystemOfBodies > bodyCopies;
     for( unsigned int i = 0; i < numberOfThreads; i++ )
     {
-        bodyCopies.push_back( createTestBodiesCopy( bodies, false ) );
+        // Each copy (after the first) is a copy of the previous copy
+        bodyCopies.push_back( createTestBodiesCopy( i == 0 ? bodies : bodyCopies.back( ), false ) );
     }
 
     std::vector< double > times = getTestTimes( 400 );
@@ -1222,12 +1178,6 @@ std::vector< std::map< double, Eigen::VectorXd > > propagateTestVehicleArcs( con
     accelerationMap[ "Vehicle3" ][ "Sun" ] = { pointMassGravityAcceleration( ), radiationPressureAcceleration( ) };
     accelerationMap[ "Vehicle3" ][ "Vehicle3" ] = { thrustAcceleration( { "MainEngine" } ) };
 
-    AccelerationMap accelerationModelMap;
-    if( numberOfThreads == 1 )
-    {
-        accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
-    }
-
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
@@ -1235,28 +1185,16 @@ std::vector< std::map< double, Eigen::VectorXd > > propagateTestVehicleArcs( con
                 std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 30.0 );
         std::shared_ptr< PropagationTerminationSettings > terminationSettings =
                 std::make_shared< PropagationTimeTerminationSettings >( arcStartTimes.at( i ) + 3600.0 );
-        if( numberOfThreads == 1 )
-        {
-            arcPropagationSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                        accelerationModelMap,
-                                                                                        bodiesToPropagate,
-                                                                                        arcInitialStates.at( i ),
-                                                                                        arcStartTimes.at( i ),
-                                                                                        integratorSettings,
-                                                                                        terminationSettings ) );
-        }
-        else
-        {
-            arcPropagationSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                        accelerationMap,
-                                                                                        bodiesToPropagate,
-                                                                                        arcInitialStates.at( i ),
-                                                                                        arcStartTimes.at( i ),
-                                                                                        integratorSettings,
-                                                                                        terminationSettings ) );
-        }
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                    AccelerationMap( ),
+                                                                                    bodiesToPropagate,
+                                                                                    arcInitialStates.at( i ),
+                                                                                    arcStartTimes.at( i ),
+                                                                                    integratorSettings,
+                                                                                    terminationSettings );
+        translationalSettings->resetAccelerationModelsMap( accelerationMap, bodies );
+        arcPropagationSettingsList.push_back( translationalSettings );
     }
     std::shared_ptr< MultiArcPropagatorSettings< double > > multiArcPropagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList );

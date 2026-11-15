@@ -541,6 +541,11 @@ public:
     void setAerodynamicCoefficientsIndependentVariableFunction( const AerodynamicCoefficientsIndependentVariables independentVariable,
                                                                 const std::function< double( ) > coefficientDependency );
 
+    const std::map< AerodynamicCoefficientsIndependentVariables, std::function< double( ) > >& getCustomCoefficientDependencies( ) const
+    {
+        return customCoefficientDependencies_;
+    }
+
     //! Function to return current central body-fixed velocity of vehicle.
     /*!
      *  Function to return central body-fixed velocity of vehicle.

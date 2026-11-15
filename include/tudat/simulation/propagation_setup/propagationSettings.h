@@ -689,6 +689,8 @@ public:
      * Function to set the number of threads over which the arcs are distributed during propagation. For more than one thread,
      * the multi-arc simulator creates a copy of the system of bodies for each thread, on which the state derivative models of the
      * arcs propagated by that thread are created from the settings (e.g. acceleration settings) in the single-arc propagator settings.
+     * Since each arc then has its own acceleration models, parameters that require a single acceleration model for all arcs (momentum
+     * wheel desaturation Delta V values) cannot be estimated with more than one thread.
      * \param numberOfThreads Number of threads over which the arcs are distributed during propagation
      */
     void setNumberOfThreads( const unsigned int numberOfThreads )
@@ -949,35 +951,6 @@ public:
         accelerationsMap_( accelerationsMap )
     {
         verifyInput( );
-    }
-
-    //! Constructor providing settings for the accelerations, from which the acceleration models are created by
-    //! resetIntegratedStateModels (as is done automatically for multi-threaded multi-arc propagation).
-    TranslationalStatePropagatorSettings(
-            const std::vector< std::string >& centralBodies,
-            const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
-            const std::vector< std::string >& bodiesToIntegrate,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
-            const TimeType& initialTime,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-            const TranslationalPropagatorType propagator = cowell,
-            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
-        TranslationalStatePropagatorSettings( centralBodies,
-                                              basic_astrodynamics::AccelerationMap( ),
-                                              bodiesToIntegrate,
-                                              initialBodyStates,
-                                              initialTime,
-                                              integratorSettings,
-                                              terminationSettings,
-                                              propagator,
-                                              dependentVariablesToSave,
-                                              outputSettings )
-    {
-        accelerationSettingsMap_ = accelerationSettingsMap;
     }
 
     virtual std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > clone( )
@@ -2819,66 +2792,94 @@ public:
     }
 };
 
+//! Function to determine whether termination settings (including nested termination settings) use a custom function
+inline bool doTerminationSettingsUseCustomFunction( const std::shared_ptr< PropagationTerminationSettings > terminationSettings )
+{
+    switch( terminationSettings->terminationType_ )
+    {
+        case custom_stopping_condition:
+            return true;
+        case dependent_variable_stopping_condition:
+            return std::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings )
+                           ->dependentVariableSettings_->getDependentVariableType( ) == custom_dependent_variable;
+        case hybrid_stopping_condition:
+            for( auto nestedTerminationSettings :
+                 std::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings )->terminationSettings_ )
+            {
+                if( doTerminationSettingsUseCustomFunction( nestedTerminationSettings ) )
+                {
+                    return true;
+                }
+            }
+            return false;
+        case non_sequential_stopping_condition: {
+            std::shared_ptr< NonSequentialPropagationTerminationSettings > nonSequentialTerminationSettings =
+                    std::dynamic_pointer_cast< NonSequentialPropagationTerminationSettings >( terminationSettings );
+            return doTerminationSettingsUseCustomFunction( nonSequentialTerminationSettings->forwardTerminationSettings_ ) ||
+                    doTerminationSettingsUseCustomFunction( nonSequentialTerminationSettings->backwardTerminationSettings_ );
+        }
+        default:
+            return false;
+    }
+}
+
 //! Function to check whether multi-arc propagator settings can be used for multi-threaded propagation
 /*!
  * Function to check whether multi-arc propagator settings can be used for multi-threaded propagation. An error is thrown if an arc
  * contains other types of dynamics than translational dynamics, or if its accelerations are provided as models instead of settings.
- * A warning is printed if custom accelerations are used, since these are shared between the threads.
+ * A warning is printed if custom accelerations, dependent variables or termination conditions are used, since these are shared
+ * between the threads.
  * \param multiArcSettings Multi-arc propagator settings that are to be checked
  */
 template< typename StateScalarType, typename TimeType >
 void checkMultiArcSettingsForMultiThreadedPropagation(
         const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcSettings )
 {
-    bool customAccelerationFound = false;
+    bool customFunctionFound = false;
     for( auto arcSettings : multiArcSettings->getSingleArcSettings( ) )
     {
-        std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > settingsList = { arcSettings };
-        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypeSettings =
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( arcSettings );
-        if( multiTypeSettings != nullptr )
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > translationalSettings =
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( arcSettings );
+        if( translationalSettings == nullptr )
         {
-            settingsList.clear( );
-            for( auto stateTypeIterator : multiTypeSettings->getPropagatorSettingsMap( ) )
-            {
-                settingsList.insert( settingsList.end( ), stateTypeIterator.second.begin( ), stateTypeIterator.second.end( ) );
-            }
+            throw std::runtime_error( "Error in multi-threaded multi-arc propagation, only translational dynamics is supported" );
         }
-
-        for( auto settings : settingsList )
+        if( translationalSettings->getAccelerationSettingsMap( ).size( ) == 0 && translationalSettings->getAccelerationsMap( ).size( ) > 0 )
         {
-            std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > translationalSettings =
-                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( settings );
-            if( translationalSettings == nullptr )
+            throw std::runtime_error(
+                    "Error in multi-threaded multi-arc propagation, acceleration settings (rather than acceleration models) must be "
+                    "provided for each arc, so that the acceleration models can be created for each thread" );
+        }
+        for( auto acceleratedBodyIterator : translationalSettings->getAccelerationSettingsMap( ) )
+        {
+            for( auto exertingBodyIterator : acceleratedBodyIterator.second )
             {
-                throw std::runtime_error( "Error in multi-threaded multi-arc propagation, only translational dynamics is supported" );
-            }
-            if( translationalSettings->getAccelerationSettingsMap( ).size( ) == 0 &&
-                translationalSettings->getAccelerationsMap( ).size( ) > 0 )
-            {
-                throw std::runtime_error(
-                        "Error in multi-threaded multi-arc propagation, acceleration settings (rather than acceleration models) must be "
-                        "provided for each arc, so that the acceleration models can be created for each thread" );
-            }
-            for( auto acceleratedBodyIterator : translationalSettings->getAccelerationSettingsMap( ) )
-            {
-                for( auto exertingBodyIterator : acceleratedBodyIterator.second )
+                for( auto accelerationSettings : exertingBodyIterator.second )
                 {
-                    for( auto accelerationSettings : exertingBodyIterator.second )
+                    if( accelerationSettings->accelerationType_ == basic_astrodynamics::custom_acceleration )
                     {
-                        if( accelerationSettings->accelerationType_ == basic_astrodynamics::custom_acceleration )
-                        {
-                            customAccelerationFound = true;
-                        }
+                        customFunctionFound = true;
                     }
                 }
             }
         }
+        for( auto dependentVariableSettings : translationalSettings->getDependentVariablesToSave( ) )
+        {
+            if( dependentVariableSettings->getDependentVariableType( ) == custom_dependent_variable )
+            {
+                customFunctionFound = true;
+            }
+        }
+        if( doTerminationSettingsUseCustomFunction( translationalSettings->getTerminationSettings( ) ) )
+        {
+            customFunctionFound = true;
+        }
     }
-    if( customAccelerationFound )
+    if( customFunctionFound )
     {
-        std::cerr << "Warning in multi-threaded multi-arc propagation, custom acceleration functions are shared between the threads, "
-                     "and must be thread-safe"
+        std::cerr << "Warning in multi-threaded multi-arc propagation, custom functions (of accelerations, dependent variables or "
+                     "termination conditions) are shared between the threads. They must be thread-safe, and should not use the "
+                     "provided system of bodies, which is not updated during multi-threaded propagation"
                   << std::endl;
     }
 }

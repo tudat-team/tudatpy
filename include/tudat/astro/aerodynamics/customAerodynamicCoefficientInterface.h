@@ -200,12 +200,26 @@ public:
         timeUpdateFunction_ = timeUpdateFunction;
     }
 
+    //! Function to set whether the coefficients are computed by a custom (user-defined) function
+    void setUsesCustomFunction( const bool usesCustomFunction )
+    {
+        usesCustomFunction_ = usesCustomFunction;
+    }
+
+    bool getUsesCustomFunction( ) const
+    {
+        return usesCustomFunction_;
+    }
+
 private:
     //! Function returning the concatenated aerodynamic force and moment coefficients as function of the set of independent variables.
     std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
 
     //! Function that sets the coefficients for the current arc (in an external class/function)
     std::function< void( const double ) > timeUpdateFunction_ = nullptr;
+
+    //! Boolean denoting whether the coefficients are computed by a custom (user-defined) function
+    bool usesCustomFunction_ = false;
 };
 
 }  // namespace aerodynamics

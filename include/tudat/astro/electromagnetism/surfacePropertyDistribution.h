@@ -49,6 +49,9 @@ public:
 
     virtual bool isTimeInvariant( ) = 0;
 
+    //! Function to create a copy of this object (with its own current time and caches)
+    virtual std::shared_ptr< SurfacePropertyDistribution > clone( ) const = 0;
+
 protected:
     virtual void updateMembers_( const double currentTime ) {};
 
@@ -72,6 +75,11 @@ public:
     bool isTimeInvariant( ) override
     {
         return true;
+    }
+
+    std::shared_ptr< SurfacePropertyDistribution > clone( ) const override
+    {
+        return std::make_shared< ConstantSurfacePropertyDistribution >( *this );
     }
 
 private:
@@ -131,6 +139,12 @@ public:
     int getMaximumOrder( ) const
     {
         return maximumOrder_;
+    }
+
+    // Created from the coefficients, since a copy would refer to the Legendre cache of the original
+    std::shared_ptr< SurfacePropertyDistribution > clone( ) const override
+    {
+        return std::make_shared< SphericalHarmonicsSurfacePropertyDistribution >( cosineCoefficients_, sineCoefficients_ );
     }
 
 private:
@@ -193,6 +207,11 @@ public:
         return false;
     };
 
+    std::shared_ptr< SurfacePropertyDistribution > clone( ) const override
+    {
+        return std::make_shared< SecondDegreeZonalPeriodicSurfacePropertyDistribution >( *this );
+    }
+
 private:
     void updateMembers_( double currentTime ) override;
 
@@ -221,6 +240,11 @@ public:
     bool isTimeInvariant( )
     {
         return false;
+    }
+
+    std::shared_ptr< SurfacePropertyDistribution > clone( ) const override
+    {
+        return std::make_shared< CustomSurfacePropertyDistribution >( *this );
     }
 
 private:

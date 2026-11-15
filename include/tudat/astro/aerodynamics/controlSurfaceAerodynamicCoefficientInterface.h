@@ -246,10 +246,24 @@ public:
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
     }
 
+    //! Function to set whether the coefficient increments are computed by a custom (user-defined) function
+    void setUsesCustomFunction( const bool usesCustomFunction )
+    {
+        usesCustomFunction_ = usesCustomFunction;
+    }
+
+    bool getUsesCustomFunction( ) const
+    {
+        return usesCustomFunction_;
+    }
+
 protected:
     //! Function returning the concatenated aerodynamic force and moment coefficient increments as function of the set of
     //! independent variables.
     std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
+
+    //! Boolean denoting whether the coefficient increments are computed by a custom (user-defined) function
+    bool usesCustomFunction_ = false;
 };
 
 }  // namespace aerodynamics

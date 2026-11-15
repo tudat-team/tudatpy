@@ -326,6 +326,11 @@ std::shared_ptr< ephemerides::RotationalEphemeris > copyRotationalEphemeris(
                                                                          aerodynamicAngleRotation->getBaseFrameOrientation( ),
                                                                          aerodynamicAngleRotation->getTargetFrameOrientation( ),
                                                                          aerodynamicAngleFunction );
+        printSharedModelWarning( printWarnings && aerodynamicAngleRotation->getIsPitchTrimmed( ) &&
+                                         aerodynamicAngleRotation->getTrimSideslipAndBankAngleFunction( ) != nullptr,
+                                 bodyName,
+                                 "sideslip and bank angle function of the trimmed rotation model",
+                                 "custom function" );
         aerodynamicAngleRotationCopy->setIsPitchTrimmed( aerodynamicAngleRotation->getIsPitchTrimmed( ),
                                                          aerodynamicAngleRotation->getTrimSideslipAndBankAngleFunction( ) );
         return aerodynamicAngleRotationCopy;
@@ -660,6 +665,12 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > copyAerodynamic
         // Coefficient functions (constant or interpolated) and hypersonic coefficient tables are shared
         coefficientInterfaceCopy =
                 copyModelOfType< CustomAerodynamicCoefficientInterface, HypersonicLocalInclinationAnalysis >( coefficientInterface );
+        printSharedModelWarning(
+                printWarnings && isModelOfType< CustomAerodynamicCoefficientInterface >( coefficientInterface ) &&
+                        std::static_pointer_cast< CustomAerodynamicCoefficientInterface >( coefficientInterface )->getUsesCustomFunction( ),
+                bodyName,
+                "aerodynamic coefficient function",
+                "custom function" );
         if( coefficientInterfaceCopy == nullptr )
         {
             printSharedModelWarning( printWarnings,
@@ -690,6 +701,13 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > copyAerodynamic
             }
             else
             {
+                printSharedModelWarning(
+                        printWarnings &&
+                                std::static_pointer_cast< CustomControlSurfaceIncrementAerodynamicInterface >( controlSurfaceInterfaceCopy )
+                                        ->getUsesCustomFunction( ),
+                        bodyName,
+                        "coefficient function of control surface " + controlSurfaceInterface.first,
+                        "custom function" );
                 controlSurfaceInterface.second = controlSurfaceInterfaceCopy;
             }
         }
@@ -704,9 +722,10 @@ std::shared_ptr< RigidBodyProperties > copyMassProperties( const std::shared_ptr
 {
     std::shared_ptr< TimeDependentRigidBodyProperties > timeDependentProperties =
             std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties );
-    if( timeDependentProperties != nullptr && timeDependentProperties->getMassFunction( ) != nullptr )
+    if( ( timeDependentProperties != nullptr && timeDependentProperties->getMassFunction( ) != nullptr ) ||
+        isModelOfType< MassDependentRigidBodyProperties >( massProperties ) )
     {
-        printSharedModelWarning( printWarnings, bodyName, "mass function", "custom function" );
+        printSharedModelWarning( printWarnings, bodyName, "mass property functions", "custom function" );
     }
 
     std::shared_ptr< RigidBodyProperties > massPropertiesCopy =
@@ -733,10 +752,16 @@ std::shared_ptr< electromagnetism::RadiationSourceModel > copyRadiationSourceMod
     if( paneledSourceModel != nullptr && paneledSourceModel->getPanels( ).size( ) > 0 )
     {
         std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels;
+        bool distributionUsesCustomFunction = false;
         for( auto& radiosityModel : paneledSourceModel->getPanels( ).at( 0 ).getRadiosityModels( ) )
         {
             radiosityModels.push_back( radiosityModel->clone( ) );
+            distributionUsesCustomFunction |= radiosityModels.back( )->copySurfacePropertyDistributions( );
         }
+        printSharedModelWarning( printWarnings && distributionUsesCustomFunction,
+                                 bodyName,
+                                 "albedo or emissivity distribution function",
+                                 "custom function" );
         std::shared_ptr< DynamicallyPaneledRadiationSourceModel > paneledSourceModelCopy =
                 std::make_shared< DynamicallyPaneledRadiationSourceModel >( sourceBodyShapeModelCopy,
                                                                             nullptr,
@@ -754,16 +779,22 @@ std::shared_ptr< electromagnetism::RadiationSourceModel > copyRadiationSourceMod
     if( staticPaneledSourceModel != nullptr )
     {
         std::vector< RadiationSourcePanel > panelsCopy;
+        bool distributionUsesCustomFunction = false;
         for( const RadiationSourcePanel& panel : staticPaneledSourceModel->getPanels( ) )
         {
             std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels;
             for( auto& radiosityModel : panel.getRadiosityModels( ) )
             {
                 radiosityModels.push_back( radiosityModel->clone( ) );
+                distributionUsesCustomFunction |= radiosityModels.back( )->copySurfacePropertyDistributions( );
             }
             panelsCopy.emplace_back(
                     panel.getArea( ), panel.getRelativeCenter( ), panel.getSurfaceNormal( ), std::move( radiosityModels ) );
         }
+        printSharedModelWarning( printWarnings && distributionUsesCustomFunction,
+                                 bodyName,
+                                 "albedo or emissivity distribution function",
+                                 "custom function" );
         std::shared_ptr< StaticallyPaneledRadiationSourceModel > staticPaneledSourceModelCopy =
                 std::make_shared< StaticallyPaneledRadiationSourceModel >(
                         nullptr, std::move( panelsCopy ), staticPaneledSourceModel->getSourceName( ) );
@@ -828,7 +859,9 @@ std::shared_ptr< system_models::VehicleSystems > copyVehicleSystems( const std::
                 copyModelOfType< propulsion::ConstantThrustMagnitudeWrapper >( thrustMagnitude );
         if( thrustMagnitudeCopy == nullptr )
         {
-            thrustMagnitudeCopy = copyModelOfType< propulsion::CustomThrustMagnitudeWrapper >( thrustMagnitude );
+            thrustMagnitudeCopy =
+                    copyModelOfType< propulsion::CustomThrustMagnitudeWrapper, propulsion::CustomThrustAccelerationMagnitudeWrapper >(
+                            thrustMagnitude );
             if( thrustMagnitudeCopy != nullptr )
             {
                 printSharedModelWarning(
@@ -855,6 +888,12 @@ std::shared_ptr< system_models::VehicleSystems > copyVehicleSystems( const std::
                                      "copying this thrust magnitude type is not implemented" );
             thrustMagnitudeCopy = thrustMagnitude;
         }
+        printSharedModelWarning(
+                printWarnings &&
+                        engineModel.second->getBodyFixedThrustDirectionFunction( ).target< ConstantBodyFixedThrustDirection >( ) == nullptr,
+                bodyName,
+                "thrust direction function of engine " + engineModel.first,
+                "custom function" );
         vehicleSystemsCopy->setEngineModel(
                 std::make_shared< EngineModel >(
                         thrustMagnitudeCopy, engineModel.first, engineModel.second->getBodyFixedThrustDirectionFunction( ) ),
@@ -874,9 +913,11 @@ std::shared_ptr< system_models::VehicleSystems > copyVehicleSystems( const std::
     {
         for( auto& partPanels : exteriorPanels )
         {
+            bool panelUsesCustomFunction = false;
             for( auto& exteriorPanel : partPanels.second )
             {
                 exteriorPanel = std::make_shared< VehicleExteriorPanel >( *exteriorPanel );
+                panelUsesCustomFunction |= exteriorPanel->getUsesCustomFunction( );
 
                 // Surface normal of panel tracking a body is set by closure of vehicle systems
                 if( exteriorPanel->getTrackedBody( ) != "" )
@@ -884,6 +925,10 @@ std::shared_ptr< system_models::VehicleSystems > copyVehicleSystems( const std::
                     exteriorPanel->applyEnvironmentModelClosure( nullptr );
                 }
             }
+            printSharedModelWarning( printWarnings && panelUsesCustomFunction,
+                                     bodyName,
+                                     "surface normal or position functions of the panels of part '" + partPanels.first + "'",
+                                     "custom function" );
         }
         vehicleSystemsCopy->setVehicleExteriorPanels( exteriorPanels );
 
@@ -901,7 +946,10 @@ std::shared_ptr< system_models::VehicleSystems > copyVehicleSystems( const std::
 }
 
 std::shared_ptr< ground_stations::StationMotionModel > copyStationMotionModel(
-        const std::shared_ptr< ground_stations::StationMotionModel > stationMotionModel )
+        const std::shared_ptr< ground_stations::StationMotionModel > stationMotionModel,
+        const std::string& bodyName,
+        const std::string& stationName,
+        const bool printWarnings )
 {
     using namespace ground_stations;
 
@@ -912,10 +960,15 @@ std::shared_ptr< ground_stations::StationMotionModel > copyStationMotionModel(
         std::vector< std::shared_ptr< StationMotionModel > > modelListCopy;
         for( auto model : combinedStationMotion->getModelList( ) )
         {
-            modelListCopy.push_back( copyStationMotionModel( model ) );
+            modelListCopy.push_back( copyStationMotionModel( model, bodyName, stationName, printWarnings ) );
         }
         return std::make_shared< CombinedStationMotionModel >( modelListCopy );
     }
+
+    printSharedModelWarning( printWarnings && isModelOfType< CustomStationMotionModel >( stationMotionModel ),
+                             bodyName,
+                             "motion function of ground station " + stationName,
+                             "custom function" );
 
     // Models linked to bodies are copied (links are set by closure), others have no data that changes during propagation
     std::shared_ptr< StationMotionModel > stationMotionModelCopy =
@@ -923,7 +976,10 @@ std::shared_ptr< ground_stations::StationMotionModel > copyStationMotionModel(
     return stationMotionModelCopy == nullptr ? stationMotionModel : stationMotionModelCopy;
 }
 
-std::shared_ptr< ground_stations::GroundStation > copyGroundStation( const std::shared_ptr< ground_stations::GroundStation > groundStation )
+std::shared_ptr< ground_stations::GroundStation > copyGroundStation( const std::shared_ptr< ground_stations::GroundStation > groundStation,
+                                                                     const std::string& bodyName,
+                                                                     const std::string& stationName,
+                                                                     const bool printWarnings )
 {
     using namespace ground_stations;
 
@@ -931,7 +987,8 @@ std::shared_ptr< ground_stations::GroundStation > copyGroundStation( const std::
             std::make_shared< GroundStationState >( *groundStation->getNominalStationState( ) );
     if( stationStateCopy->getStationMotionModel( ) != nullptr )
     {
-        stationStateCopy->setStationMotionModel( copyStationMotionModel( stationStateCopy->getStationMotionModel( ) ) );
+        stationStateCopy->setStationMotionModel(
+                copyStationMotionModel( stationStateCopy->getStationMotionModel( ), bodyName, stationName, printWarnings ) );
     }
 
     std::shared_ptr< GroundStation > groundStationCopy = std::make_shared< GroundStation >(
@@ -994,6 +1051,12 @@ void copyBodyModels( const std::shared_ptr< Body > body,
     {
         std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModelCopy =
                 copyModelOfType< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel );
+        printSharedModelWarning( printWarnings && targetModelCopy != nullptr &&
+                                         std::static_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel )
+                                                         ->getCoefficientFunction( ) != nullptr,
+                                 bodyName,
+                                 "radiation pressure coefficient function",
+                                 "custom function" );
         std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > paneledTargetModel =
                 std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( targetModel );
         if( paneledTargetModel != nullptr )
@@ -1029,12 +1092,20 @@ void copyBodyModels( const std::shared_ptr< Body > body,
         {
             flightConditionsCopy->applyEnvironmentModelClosure( nullptr, nullptr );
         }
+        printSharedModelWarning( printWarnings && isModelOfType< aerodynamics::AtmosphericFlightConditions >( flightConditions ) &&
+                                         std::static_pointer_cast< aerodynamics::AtmosphericFlightConditions >( flightConditions )
+                                                         ->getCustomCoefficientDependencies( )
+                                                         .size( ) > 0,
+                                 bodyName,
+                                 "aerodynamic coefficient dependencies of the flight conditions",
+                                 "custom function" );
         bodyCopy->setFlightConditions( flightConditionsCopy );
     }
     // Ground stations and deformation models (links to the bodies are set by the closure of the copy)
     for( auto groundStation : body->getGroundStationMap( ) )
     {
-        bodyCopy->addGroundStation( groundStation.first, copyGroundStation( groundStation.second ) );
+        bodyCopy->addGroundStation( groundStation.first,
+                                    copyGroundStation( groundStation.second, bodyName, groundStation.first, printWarnings ) );
     }
     for( auto deformationModel : body->getBodyDeformationModels( ) )
     {

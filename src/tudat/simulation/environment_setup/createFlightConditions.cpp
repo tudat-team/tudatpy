@@ -91,23 +91,12 @@ bool applyFlightConditionsClosure( const std::shared_ptr< aerodynamics::FlightCo
                                   " has no rotation model." );
     }
 
-    // Retrieve aerodynamic angle calculator from aerodynamic angle based rotation model of body (if any), which must be closed
-    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > aerodynamicAngleRotationModel =
-            std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >(
-                    bodyWithFlightConditions->getRotationalEphemeris( ) );
-    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator;
-    if( aerodynamicAngleRotationModel != nullptr )
+    // Create aerodynamic angles calculator (from aerodynamic angle based rotation model of body, if any, which must be closed)
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator = createAerodynamicAngleCalculator(
+            bodyWithFlightConditions, centralBody, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration );
+    if( aerodynamicAngleCalculator == nullptr )
     {
-        aerodynamicAngleCalculator = aerodynamicAngleRotationModel->getAerodynamicAngleCalculator( );
-        if( aerodynamicAngleCalculator == nullptr )
-        {
-            return false;
-        }
-    }
-    else
-    {
-        aerodynamicAngleCalculator =
-                createAerodynamicAngleCalculatorFromBodyStates( bodyWithFlightConditions, centralBody, nameOfBodyExertingAcceleration );
+        return false;
     }
 
     std::shared_ptr< aerodynamics::AtmosphericFlightConditions > atmosphericFlightConditions =
@@ -151,7 +140,8 @@ bool applyFlightConditionsClosure( const std::shared_ptr< aerodynamics::FlightCo
 
     // Set aerodynamic angles w.r.t. body-fixed frame from rotation model of body (set by aerodynamic angle based rotation model
     // itself, if relevant)
-    if( bodyWithFlightConditions->getRotationalEphemeris( ) != nullptr && aerodynamicAngleRotationModel == nullptr )
+    if( bodyWithFlightConditions->getRotationalEphemeris( ) != nullptr &&
+        !isModelOfType< ephemerides::AerodynamicAngleRotationalEphemeris >( bodyWithFlightConditions->getRotationalEphemeris( ) ) )
     {
         aerodynamicAngleCalculator->setBodyFixedAngleInterface(
                 std::make_shared< reference_frames::FromGenericEphemerisAerodynamicAngleInterface >(
@@ -185,26 +175,6 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
 {
     std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
             std::make_shared< aerodynamics::AtmosphericFlightConditions >( nameOfBodyExertingAcceleration );
-    if( !applyFlightConditionsClosure( flightConditions,
-                                       bodyWithFlightConditions,
-                                       centralBody,
-                                       nameOfBodyUndergoingAcceleration,
-                                       nameOfBodyExertingAcceleration ) )
-    {
-        throw std::runtime_error( "Error when making flight conditions for " + nameOfBodyUndergoingAcceleration +
-                                  ", aerodynamic angle based rotation model of the body is not closed" );
-    }
-    return flightConditions;
-}
-
-//! Function to create a flight conditions object
-std::shared_ptr< aerodynamics::FlightConditions > createFlightConditions( const std::shared_ptr< Body > bodyWithFlightConditions,
-                                                                          const std::shared_ptr< Body > centralBody,
-                                                                          const std::string& nameOfBodyUndergoingAcceleration,
-                                                                          const std::string& nameOfBodyExertingAcceleration )
-{
-    std::shared_ptr< aerodynamics::FlightConditions > flightConditions =
-            std::make_shared< aerodynamics::FlightConditions >( nameOfBodyExertingAcceleration );
     if( !applyFlightConditionsClosure( flightConditions,
                                        bodyWithFlightConditions,
                                        centralBody,

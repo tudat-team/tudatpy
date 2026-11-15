@@ -445,6 +445,7 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
                         customCoefficientSettings->getIndependentVariableNames( ),
                         customCoefficientSettings->getForceCoefficientsFrame( ),
                         customCoefficientSettings->getMomentCoefficientsFrame( ) );
+                std::static_pointer_cast< CustomAerodynamicCoefficientInterface >( coefficientInterface )->setUsesCustomFunction( true );
             }
             break;
         }

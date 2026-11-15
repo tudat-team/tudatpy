@@ -69,6 +69,13 @@ public:
      */
     virtual std::unique_ptr< SourcePanelRadiosityModel > clone( ) const = 0;
 
+    //! Function to replace the surface property distributions (shared by clones) by copies, as needed for a copy of the source.
+    //! Returns whether a copied distribution is a custom distribution, the function of which is shared with the original
+    virtual bool copySurfacePropertyDistributions( )
+    {
+        return false;
+    }
+
     /*!
      * Return whether the panel radiosity depends on an original source
      */
@@ -265,6 +272,12 @@ public:
         return std::make_unique< AlbedoSourcePanelRadiosityModel >( *this );
     }
 
+    bool copySurfacePropertyDistributions( ) override
+    {
+        albedoDistribution_ = albedoDistribution_->clone( );
+        return std::dynamic_pointer_cast< CustomSurfacePropertyDistribution >( albedoDistribution_ ) != nullptr;
+    }
+
     const std::shared_ptr< LambertianReflectionLaw >& getReflectionLaw( ) const
     {
         return reflectionLaw_;
@@ -312,6 +325,12 @@ public:
     std::unique_ptr< SourcePanelRadiosityModel > clone( ) const override
     {
         return std::make_unique< DelayedThermalSourcePanelRadiosityModel >( *this );
+    }
+
+    bool copySurfacePropertyDistributions( ) override
+    {
+        emissivityDistribution_ = emissivityDistribution_->clone( );
+        return std::dynamic_pointer_cast< CustomSurfacePropertyDistribution >( emissivityDistribution_ ) != nullptr;
     }
 
     double getEmissivity( ) const
@@ -366,6 +385,12 @@ public:
     std::unique_ptr< SourcePanelRadiosityModel > clone( ) const override
     {
         return std::make_unique< AngleBasedThermalSourcePanelRadiosityModel >( *this );
+    }
+
+    bool copySurfacePropertyDistributions( ) override
+    {
+        emissivityDistribution_ = emissivityDistribution_->clone( );
+        return std::dynamic_pointer_cast< CustomSurfacePropertyDistribution >( emissivityDistribution_ ) != nullptr;
     }
 
     double getMinTemperature( ) const

@@ -107,6 +107,8 @@ std::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface > cre
             }
             coefficientInterface = std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
                     customSettings->getCoefficientFunction( ), customSettings->getIndependentVariableNames( ) );
+            std::static_pointer_cast< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >( coefficientInterface )
+                    ->setUsesCustomFunction( true );
             break;
         }
         case tabulated_coefficients: {

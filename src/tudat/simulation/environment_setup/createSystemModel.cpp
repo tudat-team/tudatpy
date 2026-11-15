@@ -29,7 +29,7 @@ void addEngineModel( const std::string& bodyName,
                      const Eigen::Vector3d bodyFixedThrustDirection )
 {
     addVariableDirectionEngineModel(
-            bodyName, engineName, thrustSettings, bodies, [ = ]( const double ) { return bodyFixedThrustDirection; } );
+            bodyName, engineName, thrustSettings, bodies, system_models::ConstantBodyFixedThrustDirection{ bodyFixedThrustDirection } );
 }
 
 void addVariableDirectionEngineModel( const std::string& bodyName,
@@ -159,6 +159,13 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
                                                                      geometry3dLoaded );
 
     exteriorPanel->setPanelTypeId( panelSettings->panelTypeId_ );
+    std::shared_ptr< FrameVariableBodyPanelGeometrySettings > variableGeometrySettings =
+            std::dynamic_pointer_cast< FrameVariableBodyPanelGeometrySettings >( panelSettings->panelGeometry_ );
+    if( variableGeometrySettings != nullptr )
+    {
+        exteriorPanel->setUsesCustomFunction( variableGeometrySettings->surfaceNormalFunction_ != nullptr ||
+                                              variableGeometrySettings->positionVectorFunction_ != nullptr );
+    }
     if( trackedBodyName != "" )
     {
         exteriorPanel->setIsPointingTowardsTrackedBody(

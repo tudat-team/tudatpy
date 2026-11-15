@@ -197,6 +197,17 @@ public:
         isPointingTowardsTrackedBody_ = isPointingTowardsTrackedBody;
     }
 
+    //! Function to set whether the surface normal and/or position of the panel are computed by custom (user-defined) functions
+    void setUsesCustomFunction( const bool usesCustomFunction )
+    {
+        usesCustomFunction_ = usesCustomFunction;
+    }
+
+    bool getUsesCustomFunction( ) const
+    {
+        return usesCustomFunction_;
+    }
+
     //! Function to apply the closure of this model (for panels tracking a body): (re)set the surface normal function
     void applyEnvironmentModelClosure( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal )
     {
@@ -296,6 +307,8 @@ protected:
     std::string trackedBody_;
 
     bool isPointingTowardsTrackedBody_ = true;
+
+    bool usesCustomFunction_ = false;
 
     std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw_;
 

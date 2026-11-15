@@ -90,12 +90,6 @@ std::pair< Eigen::VectorXd, Eigen::VectorXd > estimateArcWiseAtmosphereParameter
     std::vector< std::string > bodiesToEstimate = { "Cassini" };
     std::vector< std::string > centralBodies = { "Titan" };
 
-    AccelerationMap accelerationModelMap;
-    if( numberOfThreads == 1 )
-    {
-        accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToEstimate, centralBodies );
-    }
-
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList = { singleAccelerationDependentVariable(
             aerodynamic, "Cassini", "Titan" ) };
 
@@ -104,32 +98,19 @@ std::pair< Eigen::VectorXd, Eigen::VectorXd > estimateArcWiseAtmosphereParameter
     for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
     {
         arcEndTimes.push_back( arcStartTimes.at( j ) + 10 * 60 );
-        if( numberOfThreads == 1 )
-        {
-            propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies,
-                    accelerationModelMap,
-                    bodiesToEstimate,
-                    Eigen::VectorXd( arcInitialStates.at( j ) ),
-                    arcStartTimes.at( j ),
-                    rungeKuttaFixedStepSettings( 1.0, rungeKuttaFehlberg78 ),
-                    propagationTimeTerminationSettings( arcEndTimes.at( j ) ),
-                    cowell,
-                    dependentVariablesList ) );
-        }
-        else
-        {
-            propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies,
-                    accelerationMap,
-                    bodiesToEstimate,
-                    Eigen::VectorXd( arcInitialStates.at( j ) ),
-                    arcStartTimes.at( j ),
-                    rungeKuttaFixedStepSettings( 1.0, rungeKuttaFehlberg78 ),
-                    propagationTimeTerminationSettings( arcEndTimes.at( j ) ),
-                    cowell,
-                    dependentVariablesList ) );
-        }
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        AccelerationMap( ),
+                        bodiesToEstimate,
+                        Eigen::VectorXd( arcInitialStates.at( j ) ),
+                        arcStartTimes.at( j ),
+                        rungeKuttaFixedStepSettings( 1.0, rungeKuttaFehlberg78 ),
+                        propagationTimeTerminationSettings( arcEndTimes.at( j ) ),
+                        cowell,
+                        dependentVariablesList );
+        translationalSettings->resetAccelerationModelsMap( accelerationMap, bodies );
+        propagatorSettingsList.push_back( translationalSettings );
     }
     std::shared_ptr< MultiArcPropagatorSettings< double > > propagatorSettings = std::make_shared< MultiArcPropagatorSettings< double > >(
             propagatorSettingsList, false, std::make_shared< MultiArcPropagatorProcessingSettings >( false, true ) );
@@ -185,6 +166,85 @@ BOOST_AUTO_TEST_CASE( testParallelMultiArcEstimation )
         std::pair< Eigen::VectorXd, Eigen::VectorXd > multiThreadResults = estimateArcWiseAtmosphereParameters( numberOfThreads );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( multiThreadResults.first, singleThreadResults.first, 1.0E-8 );
         BOOST_CHECK_SMALL( ( multiThreadResults.second - singleThreadResults.second ).cwiseAbs( ).maxCoeff( ), 1.0E-6 );
+    }
+}
+
+// Propagate Titan (around Saturn) and Cassini (around Titan) in two arcs, and return Cassini's ephemeris states at the middle of
+// each arc. Cassini's ephemeris is w.r.t. Saturn, so setting the propagated states in its ephemeris requires Titan's state, which
+// differs from Titan's ephemeris before propagation (initial state offset of 1 km)
+std::vector< Eigen::Vector6d > propagateWithPropagatedCentralBody( const unsigned int numberOfThreads )
+{
+    std::vector< double > arcStartTimes = { 2.205723865899772644e+08, 2.205723865899772644e+08 + 86400.0 };
+    double initialEnvironmentTime = arcStartTimes.front( ) - 86400.0;
+    double finalEnvironmentTime = arcStartTimes.back( ) + 86400.0;
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( { "Titan", "Saturn" }, initialEnvironmentTime, finalEnvironmentTime, "Saturn", "ECLIPJ2000", 600.0 );
+    for( const std::string& bodyName : std::vector< std::string >{ "Titan", "Saturn" } )
+    {
+        bodySettings.at( bodyName )->rotationModelSettings =
+                simpleRotationModelFromSpiceSettings( "ECLIPJ2000", "IAU_" + bodyName, "IAU_" + bodyName, initialEnvironmentTime );
+    }
+    bodySettings.at( "Titan" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+    bodySettings.addSettings( "Cassini" );
+    bodySettings.at( "Cassini" )->ephemerisSettings =
+            std::make_shared< TabulatedEphemerisSettings >( std::map< double, Eigen::Vector6d >( ), "Saturn", "ECLIPJ2000" );
+    bodySettings.at( "Cassini" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    SelectedAccelerationMap accelerationMap;
+    accelerationMap[ "Titan" ][ "Saturn" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationMap[ "Cassini" ][ "Titan" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationMap[ "Cassini" ][ "Saturn" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    std::vector< std::string > bodiesToPropagate = { "Titan", "Cassini" };
+    std::vector< std::string > centralBodies = { "Saturn", "Titan" };
+
+    Eigen::Vector6d cassiniInitialState{ 2.166092477145108860e+06, -7.925218812290439382e+05, 3.553645666049534921e+06,
+                                         3.304561684998871897e+03, 2.420278071381293103e+03,  -4.244915762044645817e+03 };
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
+    for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
+    {
+        Eigen::Vector6d titanInitialState =
+                spice_interface::getBodyCartesianStateAtEpoch( "Titan", "Saturn", "ECLIPJ2000", "None", arcStartTimes.at( j ) );
+        titanInitialState( 0 ) += 1.0E3;
+        Eigen::VectorXd initialState( 12 );
+        initialState << titanInitialState, cassiniInitialState;
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        AccelerationMap( ),
+                        bodiesToPropagate,
+                        initialState,
+                        arcStartTimes.at( j ),
+                        rungeKuttaFixedStepSettings( 10.0, rungeKuttaFehlberg78 ),
+                        propagationTimeTerminationSettings( arcStartTimes.at( j ) + 3600.0 ) );
+        translationalSettings->resetAccelerationModelsMap( accelerationMap, bodies );
+        propagatorSettingsList.push_back( translationalSettings );
+    }
+    std::shared_ptr< MultiArcPropagatorSettings< double > > propagatorSettings = std::make_shared< MultiArcPropagatorSettings< double > >(
+            propagatorSettingsList, false, std::make_shared< MultiArcPropagatorProcessingSettings >( false, true ) );
+    propagatorSettings->setNumberOfThreads( numberOfThreads );
+    MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
+
+    std::vector< Eigen::Vector6d > cassiniStates;
+    for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
+    {
+        cassiniStates.push_back( bodies.at( "Cassini" )->getEphemeris( )->getCartesianState( arcStartTimes.at( j ) + 1800.0 ) );
+    }
+    return cassiniStates;
+}
+
+//! Test whether the propagated states set in the bodies are equal for multi-threaded and single-threaded propagation, when a central
+//! body is itself propagated
+BOOST_AUTO_TEST_CASE( testParallelPropagationWithPropagatedCentralBody )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    std::vector< Eigen::Vector6d > serialStates = propagateWithPropagatedCentralBody( 1 );
+    std::vector< Eigen::Vector6d > parallelStates = propagateWithPropagatedCentralBody( 2 );
+    for( unsigned int j = 0; j < serialStates.size( ); j++ )
+    {
+        double positionDifference = ( parallelStates.at( j ) - serialStates.at( j ) ).segment( 0, 3 ).norm( );
+        BOOST_CHECK( !serialStates.at( j ).hasNaN( ) );
+        BOOST_CHECK_SMALL( positionDifference, 1.0E-3 );
     }
 }
 

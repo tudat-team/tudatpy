@@ -25,6 +25,16 @@ namespace tudat
 namespace system_models
 {
 
+//! Function object returning a constant body-fixed thrust direction (to distinguish it from a custom thrust direction function)
+struct ConstantBodyFixedThrustDirection {
+    Eigen::Vector3d operator( )( const double ) const
+    {
+        return direction_;
+    }
+
+    Eigen::Vector3d direction_;
+};
+
 //! Base class for a model of an engine, the mass rate/thrust computations are not implemented here.
 /*!
  *  Base class for a model of an engine, the mass rate/thrust computations are not implemented here, and should be

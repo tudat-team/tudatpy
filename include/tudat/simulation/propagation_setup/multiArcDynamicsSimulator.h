@@ -12,6 +12,9 @@
 #define TUDAT_MULTIARCDYNAMICSSIMULATOR_H
 
 #include <exception>
+#include <map>
+#include <stdexcept>
+#include <string>
 #include <thread>
 
 #include "tudat/simulation/environment_setup/copySystemOfBodies.h"
@@ -237,6 +240,48 @@ void checkPropagationResultsObjectConsistency(
     }
 }
 
+//! Exception thrown by multi-threaded multi-arc propagation if the propagation of one or more arcs failed, containing the exception
+//! of each failed arc (the message lists the messages of all these exceptions)
+class MultiArcPropagationError : public std::runtime_error
+{
+public:
+    MultiArcPropagationError( const std::map< unsigned int, std::exception_ptr >& arcExceptions ):
+        std::runtime_error( createErrorMessage( arcExceptions ) ), arcExceptions_( arcExceptions )
+    {}
+
+    //! Function to retrieve the exception of each failed arc (key: arc index)
+    const std::map< unsigned int, std::exception_ptr >& getArcExceptions( ) const
+    {
+        return arcExceptions_;
+    }
+
+private:
+    static std::string createErrorMessage( const std::map< unsigned int, std::exception_ptr >& arcExceptions )
+    {
+        std::string errorMessage = "Error in multi-threaded multi-arc propagation, propagation failed for " +
+                std::to_string( arcExceptions.size( ) ) + " arc(s):";
+        for( auto arcException : arcExceptions )
+        {
+            errorMessage += "\n  arc " + std::to_string( arcException.first ) + ": ";
+            try
+            {
+                std::rethrow_exception( arcException.second );
+            }
+            catch( const std::exception& caughtException )
+            {
+                errorMessage += caughtException.what( );
+            }
+            catch( ... )
+            {
+                errorMessage += "unknown error";
+            }
+        }
+        return errorMessage;
+    }
+
+    std::map< unsigned int, std::exception_ptr > arcExceptions_;
+};
+
 //! Class for performing full numerical integration of a dynamical system over multiple arcs.
 /*!
  *  Class for performing full numerical integration of a dynamical system over multiple arcs, equations of motion are set up
@@ -275,6 +320,13 @@ public:
             if( multiArcPropagatorSettings_->getNumberOfThreads( ) > 1 )
             {
                 checkMultiArcSettingsForMultiThreadedPropagation( multiArcPropagatorSettings_ );
+
+                // Create the ephemerides of the propagated bodies (if needed) as for single-threaded propagation, so that the results
+                // can be set in the bodies provided to this object
+                for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
+                {
+                    checkPropagatedStatesFeasibility( singleArcSettings.at( i ), bodies, true );
+                }
                 unsigned int numberOfThreads = std::min( multiArcPropagatorSettings_->getNumberOfThreads( ),
                                                          static_cast< unsigned int >( singleArcSettings.size( ) ) );
                 for( unsigned int i = 0; i < numberOfThreads; i++ )
@@ -282,10 +334,11 @@ public:
                     threadBodies_.push_back( simulation_setup::createSystemOfBodiesCopy< StateScalarType, TimeType >( bodies, i == 0 ) );
                 }
                 // Arc settings are cloned, so that the models in the settings provided to this object remain linked to the
-                // original bodies
+                // original bodies. Integrator settings are cloned, since they are modified during non-sequential propagation
                 for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
                 {
                     singleArcSettings.at( i ) = singleArcSettings.at( i )->clone( );
+                    singleArcSettings.at( i )->setIntegratorSettings( singleArcSettings.at( i )->getIntegratorSettings( )->clone( ) );
                     singleArcSettings.at( i )->resetIntegratedStateModels( threadBodies_.at( getArcThreadIndex( i ) ) );
                 }
             }
@@ -444,29 +497,49 @@ public:
             }
 
             // Propagate arcs (arcIndex modulo numberOfThreads) on thread with index threadIndex
-            std::vector< std::exception_ptr > threadExceptions( numberOfThreads );
+            std::vector< std::exception_ptr > arcExceptions( singleArcDynamicsSimulators_.size( ) );
             std::vector< std::thread > threads;
-            for( unsigned int threadIndex = 0; threadIndex < numberOfThreads; threadIndex++ )
+            try
             {
-                threads.emplace_back( &MultiArcDynamicsSimulator< StateScalarType,
-                                                                  TimeType >::template integrateArcsOfThread< MultiArcSimulationResults >,
-                                      this,
-                                      threadIndex,
-                                      numberOfThreads,
-                                      std::cref( arcInitialStateList ),
-                                      propagationResults,
-                                      std::ref( threadExceptions.at( threadIndex ) ) );
-            }
-            for( unsigned int threadIndex = 0; threadIndex < numberOfThreads; threadIndex++ )
-            {
-                threads.at( threadIndex ).join( );
-            }
-            for( unsigned int threadIndex = 0; threadIndex < numberOfThreads; threadIndex++ )
-            {
-                if( threadExceptions.at( threadIndex ) != nullptr )
+                for( unsigned int threadIndex = 0; threadIndex < numberOfThreads; threadIndex++ )
                 {
-                    std::rethrow_exception( threadExceptions.at( threadIndex ) );
+                    threads.emplace_back(
+                            &MultiArcDynamicsSimulator< StateScalarType,
+                                                        TimeType >::template integrateArcsOfThread< MultiArcSimulationResults >,
+                            this,
+                            threadIndex,
+                            numberOfThreads,
+                            std::cref( arcInitialStateList ),
+                            propagationResults,
+                            std::ref( arcExceptions ) );
                 }
+            }
+            catch( ... )
+            {
+                // Threads that were started are finished before the error is passed on (destroying a running thread aborts the program)
+                for( std::thread& thread : threads )
+                {
+                    thread.join( );
+                }
+                throw;
+            }
+            for( std::thread& thread : threads )
+            {
+                thread.join( );
+            }
+
+            // Combine the exceptions of all failed arcs
+            std::map< unsigned int, std::exception_ptr > failedArcExceptions;
+            for( unsigned int i = 0; i < arcExceptions.size( ); i++ )
+            {
+                if( arcExceptions.at( i ) != nullptr )
+                {
+                    failedArcExceptions[ i ] = arcExceptions.at( i );
+                }
+            }
+            if( failedArcExceptions.size( ) > 0 )
+            {
+                throw MultiArcPropagationError( failedArcExceptions );
             }
         }
 
@@ -527,18 +600,6 @@ public:
         return threadBodies_.size( ) == 0 ? 0 : arcIndex % threadBodies_.size( );
     }
 
-    //! Function to set whether the integrated states are also set in the bodies of each thread after propagation (default false)
-    /*!
-     * Function to set whether the integrated states are also set in the bodies of each thread after propagation (default false), in
-     * addition to the bodies provided to this object (which are always reset, if this is requested in the output settings).
-     * \param resetIntegratedStatesInThreadBodies Boolean denoting whether the integrated states are also set in the bodies of each
-     * thread
-     */
-    void setResetIntegratedStatesInThreadBodies( const bool resetIntegratedStatesInThreadBodies )
-    {
-        resetIntegratedStatesInThreadBodies_ = resetIntegratedStatesInThreadBodies;
-    }
-
     //! This function updates the environment with the numerical solution of the propagation.
     /*!
      *  This function updates the environment with the numerical solution of the propagation. It sets
@@ -555,10 +616,20 @@ public:
                           std::vector< std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > > >
                         singleArcIntegratedStatesProcessors;
 
+                // For multi-threaded propagation, the state processors of the arcs are linked to the bodies of the threads, so new
+                // ones are created, linked to the bodies of this object
+                std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager;
+                if( threadBodies_.size( ) > 0 )
+                {
+                    frameManager = simulation_setup::createFrameManager( bodies_.getMap( ) );
+                }
                 for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
                 {
                     std::map< IntegratedStateType, std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > >
-                            currentArcStateProcessors = singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( );
+                            currentArcStateProcessors = threadBodies_.size( ) == 0
+                            ? singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( )
+                            : createIntegratedStateProcessors< TimeType, StateScalarType >(
+                                      multiArcPropagatorSettings_->getSingleArcSettings( ).at( i ), bodies_, frameManager );
                     if( currentArcStateProcessors.size( ) == 0 )
                     {
                         throw std::runtime_error( "Error when resetting multi-arc states, no state processors found" );
@@ -569,26 +640,16 @@ public:
                     }
                 }
 
-                // Reset the integrated states in the (master) bodies, and if requested in the bodies of each thread
-                std::vector< simulation_setup::SystemOfBodies > bodiesToReset = { bodies_ };
-                if( resetIntegratedStatesInThreadBodies_ )
+                std::map< IntegratedStateType, std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > >
+                        multiArcStateProcessors = createMultiArcIntegratedStateProcessors(
+                                bodies_, propagationResults_->getArcStartTimes( ), singleArcIntegratedStatesProcessors );
+                for( auto itr : multiArcStateProcessors )
                 {
-                    bodiesToReset.insert( bodiesToReset.end( ), threadBodies_.begin( ), threadBodies_.end( ) );
-                }
-                std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > concatenatedResults =
-                        propagationResults_->getConcatenatedEquationsOfMotionResults(
-                                multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) );
-                for( const simulation_setup::SystemOfBodies& currentBodiesToReset : bodiesToReset )
-                {
-                    std::map< IntegratedStateType, std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > >
-                            multiArcStateProcessors = createMultiArcIntegratedStateProcessors(
-                                    currentBodiesToReset, propagationResults_->getArcStartTimes( ), singleArcIntegratedStatesProcessors );
-                    for( auto itr : multiArcStateProcessors )
-                    {
-                        itr.second->setInterpolatorSettings(
-                                multiArcPropagatorSettings_->getOutputSettings( )->getInterpolatorSettings( ) );
-                        itr.second->processIntegratedMultiArcStates( concatenatedResults, propagationResults_->getArcStartTimes( ) );
-                    }
+                    itr.second->setInterpolatorSettings( multiArcPropagatorSettings_->getOutputSettings( )->getInterpolatorSettings( ) );
+                    itr.second->processIntegratedMultiArcStates(
+                            propagationResults_->getConcatenatedEquationsOfMotionResults(
+                                    multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) ),
+                            propagationResults_->getArcStartTimes( ) );
                 }
             }
             catch( const std::exception& caughtException )
@@ -746,7 +807,8 @@ protected:
      * \param numberOfThreads Total number of threads
      * \param arcInitialStateList Initial states of all arcs
      * \param propagationResults Object in which the propagation results are stored
-     * \param threadException Exception that is thrown during the propagation (none if no exception is thrown)
+     * \param arcExceptions Exception thrown during the propagation of each arc (none if no exception is thrown); only the entries
+     * of the arcs of this thread are set
      */
     template< typename MultiArcSimulationResults >
     void integrateArcsOfThread(
@@ -756,20 +818,20 @@ protected:
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, MultiArcSimulationResults::single_arc_type::number_of_columns > >&
                     arcInitialStateList,
             const std::shared_ptr< MultiArcSimulationResults > propagationResults,
-            std::exception_ptr& threadException )
+            std::vector< std::exception_ptr >& arcExceptions )
     {
-        try
+        for( unsigned int i = threadIndex; i < singleArcDynamicsSimulators_.size( ); i += numberOfThreads )
         {
-            for( unsigned int i = threadIndex; i < singleArcDynamicsSimulators_.size( ); i += numberOfThreads )
+            try
             {
                 singleArcDynamicsSimulators_.at( i )
                         ->template integrateEquationsOfMotion< typename MultiArcSimulationResults::single_arc_type >(
                                 arcInitialStateList.at( i ), propagationResults->getSingleArcResults( ).at( i ) );
             }
-        }
-        catch( ... )
-        {
-            threadException = std::current_exception( );
+            catch( ... )
+            {
+                arcExceptions.at( i ) = std::current_exception( );
+            }
         }
     }
 
@@ -783,9 +845,6 @@ protected:
 
     //! Copies of the bodies used by each thread, for multi-threaded propagation (empty for single-threaded propagation)
     std::vector< simulation_setup::SystemOfBodies > threadBodies_;
-
-    //! Boolean denoting whether the integrated states are also set in the bodies of each thread after propagation
-    bool resetIntegratedStatesInThreadBodies_ = false;
 };
 
 #if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
