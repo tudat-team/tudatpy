@@ -228,8 +228,8 @@ use finite points near each pole.
 These are focused native gates, not a full solver/binding acceptance report.
 Factory-to-solver state/STM/sensitivity integration, Python exposure, complete
 native-library/kernel builds and remeasurement are now covered by the Python
-validation described below. Installed-consumer execution and a fully green
-broad suite remain outstanding. The previously missing Earth-orientation resource is
+validation described below. Installed-consumer execution is now covered as
+described below; a fully green broad suite remains outstanding. The previously missing Earth-orientation resource is
 not hidden or worked around by these tests.
 
 ## Python validation and measurements
@@ -266,3 +266,25 @@ the fixtures and reaches the same missing Earth-orientation resource. These
 failures are recorded rather than hidden with exclusions. This diagnostic is not a
 passing full-suite result. Logs, raw timings, configuration and hashes are local
 under `local-profiles/20261115/python-gravity/`.
+
+## Installed C++ consumer validation
+
+The standalone project in `tests/installed_gravity_consumer/` configures with
+`find_package(Tudat CONFIG REQUIRED)` against actual separate ON/OFF install
+prefixes. It links installed gravity/math targets, with the package registry
+disabled and no source/build include directories or hand-added OpenMP flags.
+Both configurations compile, link and pass CTest. The ON consumer observes four
+threads in the installed loop helper and matches sequential force values over
+20 changing positions. The OFF consumer remains sequential and rejects a
+multi-thread request. Config/target feature-definition agreement is checked.
+Installed library hashes match their freshly built counterparts; compile/link
+commands are checked for checkout/build-path leakage.
+
+This exposed and fixed missing installed dependency discovery/propagation:
+ship `FindCSpice.cmake`, discover Eigen and NRLMSISE-00, export Eigen's header
+requirements and expose Cereal from the public gravity headers. No numerical
+implementation changed. The production-only installs use `TUDAT_BUILD_TESTS=OFF`
+to avoid requiring unbuilt test-support artifacts from kernel-only builds.
+See `tests/installed_gravity_consumer/README.md` for reproduction and scope.
+This validates configured install prefixes, not relocating an installed package.
+Logs are local under `local-profiles/20261115/installed-consumer/`.

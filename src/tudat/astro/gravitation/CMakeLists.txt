@@ -83,4 +83,5 @@ set(gravitation_HEADERS
 
 TUDAT_ADD_LIBRARY("gravitation"
         "${gravitation_SOURCES}"
-        "${gravitation_HEADERS}")
+        "${gravitation_HEADERS}"
+        PUBLIC_SERIALIZATION)

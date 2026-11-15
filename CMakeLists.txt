@@ -635,6 +635,7 @@ configure_file(
 
 file(
         COPY "${BASE_DIRECTORY}/cmake/tudat/TudatFindBoost.cmake"
+        "${BASE_DIRECTORY}/cmake/tudat/FindCSpice.cmake"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
@@ -642,6 +643,7 @@ install(
         FILES
         "${CMAKE_CURRENT_BINARY_DIR}/tudat-config.cmake"
         "${BASE_DIRECTORY}/cmake/tudat/TudatFindBoost.cmake"
+        "${BASE_DIRECTORY}/cmake/tudat/FindCSpice.cmake"
         DESTINATION "${INSTALL_CMAKE_DIR}"
 )
 

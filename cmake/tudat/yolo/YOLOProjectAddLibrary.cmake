@@ -56,7 +56,7 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
     endif()
 
     target_link_libraries("${target_name}"
-            PUBLIC    ${serialization_public_link} ${PARSED_ARGS_PUBLIC_LINKS}
+            PUBLIC    Eigen3::Eigen ${serialization_public_link} ${PARSED_ARGS_PUBLIC_LINKS}
             PRIVATE   ${serialization_private_link} ${PARSED_ARGS_PRIVATE_LINKS}
             INTERFACE ${PARSED_ARGS_INTERFACE_LINKS}
             )
