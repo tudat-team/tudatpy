@@ -59,7 +59,7 @@ std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > evaluateTra
     {
         throw std::runtime_error( "Angular observation corrections require an SSB global frame origin." );
     }
-    const auto& settings = trackingData->getObservationCorrectionSettings( ).value( );
+    const auto& settings = *trackingData->getCorrectionSettings( )->getObservationCorrectionSettings( );
     const auto linkEnds = tom::getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
     const auto& target = linkEnds.at( tom::transmitter );
     const auto& observer = linkEnds.at( tom::receiver );
@@ -1787,7 +1787,7 @@ int
                             py::object observations,
                             py::object times,
                             const tom::LinkEndType referenceLinkEnd,
-                            const tom::ObservationWeightSettings& weightSettings,
+                            const std::shared_ptr< tom::ObservationWeightSettings >& weightSettings,
                             py::object dependentVariables,
                             std::shared_ptr< tss::ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
                             std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings,
@@ -1821,7 +1821,8 @@ Function to add an observation set to the dataset, with weights defined by weigh
 
 Same as :meth:`add_observation_set`, but with the weights (which may include correlations between the components of an
 observation, or between the observations in the set) defined by an
-:class:`~tudatpy.data_input.tracking_data.ObservationWeightSettings` object.
+:class:`~tudatpy.data_input.tracking_data.ObservationWeightSettings` object (created e.g. with
+:func:`~tudatpy.data_input.tracking_data.set_block_weights`).
 
 Parameters
 ----------

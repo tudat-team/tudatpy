@@ -685,7 +685,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
             { 1.0, 2.0 },
             receiver,
-            ObservationWeightSettings::constantScalar( 5.0 ) );
+            constantScalarWeights( 5.0 ) );
 
     // Scalar-weight construction must remain diagonal-only and expose no per-observation matrix blocks.
     BOOST_CHECK_EQUAL( scalarSetId, 0 );
@@ -711,7 +711,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
             { 1.0, 2.0 },
             receiver,
-            ObservationWeightSettings::constantBlock( observationWeightBlock ) );
+            constantBlockWeights( observationWeightBlock ) );
     Eigen::MatrixXd expectedObservationBlockMatrix = Eigen::MatrixXd::Zero( 4, 4 );
     expectedObservationBlockMatrix.block( 0, 0, 2, 2 ) = observationWeightBlock;
     expectedObservationBlockMatrix.block( 2, 2, 2, 2 ) = observationWeightBlock;
@@ -788,7 +788,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
             { 1.0, 2.0 },
             receiver,
-            ObservationWeightSettings::setBlock( setWeightBlock ) );
+            setBlockWeights( setWeightBlock ) );
 
     // A set-level weight block must be stored as one matrix spanning the full scalar range of the set.
     BOOST_CHECK( setBlockWeightDataset.hasWeightMatrixForSet( setBlockSetId ) );
@@ -805,7 +805,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
             { 1.0, 2.0, 3.0 },
             receiver,
-            ObservationWeightSettings::constantScalar( 1.0 ) );
+            constantScalarWeights( 1.0 ) );
     const std::vector< unsigned int > extraBlockObservationIds = extraBlockDataset.getObservationIdsForSet( 0 );
     const Eigen::Matrix2d extraWeightBlock = ( Eigen::Matrix2d( ) << 4.0, 0.25, 0.25, 5.0 ).finished( );
     extraBlockDataset.setWeightBlock( { extraBlockObservationIds.at( 0 ), extraBlockObservationIds.at( 2 ) },
@@ -832,7 +832,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
                                                                    ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
                                                                  { 1.0, 2.0, 3.0 },
                                                                  receiver,
-                                                                 ObservationWeightSettings::constantScalar( 1.0 ) );
+                                                                 constantScalarWeights( 1.0 ) );
     const std::vector< unsigned int > symmetricObservationIds = symmetricComponentBlockDataset.getObservationIdsForSet( 0 );
     const Eigen::MatrixXd crossComponentBlock = ( Eigen::Matrix< double, 2, 1 >( ) << 0.7, 0.8 ).finished( );
     symmetricComponentBlockDataset.setWeightBlock( { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
@@ -869,7 +869,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
                                                             ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
                                                           { 1.0, 2.0, 3.0 },
                                                           receiver,
-                                                          ObservationWeightSettings::setBlock( fullSetWeightBlock ) );
+                                                          setBlockWeights( fullSetWeightBlock ) );
     rejectedSetBlockDataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ) );
     Eigen::MatrixXd expectedRejectedWeightBlock = Eigen::MatrixXd::Zero( 4, 4 );
     const std::vector< int > keptScalarIndices = { 0, 1, 4, 5 };
@@ -1082,7 +1082,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
             { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
             { 1.0, 2.0, 3.0 },
             receiver,
-            ObservationWeightSettings::setBlock( setWeightBlock ) );
+            setBlockWeights( setWeightBlock ) );
 
     setBlockDataset.removeObservations( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ) );
     const Eigen::Matrix2d expectedSubsetSetWeightBlock = ( Eigen::Matrix2d( ) << 1.0, 0.2, 0.2, 3.0 ).finished( );
@@ -1357,16 +1357,13 @@ BOOST_AUTO_TEST_CASE( test_observation_vector_data_writeback_requires_unchanged_
 BOOST_AUTO_TEST_CASE( test_weight_structure_from_settings )
 {
     using Structure = ObservationWeightStructure;
-    const std::vector< std::pair< ObservationWeightSettings, Structure > > settings = {
-        { ObservationWeightSettings::defaultWeights( ), Structure::diagonal },
-        { ObservationWeightSettings::constantScalar( 2.0 ), Structure::diagonal },
-        { ObservationWeightSettings::scalarPerObservation( { 2.0, 3.0 } ), Structure::diagonal },
-        { ObservationWeightSettings::diagonalPerObservation( { Eigen::Vector2d::Ones( ), Eigen::Vector2d::Ones( ) } ),
-          Structure::diagonal },
-        { ObservationWeightSettings::constantBlock( Eigen::Matrix2d::Identity( ) ), Structure::per_observation },
-        { ObservationWeightSettings::blockPerObservation( { Eigen::Matrix2d::Identity( ), Eigen::Matrix2d::Identity( ) } ),
-          Structure::per_observation },
-        { ObservationWeightSettings::setBlock( Eigen::Matrix4d::Identity( ) ), Structure::per_set }
+    const std::vector< std::pair< std::shared_ptr< ObservationWeightSettings >, Structure > > settings = {
+        { constantScalarWeights( 2.0 ), Structure::diagonal },
+        { scalarPerObservationWeights( { 2.0, 3.0 } ), Structure::diagonal },
+        { diagonalPerObservationWeights( { Eigen::Vector2d::Ones( ), Eigen::Vector2d::Ones( ) } ), Structure::diagonal },
+        { constantBlockWeights( Eigen::Matrix2d::Identity( ) ), Structure::per_observation },
+        { blockPerObservationWeights( { Eigen::Matrix2d::Identity( ), Eigen::Matrix2d::Identity( ) } ), Structure::per_observation },
+        { setBlockWeights( Eigen::Matrix4d::Identity( ) ), Structure::per_set }
     };
     for( const auto& entry : settings )
     {
@@ -1437,10 +1434,11 @@ BOOST_AUTO_TEST_CASE( test_complete_observation_covariances )
     setWeights << 4.0, 0.0, 1.0, 0.0, 0.0, 9.0, 0.0, 3.0, 1.0, 0.0, 2.0, 0.0, 0.0, 3.0, 0.0, 6.0;
     const Eigen::Matrix2d observationWeights = ( Eigen::Matrix2d( ) << 4.0, 1.0, 1.0, 2.0 ).finished( );
     const Eigen::Matrix2d observationCovariance = ( Eigen::Matrix2d( ) << 2.0, -1.0, -1.0, 4.0 ).finished( ) / 7.0;
-    const std::vector< ObservationWeightSettings > settings = { ObservationWeightSettings::diagonalPerObservation(
-                                                                        { Eigen::Vector2d( 4.0, 9.0 ), Eigen::Vector2d( 2.0, 6.0 ) } ),
-                                                                ObservationWeightSettings::constantBlock( observationWeights ),
-                                                                ObservationWeightSettings::setBlock( setWeights ) };
+    const std::vector< std::shared_ptr< ObservationWeightSettings > > settings = {
+        diagonalPerObservationWeights( { Eigen::Vector2d( 4.0, 9.0 ), Eigen::Vector2d( 2.0, 6.0 ) } ),
+        constantBlockWeights( observationWeights ),
+        setBlockWeights( setWeights )
+    };
     const std::vector< Eigen::Matrix2d > firstCovariances = { Eigen::Vector2d( 1.0 / 4.0, 1.0 / 9.0 ).asDiagonal( ),
                                                               observationCovariance,
                                                               Eigen::Vector2d( 2.0 / 7.0, 2.0 / 15.0 ).asDiagonal( ) };

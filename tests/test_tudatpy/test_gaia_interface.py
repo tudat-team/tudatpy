@@ -414,7 +414,7 @@ def test_deferred_corrections_use_tdb_raw_angles_and_keep_numeric_offsets(bodies
         time_scale="UTC",
     )
     data.set_observation_corrections([[0.01, 0.02]])
-    data.set_observation_correction_settings(
+    data.correction_settings.set_observation_correction_settings(
         AngularObservationCorrectionSettings(light_deflection_bodies=["Sun"])
     )
     converter = time_representation.default_time_scale_converter()

@@ -57,12 +57,11 @@ def read_80_column_data(
         observations.
     weighing_scheme : str, default ""
         Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
-        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
-        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
-        weights divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
-        weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+        :cite:p:`veres2017`, and
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`). The
+        weights are computed when the observation collection is created. If empty, no weights are
+        assigned. The ADES weighing schemes (``"ADES"`` and ``"ADES_NIGHT"``) are not supported,
+        since the MPC 80-column format contains no observation uncertainties, and raise an error.
 
     Returns
     -------
@@ -74,6 +73,15 @@ def read_80_column_data(
     For radar range observation-model time-scale requirements, see
     :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`.
     """
+    if weighing_scheme not in ("", None, "VFCC17"):
+        raise ValueError(
+            f"Weighing scheme '{weighing_scheme}' is not supported for MPC 80-column data, which "
+            "contain no observation uncertainties; use 'VFCC17' or no weighing scheme"
+        )
+    if add_weights and weighing_scheme:
+        raise ValueError(
+            "Both 'add_weights' and 'weighing_scheme' are specified; use only 'weighing_scheme'."
+        )
     parsed_table = parse_80cols_file(file_names)
     optical_tracking_data, supplementary_data = [], []
     if len(parsed_table) > 0:
@@ -85,7 +93,7 @@ def read_80_column_data(
             add_weights=add_weights,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
-            weighing_scheme=weighing_scheme,
+            vfcc17_weights=weighing_scheme == "VFCC17",
         )
     radar_data = radar_data_from_table(parsed_table)
     if custom_name is not None:

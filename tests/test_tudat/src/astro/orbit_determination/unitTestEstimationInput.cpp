@@ -1133,8 +1133,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     // The observation ids of the residual history rows are kept when the output is saved and loaded
     const std::string outputFile = ( std::filesystem::temp_directory_path( ) / "tudat_test_estimation_output" ).string( );
     rejectedEstimationOutput->saveToBinary( outputFile );
-    BOOST_CHECK( EstimationOutput< double, double >::loadFromBinary( outputFile ).getResidualHistoryObservationIds( ) ==
-                 weightData.getObservationIds( ) );
+    BOOST_CHECK( ( EstimationOutput< double, double >::loadFromBinary( outputFile ).getResidualHistoryObservationIds( ) ==
+                   weightData.getObservationIds( ) ) );
 #endif
 
     // The rejected observation remains stored and must still receive an updated residual during estimation.
