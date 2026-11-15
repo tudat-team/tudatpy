@@ -359,8 +359,9 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
                   &tdat::TrackingDataWeightSettings::setBlockDeweighting,
                   py::arg( "block_definition" ),
                   py::arg( "rule" ),
+                  py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
                   R"doc(
-         Set a reduction of the weights of all observations that belong to the same block (e.g. the same local night).
+         Set a reduction of the weights of the observations that belong to the same block (e.g. the same local night).
 
          The reduction is applied when converting to an observation dataset, to the explicit and named weights, before the
          contribution of the timing uncertainties is added (see :meth:`set_time_uncertainties`).
@@ -371,6 +372,9 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
              Definition of the blocks of observations.
          rule : BlockDeweightingRule
              Rule to reduce the weights of the observations in a block.
+         observation_indices : list[int], default []
+             Indices of the observations of which the weights are reduced (all observations if empty). The number of
+             observations in a block includes all observations.
 
          Returns
          -------

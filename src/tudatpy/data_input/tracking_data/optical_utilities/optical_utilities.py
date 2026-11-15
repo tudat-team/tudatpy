@@ -14,7 +14,6 @@ import astropy.units as u
 import warnings
 import os
 import re
-from collections.abc import Iterable
 from tudatpy.astro import time_representation
 from tudatpy.data_input.tracking_data import (
     AngularObservationCorrectionSettings,
@@ -632,7 +631,7 @@ def optical_table_to_tracking_data(
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
     time_uncertainties: bool = False,
-    light_deflection_bodies: Iterable[str] | None = None,
+    light_deflection_bodies: list[str] | None = None,
     photocenter_correction: bool = False,
 ):
     """Convert an augmented optical table to TrackingData and supplementary data lists.
@@ -662,15 +661,17 @@ def optical_table_to_tracking_data(
         is False) get the weights of :cite:p:`veres2017` (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
     nightly_deweighting : bool, default False
-        Whether the weights are divided by the number of observations of the same target, from the
-        same observatory, in the same local night (see
+        Whether the weights from the ADES uncertainties (not the VFCC17 weights, which include their
+        own reduction per local night) are divided by the number of observations of the same target,
+        from the same observatory, in the same local night (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
     time_uncertainties : bool, default False
         Whether the rmsTime timing uncertainties (in seconds) are added to the observation
         covariance (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
-    light_deflection_bodies : Iterable[str] | None, default None
+    light_deflection_bodies : list[str] | None, default None
         Names of the bodies for which the relativistic light deflection correction is requested (see
         :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
     photocenter_correction : bool, default False
@@ -704,10 +705,10 @@ def optical_table_to_tracking_data(
             stacklevel=2,
         )
         vfcc17_weights = True
-    if (nightly_deweighting or time_uncertainties) and not (ades_weights or vfcc17_weights):
-        raise ValueError(
-            "'nightly_deweighting' and 'time_uncertainties' require 'ades_weights' or 'vfcc17_weights'"
-        )
+    if nightly_deweighting and not ades_weights:
+        raise ValueError("'nightly_deweighting' requires 'ades_weights'")
+    if time_uncertainties and not (ades_weights or vfcc17_weights):
+        raise ValueError("'time_uncertainties' requires 'ades_weights' or 'vfcc17_weights'")
 
     roving_mask = _roving_observation_mask(table)
     if roving_mask.any():
@@ -760,7 +761,7 @@ def optical_table_to_tracking_data(
     if has_adopted_bias.any():
         for correction_name, requested in (
             ("star-catalog", add_star_catalog_corrections),
-            ("light deflection", light_deflection_bodies is not None),
+            ("light deflection", bool(light_deflection_bodies)),
             ("photocenter", photocenter_correction),
         ):
             if requested:
@@ -840,10 +841,14 @@ def optical_table_to_tracking_data(
             _set_ades_explicit_weights(tracking_data_object, group)
         if vfcc17_weights:
             tracking_data_object.weight_settings.set_named_weights(NamedWeightingMethod.vfcc17)
-        if nightly_deweighting:
+        # only the weights from the ADES uncertainties are reduced per local night (the VFCC17
+        # weights include their own reduction per local night)
+        has_ades_weights = group["rmsRA"].notna().to_numpy() if ades_weights else None
+        if nightly_deweighting and has_ades_weights.any():
             tracking_data_object.weight_settings.set_block_deweighting(
                 ObservationBlockDefinition.local_night,
                 BlockDeweightingRule.divide_by_number_of_observations,
+                [] if has_ades_weights.all() else np.flatnonzero(has_ades_weights).tolist(),
             )
         # the ADES timing uncertainties (in s) are added to the covariance of the observations
         if time_uncertainties and "rmsTime" in group.columns and group["rmsTime"].notna().any():
@@ -863,7 +868,7 @@ def optical_table_to_tracking_data(
         if (light_deflection_bodies or photocenter_correction) and not group_has_adopted_bias.all():
             tracking_data_object.correction_settings.set_observation_correction_settings(
                 AngularObservationCorrectionSettings(
-                    light_deflection_bodies=list(light_deflection_bodies or []),
+                    light_deflection_bodies=light_deflection_bodies or [],
                     photocenter_correction=photocenter_correction,
                     observation_indices=(
                         np.flatnonzero(~group_has_adopted_bias).tolist()
@@ -891,7 +896,7 @@ def read_optical_data(
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
     time_uncertainties: bool = False,
-    light_deflection_bodies: Iterable[str] | None = None,
+    light_deflection_bodies: list[str] | None = None,
     photocenter_correction: bool = False,
 ):
     """Read optical astrometry from a table into TrackingData objects.
@@ -933,15 +938,17 @@ def read_optical_data(
         is False) get the weights of :cite:p:`veres2017` (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
     nightly_deweighting : bool, default False
-        Whether the weights are divided by the number of observations of the same target, from the
-        same observatory, in the same local night (see
+        Whether the weights from the ADES uncertainties (not the VFCC17 weights, which include their
+        own reduction per local night) are divided by the number of observations of the same target,
+        from the same observatory, in the same local night (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
     time_uncertainties : bool, default False
         Whether the rmsTime timing uncertainties (in seconds) are added to the observation
         covariance (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
-    light_deflection_bodies : Iterable[str] | None, default None
+    light_deflection_bodies : list[str] | None, default None
         Names of the bodies for which the relativistic light deflection correction is requested (see
         :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
     photocenter_correction : bool, default False
@@ -1004,7 +1011,7 @@ def read_pandas_optical_data(
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
     time_uncertainties: bool = False,
-    light_deflection_bodies: Iterable[str] | None = None,
+    light_deflection_bodies: list[str] | None = None,
     photocenter_correction: bool = False,
 ):
     """Read optical astrometry from a pandas table into TrackingData objects.
@@ -1039,15 +1046,17 @@ def read_pandas_optical_data(
         is False) get the weights of :cite:p:`veres2017` (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
     nightly_deweighting : bool, default False
-        Whether the weights are divided by the number of observations of the same target, from the
-        same observatory, in the same local night (see
+        Whether the weights from the ADES uncertainties (not the VFCC17 weights, which include their
+        own reduction per local night) are divided by the number of observations of the same target,
+        from the same observatory, in the same local night (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
     time_uncertainties : bool, default False
         Whether the rmsTime timing uncertainties (in seconds) are added to the observation
         covariance (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
-    light_deflection_bodies : Iterable[str] | None, default None
+    light_deflection_bodies : list[str] | None, default None
         Names of the bodies for which the relativistic light deflection correction is requested (see
         :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
     photocenter_correction : bool, default False
@@ -1088,7 +1097,7 @@ def read_astropy_optical_data(
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
     time_uncertainties: bool = False,
-    light_deflection_bodies: Iterable[str] | None = None,
+    light_deflection_bodies: list[str] | None = None,
     photocenter_correction: bool = False,
 ):
     """Read optical astrometry from an astropy table into TrackingData objects.
@@ -1123,15 +1132,17 @@ def read_astropy_optical_data(
         is False) get the weights of :cite:p:`veres2017` (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
     nightly_deweighting : bool, default False
-        Whether the weights are divided by the number of observations of the same target, from the
-        same observatory, in the same local night (see
+        Whether the weights from the ADES uncertainties (not the VFCC17 weights, which include their
+        own reduction per local night) are divided by the number of observations of the same target,
+        from the same observatory, in the same local night (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
     time_uncertainties : bool, default False
         Whether the rmsTime timing uncertainties (in seconds) are added to the observation
         covariance (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
         Requires ``ades_weights`` or ``vfcc17_weights``.
-    light_deflection_bodies : Iterable[str] | None, default None
+    light_deflection_bodies : list[str] | None, default None
         Names of the bodies for which the relativistic light deflection correction is requested (see
         :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
     photocenter_correction : bool, default False

@@ -2,8 +2,6 @@
 MPC ADES tracking-data loading.
 """
 
-from collections.abc import Iterable
-
 import numpy as np
 
 from .parsers import (
@@ -89,7 +87,7 @@ def read_ades_data(
     time_uncertainties: bool = False,
     minimum_ades_uncertainty: float | None = None,
     prefer_residual_fields: bool = False,
-    light_deflection_bodies: Iterable[str] | None = None,
+    light_deflection_bodies: list[str] | None = None,
     photocenter_correction: bool = False,
 ):
     """Function to read an MPC ADES file into TrackingData objects.
@@ -131,9 +129,11 @@ def read_ades_data(
         uncertainties) get the weights of :cite:p:`veres2017` (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
     nightly_deweighting : bool, default False
-        Whether the weights are divided by the number of observations of the same target, from the
-        same observatory, in the same local night (see
+        Whether the weights from the ADES uncertainties (not the VFCC17 weights, which include their
+        own reduction per local night) are divided by the number of observations of the same target,
+        from the same observatory, in the same local night (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
     time_uncertainties : bool, default False
         Whether the rmsTime timing uncertainties (in seconds) are added to the observation
         covariance (see
@@ -162,7 +162,7 @@ def read_ades_data(
         corrections.
         The observations with adopted biases do not get the star-catalog, light deflection and
         photocenter corrections (with a warning, once per correction type).
-    light_deflection_bodies : Iterable[str] | None, default None
+    light_deflection_bodies : list[str] | None, default None
         Names of the bodies for which the relativistic light deflection correction is requested for
         the optical observations (see
         :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).

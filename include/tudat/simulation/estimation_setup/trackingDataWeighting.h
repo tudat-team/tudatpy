@@ -86,18 +86,8 @@ std::vector< Eigen::Vector2d > getRightAscensionAndDeclinationRates( const simul
             simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, double >( rawLinkEnds.at( transmitter ), bodies );
 
     // Rotation from the global frame to J2000, in which the right ascension and declination are defined
-    Eigen::Matrix3d rotationToJ2000;
-    try
-    {
-        rotationToJ2000 = reference_frames::getJ2000ToFrameOrientationTransformationMatrix( bodies.getFrameOrientation( ) ).transpose( );
-    }
-    catch( const std::runtime_error& caughtException )
-    {
-        throw std::runtime_error(
-                "Error when computing right ascension and declination rates for observation time biases or "
-                "uncertainties: " +
-                std::string( caughtException.what( ) ) );
-    }
+    const Eigen::Matrix3d rotationToJ2000 =
+            reference_frames::getJ2000ToFrameOrientationTransformationMatrix( bodies.getFrameOrientation( ) ).transpose( );
 
     std::vector< Eigen::Vector2d > angularRates;
     angularRates.reserve( observationTimes.size( ) );
@@ -216,6 +206,21 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
         throw std::runtime_error( "Error when computing TrackingData weights, block definition or deweighting rule not recognized." );
     }
 
+    // Observations of which the weights are reduced per block (all observations if no indices are given)
+    std::vector< bool > isDeweighted( numberOfObservations, false );
+    if( weightSettings->getBlockDeweighting( ) != nullptr )
+    {
+        const std::vector< unsigned int >& deweightedIndices = weightSettings->getBlockDeweighting( )->observationIndices_;
+        if( deweightedIndices.empty( ) )
+        {
+            isDeweighted.assign( numberOfObservations, true );
+        }
+        for( const unsigned int index : deweightedIndices )
+        {
+            isDeweighted.at( index ) = true;
+        }
+    }
+
     std::shared_ptr< ObservationWeightSettings > weights;
     if( std::shared_ptr< SetBlockWeightSettings > setLevelWeights = std::dynamic_pointer_cast< SetBlockWeightSettings >( explicitWeights ) )
     {
@@ -227,7 +232,8 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
             for( unsigned int i = 0; i < numberOfObservations; ++i )
             {
                 scaling.segment( i * singleObservationSize, singleObservationSize )
-                        .setConstant( 1.0 / std::sqrt( static_cast< double >( observationsPerLocalNight.at( i ) ) ) );
+                        .setConstant( isDeweighted.at( i ) ? 1.0 / std::sqrt( static_cast< double >( observationsPerLocalNight.at( i ) ) )
+                                                           : 1.0 );
             }
             weightMatrix = scaling.asDiagonal( ) * weightMatrix * scaling.asDiagonal( );
         }
@@ -272,7 +278,7 @@ std::shared_ptr< ObservationWeightSettings > computeObservationWeights(
                 weightBlocks.at( i ) = data::getVfcc17Weight( epochs.at( i ), vfcc17Metadata.at( i ), observationsPerLocalNight.at( i ) ) *
                         Eigen::MatrixXd::Identity( singleObservationSize, singleObservationSize );
             }
-            if( weightSettings->getBlockDeweighting( ) != nullptr )
+            if( isDeweighted.at( i ) )
             {
                 weightBlocks.at( i ) /= static_cast< double >( observationsPerLocalNight.at( i ) );
             }

@@ -11,9 +11,11 @@
 #ifndef TUDAT_TRACKING_DATA_WEIGHT_SETTINGS_H
 #define TUDAT_TRACKING_DATA_WEIGHT_SETTINGS_H
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -44,17 +46,47 @@ enum BlockDeweightingRule {
     divide_by_number_of_observations  //!< Weights divided by the number of observations N in the block
 };
 
-//! Settings to reduce the weights of all observations that belong to the same block (e.g. the same local night)
+//! Settings to reduce the weights of the observations that belong to the same block (e.g. the same local night)
 class BlockDeweightingSettings
 {
 public:
-    BlockDeweightingSettings( const ObservationBlockDefinition blockDefinition, const BlockDeweightingRule rule ):
-        blockDefinition_( blockDefinition ), rule_( rule )
-    {}
+    BlockDeweightingSettings( const ObservationBlockDefinition blockDefinition,
+                              const BlockDeweightingRule rule,
+                              const std::vector< unsigned int >& observationIndices = std::vector< unsigned int >( ) ):
+        blockDefinition_( blockDefinition ), rule_( rule ), observationIndices_( observationIndices )
+    {
+        if( std::set< unsigned int >( observationIndices_.begin( ), observationIndices_.end( ) ).size( ) != observationIndices_.size( ) )
+        {
+            throw std::runtime_error( "Error in block deweighting settings, observation indices must be unique." );
+        }
+    }
+
+    //! Remove a single observation, return whether the reduction applies to any observation
+    bool removeObservation( const unsigned int observationIndex )
+    {
+        if( observationIndices_.empty( ) )
+        {
+            return true;
+        }
+        observationIndices_.erase( std::remove( observationIndices_.begin( ), observationIndices_.end( ), observationIndex ),
+                                   observationIndices_.end( ) );
+        for( unsigned int& index : observationIndices_ )
+        {
+            if( index > observationIndex )
+            {
+                index--;
+            }
+        }
+        return !observationIndices_.empty( );
+    }
 
     ObservationBlockDefinition blockDefinition_;
 
     BlockDeweightingRule rule_;
+
+    //! Indices of the observations of which the weights are reduced (empty for all observations). The number of observations in a
+    //! block includes all observations, also those of which the weights are not reduced.
+    std::vector< unsigned int > observationIndices_;
 };
 
 //! Uncertainties of the observation epochs, that are converted to observation uncertainties when creating an observation dataset
@@ -170,11 +202,18 @@ public:
         return namedWeightingMethod_;
     }
 
-    //! Set a reduction of the weights of all observations in the same block (e.g. local night), applied when creating an
-    //! observation dataset
-    void setBlockDeweighting( const ObservationBlockDefinition blockDefinition, const BlockDeweightingRule rule )
+    //! Set a reduction of the weights of the observations in the same block (e.g. local night), applied when creating an
+    //! observation dataset, for all observations or for the observations given by their indices
+    void setBlockDeweighting( const ObservationBlockDefinition blockDefinition,
+                              const BlockDeweightingRule rule,
+                              const std::vector< unsigned int >& observationIndices = std::vector< unsigned int >( ) )
     {
-        blockDeweighting_ = std::make_shared< BlockDeweightingSettings >( blockDefinition, rule );
+        if( !observationIndices.empty( ) &&
+            *std::max_element( observationIndices.begin( ), observationIndices.end( ) ) >= numberOfObservations_ )
+        {
+            throw std::runtime_error( "Error when setting block deweighting, observation index exceeds number of observations." );
+        }
+        blockDeweighting_ = std::make_shared< BlockDeweightingSettings >( blockDefinition, rule, observationIndices );
     }
 
     //! Return the reduction of the weights per block (nullptr if none)
@@ -293,6 +332,10 @@ public:
         if( explicitWeights_ != nullptr && !explicitWeights_->removeObservation( observationIndex, singleObservationSize_ ) )
         {
             explicitWeights_ = nullptr;
+        }
+        if( blockDeweighting_ != nullptr && !blockDeweighting_->removeObservation( observationIndex ) )
+        {
+            blockDeweighting_ = nullptr;
         }
         if( timingUncertainties_ != nullptr )
         {

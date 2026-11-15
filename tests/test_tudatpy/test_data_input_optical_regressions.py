@@ -183,16 +183,15 @@ def test_vfcc17_assigns_weight_without_requesting_extra_details(
 
 
 @pytest.mark.parametrize("correlation", [0.4, np.nan])
-@pytest.mark.parametrize(
-    "nightly_deweighting,observations_per_night", [(False, [1, 1, 1]), (True, [2, 2, 1])]
-)
+@pytest.mark.parametrize("nightly_deweighting,observations_per_night", [(False, 1), (True, 3)])
 def test_ades_weights_from_uncertainties_and_local_night(
     optical_table, nightly_deweighting, observations_per_night, correlation
 ):
-    """Weight positions by their uncertainties and correlation, or by VFCC17 without; per night, the first two share a night."""
+    """Weight positions by their uncertainties and correlation, or by VFCC17 without; all three share a night, and only the
+    ADES weights are divided by the number of observations in the night."""
     table = pd.concat([optical_table] * 3, ignore_index=True)
     # Station 500 is at zero longitude, so the local night is the integer part of the Julian date.
-    table["epoch"] = [2460310.55, 2460310.65, 2460311.65]
+    table["epoch"] = [2460310.55, 2460310.65, 2460310.75]
     table["DEC"] = [0.0, 30.0, 60.0]
     table["rmsRA"] = [0.15, 0.2, np.nan]
     table["rmsDec"] = [0.13, 0.1, np.nan]
@@ -212,9 +211,10 @@ def test_ades_weights_from_uncertainties_and_local_night(
         covariance = np.nan_to_num(table["rmsCorr"][i]) * ra_sigma * dec_sigma
         expected[2 * i : 2 * i + 2, 2 * i : 2 * i + 2] = (
             np.linalg.inv([[ra_sigma**2, covariance], [covariance, dec_sigma**2]])
-            / observations_per_night[i]
+            / observations_per_night
         )
-    # The last observation has no uncertainties, and gets the VFCC17 weight of CCD data with catalogue U.
+    # The last observation has no uncertainties, and gets the VFCC17 weight of CCD data with catalogue U (not reduced, as
+    # there are fewer than five observations in the night).
     expected[4:, 4:] = np.eye(2) / arcsec**2
     np.testing.assert_allclose(dataset.get_weight_matrix().toarray(), expected, rtol=1.0e-12)
 
