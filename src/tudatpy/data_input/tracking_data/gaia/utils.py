@@ -8,13 +8,17 @@ import pyarrow.compute as pc
 import pyarrow.csv as pv
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
-from tqdm import tqdm
 from tudatpy.resource_installer import (
     DEFAULT_CACHE,
     DEFAULT_DEST,
     _verify_md5,
     download_extra_file,
 )
+
+try:
+    from tqdm import tqdm
+except ImportError:  # Progress bars are optional
+    tqdm = lambda iterable, **kwargs: iterable
 
 _DATA_RELEASE = "gfpr"  # Gaia Focused Product Release
 _DEFAULT_GAIA_RESOURCES = DEFAULT_DEST / "gaia"
@@ -165,6 +169,7 @@ def _generate_parquet_from_download(
         sorted_files = []
         number_mp_counts = []
         column_types = None
+        array_columns = set()
         for i, csv_file in enumerate(
             tqdm(csv_files, desc=f"Sorting {parquet_path.stem}", unit="file")
         ):
@@ -176,14 +181,22 @@ def _generate_parquet_from_download(
                 ),
             )
             if column_types is None:
-                # Read all other files with the column types of the first, so they share one schema
-                column_types = table.schema
-                array_columns = [
-                    name for name in table.column_names if _is_literal_array(table[name])
-                ]
+                # Read all other files with the column types of the first, so they share one schema. Columns
+                # that are empty in the first file have no type yet: they are inferred per file and unified
+                # when merging
+                column_types = {
+                    field.name: field.type
+                    for field in table.schema
+                    if not pa.types.is_null(field.type)
+                }
 
             # Arrays stored as text, e.g. '[1.0,2.0]', are converted to lists
+            array_columns.update(
+                name for name in table.column_names if _is_literal_array(table[name])
+            )
             for name in array_columns:
+                if pa.types.is_null(table[name].type):
+                    continue
                 table = table.set_column(
                     table.schema.get_field_index(name), name, _literal_array_to_list(table[name])
                 )
@@ -198,7 +211,10 @@ def _generate_parquet_from_download(
 
         # Merge the sorted files, one range of MPC numbers at a time
         counts = pd.concat(number_mp_counts).groupby(level=0).sum()
-        dataset = ds.dataset(sorted_files)
+        # Columns that are empty in some files take the type of the other files
+        dataset = ds.dataset(
+            sorted_files, schema=pa.unify_schemas([pq.read_schema(f) for f in sorted_files])
+        )
         number_mp = ds.field("number_mp")
         merged_file = temp_dir / parquet_path.name
         chunks = counts.groupby((counts.cumsum() - 1) // rows_per_chunk)

@@ -3,9 +3,10 @@
 ``gaia``
 ========
 
-This module contains functionality to load Gaia astrometric observations of asteroids, as well as
-asteroid states and covariances, from the Gaia archive or from local parquet files. The astrometric
-observations of an asteroid are loaded with
+This module contains functionality to load Gaia astrometric observations of asteroids and natural
+satellites, as well as asteroid states and covariances, from the Gaia archive or from local parquet
+files. Asteroids are selected by MPC number or denomination, natural satellites by denomination. The
+astrometric observations of an object are loaded with
 :func:`~tudatpy.data_input.tracking_data.gaia.read_gaia_astrometry_data`, which reads a local parquet
 file if it exists, and otherwise retrieves the observations from the online archive (saving them to
 the parquet file if a path is provided). It returns the filtered observations directly as
