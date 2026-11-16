@@ -26,8 +26,8 @@ namespace simulator
 void expose_simulator( py::module& m )
 {
     expose_simulator_dynamics_bindings( m );
-    expose_simulator_variational_bindings( m );
     expose_simulator_state_transition_bindings( m );
+    expose_simulator_variational_bindings( m );
 }
 
 }  // namespace simulator

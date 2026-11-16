@@ -34,6 +34,27 @@ namespace observable_models_setup
 namespace biases
 {
 
+//! Register all bias types before the parameter factory bindings are created.
+void expose_bias_types( py::module& m )
+{
+    py::enum_< tom::ObservationBiasTypes >(
+            m,
+            "ObservationBiasTypes",
+            "All observation-bias model types. shared_observation_bias supports only constant_absolute_bias, "
+            "constant_relative_bias, arc_wise_constant_absolute_bias, constant_time_bias, and arc_wise_time_bias." )
+            .value( "multiple_observation_biases", tom::multiple_observation_biases )
+            .value( "constant_absolute_bias", tom::constant_absolute_bias )
+            .value( "constant_relative_bias", tom::constant_relative_bias )
+            .value( "arc_wise_constant_absolute_bias", tom::arc_wise_constant_absolute_bias )
+            .value( "arc_wise_constant_relative_bias", tom::arc_wise_constant_relative_bias )
+            .value( "constant_time_drift_bias", tom::constant_time_drift_bias )
+            .value( "arc_wise_time_drift_bias", tom::arc_wise_time_drift_bias )
+            .value( "constant_time_bias", tom::constant_time_bias )
+            .value( "arc_wise_time_bias", tom::arc_wise_time_bias )
+            .value( "clock_induced_bias", tom::clock_induced_bias )
+            .value( "two_way_range_time_scale_bias", tom::two_way_range_time_scale_bias );
+}
+
 void expose_biases( py::module& m )
 {
     py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >( m, "ObservationBiasSettings", R"doc(
@@ -114,8 +135,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
+ ConstantObservationBiasSettings
+     Settings for a constant, absolute observation bias.
 
  Examples
  --------
@@ -160,9 +181,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`ConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` class,
-     defining the settings for a constant, relative observation bias.
+ ConstantObservationBiasSettings
+     Settings for a constant, relative observation bias.
 
  Examples
  --------
@@ -200,7 +220,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : list[ astro.time_representation.Time ]
+ arc_start_times : list[float]
      List containing starting times for each arc.
 
  bias_values : list[ numpy.ndarray ]
@@ -212,8 +232,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseConstantObservationBiasSettings
+     Settings for arc-wise constant absolute observation biases.
 
  Examples
  --------
@@ -253,7 +273,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_values_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_values_per_start_time : dict[float, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -262,8 +282,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseConstantObservationBiasSettings
+     Settings for arc-wise constant absolute observation biases.
 
  Examples
  --------
@@ -306,7 +326,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : list[ astro.time_representation.Time ]
+ arc_start_times : list[float]
      List containing starting times for each arc.
 
  bias_values : list[ numpy.ndarray ]
@@ -318,8 +338,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseConstantObservationBiasSettings
+     Settings for arc-wise constant relative observation biases.
 
  Examples
  --------
@@ -359,7 +379,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_values_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_values_per_start_time : dict[float, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -368,8 +388,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseConstantObservationBiasSettings
+     Settings for arc-wise constant relative observation biases.
 
  Examples
  --------
@@ -425,14 +445,13 @@ void expose_biases( py::module& m )
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epoch : astro.time_representation.Time
+ ref_epoch : float
      Defines the reference epoch :math:`t_{0}` at which the effect of the time drift is initialised.
 
  Returns
  -------
- :class:`constantTimeDriftBias`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.constantTimeDriftBias` class,
-     defining the settings for a constant, relative observation bias.
+ ConstantTimeDriftBiasSettings
+     Settings for a constant time-drift observation bias.
 
  Examples
  --------
@@ -477,23 +496,23 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_value : numpy.ndarray
-     Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
-     assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+ bias_value : list[numpy.ndarray]
+     List of constant time-drift bias vectors, one for each arc. Each vector should be the same size as the observable to which it is
+     assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.).
 
- arc_start_times : list[ astro.time_representation.Time ]
+ arc_start_times : list[float]
      List containing starting times for each arc.
 
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : list[ astro.time_representation.Time ]
+ ref_epochs : list[float]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseTimeDriftBiasSettings
+     Settings for arc-wise time-drift observation biases.
 
  Examples
  --------
@@ -535,20 +554,20 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_value_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_value_per_start_time : dict[float, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the time bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : list[ astro.time_representation.Time ]
+ ref_epochs : list[float]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
  -------
- :class:`ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseTimeDriftBiasSettings
+     Settings for arc-wise time-drift observation biases.
 
  Examples
  --------
@@ -620,7 +639,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_values_per_start_time : Dict[astro.time_representation.Time, float]]
+ time_bias_per_arc_start_time : dict[float, float]
      Dictionary, in which the bias value for each arc are directly mapped to the starting times of the respective arc.
 
  associated_link_end : :class:`LinkEndType`
@@ -661,8 +680,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.multipleObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.multipleObservationBiasSettings` class, combining the settings for multiple observation biases.
+ MultipleObservationBiasSettings
+     Settings combining multiple observation biases.
 
  Examples
  --------

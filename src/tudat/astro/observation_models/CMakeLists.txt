@@ -16,13 +16,18 @@ set(observation_models_SOURCES
         "observationManager.cpp"
         "observationSimulator.cpp"
         "observationModel.cpp"
+        "celestialReferenceFrames.cpp"
+        "stellarAberrationCorrection.cpp"
         "corrections/lightTimeCorrections.cpp"
         "corrections/firstOrderRelativisticCorrection.cpp"
         "corrections/atmosphereCorrection.cpp"
         "corrections/solarCoronaCorrection.cpp"
         "corrections/neQuick2IonosphericCorrection.cpp"
-        "observationFrequencies.cpp"
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND observation_models_SOURCES "observationSettingsSerialization.cpp")
+endif ()
 
 # Set the header files.
 set(observation_models_HEADERS
@@ -42,6 +47,9 @@ set(observation_models_HEADERS
         "oneWayDifferencedRangeRateObservationModel.h"
         "nWayRangeRateObservationModel.h"
         "relativeAngularPositionObservationModel.h"
+        "positionAngleAndSeparationObservationModel.h"
+        "celestialReferenceFrames.h"
+        "stellarAberrationCorrection.h"
         "positionObservationModel.h"
         "relativePositionObservationModel.h"
         "velocityObservationModel.h"
@@ -54,12 +62,12 @@ set(observation_models_HEADERS
         "corrections/tabulatedMediaCorrection.h"
         "corrections/solarCoronaCorrection.h"
         "dsnNWayAveragedDopplerObservationModel.h"
-        "observationFrequencies.h"
         )
 
 TUDAT_ADD_LIBRARY("observation_models"
         "${observation_models_SOURCES}"
         "${observation_models_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PUBLIC_SERIALIZATION
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

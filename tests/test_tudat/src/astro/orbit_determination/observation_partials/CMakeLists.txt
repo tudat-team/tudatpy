@@ -61,6 +61,12 @@ TUDAT_ADD_TEST_CASE(PixelCoordinatesPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(PixelLandmarkEstimation
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(PositionPartials
         PRIVATE_LINKS
         tudat_test_support
@@ -106,6 +112,12 @@ TUDAT_ADD_TEST_CASE(RelativeAngularPositionPartials
         tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
         )
+
+ TUDAT_ADD_TEST_CASE(DsnNWayRangePartials
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
 TUDAT_ADD_TEST_CASE(RelativePositionPartials
      PRIVATE_LINKS
      tudat_test_support
@@ -136,6 +148,12 @@ TUDAT_ADD_TEST_CASE(RelativePositionPartials
  )
 
  TUDAT_ADD_TEST_CASE(DifferencedFrequencyOfArrivalPartials
+         PRIVATE_LINKS
+         tudat_test_support
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+ TUDAT_ADD_TEST_CASE(PositionAngleAndSeparationPartials
          PRIVATE_LINKS
          tudat_test_support
          ${Tudat_ESTIMATION_LIBRARIES}

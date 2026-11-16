@@ -33,11 +33,22 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/io/basicInputOutput.h"
 
+#ifndef VOID
+#define TUDAT_SPICE_INTERFACE_UNDEFINE_VOID
+#endif
+
 extern "C" {
 #include <cspice/SpiceUsr.h>
 #include <cspice/SpiceZfc.h>
 #include <cspice/SpiceErr.h>
 }
+
+// SpiceZfc.h defines VOID as a macro. If it did not exist before this header,
+// do not leak it: winnt.h uses the macro's absence to declare core Windows types.
+#ifdef TUDAT_SPICE_INTERFACE_UNDEFINE_VOID
+#undef VOID
+#undef TUDAT_SPICE_INTERFACE_UNDEFINE_VOID
+#endif
 
 #include "tudat/astro/ephemerides/tleEphemeris.h"
 #include "tudat/interface/spice/spiceError.h"
@@ -292,9 +303,6 @@ bool checkFailure( );
  * all error output messages. As the error handling will be performed on the Tudat side,
  * no error output is required from CSPICE.
  *
- * This function should be called before any CSPICE function calls to ensure that errors
- * are handled appropriately.
- *
  * @note This function must only be used in conjunction with the ``handleSpiceException`` function, otherwise no error handling will be performed at all.
  *
  * For more information on error handling in CSPICE, see the Error required reading:
@@ -302,6 +310,23 @@ bool checkFailure( );
  *
  */
 void setSpiceErrorHandling( );
+
+/**
+ * @brief Ensures the CSPICE error handling required by Tudat is configured, doing so only once.
+ *
+ * On the first call, this function calls ``setSpiceErrorHandling`` to set the CSPICE error
+ * action to "RETURN" and the error output device to "NULL". Later calls return immediately
+ * without repeated SPICE calls.
+ *
+ * This is the function the Tudat SPICE wrappers call before each CSPICE call.
+ *
+ * @note Like ``setSpiceErrorHandling``, this function must be used together with
+ * ``handleSpiceException``; otherwise CSPICE errors are silently ignored.
+ *
+ * For more information on error handling in CSPICE, see the Error required reading:
+ * https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/error.html
+ */
+void ensureSpiceErrorHandling( );
 
 /**
  * @brief Handles CSPICE exceptions by retrieving the error messages and traceback

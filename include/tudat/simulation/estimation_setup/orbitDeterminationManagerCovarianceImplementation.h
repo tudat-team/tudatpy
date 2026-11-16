@@ -15,7 +15,9 @@
 
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/simulation/estimation_setup/interArcContinuityConstraint.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
 namespace tudat
 {
@@ -30,6 +32,12 @@ std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
+    if( considerParametersIncluded_ && parametersToEstimate_->getConstraintSize( ) > 0 )
+    {
+        throw std::runtime_error(
+                "Error when computing covariance, linear parameter constraints cannot be combined with consider parameters" );
+    }
+
     // Get total number of observations
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
@@ -77,6 +85,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     Eigen::MatrixXd constraintStateMultiplier;
     Eigen::VectorXd constraintRightHandSide;
     parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
+    normalizeLinearConstraints( constraintStateMultiplier, constraintRightHandSide, normalizationTerms );
 
     // Compute inverse of updated covariance
     Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
@@ -86,6 +95,27 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
             constraintStateMultiplier,
             constraintRightHandSide,
             estimationInput->getLimitConditionNumberForWarning( ) );
+
+    const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
+    InterArcConstraintContribution interArcContribution;
+    if( !interArcConstraints.empty( ) )
+    {
+        // Add the soft inter-arc continuity-prior normal-matrix contribution.
+        interArcContribution = assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
+                interArcConstraints,
+                parametersToEstimate_,
+                stateTransitionAndSensitivityMatrixInterface_,
+                variationalEquationsSolver_,
+                normalizationTerms,
+                static_cast< int >( numberEstimatedParameters_ ),
+                "covariance analysis",
+                static_cast< int >( designMatrixEstimatedParameters.rows( ) ) );
+        if( interArcContribution.additionalNormalMatrix.size( ) > 0 )
+        {
+            inverseNormalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ) +=
+                    interArcContribution.additionalNormalMatrix;
+        }
+    }
 
     // Compute contribution consider parameters
     Eigen::MatrixXd covarianceContributionConsiderParameters;
@@ -114,7 +144,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                     considerNormalizationTerms,
                     covarianceContributionConsiderParameters,
                     estimationInput->getConsiderCovariance( ),
-                    exceptionDuringPropagation );
+                    exceptionDuringPropagation,
+                    interArcContribution.totalConstraintCost,
+                    interArcContribution.perPairDiscrepancies );
 
     return estimationOutput;
 }

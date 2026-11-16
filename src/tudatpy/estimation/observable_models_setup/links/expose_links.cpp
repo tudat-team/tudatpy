@@ -19,7 +19,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
 
 namespace tom = tudat::observation_models;
 
@@ -84,19 +85,37 @@ Examples
 
 
       )doc" )
-            .value( "unidentified_link_end", tom::LinkEndType::unidentified_link_end )
-            .value( "transmitter", tom::LinkEndType::transmitter )
-            .value( "reflector1", tom::LinkEndType::reflector1 )
-            .value( "retransmitter", tom::LinkEndType::retransmitter )
-            .value( "reflector2", tom::LinkEndType::reflector2 )
-            .value( "reflector3", tom::LinkEndType::reflector3 )
-            .value( "reflector4", tom::LinkEndType::reflector4 )
-            .value( "receiver", tom::LinkEndType::receiver )
-            .value( "receiver2", tom::LinkEndType::receiver2 )
-            .value( "transmitter2", tom::LinkEndType::transmitter2 )
-            .value( "observer", tom::LinkEndType::observer )
-            .value( "observed_body", tom::LinkEndType::observed_body )
+            .value( "unidentified_link_end",
+                    tom::LinkEndType::unidentified_link_end,
+                    R"doc(Link end with an unspecified role in the observation.)doc" )
+            .value( "transmitter",
+                    tom::LinkEndType::transmitter,
+                    R"doc(Link end transmitting the first signal on the observation link.)doc" )
+            .value( "reflector1", tom::LinkEndType::reflector1, R"doc(First intermediate reflector on the observation link.)doc" )
+            .value( "retransmitter",
+                    tom::LinkEndType::retransmitter,
+                    R"doc(Intermediate link end receiving and retransmitting the signal.)doc" )
+            .value( "reflector2", tom::LinkEndType::reflector2, R"doc(Second intermediate reflector on the observation link.)doc" )
+            .value( "reflector3", tom::LinkEndType::reflector3, R"doc(Third intermediate reflector on the observation link.)doc" )
+            .value( "reflector4", tom::LinkEndType::reflector4, R"doc(Fourth intermediate reflector on the observation link.)doc" )
+            .value( "receiver", tom::LinkEndType::receiver, R"doc(Link end receiving the signal at the end of the observation link.)doc" )
+            .value( "receiver2", tom::LinkEndType::receiver2, R"doc(Second receiving link end in a multi-receiver observation.)doc" )
+            .value( "transmitter2",
+                    tom::LinkEndType::transmitter2,
+                    R"doc(Second transmitting link end in a multi-transmitter observation.)doc" )
+            .value( "observer", tom::LinkEndType::observer, R"doc(Body or reference point from which a direct observable is measured.)doc" )
+            .value( "observed_body",
+                    tom::LinkEndType::observed_body,
+                    R"doc(Body or reference point whose state or direction is observed.)doc" )
             .export_values( );
+
+    auto link_end_id = py::class_< tom::LinkEndId, std::shared_ptr< tom::LinkEndId > >( m,
+                                                                                        "LinkEndId",
+                                                                                        R"doc(
+
+         Identifier of an observation link end, consisting of a body name and optional station or reference point name.
+
+      )doc" );
 
     m.def( "one_way_downlink_link_ends",
            &tom::getOneWayDownlinkLinkEndsList,
@@ -113,17 +132,17 @@ Examples
 
  Parameters
  ----------
- transmitter : tuple[str, str]
-     List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry reference point of the single transmitter link end(s).
+ transmitter : LinkEndId
+     Identifier for the single transmitter link end.
 
- receivers : List[ tuple[str, str] ]
-     List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where for each tuple the first entrance identifies the body and the second entry the reference point of the receiver link end(s).
+ receivers : list[LinkEndId]
+     List of identifiers for the receiver link ends.
 
  Returns
  -------
- List[ LinkDefinition ]
-     List of one or more :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition` types, each defining the geometry for one one-way downlink.
-     A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` type is mapped.
+ list[dict[LinkEndType, LinkEndId]]
+     List of one or more link-end dictionaries, each defining the geometry for one one-way downlink.
+     Each dictionary has one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` is mapped.
 
  Examples
  --------
@@ -173,17 +192,17 @@ Examples
 
  Parameters
  ----------
- transmitters : List[ tuple[str, str] ]
-     List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the transmitter link end(s).
+ transmitters : list[LinkEndId]
+     List of identifiers for the transmitter link ends.
 
- receivers : tuple[str, str]
-     List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the single receiver link end(s).
+ receiver : LinkEndId
+     Identifier for the single receiver link end.
 
  Returns
  -------
- List[ LinkDefinition ]
-     List of one or more :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition` types, each defining the geometry for one one-way uplink.
-     A :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` type for a one one-way link is made of a dict with one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` type is mapped.
+ list[dict[LinkEndType, LinkEndId]]
+     List of one or more link-end dictionaries, each defining the geometry for one one-way uplink.
+     Each dictionary has one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` is mapped.
 
  Examples
  --------
@@ -244,9 +263,7 @@ Examples
     // ###########      Observation Model Settings
     // ################
 
-    py::class_< tom::LinkEndId, std::shared_ptr< tom::LinkEndId > >( m,
-                                                                     "LinkEndId",
-                                                                     R"doc(
+    link_end_id.doc( ) = R"doc(
 
          Base class serving as identifier of a specific link end.
 
@@ -278,7 +295,8 @@ Examples
          print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
 
 
-      )doc" )
+      )doc";
+    link_end_id
             .def_property_readonly( "body_name",
                                     &tom::LinkEndId::getBodyName,
                                     R"doc(
@@ -335,15 +353,51 @@ Examples
 
 
 
-      )doc" )
+      )doc" ) TUDATPY_DEF_PICKLE( tom::LinkEndId )
             .def_property_readonly( "station_name",
                                     &tom::LinkEndId::getReferencePointName,
                                     R"doc(
          Name of the ground station reference point on the body, str. Empty if there is no reference point.
       )doc" )
-            .def( py::init< const std::string& >( ), py::arg( "body_name" ) )
-            .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "station_name" ) )
-            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) );
+            .def( py::init< const std::string& >( ),
+                  py::arg( "body_name" ),
+                  R"doc(
+
+         Identify the centre of the named body as an observation link end.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+
+      )doc" )
+            .def( py::init< const std::string&, const std::string& >( ),
+                  py::arg( "body_name" ),
+                  py::arg( "station_name" ),
+                  R"doc(
+
+         Identify a station or reference point on the named body.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body in the system of bodies.
+         station_name : str
+             Identifier of the ground station or reference point on the body.
+
+      )doc" )
+            .def( py::init< const std::pair< std::string, std::string >& >( ),
+                  py::arg( "link_end" ),
+                  R"doc(
+
+         Create a link-end identifier from a (body name, station or reference point name) tuple.
+
+         Parameters
+         ----------
+         link_end : tuple[str, str]
+             Pair containing the body name and reference point identifier.
+
+      )doc" ) TUDATPY_DEF_EQ_NE( tom::LinkEndId ) TUDATPY_DEF_FILE_IO( tom::LinkEndId );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
@@ -464,7 +518,18 @@ Examples
 
 
       )doc" )
-            .def( py::init< const std::map< tom::LinkEndType, tom::LinkEndId >& >( ), py::arg( "link_ends" ) )
+            .def( py::init< const std::map< tom::LinkEndType, tom::LinkEndId >& >( ),
+                  py::arg( "link_ends" ),
+                  R"doc(
+
+         Create an observation link from a mapping of link-end roles to LinkEndId identifiers.
+
+         Parameters
+         ----------
+         link_ends : dict[LinkEndType, LinkEndId]
+             Definition of the bodies and reference points participating in the observation link.
+
+      )doc" )
             .def( "link_end_id",
                   &tom::LinkDefinition::at,
                   py::arg( "link_end_type" ),
@@ -480,8 +545,8 @@ Examples
 
          Returns
          -------
-         :type: dict[LinkEndType,LinkEndId]
-             Dictionary of link ends
+         LinkEndId
+             Identifier of the requested link end.
 
          Examples
          --------
@@ -513,7 +578,8 @@ Examples
 
              Attribute that contains the dictionary with link end type (as key) and link end if (as value).
 
-          )doc" );
+          )doc" ) TUDATPY_DEF_PICKLE( tom::LinkDefinition ) TUDATPY_DEF_EQ_NE( tom::LinkDefinition )
+                    TUDATPY_DEF_FILE_IO( tom::LinkDefinition );
 
     m.def( "link_definition",
            &tom::linkDefinition,

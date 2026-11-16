@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <iostream>
@@ -17,8 +16,7 @@
 #include <ctime>
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
-#include <boost/format.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
@@ -164,8 +162,14 @@ BOOST_AUTO_TEST_CASE( test_EstimationDragScaling )
         std::shared_ptr< EstimationInput< double > > estimationInput =
                 std::make_shared< EstimationInput< double > >( observationCollection );
         estimationInput->defineEstimationSettings( 0, 1, 0, 1, 1, 1 );
+        estimationInput->resetParametersToBestIteration_ = true;
 
         std::shared_ptr< EstimationOutput<> > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+
+        // Check that, after the estimation, the parameters are those of the best iteration
+        Eigen::VectorXd parameterDifference =
+                parametersToEstimate->getFullParameterValues< double >( ) - estimationOutput->parameterEstimate_;
+        BOOST_CHECK_SMALL( parameterDifference.norm( ), 1.0E-14 * estimationOutput->parameterEstimate_.norm( ) );
 
         residuals.push_back( estimationOutput->residualStandardDeviation_ );
         parameterEstimateList.push_back( estimationOutput->parameterHistory_.at( estimationOutput->parameterHistory_.size( ) - 1 )( 6 ) );

@@ -37,11 +37,25 @@ Functions
 
    radiation_pressure_coefficient
 
+   three_coefficient_radiation_pressure_coefficients
+
    arcwise_radiation_pressure_coefficient
 
    radiation_pressure_target_direction_scaling
 
    radiation_pressure_target_perpendicular_direction_scaling
+
+   specular_reflectivity
+
+   diffuse_reflectivity
+
+   energy_accommodation_coefficient
+
+   normal_accommodation_coefficient
+
+   tangential_accommodation_coefficient
+
+   normal_velocity_at_wall_ratio
 
    empirical_accelerations
 
@@ -101,6 +115,8 @@ Functions
 
    free_core_nutation_rate
 
+   shared_observation_bias
+
    absolute_observation_bias
 
    relative_observation_bias
@@ -111,7 +127,15 @@ Functions
 
    ground_station_position
 
+   ground_station_linear_velocity
+
    reference_point_position
+
+   displacement_love_number
+
+   displacement_shida_number
+
+   camera_pointing_correction
 
    ppn_parameter_gamma
 
@@ -182,11 +206,25 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.radiation_pressure_coefficient
 
+.. autofunction:: tudatpy.dynamics.parameters_setup.three_coefficient_radiation_pressure_coefficients
+
 .. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_radiation_pressure_coefficient
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.radiation_pressure_target_direction_scaling
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.radiation_pressure_target_perpendicular_direction_scaling
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.specular_reflectivity
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.diffuse_reflectivity
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.energy_accommodation_coefficient
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.normal_accommodation_coefficient
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.tangential_accommodation_coefficient
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.normal_velocity_at_wall_ratio
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.empirical_accelerations
 
@@ -246,6 +284,8 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.free_core_nutation_rate
 
+.. autofunction:: tudatpy.dynamics.parameters_setup.shared_observation_bias
+
 .. autofunction:: tudatpy.dynamics.parameters_setup.absolute_observation_bias
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.relative_observation_bias
@@ -256,7 +296,15 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.ground_station_position
 
+.. autofunction:: tudatpy.dynamics.parameters_setup.ground_station_linear_velocity
+
 .. autofunction:: tudatpy.dynamics.parameters_setup.reference_point_position
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.displacement_love_number
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.displacement_shida_number
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.camera_pointing_correction
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.ppn_parameter_gamma
 

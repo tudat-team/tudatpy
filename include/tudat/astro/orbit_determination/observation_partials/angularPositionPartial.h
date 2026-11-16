@@ -11,6 +11,7 @@
 #ifndef TUDAT_ANGULARPOSITIONPARTIAL_H
 #define TUDAT_ANGULARPOSITIONPARTIAL_H
 
+#include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
@@ -65,8 +66,10 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPositio
 class AngularPositionScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
-    AngularPositionScaling( const bool normalizeRightAscension ):
-        DirectPositionPartialScaling< 2 >( observation_models::angular_position ), normalizeRightAscension_( normalizeRightAscension )
+    AngularPositionScaling( const bool normalizeRightAscension,
+                            const Eigen::Matrix3d& j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( ) ):
+        DirectPositionPartialScaling< 2 >( observation_models::angular_position ), normalizeRightAscension_( normalizeRightAscension ),
+        j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation )
     {}
     //! Destructor
     ~AngularPositionScaling( ) {}
@@ -84,7 +87,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation );
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
     //! Function to retrieve the scaling factor for specific link end
     /*!
@@ -92,12 +96,12 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }
 
-    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType ) override
     {
         return scalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }
@@ -107,9 +111,25 @@ public:
      * Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial.
      * \return Factor by which the light-time partials should be scaled in one-way observation partial.
      */
-    Eigen::Vector2d getLightTimePartialScalingFactor( )
+    Eigen::Vector2d getLightTimePartialScalingFactor( ) override
     {
         return referenceLightTimeCorrectionScaling_;
+    }
+
+    //! Partial w.r.t. the receiver velocity (non-zero only for observations with stellar aberration)
+    Eigen::Matrix< double, 2, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
+    {
+        return ( linkEndType == observation_models::receiver ) ? velocityScalingFactor_ : Eigen::Matrix< double, 2, 3 >::Zero( );
+    }
+
+    Eigen::Matrix< double, 2, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) override
+    {
+        return getVelocityScalingFactor( linkEndType );
+    }
+
+    bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType ) override
+    {
+        return linkEndType == observation_models::receiver && !velocityScalingFactor_.isZero( 0.0 );
     }
 
     //! Function to get the fixed link end for last computation of update() function.
@@ -117,13 +137,19 @@ public:
      * Fixed link end for last computation of update() function.
      * \return Function to get the fixed link end for last computation of update() function.
      */
-    observation_models::LinkEndType getCurrentLinkEndType( )
+    observation_models::LinkEndType getCurrentLinkEndType( ) override
     {
         return currentLinkEndType_;
     }
 
 private:
     bool normalizeRightAscension_;
+
+    //! Rotation from ICRF/J2000 to the frame of the link-end states, used when a celestial frame is selected
+    Eigen::Matrix3d j2000ToGlobalFrameTransformation_;
+
+    //! Partial w.r.t. receiver velocity (due to stellar aberration)
+    Eigen::Matrix< double, 2, 3 > velocityScalingFactor_ = Eigen::Matrix< double, 2, 3 >::Zero( );
 
     //! Predeclared common scaling factor
     Eigen::Matrix< double, 2, 3 > scalingFactor_;

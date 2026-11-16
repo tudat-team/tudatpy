@@ -17,6 +17,19 @@ namespace tudat
 
 namespace sofa_interface
 {
+Eigen::Matrix3d getPrecessionMatrix( const double terrestrialTime, const double referenceJulianDay, const bool useIau2006 )
+{
+    double precessionMatrix[ 3 ][ 3 ];
+    if( useIau2006 )
+    {
+        iauPmat06( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, precessionMatrix );
+    }
+    else
+    {
+        iauPmat76( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, precessionMatrix );
+    }
+    return Eigen::Map< Eigen::Matrix< double, 3, 3, Eigen::RowMajor > >( &precessionMatrix[ 0 ][ 0 ] );
+}
 
 //! Function to calculate CIP and CIO locator according to requested IAU conventions
 Eigen::Vector3d getPositionOfCipInGcrs( const double terrestrialTime,
@@ -112,25 +125,18 @@ double calculateEquationOfEquinoxes( const double terrestrialTime,
     return equationOfEquinoxes;
 }
 
-Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const double referenceJulianDay )
+Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const double referenceJulianDay, const bool useIau2006 )
 {
-    double pnm[ 3 ][ 3 ];
-
-    //	std::cout << "Ref JD: " << referenceJulianDay << "\nTT in Julian days: " << terrestrialTime / physical_constants::JULIAN_DAY <<
-    // std::endl;
-
-    iauPnm80( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, pnm );
-
-    return ( Eigen::Matrix3d( ) << pnm[ 0 ][ 0 ],
-             pnm[ 0 ][ 1 ],
-             pnm[ 0 ][ 2 ],
-             pnm[ 1 ][ 0 ],
-             pnm[ 1 ][ 1 ],
-             pnm[ 1 ][ 2 ],
-             pnm[ 2 ][ 0 ],
-             pnm[ 2 ][ 1 ],
-             pnm[ 2 ][ 2 ] )
-            .finished( );
+    double precessionNutationMatrix[ 3 ][ 3 ];
+    if( useIau2006 )
+    {
+        iauPnm06a( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, precessionNutationMatrix );
+    }
+    else
+    {
+        iauPnm80( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, precessionNutationMatrix );
+    }
+    return Eigen::Map< Eigen::Matrix< double, 3, 3, Eigen::RowMajor > >( &precessionNutationMatrix[ 0 ][ 0 ] );
 }
 
 void getPrecessionAngles( double& zeta, double& z, double& theta, const double terrestrialTime, const double referenceJulianDay )

@@ -1,11 +1,9 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <iomanip>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
-#include <boost/lambda/lambda.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -65,8 +63,8 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
 {
     double lunarMassRatio = 0.0123000371;
     double solarMassRatio = 332946.0482;
-    std::function< double( ) > lunarMassFunction = boost::lambda::constant( lunarMassRatio );
-    std::function< double( ) > solarMassFunction = boost::lambda::constant( solarMassRatio );
+    std::function< double( ) > lunarMassFunction = [ lunarMassRatio ]( ) { return lunarMassRatio; };
+    std::function< double( ) > solarMassFunction = [ solarMassRatio ]( ) { return solarMassRatio; };
     std::vector< std::function< double( ) > > massFunctions;
     massFunctions.resize( 2 );
     massFunctions[ 0 ] = lunarMassFunction;
@@ -146,18 +144,19 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         correctionLoveAndShidaNumbers[ 2 ] = iers_2010_parameters::IMAGINARY_DEGREE_TWO_DIURNAL_LOVE_NUMBER;
         correctionLoveAndShidaNumbers[ 3 ] = iers_2010_parameters::IMAGINARY_DEGREE_TWO_DIURNAL_SHIDA_NUMBER;
 
-        deformationModel = std::make_shared< Iers2010EarthDeformation >( earthEphemeris,
-                                                                         ephemerides,
-                                                                         rotationEphemeris,
-                                                                         boost::lambda::constant( 1.0 ),
-                                                                         massFunctions,
-                                                                         earthEquatorialRadius,
-                                                                         nominalDisplacementLoveNumbers,
-                                                                         firstStepLatitudeDependenceTerms,
-                                                                         areFirstStepCorrectionsCalculated,
-                                                                         correctionLoveAndShidaNumbers,
-                                                                         "",
-                                                                         "" );
+        deformationModel = std::make_shared< Iers2010EarthDeformation >(
+                earthEphemeris,
+                ephemerides,
+                rotationEphemeris,
+                []( ) { return 1.0; },
+                massFunctions,
+                earthEquatorialRadius,
+                nominalDisplacementLoveNumbers,
+                firstStepLatitudeDependenceTerms,
+                areFirstStepCorrectionsCalculated,
+                correctionLoveAndShidaNumbers,
+                "",
+                "" );
 
         expectedDeformation << -0.2836337012840008001E-03, 0.1125342324347507444E-03, -0.2471186224343683169E-03;
 
@@ -180,18 +179,19 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         correctionLoveAndShidaNumbers[ 4 ] = iers_2010_parameters::IMAGINARY_DEGREE_TWO_SEMIDIURNAL_LOVE_NUMBER;
         correctionLoveAndShidaNumbers[ 5 ] = iers_2010_parameters::IMAGINARY_DEGREE_TWO_SEMIDIURNAL_SHIDA_NUMBER;
 
-        deformationModel = std::make_shared< Iers2010EarthDeformation >( earthEphemeris,
-                                                                         ephemerides,
-                                                                         rotationEphemeris,
-                                                                         boost::lambda::constant( 1.0 ),
-                                                                         massFunctions,
-                                                                         earthEquatorialRadius,
-                                                                         nominalDisplacementLoveNumbers,
-                                                                         firstStepLatitudeDependenceTerms,
-                                                                         areFirstStepCorrectionsCalculated,
-                                                                         correctionLoveAndShidaNumbers,
-                                                                         "",
-                                                                         "" );
+        deformationModel = std::make_shared< Iers2010EarthDeformation >(
+                earthEphemeris,
+                ephemerides,
+                rotationEphemeris,
+                []( ) { return 1.0; },
+                massFunctions,
+                earthEquatorialRadius,
+                nominalDisplacementLoveNumbers,
+                firstStepLatitudeDependenceTerms,
+                areFirstStepCorrectionsCalculated,
+                correctionLoveAndShidaNumbers,
+                "",
+                "" );
 
         expectedDeformation << -0.2801334805106874015E-03, 0.2939522229284325029E-04, -0.6051677912316721561E-04;
         calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
@@ -213,18 +213,19 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         correctionLoveAndShidaNumbers[ 0 ] = iers_2010_parameters::DEGREE_TWO_DIURNAL_TOROIDAL_LOVE_NUMBER;
         correctionLoveAndShidaNumbers[ 1 ] = iers_2010_parameters::DEGREE_TWO_SEMIDIURNAL_TOROIDAL_LOVE_NUMBER;
 
-        deformationModel = std::make_shared< Iers2010EarthDeformation >( earthEphemeris,
-                                                                         ephemerides,
-                                                                         rotationEphemeris,
-                                                                         boost::lambda::constant( 1.0 ),
-                                                                         massFunctions,
-                                                                         earthEquatorialRadius,
-                                                                         nominalDisplacementLoveNumbers,
-                                                                         firstStepLatitudeDependenceTerms,
-                                                                         areFirstStepCorrectionsCalculated,
-                                                                         correctionLoveAndShidaNumbers,
-                                                                         "",
-                                                                         "" );
+        deformationModel = std::make_shared< Iers2010EarthDeformation >(
+                earthEphemeris,
+                ephemerides,
+                rotationEphemeris,
+                []( ) { return 1.0; },
+                massFunctions,
+                earthEquatorialRadius,
+                nominalDisplacementLoveNumbers,
+                firstStepLatitudeDependenceTerms,
+                areFirstStepCorrectionsCalculated,
+                correctionLoveAndShidaNumbers,
+                "",
+                "" );
 
         expectedDeformation << 0.2367189532359759044E-03, 0.5181609907284959182E-03, -0.3014881422940427977E-03;
         calculatedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
@@ -244,7 +245,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 earthEphemeris,
                 ephemerides,
                 rotationEphemeris,
-                boost::lambda::constant( 1.0 ),
+                []( ) { return 1.0; },
                 massFunctions,
                 earthEquatorialRadius,
                 nominalDisplacementLoveNumbers,
@@ -266,7 +267,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 earthEphemeris,
                 ephemerides,
                 rotationEphemeris,
-                boost::lambda::constant( 1.0 ),
+                []( ) { return 1.0; },
                 massFunctions,
                 earthEquatorialRadius,
                 nominalDisplacementLoveNumbers,
@@ -307,7 +308,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 earthEphemeris,
                 ephemerides,
                 rotationEphemeris,
-                boost::lambda::constant( 1.0 ),
+                []( ) { return 1.0; },
                 massFunctions,
                 earthEquatorialRadius,
                 nominalDisplacementLoveNumbers,
@@ -355,7 +356,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                         earthEphemeris,
                         ephemerides,
                         rotationEphemeris,
-                        boost::lambda::constant( 1.0 ),
+                        []( ) { return 1.0; },
                         massFunctions,
                         earthEquatorialRadius,
                         nominalDisplacementLoveNumbers,
@@ -373,7 +374,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                         std::make_shared< ConstantEphemeris >( moonState ),
                         std::make_shared< ConstantEphemeris >( sunState ),
                         std::make_shared< ConstantRotationalEphemeris >( orientationQuaternion ),
-                        boost::lambda::constant( 1.0 ),
+                        []( ) { return 1.0; },
                         lunarMassFunction,
                         solarMassFunction,
                         std::bind( &calculateFundamentalArgumentsIersCode, std::placeholders::_1 ) );
@@ -395,27 +396,28 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         firstStepLatitudeDependenceTerms[ 0 ] = 0.0;
         firstStepLatitudeDependenceTerms[ 1 ] = 0.0;
 
-        std::shared_ptr< BasicTidalBodyDeformation > basicDeformationModel =
-                std::make_shared< BasicTidalBodyDeformation >( earthEphemeris,
-                                                               ephemerides,
-                                                               rotationEphemeris,
-                                                               boost::lambda::constant( 1.0 ),
-                                                               massFunctions,
-                                                               earthEquatorialRadius,
-                                                               nominalDisplacementLoveNumbers );
+        std::shared_ptr< BasicTidalBodyDeformation > basicDeformationModel = std::make_shared< BasicTidalBodyDeformation >(
+                earthEphemeris,
+                ephemerides,
+                rotationEphemeris,
+                []( ) { return 1.0; },
+                massFunctions,
+                earthEquatorialRadius,
+                nominalDisplacementLoveNumbers );
 
-        deformationModel = std::make_shared< Iers2010EarthDeformation >( earthEphemeris,
-                                                                         ephemerides,
-                                                                         rotationEphemeris,
-                                                                         boost::lambda::constant( 1.0 ),
-                                                                         massFunctions,
-                                                                         earthEquatorialRadius,
-                                                                         nominalDisplacementLoveNumbers,
-                                                                         firstStepLatitudeDependenceTerms,
-                                                                         areFirstStepCorrectionsCalculated,
-                                                                         correctionLoveAndShidaNumbers,
-                                                                         "",
-                                                                         "" );
+        deformationModel = std::make_shared< Iers2010EarthDeformation >(
+                earthEphemeris,
+                ephemerides,
+                rotationEphemeris,
+                []( ) { return 1.0; },
+                massFunctions,
+                earthEquatorialRadius,
+                nominalDisplacementLoveNumbers,
+                firstStepLatitudeDependenceTerms,
+                areFirstStepCorrectionsCalculated,
+                correctionLoveAndShidaNumbers,
+                "",
+                "" );
 
         expectedDeformation = deformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );
         calculatedDeformation = basicDeformationModel->calculateDisplacement( evaluationTime, siteState.segment( 0, 3 ) );

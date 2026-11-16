@@ -16,10 +16,12 @@
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
+#include "tudat/astro/gravitation/gravitationalParameterRateAcceleration.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "tudat/astro/gravitation/polyhedronGravityModel.h"
 #include "tudat/astro/gravitation/ringGravityModel.h"
@@ -103,8 +105,8 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         case radiation_pressure:
             accelerationName = "radiation pressure acceleration";
             break;
-        case cannon_ball_radiation_pressure:
-            accelerationName = "cannonball radiation pressure acceleration (deprecated)";
+        case three_coefficient_radiation_pressure:
+            accelerationName = "three-coefficient radiation pressure acceleration";
             break;
         case momentum_wheel_desaturation_acceleration:
             accelerationName = "momentum wheen desaturation acceleration ";
@@ -120,6 +122,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
             break;
         case custom_acceleration:
             accelerationName = "custom acceleration";
+            break;
+        case gravitational_parameter_rate_acceleration:
+            accelerationName = "gravitational parameter rate acceleration";
             break;
         default:
             std::string errorMessage =
@@ -227,6 +232,10 @@ AvailableAcceleration getAccelerationModelType(
             accelerationType = direct_tidal_dissipation_in_orbiting_body_acceleration;
         }
     }
+    else if( std::dynamic_pointer_cast< ThreeCoefficientRadiationPressureAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = three_coefficient_radiation_pressure;
+    }
     else if( std::dynamic_pointer_cast< RadiationPressureAcceleration >( accelerationModel ) != NULL )
     {
         accelerationType = radiation_pressure;
@@ -238,6 +247,10 @@ AvailableAcceleration getAccelerationModelType(
     else if( std::dynamic_pointer_cast< CustomAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = custom_acceleration;
+    }
+    else if( std::dynamic_pointer_cast< GravitationalParameterRateAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = gravitational_parameter_rate_acceleration;
     }
     else if( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >( accelerationModel ) != nullptr )
     {
@@ -284,10 +297,11 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case yarkovsky_acceleration:
         case rtg_acceleration:
         case relativistic_acceleration_from_metric:
+        case gravitational_parameter_rate_acceleration:
             return false;
         case aerodynamic:
-        case cannon_ball_radiation_pressure:
         case radiation_pressure:
+        case three_coefficient_radiation_pressure:
             return true;
         default:
             throw std::runtime_error( "Error when determining if parameter is area-to-mass dependent, acceleration " +
@@ -328,18 +342,6 @@ std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > > getAccele
         if( getAccelerationModelType( fullList.at( i ) ) == modelType )
         {
             accelerationList.push_back( fullList.at( i ) );
-        }
-        else if( std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) ) !=
-                         nullptr &&
-                 modelType == cannon_ball_radiation_pressure )
-        {
-            std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration =
-                    std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) );
-            if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
-                        radiationPressureAcceleration->getTargetModel( ) ) != nullptr )
-            {
-                accelerationList.push_back( fullList.at( i ) );
-            }
         }
     }
     return accelerationList;

@@ -19,8 +19,6 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <boost/math/special_functions.hpp>
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -188,10 +186,10 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     else
     {
         // Alpha parameter.
-        const double alphaParameter = 2.0 * boost::math::acosh( xParameter );
+        const double alphaParameter = 2.0 * std::acosh( xParameter );
 
         // Beta parameter.
-        double betaParameter = 2.0 * boost::math::asinh( std::sqrt( ( semiPerimeter - chord ) / ( -2.0 * semiMajorAxis ) ) );
+        double betaParameter = 2.0 * std::asinh( std::sqrt( ( semiPerimeter - chord ) / ( -2.0 * semiMajorAxis ) ) );
 
         if( isLongway )
         {
@@ -298,10 +296,10 @@ double computeTimeOfFlightIzzo( const double xParameter,
     else
     {
         // Alpha parameter.
-        const double alphaParameter = 2.0 * boost::math::acosh( xParameter );
+        const double alphaParameter = 2.0 * std::acosh( xParameter );
 
         // Beta parameter.
-        double betaParameter = 2.0 * boost::math::asinh( std::sqrt( ( semiPerimeter - chord ) / ( -2.0 * semiMajorAxis ) ) );
+        double betaParameter = 2.0 * std::asinh( std::sqrt( ( semiPerimeter - chord ) / ( -2.0 * semiMajorAxis ) ) );
 
         if( isLongway )
         {

@@ -1,0 +1,48 @@
+name: Tag a merged release
+on:
+  pull_request:
+    types: [closed]
+    branches: [master, develop]
+  workflow_call:
+permissions:
+  contents: write
+jobs:
+  tag:
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (startsWith(github.event.pull_request.head.ref, 'release/v') ||
+       startsWith(github.event.pull_request.head.ref, 'release/develop-v'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 2
+      - name: Tag the merged version
+        env:
+          RELEASE_BRANCH: ${{ github.event.pull_request.head.ref }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+          PREPARED_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Keep the commits used by the examples links and the next release.
+          if [[ "$(git rev-parse HEAD^2 2>/dev/null)" != "$PREPARED_COMMIT" ]]; then
+            echo "::error::Refusing to tag: merge release PRs with Create a merge commit."
+            exit 1
+          fi
+          VERSION=$( (cat version 2>/dev/null || sed -n 's/^current_version = //p' .bumpversion.cfg) | tr -d '\r\n')
+          [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(\.dev0)?$ ]]
+          if [[ "$BASE_BRANCH" == master ]]; then
+            [[ "$VERSION" != *.dev* && "$RELEASE_BRANCH" == "release/v$VERSION" ]]
+          else
+            [[ "$VERSION" == *.dev0 && "$RELEASE_BRANCH" == "release/develop-v${VERSION%.dev0}" ]]
+          fi
+          if [[ -n "$(git ls-remote --tags origin "refs/tags/v$VERSION")" ]]; then
+            git fetch --depth=1 origin "refs/tags/v$VERSION"
+            [[ "$(git rev-parse 'FETCH_HEAD^{commit}')" == "$(git rev-parse HEAD)" ]]
+          else
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git tag -a "v$VERSION" -m "TudatPy $VERSION"
+            git -c push.followTags=false push origin "refs/tags/v$VERSION:refs/tags/v$VERSION"
+          fi

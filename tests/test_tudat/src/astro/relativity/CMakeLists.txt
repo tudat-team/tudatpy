@@ -19,6 +19,3 @@ TUDAT_ADD_TEST_CASE(RelativisticTimeConversion PRIVATE_LINKS ${Tudat_ESTIMATION_
 TUDAT_ADD_TEST_CASE(SchwarzSchildMetric PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(SolarSystemMetric PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-
-# Temporarily removed: depends on local ISS CSV and writes to a user-specific path.
-# TUDAT_ADD_TEST_CASE(IssProperTimeRateIau PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})

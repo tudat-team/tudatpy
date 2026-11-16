@@ -309,27 +309,22 @@ public:
     /*
      *  Constructor for integrator settings.
      *  \param integratorType Type of numerical integrator
-     *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration
      *  for variable step size integrators.
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = saveFrequency).
      *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *  each integration step (`false`).
      */
     IntegratorSettings( const AvailableIntegrators integratorType,
-                        const IndependentVariableType initialTime,
                         const IndependentVariableType initialTimeStep,
                         const bool assessTerminationOnMinorSteps = false ):
-        integratorType_( integratorType ), initialTimeDeprecated_( initialTime ), initialTimeStep_( initialTimeStep ),
+        integratorType_( integratorType ), initialTimeStep_( initialTimeStep ),
         assessTerminationOnMinorSteps_( assessTerminationOnMinorSteps )
     {}
 
     virtual std::shared_ptr< IntegratorSettings > clone( ) const
     {
-        return std::make_shared< IntegratorSettings >(
-                integratorType_, initialTimeDeprecated_, initialTimeStep_, assessTerminationOnMinorSteps_ );
+        return std::make_shared< IntegratorSettings >( integratorType_, initialTimeStep_, assessTerminationOnMinorSteps_ );
     }
 
     // Virtual destructor.
@@ -343,12 +338,6 @@ public:
      *  Type of numerical integrator, from enum of available integrators.
      */
     AvailableIntegrators integratorType_;
-
-    // Start time of numerical integration.
-    /*
-     *  Start time (independent variable) of numerical integration.
-     */
-    IndependentVariableType initialTimeDeprecated_;
 
     // Initial time step used in numerical integration
     /*
@@ -378,43 +367,26 @@ public:
     // Default constructor.
     /*
      *  Constructor for fixed step RK integrator base settings.
-     *  \param integratorType Type of numerical integrator
-     *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration
      *  for variable step size integrators.
+     *  \param coefficientSet Runge-Kutta tableau to be used for the fixed-step integrator.
      *  \param orderToUse Order of Butcher tableau to use (only used if variable step intragration coefficients are specified).
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = saveFrequency).
      *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *  each integration step (`false`).
-     *  \param butcherTableau Runge-Kutta tableau to be used for fixed step RK integrator.
      */
     RungeKuttaFixedStepSizeSettings(
-            const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
             const numerical_integrators::CoefficientSets coefficientSet,
             const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
             const bool assessTerminationOnMinorSteps = false ):
-        IntegratorSettings< IndependentVariableType >( rungeKuttaFixedStepSize,
-                                                       initialTime,
-                                                       initialTimeStep,
-                                                       assessTerminationOnMinorSteps ),
-        coefficientSet_( coefficientSet ), orderToUse_( orderToUse )
-    {}
-
-    RungeKuttaFixedStepSizeSettings(
-            const IndependentVariableType initialTimeStep,
-            const numerical_integrators::CoefficientSets coefficientSet,
-            const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
-            const bool assessTerminationOnMinorSteps = false ):
-        IntegratorSettings< IndependentVariableType >( rungeKuttaFixedStepSize, TUDAT_NAN, initialTimeStep, assessTerminationOnMinorSteps ),
+        IntegratorSettings< IndependentVariableType >( rungeKuttaFixedStepSize, initialTimeStep, assessTerminationOnMinorSteps ),
         coefficientSet_( coefficientSet ), orderToUse_( orderToUse )
     {}
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
         return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(
-                this->initialTimeDeprecated_, this->initialTimeStep_, coefficientSet_, orderToUse_, this->assessTerminationOnMinorSteps_ );
+                this->initialTimeStep_, coefficientSet_, orderToUse_, this->assessTerminationOnMinorSteps_ );
     }
 
     // Virtual destructor.
@@ -443,10 +415,7 @@ public:
                                         const std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings,
                                         const std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeAcceptanceSettings,
                                         const bool assessTerminationOnMinorSteps = false ):
-        IntegratorSettings< IndependentVariableType >( rungeKuttaVariableStepSize,
-                                                       TUDAT_NAN,
-                                                       initialTimeStep,
-                                                       assessTerminationOnMinorSteps ),
+        IntegratorSettings< IndependentVariableType >( rungeKuttaVariableStepSize, initialTimeStep, assessTerminationOnMinorSteps ),
         coefficientSet_( coefficientSet ), stepSizeControlSettings_( stepSizeControlSettings ),
         stepSizeAcceptanceSettings_( stepSizeAcceptanceSettings )
     {}
@@ -487,14 +456,11 @@ public:
      *  Constructor for variable step RK integrator base settings.
      *  \param areTolerancesDefinedAsScalar Boolean denoting whether the relative and absolute error tolerances are
      *      defined as a scalar. Alternatively, they can be defined as a vector.
-     *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
      *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
      *      comes below this value.
      *  \param maximumStepSize Maximum step size for integration.
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *      time steps, with n = saveFrequency).
      *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
@@ -503,7 +469,6 @@ public:
      *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
      */
     RungeKuttaVariableStepSizeBaseSettings( const bool areTolerancesDefinedAsScalar,
-                                            const IndependentVariableType initialTime,
                                             const IndependentVariableType initialTimeStep,
                                             const numerical_integrators::CoefficientSets coefficientSet,
                                             const IndependentVariableType minimumStepSize,
@@ -513,10 +478,7 @@ public:
                                             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
                                             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
                                             const bool exceptionIfMinimumStepExceeded = true ):
-        IntegratorSettings< IndependentVariableType >( rungeKuttaVariableStepSize,
-                                                       initialTime,
-                                                       initialTimeStep,
-                                                       assessTerminationOnMinorSteps ),
+        IntegratorSettings< IndependentVariableType >( rungeKuttaVariableStepSize, initialTimeStep, assessTerminationOnMinorSteps ),
         areTolerancesDefinedAsScalar_( areTolerancesDefinedAsScalar ), coefficientSet_( coefficientSet ),
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
@@ -528,7 +490,6 @@ public:
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
         return std::make_shared< RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType > >( areTolerancesDefinedAsScalar_,
-                                                                                                      this->initialTimeDeprecated_,
                                                                                                       this->initialTimeStep_,
                                                                                                       coefficientSet_,
                                                                                                       minimumStepSize_,
@@ -584,7 +545,6 @@ public:
     // Default constructor.
     /*
      *  Constructor for variable step RK integrator settings with scalar tolerances.
-     *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
      *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
@@ -592,8 +552,6 @@ public:
      *  \param maximumStepSize Maximum step size for integration.
      *  \param relativeErrorTolerance Relative error tolerance for step size control, expressed as a scalar.
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a scalar.
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *      time steps, with n = saveFrequency).
      *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
@@ -601,8 +559,7 @@ public:
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
      *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
      */
-    RungeKuttaVariableStepSizeSettingsScalarTolerances( const IndependentVariableType initialTime,
-                                                        const IndependentVariableType initialTimeStep,
+    RungeKuttaVariableStepSizeSettingsScalarTolerances( const IndependentVariableType initialTimeStep,
                                                         const numerical_integrators::CoefficientSets coefficientSet,
                                                         const IndependentVariableType minimumStepSize,
                                                         const IndependentVariableType maximumStepSize,
@@ -614,7 +571,6 @@ public:
                                                         const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
                                                         const bool exceptionIfMinimumStepExceeded = true ):
         RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >( true,
-                                                                           initialTime,
                                                                            initialTimeStep,
                                                                            coefficientSet,
                                                                            minimumStepSize,
@@ -630,7 +586,6 @@ public:
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
         return std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >(
-                this->initialTimeDeprecated_,
                 this->initialTimeStep_,
                 this->coefficientSet_,
                 this->minimumStepSize_,
@@ -643,72 +598,6 @@ public:
                 this->minimumFactorDecreaseForNextStepSize_,
                 this->exceptionIfMinimumStepExceeded_ );
     }
-    // Constructor.
-    /*
-     *  Constructor for variable step RK integrator settings with scalar tolerances (also requires the input of the integratorType,
-     *  which has to be rungeKyttaVariableStepSize by definition).
-     *  \param integratorType Type of numerical integrator.
-     *  \param initialTime Start time (independent variable) of numerical integration.
-     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
-     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
-     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
-     *      comes below this value.
-     *  \param maximumStepSize Maximum step size for integration.
-     *  \param relativeErrorTolerance Relative error tolerance for step size control, expressed as a scalar.
-     *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a scalar.
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *      time steps, with n = saveFrequency).
-     *  \param assessTerminationOnMinorSteps Whether the propagation termination
-     *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
-     *      each integration step (`false`).
-     *  \param safetyFactorForNextStepSize Safety factor for step size control.
-     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
-     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
-     */
-    RungeKuttaVariableStepSizeSettingsScalarTolerances( const AvailableIntegrators integratorType,
-                                                        const IndependentVariableType initialTime,
-                                                        const IndependentVariableType initialTimeStep,
-                                                        const numerical_integrators::CoefficientSets coefficientSet,
-                                                        const IndependentVariableType minimumStepSize,
-                                                        const IndependentVariableType maximumStepSize,
-                                                        const double relativeErrorTolerance = 1.0E-12,
-                                                        const double absoluteErrorTolerance = 1.0E-12,
-                                                        const bool assessTerminationOnMinorSteps = false,
-                                                        const IndependentVariableType safetyFactorForNextStepSize = 0.8,
-                                                        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-                                                        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
-                                                        const bool exceptionIfMinimumStepExceeded = true ):
-        RungeKuttaVariableStepSizeSettingsScalarTolerances( initialTime,
-                                                            initialTimeStep,
-                                                            coefficientSet,
-                                                            minimumStepSize,
-                                                            maximumStepSize,
-                                                            relativeErrorTolerance,
-                                                            absoluteErrorTolerance,
-                                                            assessTerminationOnMinorSteps,
-                                                            safetyFactorForNextStepSize,
-                                                            maximumFactorIncreaseForNextStepSize,
-                                                            minimumFactorDecreaseForNextStepSize,
-                                                            exceptionIfMinimumStepExceeded )
-    {
-        // Give error if integrator type is wrong
-        if( integratorType != rungeKuttaVariableStepSize )
-        {
-            throw std::runtime_error(
-                    "Error while creating numerical integrator. The integrator settings are of class "
-                    "RungeKuttaVariableStepSizeSettingsScalarTolerances, but the input integrator type is not of type "
-                    "rungeKuttaVariableStepSize." );
-        }
-
-        // Warn of different constructor
-        std::cerr
-                << "Warning in numerical integrator. The Runge-Kutta variable step size integrator settings no longer require the "
-                   "input of the integrator type, i.e., rungeKuttaVariableStepSize. You can thus safely remove the first input, especially "
-                   "if you do not want this warning to show up again. Note that this constructor will be removed in a "
-                   "future release."
-                << std::endl;
-    }
-
     // Destructor.
     /*
      *  Destructor.
@@ -738,7 +627,6 @@ public:
     // Default constructor.
     /*
      *  Constructor for variable step RK integrator settings with vector tolerances.
-     *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
      *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
@@ -746,8 +634,6 @@ public:
      *  \param maximumStepSize Maximum step size for integration.
      *  \param relativeErrorTolerance Relative error tolerance for step size control, expressed as a vector.
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a vector.
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *      time steps, with n = saveFrequency).
      *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
@@ -755,8 +641,7 @@ public:
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
      *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
      */
-    RungeKuttaVariableStepSizeSettingsVectorTolerances( const IndependentVariableType initialTime,
-                                                        const IndependentVariableType initialTimeStep,
+    RungeKuttaVariableStepSizeSettingsVectorTolerances( const IndependentVariableType initialTimeStep,
                                                         const numerical_integrators::CoefficientSets coefficientSet,
                                                         const IndependentVariableType minimumStepSize,
                                                         const IndependentVariableType maximumStepSize,
@@ -768,7 +653,6 @@ public:
                                                         const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
                                                         const bool exceptionIfMinimumStepExceeded = true ):
         RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >( false,
-                                                                           initialTime,
                                                                            initialTimeStep,
                                                                            coefficientSet,
                                                                            minimumStepSize,
@@ -784,7 +668,6 @@ public:
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
         return std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType > >(
-                this->initialTimeDeprecated_,
                 this->initialTimeStep_,
                 this->coefficientSet_,
                 this->minimumStepSize_,
@@ -821,35 +704,12 @@ public:
                                      const std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings,
                                      const std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeAcceptanceSettings,
                                      const bool assessTerminationOnMinorSteps = false ):
-        IntegratorSettings< IndependentVariableType >( bulirschStoer, TUDAT_NAN, initialTimeStep, assessTerminationOnMinorSteps ),
+        IntegratorSettings< IndependentVariableType >( bulirschStoer, initialTimeStep, assessTerminationOnMinorSteps ),
         extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps ),
         stepSizeControlSettings_( stepSizeControlSettings ), stepSizeAcceptanceSettings_( stepSizeAcceptanceSettings )
     {}
 
-    // Constructor.
-    /*
-     *  Constructor for variable step RK integrator settings.
-     *  \param initialTime Start time (independent variable) of numerical integration.
-     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
-     *  \param extrapolationSequence Type of sequence that is to be used for Bulirsch-Stoer integrator.
-     *  \param maximumNumberOfSteps Number of entries in the sequence, e.g. number of integrations used for a single
-     *      extrapolation.
-     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
-     *      comes below this value.
-     *  \param maximumStepSize Maximum step size for integration.
-     *  \param relativeErrorTolerance Relative error tolerance for step size control.
-     *  \param absoluteErrorTolerance Absolute error tolerance for step size control.
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *      time steps, with n = saveFrequency).
-     *  \param assessTerminationOnMinorSteps Whether the propagation termination
-     *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
-     *      each integration step (`false`).
-     *  \param safetyFactorForNextStepSize Safety factor for step size control.
-     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
-     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
-     */
-    BulirschStoerIntegratorSettings( const IndependentVariableType initialTime,
-                                     const IndependentVariableType initialTimeStep,
+    BulirschStoerIntegratorSettings( const IndependentVariableType initialTimeStep,
                                      const ExtrapolationMethodStepSequences extrapolationSequence,
                                      const unsigned int maximumNumberOfSteps,
                                      const IndependentVariableType minimumStepSize,
@@ -860,7 +720,7 @@ public:
                                      const IndependentVariableType safetyFactorForNextStepSize = 0.7,
                                      const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
                                      const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ):
-        IntegratorSettings< IndependentVariableType >( bulirschStoer, initialTime, initialTimeStep, assessTerminationOnMinorSteps ),
+        IntegratorSettings< IndependentVariableType >( bulirschStoer, initialTimeStep, assessTerminationOnMinorSteps ),
         extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps )
     {
         stepSizeAcceptanceSettings_ = std::make_shared< IntegratorStepSizeValidationSettings >( minimumStepSize, maximumStepSize );
@@ -912,7 +772,6 @@ public:
     // Constructor
     /*
      *  Constructor for variable step RK integrator settings.
-     *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
      *      comes below this value.
@@ -921,15 +780,12 @@ public:
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control.
      *  \param minimumOrder Minimum order of integrator (default 6).
      *  \param maximumOrder Maximum order of integrator (default 11).
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *      time steps, with n = saveFrequency).
      *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
      *  \param bandwidth Maximum error factor for doubling the stepsize (default: 200).
      */
-    AdamsBashforthMoultonSettings( const IndependentVariableType initialTime,
-                                   const IndependentVariableType initialTimeStep,
+    AdamsBashforthMoultonSettings( const IndependentVariableType initialTimeStep,
                                    const IndependentVariableType minimumStepSize,
                                    const IndependentVariableType maximumStepSize,
                                    const double relativeErrorTolerance = 1.0E-12,
@@ -938,7 +794,7 @@ public:
                                    const int maximumOrder = 11,
                                    const bool assessTerminationOnMinorSteps = false,
                                    const IndependentVariableType bandwidth = 200. ):
-        IntegratorSettings< IndependentVariableType >( adamsBashforthMoulton, initialTime, initialTimeStep, assessTerminationOnMinorSteps ),
+        IntegratorSettings< IndependentVariableType >( adamsBashforthMoulton, initialTimeStep, assessTerminationOnMinorSteps ),
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ), relativeErrorTolerance_( relativeErrorTolerance ),
         absoluteErrorTolerance_( absoluteErrorTolerance ), minimumOrder_( minimumOrder ), maximumOrder_( maximumOrder ),
         bandwidth_( bandwidth )
@@ -946,8 +802,7 @@ public:
 
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
-        return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( this->initialTimeDeprecated_,
-                                                                                             this->initialTimeStep_,
+        return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( this->initialTimeStep_,
                                                                                              this->minimumStepSize_,
                                                                                              this->maximumStepSize_,
                                                                                              relativeErrorTolerance_,
@@ -990,31 +845,10 @@ public:
 };
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const bool assessTerminationOnMinorSteps = false )
-{
-    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
-            euler, initialTime, initialTimeStep, assessTerminationOnMinorSteps );
-}
-
-template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettings( const IndependentVariableType initialTimeStep,
                                                                                        const bool assessTerminationOnMinorSteps = false )
 {
-    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
-            euler, TUDAT_NAN, initialTimeStep, assessTerminationOnMinorSteps );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4SettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const bool assessTerminationOnMinorSteps = false )
-{
-    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
-            rungeKutta4, initialTime, initialTimeStep, assessTerminationOnMinorSteps );
+    return std::make_shared< IntegratorSettings< IndependentVariableType > >( euler, initialTimeStep, assessTerminationOnMinorSteps );
 }
 
 template< typename IndependentVariableType = double >
@@ -1022,20 +856,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const IndependentVariableType initialTimeStep,
         const bool assessTerminationOnMinorSteps = false )
 {
-    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
-            rungeKutta4, TUDAT_NAN, initialTimeStep, assessTerminationOnMinorSteps );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaFixedStepSettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const numerical_integrators::CoefficientSets coefficientSet,
-        const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
-        const bool assessTerminationOnMinorSteps = false )
-{
-    return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(
-            initialTime, initialTimeStep, coefficientSet, orderToUse, assessTerminationOnMinorSteps );
+    return std::make_shared< IntegratorSettings< IndependentVariableType > >( rungeKutta4, initialTimeStep, assessTerminationOnMinorSteps );
 }
 
 template< typename IndependentVariableType = double >
@@ -1046,37 +867,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const bool assessTerminationOnMinorSteps = false )
 {
     return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(
-            TUDAT_NAN, initialTimeStep, coefficientSet, orderToUse, assessTerminationOnMinorSteps );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsScalarTolerancesDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const numerical_integrators::CoefficientSets coefficientSet,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
-        const double relativeErrorTolerance,
-        const double absoluteErrorTolerance,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType safetyFactorForNextStepSize = 0.8,
-        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
-        const bool exceptionIfMinimumStepExceeded = true )
-{
-    return std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >(
-            initialTime,
-            initialTimeStep,
-            coefficientSet,
-            minimumStepSize,
-            maximumStepSize,
-            relativeErrorTolerance,
-            absoluteErrorTolerance,
-            assessTerminationOnMinorSteps,
-            safetyFactorForNextStepSize,
-            maximumFactorIncreaseForNextStepSize,
-            minimumFactorDecreaseForNextStepSize,
-            exceptionIfMinimumStepExceeded );
+            initialTimeStep, coefficientSet, orderToUse, assessTerminationOnMinorSteps );
 }
 
 template< typename IndependentVariableType = double >
@@ -1094,7 +885,6 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const bool exceptionIfMinimumStepExceeded = true )
 {
     return std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >(
-            TUDAT_NAN,
             initialTimeStep,
             coefficientSet,
             minimumStepSize,
@@ -1106,38 +896,6 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
             maximumFactorIncreaseForNextStepSize,
             minimumFactorDecreaseForNextStepSize,
             exceptionIfMinimumStepExceeded );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsVectorTolerancesDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const numerical_integrators::CoefficientSets coefficientSet,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
-        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > relativeErrorTolerance,
-        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > absoluteErrorTolerance,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType safetyFactorForNextStepSize = 0.8,
-        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
-        const bool exceptionIfMinimumStepExceeded = true )
-{
-    auto settings = std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType > >(
-            initialTime,
-            initialTimeStep,
-            coefficientSet,
-            minimumStepSize,
-            maximumStepSize,
-            relativeErrorTolerance,
-            absoluteErrorTolerance,
-            assessTerminationOnMinorSteps,
-            safetyFactorForNextStepSize,
-            maximumFactorIncreaseForNextStepSize,
-            minimumFactorDecreaseForNextStepSize,
-            exceptionIfMinimumStepExceeded );
-
-    return settings;
 }
 
 template< typename IndependentVariableType = double >
@@ -1155,7 +913,6 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const bool exceptionIfMinimumStepExceeded = true )
 {
     auto settings = std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType > >(
-            TUDAT_NAN,
             initialTimeStep,
             coefficientSet,
             minimumStepSize,
@@ -1212,34 +969,6 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
 }
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettingsDeprecatedNew(
-        const IndependentVariableType initialTimeStep,
-        const ExtrapolationMethodStepSequences extrapolationSequence,
-        const unsigned int maximumNumberOfSteps,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
-        const double relativeErrorTolerance = 1.0E-12,
-        const double absoluteErrorTolerance = 1.0E-12,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType safetyFactorForNextStepSize = 0.7,
-        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
-{
-    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >( TUDAT_NAN,
-                                                                                           initialTimeStep,
-                                                                                           extrapolationSequence,
-                                                                                           maximumNumberOfSteps,
-                                                                                           minimumStepSize,
-                                                                                           maximumStepSize,
-                                                                                           relativeErrorTolerance,
-                                                                                           absoluteErrorTolerance,
-                                                                                           assessTerminationOnMinorSteps,
-                                                                                           safetyFactorForNextStepSize,
-                                                                                           maximumFactorIncreaseForNextStepSize,
-                                                                                           minimumFactorDecreaseForNextStepSize );
-}
-
-template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
         const IndependentVariableType initialTimeStep,
         const ExtrapolationMethodStepSequences extrapolationSequence,
@@ -1253,8 +982,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
         const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
         const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
 {
-    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >( TUDAT_NAN,
-                                                                                           initialTimeStep,
+    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >( initialTimeStep,
                                                                                            extrapolationSequence,
                                                                                            maximumNumberOfSteps,
                                                                                            minimumStepSize,
@@ -1265,60 +993,6 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
                                                                                            safetyFactorForNextStepSize,
                                                                                            maximumFactorIncreaseForNextStepSize,
                                                                                            minimumFactorDecreaseForNextStepSize );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const ExtrapolationMethodStepSequences extrapolationSequence,
-        const unsigned int maximumNumberOfSteps,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
-        const double relativeErrorTolerance = 1.0E-12,
-        const double absoluteErrorTolerance = 1.0E-12,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType safetyFactorForNextStepSize = 0.7,
-        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
-{
-    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >( initialTime,
-                                                                                           initialTimeStep,
-                                                                                           extrapolationSequence,
-                                                                                           maximumNumberOfSteps,
-                                                                                           minimumStepSize,
-                                                                                           maximumStepSize,
-                                                                                           relativeErrorTolerance,
-                                                                                           absoluteErrorTolerance,
-                                                                                           assessTerminationOnMinorSteps,
-                                                                                           safetyFactorForNextStepSize,
-                                                                                           maximumFactorIncreaseForNextStepSize,
-                                                                                           minimumFactorDecreaseForNextStepSize );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
-        const double relativeErrorTolerance = 1.0E-12,
-        const double absoluteErrorTolerance = 1.0E-12,
-        const int minimumOrder = 6,
-        const int maximumOrder = 11,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType bandwidth = 200. )
-{
-    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( initialTime,
-                                                                                         initialTimeStep,
-                                                                                         minimumStepSize,
-                                                                                         maximumStepSize,
-                                                                                         relativeErrorTolerance,
-                                                                                         absoluteErrorTolerance,
-                                                                                         minimumOrder,
-                                                                                         maximumOrder,
-                                                                                         assessTerminationOnMinorSteps,
-                                                                                         bandwidth );
 }
 
 template< typename IndependentVariableType = double >
@@ -1333,8 +1007,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType bandwidth = 200. )
 {
-    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( TUDAT_NAN,
-                                                                                         initialTimeStep,
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( initialTimeStep,
                                                                                          minimumStepSize,
                                                                                          maximumStepSize,
                                                                                          relativeErrorTolerance,
@@ -1356,8 +1029,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType bandwidth = 200. )
 {
-    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( TUDAT_NAN,
-                                                                                         initialTimeStep,
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( initialTimeStep,
                                                                                          minimumStepSize,
                                                                                          maximumStepSize,
                                                                                          relativeErrorTolerance,
@@ -1378,8 +1050,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType bandwidth = 200. )
 {
-    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( TUDAT_NAN,
-                                                                                         fixedStep,
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( fixedStep,
                                                                                          fixedStep,
                                                                                          fixedStep,
                                                                                          relativeErrorTolerance,
@@ -1396,8 +1067,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
         const int order,
         const bool assessTerminationOnMinorSteps = false )
 {
-    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( TUDAT_NAN,
-                                                                                         fixedStep,
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( fixedStep,
                                                                                          fixedStep,
                                                                                          fixedStep,
                                                                                          std::numeric_limits< double >::epsilon( ),

@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -122,7 +121,7 @@ executeMultiArcEarthMoonSimulation(
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, TimeType( initialEphemerisTime ), 1800.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 1800.0 );
 
     // Define arc times.
     std::vector< double > arcStartTimes, arcEndTimes;
@@ -171,13 +170,15 @@ executeMultiArcEarthMoonSimulation(
 
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        propagatorSettingsList.push_back(
-                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( centralBodies,
-                                                                                                       accelerationModelMap,
-                                                                                                       bodiesToIntegrate,
-                                                                                                       systemInitialStates.at( i ),
-                                                                                                       arcEndTimes.at( i ),
-                                                                                                       propagatorType ) );
+        propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                centralBodies,
+                accelerationModelMap,
+                bodiesToIntegrate,
+                systemInitialStates.at( i ),
+                arcStartTimes.at( i ),
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( arcEndTimes.at( i ) ),
+                propagatorType ) );
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings;
 
@@ -216,9 +217,10 @@ executeMultiArcEarthMoonSimulation(
             results;
     {
         // Create dynamics simulator
+        multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         MultiArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 MultiArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                        bodies, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes );
+                        bodies, multiArcPropagatorSettings, parametersToEstimate, false );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )

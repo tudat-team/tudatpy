@@ -144,43 +144,6 @@ public:
      * Constructor
      * \param associatedBody Body for which initial state is to be estimated.
      * \param arcStartTimes Start times for separate arcs
-     * \param initialTranslationalState List of initial arc states
-     * \param centralBodies List of central bodies w.r.t. which the initial state is to be estimated (per arc).
-     * \param frameOrientation Orientation of the frame in which the state is defined.
-     */
-    ArcWiseInitialTranslationalStateParameter(
-            const std::string& associatedBody,
-            const std::vector< double >& arcStartTimes,
-            const std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >& initialTranslationalState,
-            const std::vector< std::string >& centralBodies,
-            const std::string& frameOrientation = "ECLIPJ2000" ):
-        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( arc_wise_initial_body_state,
-                                                                                               associatedBody ),
-        arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation )
-    {
-        if( arcStartTimes_.size( ) != initialTranslationalState.size( ) )
-        {
-            throw std::runtime_error( "Error when creating arc-wise initial translational state parameters, incompatible sizes are found" );
-        }
-        else if( arcStartTimes_.size( ) != centralBodies_.size( ) )
-        {
-            throw std::runtime_error(
-                    "Error when creating arc-wise initial translational state parameters, incompatible sizes are found or central bodies" );
-        }
-        else
-        {
-            for( unsigned int i = 0; i < initialTranslationalState.size( ); i++ )
-            {
-                initialTranslationalState_.segment( i * 6, 6 ) = initialTranslationalState.at( i );
-            }
-        }
-    }
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param associatedBody Body for which initial state is to be estimated.
-     * \param arcStartTimes Start times for separate arcs
      * \param initialTranslationalStates Current value of initial arc states (concatenated in same order as arcs)
      * \param centralBodies List of central bodies w.r.t. which the initial state is to be estimated (per arc).
      * \param frameOrientation Orientation of the frame in which the state is defined.

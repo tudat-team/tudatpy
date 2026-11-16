@@ -8,10 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/interface/spice/spiceInterface.h"
@@ -105,11 +104,11 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcVariationalEquations )
     double timeStep = 3600.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > forwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    midArcEpoch, timeStep, CoefficientSets::rungeKuttaFehlberg78, timeStep, timeStep, 1.0e3, 1.0e3 );
+                    timeStep, CoefficientSets::rungeKuttaFehlberg78, timeStep, timeStep, 1.0e3, 1.0e3 );
 
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > backwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    midArcEpoch, -timeStep, CoefficientSets::rungeKuttaFehlberg78, -timeStep, -timeStep, 1.0e3, 1.0e3 );
+                    -timeStep, CoefficientSets::rungeKuttaFehlberg78, -timeStep, -timeStep, 1.0e3, 1.0e3 );
 
     // Define initial states
     Eigen::VectorXd midArcStatesMoons = propagators::getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, midArcEpoch );
@@ -308,11 +307,11 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcVariationalEquations )
     double timeStep = 2700.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > forwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    TUDAT_NAN, timeStep, CoefficientSets::rungeKuttaFehlberg78, timeStep, timeStep, 1.0e3, 1.0e3 );
+                    timeStep, CoefficientSets::rungeKuttaFehlberg78, timeStep, timeStep, 1.0e3, 1.0e3 );
 
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > backwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    TUDAT_NAN, -timeStep, CoefficientSets::rungeKuttaFehlberg78, -timeStep, -timeStep, 1.0e3, 1.0e3 );
+                    -timeStep, CoefficientSets::rungeKuttaFehlberg78, -timeStep, -timeStep, 1.0e3, 1.0e3 );
 
     // Define arc-wise initial states
     std::vector< Eigen::VectorXd > midArcStatesMoons;
@@ -568,11 +567,11 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcVariationalEquations )
     double timeStep = 3600.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > forwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    midSingleArc, timeStep, CoefficientSets::rungeKuttaFehlberg78, timeStep, timeStep, 1.0e3, 1.0e3 );
+                    timeStep, CoefficientSets::rungeKuttaFehlberg78, timeStep, timeStep, 1.0e3, 1.0e3 );
 
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > backwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    midSingleArc, -timeStep, CoefficientSets::rungeKuttaFehlberg78, -timeStep, -timeStep, 1.0e3, 1.0e3 );
+                    -timeStep, CoefficientSets::rungeKuttaFehlberg78, -timeStep, -timeStep, 1.0e3, 1.0e3 );
 
     // Define arc-wise initial states
     std::vector< Eigen::VectorXd > midArcStatesMoons;

@@ -15,9 +15,20 @@
 #include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tudat
 {
+
+namespace input_output
+{
+
+class DsnWeatherData;
+
+class EstrackWeatherData;
+
+}  // namespace input_output
 
 namespace simulation_setup
 {
@@ -88,9 +99,11 @@ class BodyCentricToBarycentricGroundStationMotionSettings : public GroundStation
 {
 public:
     BodyCentricToBarycentricGroundStationMotionSettings( const std::string centralBodyName = "Sun",
-                                                         const bool useGeneralRelativisticCorrection = true ):
+                                                         const bool useGeneralRelativisticCorrection = true,
+                                                         const bool scaleToTdbCompatibleCoordinates = true ):
         GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( centralBodyName ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ),
+        scaleToTdbCompatibleCoordinates_( scaleToTdbCompatibleCoordinates )
     {}
 
     virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ) {}
@@ -98,6 +111,8 @@ public:
     std::string centralBodyName_;
 
     bool useGeneralRelativisticCorrection_;
+
+    bool scaleToTdbCompatibleCoordinates_;
 };
 
 class CustomGroundStationMotionSettings : public GroundStationMotionSettings
@@ -140,10 +155,77 @@ inline std::shared_ptr< GroundStationMotionSettings > bodyDeformationStationMoti
 
 inline std::shared_ptr< GroundStationMotionSettings > bodycentricToBarycentricStationMotionSettings(
         const std::string centralBodyName = "Sun",
-        const bool useGeneralRelativisticCorrection = true )
+        const bool useGeneralRelativisticCorrection = true,
+        const bool scaleToTdbCompatibleCoordinates = true )
 {
-    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( centralBodyName, useGeneralRelativisticCorrection );
+    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >(
+            centralBodyName, useGeneralRelativisticCorrection, scaleToTdbCompatibleCoordinates );
 }
+
+enum WeatherDataSettingsType { dsn_weather_data, estrack_weather_data };
+
+class WeatherDataSettings
+{
+public:
+    WeatherDataSettings(
+            const WeatherDataSettingsType weatherDataType,
+            std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        weatherDataType_( weatherDataType ), interpolatorSettings_( interpolatorSettings )
+    {}
+
+    virtual ~WeatherDataSettings( ) {}
+
+    WeatherDataSettingsType getWeatherDataType( )
+    {
+        return weatherDataType_;
+    }
+
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
+    {
+        return interpolatorSettings_;
+    }
+
+private:
+    WeatherDataSettingsType weatherDataType_;
+
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+};
+
+class DsnWeatherDataSettings : public WeatherDataSettings
+{
+public:
+    DsnWeatherDataSettings(
+            const std::shared_ptr< input_output::DsnWeatherData > weatherData,
+            std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        WeatherDataSettings( dsn_weather_data, interpolatorSettings ), weatherData_( weatherData )
+    {}
+
+    std::shared_ptr< input_output::DsnWeatherData > getWeatherData( )
+    {
+        return weatherData_;
+    }
+
+private:
+    std::shared_ptr< input_output::DsnWeatherData > weatherData_;
+};
+
+class EstrackWeatherDataSettings : public WeatherDataSettings
+{
+public:
+    EstrackWeatherDataSettings(
+            const std::shared_ptr< input_output::EstrackWeatherData > weatherData,
+            std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        WeatherDataSettings( estrack_weather_data, interpolatorSettings ), weatherData_( weatherData )
+    {}
+
+    std::shared_ptr< input_output::EstrackWeatherData > getWeatherData( )
+    {
+        return weatherData_;
+    }
+
+private:
+    std::shared_ptr< input_output::EstrackWeatherData > weatherData_;
+};
 
 class GroundStationSettings
 {
@@ -153,9 +235,10 @@ public:
             const Eigen::Vector3d& groundStationPosition,
             const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position,
             const std::vector< std::shared_ptr< GroundStationMotionSettings > >
-                    stationMotionSettings = { std::make_shared< BodyDeformationStationMotionSettings >( true ) } ):
+                    stationMotionSettings = { std::make_shared< BodyDeformationStationMotionSettings >( true ) },
+            const std::shared_ptr< WeatherDataSettings > weatherDataSettings = nullptr ):
         stationName_( stationName ), groundStationPosition_( groundStationPosition ), positionElementType_( positionElementType ),
-        stationMotionSettings_( stationMotionSettings )
+        stationMotionSettings_( stationMotionSettings ), weatherDataSettings_( weatherDataSettings )
     {}
 
     std::string getStationName( )
@@ -193,6 +276,16 @@ public:
         stationMotionSettings_.push_back( stationMotionSetting );
     }
 
+    std::shared_ptr< WeatherDataSettings > getWeatherDataSettings( )
+    {
+        return weatherDataSettings_;
+    }
+
+    void setWeatherDataSettings( const std::shared_ptr< WeatherDataSettings > weatherDataSettings )
+    {
+        weatherDataSettings_ = weatherDataSettings;
+    }
+
 protected:
     std::string stationName_;
 
@@ -201,6 +294,8 @@ protected:
     coordinate_conversions::PositionElementTypes positionElementType_;
 
     std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings_;
+
+    std::shared_ptr< WeatherDataSettings > weatherDataSettings_;
 };
 
 inline void addStationMotionModelToEachGroundStation( const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
@@ -217,10 +312,42 @@ inline std::shared_ptr< GroundStationSettings > groundStationSettings(
         const Eigen::Vector3d& groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position,
         const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-                std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
+                std::vector< std::shared_ptr< GroundStationMotionSettings > >( ),
+        const std::shared_ptr< WeatherDataSettings > weatherDataSettings = nullptr )
 {
-    return std::make_shared< GroundStationSettings >( stationName, groundStationPosition, positionElementType, stationMotionSettings );
+    return std::make_shared< GroundStationSettings >(
+            stationName, groundStationPosition, positionElementType, stationMotionSettings, weatherDataSettings );
 }
+
+std::shared_ptr< ground_stations::StationMeteoData > createGroundStationMeteoData(
+        const std::shared_ptr< WeatherDataSettings > weatherDataSettings );
+
+void setWeatherDataInGroundStation( const std::shared_ptr< ground_stations::GroundStation > groundStation,
+                                    const std::shared_ptr< WeatherDataSettings > weatherDataSettings );
+
+void setDsnWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::map< int, std::shared_ptr< input_output::DsnWeatherData > >& weatherDataPerComplex,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
+        const std::map< int, std::vector< std::string > >& groundStationsPerComplex = getDefaultDsnStationNamesPerComplex( ) );
+
+void setDsnWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::vector< std::string >& weatherFileNames,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
+        const std::map< int, std::vector< std::string > >& groundStationsPerComplex = getDefaultDsnStationNamesPerComplex( ) );
+
+void setEstrackWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::shared_ptr< input_output::EstrackWeatherData > weatherData,
+        const std::string groundStation,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
+
+void setEstrackWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::vector< std::string >& weatherFileNames,
+        const std::string groundStation,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
 
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 /*!
@@ -255,6 +382,15 @@ void createGroundStation(
         const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
                 std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
 
+//! Function to create a ground station and add it to a Body object, with the bodies needed by its motion models (e.g. the central
+//! body of the bodycentric to barycentric station position correction)
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::string groundStationName,
+                          const Eigen::Vector3d groundStationPosition,
+                          const coordinate_conversions::PositionElementTypes positionElementType,
+                          const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings,
+                          const SystemOfBodies& bodies );
+
 //! Function to create a set of ground stations and add them to the corresponding Body objects
 /*!
  * Function to create a set of ground stations and add them to the corresponding Body objects
@@ -269,6 +405,10 @@ void createGroundStations(
         const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position );
 
 void createGroundStation( const std::shared_ptr< Body > body, const std::shared_ptr< GroundStationSettings > groundStationSettings );
+
+void createGroundStation( const std::shared_ptr< Body > body,
+                          const std::shared_ptr< GroundStationSettings > groundStationSettings,
+                          const SystemOfBodies& bodies );
 
 std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndList( const std::shared_ptr< Body > body );
 
@@ -576,6 +716,24 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > getLinkEndCompleteCur
 //         const std::shared_ptr< Body > targetBody,
 //         const std::string groundStationName,
 //         const std::vector< double > times );
+
+//! Function to determine whether the Sun is below a given elevation angle as seen from a ground station.
+/*!
+ * Function to determine whether a ground station is in darkness at a given time, based on the elevation angle of the Sun
+ * as seen from that station. The station is considered dark if the Sun's elevation angle is below maxSunElevation (e.g. a
+ * civil twilight bound of -6 degrees, or a custom bound such as 0 degrees for the geometric horizon).
+ * \param groundStationName Name of the ground station, which must be defined on the body identified by centralBodyName.
+ * \param timeTdb Time (TDB seconds since J2000) at which the check is to be performed.
+ * \param maxSunElevation Sun elevation angle [rad] below which the ground station is considered to be in darkness.
+ * \param bodies System of bodies, used to retrieve the ground station, and the ephemerides of the central body and the Sun.
+ * \param centralBodyName Name of the body on which the ground station is located.
+ * \return True if the Sun's elevation angle at the ground station is below maxSunElevation, false otherwise.
+ */
+bool isItDarkAtGroundStation( const std::string& groundStationName,
+                              const double timeTdb,
+                              const double maxSunElevation,
+                              const SystemOfBodies& bodies,
+                              const std::string& centralBodyName = "Earth" );
 
 }  // namespace simulation_setup
 

@@ -1,0 +1,26 @@
+name: Doc report
+description: Documentation is missing.
+title: "[DOC]: <Short and descriptive title>"
+labels: "type: doc"
+
+body:
+- type: markdown
+  attributes:
+    value: >
+      Thank you for taking the time to file a documentation issue!
+
+- type: textarea
+  attributes:
+    label: "Describe the issue:"
+    description: >
+      A clear and concise description of which documentation is missing.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Additional context:"
+    description: >
+      Include any other relevant context, or attach screenshots.
+  validations:
+    required: false

@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 //
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -17,7 +16,7 @@
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
@@ -739,8 +738,7 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
             std::cout << "Numerical " << std::endl << numericalPositionPartials[ i ][ j ] << std::endl << std::endl;
             std::cout << "Analytical " << std::endl << analyticalPositionPartials[ i ][ j ] << std::endl << std::endl << std::endl;
 
-            //            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            //                numericalPositionPartials[ i ][ j ], analyticalPositionPartials[ i ][ j ], 1.0E-4 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPositionPartials[ i ][ j ], analyticalPositionPartials[ i ][ j ], 1.0E-4 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalVelocityPartials[ i ][ j ], analyticalVelocityPartials[ i ][ j ], 1.0E-4 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalMuPartials[ i ][ j ], analyticalMuPartials[ i ][ j ], 1.0E-4 );
         }
@@ -763,6 +761,92 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalGammaPartials[ i ], analyticalGammaPartials[ i ], 1.0E-5 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalBetaPartials[ i ], analyticalBetaPartials[ i ], 1.0E-5 );
+    }
+
+    auto fullEquations = eihAccelerations.at( 0 )->getEihEquations( );
+    auto fullPartials = eihPartials.at( 0 )->getFulEihPartials( );
+    fullPartials->update( TUDAT_NAN );
+    fullPartials->update( testTime );
+    const auto fullBodyIndices = fullEquations->getAcceleratingBodyMap( );
+
+    // Cover every non-empty propagated subset, with a user ordering opposite to the internal EIH ordering.
+    for( unsigned int propagatedMask = 1; propagatedMask < ( 1u << numberOfBodies ); propagatedMask++ )
+    {
+        SelectedAccelerationMap subsetAccelerationMap;
+        std::vector< std::string > propagatedSubset;
+        for( int i = numberOfBodies - 1; i >= 0; i-- )
+        {
+            if( propagatedMask & ( 1u << i ) )
+            {
+                propagatedSubset.push_back( bodiesToCreate.at( i ) );
+                subsetAccelerationMap[ bodiesToCreate.at( i ) ] = accelerationMap.at( bodiesToCreate.at( i ) );
+            }
+        }
+        auto subsetAccelerationModels = createAccelerationModelsMap(
+                bodies, subsetAccelerationMap, propagatedSubset, std::vector< std::string >( propagatedSubset.size( ), "SSB" ) );
+        auto subsetEquations = propagators::getEihEquationsFromAccelerationMap( subsetAccelerationModels );
+        subsetEquations->update( testTime );
+        for( const auto& body : propagatedSubset )
+        {
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    subsetEquations->getAccelerationOfBody( body ), fullEquations->getAccelerationOfBody( body ), 1.0E-14 );
+        }
+
+        // Estimated states may form a smaller subset than the propagated states.
+        for( unsigned int estimatedMask = propagatedMask; estimatedMask != 0; estimatedMask = ( estimatedMask - 1 ) & propagatedMask )
+        {
+            std::vector< std::shared_ptr< EstimatableParameterSettings > > subsetParameterNames;
+            std::vector< std::string > estimatedSubset;
+            for( int i = numberOfBodies - 1; i >= 0; i-- )
+            {
+                if( estimatedMask & ( 1u << i ) )
+                {
+                    subsetParameterNames.push_back( parameterNames.at( i ) );
+                    estimatedSubset.push_back( bodiesToCreate.at( i ) );
+                }
+            }
+            auto subsetParameters = createParametersToEstimate< double >( subsetParameterNames, bodies );
+            auto subsetPartials = createAccelerationPartialsMap( subsetAccelerationModels, bodies, subsetParameters );
+            BOOST_REQUIRE_EQUAL( subsetPartials.size( ), estimatedSubset.size( ) );
+            for( unsigned int i = 0; i < estimatedSubset.size( ); i++ )
+            {
+                BOOST_REQUIRE_EQUAL( subsetPartials.at( i ).size( ), 1 );
+                auto partial = std::dynamic_pointer_cast< EihAccelerationPartial >( subsetPartials.at( i ).at( 0 ) );
+                BOOST_REQUIRE( partial != nullptr );
+                BOOST_CHECK_EQUAL( partial->getAcceleratedBody( ), estimatedSubset.at( i ) );
+                partial->update( testTime );
+                const int fullTargetIndex = fullBodyIndices.at( estimatedSubset.at( i ) );
+
+                for( unsigned int j = 0; j < numberOfBodies; j++ )
+                {
+                    const int fullSourceIndex = fullBodyIndices.at( bodiesToCreate.at( j ) );
+                    auto statePartialFunction = partial->getDerivativeFunctionWrtStateOfIntegratedBody( { bodiesToCreate.at( j ), "" },
+                                                                                                        propagators::translational_state );
+                    BOOST_REQUIRE_EQUAL( statePartialFunction.second, 6 );
+                    BOOST_REQUIRE( static_cast< bool >( statePartialFunction.first ) );
+                    Eigen::MatrixXd statePartial = Eigen::MatrixXd::Zero( 3, 6 );
+                    statePartialFunction.first( statePartial.block( 0, 0, 3, 6 ) );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            statePartial.leftCols( 3 ),
+                            fullPartials->getCurrentTotalAccelerationWrtPosition( fullTargetIndex, fullSourceIndex ),
+                            1.0E-14 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            statePartial.rightCols( 3 ),
+                            fullPartials->getCurrentTotalAccelerationWrtVelocity( fullTargetIndex, fullSourceIndex ),
+                            1.0E-14 );
+                    Eigen::MatrixXd referenceMuPartial;
+                    fullPartials->getAccelerationWrtGravitationalParameter( referenceMuPartial, fullTargetIndex, fullSourceIndex );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            partial->wrtParameter( gravitationalParameters.at( j ) ), referenceMuPartial, 1.0E-14 );
+                }
+                BOOST_CHECK_EQUAL( partial->isAccelerationPartialWrtAdditionalBodyNonnullptr( "Mars" ), false );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partial->wrtParameter( gammaParameter ),
+                                                   eihPartials.at( fullTargetIndex )->wrtParameter( gammaParameter ),
+                                                   1.0E-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        partial->wrtParameter( betaParameter ), eihPartials.at( fullTargetIndex )->wrtParameter( betaParameter ), 1.0E-14 );
+            }
+        }
     }
 }
 

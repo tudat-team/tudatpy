@@ -70,11 +70,6 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         throw std::runtime_error( "Error when creating body exterior panel settings, no panel geometry settings provided" );
     }
 
-    if( panelSettings->reflectionLawSettings_ == nullptr )
-    {
-        throw std::runtime_error( "Error when creating body exterior panel settings, no reflection law settings provided" );
-    }
-
     double panelArea = TUDAT_NAN;
     double panelTemperature = TUDAT_NAN;
     std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); };
@@ -150,14 +145,12 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
                                                                      frameOrigin,
                                                                      geometry3dLoaded );
 
+    exteriorPanel->setPanelTypeId( panelSettings->panelTypeId_ );
+
     if( panelSettings->reflectionLawSettings_ != nullptr )
     {
         std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = createReflectionLaw( panelSettings->reflectionLawSettings_ );
         exteriorPanel->setReflectionLaw( reflectionLaw );
-        if( panelSettings->panelTypeId_ != "" )
-        {
-            exteriorPanel->setPanelTypeId( panelSettings->panelTypeId_ );
-        }
     }
 
     if( panelSettings->materialProperties_ != nullptr )

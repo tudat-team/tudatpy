@@ -48,6 +48,6 @@ set(mission_segments_HEADERS
 TUDAT_ADD_LIBRARY("mission_segments"
         "${mission_segments_SOURCES}"
         "${mission_segments_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

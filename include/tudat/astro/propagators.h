@@ -18,6 +18,7 @@
 #include "propagators/environmentUpdateTypes.h"
 #include "propagators/getZeroProperModeRotationalInitialState.h"
 #include "propagators/integrateEquations.h"
+#include "propagators/singleArcPropagationController.h"
 #include "propagators/nBodyCowellStateDerivative.h"
 #include "propagators/nBodyEnckeStateDerivative.h"
 #include "propagators/nBodyGaussKeplerStateDerivative.h"

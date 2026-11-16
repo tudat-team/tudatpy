@@ -10,10 +10,9 @@
  *    Validates the NeQuick-2 implementation against ITU-R P.531-15 reference test vectors.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/io/readNeQuick2Data.h"
 #include "tudat/io/basicInputOutput.h"

@@ -7,13 +7,12 @@ add_subdirectory(src/simulation)
 add_subdirectory(src/io)
 add_subdirectory(src/support)
 
-# Unzip compressed data and place in build tree.
-add_custom_target( unpack_test_data ALL)
+# Copy test data to build tree (tests may also write output to this directory).
+add_custom_target( copy_test_data ALL)
 add_custom_command(
-    TARGET unpack_test_data PRE_BUILD
+    TARGET copy_test_data PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BINARY_DIR}/tests/data/
-    COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/data.zip
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/tests
-    COMMENT "Unpacking data.zip"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/data ${PROJECT_BINARY_DIR}/tests/data
+    COMMENT "Copying test data"
     VERBATIM
 )

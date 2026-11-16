@@ -18,10 +18,12 @@ namespace observation_partials
 {
 
 //! Update the scaling object to the current times and states
-void RelativeAngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                             const std::vector< double >& times,
-                                             const observation_models::LinkEndType fixedLinkEnd,
-                                             const Eigen::VectorXd currentObservation )
+void RelativeAngularPositionScaling::update(
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType fixedLinkEnd,
+        const Eigen::VectorXd currentObservation,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     if( fixedLinkEnd != observation_models::receiver )
     {

@@ -9,12 +9,11 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
@@ -88,14 +87,10 @@ BOOST_AUTO_TEST_CASE( testSingleArcDependentVariablesInterface )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Mars" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "AlienSpaceship" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( radiationPressureSettings, "AlienSpaceship", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "AlienSpaceship",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -108,7 +103,7 @@ BOOST_AUTO_TEST_CASE( testSingleArcDependentVariablesInterface )
     accelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerations[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerations[ "Phobos" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
 
     accelerationMap[ "AlienSpaceship" ] = accelerations;
     bodiesToPropagate.push_back( "AlienSpaceship" );
@@ -251,14 +246,10 @@ BOOST_AUTO_TEST_CASE( testMultiArcDependentVariablesInterface )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Mars" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "AlienSpaceship" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( radiationPressureSettings, "AlienSpaceship", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "AlienSpaceship",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -271,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcDependentVariablesInterface )
     accelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerations[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerations[ "Phobos" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
 
     accelerationMap[ "AlienSpaceship" ] = accelerations;
     bodiesToPropagate.push_back( "AlienSpaceship" );
@@ -436,14 +427,10 @@ BOOST_AUTO_TEST_CASE( testHybridArcDependentVariablesInterface )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Mars" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "AlienSpaceship" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( radiationPressureSettings, "AlienSpaceship", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "AlienSpaceship",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap phobosAccelerationMap;
@@ -472,8 +459,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDependentVariablesInterface )
     spacecraftAccelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     spacecraftAccelerations[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     spacecraftAccelerations[ "Phobos" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    spacecraftAccelerations[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    spacecraftAccelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
 
     spacecraftAccelerationMap[ "AlienSpaceship" ] = spacecraftAccelerations;
     multiArcBodiesToPropagate.push_back( "AlienSpaceship" );

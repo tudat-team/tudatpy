@@ -74,12 +74,6 @@ struct FixedTimeHodographicShapingOptimisationProblem {
         return { problemBounds_[ 0 ], problemBounds_[ 1 ] };
     }
 
-    template< typename Archive >
-    void serialize( Archive& ar )
-    {
-        ar( problemBounds_ );
-    }
-
     vector_double::size_type get_nobj( ) const
     {
         return 1u;
@@ -132,12 +126,6 @@ struct HodographicShapingOptimisationProblem {
     std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const
     {
         return { problemBounds_[ 0 ], problemBounds_[ 1 ] };
-    }
-
-    template< typename Archive >
-    void serialize( Archive& ar )
-    {
-        ar( problemBounds_ );
     }
 
     vector_double::size_type get_nobj( ) const

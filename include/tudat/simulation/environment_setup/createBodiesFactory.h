@@ -20,11 +20,11 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createClimateModel.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
-#include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
@@ -40,11 +40,6 @@ namespace simulation_setup
 void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,
                                          const std::string bodyName,
                                          const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
-
-// RP-OLD
-void addRadiationPressureInterface( const SystemOfBodies& bodies,
-                                    const std::string bodyName,
-                                    const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
 
 void addRadiationPressureTargetModel( const SystemOfBodies& bodies,
                                       const std::string bodyName,
@@ -130,6 +125,17 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
             bodyList.at( orderedBodySettings.at( i ).first )
                     ->setEphemeris( createBodyEphemeris< StateScalarType, TimeType >( orderedBodySettings.at( i ).second->ephemerisSettings,
                                                                                       orderedBodySettings.at( i ).first ) );
+        }
+    }
+
+    // Create climate model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->climateModelSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setClimateModel( createClimateModel( orderedBodySettings.at( i ).second->climateModelSettings,
+                                                           bodyList.at( orderedBodySettings.at( i ).first ) ) );
         }
     }
 
@@ -227,25 +233,6 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
 
-    // Create radiation pressure coefficient objects for each body (if required).
-    // RP-OLD
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
-    {
-        std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings =
-                orderedBodySettings.at( i ).second->radiationPressureSettings;
-        for( std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >::iterator radiationPressureSettingsIterator =
-                     radiationPressureSettings.begin( );
-             radiationPressureSettingsIterator != radiationPressureSettings.end( );
-             radiationPressureSettingsIterator++ )
-        {
-            bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setRadiationPressureInterface(
-                            radiationPressureSettingsIterator->first,
-                            createRadiationPressureInterface(
-                                    radiationPressureSettingsIterator->second, orderedBodySettings.at( i ).first, bodyList ) );
-        }
-    }
-
     // Create radiation source model objects for each body (if required).
     // Point sources are created first since paneled sources may depend on them as original sources
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
@@ -306,7 +293,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
         {
             createGroundStation( bodyList.at( orderedBodySettings.at( i ).first ),
-                                 orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
+                                 orderedBodySettings.at( i ).second->groundStationSettings.at( j ),
+                                 bodyList );
         }
 
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->cameraSettings.size( ); j++ )

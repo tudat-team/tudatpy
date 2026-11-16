@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
@@ -96,16 +98,14 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
     nrlmsiseInputData.switches = std::vector< int >( 24, 1 );
     nrlmsiseInputData.switches[ 0 ] = 0;
 
+    // The native seven-element array starts with daily Ap. History entries remain zero in daily mode.
+    nrlmsiseInputData.apVector[ 0 ] = nrlmsiseInputData.apDaily;
     if( geomagneticActivity == -1 )
     {
-        // Custom behavior: maybe just use apDaily in vector, or do not fill the vector
-        solarActivityContainer.getDelayedApValues( time, nrlmsiseInputData.apVector );
+        std::vector< double > delayedApValues( 6, 0.0 );
+        solarActivityContainer.getDelayedApValues( time, delayedApValues );
+        std::copy( delayedApValues.begin( ), delayedApValues.end( ), nrlmsiseInputData.apVector.begin( ) + 1 );
         nrlmsiseInputData.switches[ 9 ] = -1;
-    }
-    else if( geomagneticActivity == 1 )
-    {
-        // Example: zero ap vector
-        nrlmsiseInputData.apVector = std::vector< double >( 6, 0.0 );
     }
 
     // Compute local solar time

@@ -11,6 +11,8 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
 namespace tudat
@@ -23,7 +25,8 @@ namespace observation_partials
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::string bodyToEstimate )
+        const std::string bodyToEstimate,
+        const std::vector< std::string >& bodiesWithEstimatedState )
 {
     // Declare data map to return.
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > partialMap;
@@ -31,13 +34,18 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     // Declare local variable to use in loop
     std::string currentBodyName;
 
+    // Retrieve bodies with an ephemeris defined w.r.t. a body with estimated state
+    std::map< std::string, std::string > ephemerisDependentBodies =
+            ephemerides::getEphemerisDependentBodies( simulation_setup::getEphemerisOrigins( bodies ), bodiesWithEstimatedState );
+
     // Iterate over all like ends.
     for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
-        // Check if current link end is on body that is requested.
+        // Check if current link end is on body that is requested, or on body with ephemeris defined w.r.t. requested body
         currentBodyName = linkEndIterator->second.bodyName_;
-        if( bodyToEstimate == currentBodyName )
+        if( bodyToEstimate == currentBodyName ||
+            ( ephemerisDependentBodies.count( currentBodyName ) > 0 && ephemerisDependentBodies.at( currentBodyName ) == bodyToEstimate ) )
         {
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );
@@ -85,11 +93,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
-                    std::make_shared< RotationMatrixPartialWrtRotationalState >(
-                            std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrame,
-                                       currentBody->getRotationalEphemeris( ),
-                                       std::placeholders::_1 ) ),
-                    groundStationPositionFunction );
+                    createObservationRotationMatrixPartialWrtRotationalState( currentBody ), groundStationPositionFunction );
         }
     }
 
@@ -225,6 +229,77 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                         }
                         break;
                     }
+                    case estimatable_parameters::ground_station_linear_velocity: {
+                        if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
+                        {
+                            if( currentBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error, body's rotation model is not found in body " + currentBodyName +
+                                                          " when making position w.r.t. ground station linear velocity partial" );
+                            }
+                            std::shared_ptr< estimatable_parameters::GroundStationLinearVelocity > velocityParameter =
+                                    std::dynamic_pointer_cast< estimatable_parameters::GroundStationLinearVelocity >( parameterToEstimate );
+                            if( velocityParameter == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when making position w.r.t. ground station linear velocity partial, parameter type is "
+                                        "incompatible" );
+                            }
+                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtStationLinearVelocity >(
+                                    currentBody->getRotationalEphemeris( ), velocityParameter->getMotionModel( )->getReferenceEpoch( ) );
+                        }
+                        break;
+                    }
+                    case estimatable_parameters::displacement_love_number:
+                    case estimatable_parameters::displacement_shida_number: {
+                        // The parameter affects each ground station on the body of which the motion includes the body deformation.
+                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) == 0 )
+                        {
+                            break;
+                        }
+                        std::shared_ptr< ground_stations::GroundStationState > stationState =
+                                currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
+                                        ->getNominalStationState( );
+                        std::shared_ptr< ground_stations::CombinedStationMotionModel > combinedModel =
+                                std::dynamic_pointer_cast< ground_stations::CombinedStationMotionModel >(
+                                        stationState->getStationMotionModel( ) );
+                        bool stationIncludesDeformation = false;
+                        if( combinedModel != nullptr )
+                        {
+                            for( const std::shared_ptr< ground_stations::StationMotionModel >& motionModel :
+                                 combinedModel->getModelList( ) )
+                            {
+                                if( std::dynamic_pointer_cast< ground_stations::BodyDeformationStationMotionModel >( motionModel ) !=
+                                    nullptr )
+                                {
+                                    stationIncludesDeformation = true;
+                                }
+                            }
+                        }
+                        if( stationIncludesDeformation )
+                        {
+                            if( currentBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error, body's rotation model is not found in body " + currentBodyName +
+                                                          " when making position w.r.t. displacement Love or Shida number partial" );
+                            }
+                            std::shared_ptr< estimatable_parameters::DisplacementLoveNumber > loveNumberParameter =
+                                    std::dynamic_pointer_cast< estimatable_parameters::DisplacementLoveNumber >( parameterToEstimate );
+                            if( loveNumberParameter == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when making cartesian state partial w.r.t. displacement Love or Shida number, parameter "
+                                        "type is incompatible" );
+                            }
+                            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtDisplacementLoveNumber >(
+                                    currentBody->getRotationalEphemeris( ),
+                                    loveNumberParameter->getDeformationModels( ),
+                                    loveNumberParameter->getDegrees( ),
+                                    loveNumberParameter->getUseShidaNumber( ),
+                                    stationState );
+                        }
+                        break;
+                    }
                     case estimatable_parameters::reference_point_position: {
                         // Check if current link end station is same station as that of which position is to be estimated.
                         if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
@@ -261,6 +336,14 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         }
     }
     return partialMap;
+}
+
+//! Function to create partial object of rotation matrix wrt the rotational state of a body, for use in observation partials
+std::shared_ptr< RotationMatrixPartial > createObservationRotationMatrixPartialWrtRotationalState(
+        const std::shared_ptr< simulation_setup::Body > currentBody )
+{
+    return std::make_shared< RotationMatrixPartialWrtRotationalState >( std::bind(
+            &ephemerides::RotationalEphemeris::getRotationToBaseFrame, currentBody->getRotationalEphemeris( ), std::placeholders::_1 ) );
 }
 
 //! Function to create partial object(s) of rotation matrix wrt translational state

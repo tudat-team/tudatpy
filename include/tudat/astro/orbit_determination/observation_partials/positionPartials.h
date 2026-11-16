@@ -21,6 +21,7 @@
 #include "tudat/basics/basicTypedefs.h"
 
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
+#include "tudat/astro/ground_stations/basicTidalBodyDeformation.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -227,6 +228,95 @@ private:
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
 };
 
+//! Partial of the state of a ground station w.r.t. the body-fixed velocity of its linear motion model.
+class CartesianPartialWrtStationLinearVelocity : public CartesianStatePartial
+{
+public:
+    CartesianPartialWrtStationLinearVelocity( const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
+                                              const double referenceEpoch ):
+        bodyRotationModel_( bodyRotationModel ), referenceEpoch_( referenceEpoch )
+    {}
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
+    {
+        return Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) ) * ( time - referenceEpoch_ );
+    }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time )
+    {
+        return bodyRotationModel_->getDerivativeOfRotationToBaseFrame( time ) * ( time - referenceEpoch_ ) +
+                Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) );
+    }
+
+private:
+    std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
+
+    double referenceEpoch_;
+};
+
+//! Partial of the state of a point on the surface of a body w.r.t. the displacement Love number h_n or Shida number l_n of the basic
+//! tidal deformation models of the body. The displacement is linear in this number, so that its partial is the displacement computed
+//! with a unit Love or Shida number. The velocity partial is that of the rotation of the body-fixed displacement partial, without the
+//! time variation of the displacement partial itself, consistent with BodyDeformationStationMotionModel, which does not include the time
+//! derivative of the displacement in the station velocity.
+class CartesianPartialWrtDisplacementLoveNumber : public CartesianStatePartial
+{
+public:
+    /*!
+     *  \param bodyRotationModel Rotation model of the body
+     *  \param deformationModels Basic tidal deformation models of the body
+     *  \param degrees Degree of each Love or Shida number
+     *  \param useShidaNumber Whether the partial is w.r.t. the Shida number l_n (true) or the Love number h_n (false)
+     *  \param stationState State of the ground station, of which the nominal body-fixed position is used
+     */
+    CartesianPartialWrtDisplacementLoveNumber(
+            const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
+            const std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > >& deformationModels,
+            const std::vector< int >& degrees,
+            const bool useShidaNumber,
+            const std::shared_ptr< ground_stations::GroundStationState > stationState ):
+        bodyRotationModel_( bodyRotationModel ), deformationModels_( deformationModels ), degrees_( degrees ),
+        unitLoveAndShidaNumber_( useShidaNumber ? std::make_pair( 0.0, 1.0 ) : std::make_pair( 1.0, 0.0 ) ), stationState_( stationState )
+    {}
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
+    {
+        return Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) ) * getBodyFixedPartial( time );
+    }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time )
+    {
+        return bodyRotationModel_->getDerivativeOfRotationToBaseFrame( time ) * getBodyFixedPartial( time );
+    }
+
+private:
+    //! Partial of the body-fixed displacement, with one column per degree, in the order of degrees_
+    Eigen::Matrix< double, 3, Eigen::Dynamic > getBodyFixedPartial( const double time )
+    {
+        Eigen::Matrix< double, 3, Eigen::Dynamic > partial = Eigen::Matrix< double, 3, Eigen::Dynamic >::Zero( 3, degrees_.size( ) );
+        for( unsigned int i = 0; i < degrees_.size( ); i++ )
+        {
+            for( const auto& model : deformationModels_ )
+            {
+                partial.col( i ) += model->calculateDisplacement(
+                        time, stationState_->getNominalCartesianPosition( ), { { degrees_.at( i ), unitLoveAndShidaNumber_ } } );
+            }
+        }
+        return partial;
+    }
+
+    std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
+
+    std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > > deformationModels_;
+
+    std::vector< int > degrees_;
+
+    //! Love and Shida number for which the displacement is the partial: (1, 0) for h_n, (0, 1) for l_n
+    std::pair< double, double > unitLoveAndShidaNumber_;
+
+    std::shared_ptr< ground_stations::GroundStationState > stationState_;
+};
+
 //! Derived class for scaling three-dimensional position partial to position observable partial
 /*!
  *  Derived class for scaling three-dimensional position partial to position observable partial. Although the implementation
@@ -253,7 +343,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {}
 
     //! Function to retrieve the scaling factor for specific link end
@@ -311,7 +402,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         currentLinkEndType_ = fixedLinkEnd;
     }
@@ -385,7 +477,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
+                 const Eigen::VectorXd currentObservation,
+                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {}
 
     //! Function to retrieve the scaling factor for specific link end
@@ -424,7 +517,7 @@ public:
         return observation_models::observed_body;
     }
 
-    virtual bool isVelocityScalingNonZero( )
+    virtual bool isVelocityScalingNonZero( const observation_models::LinkEndType linkEndType )
     {
         return true;
     }

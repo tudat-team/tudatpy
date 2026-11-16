@@ -14,9 +14,7 @@
 
 #include <Eigen/LU>
 
-#include <boost/math/special_functions/erf.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/math/distributions/lognormal.hpp>
 
 #include "tudat/math/statistics/multiVariateGaussianProbabilityDistributions.h"
 namespace tudat

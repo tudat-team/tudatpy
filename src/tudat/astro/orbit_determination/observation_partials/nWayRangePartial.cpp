@@ -21,7 +21,8 @@ namespace observation_partials
 void NWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                const std::vector< double >& times,
                                const observation_models::LinkEndType fixedLinkEnd,
-                               const Eigen::VectorXd currentObservation )
+                               const Eigen::VectorXd currentObservation,
+                               const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     Eigen::Vector3d currentRangeVector;
     int currentIndex;

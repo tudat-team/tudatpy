@@ -19,6 +19,7 @@ set(test_support_HEADERS
 	"numericalIntegratorTests.h"
 	"numericalObservationPartial.h"
 	"observationPartialTestFunctions.h"
+	"sumLmkTestHelpers.h"
         )
 
 TUDAT_ADD_TEST_LIBRARY("support"

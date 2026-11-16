@@ -6,8 +6,23 @@
 #define TUDAT_PROPAGATIONRESULTS_H
 
 #include <map>
+#include <numeric>
+#include <cstdint>
 #include <string>
 
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/tuple.hpp>
+
+#include "tudat/basics/timeType.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
@@ -44,7 +59,49 @@ public:
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const = 0;
 
+    //! Function to create a copy of these results without any state transition and sensitivity matrices.
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const
+    {
+        return clone( );
+    }
+
     virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
+
+    // Used for serialization testing
+    bool operator==( const SimulationResults& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const SimulationResults& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+protected:
+    virtual bool equals( const SimulationResults& rhs ) const
+    {
+        return false;
+    }
+
+private:
+    friend class cereal::access;
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        // Base class has no data members to serialize
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        // Base class has no data members to serialize
+    }
+
+public:
+    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( SimulationResults< StateScalarType, TimeType > )
 };
 
 template< typename StateScalarType, typename TimeType >
@@ -67,6 +124,18 @@ public:
     static const bool is_variational = false;
     static const int number_of_columns = 1;
 
+    //! Default constructor for deserialization only — not for general use
+    SingleArcSimulationResults( ):
+        SimulationResults< StateScalarType, TimeType >( ), sequentialPropagation_( true ),
+        rawSolutionConversionFunction_( []( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
+                                            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) {
+            throwRawSolutionConversionUnavailable( );
+        } ),
+        rawSolutionConversionFunctionIsAvailable_( false ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
+        onlyProcessedSolutionSet_( false ),
+        propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
+    {}
+
     SingleArcSimulationResults(
             const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >
                     integratedStateAndBodyList,
@@ -80,8 +149,8 @@ public:
         propagatedStateIds_( getPropagatedStateStrings( integratedStateAndBodyList ) ),
         integratedStateAndBodyList_( integratedStateAndBodyList ), outputSettings_( outputSettings ),
         dependentVariableInterface_( dependentVariableInterface ), sequentialPropagation_( sequentialPropagation ),
-        rawSolutionConversionFunction_( rawSolutionConversionFunction ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
-        onlyProcessedSolutionSet_( false ),
+        rawSolutionConversionFunction_( rawSolutionConversionFunction ), rawSolutionConversionFunctionIsAvailable_( true ),
+        propagationIsPerformed_( false ), solutionIsCleared_( false ), onlyProcessedSolutionSet_( false ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {}
 
@@ -92,7 +161,7 @@ public:
         return std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >( *this );
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
     }
@@ -123,6 +192,11 @@ public:
                 const std::map< TimeType, unsigned int >& cumulativeNumberOfFunctionEvaluations,
                 std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason )
     {
+        if( !rawSolutionConversionFunctionIsAvailable_ )
+        {
+            throwRawSolutionConversionUnavailable( );
+        }
+
         if( sequentialPropagation_ || !isPropagationOngoing_ )
         {
             reset( );
@@ -163,15 +237,16 @@ public:
         solutionIsCleared_ = true;
     }
 
-    //! Get initial and final propagation time from raw results
+    //! Get initial and final propagation time from raw results, or from processed results if only those are set
     std::pair< TimeType, TimeType > getArcInitialAndFinalTime( )
     {
-        if( equationsOfMotionNumericalSolutionRaw_.size( ) == 0 )
+        const auto& solution = equationsOfMotionNumericalSolutionRaw_.empty( ) ? equationsOfMotionNumericalSolution_
+                                                                               : equationsOfMotionNumericalSolutionRaw_;
+        if( solution.size( ) == 0 )
         {
             throw std::runtime_error( "Error when getting single-arc dynamics initial and final times; no results set" );
         }
-        return std::make_pair( equationsOfMotionNumericalSolutionRaw_.begin( )->first,
-                               equationsOfMotionNumericalSolutionRaw_.rbegin( )->first );
+        return std::make_pair( solution.begin( )->first, solution.rbegin( )->first );
     }
 
     //! Function to signal that propagation is finished, and add number of function evaluations
@@ -375,6 +450,9 @@ public:
         return solutionIsCleared_;
     }
 
+    //! Save dynamics results to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( SingleArcSimulationResults< StateScalarType, TimeType > )
+
     bool isPropagatedAndProcessedStateEqual( )
     {
         bool areEqual = true;
@@ -413,7 +491,7 @@ public:
         return dependentVariableInterface_;
     }
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) override
     {
         return getSingleArcDependentVariablesInterface( );
     }
@@ -459,10 +537,21 @@ private:
     //! Bool denoting whether the propagation is sequential or bidirectional (default is true).
     bool sequentialPropagation_;
 
+    [[noreturn]] static void throwRawSolutionConversionUnavailable( )
+    {
+        throw std::runtime_error(
+                "Cannot reset deserialized SingleArcSimulationResults with raw propagation results: the original raw-solution "
+                "conversion function is a runtime callback and cannot be serialized. Create a new simulation-results object with "
+                "the required conversion function before resetting it with raw results." );
+    }
+
     //! Function to convert the propagated solution to conventional solution (see DynamicsStateDerivativeModel::convertToOutputSolution)
     const std::function< void( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) >
             rawSolutionConversionFunction_;
+
+    //! Whether the runtime conversion callback is usable (it is unavailable after deserialization).
+    bool rawSolutionConversionFunctionIsAvailable_;
 
     bool propagationIsPerformed_;
 
@@ -479,6 +568,95 @@ private:
 
     //! Boolean denoting whether the full propagation has been fully completed or is ongoing (for non sequential propagations only)
     bool isPropagationOngoing_ = false;
+
+    // --- Cereal serialization support ---
+    friend class cereal::access;
+
+    bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const SingleArcSimulationResults* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        else
+        {
+            return is_variational == rhsDerived->is_variational && number_of_columns == rhsDerived->number_of_columns &&
+                    equationsOfMotionNumericalSolution_ == rhsDerived->equationsOfMotionNumericalSolution_ &&
+                    equationsOfMotionNumericalSolutionRaw_ == rhsDerived->equationsOfMotionNumericalSolutionRaw_ &&
+                    dependentVariableHistory_ == rhsDerived->dependentVariableHistory_ &&
+                    cumulativeComputationTimeHistory_ == rhsDerived->cumulativeComputationTimeHistory_ &&
+                    cumulativeNumberOfFunctionEvaluations_ == rhsDerived->cumulativeNumberOfFunctionEvaluations_ &&
+                    processedStateIds_ == rhsDerived->processedStateIds_ && propagatedStateIds_ == rhsDerived->propagatedStateIds_ &&
+                    integratedStateAndBodyList_ == rhsDerived->integratedStateAndBodyList_ &&
+                    outputSettings_ == rhsDerived->outputSettings_ &&
+                    dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ &&
+                    sequentialPropagation_ == rhsDerived->sequentialPropagation_ &&
+                    //    rawSolutionConversionFunction_ == rhsDerived->rawSolutionConversionFunction_ && Cannot evaluate std::function for
+                    //    equality
+                    propagationIsPerformed_ == rhsDerived->propagationIsPerformed_ &&
+                    solutionIsCleared_ == rhsDerived->solutionIsCleared_ &&
+                    onlyProcessedSolutionSet_ == rhsDerived->onlyProcessedSolutionSet_ &&
+                    ( ( propagationTerminationReason_ != nullptr && rhsDerived->propagationTerminationReason_ != nullptr )
+                              ? ( *propagationTerminationReason_ == *rhsDerived->propagationTerminationReason_ )
+                              : propagationTerminationReason_ == rhsDerived->propagationTerminationReason_ ) &&
+                    isPropagationOngoing_ == rhsDerived->isPropagationOngoing_;
+        }
+    }
+
+private:
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( equationsOfMotionNumericalSolution_ ) );
+        ar( CEREAL_NVP( equationsOfMotionNumericalSolutionRaw_ ) );
+        ar( CEREAL_NVP( dependentVariableHistory_ ) );
+        ar( CEREAL_NVP( cumulativeComputationTimeHistory_ ) );
+        ar( CEREAL_NVP( cumulativeNumberOfFunctionEvaluations_ ) );
+        ar( CEREAL_NVP( processedStateIds_ ) );
+        ar( CEREAL_NVP( propagatedStateIds_ ) );
+        ar( CEREAL_NVP( integratedStateAndBodyList_ ) );
+        ar( CEREAL_NVP( outputSettings_ ) );
+        ar( CEREAL_NVP( dependentVariableInterface_ ) );
+        ar( CEREAL_NVP( sequentialPropagation_ ) );
+        // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
+        // Skip: rawSolutionConversionFunctionIsAvailable_ (always false for a deserialized object)
+        ar( CEREAL_NVP( propagationIsPerformed_ ) );
+        ar( CEREAL_NVP( solutionIsCleared_ ) );
+        ar( CEREAL_NVP( onlyProcessedSolutionSet_ ) );
+        ar( CEREAL_NVP( propagationTerminationReason_ ) );
+        ar( CEREAL_NVP( isPropagationOngoing_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        rawSolutionConversionFunctionIsAvailable_ = false;
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( equationsOfMotionNumericalSolution_ ) );
+        ar( CEREAL_NVP( equationsOfMotionNumericalSolutionRaw_ ) );
+        ar( CEREAL_NVP( dependentVariableHistory_ ) );
+        ar( CEREAL_NVP( cumulativeComputationTimeHistory_ ) );
+        ar( CEREAL_NVP( cumulativeNumberOfFunctionEvaluations_ ) );
+        ar( CEREAL_NVP( processedStateIds_ ) );
+        ar( CEREAL_NVP( propagatedStateIds_ ) );
+        ar( CEREAL_NVP( integratedStateAndBodyList_ ) );
+        ar( CEREAL_NVP( outputSettings_ ) );
+        ar( CEREAL_NVP( dependentVariableInterface_ ) );
+        ar( CEREAL_NVP( sequentialPropagation_ ) );
+        // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
+        // Skip: rawSolutionConversionFunctionIsAvailable_ (forced to false for every loaded object)
+        ar( CEREAL_NVP( propagationIsPerformed_ ) );
+        ar( CEREAL_NVP( solutionIsCleared_ ) );
+        ar( CEREAL_NVP( onlyProcessedSolutionSet_ ) );
+        ar( CEREAL_NVP( propagationTerminationReason_ ) );
+        ar( CEREAL_NVP( isPropagationOngoing_ ) );
+        // Reconstruct runtime interpolator from loaded dependent variable history
+        updateDependentVariableInterface( );
+    }
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -488,19 +666,28 @@ public:
     static const bool is_variational = true;
     static const int number_of_columns = Eigen::Dynamic;
 
+    //! Default constructor for deserialization only — not for general use
+    SingleArcVariationalSimulationResults( ):
+        SimulationResults< StateScalarType, TimeType >( ), singleArcDynamicsResults_( nullptr ), stateTransitionMatrixSize_( 0 ),
+        sensitivityMatrixSize_( 0 )
+    {}
+
     SingleArcVariationalSimulationResults(
             const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults,
             const int stateTransitionMatrixSize,
             const int sensitivityMatrixSize ):
         singleArcDynamicsResults_( singleArcDynamicsResults ), stateTransitionMatrixSize_( stateTransitionMatrixSize ),
-        sensitivityMatrixSize_( sensitivityMatrixSize )
-    {}
+        sensitivityMatrixSize_( sensitivityMatrixSize ), reducedSensitivityMatrixColumns_( sensitivityMatrixSize )
+    {
+        std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
+    }
 
     SingleArcVariationalSimulationResults( const SingleArcVariationalSimulationResults< StateScalarType, TimeType >& resultsToCopy ):
         singleArcDynamicsResults_( resultsToCopy.getDynamicsResults( )->cloneDerived( ) ),
         stateTransitionMatrixSize_( resultsToCopy.stateTransitionMatrixSize_ ),
         sensitivityMatrixSize_( resultsToCopy.sensitivityMatrixSize_ ), stateTransitionSolution_( resultsToCopy.stateTransitionSolution_ ),
-        sensitivitySolution_( resultsToCopy.sensitivitySolution_ )
+        sensitivitySolution_( resultsToCopy.sensitivitySolution_ ),
+        reducedSensitivityMatrixColumns_( resultsToCopy.reducedSensitivityMatrixColumns_ )
     {}
 
     ~SingleArcVariationalSimulationResults( ) {}
@@ -510,9 +697,15 @@ public:
         return std::make_shared< SingleArcVariationalSimulationResults< StateScalarType, TimeType > >( *this );
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
+    }
+
+    //! Copy that retains the propagated dynamics only, discarding the state transition and sensitivity matrices.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        return singleArcDynamicsResults_->cloneDerived( );
     }
 
     void reset( )
@@ -546,15 +739,16 @@ public:
     void splitSolution( const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >& fullSolution,
                         std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolutionRaw )
     {
+        const int propagatedSensitivityMatrixSize = getPropagatedSensitivityMatrixSize( );
         for( auto it : fullSolution )
         {
             stateTransitionSolution_[ static_cast< double >( it.first ) ] =
                     it.second.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).template cast< double >( );
             sensitivitySolution_[ static_cast< double >( it.first ) ] =
-                    it.second.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ )
+                    it.second.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, propagatedSensitivityMatrixSize )
                             .template cast< double >( );
-            equationsOfMotionNumericalSolutionRaw[ static_cast< double >( it.first ) ] =
-                    it.second.block( 0, stateTransitionMatrixSize_ + sensitivityMatrixSize_, stateTransitionMatrixSize_, 1 );
+            equationsOfMotionNumericalSolutionRaw[ it.first ] =
+                    it.second.block( 0, stateTransitionMatrixSize_ + propagatedSensitivityMatrixSize, stateTransitionMatrixSize_, 1 );
         }
     }
 
@@ -575,9 +769,48 @@ public:
         return stateTransitionSolution_;
     }
 
-    std::map< double, Eigen::MatrixXd >& getSensitivitySolution( )
+    //! Function to retrieve the sensitivity matrix history, including the columns that were not propagated (if any)
+    std::map< double, Eigen::MatrixXd > getSensitivitySolution( ) const
+    {
+        std::map< double, Eigen::MatrixXd > fullSensitivitySolution;
+        for( auto it : sensitivitySolution_ )
+        {
+            Eigen::MatrixXd& fullSensitivityMatrix = fullSensitivitySolution[ it.first ];
+            fullSensitivityMatrix = Eigen::MatrixXd::Zero( it.second.rows( ), sensitivityMatrixSize_ );
+            for( unsigned int i = 0; i < reducedSensitivityMatrixColumns_.size( ); i++ )
+            {
+                fullSensitivityMatrix.col( reducedSensitivityMatrixColumns_.at( i ) ) = it.second.col( i );
+            }
+        }
+        return fullSensitivitySolution;
+    }
+
+    //! Function to retrieve the sensitivity matrix history, with only the propagated columns
+    /*!
+     * Function to retrieve the sensitivity matrix history, with only the propagated columns (see setReducedSensitivityMatrixColumns).
+     * Equal to getSensitivitySolution if all columns are propagated.
+     * \return Sensitivity matrix history, with only the propagated columns
+     */
+    std::map< double, Eigen::MatrixXd >& getReducedSensitivitySolution( )
     {
         return sensitivitySolution_;
+    }
+
+    //! Function to set the columns of the full sensitivity matrix that are propagated
+    /*!
+     * Function to set the columns of the full sensitivity matrix that are propagated, in case sensitivity matrix columns that are
+     * zero are omitted (see EstimatableParameterSet::setReduceSensitivityMatrixColumns).
+     * \param reducedSensitivityMatrixColumns Index in the full sensitivity matrix of each propagated column
+     */
+    void setReducedSensitivityMatrixColumns( const std::vector< int >& reducedSensitivityMatrixColumns )
+    {
+        reducedSensitivityMatrixColumns_ = reducedSensitivityMatrixColumns;
+    }
+
+    //! Function to retrieve the number of propagated sensitivity matrix columns
+    int getPropagatedSensitivityMatrixSize( ) const
+    {
+        return static_cast< int >( reducedSensitivityMatrixColumns_.size( ) );
     }
 
     const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getDynamicsResults( ) const
@@ -609,21 +842,82 @@ public:
         return singleArcDynamicsResults_->getSingleArcDependentVariablesInterface( );
     }
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) override
     {
         return getSingleArcDependentVariablesInterface( );
     }
 
+    //! Save variational results to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( SingleArcVariationalSimulationResults< StateScalarType, TimeType > )
+
 protected:
-    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
+    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
 
-    const int stateTransitionMatrixSize_;
+    int stateTransitionMatrixSize_;
 
-    const int sensitivityMatrixSize_;
+    int sensitivityMatrixSize_;
 
     std::map< double, Eigen::MatrixXd > stateTransitionSolution_;
 
+    //! Sensitivity matrix history, with only the propagated columns
     std::map< double, Eigen::MatrixXd > sensitivitySolution_;
+
+    //! Index in the full sensitivity matrix of each propagated column
+    std::vector< int > reducedSensitivityMatrixColumns_;
+
+private:
+    friend class cereal::access;
+
+    bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const SingleArcVariationalSimulationResults* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        else
+        {
+            return is_variational == rhsDerived->is_variational && number_of_columns == rhsDerived->number_of_columns &&
+                    stateTransitionMatrixSize_ == rhsDerived->stateTransitionMatrixSize_ &&
+                    sensitivityMatrixSize_ == rhsDerived->sensitivityMatrixSize_ &&
+                    stateTransitionSolution_ == rhsDerived->stateTransitionSolution_ &&
+                    getSensitivitySolution( ) == rhsDerived->getSensitivitySolution( ) &&
+                    ( ( singleArcDynamicsResults_ != nullptr && rhsDerived->singleArcDynamicsResults_ != nullptr )
+                              ? ( *singleArcDynamicsResults_ == *rhsDerived->singleArcDynamicsResults_ )
+                              : singleArcDynamicsResults_ == rhsDerived->singleArcDynamicsResults_ );
+        }
+    }
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( singleArcDynamicsResults_ ) );
+        ar( CEREAL_NVP( stateTransitionMatrixSize_ ) );
+        ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
+        ar( CEREAL_NVP( stateTransitionSolution_ ) );
+
+        // Sensitivity matrix history is always saved with all columns
+        std::map< double, Eigen::MatrixXd > fullSensitivitySolution = getSensitivitySolution( );
+        ar( cereal::make_nvp( "sensitivitySolution_", fullSensitivitySolution ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( singleArcDynamicsResults_ ) );
+        ar( CEREAL_NVP( stateTransitionMatrixSize_ ) );
+        ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
+        ar( CEREAL_NVP( stateTransitionSolution_ ) );
+        ar( CEREAL_NVP( sensitivitySolution_ ) );
+
+        // Sensitivity matrix history is always saved with all columns
+        reducedSensitivityMatrixColumns_.resize( sensitivityMatrixSize_ );
+        std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
+    }
 };
 
 template< typename SimulationResults, typename StateScalarType = double, typename TimeType = double >
@@ -665,6 +959,11 @@ class MultiArcSimulationResults : public SimulationResults< StateScalarType, Tim
 public:
     using single_arc_type = SingleArcResults< StateScalarType, TimeType >;
 
+    //! Default constructor for deserialization only — not for general use
+    MultiArcSimulationResults( ):
+        SimulationResults< StateScalarType, TimeType >( ), propagationIsPerformed_( false ), solutionIsCleared_( false )
+    {}
+
     MultiArcSimulationResults( const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults,
                                const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface ):
         singleArcResults_( singleArcResults ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
@@ -685,13 +984,42 @@ public:
         {
             clonedSingleArcResults.push_back( singleArcResults_.at( i )->cloneDerived( ) );
         }
-        return std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >( clonedSingleArcResults,
-                                                                                                             dependentVariableInterface_ );
+        auto clonedResults = std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
+                clonedSingleArcResults, dependentVariableInterface_ );
+        clonedResults->propagationIsPerformed_ = propagationIsPerformed_;
+        clonedResults->solutionIsCleared_ = solutionIsCleared_;
+        clonedResults->arcStartTimes_ = arcStartTimes_;
+        clonedResults->arcEndTimes_ = arcEndTimes_;
+        return clonedResults;
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
+    }
+
+    //! Copy that retains the propagated dynamics of each arc only, discarding any variational results.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > clonedDynamicsResults;
+        bool allArcsHaveSolution = true;
+        for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+        {
+            clonedDynamicsResults.push_back(
+                    SingleArcResultsRetriever< SingleArcResults< StateScalarType, TimeType >, StateScalarType, TimeType >::
+                            getSingleArcSimulationResults( singleArcResults_.at( i ) )
+                                    ->cloneDerived( ) );
+            allArcsHaveSolution = allArcsHaveSolution && clonedDynamicsResults.back( )->getPropagationIsPerformed( ) &&
+                    !clonedDynamicsResults.back( )->getSolutionIsCleared( ) &&
+                    !clonedDynamicsResults.back( )->getEquationsOfMotionNumericalSolution( ).empty( );
+        }
+        auto dynamicsOnlyResults = std::make_shared< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                clonedDynamicsResults, dependentVariableInterface_ );
+        if( allArcsHaveSolution )
+        {
+            dynamicsOnlyResults->setPropagationIsPerformed( );
+        }
+        return dynamicsOnlyResults;
     }
 
     bool getPropagationIsPerformed( )
@@ -725,11 +1053,13 @@ public:
         }
     }
 
-    //            void setPropagationIsPerformed( const std::vector< double >& arcStartTimes )
-    //            {
-    //                propagationIsPerformed_ = true;
-    //                arcStartTimes_ = arcStartTimes;
-    //            }
+    //! Function to signal that propagation is finished, with arc times provided directly (e.g. if arcs have no state transition history)
+    void setPropagationIsPerformed( const std::vector< double >& arcStartTimes, const std::vector< double >& arcEndTimes )
+    {
+        propagationIsPerformed_ = true;
+        arcStartTimes_ = arcStartTimes;
+        arcEndTimes_ = arcEndTimes;
+    }
 
     void manuallySetPropagationResults(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > numericalMultiArcSolution )
@@ -884,7 +1214,7 @@ public:
         return dependentVariableInterface_;
     }
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) override
     {
         return getMultiArcDependentVariablesInterface( );
     }
@@ -916,8 +1246,11 @@ public:
         dependentVariableInterface_->updateDependentVariablesInterpolators( dependentVariablesInterpolators, arcStartTimes_, arcEndTimes_ );
     }
 
+    //! Save multi-arc results to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > )
+
 private:
-    const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults_;
+    std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults_;
 
     bool propagationIsPerformed_;
 
@@ -929,12 +1262,85 @@ private:
     std::vector< double > arcEndTimes_;
 
     std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
+
+    // --- Cereal serialization support ---
+    friend class cereal::access;
+
+    bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const MultiArcSimulationResults* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        else
+        {
+            if( propagationIsPerformed_ != rhsDerived->propagationIsPerformed_ || solutionIsCleared_ != rhsDerived->solutionIsCleared_ ||
+                arcStartTimes_ != rhsDerived->arcStartTimes_ || arcEndTimes_ != rhsDerived->arcEndTimes_ )
+            {
+                return false;
+            }
+
+            if( singleArcResults_.size( ) != rhsDerived->singleArcResults_.size( ) )
+            {
+                return false;
+            }
+
+            for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+            {
+                const auto& lhsPtr = singleArcResults_.at( i );
+                const auto& rhsPtr = rhsDerived->singleArcResults_.at( i );
+                if( lhsPtr != nullptr && rhsPtr != nullptr )
+                {
+                    if( *lhsPtr != *rhsPtr )
+                    {
+                        return false;
+                    }
+                }
+                else if( lhsPtr != rhsPtr )
+                {
+                    return false;
+                }
+            }
+
+            return ( ( dependentVariableInterface_ != nullptr && rhsDerived->dependentVariableInterface_ != nullptr )
+                             ? ( *dependentVariableInterface_ == *rhsDerived->dependentVariableInterface_ )
+                             : dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ );
+        }
+    }
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( dependentVariableInterface_ ) );
+        ar( CEREAL_NVP( propagationIsPerformed_ ) );
+        ar( CEREAL_NVP( solutionIsCleared_ ) );
+        ar( CEREAL_NVP( arcStartTimes_ ) );
+        ar( CEREAL_NVP( arcEndTimes_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( dependentVariableInterface_ ) );
+        ar( CEREAL_NVP( propagationIsPerformed_ ) );
+        ar( CEREAL_NVP( solutionIsCleared_ ) );
+        ar( CEREAL_NVP( arcStartTimes_ ) );
+        ar( CEREAL_NVP( arcEndTimes_ ) );
+    }
 };
 
 template< template< class, class > class SingleArcResults, class StateScalarType, class TimeType >
 class HybridArcSimulationResults : public SimulationResults< StateScalarType, TimeType >
 {
 public:
+    //! Default constructor for deserialization only — not for general use
+    HybridArcSimulationResults( ): SimulationResults< StateScalarType, TimeType >( ) {}
+
     HybridArcSimulationResults(
             const std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults,
             const std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults ):
@@ -947,10 +1353,21 @@ public:
 
     ~HybridArcSimulationResults( ) {}
 
-    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return std::make_shared< HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
                 singleArcResults_->cloneDerived( ), multiArcResults_->cloneDerived( ) );
+    }
+
+    //! Copy that retains the propagated dynamics of the single- and multi-arc parts only, discarding any variational results.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        return std::make_shared< HybridArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                SingleArcResultsRetriever< SingleArcResults< StateScalarType, TimeType >, StateScalarType, TimeType >::
+                        getSingleArcSimulationResults( singleArcResults_ )
+                                ->cloneDerived( ),
+                std::dynamic_pointer_cast< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                        multiArcResults_->cloneDynamicsOnly( ) ) );
     }
 
     std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > getSingleArcResults( )
@@ -1045,7 +1462,7 @@ public:
         return dependentVariableInterface_;
     }
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) override
     {
         return getHybridArcDependentVariablesInterface( );
     }
@@ -1056,15 +1473,92 @@ public:
         multiArcResults_->updateDependentVariableInterface( );
     }
 
+    //! Save hybrid-arc results to a binary file
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > )
+
 protected:
     std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults_;
 
     std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults_;
 
     std::shared_ptr< HybridArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
+
+private:
+    friend class cereal::access;
+
+    bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const HybridArcSimulationResults* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        else
+        {
+            return ( ( singleArcResults_ != nullptr && rhsDerived->singleArcResults_ != nullptr )
+                             ? ( *singleArcResults_ == *rhsDerived->singleArcResults_ )
+                             : singleArcResults_ == rhsDerived->singleArcResults_ ) &&
+                    ( ( multiArcResults_ != nullptr && rhsDerived->multiArcResults_ != nullptr )
+                              ? ( *multiArcResults_ == *rhsDerived->multiArcResults_ )
+                              : multiArcResults_ == rhsDerived->multiArcResults_ ) &&
+                    ( ( dependentVariableInterface_ != nullptr && rhsDerived->dependentVariableInterface_ != nullptr )
+                              ? ( *dependentVariableInterface_ == *rhsDerived->dependentVariableInterface_ )
+                              : dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ );
+        }
+    }
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( multiArcResults_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( multiArcResults_ ) );
+        // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+        // Reconstruct hybrid dependentVariableInterface_ from constituent interfaces if possible
+        if( dependentVariableInterface_ == nullptr )
+        {
+            if( singleArcResults_ != nullptr && multiArcResults_ != nullptr )
+            {
+                dependentVariableInterface_ = std::make_shared< HybridArcDependentVariablesInterface< TimeType > >(
+                        singleArcResults_->getSingleArcDependentVariablesInterface( ),
+                        multiArcResults_->getMultiArcDependentVariablesInterface( ) );
+            }
+        }
+    }
 };
+
+// Type aliases for cereal registration of template instantiations
+using SingleArcDynamicsResults = SingleArcSimulationResults< double, double >;
+using SingleArcVariationalResults = SingleArcVariationalSimulationResults< double, double >;
+using MultiArcDynamicsResults = MultiArcSimulationResults< SingleArcSimulationResults, double, double >;
+using MultiArcVariationalResults = MultiArcSimulationResults< SingleArcVariationalSimulationResults, double, double >;
+using HybridArcDynamicsResults = HybridArcSimulationResults< SingleArcSimulationResults, double, double >;
+using HybridArcVariationalResults = HybridArcSimulationResults< SingleArcVariationalSimulationResults, double, double >;
+
+// Type aliases for <double, Time> instantiations (used in Python bindings)
+using SingleArcDynamicsResultsDT = SingleArcSimulationResults< double, Time >;
+using SingleArcVariationalResultsDT = SingleArcVariationalSimulationResults< double, Time >;
+using MultiArcDynamicsResultsDT = MultiArcSimulationResults< SingleArcSimulationResults, double, Time >;
+using MultiArcVariationalResultsDT = MultiArcSimulationResults< SingleArcVariationalSimulationResults, double, Time >;
+using HybridArcDynamicsResultsDT = HybridArcSimulationResults< SingleArcSimulationResults, double, Time >;
+using HybridArcVariationalResultsDT = HybridArcSimulationResults< SingleArcVariationalSimulationResults, double, Time >;
+
+// Base‐class aliases (needed for CEREAL macros, which cannot handle commas in template args)
+using SimulationResultsDD = SimulationResults< double, double >;
+using SimulationResultsDT = SimulationResults< double, Time >;
 
 }  // namespace propagators
 
 }  // namespace tudat
+
 #endif  // TUDAT_PROPAGATIONRESULTS_H

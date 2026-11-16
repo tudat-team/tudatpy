@@ -11,10 +11,10 @@
 #ifndef TUDAT_MULTI_DIMENSIONAL_ARRAY_WRITER_H
 #define TUDAT_MULTI_DIMENSIONAL_ARRAY_WRITER_H
 
+#include <filesystem>
 #include <map>
 
 #include <boost/multi_array.hpp>
-#include <boost/filesystem.hpp>
 
 #include <Eigen/Core>
 
@@ -124,9 +124,9 @@ public:
         }
 
         // Create directory (if it does not exist)
-        if( !boost::filesystem::exists( boost::filesystem::path( fileName ).parent_path( ) ) )
+        if( !std::filesystem::exists( std::filesystem::path( fileName ).parent_path( ) ) )
         {
-            boost::filesystem::create_directories( boost::filesystem::path( fileName ).parent_path( ) );
+            std::filesystem::create_directories( std::filesystem::path( fileName ).parent_path( ) );
         }
 
         // Open file
@@ -189,9 +189,9 @@ public:
              fileIterator++ )
         {
             // Create directory (if it does not exist)
-            if( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
+            if( !std::filesystem::exists( std::filesystem::path( fileIterator->second ).parent_path( ) ) )
             {
-                boost::filesystem::create_directories( boost::filesystem::path( fileIterator->second ).parent_path( ) );
+                std::filesystem::create_directories( std::filesystem::path( fileIterator->second ).parent_path( ) );
             }
 
             // Open file
@@ -268,9 +268,9 @@ public:
              fileIterator++ )
         {
             // Create directory (if it does not exist)
-            if( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
+            if( !std::filesystem::exists( std::filesystem::path( fileIterator->second ).parent_path( ) ) )
             {
-                boost::filesystem::create_directories( boost::filesystem::path( fileIterator->second ).parent_path( ) );
+                std::filesystem::create_directories( std::filesystem::path( fileIterator->second ).parent_path( ) );
             }
 
             // Open file
@@ -350,9 +350,9 @@ public:
              fileIterator++ )
         {
             // Create directory (if it does not exist)
-            if( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
+            if( !std::filesystem::exists( std::filesystem::path( fileIterator->second ).parent_path( ) ) )
             {
-                boost::filesystem::create_directories( boost::filesystem::path( fileIterator->second ).parent_path( ) );
+                std::filesystem::create_directories( std::filesystem::path( fileIterator->second ).parent_path( ) );
             }
 
             // Open file

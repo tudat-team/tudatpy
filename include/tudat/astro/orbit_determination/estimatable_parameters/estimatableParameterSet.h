@@ -50,6 +50,9 @@ public:
      *  \param estimatedDoubleParameters List of double parameters that are estimated.
      *  \param estimatedVectorParameters List of vector parameters that are estimated.
      *  \param estimateInitialStateParameters List of initial dynamical states that are to be estimated.
+     *  \param considerParameters Set of consider parameters.
+     *  \param reduceSensitivityMatrixColumns Boolean denoting whether sensitivity matrix columns that are zero in a propagation
+     *  arc are to be omitted (see setReduceSensitivityMatrixColumns).
      */
     EstimatableParameterSet(
             const std::vector< std::shared_ptr< EstimatableParameter< double > > >& estimatedDoubleParameters,
@@ -58,8 +61,9 @@ public:
                     estimateInitialStateParameters =
                             ( std::vector< std::shared_ptr<
                                       EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ),
-            const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr ):
-        considerParameters_( considerParameters ), totalConstraintSize_( 0 )
+            const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr,
+            const bool reduceSensitivityMatrixColumns = false ):
+        considerParameters_( considerParameters ), reduceSensitivityMatrixColumns_( reduceSensitivityMatrixColumns )
     {
         // Initialize total number of parameters to 0.
         estimatedParameterSetSize_ = 0;
@@ -99,7 +103,6 @@ public:
             initialStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters[ i ];
             parameterIndices_.push_back(
                     std::make_pair( estimatedParameterSetSize_, estimateInitialStateParametersOrdered[ i ]->getParameterSize( ) ) );
-            totalConstraintSize_ += estimateInitialStateParametersOrdered[ i ]->getConstraintSize( );
 
             initialDynamicalSingleArcStateParameterSize_ += estimateSingleArcInitialStateParameters[ i ]->getParameterSize( );
             initialSingleArcStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters[ i ];
@@ -125,7 +128,6 @@ public:
         for( unsigned int i = 0; i < estimatedDoubleParameters.size( ); i++ )
         {
             doubleParameters_[ estimatedParameterSetSize_ ] = estimatedDoubleParameters[ i ];
-            totalConstraintSize_ += estimatedDoubleParameters[ i ]->getConstraintSize( );
 
             parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_, 1 ) );
             estimatedParameterSetSize_++;
@@ -135,7 +137,6 @@ public:
         for( unsigned int i = 0; i < estimatedVectorParameters.size( ); i++ )
         {
             vectorParameters_[ estimatedParameterSetSize_ ] = estimatedVectorParameters[ i ];
-            totalConstraintSize_ += estimatedVectorParameters[ i ]->getConstraintSize( );
 
             parameterIndices_.push_back(
                     std::make_pair( estimatedParameterSetSize_, estimatedVectorParameters[ i ]->getParameterSize( ) ) );
@@ -705,8 +706,9 @@ public:
     void getConstraints( Eigen::MatrixXd& constraintStateMultiplier, Eigen::VectorXd& constraintRightHandSide )
     {
         // Resize constraint elements
-        constraintStateMultiplier.setZero( totalConstraintSize_, estimatedParameterSetSize_ );
-        constraintRightHandSide.setZero( totalConstraintSize_, 1 );
+        const int constraintSize = getConstraintSize( );
+        constraintStateMultiplier.setZero( constraintSize, estimatedParameterSetSize_ );
+        constraintRightHandSide.setZero( constraintSize, 1 );
 
         // Iterate over all state parameters
         int currentConstraintRow = 0;
@@ -776,7 +778,21 @@ public:
      */
     int getConstraintSize( )
     {
-        return totalConstraintSize_;
+        // Computed on request, since constraints may be set on parameters after creation of this object
+        int totalConstraintSize = 0;
+        for( auto parameterIterator : initialStateParameters_ )
+        {
+            totalConstraintSize += parameterIterator.second->getConstraintSize( );
+        }
+        for( auto parameterIterator : doubleParameters_ )
+        {
+            totalConstraintSize += parameterIterator.second->getConstraintSize( );
+        }
+        for( auto parameterIterator : vectorParameters_ )
+        {
+            totalConstraintSize += parameterIterator.second->getConstraintSize( );
+        }
+        return totalConstraintSize;
     }
 
     //! Function to return a map with the names of the arc-wise bodies to be estimated for each arc, and the arc starting times as keys.
@@ -832,6 +848,30 @@ public:
         return utilities::createVectorFromMapKeys( bodiesToEstimatePerArc_ );
     }
 
+    //! Function to set whether the sensitivity matrix columns that are zero in a propagation arc are to be omitted
+    /*!
+     * Function to set whether the sensitivity matrix columns that are zero in a propagation arc are to be omitted when
+     * propagating the variational equations. Parameters that cannot influence the dynamics (e.g. observation biases), or
+     * parameter entries that only influence the dynamics outside of the propagation interval (e.g. arc-wise parameters),
+     * are then not propagated. The full sensitivity matrix is reconstructed when retrieving the variational equations
+     * results.
+     * \param reduceSensitivityMatrixColumns True if zero sensitivity matrix columns are to be omitted from the propagation
+     */
+    void setReduceSensitivityMatrixColumns( const bool reduceSensitivityMatrixColumns )
+    {
+        reduceSensitivityMatrixColumns_ = reduceSensitivityMatrixColumns;
+    }
+
+    //! Function to retrieve whether the sensitivity matrix columns that are zero in a propagation arc are to be omitted
+    /*!
+     * Function to retrieve whether the sensitivity matrix columns that are zero in a propagation arc are to be omitted
+     * \return True if zero sensitivity matrix columns are to be omitted from the propagation
+     */
+    bool getReduceSensitivityMatrixColumns( ) const
+    {
+        return reduceSensitivityMatrixColumns_;
+    }
+
 protected:
     //! Total size of all initial dynamical states that are to be estimated.
     int initialDynamicalStateParameterSize_;
@@ -868,9 +908,6 @@ protected:
     std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
             initialStateParameters_;
 
-    //! Size of linear constraint that is to be applied during estimation
-    int totalConstraintSize_;
-
     //! Map containing all single-arc initial state parameter objects, with map key start index of parameter in total vector.
     std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
             initialSingleArcStateParameters_;
@@ -889,6 +926,9 @@ protected:
     std::map< double,
               std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
             multiArcInitialStateParametersPerArc_;
+
+    //! Boolean denoting whether sensitivity matrix columns that are zero in a propagation arc are omitted
+    bool reduceSensitivityMatrixColumns_;
 };
 
 //! Function to create a subset of all estimated parameters, with either only single-arc or multi-arc initial state parameter
@@ -904,19 +944,47 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarTyp
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
         const bool getSingleArcParameters )
 {
-    if( getSingleArcParameters )
+    return std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
+            parametersToEstimate->getEstimatedDoubleParameters( ),
+            parametersToEstimate->getEstimatedVectorParameters( ),
+            getSingleArcParameters ? parametersToEstimate->getEstimatedSingleArcInitialStateParameters( )
+                                   : parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ),
+            nullptr,
+            parametersToEstimate->getReduceSensitivityMatrixColumns( ) );
+}
+
+//! Function to constrain the correction to the single-arc initial translational state in a parameter set (see
+//! setParameterCorrectionConstraint), requires the set to contain exactly one such parameter
+template< typename InitialStateParameterType >
+void setInitialStateCorrectionConstraint( const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > parameterSet,
+                                          const Eigen::VectorXd& constraintDirection )
+{
+    std::vector< std::shared_ptr< EstimatableParameterBase > > initialStateParameters =
+            parameterSet->getParametersForParameterIdentifier( std::make_pair( initial_body_state, std::make_pair( "", "" ) ) );
+    if( initialStateParameters.size( ) != 1 )
     {
-        return std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
-                parametersToEstimate->getEstimatedDoubleParameters( ),
-                parametersToEstimate->getEstimatedVectorParameters( ),
-                parametersToEstimate->getEstimatedSingleArcInitialStateParameters( ) );
+        throw std::runtime_error( "Error when setting initial state correction constraint, found " +
+                                  std::to_string( initialStateParameters.size( ) ) +
+                                  " single-arc initial translational states in parameter set, expected 1" );
     }
-    else
+    setParameterCorrectionConstraint( initialStateParameters.at( 0 ), constraintDirection );
+}
+
+//! Function to remove the constraints set by setParameterCorrectionConstraint from all parameters in a parameter set
+template< typename InitialStateParameterType >
+void removeParameterCorrectionConstraints( const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > parameterSet )
+{
+    for( auto parameter : parameterSet->getEstimatedInitialStateParameters( ) )
     {
-        return std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
-                parametersToEstimate->getEstimatedDoubleParameters( ),
-                parametersToEstimate->getEstimatedVectorParameters( ),
-                parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ) );
+        removeParameterCorrectionConstraint( parameter );
+    }
+    for( auto parameter : parameterSet->getEstimatedDoubleParameters( ) )
+    {
+        removeParameterCorrectionConstraint( parameter );
+    }
+    for( auto parameter : parameterSet->getEstimatedVectorParameters( ) )
+    {
+        removeParameterCorrectionConstraint( parameter );
     }
 }
 
@@ -1609,7 +1677,11 @@ void getParametersToEstimatePerArcTest(
 
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > arcWiseEstimatableParamatersSet =
                 std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
-                        doubleParameters, vectorParameters, arcWiseStatesParameters );
+                        doubleParameters,
+                        vectorParameters,
+                        arcWiseStatesParameters,
+                        nullptr,
+                        parametersToEstimate->getReduceSensitivityMatrixColumns( ) );
 
         arcWiseParametersToEstimate.push_back( arcWiseEstimatableParamatersSet );
     }

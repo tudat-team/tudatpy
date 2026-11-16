@@ -59,11 +59,10 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
     return modifiedInverseCovarianceMatrix;
 }
 
-// template class CovarianceAnalysisInput< double, double >;
-template struct CovarianceAnalysisOutput< double >;
-
-// template class EstimationInput< double, double >;
-template struct EstimationOutput< double >;
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+template struct CovarianceAnalysisOutput< double, double >;
+template struct EstimationOutput< double, double >;
+#endif
 
 }  // namespace simulation_setup
 

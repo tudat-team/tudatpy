@@ -8,10 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -95,8 +94,7 @@ BOOST_AUTO_TEST_CASE( testCR3BPPropagation )
         }
 
         // Set integrator settings
-        std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, timeStep );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, timeStep );
 
         // Propagate dynamics
         std::map< double, Eigen::Vector6d > stateHistory = performCR3BPIntegration(

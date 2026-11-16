@@ -63,7 +63,6 @@ Functions
    exponential_predefined
    exponential
    nrlmsise00
-   mcd
    tabulated
    us76
    mars_dtm
@@ -73,7 +72,6 @@ Functions
    scaled_by_function
    coma_model_from_poly_data
    coma_model_from_stokes_data
-
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.empty_wind_model
 
@@ -89,7 +87,6 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.nrlmsise00
 
-.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.tabulated
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.us76
@@ -108,6 +105,8 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.coma_model_from_stokes_data
 
+.. tudatpy-mcd-documentation
+
 
 Classes
 -------
@@ -119,13 +118,13 @@ Classes
    EmptyWindModelSettings
    ConstantWindModelSettings
    CustomWindModelSettings
+   ClimateModelSettings
    AtmosphereSettings
    ComaSettings
    ExponentialAtmosphereSettings
    CustomConstantTemperatureAtmosphereSettings
    ScaledAtmosphereSettings
    NRLMSISE00Input
-   NRLMSISE00Atmosphere
 
 
 Wind Model Settings
@@ -145,6 +144,12 @@ Wind Model Settings
 .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.CustomWindModelSettings
    :members:
    :show-inheritance:
+
+Climate Model Settings
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings
+   :members:
 
 
 Atmosphere Settings
@@ -170,17 +175,12 @@ Atmosphere Settings
    :show-inheritance:
 
 
-Atmosphere Model Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~
+NRLMSISE-00 Inputs
+~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.NRLMSISE00Input
    :members:
    :special-members: __init__
-
-.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.NRLMSISE00Atmosphere
-   :members:
-   :special-members: __init__
-
 
 Enumerations
 ------------

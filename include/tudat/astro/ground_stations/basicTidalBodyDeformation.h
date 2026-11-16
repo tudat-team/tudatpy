@@ -65,6 +65,28 @@ public:
         return calculateDisplacement( time, stationState->getNominalCartesianPosition( ) );
     }
 
+    //! Function to calculate the displacement for the given Love and Shida number ( h_n, l_n ) of each degree n, instead of those of
+    //! the model
+    Eigen::Vector3d calculateDisplacement( const double time,
+                                           const Eigen::Vector3d& bodyFixedPosition,
+                                           const std::map< int, std::pair< double, double > >& displacementLoveNumbers )
+    {
+        updateBodyProperties( time );
+        return calculateBasicTicalDisplacement( bodyFixedPosition, displacementLoveNumbers );
+    }
+
+    //! Function to retrieve the displacement Love and Shida number ( h_n, l_n ) of each degree n
+    std::map< int, std::pair< double, double > > getDisplacementLoveNumberPerDegree( ) const
+    {
+        return displacementLoveNumbers_;
+    }
+
+    //! Function to reset the displacement Love and Shida number ( h_n, l_n ) of each degree n
+    void setDisplacementLoveNumberPerDegree( const std::map< int, std::pair< double, double > >& displacementLoveNumberPerDegree )
+    {
+        displacementLoveNumbers_ = displacementLoveNumberPerDegree;
+    }
+
 protected:
     void updateBodyProperties( const double time );
 

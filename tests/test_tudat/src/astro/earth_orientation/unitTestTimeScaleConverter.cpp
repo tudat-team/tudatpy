@@ -9,14 +9,13 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include "tudat/basics/testMacros.h"
 #include "tudat/basics/utilityMacros.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -405,6 +404,34 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
     currentUt1 = timeScaleConverter->getCurrentTime( tai_scale, ut1_scale, dateTimeJustBeforeSwitch.epoch< double >( ) );
     currentUtc = timeScaleConverter->getCurrentTime( tai_scale, utc_scale, dateTimeJustBeforeSwitch.epoch< double >( ) );
     BOOST_CHECK_EQUAL( currentUt1, currentUtc );
+}
+
+//! Test that replacing direct default converter construction with the factory does not change UTC/TDB conversions.
+BOOST_AUTO_TEST_CASE( testDefaultConstructedAndFactoryTimeScaleConvertersAgreeForUtcTdb )
+{
+    TerrestrialTimeScaleConverter directlyConstructedConverter;
+    std::shared_ptr< TerrestrialTimeScaleConverter > factoryConverter = createDefaultTimeConverter( );
+
+    const std::vector< double > utcEpochs = {
+        -20.0 * physical_constants::JULIAN_YEAR, 0.0, 10.0 * physical_constants::JULIAN_YEAR, 25.0 * physical_constants::JULIAN_YEAR
+    };
+
+    for( const double utcEpoch : utcEpochs )
+    {
+        factoryConverter->resetTimes< double >( );
+        directlyConstructedConverter.resetTimes< double >( );
+        const double factoryTdb = factoryConverter->getCurrentTime( utc_scale, tdb_scale, utcEpoch, Eigen::Vector3d::Zero( ) );
+        const double directlyConstructedTdb =
+                directlyConstructedConverter.getCurrentTime( utc_scale, tdb_scale, utcEpoch, Eigen::Vector3d::Zero( ) );
+        BOOST_CHECK_SMALL( factoryTdb - directlyConstructedTdb, 1.0E-12 );
+
+        factoryConverter->resetTimes< double >( );
+        directlyConstructedConverter.resetTimes< double >( );
+        const double factoryUtc = factoryConverter->getCurrentTime( tdb_scale, utc_scale, factoryTdb, Eigen::Vector3d::Zero( ) );
+        const double directlyConstructedUtc =
+                directlyConstructedConverter.getCurrentTime( tdb_scale, utc_scale, directlyConstructedTdb, Eigen::Vector3d::Zero( ) );
+        BOOST_CHECK_SMALL( factoryUtc - directlyConstructedUtc, 1.0E-12 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

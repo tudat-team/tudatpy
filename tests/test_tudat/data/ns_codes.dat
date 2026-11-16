@@ -1,0 +1,373 @@
+* ns-codes.txt 010717 format
+*******************************************************************
+*                                                                 *
+*         ns-codes.txt      IVS Network Station codes             *
+*                                                                 *
+*******************************************************************
+*
+* This file is ns-codes.txt in ftp://ivscc.gsfc.nasa.gov/pub/control.
+* Copies are in directory vlbi/ivscontrol on the IVS data centers. 
+*
+* Maintenance:
+* This file is maintained by the IVS Coordinating Center. Send
+* corrections and request additions to the lists from 
+* ivscc@ivscc.gsfc.nasa.gov. The Coordinating Center will
+* provide assistance by assigning codes and requesting CDP 
+* and DOMES numbers for new stations.
+*
+* Contents for each site:
+*   2-letter code 
+*   8-letter station name
+*   DOMES number
+*   CDP number
+*   Comments/descriptions
+* The names and codes are used in geodetic VLBI scheduling,
+* correlation processing, and analysis. 
+*
+* Non-IVS station information:
+* The file also contains codes and names for non-IVS stations that
+* are used in astronomical observing. Codes and names for historical
+* mobile antenna sites are included because these data are still
+* being analyzed.
+*
+* This file is alphabetically ordered by the 2-letter code.
+*
+* The fields in this file are not column sensitive. Fields are
+* delimited by blanks.
+*
+* Last updated:
+* 990512 nrv Initial version
+* 000920 nrv Add more domestic Japanese stations.
+* 001003 nrv Change name of Syowa antenna to SYOWA.
+* 001130 nrv Add TIGO at Concepcion as Tc TIGOCONC.
+* 001130 nrv Change Chichi code to Cc. Add GIFU3 as Gi.
+* 010322 nrv Add DSS13.
+* 010406 nrv Add CEDUNA and MOPRA.
+* 010418 nrv Add DOMES numbers as the third field.
+* 010620 nrv Add some mobile antenna sites and some astronomy sites.
+*            Data taken from GSFC version of antenna.dat file, and
+*            from sked's position.cat file..
+* 010625 nrv Complete the list from antenna.dat and position.cat.
+*            Added astronomy 2-letter codes.
+* 010628 nrv Corrected NRAO station names.
+* 010717 nrv Remove duplicate 8-letter code names for CAMBRIDG and
+*            EFLSBERG.
+* 010723 nrv Corrected EFLSBERG Domes, GRASSE info, MIYAZAKI name,
+*            METSHOVI code, added TSUKU3.
+* 010807 nrv Correct METSHOVI name spelling.
+* 010808 nrv Add code Va for "VLBA all 10 stations". This code is
+*            for use in the Master Files where it is lengthy to
+*            list all 10 station codes.
+* 010905 nrv Correct descriptions for DSS45 and DSS65.
+* 011002 nrv Add GBT_VLBA name for Gt.
+* 011031 nrv Add SVETLOE and ZELENCHK per info from Z. Malkin.
+* 011212 nrv Add CDP number for GBT_VLBA from C. Noll.
+* 020617 nrv Add DOMES number for TIGO.0617 nrv Add DOMES number for TIGO.
+* 020702 nrv Add K3/KOGANEI3 and KZ/KANOZAN for Japanese sites found in
+*            old databases.
+* 021023 nrv Add CDP numbers for K3 and Kz.
+* 021218 nrv Add CTVASBAY.
+* 030109 nrv Add GIFU11 for the 11-m at Gifu University.
+* 030110 nrv Add DOMES numbers for KANOZAN, KOGANEI3, GIFU11.
+* 030305 nrv Add DOMES number for CTVSTJ, CDP numbers for Sb and Ss.
+* 030317 nrv Change 8-letter name for Metsahovi astronomy antenna
+*            so it doesn't conflict with mobile occupation.
+* 030325 nrv Change GBT_VLBA to GBT-VLBA.
+* 030507 nrv Add DOMES number for GBT.
+* 030630 nrv Add four VERA stations.
+* 030814 nrv Add TOMAKO11.
+* 030826 nrv Add DOMES for Tomakomai
+* 031008 nrv Add DOMES for VERA stations
+* 031114 nrv Add KAINAN for GSI, 5-m mobile site.
+* 040309 nrv Fix mis-typed METSAHOV spelling (astronomy antenna).
+* 040310 nrv Add CDP number for METSAHOV.
+* 040323 nrv Add YAMAGUCH and VLA-N8. Add CDP numbers for these.
+* 040324 nrv Add DOMES numbver for VLA-N8.
+* 040325 nrv Add DOMES number for YAMAGUCH.
+* 040329 nrv Add DOMES number for METSAHOV.
+* 041208 dbb Add Badary.
+* 050115 dbb Add DOMES number for BADARY.
+* 050921 dbb Add DSS65A (DSS65 was moved by about 61 m from its
+*            original location. DSS65A is DSS65 at new location.)
+* 051007 dbb Add CDP number for DSS65A.
+* 051026 dbb Add DOMES number for DSS65A.
+* 060206 dbb Add DOMES number for CTVASBAY.
+* 070202 dbb Add CDP number for DSS13.
+* 070801 dbb Add DOMES number for DSS13.
+* 070816 dbb Add YEBES40M (40-m antenna at Yebes).
+* 070823 dbb Add DOMES number for YEBES40M.
+* 081014 dbb Add 2-letter code Ww for Warkworth in New Zealand.
+* 091020 dbb Add 2-letter and 8-letter codes for AuScope 12-m antennas
+*            at Katherine, Yarragadee, and Hobart.
+* 101101 dgg Add DOMES and CDP numbers for HOBART12.
+* 101115 dbb Add DOMES and CDP numbers for KATH12M.
+* 101115 dbb Add DOMES and CDP numbers for YARRA12M.
+* 110107 dbb Correct DOMES number for DSS13.
+* 110214 dbb Add UCHINOUR (34-m at Uchinoura Space Observatory, Japan).
+* 110216 dbb Add DOMES number for UCHINOUR.
+* 110617 dbb Add CDP number for WARK12M.
+* 110623 dbb Add DOMES number for WARK12M.
+* 110624 dbb Add GGAO12M (12-m GSFC Greenbelt, MD, USA).
+* 110630 dbb Add CDP number for GGAO12M.
+* 110711 dbb Retire 2-letter code 'Km' for 12-m antenna Kitt Peak, AZ, USA.
+* 110711 dbb Add 40-m antenna at Kunming, China as Km KUNMING.
+* 110722 dbb Correct DOMES numbers for HOBART12, KATH12M, and YARRA12M.
+* 110825 dbb Add CDP number for KUNMING.
+* 110829 dbb Add DOMES numbers for KUNMING and GGAO12M.
+* 120709 dbb Add Twin Telescope Wettzell (TTW), Germany as Wn WETTZ13N and Ws WETTZ13S.
+* 120709 dbb Add 15-m antenna at HartRAO, South Africa as Ht HART15M.
+* 121206 dbb Add DOMES and CDP numbers for HART15M.
+* 130618 dbb Corrected typo in OCOTILLO entry.
+* 130705 dbb Add SEJONG station in Korea.
+* 130716 dbb Add TIGO at La Plata, Argentina.
+* 130723 dbb Update KANOZAN entry.
+* 130726 dbb Correct entry for CARNUSTY.
+* 130726 dbb Separate Eb and Ef entries for EFLSBERG.
+* 130726 dbb Separate C4, Ca, and Cb entries for CAMBRIDG.
+* 130926 dbb Rename TIGO at La Plata to AGGO (Argentinean German Geodetic Observatory).
+* 140527 dbb Add TIANMA65 near Sheshan, Shanghai, China.
+* 140527 dbb Add ISHIOKA station in Japan.
+* 140527 dbb Add RAEGE antennas at Yebes (RAEGYEB) and Santa Maria (RAEGSMAR).
+* 140527 dbb Add RAEGE antennas on Flores (RAEGFLOR) and Tenerife (RAEGTNFE).
+*
+* Fields:
+* 1. IVS 2-letter code. Not case sensitive, although the initial 
+*    letter is usually capitalized for readability.
+* 2. IVS Station name, max 8 characters. Usually all caps. A field
+*    of -------- means this station has no name assigned; these are
+*    usually astronomy stations that have not been used for geodesy.
+* 3. DOMES number of the form [site #][type][local monument #]
+*    type S is an intersection of axes, type M is a ground marker.
+*    A field of -------- means no DOMES number has been assigned.
+* 4. CDP monument number, 4 digits. A field of ---- means 
+*    no CDP number has been assigned.
+* 5 and following. Brief description or location. 
+*
+*C- Name---- --DOMES-- CDP- Comments/description
+*cc nnnnnnnn ssssstmmm mmmm -----------------------------------
+ 13 DSS13    40405S039 1516 34-m at Goldstone, CA, USA
+ 14 GOLDMARS 40405S001 1514 70-m DSS14 at Goldstone, CA, USA
+ 15 DSS15    40405S019 1515 34-m HEF at Goldstone, CA, USA
+ 43 DSS43    --------- ---- 34-m Australia
+ 45 DSS45    50103S010 1545 34-m HEF at Tidbinbilla, Australia
+ 61 ROBLED32 13407S003 1561 DSS61 Robledo, Spain
+ 65 DSS65    13407S010 1565 34-m HEF at Madrid, Spain
+ 6a DSS65A   13407S014 1567 34-m HEF at Madrid, Spain (new location)
+ Ag AGGO     --------- ---- AGGO (formerly TIGO) at La Plata, Argentina
+ Ai AIRA     21742S002 7348 Aira, Kagoshima, Japan
+ Ap ALGOPARK 40104S001 7282 Algonquin Park, Canada
+ Ar ARECIBO  --------- ---- Arecibo, Puerto Rico, USA
+ As -------- --------- ---- Alice Springs, Australia
+ At ATCA     --------- ---- ATCA, Culgoora, Australia
+ Au AUSTINTX 40412M003 7271 mobile Austin, TX, USA
+ Az AZORES   31906M001 7609 mobile Azores islands
+ Ba -------- --------- ---- Bangalore, India
+ Bd BADARY   12338S003 7382 Badary, Russia
+ Bb BLKBUTTE 40430M001 7269 mobile Black Butte, CA, USA
+ Be BERMUDA  42501M002 7294 mobile Bermuda island
+ Bl -------- --------- ---- Bear Lakes, Russia
+ Bo BLOOMIND 40452M001 7291 mobile Bloomington, IN, USA
+ Br BR-VLBA  40473S001 7614 VLBA at Brewster, WA, USA
+ Bs BREST    10004M002 7604 mobile Brest, France
+ C4 CAMBRIDG --------- ---- Cambridge, UK (Mk4)
+ Ca CAMBRIDG --------- ---- Cambridge, UK (VLBA)
+ Cb CAMBRIDG --------- ---- Cambridge, UK (Ryle)
+ Cc CHICHI10 21732S004 7347 10-m at Chichijima, Ogasawara, Japan
+ Cd CEDUNA   --------- ---- ATNF, Ceduna, Australia
+ Ce CEBRER26 --------- ---- DSS62 Robledo, Spain
+ Cg CARROLGA 40453M001 7228 mobile Carrollton, GA, USA
+ Ch CHLBOLTN 13201S002 7215 Chilbolton, England
+ Cn CARNUSTY 13296M002 7603 mobile Carnoustie, Scotland
+ Da DAITO    21738S001 7326 Daito Islands, Japan
+ Dm DEADMANL 40431M001 7267 mobile Deadman Lake, CA, USA
+ Dw WESTBRK0 --------- ---- Dwingeloo, Netherlands 
+ Eb EFLSBERG 14209S001 7203 Effelsberg, Germany (originally VLBA, now common IVS usage)
+ Ef EFLSBERG 14209S001 7203 Effelsberg, Germany (originally Mk4, now common EVN usage)
+ El ELY      40432M001 7286 mobile Ely, NV, USA
+ Ev -------- --------- ---- Evpatoria, Ukraine
+ Fd FD-VLBA  40442S017 7613 VLBA at Ft. Davis, TX, USA
+ Fl FLAGSTAF 40491M003 7261 mobile Flagstaff, AZ, USA
+ Fo FORT_ORD 40427M001 7266 mobile Sand City, CA, USA
+ Fr RAEGFLOR --------- ---- 13-m on Flores, Azores, Portugal
+ Fs FORTORDS 40427M002 7241 mobile south Sand City, CA, USA
+ Ft FORTLEZA 41602S001 7297 Fortaleza, Brazil
+ G1 NRAO85_1 40441S005 7248 85-1 NRAO Green Bank, WV, USA
+ G3 NRAO85_3 40441S004 7214 85-3 NRAO Green Bank, WV, USA
+ Ga VLBA85_3 40441S004 7214 85-3 antenna (different equipment)
+ Gb NRAO_140 40441S001 7204 140-ft NRAO Green Bank, WV, USA | RadioAstron TS
+ Gc GILCREEK 40408S002 7225 Gilmore Creek, Fairbanks, AK, USA
+ Gd WIDE85_3 40441S004 7214 85-3 antenna (different equipment)
+ Gf GORF7102 40451M102 7102 ORION MV3 at Greenbelt, MD, USA
+ Gg GGAO7108 40451M125 7108 ORION MV3 at Greenbelt, MD, USA
+ Gi GIFU3    21747S001 7354 3-m at Gifu Univ., Japan
+ Gu GIFU11   21747S002 7361 11-m at Gifu Univ., Japan (formerly at Tateyama)
+ Gm -------- --------- ---- GMRT phased, Narayan Gaon, India
+ Gn NRAO20   40441S007 7208 20-m at NRAO Green Bank, WV, USA 
+ Go -------- --------- ---- Goldstone, CA, USA
+ Gr GRASSE   10002M003 7605 mobile Grasse, France
+ Gs GGAO12M  40451S177 7622 12-m GSFC Greenbelt, MD, USA
+ Gt GBT-VLBA 40441S008 7200 100-m at NRAO Green Bank, WV, USA
+ Gv GOLDVENU 40405S014 1513 This antenna was replaced by DSS13.
+ Gz -------- --------- ---- Tracking antenna, Goldstone, CA, USA
+ H7 FTD_7900 40442M009 7900 Fort Davis, TX, USA
+ Hb HOBART12 50116S007 7374 12-m at Hobart, Tasmania, Australia 
+ Hc HATCREEK 40489S001 7218 Hat Creek, CA, USA 
+ Hf HOFN     10204M001 7635 mobile Hofn, Iceland
+ Hg HOHENFRG 14202M002 7600 Hohenbuenstorf, Germany
+ Hh HARTRAO  30302S001 7232 Hartebeesthoek, South Africa 
+ Hk HALEAKAL 40445M002 7120 mobile Haleakala, HI, USA
+ Hn HN-VLBA  40471S001 7618 VLBA at Hancock, NH, USA 
+ Ho HOBART26 50116S002 7242 Hobart, Tasmania, Australia 
+ Hp HOHNBERG 14213M002 7630 Hohenpeissenberg, Germany
+ Hr HRAS_085 40442S003 7216 HRAS at Fort Davis, TX, USA
+ Hs HAYSTACK 40440S002 7205 Haystack, Westford, MA, USA 
+ Ht HART15M  30302S009 7378 15-m antenna at HartRAO, South Africa
+ Is ISHIOKA  21791S001 7369 13-m antenna at Ishioka, Japan
+ It ITAPETGA --------- ---- Itapetinga, Brazil
+ J1 JPL_MV1  40400M003 7263 MV1 at JPL, Pasadena, CA, USA 
+ Jb JODRELL2 --------- ---- Mk4, Jodrell Bank, UK
+ Jv JODRELL2 --------- ---- VLBA, Jodrell Bank, UK
+ K1 KASHIM11 21701S006 7334 11-m Keystone at Kashima, Japan 
+ K3 KOGANEI3 21704S007 7344 3-m at Koganei, Japan 
+ Ka KASHIMA  21701S001 1856 26-m at Kashima, Japan 
+ Kb KASHIM34 21701S004 1857 34-m at Kashima, Japan 
+ Ke KATH12M  59968S001 7375 12-m at Katherine, Northern Territory, Australia 
+ Kg KOGANEI  21704S004 7327 11-m Keystone at Koganei, Japan 
+ Ki KIRSBERG 14261M001 7631 mobile Kirschberg, Germany
+ Kk KOKEE    40424S007 7298 Kokee Park, Kauai, HI, USA 
+ Kl -------- --------- ---- Kalyazin, Russia
+* Km -------- --------- ---- 12-m antenna Kitt Peak, AZ, USA  (code retired for Kitt Peak)
+ Km KUNMING  21609S003 7367 40-m antenna at Kunming, Yunnan, China
+ Kn -------- --------- ---- MERLIN antenna, Knockin, UK
+ Ko KODIAK   40419M001 7278 mobile Kodiak, AK, USA
+ Kp KP-VLBA  40466S001 7610 VLBA at Kitt Peak, AZ, USA 
+ Kr KARLBURG 14260M001 7632 mobile Karlsburg, Germany
+ Ks -------- --------- ---- Kiruna, Sweden
+ Kt KITTPEAK --------- ---- NRAO Kitt Peak, AZ, USA 
+ Ku KAUAI    40424S001 1311 9-m at Kokee Park, Kauai, HI, USA 
+ Kv SEJONG   23907S001 7368 Sejong (Korea VLBI for Geodesy, KVG), South Korea
+ Kw KWAJAL26 50505S003 4968 Roi-Namur, Marshall Islands 
+ Ky KAINAN   21715M001 7350 5-m mobile at Kainan, Wakayama, Japan
+ Kz KANOZAN  21746S001 7352 2.4-m mobile at Kanozan, Japan
+ La LA-VLBA  40463S001 7611 VLBA at Los Alamos, NM, USA 
+ Le LEONRDOK 40454M001 7292 mobile Leonard, OK, USA
+ M2 MV2ONSLA 10402M006 7211 mobile at Onsala, Sweden
+ Ma MATERA   12734S005 7243 Matera, Italy 
+ Mc MEDICINA 12711S001 7230 Medicina, Italy 
+ Md MARPOINT 40490S001 7217 Maryland Point, MD, USA
+ Me MON_PEAK 40497M003 7274 mobile Monument Peak, CA, USA
+ Mg -------- --------- ---- Mt. Graham, AZ, USA
+ Mh METSAHOV 10503S002 7385 Metsahovi, Finland (13.7 m astronomy antenna)
+ Mi MIAMI20  40499S019 7201 Miami, FL, USA 
+ Mk MK-VLBA  40477S001 7617 VLBA at Mauna Kea, HI, USA 
+ Ml MAMMOTHL 40437M001 7259 mobile Mammoth Lakes, CA, USA
+ Mm -------- --------- ---- JCMT, Mauna Kea, HI, USA
+ Mn MIZNAO10 21702S010 7324 NAO 10-m antenna at Mizusawa, Japan 
+ Mo MOJAVE12 40405S009 7222 12-m at Goldstone, CA, USA
+ Mp MOPRA    --------- ---- ATNF, Siding Sprint, Australia
+ Mq MOJ_7288 40405M013 7288 mobile Mojave, CA, USA
+ Mr MARCUS   21733S002 7310 Minami-tori Shima, Japan 
+ Ms MILESMON 40455M001 7038 mobile Miles City, MT, USA
+ Mt MCD_7850 40442M008 7850 McDonald Obs., Ft. Davis, TX, USA
+ Mu MIURA    21739S001 7336 11-m Keystone at Miura, Japan
+ Mv METSHOVI 10503M002 7601 mobile Metsahovi, Finland 
+ My MIYAZAKI 21718S001 7312 Miyazaki, Japan
+ Mz MIZUSGSI 21702S009 7314 GSI 5-m antenna at Mizusawa, Japan 
+ N6 NOBEY_6M 21725S001 7244 6-m at Nobeyama, Japan 
+ Nb -------- --------- ---- mm array, Nobeyama, Japan
+ Nl NL-VLBA  40465S001 7612 VLBA at North Liberty, IA, USA
+ Nm NOME     40421M001 7279 mobile Nome, AK, USA
+ No NOBEYA45 --------- ---- 45-m at Nobeyama, Japan 
+ Nt NOTO     12717S001 7547 Noto, Italy 
+ Nx NOTOX    12717S001 7547 Noto, Italy (different equipment)
+ Ny NYALES20 10317S003 7331 Ny Alesund, Svalbard, Norway
+ O8 ONSALA85 10402S001 7212 85-ft Onsala, Sweden
+ Oc OCOTILLO 40449M001 7270 mobile Ocotillo, CA, USA
+ Oh OHIGGINS 66008S001 7245 O'Higgins, Antarctica
+ Om -------- --------- ---- 10-m antenna, Owens Valley, CA, USA
+ On ONSALA60 10402S002 7213 60-ft Onsala, Sweden
+ Oo OVRO_130 40439S002 7207 130-ft at Owens Valley, CA, USA 
+ Or OVR_7853 40439M004 7853 mobile Owens Valley, CA, USA
+ Ov OV-VLBA  40439S006 7616 VLBA at Owens Valley, CA, USA 
+ Pa PARKES   50108S001 7202 Parkes, Australia 
+ Pb PBLOSSOM 40404M001 7254 mobile Pearblossom, CA, USA
+ Pe PENTICTN 40105M001 7283 Penticton, British Columbia, Canada 
+ Pf PRESIDIO 40406M001 7252 mobile San Francisco, CA, USA
+ Pl PLATTVIL 40496M002 7258 mobile Platteville, CO, USA
+ Pn PINFLATS 40407M001 7256 mobile Pinyon Flats, CA, USA
+ Pr PT_REYES 40410M001 7251 mobile Point Reyes, CA, USA
+ Pt PIETOWN  40456S001 7234 VLBA at Pie Town, NM, USA 
+ Pv PVERDES  40403M001 7268 mobile Palos Verdes, CA, USA
+ Qb QUABBIN  --------- ---- Quabbin, MA, USA 
+ Qu QUINCY   40433M004 7221 mobile Quincy, CA, USA
+ Ri RICHMOND 40499S001 7219 Richmond, FL, USA 
+ Ro MADRID64 13407S001 1563 70-m DSS64 at Madrid, Spain
+ Rz -------- --------- ---- Tracking antenna, Robledo, Spain
+ S1 SEATTLE1 40457M001 7229 mobile Seattle, WA, USA
+ S3 SINTOTU3 21731S003 7346 3-m at Kabato, Hokkaido, Japan 
+ Sa RAEGSMAR 31912S001 7390 13-m on Santa Maria, Azores, Portugal
+ Sb CTVASBAY 40171S001 7626 CTVA 3.6-m at Shirley's Bay, Ontario, Canada
+ Sc SC-VLBA  43201S001 7615 VLBA at St. Croix, VI, USA 
+ Se SEST     41709S001 7239 Cerro Tolollo, Chile
+ Sg SHANGHAI 21605S008 7226 5-m at Shanghai, China
+ Sh SESHAN25 21605S009 7227 Shanghai, China 
+ Si SINTOTU  21731S001 7315 5-m mobile at Kabato, Hokkaido, Japan 
+ Sj SAGARA   21737S001 7325 5-m mobile at Sagara, Japan
+ Sm CRIMEA   12337S008 7332 Simeiz, Ukraine
+ Sn SNDPOINT 40423M001 7280 mobile Sand Point, AK, USA
+ So SOURDOGH 40425M001 7281 mobile Sourdough, AK, USA
+ Sp SANPAULA 40428M001 7255 mobile Santa Paula, CA, USA
+ Ss CTVASTJ  40101M003 7625 CTVA 3.6-m at St. Johns, Newfoundland, Canada
+ St SANTIA12 41705S006 1404 12-m at Santiago, Chile 
+ Su SUWON    23903S001 7353 3.8m antenna at Suwon, Korea 
+ Sv SVETLOE  12350S001 7380 Svetloe, Russia
+ Sy SYOWA    66006S004 7342 Syowa, Antarctica 
+ T3 TSUKU3   21730S008 7360 3.8-m, Tsukuba, Japan
+ T6 TIANMA65 21618S001 7379 Tianma 65-m antenna in the Sheshan Songjiang district of Shanghai, China
+ Ta TATEYAMA 21740S001 7338 11-m Keystone at Tateyama, Japan
+ Tc TIGOCONC 41719S001 7640 TIGO at Concepcion, Chile
+ Te RAEGTNFE --------- ---- 13-m on Tenerife, Canary Islands, Spain
+ Tg TIGOWTZL 14201S100 7593 TIGO at Wettzell, Germany
+ Ti TIDBIN64 50103S001 1543 70-m DSS43 at Tidbinbilla, Australia
+ Tj TITIJIMA 21732S001 7316 5-m mobile site at Titijima Island, Japan
+ Tk TSUKUBA  21730S001 7311 mobile at Tsukuba, Japan
+ Tl TRYSILNO 10329M001 7607 mobile Trysil, Norway
+ Tn TROMSONO 10302M002 7602 mobile Tromso, Norway
+ Tm TOMAKO11 21750S001 ---- 11-m at Hokkaido Uiv., Japan (formerly at Miura)
+ To TOULOUSE 10003M003 7608 mobile Toulouse, France
+ Tr TORUN    --------- ---- Torun, Poland
+ Ts TSUKUB32 21730S007 7345 32-m at Tsukuba, Japan
+ Uc UCHINOUR 21710S001 7349 34-m at Uchinoura Space Observatory, Japan
+ Ud USUDA64  21729S001 7246 64-m at Usuda, Japan
+ Ur URUMQI   21612S001 7330 Urumqi, China
+ Us USSURISK 12342S001 7247 Ussurijsk, Russia
+ Uu -------- --------- ---- Ulan-Ude, Russia
+ Uz -------- --------- ---- Tracking antenna, Usuda, Japan
+ Va VLBA     --------- ---- VLBA, all 10 stations: BrFdHnKpLaMkNlPtOvSc
+ Vb VNDNBERG 40420M002 7223 MV1 at Vandenberg AFB, CA, USA
+ Ve VERNAL   40492M002 7290 mobile, Vernal, UT, USA
+ Vi VICTORIA 40129M001 7289 mobile, Victoria, Vancouver, Canada
+ Vm VERAMZSW 21702S012 7362 20-m NAOJ VERA, Mizusawa, Iwate, Japan
+ Vo VERAOGSW 21732S005 7363 20-m NAOJ VERA, Ogasawara, Tokyo, Japan
+ Vr VERAIRIK 21748S001 7364 20-m NAOJ VERA, Iriki, Kagoshima, Japan
+ Vs VERAISGK 21736S002 7365 20-m NAOJ VERA, Ishigakijima, Okinawa, Japan
+ Wb WSTRBORK --------- ---- Westerbork, Dwingeloo, Netherlands
+ Wf WESTFORD 40440S003 7209 Westford, MA, USA
+ Wh -------- --------- ---- Weilheim, Germany
+ Wn WETTZ13N 14201S043 7387 Wettzell 13-m antenna north (north tower of TTW), Germany
+ Ws WETTZ13S 14201S044 7388 Wettzell 13-m antenna south (south tower of TTW), Germany
+ Wt WHTHORSE 40118M001 7284 mobile Whitehorse, Yukon Ter., Canada
+ Ww WARK12M  50243S001 7377 12-m antenna at Warkworth, New Zealand
+ Wz WETTZELL 14201S004 7224 Wettzell, Germany
+ Y1 VLA      40498S001 7619 VLA, Socorro, NM, USA, array center
+ Y2 VLA-N8   40498S002 7621 VLA, Socorro, NM, USA, pad N8
+ Ya YAKATAGA 40416M001 7277 mobile Yakataga, AK, USA
+ Yb YEBES    13420S001 7333 14-m antenna at Yebes, Spain
+ Ye YELLOWKN 40127M001 7285 Yellowknife, NW Terr., Canada
+ Yg YARRA12M 50107S012 7376 12-m at Yarragadee, Western Australia, Australia 
+ Yj RAEGYEB  13420S003 7389 13-m at Yebes, Spain
+ Yk YLOW7296 40127M004 7296 Yellowknife, NW Terr., Canada
+ Ym YAMAGUCH 21751S001 7366 32-m antenna at Yamaguchi, Japan
+ Ys YEBES40M 13420S002 7386 40-m antenna at Yebes, Spain
+ Yu YUMA     40493M001 7894 mobile Yuma, CA, USA
+ Zc ZELENCHK 12351S001 7381 Zelenchukskaya, Russia

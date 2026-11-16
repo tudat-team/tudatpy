@@ -9,7 +9,6 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -17,7 +16,7 @@
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -260,8 +259,28 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
     std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< ObservationScalarType, TimeType > >( observationsAndTimes );
 
+    // Retain the propagation results of each iteration, without the variational results.
+    estimationInput->defineEstimationSettings( true, true, true, true, true, true, 1.0E8, true, false );
+
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
+
+    // Check that each retained iteration holds the multi-arc dynamics only: the state history of every arc is
+    // available, while the state transition and sensitivity matrices have been discarded.
+    BOOST_CHECK( estimationOutput->getSimulationResults( ).size( ) > 0 );
+    for( unsigned int i = 0; i < estimationOutput->getSimulationResults( ).size( ); i++ )
+    {
+        auto iterationResults =
+                std::dynamic_pointer_cast< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                        estimationOutput->getSimulationResults( ).at( i ) );
+        BOOST_REQUIRE( iterationResults != nullptr );
+        BOOST_CHECK_EQUAL( iterationResults->getSingleArcResults( ).size( ), integrationArcStartTimes.size( ) );
+        BOOST_CHECK_EQUAL( iterationResults->getArcStartTimes( ).size( ), integrationArcStartTimes.size( ) );
+        for( unsigned int j = 0; j < iterationResults->getSingleArcResults( ).size( ); j++ )
+        {
+            BOOST_CHECK( iterationResults->getSingleArcResults( ).at( j )->getEquationsOfMotionNumericalSolution( ).size( ) > 0 );
+        }
+    }
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > finalParameters =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 
@@ -437,7 +456,7 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, TimeType( initialEphemerisTime ), 30.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 30.0 );
 
     // Define propagator settings.
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
@@ -448,10 +467,10 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
                 accelerationModelMap,
                 bodiesToIntegrate,
                 allBodiesPerArcInitialStates.at( i ),
-                integrationArcEndTimes.at( i ),
-                cowell,
-                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                60.0 ) );
+                integrationArcStartTimes.at( i ),
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( integrationArcEndTimes.at( i ) ),
+                cowell ) );
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList );
@@ -477,7 +496,7 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

@@ -17,7 +17,6 @@
 
 #include "tudat/basics/utilities.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
-#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/math/interpolators/piecewiseConstantInterpolator.h"
@@ -303,6 +302,12 @@ public:
     std::shared_ptr< interpolators::LookUpScheme< double > > getArcTimeLookupScheme( )
     {
         return coefficientInterpolator_->getLookUpScheme( );
+    }
+
+    //! Function to retrieve the time intervals in which each parameter entry can influence the dynamics
+    std::vector< std::pair< double, double > > getTimeIntervalsOfInfluencePerEntry( ) override
+    {
+        return getArcWiseParameterTimeIntervalsOfInfluence( timeLimits_, getParameterSize( ) );
     }
 
 protected:

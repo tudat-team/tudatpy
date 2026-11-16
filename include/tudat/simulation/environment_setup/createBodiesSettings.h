@@ -24,11 +24,11 @@
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createClimateModel.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
-#include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
@@ -67,10 +67,6 @@ struct BodySettings {
     //! Settings for the shape model that the body is to contain.
     std::shared_ptr< BodyShapeSettings > shapeModelSettings;
 
-    //! Settings for the radiations pressure interfaces that the body is to contain (source body as key).
-    // RP-OLD
-    std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
-
     //! Settings for the radiation source model that the body is to contain.
     std::shared_ptr< RadiationSourceModelSettings > radiationSourceModelSettings;
 
@@ -90,6 +86,8 @@ struct BodySettings {
     std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
 
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
+
+    std::shared_ptr< ClimateModelSettings > climateModelSettings;
 
     std::vector< std::shared_ptr< CameraSettings > > cameraSettings;
 };

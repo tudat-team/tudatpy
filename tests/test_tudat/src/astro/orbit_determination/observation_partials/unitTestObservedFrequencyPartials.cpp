@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -16,7 +15,7 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
@@ -32,8 +31,6 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
-
-#include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/support/observationPartialTestFunctions.h"
@@ -210,8 +207,8 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartialsDirect )
 
     // Set turnaround ratios in spacecraft (ground station)
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-    vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
-    double xBandRatio = getDsnDefaultTurnaroundRatios( x_band, x_band );
+    vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
+    double xBandRatio = system_models::getDsnDefaultTurnaroundRatios( FrequencyBands::x_band, FrequencyBands::x_band );
     bodies.at( spacecraftName )->setVehicleSystems( vehicleSystems );
     bodies.processBodyFrameDefinitions( );
 
@@ -242,7 +239,8 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartialsDirect )
     // Create ancillary settings
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
-    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+    ancillarySettings->setAncillaryDoubleVectorData(
+            frequency_bands, convertFrequencyBandsToDoubleVector( { FrequencyBands::x_band, FrequencyBands::x_band } ) );
 
     // Create Doppler model (frequency)
     std::shared_ptr< TwoWayDopplerObservationModel< double, double > > twoWayDopplerObservationModel =
@@ -389,7 +387,8 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
                                       true,
                                       10.0,
                                       parameterPerturbationMultipliers,
-                                      getDopplerMeasuredFrequencyAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band } ),
+                                      getDopplerMeasuredFrequencyAncillarySettings(
+                                              std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band } ),
                                       1.1E7,
                                       100.0 );
     }
@@ -455,7 +454,8 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
                                       true,
                                       1.0,
                                       parameterPerturbationMultipliers,
-                                      getDopplerMeasuredFrequencyAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band } ),
+                                      getDopplerMeasuredFrequencyAncillarySettings(
+                                              std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band } ),
                                       1.1E7,
                                       100.0 );
     }

@@ -19,6 +19,7 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/gravitation/gravitationalParameterRateAcceleration.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 
 namespace tudat
@@ -38,6 +39,7 @@ class AerodynamicAcceleration;
 namespace electromagnetism
 {
 class RadiationPressureAcceleration;
+class ThreeCoefficientRadiationPressureAcceleration;
 class YarkovskyAcceleration;
 }  // namespace electromagnetism
 
@@ -480,6 +482,17 @@ std::shared_ptr< electromagnetism::RadiationPressureAcceleration > createRadiati
         const SystemOfBodies& bodies,
         const std::shared_ptr< AccelerationSettings > accelerationSetting = nullptr );
 
+//! Create a three-coefficient radiation-pressure acceleration model.
+std::shared_ptr< electromagnetism::ThreeCoefficientRadiationPressureAcceleration > createThreeCoefficientRadiationPressureAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< Body > referenceBody,
+        const std::string& referenceBodyName,
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
+
 //! Function to create a thrust acceleration model.
 /*!
  *  Function to create a thrust acceleration model. Creates all required
@@ -589,6 +602,15 @@ std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAccele
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
+
+//! Function to create the point-mass acceleration due to a linear variation of the gravitational parameter of the exerting body
+std::shared_ptr< gravitation::GravitationalParameterRateAcceleration > createGravitationalParameterRateAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
         const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create acceleration model object.

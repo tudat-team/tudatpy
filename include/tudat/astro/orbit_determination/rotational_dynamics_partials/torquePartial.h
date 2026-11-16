@@ -15,8 +15,6 @@
 #include <map>
 #include <Eigen/Core>
 
-#include <boost/assign/list_of.hpp>
-
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
@@ -133,6 +131,7 @@ public:
                                                                  integratedStateType ),
                                                       1 );
                 }
+                break;
             }
             case propagators::custom_state: {
                 break;

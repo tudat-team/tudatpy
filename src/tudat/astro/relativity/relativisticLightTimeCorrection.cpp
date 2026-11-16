@@ -67,7 +67,7 @@ Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionG
         Eigen::Vector3d receiverBodyUnitVector = ( receiverPosition - centralBodyPosition ).normalized( );
         Eigen::Vector3d transmitterBodyUnitVector = ( transmitterPosition - centralBodyPosition ).normalized( );
 
-        // “Bending” offset inside the log
+        // "Bending" offset inside the log
         double bendingOffset = ( 1.0 + ppnParameterGamma ) * bodyGravitationalParameter * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
 
         // Logarithm arguments

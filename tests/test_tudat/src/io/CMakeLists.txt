@@ -119,6 +119,14 @@ TUDAT_ADD_TEST_CASE(OdfFileReader
 TUDAT_ADD_TEST_CASE(PsfFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
+TUDAT_ADD_TEST_CASE(SumLmkFileReader
+        PRIVATE_LINKS
+        tudat_input_output
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
+        tudat_basics
+        )
+
 TUDAT_ADD_TEST_CASE(ReadTabulatedMediaCorrections
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
@@ -128,8 +136,34 @@ TUDAT_ADD_TEST_CASE(ReadTabulatedWeatherData
 TUDAT_ADD_TEST_CASE(TrackingTxtFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
+TUDAT_ADD_TEST_CASE(TrackingData
+        PRIVATE_LINKS
+        tudat_input_output
+        tudat_basic_astrodynamics
+        )
+
 TUDAT_ADD_TEST_CASE(IfmsFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    TUDAT_ADD_TEST_CASE(ObservationCollectionSerialization
+            PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+    TUDAT_ADD_TEST_CASE(PropagationResultsSerialization
+        PRIVATE_LINKS
+            ${Tudat_PROPAGATION_LIBRARIES}
+            ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+    TUDAT_ADD_TEST_CASE(PodInputOutputTypesSerialization
+        PRIVATE_LINKS
+            ${Tudat_PROPAGATION_LIBRARIES}
+            ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
+    TUDAT_ADD_TEST_CASE(SettingsSerialization
+            PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+endif ()
 
 TUDAT_ADD_TEST_CASE(InpopFileReading
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
@@ -141,4 +175,9 @@ TUDAT_ADD_TEST_CASE(IonexReader
         PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
+        )
+
+TUDAT_ADD_TEST_CASE(Sp3FileReader
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
         )

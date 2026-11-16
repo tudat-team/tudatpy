@@ -17,7 +17,6 @@
 #include <functional>
 #include <memory>
 
-#include <boost/pointer_cast.hpp>
 #include <Eigen/Geometry>
 
 #include "tudat/math/basic/mathematicalConstants.h"
@@ -118,7 +117,7 @@ void saveVehicleMeshToFile( const std::shared_ptr< HypersonicLocalInclinationAna
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPoints = localInclinationAnalysis->getMeshPoints( );
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshSurfaceNormals = localInclinationAnalysis->getPanelSurfaceNormals( );
 
-    //    boost::array< int, 3 > independentVariables;
+    //    std::array< int, 3 > independentVariables;
     //    independentVariables[ 0 ] = 0;
     //    independentVariables[ 1 ] = 6;
     //    independentVariables[ 2 ] = 0;
@@ -249,7 +248,7 @@ HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
         }
     }
 
-    boost::array< int, 3 > numberOfPointsPerIndependentVariables;
+    std::array< int, 3 > numberOfPointsPerIndependentVariables;
     for( int i = 0; i < 3; i++ )
     {
         numberOfPointsPerIndependentVariables[ i ] = dataPointsOfIndependentVariables_[ i ].size( );
@@ -264,7 +263,7 @@ HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
 }
 
 //! Get aerodynamic coefficients.
-Vector6d HypersonicLocalInclinationAnalysis::getAerodynamicCoefficientsDataPoint( const boost::array< int, 3 > independentVariables )
+Vector6d HypersonicLocalInclinationAnalysis::getAerodynamicCoefficientsDataPoint( const std::array< int, 3 > independentVariables )
 {
     if( isCoefficientGenerated_( independentVariables ) == 0 )
     {
@@ -280,7 +279,7 @@ void HypersonicLocalInclinationAnalysis::generateCoefficients( )
 {
     // Allocate variable to pass to coefficient determination for independent
     // variable indices.
-    boost::array< int, 3 > independentVariableIndices;
+    std::array< int, 3 > independentVariableIndices;
 
     // Iterate over all combinations of independent variables.
     for( unsigned int i = 0; i < dataPointsOfIndependentVariables_[ 0 ].size( ); i++ )
@@ -300,7 +299,7 @@ void HypersonicLocalInclinationAnalysis::generateCoefficients( )
 }
 
 //! Generate aerodynamic coefficients at a single set of independent variables.
-void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients( const boost::array< int, 3 > independentVariableIndices )
+void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients( const std::array< int, 3 > independentVariableIndices )
 {
     // Declare coefficients vector and initialize to zeros.
     Vector6d coefficients = Vector6d::Zero( );
@@ -323,7 +322,7 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients( const boo
 
 //! Determine aerodynamic coefficients of a single vehicle part.
 Vector6d HypersonicLocalInclinationAnalysis::determinePartCoefficients( const int partNumber,
-                                                                        const boost::array< int, 3 > independentVariableIndices )
+                                                                        const std::array< int, 3 > independentVariableIndices )
 {
     // Declare and determine angles of attack and sideslip for analysis.
     double angleOfAttack = dataPointsOfIndependentVariables_[ 1 ][ independentVariableIndices[ 1 ] ];
@@ -363,7 +362,7 @@ Vector6d HypersonicLocalInclinationAnalysis::determinePartCoefficients( const in
 
 //! Determine the pressure coefficients on a single vehicle part.
 void HypersonicLocalInclinationAnalysis::determinePressureCoefficients( const int partNumber,
-                                                                        const boost::array< int, 3 > independentVariableIndices )
+                                                                        const std::array< int, 3 > independentVariableIndices )
 {
     // Retrieve Mach number.
     double machNumber = dataPointsOfIndependentVariables_[ 0 ][ independentVariableIndices[ 0 ] ];

@@ -21,6 +21,9 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
+#include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
@@ -31,6 +34,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/threeCoefficientRadiationPressureCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h"
@@ -47,7 +51,9 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/polynomialClockCorrections.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/relativeGravitationalParameterRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/cameraPointingCorrection.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/rtgForceVector.h"
@@ -56,6 +62,7 @@
 #include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/specularDiffuseReflectivity.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/panelMaterialProperty.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
 
 #include <tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameter.h>
@@ -245,6 +252,24 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
             break;
         }
+        // All gravitational parameter rate accelerations exerted by the body
+        case relative_gravitational_parameter_rate: {
+            for( const auto& accelerationsOnBody : accelerationModelMap )
+            {
+                if( accelerationsOnBody.second.count( parameterSettings->parameterType_.second.first ) != 0 )
+                {
+                    for( const auto& accelerationModel : accelerationsOnBody.second.at( parameterSettings->parameterType_.second.first ) )
+                    {
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) ==
+                            basic_astrodynamics::gravitational_parameter_rate_acceleration )
+                        {
+                            accelerationModelList.push_back( accelerationModel );
+                        }
+                    }
+                }
+            }
+            break;
+        }
         case yarkovsky_parameter: {
             if( parameterSettings == nullptr )
             {
@@ -282,8 +307,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
             else
             {
-                if( accelerationModelMap.at( parameterSettings->parameterType_.second.first )
-                            .count( parameterSettings->parameterType_.second.second ) != 0 )
+                // The body need not be propagated in this (e.g. single-arc part of a hybrid-arc) propagation
+                if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 &&
+                    accelerationModelMap.at( parameterSettings->parameterType_.second.first )
+                                    .count( parameterSettings->parameterType_.second.second ) != 0 )
 
                 {
                     // Retrieve acceleration model.
@@ -297,6 +324,22 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                         {
                             accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
                         }
+                    }
+                }
+            }
+            break;
+        }
+        case three_coefficient_radiation_pressure_coefficients: {
+            const std::string& acceleratedBody = parameterSettings->parameterType_.second.first;
+            const std::string& sourceBody = parameterSettings->parameterType_.second.second;
+            if( accelerationModelMap.count( acceleratedBody ) > 0 && accelerationModelMap.at( acceleratedBody ).count( sourceBody ) > 0 )
+            {
+                for( const auto& accelerationModel : accelerationModelMap.at( acceleratedBody ).at( sourceBody ) )
+                {
+                    if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) ==
+                        basic_astrodynamics::three_coefficient_radiation_pressure )
+                    {
+                        accelerationModelList.push_back( accelerationModel );
                     }
                 }
             }
@@ -1779,6 +1822,22 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                         associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
                 break;
             }
+            case relative_gravitational_parameter_rate: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating relative_gravitational_parameter_rate parameter, no propagatorSettings provided." );
+                }
+                std::vector< std::shared_ptr< gravitation::GravitationalParameterRateAcceleration > > rateAccelerations;
+                for( const auto& accelerationModel : getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >(
+                             propagatorSettings, doubleParameterName ) )
+                {
+                    rateAccelerations.push_back(
+                            std::dynamic_pointer_cast< gravitation::GravitationalParameterRateAcceleration >( accelerationModel ) );
+                }
+                doubleParameterToEstimate = std::make_shared< RelativeGravitationalParameterRate >( rateAccelerations, currentBodyName );
+                break;
+            }
             case source_direction_radiation_pressure_scaling_factor:
             case source_perpendicular_direction_radiation_pressure_scaling_factor: {
                 if( propagatorSettings == nullptr )
@@ -1828,7 +1887,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             case diffuse_reflectivity: {
                 if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
                 {
-                    std::string errorMessage = "Error, no vehicle panelsl found in body " + currentBodyName +
+                    std::string errorMessage = "Error, no vehicle panels found in body " + currentBodyName +
                             " when making specular/diffuse reflectivity parameter.";
                     throw std::runtime_error( errorMessage );
                 }
@@ -1853,6 +1912,41 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                                                                       currentBodyName,
                                                                                       doubleParameterName->parameterType_.second.second,
                                                                                       doubleParameterName->parameterType_.first );
+                }
+                break;
+            }
+            case energy_accommodation_coefficient:
+            case normal_accommodation_coefficient:
+            case tangential_accommodation_coefficient:
+            case normal_velocity_at_wall_ratio: {
+                if( currentBody->getVehicleSystems( ) == nullptr ||
+                    currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, no vehicle panels found in body " + currentBodyName + " when making panel material property parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+                    std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > fullPanels =
+                            currentBody->getVehicleSystems( )->getVehicleExteriorPanels( );
+                    for( auto it : fullPanels )
+                    {
+                        for( unsigned int i = 0; i < it.second.size( ); i++ )
+                        {
+                            if( it.second.at( i )->getPanelTypeId( ) == doubleParameterName->parameterType_.second.second )
+                            {
+                                panelsFromId.push_back( it.second.at( i ) );
+                            }
+                        }
+                    }
+
+                    doubleParameterToEstimate =
+                            std::make_shared< PanelMaterialPropertyParameter >( panelsFromId,
+                                                                                currentBodyName,
+                                                                                doubleParameterName->parameterType_.second.second,
+                                                                                doubleParameterName->parameterType_.first );
                 }
                 break;
             }
@@ -1920,6 +2014,21 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         // Identify parameter type.
         switch( vectorParameterName->parameterType_.first )
         {
+            case shared_observation_bias: {
+                const auto settings = std::dynamic_pointer_cast< SharedObservationBiasEstimatableParameterSettings >( vectorParameterName );
+                if( settings == nullptr )
+                {
+                    throw std::runtime_error( "Inconsistent shared observation bias settings." );
+                }
+                // Fix the common vector size now; observation-manager creation will bind the matching models.
+                vectorParameterToEstimate = std::make_shared< SharedObservationBiasParameter >( settings->biasType_,
+                                                                                                settings->observableType_,
+                                                                                                settings->linkEndType_,
+                                                                                                settings->linkEndId_,
+                                                                                                settings->arcStartTimes_,
+                                                                                                settings->timeLinkEnd_ );
+                break;
+            }
             case constant_additive_observation_bias: {
                 std::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
                         std::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
@@ -2239,6 +2348,64 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 break;
             }
+            case ground_station_linear_velocity: {
+                const std::string stationName = vectorParameterName->parameterType_.second.second;
+                if( currentBody->getGroundStationMap( ).count( stationName ) == 0 )
+                {
+                    throw std::runtime_error( "Error, requested linear velocity of ground station " + stationName +
+                                              ", which was not found" );
+                }
+                std::shared_ptr< ground_stations::CombinedStationMotionModel > combinedModel =
+                        std::dynamic_pointer_cast< ground_stations::CombinedStationMotionModel >(
+                                currentBody->getGroundStation( stationName )->getNominalStationState( )->getStationMotionModel( ) );
+                std::vector< std::shared_ptr< ground_stations::LinearStationMotionModel > > linearModels;
+                if( combinedModel != nullptr )
+                {
+                    for( const std::shared_ptr< ground_stations::StationMotionModel >& motionModel : combinedModel->getModelList( ) )
+                    {
+                        std::shared_ptr< ground_stations::LinearStationMotionModel > linearModel =
+                                std::dynamic_pointer_cast< ground_stations::LinearStationMotionModel >( motionModel );
+                        if( linearModel != nullptr )
+                        {
+                            linearModels.push_back( linearModel );
+                        }
+                    }
+                }
+                if( linearModels.size( ) != 1 )
+                {
+                    throw std::runtime_error( "Error, requested linear velocity of ground station " + stationName + ", which has " +
+                                              std::to_string( linearModels.size( ) ) + " linear motion models; exactly one is required" );
+                }
+                vectorParameterToEstimate = std::make_shared< GroundStationLinearVelocity >(
+                        linearModels.at( 0 ), vectorParameterName->parameterType_.second.first, stationName );
+                break;
+            }
+            case displacement_love_number:
+            case displacement_shida_number: {
+                std::shared_ptr< DisplacementLoveNumberEstimatableParameterSettings > loveNumberSettings =
+                        std::dynamic_pointer_cast< DisplacementLoveNumberEstimatableParameterSettings >( vectorParameterName );
+                if( loveNumberSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error, expected displacement Love or Shida number parameter settings" );
+                }
+                std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > > deformationModels;
+                for( const auto& deformationModel : currentBody->getBodyDeformationModels( ) )
+                {
+                    // The IERS 2010 model, which is derived from the basic tidal deformation model, is not supported
+                    if( std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( deformationModel ) != nullptr &&
+                        std::dynamic_pointer_cast< basic_astrodynamics::Iers2010EarthDeformation >( deformationModel ) == nullptr )
+                    {
+                        deformationModels.push_back(
+                                std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( deformationModel ) );
+                    }
+                }
+                vectorParameterToEstimate =
+                        std::make_shared< DisplacementLoveNumber >( deformationModels,
+                                                                    loveNumberSettings->degrees_,
+                                                                    vectorParameterName->parameterType_.first == displacement_shida_number,
+                                                                    vectorParameterName->parameterType_.second.first );
+                break;
+            }
             case reference_point_position: {
                 if( currentBody->getVehicleSystems( ) == nullptr )
                 {
@@ -2253,6 +2420,31 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::make_shared< ReferencePointPosition >( currentBody->getVehicleSystems( ),
                                                                         vectorParameterName->parameterType_.second.first,
                                                                         vectorParameterName->parameterType_.second.second );
+                }
+                break;
+            }
+            case camera_pointing_correction: {
+                if( currentBody->getVehicleSystems( ) == nullptr )
+                {
+                    std::string errorMessage = "Error, requested camera pointing correction parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                            " , but no system models found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( currentBody->getVehicleSystems( )->getCameraMap( ).count( vectorParameterName->parameterType_.second.second ) ==
+                         0 )
+                {
+                    std::string errorMessage = "Error, requested camera pointing correction parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                            " , but camera was not found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate =
+                            std::make_shared< CameraPointingCorrection >( currentBody->getVehicleSystems( ),
+                                                                          vectorParameterName->parameterType_.second.first,
+                                                                          vectorParameterName->parameterType_.second.second );
                 }
                 break;
             }
@@ -2308,6 +2500,40 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             empiricalAccelerationSettings->parameterType_.second.second,
                             empiricalAccelerationSettings->componentsToEstimate_ );
                 }
+                break;
+            }
+            case three_coefficient_radiation_pressure_coefficients: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating three-coefficient radiation-pressure parameter: no propagator settings provided." );
+                }
+                const auto associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                                                                                                               vectorParameterName );
+                std::vector< std::shared_ptr< electromagnetism::ThreeCoefficientRadiationPressureAcceleration > >
+                        threeCoefficientAccelerationModels;
+                for( const auto& accelerationModel : associatedAccelerationModels )
+                {
+                    const auto threeCoefficientAcceleration =
+                            std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >(
+                                    accelerationModel );
+                    if( threeCoefficientAcceleration == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error when creating three-coefficient radiation-pressure parameter: acceleration type is inconsistent." );
+                    }
+                    threeCoefficientAccelerationModels.push_back( threeCoefficientAcceleration );
+                }
+                if( threeCoefficientAccelerationModels.empty( ) )
+                {
+                    throw std::runtime_error(
+                            "Error when creating three-coefficient radiation-pressure parameter: no matching acceleration was found." );
+                }
+                vectorParameterToEstimate = std::make_shared< ThreeCoefficientRadiationPressureCoefficients >(
+                        threeCoefficientAccelerationModels,
+                        vectorParameterName->parameterType_.second.first,
+                        vectorParameterName->parameterType_.second.second );
                 break;
             }
             case rtg_force_vector: {
@@ -2619,17 +2845,29 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     }
                     else
                     {
-                        // Get associated gravity field variation
-                        std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
-                                std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                                        currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
-                                                tidalLoveNumberSettings->deformingBodies_ ) );
+                        // Get associated gravity field variation models covering the requested deforming bodies
+                        std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > selectedGravityFieldVariations =
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariationsForDegree(
+                                        tidalLoveNumberSettings->deformingBodies_, tidalLoveNumberSettings->degree_ );
+                        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariations;
+                        for( unsigned int i = 0; i < selectedGravityFieldVariations.size( ); i++ )
+                        {
+                            std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                                    std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                            selectedGravityFieldVariations.at( i ) );
+                            if( gravityFieldVariation == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error, expected BasicSolidBodyTideGravityFieldVariations for tidal love number" );
+                            }
+                            gravityFieldVariations.push_back( gravityFieldVariation );
+                        }
 
                         // Create parameter object
-                        if( gravityFieldVariation != nullptr )
+                        if( gravityFieldVariations.size( ) > 0 )
                         {
                             vectorParameterToEstimate =
-                                    std::make_shared< FullDegreeTidalLoveNumber >( gravityFieldVariation,
+                                    std::make_shared< FullDegreeTidalLoveNumber >( gravityFieldVariations,
                                                                                    currentBodyName,
                                                                                    tidalLoveNumberSettings->degree_,
                                                                                    tidalLoveNumberSettings->useComplexValue_ );
@@ -2670,14 +2908,26 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     }
                     else
                     {
-                        // Get associated gravity field variation
-                        std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
-                                std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                                        currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
-                                                tidalLoveNumberSettings->deformingBodies_ ) );
+                        // Get associated gravity field variation models covering the requested deforming bodies
+                        std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > selectedGravityFieldVariations =
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariationsForDegree(
+                                        tidalLoveNumberSettings->deformingBodies_, tidalLoveNumberSettings->degree_ );
+                        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariations;
+                        for( unsigned int i = 0; i < selectedGravityFieldVariations.size( ); i++ )
+                        {
+                            std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                                    std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                            selectedGravityFieldVariations.at( i ) );
+                            if( gravityFieldVariation == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error, expected BasicSolidBodyTideGravityFieldVariations for variable tidal love number" );
+                            }
+                            gravityFieldVariations.push_back( gravityFieldVariation );
+                        }
 
                         // Create parameter object
-                        if( gravityFieldVariation != nullptr )
+                        if( gravityFieldVariations.size( ) > 0 )
                         {
                             std::vector< int > orders = tidalLoveNumberSettings->orders_;
                             if( std::find( orders.begin( ), orders.end( ), 0 ) != orders.end( ) &&
@@ -2688,7 +2938,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                           << std::endl;
                             }
                             vectorParameterToEstimate =
-                                    std::make_shared< SingleDegreeVariableTidalLoveNumber >( gravityFieldVariation,
+                                    std::make_shared< SingleDegreeVariableTidalLoveNumber >( gravityFieldVariations,
                                                                                              currentBodyName,
                                                                                              tidalLoveNumberSettings->degree_,
                                                                                              tidalLoveNumberSettings->orders_,
@@ -3192,6 +3442,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             doubleParametersToEstimate.push_back( createDoubleParameterToEstimate< InitialStateParameterType, TimeType >(
                     parameterNames[ i ], bodies, propagatorSettings ) );
+            checkParameterTimeIntervalsOfInfluence( doubleParametersToEstimate.back( ) );
             if( vectorParameterIsFound == true && parameterOrderWarningPrinted == false )
             {
                 if( printParameterOrderWarning == true )
@@ -3213,6 +3464,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             vectorParametersToEstimate.push_back( createVectorParameterToEstimate< InitialStateParameterType, TimeType >(
                     parameterNames[ i ], bodies, propagatorSettings ) );
+            checkParameterTimeIntervalsOfInfluence( vectorParametersToEstimate.back( ) );
             vectorParameterIsFound = true;
         }
         else

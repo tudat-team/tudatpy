@@ -12,7 +12,6 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/range/algorithm/copy.hpp>
 
 #include "tudat/io/separatedParser.h"
 
@@ -61,9 +60,10 @@ void SeparatedParser::parseLine( std::string& line )
          ++stringIterator )
     {
         // Prevent empty rows due to a double separator.
-        if( !boost::copy_range< std::string >( *stringIterator ).empty( ) )
+        const std::string currentString( stringIterator->begin( ), stringIterator->end( ) );
+        if( !currentString.empty( ) )
         {
-            vectorOfIndividualStrings_.push_back( boost::copy_range< std::string >( *stringIterator ) );
+            vectorOfIndividualStrings_.push_back( currentString );
         }
     }
 

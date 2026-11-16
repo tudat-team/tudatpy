@@ -19,6 +19,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/radiationPressureAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/threeCoefficientRadiationPressureAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/relativisticAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
@@ -32,6 +33,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/yarkovskyAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/gravitationalParameterRateAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/rtgAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/customAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/fullRadiationPressureAccelerationPartial.h"
@@ -875,6 +877,18 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             }
             break;
         }
+        case three_coefficient_radiation_pressure: {
+            const auto threeCoefficientAcceleration =
+                    std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >( accelerationModel );
+            if( threeCoefficientAcceleration == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match three-coefficient radiation-pressure acceleration type." );
+            }
+            accelerationPartial = std::make_shared< ThreeCoefficientRadiationPressureAccelerationPartial >(
+                    threeCoefficientAcceleration, acceleratedBody.first, acceleratingBody.first );
+            break;
+        }
         case thrust_acceleration: {
             // Check if identifier is consistent with type.
             std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration =
@@ -917,6 +931,19 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                 accelerationPartial = std::make_shared< YarkovskyAccelerationPartial >(
                         yarkovskyAcceleration, acceleratedBody.first, acceleratingBody.first );
             }
+            break;
+        }
+        case gravitational_parameter_rate_acceleration: {
+            std::shared_ptr< gravitation::GravitationalParameterRateAcceleration > rateAcceleration =
+                    std::dynamic_pointer_cast< gravitation::GravitationalParameterRateAcceleration >( accelerationModel );
+            if( rateAcceleration == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (gravitational_parameter_rate_acceleration) set "
+                        "when making acceleration partial." );
+            }
+            accelerationPartial = std::make_shared< GravitationalParameterRateAccelerationPartial >(
+                    rateAcceleration, acceleratedBody.first, acceleratingBody.first );
             break;
         }
         case rtg_acceleration: {

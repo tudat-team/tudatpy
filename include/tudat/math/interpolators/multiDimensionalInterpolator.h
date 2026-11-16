@@ -15,9 +15,7 @@
 #include <vector>
 #include <iostream>
 
-#include <boost/array.hpp>
 #include <boost/multi_array.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/interpolators/interpolator.h"

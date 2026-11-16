@@ -18,9 +18,9 @@
 #include <limits>
 #include <algorithm>
 #include <sstream>
+#include <variant>
 
 #include <memory>
-#include <boost/date_time/posix_time/time_period.hpp>
 
 #include "body.h"
 #include "tudat/io/basicInputOutput.h"
@@ -31,7 +31,6 @@
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/basics/identityElements.h"
 #include "tudat/io/comaModelInputOutput.h"
-#include <boost/variant.hpp>
 
 namespace tudat
 {
@@ -221,7 +220,7 @@ class ComaWindModelSettings : public WindModelSettings
 {
 public:
     // Type alias for cleaner code
-    using DataVariant = boost::variant< ComaPolyDataset, ComaStokesDataset >;
+    using DataVariant = std::variant< ComaPolyDataset, ComaStokesDataset >;
 
     /**
      * \brief Constructor from ComaWindDatasetCollection
@@ -322,7 +321,7 @@ public:
      */
     bool xHasPolyData( ) const
     {
-        return xData_.type( ) == typeid( ComaPolyDataset );
+        return std::holds_alternative< ComaPolyDataset >( xData_ );
     }
 
     /**
@@ -330,7 +329,7 @@ public:
      */
     bool yHasPolyData( ) const
     {
-        return yData_.type( ) == typeid( ComaPolyDataset );
+        return std::holds_alternative< ComaPolyDataset >( yData_ );
     }
 
     /**
@@ -338,7 +337,7 @@ public:
      */
     bool zHasPolyData( ) const
     {
-        return zData_.type( ) == typeid( ComaPolyDataset );
+        return std::holds_alternative< ComaPolyDataset >( zData_ );
     }
 
     /**
@@ -347,7 +346,7 @@ public:
      */
     const ComaPolyDataset& getXPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &xData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &xData_ ) ) return *p;
         throw std::runtime_error( "X-component data does not contain polynomial data" );
     }
 
@@ -357,7 +356,7 @@ public:
      */
     const ComaPolyDataset& getYPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &yData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &yData_ ) ) return *p;
         throw std::runtime_error( "Y-component data does not contain polynomial data" );
     }
 
@@ -367,7 +366,7 @@ public:
      */
     const ComaPolyDataset& getZPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &zData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &zData_ ) ) return *p;
         throw std::runtime_error( "Z-component data does not contain polynomial data" );
     }
 
@@ -377,7 +376,7 @@ public:
      */
     const ComaStokesDataset& getXStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &xData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &xData_ ) ) return *p;
         throw std::runtime_error( "X-component data does not contain Stokes data" );
     }
 
@@ -387,7 +386,7 @@ public:
      */
     const ComaStokesDataset& getYStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &yData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &yData_ ) ) return *p;
         throw std::runtime_error( "Y-component data does not contain Stokes data" );
     }
 
@@ -397,7 +396,7 @@ public:
      */
     const ComaStokesDataset& getZStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &zData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &zData_ ) ) return *p;
         throw std::runtime_error( "Z-component data does not contain Stokes data" );
     }
 
@@ -457,9 +456,9 @@ private:
      */
     static int getMaxDegreeFromData( const DataVariant& data )
     {
-        if( data.type( ) == typeid( ComaPolyDataset ) )
+        if( std::holds_alternative< ComaPolyDataset >( data ) )
         {
-            const auto& poly = boost::get< ComaPolyDataset >( data );
+            const auto& poly = std::get< ComaPolyDataset >( data );
             int maxDeg = 0;
             for( std::size_t f = 0; f < poly.getNumFiles( ); ++f )
             {
@@ -467,9 +466,9 @@ private:
             }
             return maxDeg;
         }
-        else if( data.type( ) == typeid( ComaStokesDataset ) )
+        else if( std::holds_alternative< ComaStokesDataset >( data ) )
         {
-            const auto& stokes = boost::get< ComaStokesDataset >( data );
+            const auto& stokes = std::get< ComaStokesDataset >( data );
             return stokes.nmax( );
         }
         return 0;
@@ -480,9 +479,9 @@ private:
      */
     static int getMaxOrderFromData( const DataVariant& data )
     {
-        if( data.type( ) == typeid( ComaPolyDataset ) )
+        if( std::holds_alternative< ComaPolyDataset >( data ) )
         {
-            const auto& poly = boost::get< ComaPolyDataset >( data );
+            const auto& poly = std::get< ComaPolyDataset >( data );
             int maxOrd = 0;
             for( std::size_t f = 0; f < poly.getNumFiles( ); ++f )
             {
@@ -492,9 +491,9 @@ private:
             }
             return maxOrd;
         }
-        else if( data.type( ) == typeid( ComaStokesDataset ) )
+        else if( std::holds_alternative< ComaStokesDataset >( data ) )
         {
-            const auto& stokes = boost::get< ComaStokesDataset >( data );
+            const auto& stokes = std::get< ComaStokesDataset >( data );
             // For Stokes data, order equals degree in the triangular storage
             return stokes.nmax( );
         }
@@ -993,162 +992,15 @@ private:
     std::string spaceWeatherFile_;
 };
 
-#if TUDAT_BUILD_WITH_MCD
-//! MCD Atmosphere Settings
-/*!
- * Settings class for Mars Climate Database atmosphere model.
- *
- * NOTE ON ALTITUDE INPUT:
- * -----------------------
- * The MCD model expects altitude as "height above local surface" (matching Tudat's convention).
- * Internally, this is converted to radial distance from Mars center using:
- *   radial_distance = MARS_MEAN_RADIUS + altitude
- * where MARS_MEAN_RADIUS = 3396200.0 m (IAU 2015).
- *
- * FUTURE IMPROVEMENT: This should be enhanced to use the actual Body shape model
- * (oblate spheroid + MOLA topography if high-resolution mode is enabled).
- *
- * PARAMETERS:
- * -----------
- * - mcdDataPath: Path to MCD NetCDF data files. If empty, uses compile-time default.
- * - dustScenario: Dust and solar EUV scenario selection
- *     1-3   = Climatology (average/min/max solar)
- *     4-6   = Dust storm scenarios
- *     7-8   = Warm/cold scenarios (requires additional data files)
- *     24-35 = Mars Year 24-35 scenarios with associated solar EUV
- * - perturbationKey: Type of atmospheric perturbations
- *     0 = No perturbations (default, most stable)
- *     1 = Reserved (not used)
- *     2 = Large scale EOF (Empirical Orthogonal Functions) perturbations
- *     3 = Small scale gravity wave perturbations (may cause crashes)
- *     4 = Both large and small scale perturbations (may cause crashes)
- *     5 = Add n×standard_deviation (seedin must be in [-4, 4])
- * - perturbationSeed: Random seed or scaling factor for perturbations
- *     For perturbationKey=2,3,4: seed for random number generation
- *     For perturbationKey=5: coefficient for standard deviation scaling
- * - gravityWaveLength: Vertical wavelength of gravity waves in meters
- *     Only used if perturbationKey=3 or 4
- *     Default 0.0 means use MCD default (16000 m)
- * - highResolutionMode: Use high-resolution topography
- *     0 = GCM resolution (default)
- *     1 = High-resolution MOLA topography
- */
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+
 class McdAtmosphereSettings : public AtmosphereSettings
 {
 public:
-    //! Constructor with all parameters
-    /*!
-     * \param mcdDataPath Path to MCD data directory. Empty string uses compile-time default.
-     * \param dustScenario Dust/solar scenario (1-8 or 24-35), default=1 (climatology avg)
-     * \param perturbationKey Perturbation type (0-5), default=0 (none)
-     * \param perturbationSeed Random seed or scaling factor, default=0.0
-     * \param gravityWaveLength GW wavelength in meters, default=0.0 (uses MCD default)
-     * \param highResolutionMode High-res topography flag (0 or 1), default=0
-     */
-    McdAtmosphereSettings( const std::string& mcdDataPath = "",
-                           const int dustScenario = 1,
-                           const int perturbationKey = 0,
-                           const double perturbationSeed = 0.0,
-                           const double gravityWaveLength = 0.0,
-                           const int highResolutionMode = 0 ):
-        AtmosphereSettings( mcd_atmosphere ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ),
-        perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ),
-        highResolutionMode_( highResolutionMode )
-    {
-        // Validate parameters at construction time
-        if( ( dustScenario_ < 1 || dustScenario_ > 8 ) && ( dustScenario_ < 24 || dustScenario_ > 35 ) )
-        {
-            throw std::runtime_error( "McdAtmosphereSettings: Invalid dustScenario. Must be 1-8 or 24-35." );
-        }
-        if( perturbationKey_ < 0 || perturbationKey_ > 5 )
-        {
-            throw std::runtime_error( "McdAtmosphereSettings: Invalid perturbationKey. Must be 0-5." );
-        }
-        if( perturbationKey_ == 5 && ( perturbationSeed_ < -4.0 || perturbationSeed_ > 4.0 ) )
-        {
-            throw std::runtime_error( "McdAtmosphereSettings: For perturbationKey=5, perturbationSeed must be in [-4, 4]." );
-        }
-        if( highResolutionMode_ != 0 && highResolutionMode_ != 1 )
-        {
-            throw std::runtime_error( "McdAtmosphereSettings: Invalid highResolutionMode. Must be 0 or 1." );
-        }
-    }
-
-    // Getter methods with const correctness
-    std::string getMcdDataPath( ) const
-    {
-        return mcdDataPath_;
-    }
-    int getDustScenario( ) const
-    {
-        return dustScenario_;
-    }
-    int getPerturbationKey( ) const
-    {
-        return perturbationKey_;
-    }
-    double getPerturbationSeed( ) const
-    {
-        return perturbationSeed_;
-    }
-    double getGravityWaveLength( ) const
-    {
-        return gravityWaveLength_;
-    }
-    int getHighResolutionMode( ) const
-    {
-        return highResolutionMode_;
-    }
-
-private:
-    std::string mcdDataPath_;   //! Path to MCD data files
-    int dustScenario_;          //! Dust/solar scenario (1-8 or 24-35)
-    int perturbationKey_;       //! Perturbation type (0-5)
-    double perturbationSeed_;   //! Random seed or scaling factor
-    double gravityWaveLength_;  //! Gravity wave wavelength (meters)
-    int highResolutionMode_;    //! High-resolution topography flag (0 or 1)
+    McdAtmosphereSettings( ): AtmosphereSettings( mcd_atmosphere ) {}
 };
 
-//! Factory function for MCD atmosphere settings
-/*!
- * Creates settings for Mars Climate Database atmosphere model.
- *
- * \param mcdDataPath Path to MCD data files. If empty (default), uses the compile-time
- *                    default path (typically third_parties/mcd/data/). Users can provide
- *                    a custom absolute path to their MCD data directory.
- * \param dustScenario Dust and solar EUV scenario (1-8 or 24-35, default: 1)
- *                     1-3: Climatology (avg/min/max solar)
- *                     4-6: Dust storm scenarios
- *                     7-8: Warm/cold scenarios (requires additional data files)
- *                     24-35: Mars Year scenarios with associated solar EUV
- * \param perturbationKey Perturbation type (0-5, default: 0 = none)
- *                        0: No perturbations (recommended for most uses)
- *                        2: Large scale EOF perturbations
- *                        3: Small scale gravity waves (may cause crashes - use with caution)
- *                        4: Both large and small scale (may cause crashes - use with caution)
- *                        5: Add n×standard_deviation (perturbationSeed must be in [-4,4])
- * \param perturbationSeed Random seed for perturbations (default: 0.0)
- *                         For perturbationKey=2,3,4: random seed
- *                         For perturbationKey=5: coefficient for std deviation
- * \param gravityWaveLength Gravity wave vertical wavelength in meters (default: 0.0)
- *                          Only used if perturbationKey=3 or 4
- *                          0.0 means use MCD default (16000 m)
- * \param highResolutionMode High resolution topography flag (0 or 1, default: 0)
- *                           0: Use GCM resolution
- *                           1: Use high-resolution MOLA topography
- * \return Shared pointer to MCD atmosphere settings
- */
-inline std::shared_ptr< AtmosphereSettings > mcdAtmosphereSettings( const std::string& mcdDataPath = "",
-                                                                    const int dustScenario = 1,
-                                                                    const int perturbationKey = 0,
-                                                                    const double perturbationSeed = 0.0,
-                                                                    const double gravityWaveLength = 0.0,
-                                                                    const int highResolutionMode = 0 )
-{
-    return std::make_shared< McdAtmosphereSettings >(
-            mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode );
-}
-#endif  // TUDAT_BUILD_WITH_MCD
+#endif
 
 //  AtmosphereSettings for defining an atmosphere with tabulated data from file.
 // //! @get_docstring(TabulatedAtmosphereSettings.__docstring__)
@@ -1544,7 +1396,7 @@ class ComaSettings final : public AtmosphereSettings
 {
 public:
     // Type alias for cleaner code
-    using DataVariant = boost::variant< ComaPolyDataset, ComaStokesDataset >;
+    using DataVariant = std::variant< ComaPolyDataset, ComaStokesDataset >;
 
     /**
      * \brief Constructor with polynomial coefficient data
@@ -1598,7 +1450,7 @@ public:
      */
     bool hasPolyData( ) const
     {
-        return data_.type( ) == typeid( ComaPolyDataset );
+        return std::holds_alternative< ComaPolyDataset >( data_ );
     }
 
     /**
@@ -1606,7 +1458,7 @@ public:
      */
     bool hasStokesData( ) const
     {
-        return data_.type( ) == typeid( ComaStokesDataset );
+        return std::holds_alternative< ComaStokesDataset >( data_ );
     }
 
     /**
@@ -1615,7 +1467,7 @@ public:
      */
     const ComaPolyDataset& getPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &data_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &data_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain polynomial data" );
     }
 
@@ -1625,7 +1477,7 @@ public:
      */
     const ComaStokesDataset& getStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &data_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &data_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain Stokes data" );
     }
 
@@ -1728,7 +1580,7 @@ public:
      */
     bool hasTemperaturePolyData( ) const
     {
-        return hasTemperatureModel_ && temperatureData_.type( ) == typeid( ComaPolyDataset );
+        return hasTemperatureModel_ && std::holds_alternative< ComaPolyDataset >( temperatureData_ );
     }
 
     /**
@@ -1736,7 +1588,7 @@ public:
      */
     bool hasTemperatureStokesData( ) const
     {
-        return hasTemperatureModel_ && temperatureData_.type( ) == typeid( ComaStokesDataset );
+        return hasTemperatureModel_ && std::holds_alternative< ComaStokesDataset >( temperatureData_ );
     }
 
     /**
@@ -1745,7 +1597,7 @@ public:
      */
     const ComaPolyDataset& getTemperaturePolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &temperatureData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &temperatureData_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain temperature polynomial data" );
     }
 
@@ -1755,7 +1607,7 @@ public:
      */
     const ComaStokesDataset& getTemperatureStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &temperatureData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &temperatureData_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain temperature Stokes data" );
     }
 
@@ -1935,6 +1787,13 @@ inline std::shared_ptr< AtmosphereSettings > marsDtmAtmosphereSettings( )
     return std::make_shared< MarsDtmAtmosphereSettings >( "" );
 }
 
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+inline std::shared_ptr< AtmosphereSettings > mcdAtmosphereSettings( )
+{
+    return std::make_shared< McdAtmosphereSettings >( );
+}
+#endif
+
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 //! @get_docstring(customConstantTemperatureAtmosphereSettings,0)
 inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphereSettings(
@@ -2098,7 +1957,9 @@ inline std::shared_ptr< WindModelSettings > comaWindModelSettings(
  *  \return Wind model created according to settings in windSettings.
  */
 std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_ptr< WindModelSettings > windSettings,
-                                                            const std::string& body );
+                                                            const std::string& body,
+                                                            const std::shared_ptr< aerodynamics::AtmosphereModel >& atmosphereModel,
+                                                            const SystemOfBodies& bodies );
 
 //  Function to create an atmosphere model.
 /*

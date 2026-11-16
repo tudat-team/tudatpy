@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <map>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -408,8 +407,18 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                     rotationAccelerationPartial->update( rotationParameterEvaluationTime );
                     return accelerationModel->getAcceleration( );
                 };
-                auto checkCentralQuaternionStatePartial = [ & ]( const std::shared_ptr< Body >& body, const std::string& bodyName ) {
+                auto checkCentralQuaternionStatePartial = [ & ]( const std::shared_ptr< Body >& body,
+                                                                 const std::string& bodyName,
+                                                                 const double quaternionSign ) {
                     evaluateAccelerationForRotationParameter( );
+                    // Rotational state with the quaternion multiplied by quaternionSign (q and -q give the same rotation)
+                    Eigen::Vector7d rotationalState = body->getRotationalStateVector( );
+                    rotationalState.segment( 0, 4 ) *= quaternionSign;
+                    body->setCurrentRotationalStateToLocalFrame( rotationalState );
+                    accelerationModel->resetCurrentTime( );
+                    rotationAccelerationPartial->resetCurrentTime( );
+                    accelerationModel->updateMembers( rotationParameterEvaluationTime );
+                    rotationAccelerationPartial->update( rotationParameterEvaluationTime );
                     Eigen::MatrixXd analyticalPartialWrtRotationalState = Eigen::MatrixXd::Zero( 3, 7 );
                     rotationAccelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
                             analyticalPartialWrtRotationalState.block( 0, 0, 3, 7 ),
@@ -440,8 +449,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                         }
                     }
                 };
-                checkCentralQuaternionStatePartial( body1, "Body1" );
-                checkCentralQuaternionStatePartial( body2, "Body2" );
+                for( const double quaternionSign : { 1.0, -1.0 } )
+                {
+                    checkCentralQuaternionStatePartial( body1, "Body1", quaternionSign );
+                    checkCentralQuaternionStatePartial( body2, "Body2", quaternionSign );
+                }
 
                 auto checkRotationRatePartial = [ & ]( const std::shared_ptr< RotationRate >& rotationRateParameter,
                                                        const std::string& checkLabel ) {

@@ -89,10 +89,12 @@ Eigen::Vector2d calculatePartialOfAzimuthElevationWrtStationTime(
             ( 2.0 * timeStep );
 }
 
-void AzimuthElevationScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                      const std::vector< double >& times,
-                                      const observation_models::LinkEndType fixedLinkEnd,
-                                      const Eigen::VectorXd currentObservation )
+void AzimuthElevationScaling::update(
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType fixedLinkEnd,
+        const Eigen::VectorXd currentObservation,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     const int stationIndex = ( stationLinkEndType_ == observation_models::transmitter ) ? 0 : 1;
     const int targetIndex = ( stationLinkEndType_ == observation_models::transmitter ) ? 1 : 0;

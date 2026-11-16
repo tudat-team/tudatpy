@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <boost/math/special_functions/binomial.hpp>
+#include <boost/math/special_functions/factorials.hpp>
 #include <iostream>
 #include <stdexcept>
 #include "tudat/math/basic/mathematicalConstants.h"

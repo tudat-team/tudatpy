@@ -9,7 +9,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
 
 #include <Eigen/Core>
 

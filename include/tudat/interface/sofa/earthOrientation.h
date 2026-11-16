@@ -35,6 +35,17 @@ enum IAUConventions { iau_2000_a, iau_2000_b, iau_2006 };
 namespace sofa_interface
 {
 
+//! Function to calculate the precession rotation matrix to go from the J2000/GCRF to the Mean Of Date frame.
+/*!
+ * @param terrestrialTime Epoch in seconds since the reference epoch at which the precession rotation matrix is to be retrieved from SOFA.
+ * @param referenceJulianDay Julian Day (JD) of the reference epoch from which the terrestrial time argument is measured.
+ * @param useIau2006 Boolean denoting whether the IAU 2006 (if true) or IAU 1976 (if false) precession model is used.
+ * @return Rotation matrix from the J2000/GCRF to the Mean Of Date frame.
+ */
+Eigen::Matrix3d getPrecessionMatrix( const double terrestrialTime,
+                                     const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
+                                     const bool useIau2006 = false );
+
 //! Function to calculate CIP and CIO locator according to requested IAU conventions
 /*!
  *  Function to calculate CIP (Celestial Intermediate Pole, typically denoted as X and Y) and CIO locator
@@ -86,15 +97,18 @@ double calculateEquationOfEquinoxes( const double terrestrialTime,
 //! Function to calculate the combined precession/nutation rotation matrix to go from the GCRF to the True Of Date (TOD) frame.
 /*!
  * Function to calculate the rotation matrix incorporating the combined effect of nutation and precession, based on the 1976 and 1980
- * IAU models. It is a function of the epoch that is the argument of this function. Since Tudat usually works with times measured from
- * J2000, it is normally sufficient to provide the first argument only, containing the number of seconds terrestrial time since the J2000
- * epoch. If a different reference epoch is desired, it is mandatory to provide this epoch as a Julian day as the second argument.
+ * IAU models (default), or the IAU 2006/2000A models. It is a function of the epoch that is the argument of this function. Since Tudat
+ * usually works with times measured from J2000, it is normally sufficient to provide the first argument only, containing the number of
+ * seconds terrestrial time since the J2000 epoch. If a different reference epoch is desired, it is mandatory to provide this epoch as a
+ * Julian day as the second argument.
  * @param terrestrialTime Epoch in seconds since the reference epoch at which the precession/nutation rotation matrix is to be retrieved from SOFA.
  * @param referenceJulianDay Julian Day (JD) of the reference epoch from which the terrestrial time argument is measured.
+ * @param useIau2006 Boolean denoting whether the IAU 2006/2000A (if true) or IAU 1976/1980 (if false) models are used.
  * @return Eigen rotation matrix that can be used to rotate 3D vectors (position or velocity) from the J2000 to the True Of Date frame.
  */
 Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime,
-                                             const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                                             const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
+                                             const bool useIau2006 = false );
 
 //! Function to retrieve the IAU-1976 precession model angles zeta, z, and theta.
 /*!

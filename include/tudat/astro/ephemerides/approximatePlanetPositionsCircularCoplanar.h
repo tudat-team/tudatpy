@@ -74,8 +74,6 @@ private:
      * Constant orbital radius for circular orbit.
      */
     double constantOrbitalRadius_;
-
-    double referenceJulianDate_;
 };
 
 //! Typedef for shared-pointer to ApproximateJplCircularCoplanarEphemeris object.
