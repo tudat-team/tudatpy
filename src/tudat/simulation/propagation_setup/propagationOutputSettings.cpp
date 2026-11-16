@@ -10,6 +10,8 @@
 
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 
+#include <sstream>
+
 namespace tudat
 {
 
@@ -362,209 +364,229 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     return variableName;
 }
 
+//! Function to cast dependent variable settings to the derived class that is required to create its ID
+template< typename SettingsType >
+static std::shared_ptr< SettingsType > getDerivedSettingsForId(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    std::shared_ptr< SettingsType > derivedSettings = std::dynamic_pointer_cast< SettingsType >( dependentVariableSettings );
+    if( derivedSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent for " +
+                                  getDependentVariableName( dependentVariableSettings ) );
+    }
+    return derivedSettings;
+}
+
+//! Function to get the dependent variable ID sub-string for a list of spherical harmonic degree/order terms
+static std::string getDegreeOrderTermsIdString( const std::vector< std::pair< int, int > >& degreeOrderTerms )
+{
+    std::string idString = ", degree/order";
+    for( const std::pair< int, int >& degreeOrderTerm : degreeOrderTerms )
+    {
+        idString += " (" + std::to_string( degreeOrderTerm.first ) + "," + std::to_string( degreeOrderTerm.second ) + ")";
+    }
+    return idString;
+}
+
+//! Function to get the dependent variable ID sub-string for a list of bodies
+static std::string getBodyListIdString( const std::vector< std::string >& bodies )
+{
+    std::string idString = ", bodies";
+    for( const std::string& body : bodies )
+    {
+        idString += " " + body;
+    }
+    return idString;
+}
+
+//! Function to get the dependent variable ID sub-string for a single gravity field variation
+static std::string getGravityFieldVariationIdString( const gravitation::BodyDeformationTypes deformationType,
+                                                     const std::string& identifier )
+{
+    std::string idString = ( identifier != "" ) ? ( ", tide raised by " + identifier ) : "";
+    return idString + ", deformation type " + std::to_string( deformationType );
+}
+
+//! Function to get the dependent variable ID sub-string for a partial w.r.t. a body's translational state
+static std::string getStatePartialIdString( const std::string& derivativeWrtBody )
+{
+    return " w.r.t. body translational state of " + derivativeWrtBody;
+}
+
+//! Function to get the dependent variable ID sub-string for a partial w.r.t. an estimatable parameter
+static std::string getParameterPartialIdString(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
+{
+    if( parameterSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when getting dependent variable ID, no parameter settings found for parameter partial" );
+    }
+    std::string idString = " w.r.t. parameter " +
+            estimatable_parameters::getParameterTypeString( parameterSettings->parameterType_.first ) + " of " +
+            parameterSettings->parameterType_.second.first;
+    if( parameterSettings->parameterType_.second.second != "" )
+    {
+        idString += ", " + parameterSettings->parameterType_.second.second;
+    }
+    return idString;
+}
+
+//! Function to get the dependent variable ID sub-string for a body and the radiation source w.r.t. which it is defined
+static std::string getBodyAndSourceIdString( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    return " of body " + dependentVariableSettings->associatedBody_ + " w.r.t. source " + dependentVariableSettings->secondaryBody_;
+}
+
+//! Function to get the dependent variable ID sub-string for the model type (acceleration, torque, frame, angle)
+static std::string getModelTypeIdString( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    switch( dependentVariableSettings->dependentVariableType_ )
+    {
+        case single_acceleration_dependent_variable:
+        case single_acceleration_norm_dependent_variable:
+            return basic_astrodynamics::getAccelerationModelName(
+                    getDerivedSettingsForId< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings )
+                            ->accelerationModelType_ );
+        case single_torque_dependent_variable:
+        case single_torque_norm_dependent_variable:
+            return basic_astrodynamics::getTorqueModelName(
+                    getDerivedSettingsForId< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings )->torqueModelType_ );
+        case intermediate_aerodynamic_rotation_matrix_variable: {
+            std::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings > rotationSettings =
+                    getDerivedSettingsForId< IntermediateAerodynamicRotationVariableSaveSettings >( dependentVariableSettings );
+            return reference_frames::getAerodynamicFrameName( rotationSettings->baseFrame_ ) + "to " +
+                    reference_frames::getAerodynamicFrameName( rotationSettings->targetFrame_ );
+        }
+        case relative_body_aerodynamic_orientation_angle_variable:
+            return reference_frames::getAerodynamicAngleName(
+                    getDerivedSettingsForId< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings )->angle_ );
+        default:
+            return "";
+    }
+}
+
+//! Function to get the dependent variable ID sub-string for the associated and secondary body
+static std::string getBodiesIdString( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    const std::string& associatedBody = dependentVariableSettings->associatedBody_;
+    const std::string& secondaryBody = dependentVariableSettings->secondaryBody_;
+    switch( dependentVariableSettings->dependentVariableType_ )
+    {
+        case single_acceleration_dependent_variable:
+        case single_acceleration_norm_dependent_variable:
+        case spherical_harmonic_acceleration_terms_dependent_variable:
+        case spherical_harmonic_acceleration_norm_terms_dependent_variable:
+        case acceleration_partial_wrt_body_translational_state:
+            return ", acting on " + associatedBody + ( ( secondaryBody != associatedBody ) ? ( ", exerted by " + secondaryBody ) : "" );
+        case visible_and_emitting_source_panel_count:
+        case visible_source_area:
+            return " of " + secondaryBody + " as seen from " + associatedBody;
+        case received_irradiance:
+        case received_fraction:
+            return " at " + associatedBody + " due to " + secondaryBody;
+        default:
+            return "of " + associatedBody + ( ( secondaryBody != "" ) ? ( " w.r.t. " + secondaryBody ) : "" );
+    }
+}
+
+//! Function to get the dependent variable ID sub-string for the settings that are specific to a derived settings class. Every
+//! member that distinguishes two dependent variables must be included, since createDependentVariableListFunction throws an error
+//! for different settings with identical IDs.
+static std::string getDerivedSettingsIdString( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    switch( dependentVariableSettings->dependentVariableType_ )
+    {
+        case spherical_harmonic_acceleration_terms_dependent_variable:
+        case spherical_harmonic_acceleration_norm_terms_dependent_variable:
+            return getDegreeOrderTermsIdString(
+                    getDerivedSettingsForId< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings )
+                            ->componentIndices_ );
+        case total_spherical_harmonic_cosine_coefficient_variation:
+        case total_spherical_harmonic_sine_coefficient_variation:
+            return getDegreeOrderTermsIdString(
+                    getDerivedSettingsForId< TotalGravityFieldVariationSettings >( dependentVariableSettings )->componentIndices_ );
+        case single_gravity_field_variation_acceleration: {
+            std::shared_ptr< SingleVariationSphericalHarmonicAccelerationSaveSettings > variationSettings =
+                    getDerivedSettingsForId< SingleVariationSphericalHarmonicAccelerationSaveSettings >( dependentVariableSettings );
+            return getGravityFieldVariationIdString( variationSettings->deformationType_, variationSettings->identifier_ );
+        }
+        case single_gravity_field_variation_acceleration_terms: {
+            std::shared_ptr< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings > termsSettings =
+                    getDerivedSettingsForId< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                            dependentVariableSettings );
+            return getDegreeOrderTermsIdString( termsSettings->componentIndices_ ) +
+                    getGravityFieldVariationIdString( termsSettings->deformationType_, termsSettings->identifier_ );
+        }
+        case acceleration_partial_wrt_body_translational_state:
+            return getStatePartialIdString(
+                    getDerivedSettingsForId< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings )->derivativeWrtBody_ );
+        case total_acceleration_partial_wrt_body_translational_state:
+            return getStatePartialIdString(
+                    getDerivedSettingsForId< TotalAccelerationPartialWrtStateSaveSettings >( dependentVariableSettings )
+                            ->derivativeWrtBody_ );
+        case acceleration_derivative_partial_wrt_parameter: {
+            std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialSettings =
+                    getDerivedSettingsForId< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+            return getParameterPartialIdString( partialSettings->parameterSettings_ ) + ", acceleration type " +
+                    basic_astrodynamics::getAccelerationModelName( partialSettings->accelerationModelType_ );
+        }
+        case total_acceleration_derivative_partial_wrt_parameter:
+            return getParameterPartialIdString(
+                    getDerivedSettingsForId< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings )
+                            ->parameterSettings_ );
+        case local_wind_velocity_dependent_variable:
+            return ", in " +
+                    reference_frames::getAerodynamicFrameName(
+                            getDerivedSettingsForId< LocalWindVelocityDependentVariableSaveSettings >( dependentVariableSettings )
+                                    ->targetFrame_ );
+        case aerodynamic_control_surface_force_coefficients_increment_dependent_variable:
+        case aerodynamic_control_surface_moment_coefficients_increment_dependent_variable:
+            return ", control surface " +
+                    getDerivedSettingsForId< ControlSurfaceCoefficientDependentVariableSettings >( dependentVariableSettings )
+                            ->controlSurfaceName_;
+        case minimum_constellation_distance:
+            return getBodyListIdString(
+                    getDerivedSettingsForId< MinimumConstellationDistanceDependentVariableSaveSettings >( dependentVariableSettings )
+                            ->bodiesToCheck_ );
+        case minimum_constellation_ground_station_distance: {
+            std::shared_ptr< MinimumConstellationStationDistanceDependentVariableSaveSettings > stationDistanceSettings =
+                    getDerivedSettingsForId< MinimumConstellationStationDistanceDependentVariableSaveSettings >(
+                            dependentVariableSettings );
+            return getBodyListIdString( stationDistanceSettings->bodiesToCheck_ ) + ", elevation limit " +
+                    std::to_string( stationDistanceSettings->elevationAngleLimit_ );
+        }
+        case custom_dependent_variable: {
+            // Custom functions cannot be compared, so the settings object itself identifies the variable
+            std::ostringstream settingsAddress;
+            settingsAddress << dependentVariableSettings.get( );
+            return "(settings object " + settingsAddress.str( ) + ")";
+        }
+        case illuminated_panel_fraction:
+            return getBodyAndSourceIdString( dependentVariableSettings ) + " for panel " +
+                    getDerivedSettingsForId< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings )
+                            ->panelTypeId_;
+        case cross_section_change:
+        case actual_cross_section:
+            return getBodyAndSourceIdString( dependentVariableSettings ) + ", acceleration type " +
+                    getDerivedSettingsForId< CrossSectionDependentVariableSaveSettings >( dependentVariableSettings )->accelerationType_;
+        case full_body_paneled_geometry:
+        case aerodynamic_coefficients:
+            return " of body " + dependentVariableSettings->associatedBody_;
+        default:
+            return "";
+    }
+}
+
 //! Function to get a string representing a 'named identification' of a dependent variable
 std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
-    std::string variableId = getDependentVariableName( dependentVariableSettings );
-
-    if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
-        ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable ) )
+    std::string variableId = getDependentVariableName( dependentVariableSettings ) + getModelTypeIdString( dependentVariableSettings ) +
+            getBodiesIdString( dependentVariableSettings ) + getDerivedSettingsIdString( dependentVariableSettings );
+    if( dependentVariableSettings->componentIndex_ >= 0 )
     {
-        std::shared_ptr< SingleAccelerationDependentVariableSaveSettings > accelerationDependentVariableSettings =
-                std::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings );
-        if( accelerationDependentVariableSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (acceleration type )" );
-        }
-        else
-        {
-            variableId += basic_astrodynamics::getAccelerationModelName( accelerationDependentVariableSettings->accelerationModelType_ );
-        }
+        variableId += ", component " + std::to_string( dependentVariableSettings->componentIndex_ );
     }
-    else if( ( dependentVariableSettings->dependentVariableType_ == single_torque_dependent_variable ) ||
-             ( dependentVariableSettings->dependentVariableType_ == single_torque_norm_dependent_variable ) )
-    {
-        std::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueDependentVariableSettings =
-                std::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings );
-        if( torqueDependentVariableSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (torque type )" );
-        }
-        else
-        {
-            variableId += basic_astrodynamics::getTorqueModelName( torqueDependentVariableSettings->torqueModelType_ );
-        }
-    }
-    else if( dependentVariableSettings->dependentVariableType_ == intermediate_aerodynamic_rotation_matrix_variable )
-    {
-        std::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings > rotationDependentVariableSettings =
-                std::dynamic_pointer_cast< IntermediateAerodynamicRotationVariableSaveSettings >( dependentVariableSettings );
-        if( rotationDependentVariableSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (rotation matrix)" );
-        }
-        else
-        {
-            variableId += reference_frames::getAerodynamicFrameName( rotationDependentVariableSettings->baseFrame_ ) + "to " +
-                    reference_frames::getAerodynamicFrameName( rotationDependentVariableSettings->targetFrame_ );
-        }
-    }
-    else if( dependentVariableSettings->dependentVariableType_ == relative_body_aerodynamic_orientation_angle_variable )
-    {
-        std::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > angleDependentVariableSettings =
-                std::dynamic_pointer_cast< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings );
-        if( angleDependentVariableSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (angle)" );
-        }
-        else
-        {
-            variableId += reference_frames::getAerodynamicAngleName( angleDependentVariableSettings->angle_ );
-        }
-    }
-
-    if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
-        ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable ) ||
-        ( dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_terms_dependent_variable ) ||
-        ( dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable ) ||
-        ( dependentVariableSettings->dependentVariableType_ == acceleration_partial_wrt_body_translational_state ) )
-    {
-        variableId += ", acting on " + dependentVariableSettings->associatedBody_;
-        if( dependentVariableSettings->secondaryBody_ != dependentVariableSettings->associatedBody_ )
-        {
-            variableId += ", exerted by " + dependentVariableSettings->secondaryBody_;
-        }
-    }
-    else if( ( dependentVariableSettings->dependentVariableType_ == visible_and_emitting_source_panel_count ) ||
-             ( dependentVariableSettings->dependentVariableType_ == visible_source_area ) )
-    {
-        variableId += " of " + dependentVariableSettings->secondaryBody_ + " as seen from " + dependentVariableSettings->associatedBody_;
-    }
-    else if( ( dependentVariableSettings->dependentVariableType_ == received_irradiance ) ||
-             ( dependentVariableSettings->dependentVariableType_ == received_fraction ) )
-    {
-        variableId += " at " + dependentVariableSettings->associatedBody_ + " due to " + dependentVariableSettings->secondaryBody_;
-    }
-    else
-    {
-        variableId += "of " + dependentVariableSettings->associatedBody_;
-        if( dependentVariableSettings->secondaryBody_ != "" )
-        {
-            variableId += " w.r.t. " + dependentVariableSettings->secondaryBody_;
-        }
-    }
-
-    if( dependentVariableSettings->dependentVariableType_ == acceleration_partial_wrt_body_translational_state )
-    {
-        std::shared_ptr< AccelerationPartialWrtStateSaveSettings > partialDependentVariableSettings =
-                std::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
-        if( partialDependentVariableSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting dependent variable type full string, expected acceleration partial type" );
-        }
-        else
-        {
-            variableId += " w.r.t. body translational state of " + partialDependentVariableSettings->derivativeWrtBody_;
-        }
-    }
-
-    if( dependentVariableSettings->dependentVariableType_ == total_acceleration_partial_wrt_body_translational_state )
-    {
-        std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > partialDependentVariableSettings =
-                std::dynamic_pointer_cast< TotalAccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
-        if( partialDependentVariableSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting dependent variable type full string, expected full acceleration partial type" );
-        }
-        else
-        {
-            variableId += " w.r.t. body translational state of " + partialDependentVariableSettings->derivativeWrtBody_;
-        }
-    }
-    if( ( dependentVariableSettings->dependentVariableType_ == acceleration_derivative_partial_wrt_parameter ) ||
-        ( dependentVariableSettings->dependentVariableType_ == total_acceleration_derivative_partial_wrt_parameter ) )
-    {
-        std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialDependentVariableSettings =
-                std::dynamic_pointer_cast< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
-        std::shared_ptr< TotalAccelerationDerivativePartialWrtParameterSaveSettings > totalPartialDependentVariableSettings =
-                std::dynamic_pointer_cast< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
-        std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings =
-                ( partialDependentVariableSettings != nullptr )
-                ? partialDependentVariableSettings->parameterSettings_
-                : ( totalPartialDependentVariableSettings != nullptr ? totalPartialDependentVariableSettings->parameterSettings_
-                                                                     : nullptr );
-        if( parameterSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting dependent variable type full string, expected parameter partial type" );
-        }
-        else
-        {
-            variableId += " w.r.t. parameter " + estimatable_parameters::getParameterTypeString( parameterSettings->parameterType_.first ) +
-                    " of " + parameterSettings->parameterType_.second.first;
-            if( parameterSettings->parameterType_.second.second != "" )
-            {
-                variableId += ", " + parameterSettings->parameterType_.second.second;
-            }
-        }
-    }
-    if( dependentVariableSettings->dependentVariableType_ == illuminated_panel_fraction )
-    {
-        std::shared_ptr< IlluminatedPanelFractionDependentVariableSaveSettings > illuminatedPanelFractionDependentVariableSettings =
-                std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
-        if( illuminatedPanelFractionDependentVariableSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (illuminated panel fraction)" );
-        }
-        else
-        {
-            variableId += " of body " + illuminatedPanelFractionDependentVariableSettings->associatedBody_ + " w.r.t. source " +
-                    illuminatedPanelFractionDependentVariableSettings->secondaryBody_ + " for panel " +
-                    illuminatedPanelFractionDependentVariableSettings->panelTypeId_;
-        }
-    }
-    if( dependentVariableSettings->dependentVariableType_ == cross_section_change )
-    {
-        variableId +=
-                " of body " + dependentVariableSettings->associatedBody_ + " w.r.t. source " + dependentVariableSettings->secondaryBody_;
-    }
-    if( dependentVariableSettings->dependentVariableType_ == actual_cross_section )
-    {
-        variableId +=
-                " of body " + dependentVariableSettings->associatedBody_ + " w.r.t. source " + dependentVariableSettings->secondaryBody_;
-    }
-    if( dependentVariableSettings->dependentVariableType_ == full_body_paneled_geometry )
-    {
-        variableId += " of body " + dependentVariableSettings->associatedBody_;
-    }
-    if( dependentVariableSettings->dependentVariableType_ == aerodynamic_coefficients )
-    {
-        variableId += " of body " + dependentVariableSettings->associatedBody_;
-    }
-    if( ( dependentVariableSettings->dependentVariableType_ == single_gravity_field_variation_acceleration ) ||
-        ( dependentVariableSettings->dependentVariableType_ == single_gravity_field_variation_acceleration_terms ) )
-    {
-        std::string identifier;
-        if( auto variationSettings =
-                    std::dynamic_pointer_cast< SingleVariationSphericalHarmonicAccelerationSaveSettings >( dependentVariableSettings ) )
-        {
-            identifier = variationSettings->identifier_;
-        }
-        else if( auto termsSettings = std::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
-                         dependentVariableSettings ) )
-        {
-            identifier = termsSettings->identifier_;
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (single gravity field variation)" );
-        }
-
-        if( identifier != "" )
-        {
-            variableId += ", tide raised by " + identifier;
-        }
-    }
-
     return variableId;
 }
 

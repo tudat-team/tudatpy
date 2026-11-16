@@ -3587,6 +3587,20 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
     std::vector< std::pair< std::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
     std::vector< std::pair< std::string, int > > vectorVariableList;
 
+    // Check that the ID (by which results are retrieved) is unique, unless the settings are identical
+    std::map< std::string, std::shared_ptr< SingleDependentVariableSaveSettings > > settingsPerId;
+    for( std::shared_ptr< SingleDependentVariableSaveSettings > variable : dependentVariables )
+    {
+        const std::string variableId = getDependentVariableId( variable );
+        if( settingsPerId.count( variableId ) > 0 && settingsPerId.at( variableId ) != variable &&
+            *settingsPerId.at( variableId ) != *variable )
+        {
+            throw std::runtime_error( "Error, two different dependent variables have the same ID: " + variableId +
+                                      ". Retrieving them by ID would return the wrong values, please report this as an issue." );
+        }
+        settingsPerId[ variableId ] = variable;
+    }
+
     for( std::shared_ptr< SingleDependentVariableSaveSettings > variable : dependentVariables )
     {
         std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction;

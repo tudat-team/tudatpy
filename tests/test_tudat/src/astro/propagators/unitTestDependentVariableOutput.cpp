@@ -2059,6 +2059,43 @@ BOOST_AUTO_TEST_CASE( test_ConstellationVariables )
     }
 }
 
+//! Check that dependent variables that differ in a single setting get different IDs (issue #1173)
+BOOST_AUTO_TEST_CASE( testDependentVariableIdUniqueness )
+{
+    using namespace reference_frames;
+    std::function< Eigen::VectorXd( ) > customFunction = []( ) { return Eigen::VectorXd::Zero( 1 ); };
+
+    std::vector<
+            std::pair< std::shared_ptr< SingleDependentVariableSaveSettings >, std::shared_ptr< SingleDependentVariableSaveSettings > > >
+            settingsPairs = {
+                { std::make_shared< SingleDependentVariableSaveSettings >( relative_position_dependent_variable, "Vehicle", "Earth", 0 ),
+                  std::make_shared< SingleDependentVariableSaveSettings >( relative_position_dependent_variable, "Vehicle", "Earth", 1 ) },
+                { std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+                          "Vehicle", "Earth", std::vector< std::pair< int, int > >( { { 2, 0 } } ) ),
+                  std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+                          "Vehicle", "Earth", std::vector< std::pair< int, int > >( { { 2, 2 } } ) ) },
+                { std::make_shared< LocalWindVelocityDependentVariableSaveSettings >( "Vehicle", "Earth", corotating_frame ),
+                  std::make_shared< LocalWindVelocityDependentVariableSaveSettings >( "Vehicle", "Earth", vertical_frame ) },
+                { std::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
+                          "Vehicle", "Earth", gravitation::basic_solid_body ),
+                  std::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
+                          "Vehicle", "Earth", gravitation::ocean_tide ) },
+                { std::make_shared< MinimumConstellationDistanceDependentVariableSaveSettings >( "Vehicle",
+                                                                                                 std::vector< std::string >( { "Sat1" } ) ),
+                  std::make_shared< MinimumConstellationDistanceDependentVariableSaveSettings >(
+                          "Vehicle", std::vector< std::string >( { "Sat2" } ) ) },
+                { std::make_shared< CustomDependentVariableSaveSettings >( customFunction, 1 ),
+                  std::make_shared< CustomDependentVariableSaveSettings >( customFunction, 1 ) },
+                { std::make_shared< CrossSectionDependentVariableSaveSettings >( cross_section_change, "Vehicle", "Sun", "radiation" ),
+                  std::make_shared< CrossSectionDependentVariableSaveSettings >( cross_section_change, "Vehicle", "Sun", "aerodynamic" ) }
+            };
+
+    for( const auto& settingsPair : settingsPairs )
+    {
+        BOOST_CHECK( getDependentVariableId( settingsPair.first ) != getDependentVariableId( settingsPair.second ) );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
