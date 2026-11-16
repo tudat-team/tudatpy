@@ -132,7 +132,7 @@ void expose_close_encounters( py::module& m )
  The B-plane describes the encounter with the osculating two-body hyperbola that matches the relative state. The
  default reference direction is the :math:`-z` axis of the frame of the relative state. When the relative state is
  given with ICRF (J2000 equatorial) axes, :math:`\hat{T}` then lies in the equatorial plane, as in the B-plane
- definition of Kizner.
+ definition of :cite:t:`Kizner1961`.
 
  Parameters
  ----------
@@ -166,7 +166,7 @@ void expose_close_encounters( py::module& m )
 
  Compute the coordinates :math:`(\xi, \zeta)` of the Öpik theory on the B-plane of a hyperbolic relative state.
 
- The :math:`(\xi, \eta, \zeta)` frame of Valsecchi et al. (2003) is right-handed, with :math:`\eta` along the
+ The :math:`(\xi, \eta, \zeta)` frame of :cite:t:`Valsecchi2003` is right-handed, with :math:`\eta` along the
  incoming asymptote and :math:`\zeta` opposite to the projection on the B-plane of the direction of motion of the
  encountered body. That direction is the :math:`Y` axis of the planetocentric Öpik frame (:math:`X` from the Sun to
  the encountered body, :math:`Y` in the direction of motion and perpendicular to :math:`X`,
