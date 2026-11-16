@@ -147,7 +147,7 @@ def test_copying_sets_remaps_metadata_to_new_ids_including_within_same_dataset()
 
 def test_gaia_angles_match_ccd_rows_after_filtering_and_dataset_conversion():
     archive = Path(__file__).with_name("gaia_astro_archive_for_tests.parquet")
-    gaia = GaiaAstrometry.load_from_local_archive(archive, 673)
+    gaia = GaiaAstrometry.from_parquet(673, archive)
     gaia.apply_filters()
     sources, _ = gaia.to_tracking_data()
     table = gaia.table
@@ -159,7 +159,7 @@ def test_gaia_angles_match_ccd_rows_after_filtering_and_dataset_conversion():
     dataset = dataset_from_tracking(sources)
     snapshot = dataset.observation_vector_data()
     for set_id, (angles, covariance) in enumerate(
-        zip(expected, gaia._get_observation_covariance(673))
+        zip(expected, gaia._get_observation_covariance(table))
     ):
         ids = dataset.observation_ids_for_set(set_id)
         assert dataset.get_numerical_observation_metadata("along_scan_angle", ids) == angles
