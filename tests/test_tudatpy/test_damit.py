@@ -10,10 +10,6 @@ from tudatpy.data_input.environment_data.damit import DamitModel
 from tudatpy.dynamics import environment_setup
 from tudatpy.interface import spice
 
-DATA_DIR = Path(__file__).parent
-EROS_SPIN = DATA_DIR / "eros_spin.txt"
-EROS_SHAPE = DATA_DIR / "eros_shape.obj"
-
 TEST_ASTEROID = 433
 TEST_ASTEROID_MODEL = 3083
 
@@ -73,9 +69,25 @@ def _box_model(x, y, z, angle=0.0):
 
 
 @pytest.fixture(scope="module")
-def eros():
+def damit_dir(data_dir) -> Path:
+    """Directory holding the DAMIT spin and shape files of (433) Eros"""
+    return data_dir / "damit"
+
+
+@pytest.fixture(scope="module")
+def eros_spin(damit_dir) -> Path:
+    return damit_dir / "eros_spin.txt"
+
+
+@pytest.fixture(scope="module")
+def eros_shape(damit_dir) -> Path:
+    return damit_dir / "eros_shape.obj"
+
+
+@pytest.fixture(scope="module")
+def eros(eros_spin, eros_shape):
     """Shape model of (433) Eros with DAMIT Model ID 3083"""
-    return DamitModel.from_file(EROS_SPIN, EROS_SHAPE)
+    return DamitModel.from_file(eros_spin, eros_shape)
 
 
 def test_from_file_parses_spin_and_shape(eros):
@@ -91,7 +103,7 @@ def test_from_file_parses_spin_and_shape(eros):
     assert eros._reference_epoch == pytest.approx(0.0)  # JD 2451545.0 is J2000
 
 
-def test_volume_scaling(eros):
+def test_volume_scaling(eros, eros_spin, eros_shape):
     """Test that shape model is correctly scaled and that diameter input scales volume to that diameter"""
     # Volume of Eros of 2535 +/- 20 km^3 from the NEAR MSI shape model (Thomas et al., 2002, Icarus 155(1), 18-37,
     # doi:10.1006/icar.2001.6755, abstract). The coarse 1708-plate version of this shape model used here (DAMIT model
@@ -99,16 +111,16 @@ def test_volume_scaling(eros):
     assert _model_volume(eros) == pytest.approx(2535e9, rel=0.02)
 
     diameter = 16_840.0
-    scaled = DamitModel.from_file(EROS_SPIN, EROS_SHAPE, diameter=diameter)
+    scaled = DamitModel.from_file(eros_spin, eros_shape, diameter=diameter)
     assert _model_volume(scaled) == pytest.approx(_sphere_volume(diameter))
 
 
-def test_non_obj_shape_file_raises(tmp_path):
+def test_non_obj_shape_file_raises(tmp_path, eros_spin):
     """A shape file not in OBJ format is rejected"""
     shape_file = tmp_path / "shape.txt"
     shape_file.write_text("4 4\n0 0 0\n")
     with pytest.raises(ValueError):
-        DamitModel.from_file(EROS_SPIN, shape_file)
+        DamitModel.from_file(eros_spin, shape_file)
 
 
 def test_ellipsoid_semi_axes_box():
@@ -151,7 +163,7 @@ def _passive_rotation_z(angle):
     )
 
 
-def test_initial_orientation(eros):
+def test_initial_orientation(eros, eros_shape):
     """The body-fixed vertices, rotated to ECLIPJ2000 at the reference epoch, are the vertices of the DAMIT shape model
     rotated with the DAMIT convention r_ecl = R_z(lambda) R_y(90 deg - beta) R_z(phi_0) r_ast"""
     # Pole longitude lambda, pole latitude beta and initial rotation angle phi_0 (deg) from eros_spin.txt
@@ -169,7 +181,7 @@ def test_initial_orientation(eros):
         @ rotation_y
         @ _passive_rotation_z(-initial_rotation_angle)
     )
-    damit_vertices, _ = DamitModel._load_shape_model(EROS_SHAPE, None)
+    damit_vertices, _ = DamitModel._load_shape_model(eros_shape, None)
 
     np.testing.assert_allclose(
         eros.vertices @ eros.initial_orientation("ECLIPJ2000"),
@@ -228,7 +240,7 @@ def test_query_argument_validation(kwargs):
 
 
 @pytest.fixture
-def offline_damit(tmp_path):
+def offline_damit(tmp_path, eros_spin, eros_shape):
     """Replace the DAMIT tables by small local tables with several models of Eros, and model downloads by the local
     Eros files. All models load the same Eros files; only the table data (quality flag, size) differs between them.
 
@@ -249,7 +261,7 @@ def offline_damit(tmp_path):
 
     def download_model(model_id, force=False):
         downloaded.append(model_id)
-        return EROS_SHAPE, EROS_SPIN
+        return eros_shape, eros_spin
 
     with (
         patch.object(damit_module, "_DAMIT_ASTEROIDS", asteroids),
