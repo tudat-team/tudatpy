@@ -239,6 +239,31 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
         epochsTdb = epochsInput;
     }
 
+    // Time biases and uncertainties are currently only supported for angular position observations, for which they are converted
+    // to corrections and uncertainties of the observations using the rates of right ascension and declination
+    const std::shared_ptr< data::TimingBasedCorrectionSettings > timeBiases =
+            trackingData->getCorrectionSettings( )->getTimingBasedCorrectionSettings( );
+    const std::shared_ptr< data::TimingBasedUncertaintySettings > timeUncertainties =
+            trackingData->getWeightSettings( )->getTimingBasedUncertaintySettings( );
+    if( ( timeBiases != nullptr || timeUncertainties != nullptr ) && observableType != observation_models::angular_position )
+    {
+        throw std::runtime_error(
+                "Error when adding tracking data to an observation dataset, observation time biases and uncertainties are only "
+                "supported for angular position observations." );
+    }
+    std::vector< Eigen::Vector2d > angularRates;
+    if( ( applyCorrections && timeBiases != nullptr ) || timeUncertainties != nullptr )
+    {
+        angularRates = getRightAscensionAndDeclinationRates< TimeType >( bodies, rawLinkEnds, epochsTdb );
+    }
+    if( applyCorrections && timeBiases != nullptr )
+    {
+        for( unsigned int i = 0; i < timeBiases->timeBiases_.size( ); ++i )
+        {
+            observations[ i ] -= ( timeBiases->timeBiases_.at( i ) * angularRates.at( i ) ).template cast< ObservationScalarType >( );
+        }
+    }
+
     // Evaluate environment-dependent corrections at TDB reception times using the original observations.
     if( applyCorrections && trackingData->getCorrectionSettings( )->hasObservationCorrectionSettings( ) )
     {
@@ -274,7 +299,7 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
 
     // Compute the weights from the weight settings of the tracking data
     const std::shared_ptr< ObservationWeightSettings > observationWeightSettings =
-            computeObservationWeights( trackingData, bodies, rawLinkEnds, referenceLinkEnd );
+            computeObservationWeights( trackingData, bodies, rawLinkEnds, referenceLinkEnd, angularRates );
 
     int setId;
     if( observationWeightSettings != nullptr )

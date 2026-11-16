@@ -11,6 +11,8 @@
 #ifndef TUDAT_TRACKING_DATA_CORRECTION_SETTINGS_H
 #define TUDAT_TRACKING_DATA_CORRECTION_SETTINGS_H
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -43,6 +45,23 @@ public:
 
     //! Corrections that are added to the observations, one per observation
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections_;
+};
+
+//! Biases of the observation epochs, that are converted to observation corrections when creating an observation dataset (using the
+//! time derivatives of the observations; currently for angular position observations only)
+class TimingBasedCorrectionSettings
+{
+public:
+    TimingBasedCorrectionSettings( const std::vector< double >& timeBiases ): timeBiases_( timeBiases ) {}
+
+    void removeObservation( const unsigned int observationIndex )
+    {
+        timeBiases_.erase( timeBiases_.begin( ) + observationIndex );
+    }
+
+    //! Biases of the observation epochs (in seconds), one per observation. An observation with epoch t and time bias c is taken to
+    //! be h(t+c), and is corrected to h(t) using its time derivative
+    std::vector< double > timeBiases_;
 };
 
 //! Settings that define the corrections to the observations in a TrackingData object (applied when creating an observation dataset
@@ -143,12 +162,49 @@ public:
         return emptyCorrections;
     }
 
+    //! Set the biases of the observation epochs (in seconds), one per observation (currently for angular position observations only).
+    //! An observation with time bias c is taken to be h(t+c), with t its epoch. When creating an observation dataset with
+    //! corrections applied, each observation is corrected to h(t) using its time derivative.
+    void setTimeBiases( const std::vector< double >& timeBiases )
+    {
+        if( timeBiases.size( ) != numberOfObservations_ )
+        {
+            throw std::runtime_error( "Error when setting observation time biases, one entry per observation is required." );
+        }
+        for( const double timeBias : timeBiases )
+        {
+            if( !std::isfinite( timeBias ) )
+            {
+                throw std::runtime_error( "Error when setting observation time biases, values must be finite, found " +
+                                          std::to_string( timeBias ) + "." );
+            }
+        }
+        timeBiases_ = std::make_shared< TimingBasedCorrectionSettings >( timeBiases );
+    }
+
+    //! Return the biases of the observation epochs (empty if not provided)
+    std::vector< double > getTimeBiases( ) const
+    {
+        return timeBiases_ != nullptr ? timeBiases_->timeBiases_ : std::vector< double >( );
+    }
+
+    //! Return the settings for the biases of the observation epochs (nullptr if none)
+    std::shared_ptr< TimingBasedCorrectionSettings > getTimingBasedCorrectionSettings( ) const
+    {
+        return timeBiases_;
+    }
+
     //! Store corrections to be evaluated when constructing an observation dataset.
     void setObservationCorrectionSettings( const AngularObservationCorrectionSettings& settings )
     {
         if( observableType_ != "AngularPosition" || singleObservationSize_ != 2 || referenceLinkEnd_ != "receiver" )
         {
             throw std::runtime_error( "Angular correction settings require two-component reception-time angular observations." );
+        }
+        if( !settings.observationIndices_.empty( ) &&
+            *std::max_element( settings.observationIndices_.begin( ), settings.observationIndices_.end( ) ) >= numberOfObservations_ )
+        {
+            throw std::runtime_error( "Error when setting angular correction settings, observation index exceeds number of observations." );
         }
         angularCorrectionSettings_ = std::make_shared< AngularObservationCorrectionSettings >( settings );
     }
@@ -171,6 +227,14 @@ public:
         {
             explicitCorrections_->removeObservation( observationIndex );
         }
+        if( timeBiases_ != nullptr )
+        {
+            timeBiases_->removeObservation( observationIndex );
+        }
+        if( angularCorrectionSettings_ != nullptr && !angularCorrectionSettings_->removeObservation( observationIndex ) )
+        {
+            angularCorrectionSettings_ = nullptr;
+        }
         numberOfObservations_--;
     }
 
@@ -189,6 +253,9 @@ private:
 
     //! Corrections that are known before creating the observation dataset (nullptr if none)
     std::shared_ptr< ExplicitCorrectionSettings< ObservationScalarType > > explicitCorrections_;
+
+    //! Biases of the observation epochs (nullptr if none)
+    std::shared_ptr< TimingBasedCorrectionSettings > timeBiases_;
 
     //! Angular corrections computed from the environment when creating the observation dataset (nullptr if none)
     std::shared_ptr< AngularObservationCorrectionSettings > angularCorrectionSettings_;

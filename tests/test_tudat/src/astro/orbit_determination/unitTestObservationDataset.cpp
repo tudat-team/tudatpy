@@ -15,7 +15,12 @@
 #include <algorithm>
 #include <cmath>
 
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/testMacros.h"
+#include "tudat/io/trackingData.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
@@ -1832,6 +1837,93 @@ BOOST_AUTO_TEST_CASE( test_inspection_empty_missing_and_precise_times )
         BOOST_CHECK( times.at( 1 ) == t0 );
         BOOST_CHECK( precise.getObservations( ObservationSelectionCondition< Scalar, Time >::all( ), order ).front( )( 0 ) == x );
         BOOST_CHECK( precise.getResiduals( ObservationSelectionCondition< Scalar, Time >::all( ), order ).front( )( 0 ) == x );
+    }
+}
+
+//! Compute right ascension and declination of a relative position
+Eigen::Vector2d computeRightAscensionAndDeclination( const Eigen::Vector3d& relativePosition )
+{
+    return Eigen::Vector2d( std::atan2( relativePosition( 1 ), relativePosition( 0 ) ),
+                            std::asin( relativePosition( 2 ) / relativePosition.norm( ) ) );
+}
+
+//! Check that observation time biases and uncertainties are applied to angular position observations and weights, using the rates
+//! of right ascension and declination w.r.t. J2000 (for an ECLIPJ2000 global frame), for per-observation and set-level weights, with
+//! and without a reduction of the weights per local night (both observations are in the same night)
+BOOST_AUTO_TEST_CASE( testAngularPositionTimeBiasesAndUncertainties )
+{
+    Eigen::Vector6d observerState, observedBodyState;
+    observerState << 1.4E11, 0.3E11, -0.1E11, -5.0E3, 2.9E4, 1.0E3;
+    observedBodyState << 1.6E11, -0.2E11, 0.2E11, 1.0E4, 2.2E4, -3.0E3;
+
+    simulation_setup::BodyListSettings bodySettings( "SSB", "ECLIPJ2000" );
+    bodySettings.addSettings( "Observer" );
+    bodySettings.at( "Observer" )->ephemerisSettings = simulation_setup::constantEphemerisSettings( observerState, "SSB", "ECLIPJ2000" );
+    bodySettings.addSettings( "Asteroid" );
+    bodySettings.at( "Asteroid" )->ephemerisSettings =
+            simulation_setup::constantEphemerisSettings( observedBodyState, "SSB", "ECLIPJ2000" );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
+
+    // Rates w.r.t. J2000 (constant, since the states of both bodies are constant), from central differences for linear relative motion
+    const Eigen::Matrix3d rotationToJ2000 = reference_frames::getJ2000toECLIPJ2000TransformationMatrix( ).transpose( );
+    const Eigen::Vector3d relativePosition = rotationToJ2000 * ( observedBodyState - observerState ).segment( 0, 3 );
+    const Eigen::Vector3d relativeVelocity = rotationToJ2000 * ( observedBodyState - observerState ).segment( 3, 3 );
+    const double timeStep = 10.0;
+    const Eigen::Vector2d angularRates = ( computeRightAscensionAndDeclination( relativePosition + timeStep * relativeVelocity ) -
+                                           computeRightAscensionAndDeclination( relativePosition - timeStep * relativeVelocity ) ) /
+            ( 2.0 * timeStep );
+
+    const std::vector< double > timeUncertainties = { 2.0, 0.5 };
+    const std::vector< double > timeBiases = { 3.0, -1.5 };
+
+    // Positional covariance of the two observations, uncorrelated (per-observation weights) or correlated (set-level weights)
+    const double positionalVariance = 1.0E-12;
+    const Eigen::Matrix4d uncorrelatedCovariance = positionalVariance * Eigen::Matrix4d::Identity( );
+    Eigen::Matrix4d correlatedCovariance = uncorrelatedCovariance;
+    correlatedCovariance.block( 0, 2, 2, 2 ) = 0.3 * positionalVariance * Eigen::Matrix2d::Identity( );
+    correlatedCovariance.block( 2, 0, 2, 2 ) = 0.3 * positionalVariance * Eigen::Matrix2d::Identity( );
+
+    for( const bool useSetLevelWeights : { false, true } )
+    {
+        for( const bool useNightlyDeweighting : { false, true } )
+        {
+            const data::PlainLinkDefinition linkEnds = { { { "Asteroid", "" }, "transmitter" }, { { "Observer", "" }, "receiver" } };
+            std::shared_ptr< data::TrackingData< double, double > > trackingData =
+                    std::make_shared< data::TrackingData< double, double > >( "AngularPosition",
+                                                                              linkEnds,
+                                                                              std::vector< Eigen::VectorXd >( 2, Eigen::Vector2d::Zero( ) ),
+                                                                              std::vector< double >{ 0.0, 100.0 },
+                                                                              "receiver" );
+            trackingData->getWeightSettings( )->setObservationWeightSettings(
+                    useSetLevelWeights ? setBlockWeights( correlatedCovariance.inverse( ) )
+                                       : diagonalPerObservationWeights( std::vector< Eigen::VectorXd >(
+                                                 2, Eigen::Vector2d::Constant( 1.0 / positionalVariance ) ) ) );
+            trackingData->getWeightSettings( )->setTimeUncertainties( timeUncertainties );
+            trackingData->getCorrectionSettings( )->setTimeBiases( timeBiases );
+            if( useNightlyDeweighting )
+            {
+                trackingData->getWeightSettings( )->setBlockDeweighting( data::ObservationBlockDefinition::local_night,
+                                                                         data::BlockDeweightingRule::divide_by_number_of_observations );
+            }
+
+            const ObservationVectorData< double, double > vectorData =
+                    createObservationDatasetFromTrackingData< double, double >( { trackingData }, bodies, true )
+                            ->createObservationVectorData( );
+
+            // With the reduction per local night, the positional covariance is multiplied by the number of observations in the night (2)
+            Eigen::Matrix4d expectedCovariance =
+                    ( useNightlyDeweighting ? 2.0 : 1.0 ) * ( useSetLevelWeights ? correlatedCovariance : uncorrelatedCovariance );
+            for( unsigned int i = 0; i < 2; i++ )
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( vectorData.getObservationVector( ).segment( 2 * i, 2 ),
+                                                   Eigen::Vector2d( -timeBiases.at( i ) * angularRates ),
+                                                   1.0E-8 );
+                expectedCovariance.block( 2 * i, 2 * i, 2, 2 ) +=
+                        timeUncertainties.at( i ) * timeUncertainties.at( i ) * angularRates * angularRates.transpose( );
+            }
+            const Eigen::MatrixXd computedCovariance = vectorData.getSparseWeightMatrix( ).toDense( ).inverse( );
+            BOOST_CHECK_SMALL( ( computedCovariance - expectedCovariance ).norm( ) / expectedCovariance.norm( ), 1.0E-8 );
+        }
     }
 }
 

@@ -72,9 +72,10 @@ void expose_tracking_data( py::module& m )
          :ref:`observation_corrections`. The observed body and the observer are taken from the link ends of the tracking data.
          The observations stored in the tracking data are not modified.
       )doc" )
-            .def( py::init< const std::vector< std::string >&, const bool >( ),
+            .def( py::init< const std::vector< std::string >&, const bool, const std::vector< unsigned int >& >( ),
                   py::arg( "light_deflection_bodies" ) = std::vector< std::string >( ),
                   py::arg( "photocenter_correction" ) = false,
+                  py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
                   R"doc(
          Class constructor.
 
@@ -87,9 +88,12 @@ void expose_tracking_data( py::module& m )
              Request a photocenter correction. The photocenter correction takes the target's size from its shape model,
              which must be a spherical or tri-axial ellipsoid shape model. A tri-axial ellipsoid also requires a rotation model,
              whose body-fixed axes are aligned with the semi-axes of the ellipsoid.
+         observation_indices : list[int], default = []
+             Indices of the observations that are corrected (empty for all observations).
       )doc" )
             .def_readonly( "light_deflection_bodies", &tdat::AngularObservationCorrectionSettings::lightDeflectionBodies_ )
-            .def_readonly( "photocenter_correction", &tdat::AngularObservationCorrectionSettings::photocenterCorrection_ );
+            .def_readonly( "photocenter_correction", &tdat::AngularObservationCorrectionSettings::photocenterCorrection_ )
+            .def_readonly( "observation_indices", &tdat::AngularObservationCorrectionSettings::observationIndices_ );
 
     py::class_< tom::ObservationWeightSettings, std::shared_ptr< tom::ObservationWeightSettings > >( m,
                                                                                                      "ObservationWeightSettings",
@@ -102,11 +106,21 @@ void expose_tracking_data( py::module& m )
          defined as a single value for all observations, as one value per observation or per observation component, as a matrix
          per observation (including correlations between its components), or as a single matrix for all observations (including
          correlations between different observations). The values are checked when the settings are created.
+      )doc" )
+            .def_property_readonly( "observation_indices",
+                                    &tom::ObservationWeightSettings::getObservationIndices,
+                                    R"doc(
+         **read-only**
+
+         Indices of the observations for which the weights are given (empty for all observations).
+
+         :type: list[int]
       )doc" );
 
     m.def( "constant_scalar_weights",
            &tom::constantScalarWeights,
            py::arg( "weight" ),
+           py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
            R"doc(
          Function to create settings with the same weight for all components of all observations.
 
@@ -114,6 +128,10 @@ void expose_tracking_data( py::module& m )
          ----------
          weight : float
              Weight of each observation component.
+         observation_indices : list[int], default []
+             Indices of the observations for which the weights are given (all observations if empty). Only for the weights of a
+             :class:`TrackingData` object; the weights of an observation set in an observation dataset are always given for all
+             observations.
 
          Returns
          -------
@@ -124,6 +142,7 @@ void expose_tracking_data( py::module& m )
     m.def( "scalar_per_observation_weights",
            &tom::scalarPerObservationWeights,
            py::arg( "weights" ),
+           py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
            R"doc(
          Function to create settings with one weight per observation, used for all components of that observation.
 
@@ -131,6 +150,10 @@ void expose_tracking_data( py::module& m )
          ----------
          weights : list[float]
              Weight of each observation.
+         observation_indices : list[int], default []
+             Indices of the observations for which the weights are given (all observations if empty). Only for the weights of a
+             :class:`TrackingData` object; the weights of an observation set in an observation dataset are always given for all
+             observations.
 
          Returns
          -------
@@ -141,6 +164,7 @@ void expose_tracking_data( py::module& m )
     m.def( "diagonal_per_observation_weights",
            &tom::diagonalPerObservationWeights,
            py::arg( "weights" ),
+           py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
            R"doc(
          Function to create settings with a separate weight for each component of each observation.
 
@@ -148,6 +172,10 @@ void expose_tracking_data( py::module& m )
          ----------
          weights : list[numpy.ndarray[numpy.float64[m, 1]]]
              Weight of each observation component, with one vector per observation.
+         observation_indices : list[int], default []
+             Indices of the observations for which the weights are given (all observations if empty). Only for the weights of a
+             :class:`TrackingData` object; the weights of an observation set in an observation dataset are always given for all
+             observations.
 
          Returns
          -------
@@ -158,6 +186,7 @@ void expose_tracking_data( py::module& m )
     m.def( "constant_block_weights",
            &tom::constantBlockWeights,
            py::arg( "weight_block" ),
+           py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
            R"doc(
          Function to create settings with the same weight matrix (including correlations between the observation
          components) for all observations.
@@ -166,6 +195,10 @@ void expose_tracking_data( py::module& m )
          ----------
          weight_block : numpy.ndarray[numpy.float64[m, m]]
              Symmetric weight matrix, with one row and column per observation component.
+         observation_indices : list[int], default []
+             Indices of the observations for which the weights are given (all observations if empty). Only for the weights of a
+             :class:`TrackingData` object; the weights of an observation set in an observation dataset are always given for all
+             observations.
 
          Returns
          -------
@@ -176,6 +209,7 @@ void expose_tracking_data( py::module& m )
     m.def( "block_per_observation_weights",
            &tom::blockPerObservationWeights,
            py::arg( "weight_blocks" ),
+           py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
            R"doc(
          Function to create settings with a separate weight matrix (including correlations between the observation
          components) for each observation.
@@ -184,6 +218,10 @@ void expose_tracking_data( py::module& m )
          ----------
          weight_blocks : list[numpy.ndarray[numpy.float64[m, m]]]
              Symmetric weight matrix of each observation, with one row and column per observation component.
+         observation_indices : list[int], default []
+             Indices of the observations for which the weights are given (all observations if empty). Only for the weights of a
+             :class:`TrackingData` object; the weights of an observation set in an observation dataset are always given for all
+             observations.
 
          Returns
          -------
@@ -196,7 +234,7 @@ void expose_tracking_data( py::module& m )
            py::arg( "weight_matrix" ),
            R"doc(
          Function to create settings with a single weight matrix for all observations, including correlations between
-         different observations.
+         different observations. These weights are always given for all observations.
 
          Parameters
          ----------
@@ -240,9 +278,10 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
          :attr:`TrackingData.weight_settings`.
 
          The weights are computed from these settings when the tracking data is converted to an observation dataset: the
-         explicit weights (see :meth:`set_observation_weight_settings`) or, if these are not set, the named weights (see
-         :meth:`set_named_weights`), with the reduction of the weights per block of observations (see
-         :meth:`set_block_deweighting`).
+         explicit weights (see :meth:`set_observation_weight_settings`), the named weights for the observations without
+         explicit weights (see :meth:`set_named_weights`), the reduction of the weights per block of observations (see
+         :meth:`set_block_deweighting`) and the contribution of the timing uncertainties (see
+         :meth:`set_time_uncertainties`), in this order.
       )doc" )
             .def( "set_observation_weight_settings",
                   &tdat::TrackingDataWeightSettings::setObservationWeightSettings,
@@ -250,10 +289,14 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
                   R"doc(
          Set the explicit weights of the observations, which are known before creating an observation dataset.
 
-         When converting to an observation dataset with
-         :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`, these weights are used for all
-         observations, with the reduction of the weights per block of observations (see :meth:`set_block_deweighting`). Explicit
-         weights that were set before (also with :meth:`TrackingData.set_observation_weights`) are replaced.
+         The weights may be given for all observations, or (except for set-level weights) for the observations given by the
+         ``observation_indices`` of the weight settings, in which case the other observations get weights from a named method (see
+         :meth:`set_named_weights`). When converting to an observation dataset with
+         :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`, these weights are combined with
+         the other weight settings (see :meth:`set_named_weights`, :meth:`set_block_deweighting` and
+         :meth:`set_time_uncertainties`). Explicit weights that were set before (also with
+         :meth:`TrackingData.set_observation_weights`) are replaced. For angular position observations, each observation must have
+         a weight for both right ascension and declination, or for neither of the two.
 
          Parameters
          ----------
@@ -298,10 +341,11 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
                   &tdat::TrackingDataWeightSettings::setNamedWeights,
                   py::arg( "method" ),
                   R"doc(
-         Set weights computed with a named method, used for all observations if no explicit weights are set (see
-         :meth:`set_observation_weight_settings`); angular position observations only.
+         Set weights computed with a named method, for all observations without explicit weights (angular position
+         observations only).
 
-         The weights are computed when converting to an observation dataset.
+         The weights are computed when converting to an observation dataset. If no explicit weights are set (see
+         :meth:`set_observation_weight_settings`), the named method is used for all observations.
 
          Parameters
          ----------
@@ -316,10 +360,12 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
                   &tdat::TrackingDataWeightSettings::setBlockDeweighting,
                   py::arg( "block_definition" ),
                   py::arg( "rule" ),
+                  py::arg( "observation_indices" ) = std::vector< unsigned int >( ),
                   R"doc(
-         Set a reduction of the weights of all observations that belong to the same block (e.g. the same local night).
+         Set a reduction of the weights of the observations that belong to the same block (e.g. the same local night).
 
-         The reduction is applied to the explicit or named weights when converting to an observation dataset.
+         The reduction is applied when converting to an observation dataset, to the explicit and named weights, before the
+         contribution of the timing uncertainties is added (see :meth:`set_time_uncertainties`).
 
          Parameters
          ----------
@@ -327,10 +373,47 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
              Definition of the blocks of observations.
          rule : BlockDeweightingRule
              Rule to reduce the weights of the observations in a block.
+         observation_indices : list[int], default []
+             Indices of the observations of which the weights are reduced (all observations if empty). The number of
+             observations in a block includes all observations.
 
          Returns
          -------
          None
+      )doc" )
+            .def( "set_time_uncertainties",
+                  &tdat::TrackingDataWeightSettings::setTimeUncertainties,
+                  py::arg( "time_uncertainties" ),
+                  R"doc(
+         Set the uncertainties of the observation epochs, one value per observation (currently for angular position observations only, other observables raise an error when
+         converting to an observation dataset).
+
+         When the tracking data is converted to an observation dataset, the contribution of the epoch uncertainty
+         :math:`\sigma_{T}` is added to the covariance :math:`\mathbf{C}_{P}` of each observation (the inverse of its
+         explicit and named weights, which must be defined), following :cite:p:`farnocchia2022`:
+
+         .. math::
+            \mathbf{C}=\mathbf{C}_{P}+\sigma_{T}^{2}\begin{pmatrix}\dot{\alpha}^{2} & \dot{\alpha}\dot{\delta}\\ \dot{\alpha}\dot{\delta} & \dot{\delta}^{2}\end{pmatrix}
+
+         where :math:`\dot{\alpha}` and :math:`\dot{\delta}` are the rates of right ascension and declination (w.r.t.
+         J2000), computed from the states of the observer and observed body in the environment. The inverse of
+         :math:`\mathbf{C}` is used as the (non-diagonal) weight block of each observation. For set-level weights, which
+         correlate different observations, these contributions are added to the covariance of the full set.
+
+         Parameters
+         ----------
+         time_uncertainties : list[float]
+             (1-sigma) uncertainties of the observation epochs, in seconds, one per observation.
+      )doc" )
+            .def_property_readonly( "time_uncertainties",
+                                    &tdat::TrackingDataWeightSettings::getTimeUncertainties,
+                                    R"doc(
+         **read-only**
+
+         (1-sigma) uncertainties of the observation epochs (in seconds), one per observation (empty if not set), see
+         :meth:`set_time_uncertainties`.
+
+         :type: list[float]
       )doc" );
 
     py::class_< tdat::TrackingDataCorrectionSettings< STATE_SCALAR_TYPE >,
@@ -342,7 +425,8 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
 
          The corrections are applied when the tracking data is converted to an observation dataset with
          ``apply_corrections=True``: the corrections given per observation (see
-         :meth:`TrackingData.set_observation_corrections`) and the corrections computed from models of the environment (see
+         :meth:`TrackingData.set_observation_corrections`), the corrections from the biases of the observation epochs (see
+         :meth:`set_time_biases`) and the corrections computed from models of the environment (see
          :meth:`set_observation_correction_settings`).
       )doc" )
             .def( "set_observation_correction_settings",
@@ -371,6 +455,34 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
          Settings defining the corrections to the angular position observations (``None`` if not set).
 
          :type: AngularObservationCorrectionSettings
+      )doc" )
+            .def( "set_time_biases",
+                  &tdat::TrackingDataCorrectionSettings< STATE_SCALAR_TYPE >::setTimeBiases,
+                  py::arg( "time_biases" ),
+                  R"doc(
+         Set the biases of the observation epochs, one value per observation (currently for angular position observations only, other observables raise an error when
+         converting to an observation dataset).
+
+         An observation with epoch :math:`t` and time bias :math:`c` is taken to be the observable at :math:`t+c`. When
+         the tracking data is converted to an observation
+         dataset with ``apply_corrections=True``, each observation is corrected to epoch :math:`t` as
+         :math:`(\alpha,\delta)\rightarrow(\alpha-c\dot{\alpha},\delta-c\dot{\delta})`, with the rates computed as for
+         :meth:`set_time_uncertainties`.
+
+         Parameters
+         ----------
+         time_biases : list[float]
+             Biases of the observation epochs, in seconds, one per observation.
+      )doc" )
+            .def_property_readonly( "time_biases",
+                                    &tdat::TrackingDataCorrectionSettings< STATE_SCALAR_TYPE >::getTimeBiases,
+                                    R"doc(
+         **read-only**
+
+         Biases of the observation epochs (in seconds), one per observation (empty if not set), see
+         :meth:`set_time_biases`.
+
+         :type: list[float]
       )doc" );
 
     py::class_< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >, std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >(

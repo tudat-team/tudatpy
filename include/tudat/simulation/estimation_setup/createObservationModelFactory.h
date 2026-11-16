@@ -55,22 +55,6 @@ namespace tudat
 namespace observation_models
 {
 
-inline Eigen::Matrix3d getJ2000ToGlobalFrameTransformation( const simulation_setup::SystemOfBodies& bodies )
-{
-    const std::string globalFrameOrientation = bodies.getFrameOrientation( );
-    if( globalFrameOrientation == "J2000" || globalFrameOrientation == "ICRF" )
-    {
-        return Eigen::Matrix3d::Identity( );
-    }
-    if( globalFrameOrientation == "ECLIPJ2000" )
-    {
-        return reference_frames::getJ2000toECLIPJ2000TransformationMatrix( );
-    }
-
-    throw std::runtime_error( "Position-angle observations require a J2000/ICRF or ECLIPJ2000 global frame; found " +
-                              globalFrameOrientation + "." );
-}
-
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
  *  Function to create the proper time rate calculator for use in one-way Doppler
@@ -711,7 +695,7 @@ std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeT
                                                                           observationSettings->lightTimeCorrectionsList_,
                                                                           observationSettings->lightTimeConvergenceCriteria_ ),
             observationBias,
-            getJ2000ToGlobalFrameTransformation( bodies ),
+            reference_frames::getJ2000ToFrameOrientationTransformationMatrix( bodies.getFrameOrientation( ) ),
             bodies.getFrameOrigin( ) == "SSB" );
 }
 
@@ -1893,7 +1877,7 @@ public:
                         // Only used for observations with celestial frame ancillary settings (NaN if not defined)
                         ( bodies.getFrameOrientation( ) == "J2000" || bodies.getFrameOrientation( ) == "ICRF" ||
                           bodies.getFrameOrientation( ) == "ECLIPJ2000" )
-                                ? getJ2000ToGlobalFrameTransformation( bodies )
+                                ? reference_frames::getJ2000ToFrameOrientationTransformationMatrix( bodies.getFrameOrientation( ) )
                                 : Eigen::Matrix3d::Constant( TUDAT_NAN ),
                         bodies.getFrameOrigin( ) == "SSB" );
 

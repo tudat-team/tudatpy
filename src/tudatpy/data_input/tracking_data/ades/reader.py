@@ -2,12 +2,75 @@
 MPC ADES tracking-data loading.
 """
 
-from .parsers import parse_ades_file
+import numpy as np
+
+from .parsers import (
+    OBSERVATION_UNCERTAINTY_FIELDS,
+    RESIDUAL_BIAS_FIELDS,
+    RESIDUAL_UNCERTAINTY_FIELDS,
+    parse_ades_file,
+)
 from tudatpy.data_input.tracking_data.optical_utilities import read_astropy_optical_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
     radar_data_from_table,
     radar_data_to_tracking_data,
 )
+
+
+def _select_ades_observation_or_residual_fields(table, prefer_residual_fields: bool):
+    """Select, for each observation, either the ADES observation fields or the residual fields.
+
+    For each observation, all fields of the preferred kind are used if any of them is available,
+    and otherwise all fields of the other kind; the two kinds are never combined for a single
+    observation. The observation fields are rmsRA, rmsDec, rmsCorr and rmsTime; the residual
+    fields are sigRA, sigDec, sigCorr and sigTime (uncertainties adopted by an orbit computing
+    center) and biasRA, biasDec and biasTime (biases adopted by an orbit computing center).
+    The selected uncertainties are stored in the rmsRA, rmsDec, rmsCorr and rmsTime columns
+    (the sigRA, sigDec, sigCorr and sigTime columns are removed), and the biasRA, biasDec and
+    biasTime columns are kept only for the observations that use the residual fields (NaN
+    otherwise).
+
+    Parameters
+    ----------
+    table : astropy.table.Table
+        Table with the parsed ADES observations (see :func:`parse_ades_file`), modified in place.
+    prefer_residual_fields : bool
+        Whether the residual fields (instead of the observation fields) are used for an
+        observation for which both are available.
+    """
+    values = {
+        column: (
+            np.ma.filled(np.ma.asarray(table[column], dtype=float), np.nan)
+            if column in table.colnames
+            else np.full(len(table), np.nan)
+        )
+        for column in OBSERVATION_UNCERTAINTY_FIELDS
+        + RESIDUAL_UNCERTAINTY_FIELDS
+        + RESIDUAL_BIAS_FIELDS
+    }
+    has_observation_fields = np.any(
+        [~np.isnan(values[column]) for column in OBSERVATION_UNCERTAINTY_FIELDS], axis=0
+    )
+    has_residual_fields = np.any(
+        [
+            ~np.isnan(values[column])
+            for column in RESIDUAL_UNCERTAINTY_FIELDS + RESIDUAL_BIAS_FIELDS
+        ],
+        axis=0,
+    )
+    use_residual_fields = has_residual_fields & (prefer_residual_fields | ~has_observation_fields)
+
+    for observation_field, residual_field in zip(
+        OBSERVATION_UNCERTAINTY_FIELDS, RESIDUAL_UNCERTAINTY_FIELDS
+    ):
+        table[observation_field] = np.where(
+            use_residual_fields, values[residual_field], values[observation_field]
+        )
+    for column in RESIDUAL_BIAS_FIELDS:
+        table[column] = np.where(use_residual_fields, values[column], np.nan)
+    table.remove_columns(
+        [column for column in RESIDUAL_UNCERTAINTY_FIELDS if column in table.colnames]
+    )
 
 
 def read_ades_data(
@@ -21,6 +84,11 @@ def read_ades_data(
     ades_weights: bool = False,
     vfcc17_weights: bool = False,
     nightly_deweighting: bool = False,
+    time_uncertainties: bool = False,
+    minimum_ades_uncertainty: float | None = None,
+    prefer_residual_fields: bool = False,
+    light_deflection_bodies: list[str] | None = None,
+    photocenter_correction: bool = False,
 ):
     """Function to read an MPC ADES file into TrackingData objects.
 
@@ -50,20 +118,58 @@ def read_ades_data(
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
     ades_weights : bool, default False
-        Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds) are used as
-        weights (see
+        Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds), and their
+        correlation rmsCorr (if available), are used as explicit weights (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
-        Requires rmsRA and rmsDec for every observation.
+        Observations without rmsRA and rmsDec require ``vfcc17_weights``. A correlation with
+        an absolute value above 1 - 1e-8 is replaced by 1 - 1e-8 (or -(1 - 1e-8)), with a warning.
     vfcc17_weights : bool, default False
-        Whether the observations get the weights of :cite:p:`veres2017` (see
+        Whether the observations without explicit weights (all observations if ``ades_weights``
+        is False, and including those for which ``minimum_ades_uncertainty`` removes the ADES
+        uncertainties) get the weights of :cite:p:`veres2017` (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
-        Cannot be combined with ``ades_weights``.
     nightly_deweighting : bool, default False
-        Whether the ADES weights are divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for the weights of
-        :cite:p:`veres2017` (see
+        Whether the weights from the ADES uncertainties (not the VFCC17 weights, which include their
+        own reduction per local night) are divided by the number of observations of the same target,
+        from the same observatory, in the same local night (see
         :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
         Requires ``ades_weights``.
+    time_uncertainties : bool, default False
+        Whether the rmsTime timing uncertainties (in seconds) are added to the observation
+        covariance (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_time_uncertainties`).
+        Requires ``ades_weights`` or ``vfcc17_weights``.
+    minimum_ades_uncertainty : float | None, default None
+        Minimum rmsRA and rmsDec (in arcseconds) for which the ADES uncertainties of an
+        observation are used (applied to sigRA and sigDec for observations that use the
+        residual fields, see ``prefer_residual_fields``). For observations with a smaller value,
+        rmsRA and rmsDec are removed, so that these are treated as observations without
+        uncertainties (see ``vfcc17_weights``). Not applied to stellar occultation observations.
+    prefer_residual_fields : bool, default False
+        Whether the uncertainties and biases adopted by an orbit computing center (the ADES
+        residual fields sigRA, sigDec, sigCorr, sigTime, biasRA, biasDec and biasTime) are used
+        instead of the uncertainties reported by the observer (the ADES observation fields
+        rmsRA, rmsDec, rmsCorr and rmsTime), for observations that have both. Each observation
+        uses either all fields of one kind or all fields of the other: those of the preferred
+        kind if any of them is available, otherwise those of the other kind. The residual uncertainties then
+        take the place of rmsRA, rmsDec, rmsCorr and rmsTime in the weights. The
+        adopted biases (only available in the residual fields) are always stored (and applied when
+        the observations are converted with ``apply_corrections=True``), assuming that the reported
+        values are the true values plus the bias: biasTime (in seconds) is set as the negative time
+        bias (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataCorrectionSettings.set_time_biases`), and
+        biasRA (of RA cos(Dec)) and biasDec (in arcseconds) are subtracted as observation
+        corrections.
+        The observations with adopted biases do not get the star-catalog, light deflection and
+        photocenter corrections (with a warning, once per correction type).
+    light_deflection_bodies : list[str] | None, default None
+        Names of the bodies for which the relativistic light deflection correction is requested for
+        the optical observations (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`).
+    photocenter_correction : bool, default False
+        Whether the photocenter correction is requested (see
+        :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`), for which
+        the size of the observed body is taken from its shape model.
 
     Returns
     -------
@@ -79,6 +185,14 @@ def read_ades_data(
     parsed_table = parse_ades_file(file_path)
     optical_tracking_data, supplementary_data = [], []
     if len(parsed_table) > 0:
+        _select_ades_observation_or_residual_fields(parsed_table, prefer_residual_fields)
+        if minimum_ades_uncertainty is not None:
+            rejected = (np.asarray(parsed_table["mode"]) != "OCC") & (
+                (parsed_table["rmsRA"] < minimum_ades_uncertainty)
+                | (parsed_table["rmsDec"] < minimum_ades_uncertainty)
+            )
+            for column in ("rmsRA", "rmsDec"):
+                parsed_table[column][rejected] = np.nan
         optical_tracking_data, supplementary_data = read_astropy_optical_data(
             parsed_table,
             in_degrees=False,
@@ -90,6 +204,9 @@ def read_ades_data(
             ades_weights=ades_weights,
             vfcc17_weights=vfcc17_weights,
             nightly_deweighting=nightly_deweighting,
+            time_uncertainties=time_uncertainties,
+            light_deflection_bodies=light_deflection_bodies,
+            photocenter_correction=photocenter_correction,
         )
     radar_data = radar_data_from_table(parsed_table)
     if custom_name is not None:
