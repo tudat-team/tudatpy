@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( testBPlaneCoordinatesMatchGmat )
     const double expectedBDotT = 365738.686341826e3;
     const double expectedBDotR = 276107.260600374e3;
 
-    const close_encounters::BPlaneData bPlane = close_encounters::computeBPlaneCoordinates( relativeState, earthGravitationalParameter );
+    const close_encounters::BPlaneData bPlane = close_encounters::makeBPlane( relativeState, earthGravitationalParameter );
 
     BOOST_CHECK_CLOSE_FRACTION( bPlane.bT, expectedBDotT, 1.0E-12 );
     BOOST_CHECK_CLOSE_FRACTION( bPlane.bR, expectedBDotR, 1.0E-12 );
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testBPlaneOfHyperbolicKeplerOrbits )
         const Eigen::Vector6d periapsisState = convertKeplerianToCartesianElements( keplerianElements, gravitationalParameter );
         const Eigen::Vector3d pUnitVector = periapsisState.segment< 3 >( 0 ).normalized( );
         const Eigen::Vector3d qUnitVector = periapsisState.segment< 3 >( 3 ).normalized( );
-        const BPlaneData bPlane = computeBPlaneCoordinates( periapsisState, gravitationalParameter );
+        const BPlaneData bPlane = makeBPlane( periapsisState, gravitationalParameter );
         const Eigen::Vector3d outgoingAsymptote = computeOutgoingAsymptoteDirection( periapsisState, gravitationalParameter );
 
         // Closed-form asymptotic velocity, impact parameter (semi-minor axis), asymptotes and turn angle
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE( testBPlaneOfHyperbolicKeplerOrbits )
         for( const double trueAnomalyFraction : { -0.9, -0.5, 0.5, 0.9 } )
         {
             keplerianElements( trueAnomalyIndex ) = trueAnomalyFraction * asymptoteTrueAnomaly;
-            const BPlaneData otherBPlane = computeBPlaneCoordinates(
-                    convertKeplerianToCartesianElements( keplerianElements, gravitationalParameter ), gravitationalParameter );
+            const BPlaneData otherBPlane =
+                    makeBPlane( convertKeplerianToCartesianElements( keplerianElements, gravitationalParameter ), gravitationalParameter );
             BOOST_CHECK_CLOSE_FRACTION( otherBPlane.asymptoticVelocity, bPlane.asymptoticVelocity, 1.0E-14 );
             BOOST_CHECK_SMALL( ( otherBPlane.sUnitVector - bPlane.sUnitVector ).norm( ), 1.0E-14 );
             BOOST_CHECK_SMALL( ( otherBPlane.bVector - bPlane.bVector ).norm( ), 1.0E-14 * bPlane.impactParameter );
