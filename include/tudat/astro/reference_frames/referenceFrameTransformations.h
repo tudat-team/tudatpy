@@ -672,6 +672,31 @@ Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::s
  */
 Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& targetFrame );
 
+/*! Check whether Helmert transformation parameters are available for an ITRF realization.
+ *
+ * @param frameName Name of the ITRF realization using Tudat's canonical naming convention.
+ * @return True if Tudat provides Helmert transformation parameters for the requested realization.
+ */
+bool isItrfFrameSupported( const std::string& frameName );
+
+/*! Convert an instantaneous Cartesian state between two supported ITRF realizations.
+ *
+ * Convert a Cartesian position and velocity between two ITRF realizations using the time-dependent Helmert
+ * transformations defined relative to ITRF2014. Unlike the ground-station conversion functions below, this function
+ * does not propagate the input state to the ITRF2014 reference epoch and is therefore suitable for arbitrary moving
+ * objects.
+ *
+ * @param stateAtEpoch Cartesian state at the specified epoch.
+ * @param epoch Seconds since J2000 at which the state is defined.
+ * @param baseFrame ITRF realization in which the input state is defined.
+ * @param targetFrame ITRF realization in which the output state is to be expressed.
+ * @return Cartesian state at the same epoch in the target ITRF realization.
+ */
+Eigen::Vector6d convertStateBetweenItrfFrames( const Eigen::Vector6d& stateAtEpoch,
+                                               const double epoch,
+                                               const std::string& baseFrame,
+                                               const std::string& targetFrame );
+
 /*! Function to convert the state of a ground station from ITRF2014 to another ITRS realization.
  *
  * Function to convert the state of a ground station from ITRF2014 to another ITRS realization. Conversion is executed

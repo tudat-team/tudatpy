@@ -21,6 +21,7 @@ from tudatpy.dynamics.environment_setup import (
     get_default_body_settings,
     ground_station,
 )
+from tudatpy.dynamics import environment
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
@@ -620,11 +621,11 @@ class TestObservationCollectionIntegration:
                 variables.sequential_range_lowest_ranging_component
             ) == float(FIXTURE_LOWEST_RANGING_COMPONENT)
             assert [
-                ancillary_settings.FrequencyBands(int(band))
+                environment.FrequencyBands(int(band))
                 for band in settings.get_float_list_settings(variables.frequency_bands)
             ] == [
-                ancillary_settings.FrequencyBands.x_band,
-                ancillary_settings.FrequencyBands.x_band,
+                environment.FrequencyBands.x_band,
+                environment.FrequencyBands.x_band,
             ]
             assert settings.get_float_list_settings(variables.link_ends_delays) == [0.0, 0.0, 0.0]
 
@@ -645,17 +646,17 @@ class TestObservationCollectionIntegration:
             )
             # The fixture's exciter band is S, while the up- and downlink are X band.
             assert (
-                ancillary_settings.FrequencyBands(
+                environment.FrequencyBands(
                     int(settings.get_float_settings(variables.reception_reference_frequency_band))
                 )
-                == ancillary_settings.FrequencyBands.s_band
+                == environment.FrequencyBands.s_band
             )
             assert [
-                ancillary_settings.FrequencyBands(int(band))
+                environment.FrequencyBands(int(band))
                 for band in settings.get_float_list_settings(variables.frequency_bands)
             ] == [
-                ancillary_settings.FrequencyBands.x_band,
-                ancillary_settings.FrequencyBands.x_band,
+                environment.FrequencyBands.x_band,
+                environment.FrequencyBands.x_band,
             ]
             assert settings.get_float_list_settings(variables.link_ends_delays) == [0.0, 0.0, 0.0]
 

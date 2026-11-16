@@ -51,6 +51,7 @@
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/relativeGravitationalParameterRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
 
 namespace tudat
@@ -2406,6 +2407,70 @@ BOOST_AUTO_TEST_CASE( testYarkovskyPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition, partialWrtSunPosition, 1.0E-8 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity, partialWrtSunVelocity, 1.0E-4 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunYarkovskyParameter, partialWrtSunYarkovskyParameter, 1.0E-8 );
+}
+
+BOOST_AUTO_TEST_CASE( testGravitationalParameterRatePartials )
+{
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
+    std::shared_ptr< Body > sun = std::make_shared< Body >( );
+
+    SystemOfBodies bodies;
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( sun, "Sun" );
+
+    spice_interface::loadStandardSpiceKernels( );
+    sun->setState( getBodyCartesianStateAtEpoch( "Sun", "Sun", "J2000", "NONE", 1.0E6 ) );
+    earth->setState( getBodyCartesianStateAtEpoch( "Earth", "Sun", "J2000", "NONE", 1.0E6 ) );
+    std::shared_ptr< GravityFieldModel > sunGravityFieldModel =
+            std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) );
+    sun->setGravityFieldModel( sunGravityFieldModel );
+
+    // Acceleration of the Earth due to the change of the solar gravitational parameter, 1E9 s after the reference epoch
+    std::shared_ptr< GravitationalParameterRateAcceleration > rateAcceleration =
+            std::dynamic_pointer_cast< GravitationalParameterRateAcceleration >(
+                    createAccelerationModel( earth, sun, gravitationalParameterRateAcceleration( -1.0E-17, -1.0E9 ), "Earth", "Sun" ) );
+    std::shared_ptr< AccelerationPartial > ratePartial =
+            createAnalyticalAccelerationPartial( rateAcceleration, std::make_pair( "Earth", earth ), std::make_pair( "Sun", sun ), bodies );
+    std::shared_ptr< EstimatableParameter< double > > rateParameter = std::make_shared< RelativeGravitationalParameterRate >(
+            std::vector< std::shared_ptr< GravitationalParameterRateAcceleration > >( { rateAcceleration } ), "Sun" );
+    std::shared_ptr< EstimatableParameter< double > > sunGravitationalParameterParameter =
+            std::make_shared< GravitationalParameter >( sunGravityFieldModel, "Sun" );
+
+    // Analytical partials
+    ratePartial->update( 0.0 );
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    ratePartial->wrtPositionOfAcceleratedBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    ratePartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
+    Eigen::Vector3d partialWrtRate = ratePartial->wrtParameter( rateParameter );
+    Eigen::Vector3d partialWrtSunGravitationalParameter = ratePartial->wrtParameter( sunGravitationalParameterParameter );
+
+    // Numerical partials
+    Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 10000.0 );
+    Eigen::Matrix3d testPartialWrtEarthPosition =
+            calculateAccelerationWrtStatePartials( std::bind( &Body::setState, earth, std::placeholders::_1 ),
+                                                   rateAcceleration,
+                                                   earth->getState( ),
+                                                   positionPerturbation,
+                                                   0,
+                                                   emptyFunction,
+                                                   0.0 );
+    Eigen::Matrix3d testPartialWrtSunPosition =
+            calculateAccelerationWrtStatePartials( std::bind( &Body::setState, sun, std::placeholders::_1 ),
+                                                   rateAcceleration,
+                                                   sun->getState( ),
+                                                   positionPerturbation,
+                                                   0,
+                                                   emptyFunction,
+                                                   0.0 );
+    Eigen::Vector3d testPartialWrtRate = calculateAccelerationWrtParameterPartials( rateParameter, rateAcceleration, 1.0E-19 );
+    Eigen::Vector3d testPartialWrtSunGravitationalParameter =
+            calculateAccelerationWrtParameterPartials( sunGravitationalParameterParameter, rateAcceleration, 1.0E12 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition, partialWrtSunPosition, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRate, partialWrtRate, 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunGravitationalParameter, partialWrtSunGravitationalParameter, 1.0E-6 );
 }
 
 BOOST_AUTO_TEST_CASE( testRTGPartials )

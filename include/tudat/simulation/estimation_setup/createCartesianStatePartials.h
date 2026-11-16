@@ -112,6 +112,16 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslationalState(
         const std::shared_ptr< simulation_setup::Body > currentBody );
 
+//! Function to create partial object of rotation matrix wrt the rotational state of a body, for use in observation partials
+/*!
+ *  Function to create partial object of rotation matrix wrt the rotational state of a body, evaluated from the body's rotation
+ *  model at the time at which it is called (as required for observation partials).
+ *  \param currentBody Body for which partial is to be created
+ *  \return Rotation matrix partial object
+ */
+std::shared_ptr< RotationMatrixPartial > createObservationRotationMatrixPartialWrtRotationalState(
+        const std::shared_ptr< simulation_setup::Body > currentBody );
+
 //! Function to create partial object(s) of rotation matrix wrt a state parameter
 /*!
  *  Function to create partial object(s) of rotation matrix wrt a state parameter
@@ -277,6 +287,32 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
 typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >, std::shared_ptr< RotationMatrixPartial > >
         RotationMatrixPartialNamedList;
+
+//! Function to create rotation matrix partial objects for all rotation model parameters of given body, for use in observation partials
+/*!
+ *  Function to create rotation matrix partial objects for all rotation model parameters of given body, for use in observation
+ *  partials (see createRotationMatrixPartials). The partial w.r.t. the rotational state is evaluated from the rotation model at the
+ *  observation time, rather than from the current rotational state of the body.
+ *  \param parametersToEstimate Set of all parameters which are to be estimated.
+ *  \param bodyName Name of body for which to create partials of rotation from body-fixed to base frame
+ *  \param bodies Map of body objects, used in the creation of the partials.
+ *  \return Rotation matrix partial objects for all rotation model parameters of bodyName in parametersToEstimate.
+ */
+template< typename ParameterType >
+RotationMatrixPartialNamedList createObservationRotationMatrixPartials(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::string& bodyName,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    RotationMatrixPartialNamedList rotationMatrixPartials = createRotationMatrixPartials( parametersToEstimate, bodyName, bodies );
+    const std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string > rotationalStateKey =
+            std::make_pair( estimatable_parameters::initial_rotational_body_state, "" );
+    if( rotationMatrixPartials.count( rotationalStateKey ) != 0 )
+    {
+        rotationMatrixPartials[ rotationalStateKey ] = createObservationRotationMatrixPartialWrtRotationalState( bodies.at( bodyName ) );
+    }
+    return rotationMatrixPartials;
+}
 
 }  // namespace observation_partials
 

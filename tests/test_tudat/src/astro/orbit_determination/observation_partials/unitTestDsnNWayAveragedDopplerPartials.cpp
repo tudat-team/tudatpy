@@ -42,6 +42,7 @@ namespace unit_tests
 using namespace tudat::gravitation;
 using namespace tudat::ephemerides;
 using namespace tudat::observation_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::simulation_setup;
 using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
@@ -91,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         setTrackingSupplementaryDataInBodies( bodies, supplementaryData );
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setVehicleSystems( vehicleSystems );
 
         // Set link ends for observation model
@@ -116,22 +117,23 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, stateEvaluationTime );
 
-        testObservationPartials< 1 >( dsnNWayAveragedDopplerModel,
-                                      bodies,
-                                      fullEstimatableParameterSet,
-                                      linkEnds,
-                                      dsn_n_way_averaged_doppler,
-                                      1.0E-4,
-                                      true,
-                                      true,
-                                      1000.0,
-                                      parameterPerturbationMultipliers,
-                                      getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
-                                                                                  x_band,
-                                                                                  7.0e9,
-                                                                                  60.0,
-                                                                                  getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                                      stateEvaluationTime );
+        testObservationPartials< 1 >(
+                dsnNWayAveragedDopplerModel,
+                bodies,
+                fullEstimatableParameterSet,
+                linkEnds,
+                dsn_n_way_averaged_doppler,
+                1.0E-4,
+                true,
+                true,
+                1000.0,
+                parameterPerturbationMultipliers,
+                getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                                                            FrequencyBands::x_band,
+                                                            7.0e9,
+                                                            60.0,
+                                                            getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                stateEvaluationTime );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -146,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         setTrackingSupplementaryDataInBodies( bodies, supplementaryData );
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setVehicleSystems( vehicleSystems );
 
         // Set link ends for observation model
@@ -171,22 +173,23 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, stateEvaluationTime );
 
-        testObservationPartials< 1 >( dsnNWayAveragedDopplerModel,
-                                      bodies,
-                                      fullEstimatableParameterSet,
-                                      linkEnds,
-                                      dsn_n_way_averaged_doppler,
-                                      1.0E-4,
-                                      false,
-                                      true,
-                                      1000.0,
-                                      parameterPerturbationMultipliers,
-                                      getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
-                                                                                  x_band,
-                                                                                  7.0e9,
-                                                                                  60.0,
-                                                                                  getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                                      stateEvaluationTime );
+        testObservationPartials< 1 >(
+                dsnNWayAveragedDopplerModel,
+                bodies,
+                fullEstimatableParameterSet,
+                linkEnds,
+                dsn_n_way_averaged_doppler,
+                1.0E-4,
+                false,
+                true,
+                1000.0,
+                parameterPerturbationMultipliers,
+                getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                                                            FrequencyBands::x_band,
+                                                            7.0e9,
+                                                            60.0,
+                                                            getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                stateEvaluationTime );
     }
 }
 

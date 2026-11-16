@@ -193,6 +193,12 @@ public:
         return longitudeLibrationCalculator_;
     }
 
+    //! Function to retrieve the name of the central body, w.r.t. which the rotation is synchronous
+    std::string getCentralBodyName( ) const
+    {
+        return centralBodyName_;
+    }
+
     Eigen::Vector6d getRelativeCartesianState( const double time )
     {
         return relativeStateFunction_( time, isBodyInPropagation_ );

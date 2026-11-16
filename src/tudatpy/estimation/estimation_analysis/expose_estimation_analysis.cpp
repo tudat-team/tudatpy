@@ -530,6 +530,19 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" )
+            .def_readwrite( "iteration_callback",
+                            &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::iterationCallback_,
+                            R"doc(
+
+         Function called in each iteration of the estimation, after the normal equations are solved, as
+         ``f(iteration, residuals, inverse_covariance)``: the iteration number (from 0), the residuals of this iteration (ordered as in
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`) and the unnormalized inverse covariance
+         matrix of this iteration (as in
+         :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.inverse_covariance`).
+         It can be used to monitor a long estimation while it runs. Default is ``None`` (no callback).
+
+         :type: Callable[[int, numpy.ndarray, numpy.ndarray], None]
+      )doc" )
             .def( "define_estimation_settings",
                   &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -540,6 +553,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "save_state_history_per_iteration" ) = false,
                   py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
                   py::arg( "condition_number_warning_each_iteration" ) = true,
+                  py::arg( "save_variational_results_per_iteration" ) = true,
                   R"doc(
 
          Function to define specific settings for the estimation process
@@ -569,6 +583,10 @@ void expose_estimation_analysis( py::module& m )
 
          save_state_history_per_iteration : bool, default = False
              Boolean denoting whether the state history and dependent variables are to be saved on each iteration.
+
+         save_variational_results_per_iteration : bool, default = True
+             Boolean denoting whether the state transition and sensitivity matrices are to be saved on each iteration.
+             Only used if ``save_state_history_per_iteration`` is True.
 
          Returns
          -------

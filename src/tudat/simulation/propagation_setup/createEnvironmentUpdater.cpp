@@ -350,6 +350,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                         singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
                         singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( torqueModelIterator->first );
                         singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
                         singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( torqueModelIterator->first );
                         singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( acceleratedBodyIterator->first );
                         break;
@@ -1001,6 +1003,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                     case momentum_wheel_desaturation_acceleration:
                         break;
                     case yarkovsky_acceleration:
+                        break;
+                    case gravitational_parameter_rate_acceleration:
                         break;
                     case custom_acceleration:
                         break;

@@ -77,8 +77,6 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_tracking_data
 
-.. autofunction:: tudatpy.estimation.observations.create_count_time_compressed_doppler_collection
-
 .. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_arrays
 
 .. autofunction:: tudatpy.estimation.observations.create_single_type_observation_collection_from_arrays

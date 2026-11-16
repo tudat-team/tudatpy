@@ -442,6 +442,79 @@ List of degree/order terms that are to be saved.
                     TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings,
                                                             tp::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings );
 
+    py::class_< tp::SingleVariationSphericalHarmonicAccelerationSaveSettings,
+                std::shared_ptr< tp::SingleVariationSphericalHarmonicAccelerationSaveSettings >,
+                tp::SingleDependentVariableSaveSettings >( m,
+                                                           "SingleVariationSphericalHarmonicAccelerationSaveSettings",
+                                                           R"doc(
+
+`SingleDependentVariableSaveSettings`-derived class to save the acceleration induced by a single gravity field variation during propagation.
+
+Instances of this class are created using the :func:`single_gravity_field_variation_acceleration` function.
+
+      )doc" )
+            .def_readonly( "deformation_type",
+                           &tp::SingleVariationSphericalHarmonicAccelerationSaveSettings::deformationType_,
+                           R"doc(
+
+Type of gravity field variation for which the acceleration contribution is saved.
+
+:type: BodyDeformationTypes
+
+                           )doc" )
+            .def_readonly( "identifier",
+                           &tp::SingleVariationSphericalHarmonicAccelerationSaveSettings::identifier_,
+                           R"doc(
+
+Identifier of the gravity field variation, typically the body inducing the variation. Empty if only a single realization of the variation type is present in the body.
+
+:type: str
+
+                           )doc" ) TUDATPY_DEF_EQ_NE( tp::SingleVariationSphericalHarmonicAccelerationSaveSettings )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings,
+                                                            tp::SingleVariationSphericalHarmonicAccelerationSaveSettings );
+
+    py::class_< tp::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings,
+                std::shared_ptr< tp::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >,
+                tp::SingleDependentVariableSaveSettings >( m,
+                                                           "SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings",
+                                                           R"doc(
+
+`SingleDependentVariableSaveSettings`-derived class to save the acceleration induced by a single gravity field variation, at separate degrees/orders, during propagation.
+
+Instances of this class are created using the :func:`single_per_term_gravity_field_variation_acceleration` function.
+
+      )doc" )
+            .def_readonly( "degree_order_indices",
+                           &tp::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings::componentIndices_,
+                           R"doc(
+
+List of degree/order terms that are to be saved.
+
+:type: list[tuple[int, int]]
+
+                           )doc" )
+            .def_readonly( "deformation_type",
+                           &tp::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings::deformationType_,
+                           R"doc(
+
+Type of gravity field variation for which the acceleration contribution is saved.
+
+:type: BodyDeformationTypes
+
+                           )doc" )
+            .def_readonly( "identifier",
+                           &tp::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings::identifier_,
+                           R"doc(
+
+Identifier of the gravity field variation, typically the body inducing the variation. Empty if only a single realization of the variation type is present in the body.
+
+:type: str
+
+                           )doc" ) TUDATPY_DEF_EQ_NE( tp::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings,
+                                                            tp::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings );
+
     m.def( "get_dependent_variable_id",
            &tp::getDependentVariableId,
            py::arg( "dependent_variable_settings" ),
@@ -1984,7 +2057,7 @@ Variable Size
      Identifier for the deformation type. To be used in case multiple realizations of a single variation type are present in the given body. Otherwise, this entry can be left empty
  Returns
  -------
- SingleDependentVariableSaveSettings
+ SingleVariationSphericalHarmonicAccelerationSaveSettings
      Dependent variable settings object.
  Variable Size
  -------------
@@ -2022,12 +2095,39 @@ Variable Size
      Identifier for the deformation type. To be used in case multiple realizations of a single variation type are present in the given body. Otherwise, this entry can be left empty
  Returns
  -------
- SingleDependentVariableSaveSettings
+ SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings
      Dependent variable settings object.
  Variable Size
  -------------
  3*``len(component_indices)``
 
+ Examples
+ --------
+
+ Assuming that `Jupiter` has a time-variable gravity field due to the Galilean moons, set up previously as such:
+
+ .. code-block:: python
+    
+     tide_bodies = ["Io", "Europa", "Ganymede", "Callisto"]
+
+     body_settings.get("Jupiter").gravity_field_variation_settings = [
+         environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k(
+             tide_raising_body=moon, love_number_per_degree_and_order={2: [0, 0, 0.59]}
+         )
+         for moon in tide_bodies
+     ]
+
+ Then, the acceleration on the spacecraft induced by the time-variability of Jupiter's gravity field due to k22 induced by Io can be saved as a dependent variable using:
+
+ .. code-block:: python
+
+     dependent_variable.single_per_term_gravity_field_variation_acceleration(
+        sc_name,
+        "Jupiter",
+        [(2, 2)],
+        gravity_field_variation.BodyDeformationTypes.basic_solid_body,
+        identifier="Io",
+     )
 
 
 

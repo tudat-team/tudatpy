@@ -1214,7 +1214,7 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
     bodies.at( "Earth" )->setIonosphereModel( ionosphereModel );
 }
 
-std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequencyFunction(
+std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, double ) > createLinkFrequencyFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
         const LinkEndType& transmittingLinkEndType,
@@ -1260,7 +1260,8 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
                                   " has not transmitter in either the vehicle systems of station" );
     }
 
-    std::vector< std::function< double( FrequencyBands, FrequencyBands ) > > turnaroundRatioFunctions;
+    std::vector< std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) > >
+            turnaroundRatioFunctions;
 
     for( auto retransmitterLinkEndsIt = ++linkEnds.begin( ); retransmitterLinkEndsIt->first != receivingLinkEndType;
          ++retransmitterLinkEndsIt )
@@ -1291,11 +1292,11 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
         turnaroundRatioFunctions.push_back( vehicleSystems->getTransponderTurnaroundRatio( ) );
     }
 
-    std::function< double( std::vector< FrequencyBands >, double ) > linkFrequencyFunction =
-            [ = ]( const std::vector< FrequencyBands >& frequencyBands, const double time ) {
+    std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, double ) > linkFrequencyFunction =
+            [ = ]( const std::vector< basic_astrodynamics::FrequencyBands >& frequencyBands, const double time ) {
                 double frequency = transmittedFrequencyCalculator->getTemplatedCurrentFrequency< double, double >( time );
 
-                if( frequencyBands.size( ) + 1 < turnaroundRatioFunctions.size( ) )
+                if( !turnaroundRatioFunctions.empty( ) && frequencyBands.size( ) <= turnaroundRatioFunctions.size( ) )
                 {
                     throw std::runtime_error( "Error when computing link frequency, found incompatible number of frequency bands: " +
                                               std::to_string( frequencyBands.size( ) ) + " and turnaround ratios " +

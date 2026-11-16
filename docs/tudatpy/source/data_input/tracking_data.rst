@@ -25,10 +25,12 @@ For more information on the tracking data architecture, see the `user guide <htt
 
    tracking_data/atdf
    tracking_data/obs_80_cols
+   tracking_data/ades
    tracking_data/fdets
    tracking_data/generic_text_file
    tracking_data/ifms
    tracking_data/jpl_radar
+   tracking_data/landmarks
    tracking_data/mpc
    tracking_data/odf
    tracking_data/optical_utilities
@@ -75,8 +77,10 @@ before the supplementary data is applied to the bodies.
    PiecewiseConstantFrequencySupplementaryData
    InstrumentSupplementaryData
    CameraInstrumentSupplementaryData
+   CameraCalibration
    TranslationalStateSupplementaryData
    RotationalStateSupplementaryData
+   ReferencePointSupplementaryData
 
 .. autoclass:: tudatpy.data_input.tracking_data.FrequencySupplementaryData
    :members:
@@ -96,8 +100,14 @@ before the supplementary data is applied to the bodies.
 .. autoclass:: tudatpy.data_input.tracking_data.CameraInstrumentSupplementaryData
    :members:
 
+.. autoclass:: tudatpy.data_input.tracking_data.CameraCalibration
+   :members:
+
 .. autoclass:: tudatpy.data_input.tracking_data.TranslationalStateSupplementaryData
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.RotationalStateSupplementaryData
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ReferencePointSupplementaryData
    :members:

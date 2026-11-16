@@ -386,6 +386,21 @@ struct SolverTraits< Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >, SVD 
             scaling( i ) = ( scaling( i ) > 0.0 ) ? 1.0 / scaling( i ) : 1.0;
         }
 
+        // Rows with a zero diagonal (constraints in a KKT system) are scaled by their largest scaled entry: next to strongly weighted
+        // normal equations, they would otherwise fall below the threshold of the decomposition, and the constraint would be silently
+        // dropped
+        for( int i = 0; i < scaling.rows( ); i++ )
+        {
+            if( A( i, i ) == 0.0 )
+            {
+                const Real largestEntry = A.row( i ).cwiseAbs( ).cwiseProduct( scaling.transpose( ) ).maxCoeff( );
+                if( largestEntry > 0.0 )
+                {
+                    scaling( i ) = 1.0 / largestEntry;
+                }
+            }
+        }
+
         auto svd = ( scaling.asDiagonal( ) * A * scaling.asDiagonal( ) ).template jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
         if( limitConditionNumberForWarning == limitConditionNumberForWarning )
         {

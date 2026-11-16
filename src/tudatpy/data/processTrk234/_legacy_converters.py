@@ -19,8 +19,8 @@ from tudatpy.estimation.observable_models_setup import links
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 from tudatpy.estimation.observations import create_single_observation_set, SingleObservationSet
+from tudatpy.dynamics.environment import FrequencyBands
 from tudatpy.estimation.observations_setup.ancillary_settings import (
-    FrequencyBands,
     dsn_n_way_doppler_ancillary_settings,
     dsn_n_way_range_ancillary_settings,
 )

@@ -12,10 +12,11 @@
 #endif
 #include "expose_ephemeris.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createSp3Ephemeris.h"
 
 #include <tudat/astro/ephemerides/tleEphemeris.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup/createEphemeris.h>
+#include <tudat/io/readSp3File.h>
 
 #include "scalarTypes.h"
 
@@ -433,6 +434,7 @@ void expose_ephemeris_types( py::module& m )
       )doc" );
 }
 
+//! Expose ephemeris settings factories, including environment-level SP3 ephemeris creation.
 void expose_ephemeris_setup( py::module& m )
 {
     py::module_::import( "tudatpy.kernel.dynamics.environment" ).attr( "Ephemeris" );
@@ -1260,6 +1262,94 @@ void expose_ephemeris_setup( py::module& m )
 
 
      )doc" );
+
+    m.def( "sp3_from_file_name",
+           py::overload_cast< const std::string&, const std::string&, const std::string&, const std::string&, const double >(
+                   &tss::sp3EphemerisSettings ),
+           py::arg( "file_name" ),
+           py::arg( "satellite_id" ),
+           py::arg( "frame_origin" ) = "Earth",
+           py::arg( "frame_orientation" ) = "",
+           py::arg( "reference_julian_day" ) = tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000,
+           R"doc(
+Create tabulated ephemeris settings from an SP3 precise-orbit file.
+
+The file is loaded and processed by
+:func:`~tudatpy.data_input.environment_data.sp3.read_sp3_file`, which
+reconstructs the velocities of position-only files using second-order finite
+differences. When ``frame_orientation`` is empty, the reference-frame
+name declared in the SP3 header is used. Otherwise, supported ITRF realization
+or terrestrial/inertial transformations are applied to the states. Epochs
+remain expressed in the time system declared by the file.
+
+Parameters
+----------
+file_name : str
+    Path to the SP3 file.
+satellite_id : str
+    ID of the satellite, as written in the file without surrounding whitespace (for instance ``G01``). An error is raised
+    if the satellite is not in the file, or if one of its states contains a missing value.
+frame_origin : str, default="Earth"
+    Origin of the frame in which the ephemeris is defined. The states are not translated to this origin.
+frame_orientation : str, default=""
+    Orientation of the frame in which the ephemeris is defined. If empty, the frame tag declared in the file is used.
+    Otherwise, the states are transformed to this frame, which can be: ``GCRS`` (or ``GCRF``), ``J2000`` (or ``EME00``,
+    ``EME2K``, ``EME2000``), ``ECLIPJ2000``, ``ITRS`` (or ``ECEF``), an ITRF realization from ``ITRF88`` to ``ITRF2020``,
+    or an analysis product tag ending in the two-digit year of its ITRF realization (for instance ``IGS14``). An error is
+    raised for any other frame, or for a transformation between ``ITRS`` and a specific ITRF realization.
+reference_julian_day : float, default=2451545.0
+    Julian day relative to which the epochs of the ephemeris are expressed. The default value is J2000.
+
+Returns
+-------
+TabulatedEphemerisSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived
+    :class:`~tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings` class.
+)doc" );
+
+    m.def( "sp3_from_file_contents",
+           py::overload_cast< const std::shared_ptr< tudat::input_output::Sp3FileContents >&,
+                              const std::string&,
+                              const std::string&,
+                              const std::string& >( &tss::sp3EphemerisSettings ),
+           py::arg( "file_contents" ),
+           py::arg( "satellite_id" ),
+           py::arg( "frame_origin" ) = "Earth",
+           py::arg( "frame_orientation" ) = "",
+           R"doc(
+Create tabulated ephemeris settings from parsed SP3 contents.
+
+The ``file_contents`` must have been loaded with
+:func:`~tudatpy.data_input.environment_data.sp3.read_sp3_file`. For
+position-only files, they contain the velocities that this function
+reconstructed using second-order finite differences. When ``frame_orientation``
+is empty, the reference-frame name declared in the SP3 header is used.
+Otherwise, supported ITRF realization or terrestrial/inertial transformations
+are applied to the states. Epochs remain expressed in the time system declared
+by the file.
+
+Parameters
+----------
+file_contents : :class:`~tudatpy.data_input.environment_data.sp3.Sp3FileContents`
+    Contents of the SP3 file.
+satellite_id : str
+    ID of the satellite, as written in the file without surrounding whitespace (for instance ``G01``). An error is raised
+    if the satellite is not in the file, or if one of its states contains a missing value.
+frame_origin : str, default="Earth"
+    Origin of the frame in which the ephemeris is defined. The states are not translated to this origin.
+frame_orientation : str, default=""
+    Orientation of the frame in which the ephemeris is defined. If empty, the frame tag declared in the file is used.
+    Otherwise, the states are transformed to this frame, which can be: ``GCRS`` (or ``GCRF``), ``J2000`` (or ``EME00``,
+    ``EME2K``, ``EME2000``), ``ECLIPJ2000``, ``ITRS`` (or ``ECEF``), an ITRF realization from ``ITRF88`` to ``ITRF2020``,
+    or an analysis product tag ending in the two-digit year of its ITRF realization (for instance ``IGS14``). An error is
+    raised for any other frame, or for a transformation between ``ITRS`` and a specific ITRF realization.
+
+Returns
+-------
+TabulatedEphemerisSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived
+    :class:`~tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings` class.
+)doc" );
 
     m.def( "tabulated_from_existing",
            py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,

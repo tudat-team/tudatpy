@@ -38,6 +38,10 @@ namespace tudat
 namespace input_output
 {
 
+//! Parse a tracking-file calendar epoch in the form "YYYY MON DD HH:MM:SS[.sss]".
+//! The returned calendar value retains the input time scale; no UTC/TDB conversion is performed.
+basic_astrodynamics::DateTime parseTrackingDateTime( const std::string& dateTimeString );
+
 /*!
  * Enum describing a unique data type that can later be used to process the information.
  * These are in SI units

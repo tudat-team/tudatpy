@@ -105,14 +105,18 @@ public:
                                                           dynamicsSimulator_->getDynamicsStateDerivative( )->getStateTypeStartIndices( ),
                                                           -1,
                                                           std::map< std::string, int >( ),
-                                                          simulation_setup::getEphemerisOrigins( bodies ) );
+                                                          simulation_setup::getEphemerisOrigins( bodies ),
+                                                          getPropagationTimeInterval( propagatorSettings_ ) );
         dynamicsSimulator_->getDynamicsStateDerivative( )->addVariationalEquations( variationalEquationsObject_ );
+        this->propagatedParameterVectorSize_ = variationalEquationsObject_->getNumberOfParameterValues( );
 
         // Create object that will contain and process the propagation results
         variationalPropagationResults_ = std::make_shared< SingleArcVariationalSimulationResults< StateScalarType, TimeType > >(
                 dynamicsSimulator_->getSingleArcPropagationResults( ),
                 this->stateTransitionMatrixSize_,
                 this->parameterVectorSize_ - this->stateTransitionMatrixSize_ );
+        variationalPropagationResults_->setReducedSensitivityMatrixColumns(
+                variationalEquationsObject_->getReducedSensitivityMatrixColumns( ) );
 
         // Integrate variational equations from initial state estimate.
         if( integrateEquationsOnCreation )
@@ -128,12 +132,7 @@ public:
         }
         else
         {
-            stateTransitionInterface_ = std::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                    nullptr,
-                    nullptr,
-                    propagatorSettings_->getConventionalStateSize( ),
-                    parameterVectorSize_,
-                    variationalEquationsObject_->getStatePartialAdditionIndices( ) );
+            createStateTransitionInterface( nullptr, nullptr );
         }
     }
 
@@ -166,6 +165,8 @@ public:
     {
         if( integrateEquationsConcurrently )
         {
+            variationalEquationsObject_->checkPropagationTimeInterval( getPropagationTimeInterval( propagatorSettings_ ) );
+
             // Create initial conditions from new estimate.
             MatrixType initialVariationalState =
                     this->createInitialConditions( dynamicsSimulator_->getDynamicsStateDerivative( )->convertFromOutputSolution(
@@ -200,7 +201,7 @@ public:
         return variationalPropagationResults_->getStateTransitionSolution( );
     }
 
-    std::map< double, Eigen::MatrixXd >& getSensitivityMatrixSolution( )
+    std::map< double, Eigen::MatrixXd > getSensitivityMatrixSolution( )
     {
         return variationalPropagationResults_->getSensitivitySolution( );
     }
@@ -301,7 +302,7 @@ private:
             createStateTransitionAndSensitivityMatrixInterpolator( stateTransitionMatrixInterpolator,
                                                                    sensitivityMatrixInterpolator,
                                                                    variationalPropagationResults_->getStateTransitionSolution( ),
-                                                                   variationalPropagationResults_->getSensitivitySolution( ),
+                                                                   variationalPropagationResults_->getReducedSensitivitySolution( ),
                                                                    this->clearNumericalSolution_ );
         }
         catch( const std::exception& caughtException )
@@ -320,12 +321,7 @@ private:
         // Create (if non-existent) or reset state transition matrix interface
         if( stateTransitionInterface_ == nullptr )
         {
-            stateTransitionInterface_ = std::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                    stateTransitionMatrixInterpolator,
-                    sensitivityMatrixInterpolator,
-                    propagatorSettings_->getConventionalStateSize( ),
-                    parameterVectorSize_,
-                    variationalEquationsObject_->getStatePartialAdditionIndices( ) );
+            createStateTransitionInterface( stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator );
         }
         else
         {
@@ -334,6 +330,22 @@ private:
                                                  sensitivityMatrixInterpolator,
                                                  variationalEquationsObject_->getStatePartialAdditionIndices( ) );
         }
+    }
+
+    //! Function to create the state transition matrix interface from the state transition and sensitivity matrix interpolators
+    void createStateTransitionInterface(
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > stateTransitionMatrixInterpolator,
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > sensitivityMatrixInterpolator )
+    {
+        std::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface =
+                std::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        stateTransitionMatrixInterpolator,
+                        sensitivityMatrixInterpolator,
+                        propagatorSettings_->getConventionalStateSize( ),
+                        parameterVectorSize_,
+                        variationalEquationsObject_->getStatePartialAdditionIndices( ) );
+        singleArcInterface->setReducedSensitivityMatrixColumns( variationalEquationsObject_->getReducedSensitivityMatrixColumns( ) );
+        stateTransitionInterface_ = singleArcInterface;
     }
 
     //! Object used for numerically propagating and managing the solution of the equations of motion.

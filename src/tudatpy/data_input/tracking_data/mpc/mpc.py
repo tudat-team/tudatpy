@@ -743,7 +743,6 @@ class BatchMPC:
                     identifier = f"{number_part}{type_part}"  # Result: "3I"
 
                 elif "number" in obs.columns:
-                    pd.set_option("future.no_silent_downcasting", True)
                     valid_numbers = (
                         obs["number"].dropna().astype(str).replace("<NA>", np.nan).dropna()
                     )

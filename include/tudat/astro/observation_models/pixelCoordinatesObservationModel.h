@@ -37,6 +37,7 @@ namespace observation_models
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  *  The camera maps body-fixed relative positions to pixel coordinates; the receiver body's rotational ephemeris maps inertial relative
  *  positions to the receiver body-fixed frame.
+ *  No lens distortion is modelled, so measured pixel coordinates must be corrected for distortion before they are used as observations.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class PixelCoordinatesObservationModel : public ObservationModel< 2, ObservationScalarType, TimeType >
@@ -153,7 +154,8 @@ public:
         {
             pixelCoordinates = camera_->calculateObservableFromInertial(
                     inertialDirectionToProject,
-                    receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ) );
+                    receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ),
+                    static_cast< double >( time ) );
         }
         return pixelCoordinates.template cast< ObservationScalarType >( );
     }

@@ -333,7 +333,7 @@ private:
  * \return Default Earth rotation parameter object.
  */
 std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
-        const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
+        const std::shared_ptr< EOPReader > eopReader = getDefaultEOPReader( ) );
 
 //! Function to create an interpolator for the Earth orientation angles and UT1
 /*!

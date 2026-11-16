@@ -558,41 +558,92 @@ void resetMultiArcIntegratedEphemerides(
     }
 }
 
-//! Function to reset the tabulated rotational ephemeris of a body
+//! Function to create an interpolator for the new rotational state of a body.
 /*!
- * Function to reset the tabulatedrotational  ephemeris of a body, this requires the requested body to possess
- * a rotational ephemeris of type TabulatedRotationalEphemeris< StateScalarType, TimeType >
- * \param bodies List of bodies used in simulations.
- * \param rotationalEphemerisInterpolator New rotational state history of the body
- * \param bodyToIntegrate Name of body for which the rotational ephemeris is to be reset.
+ * Function to create an interpolator for the new rotational state of a body.
+ * \param stateMap New rotational state history.
+ * \param interpolatorSettings Settings used to create the interpolator.
+ * \return Interpolator that produces the required continuous rotational state.
  */
 template< typename TimeType, typename StateScalarType >
+std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
+createRotationalStateInterpolator( const std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& stateMap,
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings );
+
+//! Function to reset the tabulated rotational ephemeris of a body
+/*!
+ * Function to reset the tabulated rotational ephemeris of a body
+ * \param ephemerisInput New rotational state history that is to be set
+ * \param tabulatedEphemeris Rotational ephemeris in which the ephemerisInput is to be set.
+ * \param interpolatorSettings Settings used to create the interpolator.
+ */
+template< typename StateTimeType, typename StateScalarType, typename EphemerisTimeType, typename EphemerisScalarType >
 void resetIntegratedRotationalEphemerisOfBody(
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
-                rotationalEphemerisInterpolator,
-        const std::string bodyToIntegrate )
+        const std::map< StateTimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& ephemerisInput,
+        const std::shared_ptr< ephemerides::TabulatedRotationalEphemeris< EphemerisScalarType, EphemerisTimeType > > tabulatedEphemeris,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
-    using namespace tudat::interpolators;
+    std::map< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 7, 1 > > castEphemerisInput;
+    utilities::castMatrixMap< StateTimeType, StateScalarType, EphemerisTimeType, EphemerisScalarType, 7, 1 >( ephemerisInput,
+                                                                                                              castEphemerisInput );
+    tabulatedEphemeris->reset( createRotationalStateInterpolator( castEphemerisInput, interpolatorSettings ) );
+}
+
+//! Function to reset the tabulated rotational ephemeris of a body
+/*!
+ * Function to reset the tabulated rotational ephemeris of a body, this requires the requested body to possess
+ * a rotational ephemeris of type TabulatedRotationalEphemeris (with any of the supported time and scalar types; the state
+ * history is converted to these types)
+ * \param bodies List of bodies used in simulations.
+ * \param ephemerisInput New rotational state history of the body
+ * \param bodyToIntegrate Name of body for which the rotational ephemeris is to be reset.
+ * \param interpolatorSettings Settings used to create the interpolator.
+ */
+template< typename TimeType, typename StateScalarType >
+void resetIntegratedRotationalEphemerisOfBody( const simulation_setup::SystemOfBodies& bodies,
+                                               const std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& ephemerisInput,
+                                               const std::string bodyToIntegrate,
+                                               const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
     using namespace tudat::ephemerides;
 
-    if( bodies.at( bodyToIntegrate )->getRotationalEphemeris( ) == nullptr )
+    std::shared_ptr< RotationalEphemeris > rotationalEphemeris = bodies.at( bodyToIntegrate )->getRotationalEphemeris( );
+    if( rotationalEphemeris == nullptr )
     {
         throw std::runtime_error( "Error, no rotational ephemeris detected for body " + bodyToIntegrate + " when resetting ephemeris" );
     }
-    // If current ephemeris is not already a tabulated ephemeris, create new ephemeris.
-    else if( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
-                     bodies.at( bodyToIntegrate )->getRotationalEphemeris( ) ) == nullptr )
+    else if( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< double, double > >( rotationalEphemeris ) != nullptr )
     {
-        throw std::runtime_error( "Error when resetting integrated rotational ephemeris of body, rotation model type is incompatible " );
+        resetIntegratedRotationalEphemerisOfBody(
+                ephemerisInput,
+                std::dynamic_pointer_cast< TabulatedRotationalEphemeris< double, double > >( rotationalEphemeris ),
+                interpolatorSettings );
     }
-    // Else, update existing tabulated ephemeris
+    else if( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< long double, double > >( rotationalEphemeris ) != nullptr )
+    {
+        resetIntegratedRotationalEphemerisOfBody(
+                ephemerisInput,
+                std::dynamic_pointer_cast< TabulatedRotationalEphemeris< long double, double > >( rotationalEphemeris ),
+                interpolatorSettings );
+    }
+    else if( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< double, Time > >( rotationalEphemeris ) != nullptr )
+    {
+        resetIntegratedRotationalEphemerisOfBody(
+                ephemerisInput,
+                std::dynamic_pointer_cast< TabulatedRotationalEphemeris< double, Time > >( rotationalEphemeris ),
+                interpolatorSettings );
+    }
+    else if( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< long double, Time > >( rotationalEphemeris ) != nullptr )
+    {
+        resetIntegratedRotationalEphemerisOfBody(
+                ephemerisInput,
+                std::dynamic_pointer_cast< TabulatedRotationalEphemeris< long double, Time > >( rotationalEphemeris ),
+                interpolatorSettings );
+    }
     else
     {
-        std::shared_ptr< TabulatedRotationalEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
-                std::dynamic_pointer_cast< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
-                        bodies.at( bodyToIntegrate )->getRotationalEphemeris( ) );
-        tabulatedEphemeris->reset( rotationalEphemerisInterpolator );
+        throw std::runtime_error( "Error when resetting integrated rotational ephemeris of body " + bodyToIntegrate +
+                                  ", rotation model is not tabulated" );
     }
 }
 
@@ -636,18 +687,6 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Mat
         const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings );
 
-//! Function to create an interpolator for the new rotational state of a body.
-/*!
- * Function to create an interpolator for the new rotational state of a body.
- * \param stateMap New rotational state history.
- * \param interpolatorSettings Settings used to create the interpolator.
- * \return Interpolator that produces the required continuous rotational state.
- */
-template< typename TimeType, typename StateScalarType >
-std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
-createRotationalStateInterpolator( const std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& stateMap,
-                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings );
-
 //! Function to reset the tabulated rotational ephemeris of a body
 /*!
  * Function to reset the tabulated rotational ephemeris of a body
@@ -672,11 +711,7 @@ void createAndSetInterpolatorsForRotationalEphemerides(
         std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > ephemerisInput;
         convertNumericalSolutionToRotationalEphemerisInput( startIndex, i, ephemerisInput, equationsOfMotionNumericalSolution );
 
-        // Create interpolator.
-        std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > > ephemerisInterpolator =
-                createRotationalStateInterpolator( ephemerisInput, interpolatorSettings );
-
-        resetIntegratedRotationalEphemerisOfBody( bodies, ephemerisInterpolator, bodiesToIntegrate.at( i ) );
+        resetIntegratedRotationalEphemerisOfBody( bodies, ephemerisInput, bodiesToIntegrate.at( i ), interpolatorSettings );
     }
 }
 

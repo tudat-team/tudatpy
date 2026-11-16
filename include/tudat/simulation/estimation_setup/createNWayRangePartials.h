@@ -224,7 +224,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
     // Create function returning the transmitted frequency of the transmitting ground station (passing the first
     // retransmitter as receiving link end ensures that no transponder turnaround ratios are applied).
-    const std::function< double( std::vector< FrequencyBands >, double ) > transmittedFrequencyFunction =
+    const std::function< double( std::vector< basic_astrodynamics::FrequencyBands >, double ) > transmittedFrequencyFunction =
             createLinkFrequencyFunction( bodies, linkEnds, observation_models::transmitter, observation_models::retransmitter );
     const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
             dsnNWayRangeObservationModel->getTimeScaleConverter( );

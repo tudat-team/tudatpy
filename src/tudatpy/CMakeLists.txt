@@ -122,6 +122,20 @@ endif ()
         set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
     endif ()
 
+# On macOS, debug info stays in the object files, bundle it into a .dSYM so profilers can symbolize after the objects are cleaned.
+if (APPLE AND TUDAT_BUILD_WITH_PROFILING_SYMBOLS)
+    find_program(DSYMUTIL_EXECUTABLE dsymutil)
+    if (DSYMUTIL_EXECUTABLE)
+        add_custom_command(TARGET kernel POST_BUILD
+            COMMAND ${DSYMUTIL_EXECUTABLE} $<TARGET_FILE:kernel>
+            COMMENT "Generating dSYM for kernel"
+            VERBATIM
+        )
+    else ()
+        message(WARNING "dsymutil not found: kernel.dSYM will not be generated.")
+    endif ()
+endif ()
+
 # Install
 #################################################################
 # This is a preliminary solution!

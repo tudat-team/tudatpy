@@ -1010,9 +1010,14 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         //                parametersToEstimate,
         //                                                                       arcStartTimes, true, false, true );
 
-        podInput->defineEstimationSettings( false, false, true, true, true, false );
+        podInput->defineEstimationSettings( false, false, true, true, true, true, 1.0E8, true, false );
         std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
         BOOST_REQUIRE( podOutput != nullptr );
+        auto iterationResults = std::dynamic_pointer_cast< HybridArcSimulationResults< SingleArcSimulationResults, double, double > >(
+                podOutput->getSimulationResults( ).at( 0 ) );
+        BOOST_REQUIRE( iterationResults != nullptr );
+        BOOST_CHECK( iterationResults->getSingleArcResults( )->getEquationsOfMotionNumericalSolution( ).size( ) > 0 );
+        BOOST_CHECK_EQUAL( iterationResults->getMultiArcResults( )->getArcStartTimes( ).size( ), arcStartTimes.size( ) );
         BOOST_CHECK_EQUAL( podOutput->parameterEstimate_.rows( ), originalParameters.rows( ) );
         BOOST_CHECK_EQUAL( podOutput->residuals_.rows( ), observationsAndTimes->getTotalObservableSize( ) );
         BOOST_CHECK( podOutput->parameterEstimate_.allFinite( ) );
@@ -1049,6 +1054,15 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
                 std::dynamic_pointer_cast< HybridArcVariationalEquationsSolver< double, double > >(
                         orbitDeterminationManager.getVariationalEquationsSolver( ) );
         BOOST_REQUIRE( hybridArcSolver != nullptr );
+
+        // Check that the variational results, as stored per iteration when saving variational results, report the multi-arc
+        // propagation as performed
+        auto storedVariationalResults =
+                std::dynamic_pointer_cast< HybridArcSimulationResults< SingleArcVariationalSimulationResults, double, double > >(
+                        hybridArcSolver->getVariationalPropagationResults( )->clone( ) );
+        BOOST_REQUIRE( storedVariationalResults != nullptr );
+        BOOST_CHECK( storedVariationalResults->getMultiArcResults( )->getPropagationIsPerformed( ) );
+        BOOST_CHECK_EQUAL( storedVariationalResults->getMultiArcResults( )->getArcStartTimes( ).size( ), arcStartTimes.size( ) );
         std::map< double, Eigen::VectorXd > singleArcSolution = hybridArcSolver->getSingleArcSolver( )->getEquationsOfMotionSolution( );
         std::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::VectorXd > > singleArcSolutionInterpolator =
                 std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::VectorXd > >(

@@ -156,12 +156,12 @@ Eigen::Vector2d getRightAscensionAndDeclinationFromAberrationCorrectedPsfPixelLi
         throw std::runtime_error( "No PSF camera data found for camera " + image.cameraId_ + "." );
     }
     const std::shared_ptr< system_models::PsfCameraProjectionModel > cameraProjectionModel =
-            std::make_shared< system_models::PsfCameraProjectionModel >( cameraData->getFocalLength( ),
-                                                                         cameraData->getPrincipalPoint( ),
-                                                                         cameraData->getKMatrix( ),
+            std::make_shared< system_models::PsfCameraProjectionModel >( cameraData->getCalibration( ).focalLength_,
+                                                                         cameraData->getCalibration( ).principalPoint_,
+                                                                         cameraData->getCalibration( ).kMatrix_,
                                                                          cameraData->getDistortionCoefficients( ),
                                                                          cameraData->getMountingOffsets( ),
-                                                                         cameraData->getFieldOfViewBounds( ) );
+                                                                         cameraData->getCalibration( ).fieldOfViewBounds_ );
     const Eigen::Vector3d cameraFrameUnitVector = cameraProjectionModel->pixelLineToUnitVector( pixelLine );
     const Eigen::Vector3d apparentInertialUnitVector =
             observation_models::getPsfPictureRotationFromInertialToCameraFrame( image ).inverse( ) * cameraFrameUnitVector;

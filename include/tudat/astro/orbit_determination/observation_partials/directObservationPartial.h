@@ -137,7 +137,7 @@ public:
 
             if( !fixLinkEndTime_ )
             {
-                if( positionPartialScaler_->isVelocityScalingNonZero( ) )
+                if( positionPartialScaler_->isVelocityScalingNonZero( positionPartialIterator_->first ) )
                 {
                     // Scale position partials
                     returnPartial.push_back( std::make_pair(
@@ -158,7 +158,7 @@ public:
             }
             else
             {
-                if( positionPartialScaler_->isVelocityScalingNonZero( ) )
+                if( positionPartialScaler_->isVelocityScalingNonZero( positionPartialIterator_->first ) )
                 {
                     // Scale position partials
                     returnPartial.push_back( std::make_pair(

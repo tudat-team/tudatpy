@@ -69,10 +69,10 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
     for( int i = 0; i < 1; i++ )
     {
-        FrequencyBands currentReceptionBand = x_band;
+        FrequencyBands currentReceptionBand = FrequencyBands::x_band;
         if( i < 2 )
         {
-            currentReceptionBand = s_band;
+            currentReceptionBand = FrequencyBands::s_band;
         }
 
         // Create settings for default bodies
@@ -101,23 +101,24 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.at( "MeX" )->setVehicleSystems( vehicleSystems );
 
         /****************************************************************************************
          ************************** LOAD IFMS FILES
          *****************************************************************************************/
 
-        auto trackingDataAndSupplementaryData = readIfmsFiles< long double, Time >(
-                { ifmsFileNames.at( i ) },
-                "MeX",
-                "NWNORCIA",
-                "Earth",
-                true,
-                true,
-                std::vector< std::string >( { getFrequencyBandString( x_band ), getFrequencyBandString( currentReceptionBand ) } ),
-                getFrequencyBandString( currentReceptionBand ),
-                0.0 );
+        auto trackingDataAndSupplementaryData =
+                readIfmsFiles< long double, Time >( { ifmsFileNames.at( i ) },
+                                                    "MeX",
+                                                    "NWNORCIA",
+                                                    "Earth",
+                                                    true,
+                                                    true,
+                                                    std::vector< std::string >( { getFrequencyBandString( FrequencyBands::x_band ),
+                                                                                  getFrequencyBandString( currentReceptionBand ) } ),
+                                                    getFrequencyBandString( currentReceptionBand ),
+                                                    0.0 );
 
         setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
 

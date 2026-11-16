@@ -31,6 +31,7 @@ namespace unit_tests
 using namespace tudat::gravitation;
 using namespace tudat::ephemerides;
 using namespace tudat::observation_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::simulation_setup;
 using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
@@ -86,7 +87,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayRangePartials )
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
         // Set turnaround ratios in spacecraft (ground station)
         auto vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setVehicleSystems( vehicleSystems );
 
         // Set link ends for observation model
@@ -110,20 +111,21 @@ BOOST_AUTO_TEST_CASE( testDsnNWayRangePartials )
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, stateEvaluationTime );
 
-        testObservationPartials< 1 >( dsnNWayRangeModel,
-                                      bodies,
-                                      fullEstimatableParameterSet,
-                                      linkEnds,
-                                      dsn_n_way_range,
-                                      tolerance,
-                                      true,
-                                      true,
-                                      positionPerturbationMultiplier,
-                                      parameterPerturbationMultipliers,
-                                      getDsnNWayRangeAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
-                                                                        lowestRangingComponent,
-                                                                        getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                                      stateEvaluationTime );
+        testObservationPartials< 1 >(
+                dsnNWayRangeModel,
+                bodies,
+                fullEstimatableParameterSet,
+                linkEnds,
+                dsn_n_way_range,
+                tolerance,
+                true,
+                true,
+                positionPerturbationMultiplier,
+                parameterPerturbationMultipliers,
+                getDsnNWayRangeAncillarySettings( std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                                                  lowestRangingComponent,
+                                                  getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                stateEvaluationTime );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -137,7 +139,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayRangePartials )
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
         // Set turnaround ratios in spacecraft (ground station)
         auto vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setVehicleSystems( vehicleSystems );
 
         // Set link ends for observation model
@@ -161,20 +163,21 @@ BOOST_AUTO_TEST_CASE( testDsnNWayRangePartials )
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, stateEvaluationTime );
 
-        testObservationPartials< 1 >( dsnNWayRangeModel,
-                                      bodies,
-                                      fullEstimatableParameterSet,
-                                      linkEnds,
-                                      dsn_n_way_range,
-                                      tolerance,
-                                      false,
-                                      true,
-                                      positionPerturbationMultiplier,
-                                      parameterPerturbationMultipliers,
-                                      getDsnNWayRangeAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
-                                                                        lowestRangingComponent,
-                                                                        getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                                      stateEvaluationTime );
+        testObservationPartials< 1 >(
+                dsnNWayRangeModel,
+                bodies,
+                fullEstimatableParameterSet,
+                linkEnds,
+                dsn_n_way_range,
+                tolerance,
+                false,
+                true,
+                positionPerturbationMultiplier,
+                parameterPerturbationMultipliers,
+                getDsnNWayRangeAncillarySettings( std::vector< FrequencyBands >{ FrequencyBands::x_band, FrequencyBands::x_band },
+                                                  lowestRangingComponent,
+                                                  getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                stateEvaluationTime );
     }
 }
 

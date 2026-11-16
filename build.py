@@ -111,6 +111,15 @@ class BuildParser(argparse.ArgumentParser):
             action="store_true",
             help="Build with Mars Climate Database support [Default: False]",
         )
+        cmake_group.add_argument(
+            "--profiling",
+            dest="build_with_profiling_symbols",
+            action="store_true",
+            help=(
+                "Add debug symbols and frame pointers without changing the "
+                "optimization level, for use with profilers. [Default: False]"
+            ),
+        )
 
         # Misc
         misc_group = self.add_argument_group("Miscellaneous")
@@ -1348,6 +1357,7 @@ class Builder:
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
+                    f"-DTUDAT_BUILD_WITH_PROFILING_SYMBOLS={'ON' if self.args.build_with_profiling_symbols else 'OFF'}",
                 ]
 
                 # Add Fortran compiler path if building with MCD

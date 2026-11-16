@@ -13,7 +13,9 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <cmath>
 #include <functional>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <string>
@@ -21,6 +23,7 @@
 #include <vector>
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -123,6 +126,20 @@ private:
     std::string instrumentSupplementaryDataKind_;
 };
 
+//! Calibration of a camera, at a given time (see CameraInstrumentSupplementaryData::getCalibration).
+struct CameraCalibration {
+    double focalLength_ = 0.0;
+    Eigen::Vector2d principalPoint_ = Eigen::Vector2d::Zero( );
+    Eigen::Vector4d fieldOfViewBounds_ = Eigen::Vector4d::Zero( );
+    Eigen::Matrix< double, 2, 3 > kMatrix_ = Eigen::Matrix< double, 2, 3 >::Zero( );
+
+    bool isApprox( const CameraCalibration& other ) const
+    {
+        return focalLength_ == other.focalLength_ && principalPoint_.isApprox( other.principalPoint_ ) &&
+                fieldOfViewBounds_.isApprox( other.fieldOfViewBounds_ ) && kMatrix_.isApprox( other.kMatrix_ );
+    }
+};
+
 class CameraInstrumentSupplementaryData : public InstrumentSupplementaryData
 {
 public:
@@ -137,35 +154,66 @@ public:
                                        const Eigen::Vector3d& mountingOffsets,
                                        const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory =
                                                std::map< double, Eigen::Quaterniond >( ) ):
-        InstrumentSupplementaryData( "camera_settings" ), cameraId_( cameraId ), focalLength_( focalLength ),
-        principalPoint_( principalPoint ), fieldOfViewBounds_( fieldOfViewBounds ), kMatrix_( kMatrix ),
-        distortionCoefficients_( distortionCoefficients ), mountingOffsets_( mountingOffsets ),
-        rotationFromInertialToCameraFrameHistory_( rotationFromInertialToCameraFrameHistory )
+        InstrumentSupplementaryData( "camera_settings" ), cameraId_( cameraId ),
+        calibration_( { focalLength, principalPoint, fieldOfViewBounds, kMatrix } ), distortionCoefficients_( distortionCoefficients ),
+        mountingOffsets_( mountingOffsets ), rotationFromInertialToCameraFrameHistory_( rotationFromInertialToCameraFrameHistory )
     {}
+
+    //! Constructor for a camera whose calibration changes between pictures, with the calibration of each picture given per
+    //! picture epoch of the pointing history.
+    CameraInstrumentSupplementaryData( const std::string& cameraId,
+                                       const std::map< double, CameraCalibration >& pictureCalibrationHistory,
+                                       const Eigen::Matrix< double, 6, 1 >& distortionCoefficients,
+                                       const Eigen::Vector3d& mountingOffsets,
+                                       const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory ):
+        InstrumentSupplementaryData( "camera_settings" ), cameraId_( cameraId ), distortionCoefficients_( distortionCoefficients ),
+        mountingOffsets_( mountingOffsets ), rotationFromInertialToCameraFrameHistory_( rotationFromInertialToCameraFrameHistory ),
+        pictureCalibrationHistory_( pictureCalibrationHistory )
+    {
+        for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory_ )
+        {
+            if( pictureCalibrationHistory_.count( rotationEntry.first ) == 0 )
+            {
+                throw std::runtime_error( "Error when creating supplementary data of camera " + cameraId_ +
+                                          ": a calibration must be given for every picture." );
+            }
+        }
+    }
 
     const std::string& getCameraId( ) const
     {
         return cameraId_;
     }
 
-    double getFocalLength( ) const
+    //! Function to get the calibration of the camera at the given time: the constant calibration, or that of the picture closest
+    //! in time (with the time in the time scale of the pointing history). A time is only required when the calibration changes
+    //! between pictures.
+    const CameraCalibration& getCalibration( const double time = TUDAT_NAN ) const
     {
-        return focalLength_;
-    }
-
-    const Eigen::Vector2d& getPrincipalPoint( ) const
-    {
-        return principalPoint_;
-    }
-
-    const Eigen::Vector4d& getFieldOfViewBounds( ) const
-    {
-        return fieldOfViewBounds_;
-    }
-
-    const Eigen::Matrix< double, 2, 3 >& getKMatrix( ) const
-    {
-        return kMatrix_;
+        if( pictureCalibrationHistory_.empty( ) )
+        {
+            return calibration_;
+        }
+        else if( pictureCalibrationHistory_.size( ) == 1 )
+        {
+            return pictureCalibrationHistory_.begin( )->second;
+        }
+        else if( std::isnan( time ) )
+        {
+            throw std::runtime_error( "Error when getting calibration of camera " + cameraId_ +
+                                      ": a time is required, since the calibration changes between pictures." );
+        }
+        const auto upperIterator = pictureCalibrationHistory_.lower_bound( time );
+        if( upperIterator == pictureCalibrationHistory_.begin( ) )
+        {
+            return upperIterator->second;
+        }
+        const auto lowerIterator = std::prev( upperIterator );
+        if( upperIterator == pictureCalibrationHistory_.end( ) || time - lowerIterator->first <= upperIterator->first - time )
+        {
+            return lowerIterator->second;
+        }
+        return upperIterator->second;
     }
 
     const Eigen::Matrix< double, 6, 1 >& getDistortionCoefficients( ) const
@@ -183,43 +231,158 @@ public:
         return rotationFromInertialToCameraFrameHistory_;
     }
 
-    //! Merge compatible camera histories; conflicting calibration or attitudes are errors.
+    //! Body whose body-fixed frame the pointing history starts from.
+    /*!
+     * When empty, the pointing history holds rotations from the inertial frame to the camera frame. When set, it holds
+     * rotations from the body-fixed frame of this body to the camera frame. The body's rotation model then completes
+     * the rotation from the inertial frame when the camera is created.
+     */
+    const std::string& getPointingReferenceBodyName( ) const
+    {
+        return pointingReferenceBodyName_;
+    }
+
+    void setPointingReferenceBodyName( const std::string& pointingReferenceBodyName )
+    {
+        pointingReferenceBodyName_ = pointingReferenceBodyName;
+    }
+
+    //! Position of the camera in the body-fixed frame of the body that carries it [m]. Zero by default.
+    const Eigen::Vector3d& getBodyFixedPosition( ) const
+    {
+        return bodyFixedPosition_;
+    }
+
+    void setBodyFixedPosition( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        bodyFixedPosition_ = bodyFixedPosition;
+    }
+
+    //! Identifier of each picture, per picture epoch of the pointing history. Empty when not provided.
+    const std::map< double, std::string >& getPictureIdHistory( ) const
+    {
+        return pictureIdHistory_;
+    }
+
+    void setPictureIdHistory( const std::map< double, std::string >& pictureIdHistory )
+    {
+        pictureIdHistory_ = pictureIdHistory;
+    }
+
+    //! A-priori uncertainty of the camera pointing about the three camera axes [rad], per picture epoch of the pointing history.
+    //! Empty when not provided.
+    const std::map< double, Eigen::Vector3d >& getPointingUncertaintyHistory( ) const
+    {
+        return pointingUncertaintyHistory_;
+    }
+
+    void setPointingUncertaintyHistory( const std::map< double, Eigen::Vector3d >& pointingUncertaintyHistory )
+    {
+        pointingUncertaintyHistory_ = pointingUncertaintyHistory;
+    }
+
+    //! Get one value per picture, in time order, from a history keyed by the picture epochs of the pointing history.
+    /*!
+     *  \param valueHistory History of the value, per picture epoch of the pointing history.
+     *  \param valueName Name of the value, used in the error message.
+     *  \return Value of each picture, in time order. Empty when the history is empty; otherwise, every picture must have a value.
+     */
+    template< typename ValueType >
+    std::vector< ValueType > getPerPictureValues( const std::map< double, ValueType >& valueHistory, const std::string& valueName ) const
+    {
+        std::vector< ValueType > values;
+        if( valueHistory.empty( ) )
+        {
+            return values;
+        }
+        for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory_ )
+        {
+            const auto valueIterator = valueHistory.find( rotationEntry.first );
+            if( valueIterator == valueHistory.end( ) )
+            {
+                throw std::runtime_error( "Error when getting " + valueName + " of camera " + cameraId_ +
+                                          ": they must be given for all pictures or none." );
+            }
+            values.push_back( valueIterator->second );
+        }
+        return values;
+    }
+
+    //! Merge compatible camera histories; conflicting calibrations, attitudes, picture identifiers or pointing uncertainties are
+    //! errors.
     void merge( const CameraInstrumentSupplementaryData& other )
     {
-        if( cameraId_ != other.cameraId_ || focalLength_ != other.focalLength_ || !principalPoint_.isApprox( other.principalPoint_ ) ||
-            !fieldOfViewBounds_.isApprox( other.fieldOfViewBounds_ ) || !kMatrix_.isApprox( other.kMatrix_ ) ||
-            !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) )
+        if( cameraId_ != other.cameraId_ || !calibration_.isApprox( other.calibration_ ) ||
+            pictureCalibrationHistory_.empty( ) != other.pictureCalibrationHistory_.empty( ) ||
+            !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) ||
+            bodyFixedPosition_ != other.bodyFixedPosition_ || pointingReferenceBodyName_ != other.pointingReferenceBodyName_ )
         {
             throw std::runtime_error( "Inconsistent calibration for PSF camera " + cameraId_ );
         }
-        auto mergedHistory = rotationFromInertialToCameraFrameHistory_;
-        for( const auto& entry : other.rotationFromInertialToCameraFrameHistory_ )
-        {
-            const auto inserted = mergedHistory.emplace( entry );
-            if( !inserted.second && !inserted.first->second.toRotationMatrix( ).isApprox( entry.second.toRotationMatrix( ) ) )
-            {
-                throw std::runtime_error( "Conflicting pointing epochs for PSF camera " + cameraId_ );
-            }
-        }
+        auto mergedHistory = getMergedHistory(
+                rotationFromInertialToCameraFrameHistory_,
+                other.rotationFromInertialToCameraFrameHistory_,
+                []( const Eigen::Quaterniond& first, const Eigen::Quaterniond& second ) {
+                    return first.toRotationMatrix( ).isApprox( second.toRotationMatrix( ) );
+                },
+                "pointing epochs" );
+        auto mergedPictureCalibrationHistory = getMergedHistory(
+                pictureCalibrationHistory_,
+                other.pictureCalibrationHistory_,
+                []( const CameraCalibration& first, const CameraCalibration& second ) { return first.isApprox( second ); },
+                "picture calibrations" );
+        auto mergedPictureIdHistory =
+                getMergedHistory( pictureIdHistory_, other.pictureIdHistory_, std::equal_to< std::string >( ), "picture identifiers" );
+        auto mergedUncertaintyHistory = getMergedHistory( pointingUncertaintyHistory_,
+                                                          other.pointingUncertaintyHistory_,
+                                                          std::equal_to< Eigen::Vector3d >( ),
+                                                          "pointing uncertainties" );
         rotationFromInertialToCameraFrameHistory_.swap( mergedHistory );
+        pictureCalibrationHistory_.swap( mergedPictureCalibrationHistory );
+        pictureIdHistory_.swap( mergedPictureIdHistory );
+        pointingUncertaintyHistory_.swap( mergedUncertaintyHistory );
     }
 
 private:
+    //! Merge two histories; an epoch present in both must have equal values (according to isEqual).
+    template< typename ValueType, typename EqualityFunction >
+    std::map< double, ValueType > getMergedHistory( const std::map< double, ValueType >& history,
+                                                    const std::map< double, ValueType >& otherHistory,
+                                                    const EqualityFunction& isEqual,
+                                                    const std::string& valueName ) const
+    {
+        std::map< double, ValueType > mergedHistory = history;
+        for( const auto& entry : otherHistory )
+        {
+            const auto inserted = mergedHistory.emplace( entry );
+            if( !inserted.second && !isEqual( inserted.first->second, entry.second ) )
+            {
+                throw std::runtime_error( "Conflicting " + valueName + " for PSF camera " + cameraId_ );
+            }
+        }
+        return mergedHistory;
+    }
+
     std::string cameraId_;
 
-    double focalLength_ = 0.0;
-
-    Eigen::Vector2d principalPoint_ = Eigen::Vector2d::Zero( );
-
-    Eigen::Vector4d fieldOfViewBounds_ = Eigen::Vector4d::Zero( );
-
-    Eigen::Matrix< double, 2, 3 > kMatrix_ = Eigen::Matrix< double, 2, 3 >::Zero( );
+    //! Constant calibration; unused when the calibration is given per picture.
+    CameraCalibration calibration_;
 
     Eigen::Matrix< double, 6, 1 > distortionCoefficients_ = Eigen::Matrix< double, 6, 1 >::Zero( );
 
     Eigen::Vector3d mountingOffsets_ = Eigen::Vector3d::Zero( );
 
     std::map< double, Eigen::Quaterniond > rotationFromInertialToCameraFrameHistory_;
+
+    std::string pointingReferenceBodyName_;
+
+    Eigen::Vector3d bodyFixedPosition_ = Eigen::Vector3d::Zero( );
+
+    std::map< double, CameraCalibration > pictureCalibrationHistory_;
+
+    std::map< double, std::string > pictureIdHistory_;
+
+    std::map< double, Eigen::Vector3d > pointingUncertaintyHistory_;
 };
 
 class TranslationalStateSupplementaryData
@@ -307,6 +470,22 @@ private:
     bool isAngularVelocityDefined_ = false;
 };
 
+//! Position of a reference point that is fixed to a body, such as a ground station or a surface landmark.
+class ReferencePointSupplementaryData
+{
+public:
+    explicit ReferencePointSupplementaryData( const Eigen::Vector3d& bodyFixedPosition ): bodyFixedPosition_( bodyFixedPosition ) {}
+
+    //! Cartesian position of the reference point in the body-fixed frame [m].
+    const Eigen::Vector3d& getBodyFixedPosition( ) const
+    {
+        return bodyFixedPosition_;
+    }
+
+private:
+    Eigen::Vector3d bodyFixedPosition_;
+};
+
 class TrackingSupplementaryData
 {
 public:
@@ -376,6 +555,17 @@ public:
         return referencePointName_;
     }
 
+    //! Body-fixed position of the reference point. Null when the reference point position is not provided.
+    void setReferencePointSupplementaryData( const std::shared_ptr< ReferencePointSupplementaryData >& referencePointSupplementaryData )
+    {
+        referencePointSupplementaryData_ = referencePointSupplementaryData;
+    }
+
+    const std::shared_ptr< ReferencePointSupplementaryData >& getReferencePointSupplementaryData( ) const
+    {
+        return referencePointSupplementaryData_;
+    }
+
     bool isPassiveRadarReflector( ) const
     {
         return isPassiveRadarReflector_;
@@ -394,6 +584,8 @@ private:
     std::vector< std::shared_ptr< FrequencySupplementaryData > > frequencySupplementaryData_;
 
     std::vector< std::shared_ptr< InstrumentSupplementaryData > > instrumentSupplementaryData_;
+
+    std::shared_ptr< ReferencePointSupplementaryData > referencePointSupplementaryData_;
 
     std::string bodyName_;
 

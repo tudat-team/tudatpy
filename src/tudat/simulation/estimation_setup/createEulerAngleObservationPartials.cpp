@@ -9,9 +9,10 @@ namespace observation_partials
 
 //! Function to generate one-way range partial wrt an initial position of a body.
 std::shared_ptr< ObservationPartial< 3 > > createEulerAngleObservablePartialWrtCurrentRotationalState(
-        const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier )
+        const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
+        const std::function< Eigen::Quaterniond( const double ) > rotationToBaseFrameFunction )
 {
-    return std::make_shared< EulerAngleObervationPartialWrtCurrentRotationalState >( parameterIdentifier );
+    return std::make_shared< EulerAngleObervationPartialWrtCurrentRotationalState >( parameterIdentifier, rotationToBaseFrameFunction );
 }
 
 }  // namespace observation_partials

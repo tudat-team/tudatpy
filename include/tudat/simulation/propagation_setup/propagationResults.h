@@ -6,6 +6,7 @@
 #define TUDAT_PROPAGATIONRESULTS_H
 
 #include <map>
+#include <numeric>
 #include <cstdint>
 #include <string>
 
@@ -57,6 +58,12 @@ public:
     virtual ~SimulationResults( ) {}
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const = 0;
+
+    //! Function to create a copy of these results without any state transition and sensitivity matrices.
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const
+    {
+        return clone( );
+    }
 
     virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
 
@@ -230,15 +237,16 @@ public:
         solutionIsCleared_ = true;
     }
 
-    //! Get initial and final propagation time from raw results
+    //! Get initial and final propagation time from raw results, or from processed results if only those are set
     std::pair< TimeType, TimeType > getArcInitialAndFinalTime( )
     {
-        if( equationsOfMotionNumericalSolutionRaw_.size( ) == 0 )
+        const auto& solution = equationsOfMotionNumericalSolutionRaw_.empty( ) ? equationsOfMotionNumericalSolution_
+                                                                               : equationsOfMotionNumericalSolutionRaw_;
+        if( solution.size( ) == 0 )
         {
             throw std::runtime_error( "Error when getting single-arc dynamics initial and final times; no results set" );
         }
-        return std::make_pair( equationsOfMotionNumericalSolutionRaw_.begin( )->first,
-                               equationsOfMotionNumericalSolutionRaw_.rbegin( )->first );
+        return std::make_pair( solution.begin( )->first, solution.rbegin( )->first );
     }
 
     //! Function to signal that propagation is finished, and add number of function evaluations
@@ -669,14 +677,17 @@ public:
             const int stateTransitionMatrixSize,
             const int sensitivityMatrixSize ):
         singleArcDynamicsResults_( singleArcDynamicsResults ), stateTransitionMatrixSize_( stateTransitionMatrixSize ),
-        sensitivityMatrixSize_( sensitivityMatrixSize )
-    {}
+        sensitivityMatrixSize_( sensitivityMatrixSize ), reducedSensitivityMatrixColumns_( sensitivityMatrixSize )
+    {
+        std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
+    }
 
     SingleArcVariationalSimulationResults( const SingleArcVariationalSimulationResults< StateScalarType, TimeType >& resultsToCopy ):
         singleArcDynamicsResults_( resultsToCopy.getDynamicsResults( )->cloneDerived( ) ),
         stateTransitionMatrixSize_( resultsToCopy.stateTransitionMatrixSize_ ),
         sensitivityMatrixSize_( resultsToCopy.sensitivityMatrixSize_ ), stateTransitionSolution_( resultsToCopy.stateTransitionSolution_ ),
-        sensitivitySolution_( resultsToCopy.sensitivitySolution_ )
+        sensitivitySolution_( resultsToCopy.sensitivitySolution_ ),
+        reducedSensitivityMatrixColumns_( resultsToCopy.reducedSensitivityMatrixColumns_ )
     {}
 
     ~SingleArcVariationalSimulationResults( ) {}
@@ -689,6 +700,12 @@ public:
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
+    }
+
+    //! Copy that retains the propagated dynamics only, discarding the state transition and sensitivity matrices.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        return singleArcDynamicsResults_->cloneDerived( );
     }
 
     void reset( )
@@ -722,15 +739,16 @@ public:
     void splitSolution( const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >& fullSolution,
                         std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolutionRaw )
     {
+        const int propagatedSensitivityMatrixSize = getPropagatedSensitivityMatrixSize( );
         for( auto it : fullSolution )
         {
             stateTransitionSolution_[ static_cast< double >( it.first ) ] =
                     it.second.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).template cast< double >( );
             sensitivitySolution_[ static_cast< double >( it.first ) ] =
-                    it.second.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ )
+                    it.second.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, propagatedSensitivityMatrixSize )
                             .template cast< double >( );
             equationsOfMotionNumericalSolutionRaw[ it.first ] =
-                    it.second.block( 0, stateTransitionMatrixSize_ + sensitivityMatrixSize_, stateTransitionMatrixSize_, 1 );
+                    it.second.block( 0, stateTransitionMatrixSize_ + propagatedSensitivityMatrixSize, stateTransitionMatrixSize_, 1 );
         }
     }
 
@@ -751,9 +769,48 @@ public:
         return stateTransitionSolution_;
     }
 
-    std::map< double, Eigen::MatrixXd >& getSensitivitySolution( )
+    //! Function to retrieve the sensitivity matrix history, including the columns that were not propagated (if any)
+    std::map< double, Eigen::MatrixXd > getSensitivitySolution( ) const
+    {
+        std::map< double, Eigen::MatrixXd > fullSensitivitySolution;
+        for( auto it : sensitivitySolution_ )
+        {
+            Eigen::MatrixXd& fullSensitivityMatrix = fullSensitivitySolution[ it.first ];
+            fullSensitivityMatrix = Eigen::MatrixXd::Zero( it.second.rows( ), sensitivityMatrixSize_ );
+            for( unsigned int i = 0; i < reducedSensitivityMatrixColumns_.size( ); i++ )
+            {
+                fullSensitivityMatrix.col( reducedSensitivityMatrixColumns_.at( i ) ) = it.second.col( i );
+            }
+        }
+        return fullSensitivitySolution;
+    }
+
+    //! Function to retrieve the sensitivity matrix history, with only the propagated columns
+    /*!
+     * Function to retrieve the sensitivity matrix history, with only the propagated columns (see setReducedSensitivityMatrixColumns).
+     * Equal to getSensitivitySolution if all columns are propagated.
+     * \return Sensitivity matrix history, with only the propagated columns
+     */
+    std::map< double, Eigen::MatrixXd >& getReducedSensitivitySolution( )
     {
         return sensitivitySolution_;
+    }
+
+    //! Function to set the columns of the full sensitivity matrix that are propagated
+    /*!
+     * Function to set the columns of the full sensitivity matrix that are propagated, in case sensitivity matrix columns that are
+     * zero are omitted (see EstimatableParameterSet::setReduceSensitivityMatrixColumns).
+     * \param reducedSensitivityMatrixColumns Index in the full sensitivity matrix of each propagated column
+     */
+    void setReducedSensitivityMatrixColumns( const std::vector< int >& reducedSensitivityMatrixColumns )
+    {
+        reducedSensitivityMatrixColumns_ = reducedSensitivityMatrixColumns;
+    }
+
+    //! Function to retrieve the number of propagated sensitivity matrix columns
+    int getPropagatedSensitivityMatrixSize( ) const
+    {
+        return static_cast< int >( reducedSensitivityMatrixColumns_.size( ) );
     }
 
     const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getDynamicsResults( ) const
@@ -802,7 +859,11 @@ protected:
 
     std::map< double, Eigen::MatrixXd > stateTransitionSolution_;
 
+    //! Sensitivity matrix history, with only the propagated columns
     std::map< double, Eigen::MatrixXd > sensitivitySolution_;
+
+    //! Index in the full sensitivity matrix of each propagated column
+    std::vector< int > reducedSensitivityMatrixColumns_;
 
 private:
     friend class cereal::access;
@@ -820,7 +881,7 @@ private:
                     stateTransitionMatrixSize_ == rhsDerived->stateTransitionMatrixSize_ &&
                     sensitivityMatrixSize_ == rhsDerived->sensitivityMatrixSize_ &&
                     stateTransitionSolution_ == rhsDerived->stateTransitionSolution_ &&
-                    sensitivitySolution_ == rhsDerived->sensitivitySolution_ &&
+                    getSensitivitySolution( ) == rhsDerived->getSensitivitySolution( ) &&
                     ( ( singleArcDynamicsResults_ != nullptr && rhsDerived->singleArcDynamicsResults_ != nullptr )
                               ? ( *singleArcDynamicsResults_ == *rhsDerived->singleArcDynamicsResults_ )
                               : singleArcDynamicsResults_ == rhsDerived->singleArcDynamicsResults_ );
@@ -836,7 +897,10 @@ private:
         ar( CEREAL_NVP( stateTransitionMatrixSize_ ) );
         ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
         ar( CEREAL_NVP( stateTransitionSolution_ ) );
-        ar( CEREAL_NVP( sensitivitySolution_ ) );
+
+        // Sensitivity matrix history is always saved with all columns
+        std::map< double, Eigen::MatrixXd > fullSensitivitySolution = getSensitivitySolution( );
+        ar( cereal::make_nvp( "sensitivitySolution_", fullSensitivitySolution ) );
     }
 
     template< class Archive >
@@ -849,6 +913,10 @@ private:
         ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
         ar( CEREAL_NVP( stateTransitionSolution_ ) );
         ar( CEREAL_NVP( sensitivitySolution_ ) );
+
+        // Sensitivity matrix history is always saved with all columns
+        reducedSensitivityMatrixColumns_.resize( sensitivityMatrixSize_ );
+        std::iota( reducedSensitivityMatrixColumns_.begin( ), reducedSensitivityMatrixColumns_.end( ), 0 );
     }
 };
 
@@ -916,13 +984,42 @@ public:
         {
             clonedSingleArcResults.push_back( singleArcResults_.at( i )->cloneDerived( ) );
         }
-        return std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >( clonedSingleArcResults,
-                                                                                                             dependentVariableInterface_ );
+        auto clonedResults = std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
+                clonedSingleArcResults, dependentVariableInterface_ );
+        clonedResults->propagationIsPerformed_ = propagationIsPerformed_;
+        clonedResults->solutionIsCleared_ = solutionIsCleared_;
+        clonedResults->arcStartTimes_ = arcStartTimes_;
+        clonedResults->arcEndTimes_ = arcEndTimes_;
+        return clonedResults;
     }
 
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
+    }
+
+    //! Copy that retains the propagated dynamics of each arc only, discarding any variational results.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > clonedDynamicsResults;
+        bool allArcsHaveSolution = true;
+        for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+        {
+            clonedDynamicsResults.push_back(
+                    SingleArcResultsRetriever< SingleArcResults< StateScalarType, TimeType >, StateScalarType, TimeType >::
+                            getSingleArcSimulationResults( singleArcResults_.at( i ) )
+                                    ->cloneDerived( ) );
+            allArcsHaveSolution = allArcsHaveSolution && clonedDynamicsResults.back( )->getPropagationIsPerformed( ) &&
+                    !clonedDynamicsResults.back( )->getSolutionIsCleared( ) &&
+                    !clonedDynamicsResults.back( )->getEquationsOfMotionNumericalSolution( ).empty( );
+        }
+        auto dynamicsOnlyResults = std::make_shared< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                clonedDynamicsResults, dependentVariableInterface_ );
+        if( allArcsHaveSolution )
+        {
+            dynamicsOnlyResults->setPropagationIsPerformed( );
+        }
+        return dynamicsOnlyResults;
     }
 
     bool getPropagationIsPerformed( )
@@ -956,11 +1053,13 @@ public:
         }
     }
 
-    //            void setPropagationIsPerformed( const std::vector< double >& arcStartTimes )
-    //            {
-    //                propagationIsPerformed_ = true;
-    //                arcStartTimes_ = arcStartTimes;
-    //            }
+    //! Function to signal that propagation is finished, with arc times provided directly (e.g. if arcs have no state transition history)
+    void setPropagationIsPerformed( const std::vector< double >& arcStartTimes, const std::vector< double >& arcEndTimes )
+    {
+        propagationIsPerformed_ = true;
+        arcStartTimes_ = arcStartTimes;
+        arcEndTimes_ = arcEndTimes;
+    }
 
     void manuallySetPropagationResults(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > numericalMultiArcSolution )
@@ -1258,6 +1357,17 @@ public:
     {
         return std::make_shared< HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
                 singleArcResults_->cloneDerived( ), multiArcResults_->cloneDerived( ) );
+    }
+
+    //! Copy that retains the propagated dynamics of the single- and multi-arc parts only, discarding any variational results.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        return std::make_shared< HybridArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                SingleArcResultsRetriever< SingleArcResults< StateScalarType, TimeType >, StateScalarType, TimeType >::
+                        getSingleArcSimulationResults( singleArcResults_ )
+                                ->cloneDerived( ),
+                std::dynamic_pointer_cast< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                        multiArcResults_->cloneDynamicsOnly( ) ) );
     }
 
     std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > getSingleArcResults( )

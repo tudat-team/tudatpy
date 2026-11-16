@@ -36,6 +36,12 @@ std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimateParameters(
         std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
 {
+    if( considerParametersIncluded_ && parametersToEstimate_->getConstraintSize( ) > 0 )
+    {
+        throw std::runtime_error(
+                "Error when estimating parameters, linear parameter constraints cannot be combined with consider parameters" );
+    }
+
     if( estimationInput->getUseSparseDesignMatrix( ) )
     {
         return performEstimation< Eigen::SparseMatrix< double > >( estimationInput );
@@ -152,7 +158,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
                         "Error when saving state history for each estimation iteration: no propagation results exist "
                         "in observation-only estimation." );
             }
-            simulationResultsPerIteration.push_back( simulationResults->clone( ) );
+            if( estimationInput->getSaveVariationalResultsForEachIteration( ) )
+            {
+                simulationResultsPerIteration.push_back( simulationResults->clone( ) );
+            }
+            else
+            {
+                simulationResultsPerIteration.push_back( simulationResults->cloneDynamicsOnly( ) );
+            }
         }
 
         // Normalise estimated parameters partials and inverse apriori covariance
@@ -260,6 +273,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
 
         ParameterVectorType parameterAddition = ( leastSquaresOutput.first.cwiseQuotient( estimatedParameterNormalizationTerms ) )
                                                         .template cast< ObservationScalarType >( );
+
+        if( estimationInput->iterationCallback_ )
+        {
+            estimationInput->iterationCallback_(
+                    numberOfIterations,
+                    residuals.template cast< double >( ),
+                    normaliseUnnormaliseInverseCovarianceMatrix( leastSquaresOutput.second, normalizationTerms, false ) );
+        }
 
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;

@@ -816,6 +816,68 @@ inline std::shared_ptr< AccelerationSettings > yarkovskyAcceleration( const doub
     return std::make_shared< YarkovskyAccelerationSettings >( yarkovskyParameter );
 }
 
+// Class to define settings for the point-mass acceleration due to a linear variation of the gravitational parameter of the
+// exerting body (see GravitationalParameterRateAcceleration)
+//! @get_docstring(GravitationalParameterRateAccelerationSettings.__docstring__)
+class GravitationalParameterRateAccelerationSettings : public AccelerationSettings
+{
+public:
+    // Constructor
+    /*
+     * Constructor
+     * \param relativeGravitationalParameterRate Relative rate (d mu / dt) / mu of the gravitational parameter [1/s]
+     * \param referenceEpoch Epoch at which the gravitational parameter equals that of the gravity field of the exerting body
+     */
+    GravitationalParameterRateAccelerationSettings( const double relativeGravitationalParameterRate = 0.0,
+                                                    const double referenceEpoch = 0.0 ):
+        AccelerationSettings( basic_astrodynamics::gravitational_parameter_rate_acceleration ),
+        relativeGravitationalParameterRate_( relativeGravitationalParameterRate ), referenceEpoch_( referenceEpoch )
+    {}
+
+    // Relative rate (d mu / dt) / mu of the gravitational parameter [1/s]
+    double relativeGravitationalParameterRate_;
+
+    // Epoch at which the gravitational parameter equals that of the gravity field of the exerting body
+    double referenceEpoch_;
+
+protected:
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const GravitationalParameterRateAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && relativeGravitationalParameterRate_ == rhs->relativeGravitationalParameterRate_ &&
+                referenceEpoch_ == rhs->referenceEpoch_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( relativeGravitationalParameterRate_ ), CEREAL_NVP( referenceEpoch_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( relativeGravitationalParameterRate_ ), CEREAL_NVP( referenceEpoch_ ) );
+    }
+};
+
+//! @get_docstring(gravitationalParameterRateAcceleration)
+inline std::shared_ptr< AccelerationSettings > gravitationalParameterRateAcceleration( const double relativeGravitationalParameterRate,
+                                                                                       const double referenceEpoch = 0.0 )
+{
+    return std::make_shared< GravitationalParameterRateAccelerationSettings >( relativeGravitationalParameterRate, referenceEpoch );
+}
+
 // Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
 // thrust implementation)
 // TODO: not exposed
