@@ -1,0 +1,12 @@
+{
+  "direct_relativistic_time_converter_settings": {
+    "properties": {
+      "barycentric_to_bodycentric_settings": "dynamics.propagation_setup.propagator.single_arc_propagator_settings",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "bodycentric_to_topocentric_settings": "dynamics.propagation_setup.propagator.single_arc_propagator_settings[]"
+    },
+    "optional": {
+      "bodycentric_to_topocentric_settings": []
+    }
+  }
+}

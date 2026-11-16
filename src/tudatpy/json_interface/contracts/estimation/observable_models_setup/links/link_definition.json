@@ -1,0 +1,7 @@
+{
+  "link_definition": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_end_id{LinkEndType}"
+    }
+  }
+}

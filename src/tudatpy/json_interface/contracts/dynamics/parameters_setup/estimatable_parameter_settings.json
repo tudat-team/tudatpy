@@ -1,0 +1,510 @@
+{
+  "constant_drag_coefficient": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "arcwise_constant_drag_coefficient": {
+    "properties": {
+      "body": "string",
+      "arc_initial_times": "float[]"
+    }
+  },
+  "drag_component_scaling": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "arcwise_drag_component_scaling": {
+    "properties": {
+      "body": "string",
+      "arc_initial_times": "float[]"
+    }
+  },
+  "side_component_scaling": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "arcwise_side_component_scaling": {
+    "properties": {
+      "body": "string",
+      "arc_initial_times": "float[]"
+    }
+  },
+  "lift_component_scaling": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "arcwise_lift_component_scaling": {
+    "properties": {
+      "body": "string",
+      "arc_initial_times": "float[]"
+    }
+  },
+  "radiation_pressure_coefficient": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "three_coefficient_radiation_pressure_coefficients": {
+    "properties": {
+      "body": "string",
+      "radiation_source": "string"
+    }
+  },
+  "arcwise_radiation_pressure_coefficient": {
+    "properties": {
+      "body": "string",
+      "arc_initial_times": "float[]"
+    }
+  },
+  "radiation_pressure_target_direction_scaling": {
+    "properties": {
+      "target_body": "string",
+      "source_body": "string"
+    }
+  },
+  "radiation_pressure_target_perpendicular_direction_scaling": {
+    "properties": {
+      "target_body": "string",
+      "source_body": "string"
+    }
+  },
+  "specular_reflectivity": {
+    "properties": {
+      "body": "string",
+      "panel_group_id": "string"
+    }
+  },
+  "energy_accommodation_coefficient": {
+    "properties": {
+      "body": "string",
+      "panel_group_id": "string"
+    }
+  },
+  "normal_accommodation_coefficient": {
+    "properties": {
+      "body": "string",
+      "panel_group_id": "string"
+    }
+  },
+  "tangential_accommodation_coefficient": {
+    "properties": {
+      "body": "string",
+      "panel_group_id": "string"
+    }
+  },
+  "normal_velocity_at_wall_ratio": {
+    "properties": {
+      "body": "string",
+      "panel_group_id": "string"
+    }
+  },
+  "diffuse_reflectivity": {
+    "properties": {
+      "body": "string",
+      "panel_group_id": "string"
+    }
+  },
+  "empirical_accelerations": {
+    "properties": {
+      "body": "string",
+      "centralBody": "string",
+      "acceleration_components": "EmpiricalAccelerationFunctionalShapes[]{EmpiricalAccelerationComponents}"
+    }
+  },
+  "constant_empirical_acceleration_terms": {
+    "properties": {
+      "body": "string",
+      "centralBody": "string"
+    }
+  },
+  "full_empirical_acceleration_terms": {
+    "properties": {
+      "body": "string",
+      "centralBody": "string"
+    }
+  },
+  "arcwise_empirical_accelerations": {
+    "properties": {
+      "body": "string",
+      "centralBody": "string",
+      "acceleration_components": "EmpiricalAccelerationFunctionalShapes[]{EmpiricalAccelerationComponents}",
+      "arc_start_times": "float[]"
+    }
+  },
+  "arcwise_constant_empirical_acceleration_terms": {
+    "properties": {
+      "body": "string",
+      "centralBody": "string",
+      "arc_start_times": "float[]"
+    }
+  },
+  "quasi_impulsive_shots": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "gravitational_parameter": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "spherical_harmonics_c_coefficients": {
+    "properties": {
+      "body": "string",
+      "minimum_degree": "int",
+      "minimum_order": "int",
+      "maximum_degree": "int",
+      "maximum_order": "int"
+    }
+  },
+  "spherical_harmonics_c_coefficients_block": {
+    "properties": {
+      "body": "string",
+      "block_indices": "int[2][]"
+    }
+  },
+  "spherical_harmonics_s_coefficients": {
+    "properties": {
+      "body": "string",
+      "minimum_degree": "int",
+      "minimum_order": "int",
+      "maximum_degree": "int",
+      "maximum_order": "int"
+    }
+  },
+  "spherical_harmonics_s_coefficients_block": {
+    "properties": {
+      "body": "string",
+      "block_indices": "int[2][]"
+    }
+  },
+  "mean_moment_of_inertia": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "constant_rotation_rate": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "rotation_pole_position": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "core_factor": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "free_core_nutation_rate": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "periodic_spin_variations": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "polar_motion_amplitudes": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "iau_rotation_model_pole": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "iau_rotation_model_pole_rate": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "iau_rotation_model_longitudinal_librations": {
+    "properties": {
+      "body": "string",
+      "libration_angular_frequencies": "float[]"
+    }
+  },
+  "iau_rotation_model_pole_librations": {
+    "properties": {
+      "body": "string",
+      "libration_angular_frequencies": "float[]"
+    }
+  },
+  "shared_observation_bias": {
+    "properties": {
+      "bias_type": "ObservationBiasTypes",
+      "observable_type": "ObservableType",
+      "link_end_type": "LinkEndType",
+      "link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "arc_start_times": "float[]",
+      "time_link_end": "LinkEndType"
+    },
+    "optional": {
+      "arc_start_times": null,
+      "time_link_end": null
+    }
+  },
+  "absolute_observation_bias": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "observable_type": "ObservableType"
+    }
+  },
+  "arcwise_absolute_observation_bias": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "observable_type": "ObservableType",
+      "arc_start_times": "float[]",
+      "time_link_end": "LinkEndType"
+    }
+  },
+  "global_polynomial_clock_corrections": {
+    "properties": {
+      "associated_body": "string",
+      "associated_station": "string",
+      "correction_powers": "int[]"
+    }
+  },
+  "arc_wise_polynomial_clock_corrections": {
+    "properties": {
+      "associated_body": "string",
+      "associated_station": "string",
+      "correction_powers": "int[]",
+      "arc_indices": "int[]"
+    }
+  },
+  "relative_observation_bias": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "observable_type": "ObservableType"
+    }
+  },
+  "arcwise_relative_observation_bias": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "observable_type": "ObservableType",
+      "arc_start_times": "float[]",
+      "time_link_end": "LinkEndType"
+    }
+  },
+  "time_drift_observation_bias": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_end_id{LinkEndType}",
+      "observable_type": "ObservableType",
+      "ref_epoch": "float",
+      "time_link_end": "LinkEndType"
+    }
+  },
+  "arcwise_time_drift_observation_bias": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_end_id{LinkEndType}",
+      "observable_type": "ObservableType",
+      "arc_start_times": "float[]",
+      "ref_epochs": "float[]",
+      "time_link_end": "LinkEndType"
+    }
+  },
+  "constant_time_bias": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_end_id{LinkEndType}",
+      "observable_type": "ObservableType",
+      "reference_link_end": "LinkEndType"
+    }
+  },
+  "arcwise_time_bias": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_end_id{LinkEndType}",
+      "observable_type": "ObservableType",
+      "arc_start_times": "float[]",
+      "reference_link_end": "LinkEndType"
+    }
+  },
+  "ground_station_position": {
+    "properties": {
+      "body": "string",
+      "ground_station_name": "string"
+    }
+  },
+  "ground_station_linear_velocity": {
+    "properties": {
+      "body": "string",
+      "ground_station_name": "string"
+    }
+  },
+  "displacement_love_number": {
+    "properties": {
+      "deformed_body": "string",
+      "degrees": "int[]"
+    }
+  },
+  "displacement_shida_number": {
+    "properties": {
+      "deformed_body": "string",
+      "degrees": "int[]"
+    }
+  },
+  "reference_point_position": {
+    "properties": {
+      "body": "string",
+      "reference_point_name": "string"
+    }
+  },
+  "camera_pointing_correction": {
+    "properties": {
+      "body": "string",
+      "camera_name": "string"
+    }
+  },
+  "direct_tidal_dissipation_time_lag": {
+    "properties": {
+      "body": "string",
+      "deforming_body": "string"
+    }
+  },
+  "inverse_tidal_quality_factor": {
+    "properties": {
+      "body": "string",
+      "deforming_body": "string"
+    }
+  },
+  "order_invariant_k_love_number": {
+    "properties": {
+      "deformed_body": "string",
+      "degree": "int",
+      "deforming_bodies": "string[]",
+      "use_complex_love_number": "bool"
+    },
+    "optional": {
+      "use_complex_love_number": false
+    }
+  },
+  "order_varying_k_love_number": {
+    "properties": {
+      "deformed_body": "string",
+      "degree": "int",
+      "orders": "int[]",
+      "deforming_bodies": "string[]",
+      "use_complex_love_number": "bool"
+    }
+  },
+  "mode_coupled_k_love_numbers": {
+    "properties": {
+      "deformed_body": "string",
+      "love_number_indices": "any{}",
+      "deforming_bodies": "string[]"
+    },
+    "unsupported": ["love_number_indices"]
+  },
+  "polynomial_gravity_field_variation_amplitudes": {
+    "properties": {
+      "body_name": "string",
+      "cosine_indices_per_power": "any{}",
+      "sine_indices_per_power": "any{}"
+    },
+    "unsupported": ["cosine_indices_per_power", "sine_indices_per_power"]
+  },
+  "periodic_gravity_field_variation_amplitudes": {
+    "properties": {
+      "body_name": "string",
+      "cosine_indices_per_period": "any{}",
+      "sine_indices_per_period": "any{}"
+    },
+    "unsupported": ["cosine_indices_per_period", "sine_indices_per_period"]
+  },
+  "monomial_gravity_field_variation_amplitudes": {
+    "properties": {
+      "body_name": "string",
+      "power": "int",
+      "cosine_indices": "int[2][]",
+      "sine_indices": "int[2][]"
+    }
+  },
+  "monomial_full_block_gravity_field_variation_amplitudes": {
+    "properties": {
+      "body_name": "string",
+      "power": "int",
+      "minimum_degree": "int",
+      "minimum_order": "int",
+      "maximum_degree": "int",
+      "maximum_order": "int"
+    }
+  },
+  "scaled_longitude_libration_amplitude": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "yarkovsky_parameter": {
+    "properties": {
+      "body_name": "string",
+      "central_body_name": "string"
+    },
+    "optional": {
+      "central_body_name": "Sun"
+    }
+  },
+  "relative_gravitational_parameter_rate": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "rtg_force_vector": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "rtg_force_vector_magnitude": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "exponential_atmosphere_base_density": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "exponential_atmosphere_scale_height": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "arcwise_exponential_atmosphere_base_density": {
+    "properties": {
+      "body_name": "string",
+      "arc_start_times": "float[]"
+    }
+  },
+  "arcwise_exponential_atmosphere_scale_height": {
+    "properties": {
+      "body_name": "string",
+      "arc_start_times": "float[]"
+    }
+  },
+  "area_to_mass_ratio_scaling_parameter": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "full_acceleration_scaling_parameter": {
+    "properties": {
+      "body_name_undergoing_acceleration": "string",
+      "body_name_exerting_acceleration": "string",
+      "acceleration_type": "AvailableAcceleration"
+    }
+  },
+  "ppn_parameter_gamma": {
+    "properties": {}
+  },
+  "ppn_parameter_beta": {
+    "properties": {}
+  }
+}

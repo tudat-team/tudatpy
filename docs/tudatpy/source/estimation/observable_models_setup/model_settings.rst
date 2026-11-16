@@ -88,6 +88,14 @@ Functions
 
    get_observable_size
 
+   one_way_open_loop_doppler
+
+   two_way_open_loop_doppler
+
+   two_way_open_loop_doppler_from_one_way_links
+
+   one_way_closed_loop_doppler
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_range
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_range
@@ -151,6 +159,14 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.get_observable_size
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_open_loop_doppler
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_open_loop_doppler
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_open_loop_doppler_from_one_way_links
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_closed_loop_doppler
 
 
 Enumerations

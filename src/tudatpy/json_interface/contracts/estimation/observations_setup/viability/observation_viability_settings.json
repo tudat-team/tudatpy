@@ -1,0 +1,46 @@
+{
+  "observation_boundaries_viability": {
+    "properties": {
+      "link_end_id": "string[2]",
+      "boundaries": "float[2][]"
+    }
+  },
+  "elevation_angle_viability": {
+    "properties": {
+      "link_end_id": "string[2]",
+      "elevation_angle": "float"
+    }
+  },
+  "ground_station_darkness_viability": {
+    "properties": {
+      "link_end_id": "string[2]",
+      "maximum_sun_elevation": "float"
+    },
+    "optional": {
+      "maximum_sun_elevation": null
+    }
+  },
+  "body_avoidance_viability": {
+    "properties": {
+      "link_end_id": "string[2]",
+      "body_to_avoid": "string",
+      "avoidance_angle": "float"
+    }
+  },
+  "body_occultation_viability": {
+    "properties": {
+      "link_end_id": "string[2]",
+      "occulting_body": "string"
+    }
+  },
+  "body_in_sunlight_viability": {
+    "properties": {
+      "link_end_id": "string[2]",
+      "occulting_bodies": "string[]",
+      "minimum_shadow_function_value": "float"
+    },
+    "optional": {
+      "minimum_shadow_function_value": 1.0
+    }
+  }
+}

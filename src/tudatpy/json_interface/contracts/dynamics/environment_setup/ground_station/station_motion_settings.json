@@ -1,0 +1,28 @@
+{
+  "linear_station_motion": {
+    "properties": {
+      "linear_velocity": "float[3]",
+      "reference_epoch": "float"
+    },
+    "optional": {
+      "reference_epoch": 0.0
+    }
+  },
+  "piecewise_constant_station_motion": {
+    "properties": {
+      "displacement_list": "float[3]{}"
+    }
+  },
+  "bodycentric_to_barycentric_station_motion": {
+    "properties": {
+      "central_body_name": "string",
+      "use_general_relativistic_correction": "bool",
+      "scale_to_tdb_compatible_coordinates": "bool"
+    },
+    "optional": {
+      "central_body_name": "Sun",
+      "use_general_relativistic_correction": true,
+      "scale_to_tdb_compatible_coordinates": true
+    }
+  }
+}

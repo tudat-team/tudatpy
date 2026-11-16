@@ -1,0 +1,451 @@
+{
+  "one_way_range": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "time_scale_for_observable": "TimeScales"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "time_scale_for_observable": "tdb_scale"
+    }
+  },
+  "two_way_range": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "time_scale_for_observable": "TimeScales"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "time_scale_for_observable": "tdb_scale"
+    }
+  },
+  "two_way_range_from_one_way_links": {
+    "properties": {
+      "one_way_range_settings": "estimation.observable_models_setup.model_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "time_scale_for_observable": "TimeScales"
+    },
+    "optional": {
+      "bias_settings": null,
+      "time_scale_for_observable": "tdb_scale"
+    }
+  },
+  "n_way_range": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "time_scale_for_observable": "TimeScales"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "time_scale_for_observable": "tdb_scale"
+    }
+  },
+  "n_way_range_from_one_way_links": {
+    "properties": {
+      "one_way_range_settings": "estimation.observable_models_setup.model_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "time_scale_for_observable": "TimeScales"
+    },
+    "optional": {
+      "bias_settings": null,
+      "time_scale_for_observable": "tdb_scale"
+    }
+  },
+  "angular_position": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "normalize_right_ascension": "bool"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "normalize_right_ascension": false
+    }
+  },
+  "azimuth_elevation": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "normalize_azimuth": "bool"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "normalize_azimuth": false
+    }
+  },
+  "relative_angular_position": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "pixel_coordinates": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "correct_for_stellar_aberration": "bool"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "correct_for_stellar_aberration": false
+    }
+  },
+  "cartesian_position": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "bias_settings": "estimation.observable_models_setup.biases"
+    },
+    "optional": {
+      "bias_settings": null
+    }
+  },
+  "relative_cartesian_position": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "bias_settings": "estimation.observable_models_setup.biases"
+    },
+    "optional": {
+      "bias_settings": null
+    }
+  },
+  "cartesian_velocity": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "bias_settings": "estimation.observable_models_setup.biases"
+    },
+    "optional": {
+      "bias_settings": null
+    }
+  },
+  "euler_angles_313": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "bias_settings": "estimation.observable_models_setup.biases"
+    },
+    "optional": {
+      "bias_settings": null
+    }
+  },
+  "one_way_doppler_instantaneous": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "normalized_with_speed_of_light": "bool"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "normalized_with_speed_of_light": false
+    }
+  },
+  "two_way_doppler_instantaneous_from_one_way_links": {
+    "properties": {
+      "uplink_doppler_settings": "estimation.observable_models_setup.model_settings",
+      "downlink_doppler_settings": "estimation.observable_models_setup.model_settings",
+      "bias_settings": "estimation.observable_models_setup.biases"
+    },
+    "optional": {
+      "bias_settings": null
+    }
+  },
+  "two_way_doppler_instantaneous": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "normalized_with_speed_of_light": "bool"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "normalized_with_speed_of_light": false
+    }
+  },
+  "one_way_doppler_averaged": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "two_way_doppler_averaged": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "two_way_doppler_averaged_from_one_way_links": {
+    "properties": {
+      "one_way_range_settings": "estimation.observable_models_setup.model_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases"
+    },
+    "optional": {
+      "bias_settings": null
+    }
+  },
+  "n_way_doppler_averaged": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "n_way_doppler_averaged_from_one_way_links": {
+    "properties": {
+      "one_way_range_settings": "estimation.observable_models_setup.model_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "dsn_n_way_doppler_averaged": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "subtract_doppler_signature": "bool"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "subtract_doppler_signature": true
+    }
+  },
+  "two_way_doppler_instantaneous_frequency": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "dsn_n_way_range": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "differenced_time_of_arrival": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "time_difference_time_scale": "TimeScales",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "time_difference_time_scale": "tdb_scale",
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "differenced_frequency_of_arrival": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "time_difference_time_scale": "TimeScales",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "time_difference_time_scale": "tdb_scale",
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "doppler_measured_frequency": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "one_way_doppler_measured_frequency": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "position_angle": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "separation_distance": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "position_angle_and_separation": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  },
+  "one_way_open_loop_doppler": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "normalized_with_speed_of_light": "bool"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "normalized_with_speed_of_light": false
+    }
+  },
+  "two_way_open_loop_doppler_from_one_way_links": {
+    "properties": {
+      "uplink_doppler_settings": "estimation.observable_models_setup.model_settings",
+      "downlink_doppler_settings": "estimation.observable_models_setup.model_settings",
+      "bias_settings": "estimation.observable_models_setup.biases"
+    },
+    "optional": {
+      "bias_settings": null
+    }
+  },
+  "two_way_open_loop_doppler": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings",
+      "normalized_with_speed_of_light": "bool"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null,
+      "normalized_with_speed_of_light": false
+    }
+  },
+  "one_way_closed_loop_doppler": {
+    "properties": {
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "light_time_correction_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings[]",
+      "bias_settings": "estimation.observable_models_setup.biases",
+      "light_time_convergence_settings": "estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings"
+    },
+    "optional": {
+      "light_time_correction_settings": [],
+      "bias_settings": null,
+      "light_time_convergence_settings": null
+    }
+  }
+}

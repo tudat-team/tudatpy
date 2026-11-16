@@ -121,6 +121,8 @@ Functions
 
    damit
 
+   tabulated_rotation
+
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.simple
 
@@ -153,6 +155,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.damit
+
+.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.tabulated_rotation
 
 
 Enumerations

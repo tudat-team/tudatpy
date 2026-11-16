@@ -1,0 +1,39 @@
+{
+  "body_list_settings": {
+    "properties": {
+      "body_settings": "dynamics.environment_setup.body_settings{}",
+      "global_frame_origin": "string",
+      "global_frame_orientation": "string",
+      "space_time_settings": "dynamics.environment_setup.space_time.space_time_properties_settings"
+    },
+    "optional": {
+      "space_time_settings": null
+    }
+  },
+  "get_default_body_settings": {
+    "properties": {
+      "bodies": "string[]",
+      "base_frame_origin": "string",
+      "base_frame_orientation": "string"
+    },
+    "optional": {
+      "base_frame_origin": "SSB",
+      "base_frame_orientation": "ECLIPJ2000"
+    }
+  },
+  "get_default_body_settings_time_limited": {
+    "properties": {
+      "bodies": "string[]",
+      "initial_time": "float",
+      "final_time": "float",
+      "base_frame_origin": "string",
+      "base_frame_orientation": "string",
+      "time_step": "float"
+    },
+    "optional": {
+      "base_frame_origin": "SSB",
+      "base_frame_orientation": "ECLIPJ2000",
+      "time_step": 300.0
+    }
+  }
+}

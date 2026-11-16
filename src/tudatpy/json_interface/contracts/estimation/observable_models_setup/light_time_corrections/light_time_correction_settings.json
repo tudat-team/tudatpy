@@ -1,0 +1,167 @@
+{
+  "first_order_relativistic_light_time_correction": {
+    "properties": {
+      "perturbing_bodies": "string[]",
+      "compute_massive_body_at_closest_approach": "bool"
+    },
+    "optional": {
+      "compute_massive_body_at_closest_approach": false
+    }
+  },
+  "approximated_second_order_relativistic_light_time_correction": {
+    "properties": {
+      "perturbing_bodies": "string[]",
+      "compute_massive_body_at_closest_approach": "bool"
+    },
+    "optional": {
+      "compute_massive_body_at_closest_approach": false
+    }
+  },
+  "dsn_tabulated_tropospheric_light_time_correction": {
+    "properties": {
+      "file_names": "string[]",
+      "body_with_atmosphere_name": "string",
+      "mapping_model": "TroposphericMappingModel",
+      "seasonal_correction_file_name": "string"
+    },
+    "optional": {
+      "body_with_atmosphere_name": "Earth",
+      "mapping_model": "niell",
+      "seasonal_correction_file_name": ""
+    }
+  },
+  "measured_tropospheric_light_time_correction": {
+    "properties": {
+      "zenith_delays_per_station": "any{}{}",
+      "fallback_settings": "estimation.observable_models_setup.light_time_corrections.light_time_correction_settings",
+      "maximum_interpolation_gap": "float",
+      "use_measured_dry_delay": "bool",
+      "body_with_atmosphere_name": "string",
+      "mapping_model": "TroposphericMappingModel",
+      "interpolator_settings": "math.interpolators.interpolator_settings"
+    },
+    "optional": {
+      "use_measured_dry_delay": false,
+      "body_with_atmosphere_name": "Earth",
+      "mapping_model": "niell",
+      "interpolator_settings": null
+    },
+    "unsupported": ["zenith_delays_per_station"]
+  },
+  "saastamoinen_tropospheric_light_time_correction": {
+    "properties": {
+      "body_with_atmosphere_name": "string",
+      "mapping_model": "TroposphericMappingModel",
+      "water_vapor_partial_pressure_model": "WaterVaporPartialPressureModel"
+    },
+    "optional": {
+      "body_with_atmosphere_name": "Earth",
+      "mapping_model": "niell",
+      "water_vapor_partial_pressure_model": "tabulated"
+    }
+  },
+  "dsn_tabulated_ionospheric_light_time_correction": {
+    "properties": {
+      "file_names": "string[]",
+      "spacecraft_name_per_id": "any{}",
+      "quasar_name_per_id": "any{}",
+      "reference_frequency": "float",
+      "body_with_atmosphere_name": "string"
+    },
+    "optional": {
+      "spacecraft_name_per_id": null,
+      "quasar_name_per_id": null,
+      "reference_frequency": 2295000000.0,
+      "body_with_atmosphere_name": "Earth"
+    },
+    "unsupported": ["spacecraft_name_per_id", "quasar_name_per_id"]
+  },
+  "jakowski_ionospheric_light_time_correction": {
+    "properties": {
+      "ionosphere_height": "float",
+      "first_order_delay_coefficient": "float",
+      "solar_activity_data_path": "string",
+      "geomagnetic_pole_latitude": "float",
+      "geomagnetic_pole_longitude": "float",
+      "use_utc_for_local_time_computation": "bool",
+      "body_with_atmosphere_name": "string"
+    },
+    "optional": {
+      "ionosphere_height": 400000.0,
+      "first_order_delay_coefficient": 40.3,
+      "solar_activity_data_path": null,
+      "geomagnetic_pole_latitude": null,
+      "geomagnetic_pole_longitude": null,
+      "use_utc_for_local_time_computation": false,
+      "body_with_atmosphere_name": "Earth"
+    }
+  },
+  "ionex_ionospheric_light_time_correction": {
+    "properties": {
+      "body_with_ionosphere_name": "string",
+      "ionosphere_height": "float",
+      "first_order_delay_coefficient": "float"
+    },
+    "optional": {
+      "first_order_delay_coefficient": 40.3
+    }
+  },
+  "nequick2_ionospheric_light_time_correction": {
+    "properties": {
+      "use_ionex_rescaling": "bool",
+      "first_order_delay_coefficient": "float",
+      "quadrature_order": "int",
+      "ccir_data_path": "string",
+      "solar_activity_data_path": "string",
+      "ionex_rms_bias_tecu": "float"
+    },
+    "optional": {
+      "use_ionex_rescaling": true,
+      "first_order_delay_coefficient": 40.3,
+      "quadrature_order": 50,
+      "ccir_data_path": "",
+      "solar_activity_data_path": "",
+      "ionex_rms_bias_tecu": 0.0
+    }
+  },
+  "vmf3_tropospheric_light_time_correction": {
+    "properties": {
+      "body_with_atmosphere_name": "string",
+      "use_gradient_correction": "bool",
+      "tropospheric_mapping_model": "TroposphericMappingModel"
+    },
+    "optional": {
+      "body_with_atmosphere_name": "Earth",
+      "use_gradient_correction": true,
+      "tropospheric_mapping_model": "vmf3"
+    }
+  },
+  "vmf3o_tropospheric_light_time_correction": {
+    "properties": {
+      "body_with_atmosphere_name": "string",
+      "use_gradient_correction": "bool",
+      "tropospheric_mapping_model": "TroposphericMappingModel",
+      "observation_wavelength_nm": "float"
+    },
+    "optional": {
+      "body_with_atmosphere_name": "Earth",
+      "use_gradient_correction": true,
+      "tropospheric_mapping_model": "vmf3",
+      "observation_wavelength_nm": 532.0
+    }
+  },
+  "inverse_power_series_solar_corona_light_time_correction": {
+    "properties": {
+      "coefficients": "float[]",
+      "positive_exponents": "float[]",
+      "delay_coefficient": "float",
+      "sun_body_name": "string"
+    },
+    "optional": {
+      "coefficients": [12000000000000.0, 410000000000.0],
+      "positive_exponents": [6.0, 2.0],
+      "delay_coefficient": 40.3,
+      "sun_body_name": "Sun"
+    }
+  }
+}

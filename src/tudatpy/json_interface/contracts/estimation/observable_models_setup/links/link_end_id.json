@@ -1,0 +1,13 @@
+{
+  "body_origin_link_end_id": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "body_reference_point_link_end_id": {
+    "properties": {
+      "body_name": "string",
+      "reference_point_id": "string"
+    }
+  }
+}

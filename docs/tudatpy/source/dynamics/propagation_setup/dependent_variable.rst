@@ -219,6 +219,16 @@ Functions
    vehicle_panel_surface_normals_inertial_frame
 
    visible_radiation_source_area
+
+   total_spherical_harmonic_cosine_coefficient_variations_from_indices
+
+   total_spherical_harmonic_sine_coefficient_variations_from_indices
+
+   vehicle_part_rotation_matrix
+
+   proper_time_rate_kinematic_term
+
+   proper_time_rate_potential_term
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.get_dependent_variable_id
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.get_dependent_variable_size
@@ -394,6 +404,16 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.vehicle_panel_surface_normals_inertial_frame
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.visible_radiation_source_area
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_spherical_harmonic_cosine_coefficient_variations_from_indices
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_spherical_harmonic_sine_coefficient_variations_from_indices
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.vehicle_part_rotation_matrix
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_kinematic_term
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_potential_term
 
 
 

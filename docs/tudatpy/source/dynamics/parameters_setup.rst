@@ -190,6 +190,8 @@ Functions
    rtg_force_vector
 
    rtg_force_vector_magnitude
+
+   relative_gravitational_parameter_rate
 .. autofunction:: tudatpy.dynamics.parameters_setup.create_parameter_set
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.initial_states
@@ -357,6 +359,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.rtg_force_vector
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.rtg_force_vector_magnitude
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.relative_gravitational_parameter_rate
 
 
 Enumerations

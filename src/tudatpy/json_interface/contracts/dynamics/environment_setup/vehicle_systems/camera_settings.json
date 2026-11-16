@@ -1,0 +1,16 @@
+{
+  "pinhole_camera": {
+    "properties": {
+      "camera_name": "string",
+      "boresight_euler_angles": "float[3]",
+      "focal_lengths": "float[2]",
+      "optical_center": "float[2]",
+      "body_fixed_position": "float[3]"
+    },
+    "optional": {
+      "focal_lengths": [1.0, 1.0],
+      "optical_center": [0.0, 0.0],
+      "body_fixed_position": [0.0, 0.0, 0.0]
+    }
+  }
+}

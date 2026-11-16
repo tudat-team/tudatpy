@@ -1,0 +1,174 @@
+{
+  "elevation_angle_dependent_variable": {
+    "properties": {
+      "link_end_type": "LinkEndType",
+      "link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "originating_link_end_type": "LinkEndType",
+      "originating_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "integrated_observation_handling": "IntegratedObservationPropertyHandling"
+    },
+    "optional": {
+      "link_end_type": "unidentified_link_end",
+      "link_end_id": null,
+      "originating_link_end_type": "unidentified_link_end",
+      "originating_link_end_id": null,
+      "integrated_observation_handling": "interval_start"
+    }
+  },
+  "azimuth_angle_dependent_variable": {
+    "properties": {
+      "link_end_type": "LinkEndType",
+      "link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "originating_link_end_type": "LinkEndType",
+      "originating_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "integrated_observation_handling": "IntegratedObservationPropertyHandling"
+    },
+    "optional": {
+      "link_end_type": "unidentified_link_end",
+      "link_end_id": null,
+      "originating_link_end_type": "unidentified_link_end",
+      "originating_link_end_id": null,
+      "integrated_observation_handling": "interval_start"
+    }
+  },
+  "target_range_between_link_ends_dependent_variable": {
+    "properties": {
+      "start_link_end_type": "LinkEndType",
+      "end_link_end_type": "LinkEndType",
+      "start_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "end_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "integrated_observation_handling": "IntegratedObservationPropertyHandling"
+    },
+    "optional": {
+      "start_link_end_type": "unidentified_link_end",
+      "end_link_end_type": "unidentified_link_end",
+      "start_link_end_id": null,
+      "end_link_end_id": null,
+      "integrated_observation_handling": "interval_start"
+    }
+  },
+  "light_time_between_link_ends_dependent_variable": {
+    "properties": {
+      "start_link_end_type": "LinkEndType",
+      "end_link_end_type": "LinkEndType",
+      "start_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "end_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "integrated_observation_handling": "IntegratedObservationPropertyHandling"
+    },
+    "optional": {
+      "start_link_end_type": "unidentified_link_end",
+      "end_link_end_type": "unidentified_link_end",
+      "start_link_end_id": null,
+      "end_link_end_id": null,
+      "integrated_observation_handling": "interval_start"
+    }
+  },
+  "avoidance_angle_dependent_variable": {
+    "properties": {
+      "body_name": "string",
+      "start_link_end_type": "LinkEndType",
+      "end_link_end_type": "LinkEndType",
+      "start_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "end_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "integrated_observation_handling": "IntegratedObservationPropertyHandling"
+    },
+    "optional": {
+      "start_link_end_type": "unidentified_link_end",
+      "end_link_end_type": "unidentified_link_end",
+      "start_link_end_id": null,
+      "end_link_end_id": null,
+      "integrated_observation_handling": "interval_start"
+    }
+  },
+  "body_center_distance_dependent_variable": {
+    "properties": {
+      "body_name": "string",
+      "start_link_end_type": "LinkEndType",
+      "end_link_end_type": "LinkEndType",
+      "start_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "end_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "integrated_observation_handling": "IntegratedObservationPropertyHandling"
+    },
+    "optional": {
+      "start_link_end_type": "unidentified_link_end",
+      "end_link_end_type": "unidentified_link_end",
+      "start_link_end_id": null,
+      "end_link_end_id": null,
+      "integrated_observation_handling": "interval_start"
+    }
+  },
+  "body_limb_distance_dependent_variable": {
+    "properties": {
+      "body_name": "string",
+      "start_link_end_type": "LinkEndType",
+      "end_link_end_type": "LinkEndType",
+      "start_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "end_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "integrated_observation_handling": "IntegratedObservationPropertyHandling"
+    },
+    "optional": {
+      "start_link_end_type": "unidentified_link_end",
+      "end_link_end_type": "unidentified_link_end",
+      "start_link_end_id": null,
+      "end_link_end_id": null,
+      "integrated_observation_handling": "interval_start"
+    }
+  },
+  "angle_wrt_orbital_plane_dependent_variable": {
+    "properties": {
+      "body_name": "string",
+      "start_link_end_type": "LinkEndType",
+      "end_link_end_type": "LinkEndType",
+      "start_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "end_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "integrated_observation_handling": "IntegratedObservationPropertyHandling"
+    },
+    "optional": {
+      "start_link_end_type": "unidentified_link_end",
+      "end_link_end_type": "unidentified_link_end",
+      "start_link_end_id": null,
+      "end_link_end_id": null,
+      "integrated_observation_handling": "interval_start"
+    }
+  },
+  "integration_time_dependent_variable": {
+    "properties": {
+      "observable_type": "ObservableType"
+    },
+    "optional": {
+      "observable_type": "undefined_observation_model"
+    }
+  },
+  "retransmission_delays_dependent_variable": {
+    "properties": {
+      "observable_type": "ObservableType"
+    },
+    "optional": {
+      "observable_type": "undefined_observation_model"
+    }
+  },
+  "link_end_epochs_dependent_variable": {
+    "properties": {
+      "observable_type": "ObservableType"
+    },
+    "optional": {
+      "observable_type": "undefined_observation_model"
+    }
+  },
+  "light_time_correction_components_dependent_variable": {
+    "properties": {
+      "transmitter_link_end_type": "LinkEndType",
+      "receiver_link_end_type": "LinkEndType",
+      "transmitter_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "receiver_link_end_id": "estimation.observable_models_setup.links.link_end_id",
+      "correction_type_filter": "LightTimeCorrectionType[]"
+    },
+    "optional": {
+      "transmitter_link_end_type": "unidentified_link_end",
+      "receiver_link_end_type": "unidentified_link_end",
+      "transmitter_link_end_id": null,
+      "receiver_link_end_id": null,
+      "correction_type_filter": []
+    }
+  }
+}

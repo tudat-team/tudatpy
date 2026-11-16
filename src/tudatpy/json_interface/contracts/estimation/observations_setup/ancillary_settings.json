@@ -1,0 +1,102 @@
+{
+  "empty_ancillary_settings": {
+    "properties": {}
+  },
+  "position_angle_ancillary_settings": {
+    "properties": {
+      "reference_frame": "PositionAngleReferenceFrame",
+      "reference_epoch": "float",
+      "use_stellar_aberration": "bool"
+    },
+    "optional": {
+      "reference_frame": "j2000_position_angle_reference_frame",
+      "reference_epoch": null,
+      "use_stellar_aberration": false
+    }
+  },
+  "custom_position_angle_ancillary_settings": {
+    "properties": {
+      "reference_pole": "float[3]",
+      "use_stellar_aberration": "bool"
+    },
+    "optional": {
+      "use_stellar_aberration": false
+    }
+  },
+  "doppler_ancillary_settings": {
+    "properties": {
+      "integration_time": "float"
+    },
+    "optional": {
+      "integration_time": 60.0
+    }
+  },
+  "two_way_range_ancillary_settings": {
+    "properties": {
+      "retransmission_delay": "float"
+    },
+    "optional": {
+      "retransmission_delay": 0.0
+    }
+  },
+  "two_way_doppler_ancillary_settings": {
+    "properties": {
+      "integration_time": "float",
+      "retransmission_delay": "float"
+    },
+    "optional": {
+      "integration_time": 60.0,
+      "retransmission_delay": 0.0
+    }
+  },
+  "n_way_range_ancillary_settings": {
+    "properties": {
+      "link_end_delays": "float[]",
+      "frequency_bands": "FrequencyBands[]"
+    },
+    "optional": {
+      "link_end_delays": [],
+      "frequency_bands": []
+    }
+  },
+  "n_way_doppler_ancillary_settings": {
+    "properties": {
+      "integration_time": "float",
+      "link_end_delays": "float[]",
+      "frequency_bands": "FrequencyBands[]"
+    },
+    "optional": {
+      "integration_time": 60.0,
+      "link_end_delays": [],
+      "frequency_bands": []
+    }
+  },
+  "dsn_n_way_doppler_ancillary_settings": {
+    "properties": {
+      "frequency_bands": "FrequencyBands[]",
+      "reference_frequency_band": "FrequencyBands",
+      "reference_frequency": "float",
+      "integration_time": "float",
+      "link_end_delays": "float[]"
+    },
+    "optional": {
+      "integration_time": 60.0,
+      "link_end_delays": []
+    }
+  },
+  "dsn_n_way_range_ancillary_settings": {
+    "properties": {
+      "frequency_bands": "FrequencyBands[]",
+      "lowest_ranging_component": "float",
+      "link_end_delays": "float[]"
+    },
+    "optional": {
+      "link_end_delays": []
+    }
+  },
+  "doppler_measured_frequency_ancillary_settings": {
+    "properties": {
+      "frequency_bands": "FrequencyBands[]"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "initial_states": {
+    "properties": {
+      "propagator_settings": "dynamics.propagation_setup.propagator.single_arc_propagator_settings|dynamics.propagation_setup.propagator.multi_arc_propagator_settings|dynamics.propagation_setup.propagator.hybrid_arc_propagator_settings",
+      "bodies": "any",
+      "arc_initial_times": "float[]"
+    },
+    "optional": {
+      "arc_initial_times": []
+    },
+    "unsupported": ["bodies"]
+  }
+}

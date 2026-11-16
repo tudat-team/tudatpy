@@ -1,0 +1,177 @@
+{
+  "translational": {
+    "properties": {
+      "central_bodies": "string[]",
+      "acceleration_models": "any[]{}{}",
+      "bodies_to_integrate": "string[]",
+      "initial_states": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "propagator": "TranslationalPropagatorType",
+      "output_variables": "dynamics.propagation_setup.dependent_variable[]",
+      "processing_settings": "dynamics.propagation_setup.propagator.single_arc_processing_settings"
+    },
+    "optional": {
+      "propagator": "cowell",
+      "output_variables": [],
+      "processing_settings": null
+    },
+    "unsupported": ["acceleration_models"]
+  },
+  "translational_from_acceleration_settings": {
+    "properties": {
+      "central_bodies": "string[]",
+      "acceleration_settings": "dynamics.propagation_setup.acceleration[]{}{}",
+      "bodies_to_integrate": "string[]",
+      "initial_states": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "propagator": "TranslationalPropagatorType",
+      "output_variables": "dynamics.propagation_setup.dependent_variable[]",
+      "processing_settings": "dynamics.propagation_setup.propagator.single_arc_processing_settings"
+    },
+    "optional": {
+      "propagator": "cowell",
+      "output_variables": [],
+      "processing_settings": null
+    }
+  },
+  "rotational": {
+    "properties": {
+      "torque_models": "any[]{}{}",
+      "bodies_to_integrate": "string[]",
+      "initial_states": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "propagator": "RotationalPropagatorType",
+      "output_variables": "dynamics.propagation_setup.dependent_variable[]",
+      "processing_settings": "dynamics.propagation_setup.propagator.single_arc_processing_settings"
+    },
+    "optional": {
+      "propagator": "quaternions",
+      "output_variables": [],
+      "processing_settings": null
+    },
+    "unsupported": ["torque_models"]
+  },
+  "rotational_from_torque_settings": {
+    "properties": {
+      "torque_settings": "dynamics.propagation_setup.torque[]{}{}",
+      "bodies_to_integrate": "string[]",
+      "initial_states": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "propagator": "RotationalPropagatorType",
+      "output_variables": "dynamics.propagation_setup.dependent_variable[]",
+      "processing_settings": "dynamics.propagation_setup.propagator.single_arc_processing_settings"
+    },
+    "optional": {
+      "propagator": "quaternions",
+      "output_variables": [],
+      "processing_settings": null
+    }
+  },
+  "mass": {
+    "properties": {
+      "bodies_with_mass_to_propagate": "string[]",
+      "mass_rate_models": "any[]{}",
+      "initial_body_masses": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "output_variables": "dynamics.propagation_setup.dependent_variable[]",
+      "processing_settings": "dynamics.propagation_setup.propagator.single_arc_processing_settings"
+    },
+    "optional": {
+      "output_variables": [],
+      "processing_settings": null
+    },
+    "unsupported": ["mass_rate_models"]
+  },
+  "mass_from_mass_rate_settings": {
+    "properties": {
+      "bodies_with_mass_to_propagate": "string[]",
+      "mass_rate_settings": "dynamics.propagation_setup.mass_rate[]{}",
+      "initial_body_masses": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "output_variables": "dynamics.propagation_setup.dependent_variable[]",
+      "processing_settings": "dynamics.propagation_setup.propagator.single_arc_processing_settings",
+      "acceleration_settings": "dynamics.propagation_setup.acceleration[]{}{}",
+      "central_bodies": "string[]"
+    },
+    "optional": {
+      "output_variables": [],
+      "processing_settings": null,
+      "acceleration_settings": {},
+      "central_bodies": []
+    }
+  },
+  "multitype": {
+    "properties": {
+      "propagator_settings_list": "dynamics.propagation_setup.propagator.single_arc_propagator_settings[]",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "initial_time": "float",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "output_variables": "dynamics.propagation_setup.dependent_variable[]",
+      "processing_settings": "dynamics.propagation_setup.propagator.single_arc_processing_settings"
+    },
+    "optional": {
+      "output_variables": [],
+      "processing_settings": null
+    }
+  },
+  "first_order_bodycentric_relativistic_time_settings": {
+    "properties": {
+      "body": "string",
+      "perturbing_bodies": "string[]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "spherical_harmonic_expansions": "int[2]{}",
+      "dependent_variables_to_save": "dynamics.propagation_setup.dependent_variable[]"
+    },
+    "optional": {
+      "spherical_harmonic_expansions": {},
+      "dependent_variables_to_save": []
+    }
+  },
+  "bodycentered_to_topocentric_time_settings": {
+    "properties": {
+      "reference_point_id": "string[2]",
+      "use_acceleration_term": "bool",
+      "maximum_spherical_harmonic_degree": "int",
+      "use_time_dependent_body_fixed_position": "bool",
+      "topocentric_external_bodies": "string[]",
+      "initial_state": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "dependent_variables_to_save": "dynamics.propagation_setup.dependent_variable[]"
+    },
+    "optional": {
+      "dependent_variables_to_save": []
+    }
+  },
+  "direct_relativistic_time_settings": {
+    "properties": {
+      "reference_point_id": "string[2]",
+      "initial_time": "float",
+      "integrator_settings": "dynamics.propagation_setup.integrator.integrator_settings",
+      "termination_settings": "dynamics.propagation_setup.propagator.termination_settings",
+      "distance_scaling_factor": "float",
+      "dependent_variables_to_save": "dynamics.propagation_setup.dependent_variable[]",
+      "output_settings": "dynamics.propagation_setup.propagator.single_arc_processing_settings"
+    },
+    "optional": {
+      "distance_scaling_factor": 1.0,
+      "dependent_variables_to_save": [],
+      "output_settings": null
+    }
+  }
+}

@@ -11,7 +11,8 @@ explicitly supplied inputs may be written as ``"factory_name"``,
 ``{"factory_name": {}}``, or ``{"factory_name": null}``. When a contract expects
 a variable-length array, one item may be supplied directly without enclosing it
 in an array. Fixed-size arrays, including vectors and matrices, retain their
-explicit array shape.
+explicit array shape. For inputs keyed by an enum, such as link ends keyed by
+``LinkEndType``, the JSON object keys are the names of the enum members.
 Optional properties omitted from a document are passed to the Tudat factory using
 the default recorded in the contract. A ``null`` contract default delegates to the
 factory default, for settings that are absent or defaults that JSON cannot represent.

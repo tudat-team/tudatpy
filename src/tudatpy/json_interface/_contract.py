@@ -46,12 +46,17 @@ class ContractEntry:
 
 
 _TYPE_PATTERN = re.compile(
-    r"^(?P<base>[A-Za-z_][A-Za-z0-9_.]*)(?P<containers>(?:(?:\[(?:\d+)?\])|\{\})*)$"
+    r"^(?P<base>[A-Za-z_][A-Za-z0-9_.]*)(?P<containers>(?:\[\d*\]|\{(?:[A-Za-z_]\w*)?\})*)$"
 )
-_CONTAINER_PATTERN = re.compile(r"\[(\d*)\]|(\{\})")
+_CONTAINER_PATTERN = re.compile(r"\[(?P<size>\d*)\]|\{(?P<key>\w*)\}")
 _BUILTIN_TYPES = {"any", "bool", "complex", "float", "int", "null", "object", "string"}
 CONTRACT_ROOT = Path(__file__).parent / "contracts"
-DEFAULT_TYPE_MODULE_NAMES = ("tudatpy.dynamics", "tudatpy.math", "tudatpy.astro")
+DEFAULT_TYPE_MODULE_NAMES = (
+    "tudatpy.dynamics",
+    "tudatpy.estimation",
+    "tudatpy.math",
+    "tudatpy.astro",
+)
 
 
 def _reject_non_finite(value: str) -> None:
@@ -237,7 +242,8 @@ def _parse_type(type_name: Any, path: str) -> tuple[str, list[int | None | str]]
     ----------
     type_name : Any
         Contract value expected to contain an expression such as ``"float[3]"``,
-        ``"string[]"``, or ``"environment_setup.shape{}"``.
+        ``"string[]"``, ``"dynamics.environment_setup.shape{}"``, or
+        ``"EmpiricalAccelerationFunctionalShapes[]{EmpiricalAccelerationComponents}"``.
     path : str
         Logical contract location used in validation errors.
 
@@ -245,8 +251,10 @@ def _parse_type(type_name: Any, path: str) -> tuple[str, list[int | None | str]]
     -------
     tuple[str, list[int or None or str]]
         Base type name and ordered container descriptors. A positive integer is
-        a fixed-size array, ``None`` is a variable-size array, and ``"dict"`` is
-        a JSON object whose values have the remaining inner type.
+        a fixed-size array, ``None`` is a variable-size array, and a string is
+        a JSON object whose values have the remaining inner type. The string
+        names the key type: ``"string"`` for ``{}``, or the enum named inside
+        the braces, whose members the object keys name.
 
     Raises
     ------
@@ -264,8 +272,12 @@ def _parse_type(type_name: Any, path: str) -> tuple[str, list[int | None | str]]
         )
 
     containers = [
-        "dict" if dictionary else (int(size) if size else None)
-        for size, dictionary in _CONTAINER_PATTERN.findall(match.group("containers"))
+        (
+            (container.group("key") or "string")
+            if container.group(0).startswith("{")
+            else (int(container.group("size")) if container.group("size") else None)
+        )
+        for container in _CONTAINER_PATTERN.finditer(match.group("containers"))
     ]
     return match.group("base"), containers
 
@@ -300,12 +312,14 @@ def _find_named_type(type_name: str, type_modules: tuple[ModuleType, ...]) -> An
         if id(type_module) in visited:
             continue
         visited.add(id(type_module))
-        candidate = getattr(type_module, type_name, None)
+        # Module globals are read directly so that lazy module __getattr__
+        # hooks, such as deprecated aliases, are never triggered.
+        attributes = vars(type_module)
+        candidate = attributes.get(type_name)
         if candidate is not None:
             matches.append(candidate)
 
-        for attribute_name in dir(type_module):
-            attribute = getattr(type_module, attribute_name)
+        for attribute in attributes.values():
             if isinstance(attribute, ModuleType) and attribute.__name__.startswith("tudatpy"):
                 pending.append(attribute)
 
@@ -533,13 +547,22 @@ def _convert_value(
             )
 
         expected_size = remaining_dimensions[-1]
-        if expected_size == "dict":
+        if isinstance(expected_size, str):
             if not isinstance(current_value, dict):
                 raise JSONSettingsValidationError(
                     f"{current_path} must be an object, got {type(current_value).__name__}"
                 )
+            # Keys are strings in JSON; an enum key type converts each key to
+            # the enum member it names.
             return {
-                key: convert(item, remaining_dimensions[:-1], f"{current_path}.{key}")
+                _convert_scalar(
+                    key,
+                    expected_size,
+                    f"{current_path}.{key}",
+                    type_modules,
+                    contract_root,
+                    factory_context,
+                ): convert(item, remaining_dimensions[:-1], f"{current_path}.{key}")
                 for key, item in current_value.items()
             }
 
@@ -640,16 +663,22 @@ def load_contract(
                 raise JSONSettingsValidationError(f"{property_path} must be a string")
             alternatives = type_expression.split("|")
             for alternative in alternatives:
-                base_type, _ = _parse_type(alternative, property_path)
+                base_type, containers = _parse_type(alternative, property_path)
                 # Unsupported inputs retain their intended type in the shared
                 # contract even when that type is outside the modules currently
                 # understood by this JSON layer.
-                if (
-                    property_name not in unsupported
-                    and base_type not in _BUILTIN_TYPES
-                    and "." not in base_type
-                ):
+                if property_name in unsupported:
+                    continue
+                if base_type not in _BUILTIN_TYPES and "." not in base_type:
                     _find_named_type(base_type, type_modules)
+                for key_type in containers:
+                    # Object keys are strings, or names of an enum's members.
+                    if isinstance(key_type, str) and key_type != "string":
+                        if key_type in _BUILTIN_TYPES:
+                            raise JSONSettingsValidationError(
+                                f"{property_path} uses unsupported key type {key_type!r}"
+                            )
+                        _find_named_type(key_type, type_modules)
             typed_properties[property_name] = type_expression
 
         for property_name, default_value in optional.items():
@@ -1023,13 +1052,11 @@ def module_name_from_contract(contract_path: str | Path) -> str:
 
     relative = Path(contract_path).resolve().relative_to(CONTRACT_ROOT.resolve())
     parts = relative.with_suffix("").parts
-    prefix = (
-        "tudatpy.dynamics" if parts[0] in {"environment_setup", "propagation_setup"} else "tudatpy"
-    )
-    # Contract filenames may name a settings family below the module that owns
-    # its factories. Choose the longest importable module prefix.
+    # The contract tree mirrors the Tudatpy API. Contract filenames may name a
+    # settings family below the module that owns its factories. Choose the
+    # longest importable module prefix.
     for length in range(len(parts), 0, -1):
-        candidate = prefix + "." + ".".join(parts[:length])
+        candidate = "tudatpy." + ".".join(parts[:length])
         try:
             import_module(candidate)
         except ModuleNotFoundError as error:

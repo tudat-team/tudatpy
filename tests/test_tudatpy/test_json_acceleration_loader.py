@@ -87,7 +87,7 @@ def test_all_contracts_match_tudat_api():
         The test asserts that the validated count equals the packaged entry count.
     """
 
-    contract_root = ACCELERATION_CONTRACT_PATH.parents[1]
+    contract_root = CONTRACT_ROOT
     expected = sum(
         len(json.loads(path.read_text(encoding="utf-8"))) for path in contract_root.rglob("*.json")
     )
@@ -104,16 +104,16 @@ def test_nested_contracts_are_limited_to_compatible_settings_families():
         step-size validation factory from the integrator-settings family.
     """
 
-    contract_root = ACCELERATION_CONTRACT_PATH.parents[1]
+    contract_root = CONTRACT_ROOT
     integrators = json.loads(
-        (contract_root / "propagation_setup/integrator/integrator_settings.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            contract_root / "dynamics/propagation_setup/integrator/integrator_settings.json"
+        ).read_text(encoding="utf-8")
     )
     terminations = json.loads(
-        (contract_root / "propagation_setup/propagator/termination_settings.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            contract_root / "dynamics/propagation_setup/propagator/termination_settings.json"
+        ).read_text(encoding="utf-8")
     )
 
     assert "step_size_validation" not in integrators
@@ -140,7 +140,7 @@ def test_all_contract_entries_are_in_api_docs():
     contract_root = repository_root / "src/tudatpy/json_interface/contracts"
     docs_root = repository_root / "docs/tudatpy/source"
     pattern = re.compile(
-        r"^\.\. autofunction:: (tudatpy\.(?:dynamics|math|astro)\.[\w.]+)$",
+        r"^\.\. autofunction:: (tudatpy\.(?:dynamics|estimation|math|astro)\.[\w.]+)$",
         re.MULTILINE,
     )
     documented = {
@@ -234,7 +234,7 @@ def test_external_settings_types_load_from_their_public_modules(tmp_path):
                 }
             },
         ),
-        CONTRACT_ROOT / "environment_setup/ground_station/ground_station_settings.json",
+        CONTRACT_ROOT / "dynamics/environment_setup/ground_station/ground_station_settings.json",
     )
     assert isinstance(station, environment_setup.ground_station.GroundStationSettings)
     assert astro.element_conversion.PositionElementTypes.cartesian_position_type is not None
@@ -323,7 +323,7 @@ def test_singleton_array_shorthand_is_generic(tmp_path):
                 }
             },
         ),
-        CONTRACT_ROOT / "propagation_setup/propagator/termination_settings.json",
+        CONTRACT_ROOT / "dynamics/propagation_setup/propagator/termination_settings.json",
     )
 
     assert isinstance(
@@ -375,7 +375,7 @@ def test_processing_settings_load_from_json(tmp_path):
     for contract_name, definition, expected_type in definitions:
         result = load_settings(
             _write_json(tmp_path / contract_name, definition),
-            CONTRACT_ROOT / "propagation_setup/propagator" / contract_name,
+            CONTRACT_ROOT / "dynamics/propagation_setup/propagator" / contract_name,
         )
         assert isinstance(result, expected_type)
 
@@ -391,13 +391,13 @@ def test_body_settings_contract_uses_rigid_body_settings_for_mass():
     """
 
     contract = json.loads(
-        (
-            ACCELERATION_CONTRACT_PATH.parents[1] / "environment_setup" / "body_settings.json"
-        ).read_text(encoding="utf-8")
+        (CONTRACT_ROOT / "dynamics/environment_setup" / "body_settings.json").read_text(
+            encoding="utf-8"
+        )
     )["body_settings"]
 
     assert "constant_mass" not in contract["properties"]
-    assert contract["properties"]["rigid_body_settings"] == "environment_setup.rigid_body"
+    assert contract["properties"]["rigid_body_settings"] == "dynamics.environment_setup.rigid_body"
 
 
 def test_contract_defaults_control_factory_arguments(tmp_path):
@@ -524,7 +524,7 @@ def test_untyped_inputs_are_flagged_unsupported_and_coma_is_excluded():
         and that Coma factories are absent from the JSON contracts.
     """
 
-    contract_root = ACCELERATION_CONTRACT_PATH.parents[1]
+    contract_root = CONTRACT_ROOT
     for path in contract_root.rglob("*.json"):
         for entry in json.loads(path.read_text(encoding="utf-8")).values():
             unsupported = set(entry.get("unsupported", []))
@@ -536,14 +536,14 @@ def test_untyped_inputs_are_flagged_unsupported_and_coma_is_excluded():
             assert any_properties <= unsupported
 
     atmosphere = json.loads(
-        (contract_root / "environment_setup/atmosphere/atmosphere_settings.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            contract_root / "dynamics/environment_setup/atmosphere/atmosphere_settings.json"
+        ).read_text(encoding="utf-8")
     )
     wind = json.loads(
-        (contract_root / "environment_setup/atmosphere/wind_model_settings.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            contract_root / "dynamics/environment_setup/atmosphere/wind_model_settings.json"
+        ).read_text(encoding="utf-8")
     )
     assert "coma_model_from_poly_data" not in atmosphere
     assert "coma_model_from_stokes_data" not in atmosphere
@@ -605,9 +605,7 @@ def test_factory_with_optional_callable_uses_tudat_default(tmp_path):
         The test asserts successful construction without a JSON callable value.
     """
 
-    contract_path = (
-        ACCELERATION_CONTRACT_PATH.parents[1] / "environment_setup" / "rotation_model.json"
-    )
+    contract_path = CONTRACT_ROOT / "dynamics/environment_setup" / "rotation_model.json"
     settings_path = _write_json(
         tmp_path / "rotation.json",
         {

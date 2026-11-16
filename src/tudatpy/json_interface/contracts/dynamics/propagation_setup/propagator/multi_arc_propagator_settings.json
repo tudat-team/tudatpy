@@ -1,0 +1,13 @@
+{
+  "multi_arc": {
+    "properties": {
+      "single_arc_settings": "dynamics.propagation_setup.propagator.single_arc_propagator_settings[]",
+      "transfer_state_to_next_arc": "bool",
+      "processing_settings": "dynamics.propagation_setup.propagator.multi_arc_processing_settings"
+    },
+    "optional": {
+      "transfer_state_to_next_arc": false,
+      "processing_settings": null
+    }
+  }
+}

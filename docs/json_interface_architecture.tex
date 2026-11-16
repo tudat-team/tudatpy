@@ -108,8 +108,8 @@ The implementation follows five rules:
         dotted contract types and recursively constructed without module-specific
         conversion code.
   \item \textbf{Factories are public TudatPy API.} A JSON factory name maps to a
-        callable exposed by an identifiable \code{environment\_setup} or
-        \code{propagation\_setup} module.
+        callable exposed by an identifiable \code{*\_setup} module. The
+        contract directory tree mirrors the TudatPy module tree.
   \item \textbf{JSON contains settings data only.} Live runtime objects such as
         \code{SystemOfBodies} are passed as context after environment creation.
   \item \textbf{References compose files.} An object containing only
@@ -130,7 +130,7 @@ The implementation follows five rules:
   \node[codebox, below right=of public, minimum width=47mm] (prop) {Propagation wrapper\\\code{\_propagator.py}\\\code{load\_translational\_...}};
 
   \node[codebox, below=18mm of acc, minimum width=60mm] (engine) {Generic contract engine\\\code{\_contract.py}\\read, resolve, validate, convert, invoke};
-  \node[contractbox, left=18mm of engine, minimum width=45mm] (contracts) {Authoritative contracts\\\code{contracts/environment\_setup/}\\\code{contracts/propagation\_setup/}};
+  \node[contractbox, left=18mm of engine, minimum width=45mm] (contracts) {Authoritative contracts\\\code{contracts/dynamics/}\\\code{contracts/estimation/}};
   \node[runtimebox, right=18mm of engine, minimum width=49mm] (api) {Public TudatPy modules\\settings factories and enum types};
 
   \node[codebox, below left=16mm and -5mm of engine, minimum width=43mm] (validator) {Contract validator\\\code{validate\_contract.py}};
@@ -381,8 +381,8 @@ The regression suite separates structural correctness from end-to-end execution:
 
 \section{Extension path}
 
-For an ordinary additional \code{environment\_setup} or
-\code{propagation\_setup} settings family, the intended extension is:
+For an ordinary additional \code{*\_setup} settings family, the intended
+extension is:
 
 \begin{enumerate}[leftmargin=7mm,itemsep=1.5mm]
   \item add or update its authoritative JSON contract;

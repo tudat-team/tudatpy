@@ -61,6 +61,8 @@ Functions
 
    add_ancillary_settings_to_observable_for_link_ends
 
+   empty_ancillary_settings
+
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.doppler_ancillary_settings
 
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.two_way_range_ancillary_settings
@@ -84,6 +86,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.add_ancillary_settings_to_observable
 
 .. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.add_ancillary_settings_to_observable_for_link_ends
+
+.. autofunction:: tudatpy.estimation.observations_setup.ancillary_settings.empty_ancillary_settings
 
 
 

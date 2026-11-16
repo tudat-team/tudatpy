@@ -1,0 +1,36 @@
+{
+  "tabulated_simulation_settings": {
+    "properties": {
+      "observable_type": "ObservableType",
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "simulation_times": "float[]",
+      "reference_link_end_type": "LinkEndType",
+      "viability_settings": "estimation.observations_setup.viability.observation_viability_settings[]",
+      "ancillary_settings": "estimation.observations_setup.ancillary_settings"
+    },
+    "optional": {
+      "reference_link_end_type": "receiver",
+      "viability_settings": [],
+      "ancillary_settings": null
+    }
+  },
+  "continuous_arc_simulation_settings": {
+    "properties": {
+      "observable_type": "ObservableType",
+      "link_ends": "estimation.observable_models_setup.links.link_definition",
+      "start_time": "float",
+      "end_time": "float",
+      "interval_between_observations": "float",
+      "arc_limiting_constraints": "estimation.observations_setup.viability.observation_viability_settings[]",
+      "minimum_arc_duration": "float",
+      "maximum_arc_duration": "float",
+      "minimum_time_between_arcs": "float",
+      "reference_link_end_type": "LinkEndType",
+      "additional_viability_settings": "estimation.observations_setup.viability.observation_viability_settings[]"
+    },
+    "optional": {
+      "reference_link_end_type": "receiver",
+      "additional_viability_settings": []
+    }
+  }
+}

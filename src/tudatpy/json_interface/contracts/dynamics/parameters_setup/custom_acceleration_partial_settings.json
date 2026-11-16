@@ -1,0 +1,14 @@
+{
+  "custom_numerical_partial": {
+    "properties": {
+      "parameter_perturbation": "float[]",
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string",
+      "acceleration_type": "AvailableAcceleration",
+      "environment_updates": "string[]{EnvironmentModelsToUpdate}"
+    },
+    "optional": {
+      "environment_updates": {}
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "observation_boundaries_viability_list": {
+    "properties": {
+      "link_end_ids": "string[2][]",
+      "boundaries": "float[2][]"
+    }
+  },
+  "elevation_angle_viability_list": {
+    "properties": {
+      "link_end_ids": "string[2][]",
+      "elevation_angle": "float"
+    }
+  },
+  "body_avoidance_viability_list": {
+    "properties": {
+      "link_end_ids": "string[2][]",
+      "body_to_avoid": "string",
+      "avoidance_angle": "float"
+    }
+  },
+  "body_occultation_viability_list": {
+    "properties": {
+      "link_end_ids": "string[2][]",
+      "occulting_body": "string"
+    }
+  }
+}

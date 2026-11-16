@@ -5,7 +5,11 @@ from pathlib import Path
 from ._contract import load_settings, read_json_object
 
 BODY_LIST_SETTINGS_CONTRACT_PATH = (
-    Path(__file__).parent / "contracts" / "environment_setup" / "body_list_settings.json"
+    Path(__file__).parent
+    / "contracts"
+    / "dynamics"
+    / "environment_setup"
+    / "body_list_settings.json"
 )
 
 

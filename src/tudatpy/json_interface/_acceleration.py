@@ -8,7 +8,7 @@ from typing import Any
 from ._contract import JSONSettingsValidationError, load_settings
 
 ACCELERATION_CONTRACT_PATH = (
-    Path(__file__).parent / "contracts" / "propagation_setup" / "acceleration.json"
+    Path(__file__).parent / "contracts" / "dynamics" / "propagation_setup" / "acceleration.json"
 )
 
 

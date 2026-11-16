@@ -1,0 +1,16 @@
+{
+  "light_time_convergence_settings": {
+    "properties": {
+      "iterate_corrections": "bool",
+      "maximum_number_of_iterations": "int",
+      "absolute_tolerance": "float",
+      "failure_handling": "LightTimeFailureHandling"
+    },
+    "optional": {
+      "iterate_corrections": false,
+      "maximum_number_of_iterations": 50,
+      "absolute_tolerance": null,
+      "failure_handling": "accept_without_warning"
+    }
+  }
+}

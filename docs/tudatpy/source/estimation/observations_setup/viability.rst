@@ -54,6 +54,14 @@ Functions
 
    add_viability_check_to_observable_for_link_ends
 
+   observation_boundaries_viability
+
+   ground_station_darkness_viability
+
+   body_in_sunlight_viability
+
+   observation_boundaries_viability_list
+
 .. autofunction:: tudatpy.estimation.observations_setup.viability.elevation_angle_viability
 
 .. autofunction:: tudatpy.estimation.observations_setup.viability.body_avoidance_viability
@@ -71,6 +79,14 @@ Functions
 .. autofunction:: tudatpy.estimation.observations_setup.viability.add_viability_check_to_observable
 
 .. autofunction:: tudatpy.estimation.observations_setup.viability.add_viability_check_to_observable_for_link_ends
+
+.. autofunction:: tudatpy.estimation.observations_setup.viability.observation_boundaries_viability
+
+.. autofunction:: tudatpy.estimation.observations_setup.viability.ground_station_darkness_viability
+
+.. autofunction:: tudatpy.estimation.observations_setup.viability.body_in_sunlight_viability
+
+.. autofunction:: tudatpy.estimation.observations_setup.viability.observation_boundaries_viability_list
 
 Enumerations
 ------------

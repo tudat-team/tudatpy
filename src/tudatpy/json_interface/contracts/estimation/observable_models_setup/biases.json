@@ -1,0 +1,90 @@
+{
+  "clock_induced_bias": {
+    "properties": {
+      "body_name": "string",
+      "station_name": "string"
+    }
+  },
+  "absolute_bias": {
+    "properties": {
+      "bias_value": "float[]"
+    }
+  },
+  "relative_bias": {
+    "properties": {
+      "bias_value": "float[]"
+    }
+  },
+  "arcwise_absolute_bias": {
+    "properties": {
+      "arc_start_times": "float[]",
+      "bias_values": "float[][]",
+      "reference_link_end_type": "LinkEndType"
+    }
+  },
+  "arcwise_absolute_bias_per_time": {
+    "properties": {
+      "bias_values_per_start_time": "any{}",
+      "reference_link_end_type": "LinkEndType"
+    },
+    "unsupported": ["bias_values_per_start_time"]
+  },
+  "arcwise_relative_bias": {
+    "properties": {
+      "arc_start_times": "float[]",
+      "bias_values": "float[][]",
+      "reference_link_end_type": "LinkEndType"
+    }
+  },
+  "arcwise_relative_bias_per_time": {
+    "properties": {
+      "bias_values_per_start_time": "any{}",
+      "reference_link_end_type": "LinkEndType"
+    },
+    "unsupported": ["bias_values_per_start_time"]
+  },
+  "time_drift_bias": {
+    "properties": {
+      "bias_value": "float[]",
+      "time_link_end": "LinkEndType",
+      "ref_epoch": "float"
+    }
+  },
+  "arc_wise_time_drift_bias": {
+    "properties": {
+      "bias_value": "float[][]",
+      "arc_start_times": "float[]",
+      "time_link_end": "LinkEndType",
+      "ref_epochs": "float[]"
+    }
+  },
+  "arc_wise_time_drift_bias_per_time": {
+    "properties": {
+      "bias_value_per_start_time": "any{}",
+      "time_link_end": "LinkEndType",
+      "ref_epochs": "float[]"
+    },
+    "unsupported": ["bias_value_per_start_time"]
+  },
+  "time_bias": {
+    "properties": {
+      "time_bias": "float",
+      "associated_link_end": "LinkEndType"
+    }
+  },
+  "arcwise_time_bias": {
+    "properties": {
+      "time_bias_per_arc_start_time": "any{}",
+      "associated_link_end": "LinkEndType"
+    },
+    "unsupported": ["time_bias_per_arc_start_time"]
+  },
+  "combined_bias": {
+    "properties": {
+      "bias_list": "estimation.observable_models_setup.biases[]"
+    }
+  },
+  "two_way_time_scale_range_bias": {
+    "properties": {}
+  }
+}
