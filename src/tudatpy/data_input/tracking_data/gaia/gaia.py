@@ -56,15 +56,24 @@ def _check_for_missing_entries(
 
 
 def _split_targets(targets: int | str | Iterable) -> tuple[list[int], list[str]]:
-    """Split targets into MPC numbers and denominations"""
+    """Split targets into MPC numbers and denominations. Strings of digits are MPC numbers"""
     mpc_numbers, denominations = [], []
     for target in [targets] if np.isscalar(targets) else targets:
-        if isinstance(target, int):
-            mpc_numbers.append(target)
+        if isinstance(target, str) and target.strip().isdigit():
+            target = int(target)
+        if isinstance(target, (int, np.integer)):
+            if target <= 0:
+                raise ValueError(
+                    f"Invalid MPC number {target}: Gaia assigns MPC number 0 to all natural "
+                    "satellites, query these by denomination"
+                )
+            mpc_numbers.append(int(target))
         elif isinstance(target, str):
             denominations.append(target.strip().lower())
         else:
             raise TypeError(f"Unknown target input type {type(target)}")
+    if not mpc_numbers and not denominations:
+        raise ValueError("No targets given")
     return mpc_numbers, denominations
 
 
@@ -79,11 +88,14 @@ def _adql_target_condition(mpc_numbers: list[int], denominations: list[str]) -> 
     return " OR ".join(conditions)
 
 
-def _filter_duplicate_denominations(table: pd.DataFrame) -> pd.DataFrame:
+def _filter_duplicate_denominations(
+    table: pd.DataFrame, mpc_numbers: Iterable[int] = ()
+) -> pd.DataFrame:
     """When object is queried by denomination, only keep the observations of the moon if there is both a moon
-    and asteroid matching the denomination"""
+    and asteroid matching the denomination. Asteroids requested by MPC number are always kept."""
     is_moon = table["number_mp"] == 0
-    return table[is_moon | ~table["denomination"].isin(table.loc[is_moon, "denomination"])].copy()
+    shares_moon_name = table["denomination"].isin(table.loc[is_moon, "denomination"])
+    return table[is_moon | ~shares_moon_name | table["number_mp"].isin(mpc_numbers)].copy()
 
 
 class GaiaAstrometry:
@@ -287,6 +299,13 @@ class GaiaAstrometry:
         force_symmetric = lambda mat: (mat + mat.T) / 2
 
         sources = self.sources
+        if target_body_names is not None:
+            unknown_source_ids = set(target_body_names) - set(sources.index)
+            if unknown_source_ids:
+                raise ValueError(
+                    f"Unknown source_ids in target_body_names: {sorted(unknown_source_ids)}. "
+                    "Keys must be source_ids, see GaiaAstrometry.sources"
+                )
 
         def _body_name(source_id: int) -> str:
             """Create a body name for the target"""
@@ -382,8 +401,8 @@ class GaiaAstrometry:
         Parameters
         ----------
         targets : int | str | list
-            Targets to query observations for. Integers are interpreted as numbered asteroid MPC numbers,
-            strings are interpreted as the denomination. Moons can only be queried by denomination. If a target belongs
+            Targets to query observations for. Integers and strings of digits are interpreted as numbered asteroid
+            MPC numbers, other strings as the denomination. Moons can only be queried by denomination. If a target belongs
             to both a moon and asteroid (e.g. Io), it is assumed the observations of the moon are queried.
         username : str, optional
             Username for the Gaia archives, by default None.
@@ -421,7 +440,7 @@ class GaiaAstrometry:
             print(f"Saved Gaia astrometry to {save_to_parquet}", flush=True)
         _check_for_missing_entries(table, mpc_numbers, denominations)
 
-        return cls(cls._prepare_table(table))
+        return cls(cls._prepare_table(table, mpc_numbers))
 
     @classmethod
     def from_aip(
@@ -436,8 +455,8 @@ class GaiaAstrometry:
         Parameters
         ----------
         targets : int | str | list
-            Targets to query observations for. Integers are interpreted as numbered asteroid MPC numbers,
-            strings are interpreted as the denomination. Moons can only be queried by denomination. If a target
+            Targets to query observations for. Integers and strings of digits are interpreted as numbered asteroid
+            MPC numbers, other strings as the denomination. Moons can only be queried by denomination. If a target
             belongs to both a moon and asteroid (e.g. Io), it is assumed the observations of the moon are queried.
         save_to_parquet : str | Path, optional
             Save the full query response in its original archive units to this
@@ -487,7 +506,7 @@ class GaiaAstrometry:
             table.to_parquet(save_to_parquet, index=False)
             print(f"Saved Gaia astrometry to {save_to_parquet}", flush=True)
         _check_for_missing_entries(table, mpc_numbers, denominations)
-        return cls(cls._prepare_table(table))
+        return cls(cls._prepare_table(table, mpc_numbers))
 
     @classmethod
     def from_parquet(
@@ -503,8 +522,8 @@ class GaiaAstrometry:
         Parameters
         ----------
         targets : int | str | list
-            Targets to query observations for. Integers are interpreted as numbered asteroid MPC numbers,
-            strings are interpreted as the denomination. Query asteroids by MPC number for faster lookups. Moons can
+            Targets to query observations for. Integers and strings of digits are interpreted as numbered asteroid
+            MPC numbers, other strings as the denomination. Query asteroids by MPC number for faster lookups. Moons can
             only be queried by denomination. If a target belongs to both a moon and asteroid (e.g. Io), it is assumed
             the observations of the moon are queried.
         parquet_path : str | Path, optional
@@ -532,13 +551,14 @@ class GaiaAstrometry:
         table = pd.read_parquet(parquet_path, filters=filters)
         _check_for_missing_entries(table, mpc_numbers, denominations)
 
-        return cls(cls._prepare_table(table))
+        return cls(cls._prepare_table(table, mpc_numbers))
 
     @staticmethod
-    def _prepare_table(table: pd.DataFrame) -> pd.DataFrame:
+    def _prepare_table(table: pd.DataFrame, mpc_numbers: Iterable[int] = ()) -> pd.DataFrame:
         """Convert raw table values into a tudat-compatible format."""
-        # Removes asteroid observations if table returns both moon and asteroid observations for some denomination
-        table = _filter_duplicate_denominations(table)
+        # Removes asteroid observations if table returns both moon and asteroid observations for some denomination,
+        # unless the asteroid was requested by MPC number
+        table = _filter_duplicate_denominations(table, mpc_numbers)
 
         # Convert Gaia TCB to tudat TDB epoch
         gaia_to_tudat_epoch = lambda jd: TCB_to_TDB(julian_day_to_seconds_since_epoch(jd + _J2010))
@@ -586,7 +606,7 @@ class GaiaAstrometry:
     def apply_filters(
         self,
         exclude_poor_observations: bool = True,
-        targets: int | str | Iterable | None = None,
+        targets_to_remove: int | str | Iterable | None = None,
         epoch_start: float | DateTime | None = None,
         epoch_end: float | DateTime | None = None,
         transit_ids: list[int] | None = None,
@@ -602,9 +622,10 @@ class GaiaAstrometry:
             Exclude observations which have ``astrometric_outcome_ccd != 1`` or ``astrometric_outcome_transit != 1``.
             These observations may be affected by one of several issues and can be unreliable. See Gaia documentation
             for more information.
-        targets : int | str | Iterable, optional
-            Remove objects with these MPC numbers (integers) or denominations (strings). A denomination shared
-            by a moon and an asteroid removes only the moon; use the MPC number to remove the asteroid.
+        targets_to_remove : int | str | Iterable, optional
+            Remove objects with these MPC numbers (integers or strings of digits) or denominations (other strings).
+            A denomination shared by a moon and an asteroid removes only the moon; use the MPC number to remove the
+            asteroid.
         epoch_start : float | DateTime, optional
             Remove observations before this epoch
         epoch_end : float | DateTime, optional
@@ -635,8 +656,8 @@ class GaiaAstrometry:
             self._table = self._table[epoch_end_filter]
 
         # Filter MPC numbers and denominations
-        if targets is not None:
-            mpc_numbers, denominations = _split_targets(targets)
+        if targets_to_remove is not None:
+            mpc_numbers, denominations = _split_targets(targets_to_remove)
             named_objects = _filter_duplicate_denominations(
                 self._table[self._table["denomination"].isin(denominations)]
             )
@@ -699,7 +720,9 @@ def read_gaia_astrometry_data(
     parquet_path : str | Path, optional
         Local FPR parquet archive. Read it if it exists; otherwise query AIP
         and save the full response there before conversion and filtering.
-        If omitted, query AIP without saving a file. Source IDs are looked up
+        If omitted, read the archive written by
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` in the default directory if it
+        exists, and otherwise query AIP without saving a file. Source IDs are looked up
         before retrieving the CCD observations from the same FPR catalogue.
     epoch_start, epoch_end : float | DateTime | datetime, optional
         Inclusive interval bounds, in seconds since J2000 or calendar dates.
@@ -732,6 +755,8 @@ def read_gaia_astrometry_data(
         raise ValueError("Gaia interval start must not be later than its end.")
     if parquet_path is not None:
         parquet_path = Path(parquet_path)
+    elif (_DEFAULT_GAIA_RESOURCES / "sso_observation.parquet").is_file():
+        parquet_path = _DEFAULT_GAIA_RESOURCES / "sso_observation.parquet"
     try:
         if parquet_path is None or not parquet_path.is_file():
             print(
@@ -857,6 +882,9 @@ def _get_asteroid_table_row(
             "assigns MPC number 0 to all of them"
         )
 
+    if parquet_path is None and (_DEFAULT_GAIA_RESOURCES / "sso_source.parquet").is_file():
+        parquet_path = _DEFAULT_GAIA_RESOURCES / "sso_source.parquet"
+
     # Load from the .parquet
     if parquet_path is not None:
         table = pd.read_parquet(parquet_path, filters=[("number_mp", "in", [mpc_number])])
@@ -899,7 +927,9 @@ def get_state_from_gaia_archive(
         Positive MPC number of asteroid to retrieve state for. Gaia's shared MPC number 0 for natural planetary
         satellites is not supported.
     parquet_path : Path | str, optional
-        Path to the archive .parquet file. If None, retrieve state with astroquery. By default None
+        Path to the archive .parquet file. If None, it is read from the archive written by
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` in the default directory if it exists,
+        and otherwise retrieved with astroquery. By default None
     frame_origin : str
         Origin of the state vector, by default 'Sun'
     frame_orientation : str
@@ -958,7 +988,9 @@ def get_state_covariance_from_gaia_archive(
         Positive MPC number of asteroid to retrieve covariance for. Gaia's shared MPC number 0 for natural planetary
         satellites is not supported.
     parquet_path : Path | str, optional
-        Path to the archive .parquet file. If None, covariance is retrieved through astroquery, by default None
+        Path to the archive .parquet file. If None, it is read from the archive written by
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` in the default directory if it exists,
+        and otherwise retrieved with astroquery. By default None
 
     Returns
     -------
@@ -985,7 +1017,9 @@ def get_kepler_covariance_from_gaia_archive(
         Positive MPC number of asteroid to retrieve covariance for. Gaia's shared MPC number 0 for natural planetary
         satellites is not supported.
     parquet_path : Path | str, optional
-        Path to the archive .parquet file, by default None
+        Path to the archive .parquet file. If None, it is read from the archive written by
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` in the default directory if it exists,
+        and otherwise retrieved with astroquery. By default None
 
     Returns
     -------

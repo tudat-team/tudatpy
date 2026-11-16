@@ -2,40 +2,18 @@
 Unit tests for light deflection correction calculations in light_deflection_correction.py
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-import pytest
 import numpy as np
 from numpy.linalg import norm
-from tudatpy.estimation import observations
-from tudatpy.estimation.observable_models_setup import links, model_settings
 from tudatpy.estimation.observations.observation_corrections.light_deflection_correction import (
     _light_deflection_single_contribution,
     light_deflection_correction_angular_observations,
-    apply_light_deflection_correction_to_observation_dataset,
 )
 from tudatpy.constants import SPEED_OF_LIGHT
 
 # Constants
 MU_SUN = 1.327e20  # Gravitational parameter of sun to use for tests
-_MODULE = "tudatpy.estimation.observations.observation_corrections.light_deflection_correction"
-
-
-def _build_angular_observation_dataset(observation_pairs, times, body_name, observer_body_name):
-    """Build a real ObservationDataset holding angular observations of one body by one observer"""
-    link_ends = {
-        links.transmitter: links.LinkEndId(body_name, ""),
-        links.receiver: links.LinkEndId(observer_body_name, ""),
-    }
-    dataset = observations.ObservationDataset()
-    dataset.add_observation_set(
-        model_settings.angular_position_type,
-        links.LinkDefinition(link_ends),
-        list(observation_pairs),
-        list(times),
-        links.receiver,
-    )
-    return dataset
 
 
 def test_light_deflection_zero_when_collinear():
@@ -205,42 +183,3 @@ def test_light_deflection_integration():
         rtol=0,
         atol=1e-15,
     )
-
-
-@pytest.mark.parametrize("in_place", [True, False])
-def test_apply_light_deflection_correction_to_observation_dataset(in_place):
-    """Test that the wrapper adds computed corrections to a real dataset's observations and wraps RA"""
-    # First observation RA sits just below +pi so its correction pushes it over the boundary (tests RA wrapping)
-    observation_pairs = [np.array([np.pi - 1e-9, 0.2]), np.array([0.3, 0.4])]  # [RA, DEC]
-    angular_corrections = np.array([[2e-9, 2e-9], [3e-9, 4e-9]])
-    dataset = _build_angular_observation_dataset(
-        observation_pairs, [0.0, 1.0], "Asteroid", "Observer"
-    )
-
-    with patch(
-        f"{_MODULE}.light_deflection_correction_angular_observations",
-        return_value=angular_corrections,
-    ):
-        result = apply_light_deflection_correction_to_observation_dataset(
-            observation_dataset=dataset,
-            bodies=MagicMock(),
-            body_name="Asteroid",
-            observer_body_name="Observer",
-            in_place=in_place,
-        )
-
-    # Corrected observations, with RA (column 0) wrapped to (-pi, pi]
-    expected_observations = np.array(observation_pairs) + angular_corrections
-    expected_observations[:, 0] = (expected_observations[:, 0] + np.pi) % (2 * np.pi) - np.pi
-    assert (
-        expected_observations[0, 0] < 0
-    )  # Wrapping mapped the RA to the negative side of the boundary
-
-    if in_place:
-        assert result is None
-        target_dataset = dataset
-    else:
-        assert result is not None
-        target_dataset = result
-
-    np.testing.assert_allclose(np.asarray(target_dataset.get_observations()), expected_observations)

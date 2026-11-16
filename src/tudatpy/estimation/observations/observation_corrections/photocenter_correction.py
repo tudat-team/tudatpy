@@ -3,7 +3,6 @@ Functions to calculate photocenter corrections to observations
 """
 
 import numpy as np
-from tudatpy.estimation.observations import ObservationDataset
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from tudatpy.dynamics.environment import (
     SystemOfBodies,
@@ -13,60 +12,8 @@ from tudatpy.dynamics.environment import (
 from ._correction_utils import (
     _offset_vector_to_corrections,
     _unit,
-    _apply_corrections_to_observation_dataset,
 )
 from tudatpy.constants import SPEED_OF_LIGHT
-
-
-def apply_photocenter_correction_to_observation_dataset(
-    observation_dataset: ObservationDataset,
-    bodies: SystemOfBodies,
-    body_name: str,
-    observer_body_name: str,
-    observer_reference_name: str | None = None,
-    in_place: bool = True,
-) -> ObservationDataset | None:
-    """
-    Computes photocenter corrections and applies them to an observation dataset.
-
-    Computes photocenter corrections and applies them to an observation dataset. Calls the function
-    :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`,
-    and applies the resulting corrections to all angular observations in the :class:`~tudatpy.estimation.observations.ObservationDataset` with the specified
-    link-ends.
-
-    Parameters
-    ----------
-    observation_dataset : :class:`~tudatpy.estimation.observations.ObservationDataset`
-        ObservationDataset containing angular observations on specified link-ends
-    bodies : SystemOfBodies
-        The SystemOfBodies object
-    body_name : str
-        Name of the body being observed, in the SystemOfBodies object. Its shape model must be a
-        :class:`~tudatpy.dynamics.environment.SphericalBodyShapeModel` or a
-        :class:`~tudatpy.dynamics.environment.TriAxialEllipsoidBodyShapeModel`.
-    observer_body_name : str
-        Name of the observing (base) body in the SystemOfBodies object
-    observer_reference_name : str | None
-        Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
-        of the observer_body_name body.
-    in_place : bool
-        If true, corrections are applied in-place to the ObservationDataset object. If false, a new ObservationDataset
-        is returned with the corrections applied. By default, true.
-
-    Returns
-    -------
-    None | ObservationDataset
-        Returns a new observation dataset with applied corrections if in_place is False.
-    """
-    return _apply_corrections_to_observation_dataset(
-        observation_dataset=observation_dataset,
-        body_name=body_name,
-        bodies=bodies,
-        observer_body_name=observer_body_name,
-        observer_reference_name=observer_reference_name,
-        in_place=in_place,
-        correction_function=photocenter_correction_angular_observations,
-    )
 
 
 def _photocenter_correction_ellipsoidal(
@@ -267,8 +214,8 @@ def photocenter_correction_angular_observations(
     taken from its shape model, which must be a :class:`~tudatpy.dynamics.environment.SphericalBodyShapeModel` or a
     :class:`~tudatpy.dynamics.environment.TriAxialEllipsoidBodyShapeModel`. If the observed body is a tri-axial
     ellipsoid, it must also have a rotation model, whose body-fixed X, Y and Z-axes are aligned with the semi-axes of
-    the ellipsoid. The corrections returned by this function should be added to observations (or the apply_* function
-    should be used).
+    the ellipsoid. The corrections returned by this function should be added to the observations; to apply them when creating an observation dataset, request the correction on the tracking data with
+    :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`.
 
     The observation epochs are assumed to be reception times. A one-step geometric light-time approximation is used
     to determine the emission epoch: the target and observer positions at reception are used to estimate the light
@@ -311,6 +258,10 @@ def photocenter_correction_angular_observations(
         raise ValueError(f"Body {body_name} needs a shape model for the photocenter correction")
 
     if isinstance(shape_model, SphericalBodyShapeModel):
+        if not shape_model.radius > 0:
+            raise ValueError(
+                f"Body {body_name} must have a positive radius for the photocenter correction"
+            )
         body_dimensions = 3 * [shape_model.radius]
         inertial_to_body_fixed_rotation = lambda epoch: np.eye(
             3

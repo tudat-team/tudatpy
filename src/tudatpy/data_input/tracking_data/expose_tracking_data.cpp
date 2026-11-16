@@ -86,7 +86,8 @@ void expose_tracking_data( py::module& m )
              empty).
          photocenter_correction : bool, default = False
              Request a photocenter correction. The photocenter correction takes the target's size from its shape model,
-             which must be a spherical or tri-axial ellipsoid shape model.
+             which must be a spherical or tri-axial ellipsoid shape model. A tri-axial ellipsoid also requires a rotation model,
+             whose body-fixed axes are aligned with the semi-axes of the ellipsoid.
          observation_indices : list[int], default = []
              Indices of the observations that are corrected (empty for all observations).
       )doc" )

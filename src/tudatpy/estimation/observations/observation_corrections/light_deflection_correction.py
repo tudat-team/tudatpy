@@ -4,13 +4,9 @@ Functions to calculate light deflection corrections to observations
 
 import numpy as np
 from numpy.linalg import norm
-from tudatpy.estimation.observations import ObservationDataset
 from tudatpy.dynamics.environment import SystemOfBodies
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
-from ._correction_utils import (
-    _offset_vector_to_corrections,
-    _apply_corrections_to_observation_dataset,
-)
+from ._correction_utils import _offset_vector_to_corrections
 from tudatpy.constants import SPEED_OF_LIGHT
 from collections.abc import Iterable
 
@@ -104,8 +100,9 @@ def light_deflection_correction_angular_observations(
     the observer w.r.t. the perturber.
 
     A reference ephemeris of the observed body and all the perturbing bodies should be
-    loaded in the SystemOfBodies object. The corrections from this function should be added to observations (or the
-    apply_* functions should be used).
+    loaded in the SystemOfBodies object. The corrections from this function should be added to the observations;
+    to apply them when creating an observation dataset, request the correction on the tracking data with
+    :class:`~tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings`.
 
     Parameters
     ----------
@@ -220,56 +217,3 @@ def light_deflection_correction_angular_observations(
         )
 
     return np.array(angular_corrections)
-
-
-def apply_light_deflection_correction_to_observation_dataset(
-    observation_dataset: ObservationDataset,
-    bodies: SystemOfBodies,
-    body_name: str,
-    observer_body_name: str,
-    observer_reference_name: str | None = None,
-    perturbing_bodies_list: Iterable[str] = ("Sun",),
-    in_place: bool = True,
-) -> ObservationDataset | None:
-    """
-    Computes relativistic light-deflection corrections and applies them to an observation dataset.
-
-    Computes relativistic light-deflection corrections and applies them to an observation dataset. Calls the function
-    :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations`,
-    and applies the resulting corrections to all angular observations in the :class:`~tudatpy.estimation.observations.ObservationDataset` with the specified
-    link-ends.
-
-    Parameters
-    ----------
-    observation_dataset : :class:`~tudatpy.estimation.observations.ObservationDataset`
-        ObservationDataset containing angular observations on specified link-ends
-    bodies : SystemOfBodies
-        The SystemOfBodies object
-    body_name : str
-        Name of the body being observed, in the SystemOfBodies object
-    observer_body_name : str
-        Name of the observing (base) body in the SystemOfBodies object
-    observer_reference_name : str | None
-        Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
-        of the observer_body_name body.
-    perturbing_bodies_list : list[str]
-        Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
-    in_place : bool
-        If true, corrections are applied in-place to the ObservationDataset object. If false, a new ObservationDataset
-        is returned with the corrections applied. By default, true.
-
-    Returns
-    -------
-    None | ObservationDataset
-        Returns a new observation dataset with applied corrections if in_place is False.
-    """
-    return _apply_corrections_to_observation_dataset(
-        observation_dataset=observation_dataset,
-        body_name=body_name,
-        bodies=bodies,
-        observer_body_name=observer_body_name,
-        observer_reference_name=observer_reference_name,
-        correction_function=light_deflection_correction_angular_observations,
-        in_place=in_place,
-        perturbing_bodies_list=perturbing_bodies_list,
-    )
