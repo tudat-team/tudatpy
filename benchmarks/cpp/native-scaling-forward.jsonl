@@ -1,0 +1,5 @@
+{"regression_checks":"passed"}
+{"workers":1,"native_integration_seconds":31.062663013,"total_seconds":31.070021487,"checked_epochs":46088,"arcs":8,"degree":50,"days_per_arc":2,"validation":"passed"}
+{"workers":2,"native_integration_seconds":15.608194397,"total_seconds":15.615368962,"checked_epochs":46088,"arcs":8,"degree":50,"days_per_arc":2,"validation":"passed"}
+{"workers":4,"native_integration_seconds":7.969455279,"total_seconds":7.97677566,"checked_epochs":46088,"arcs":8,"degree":50,"days_per_arc":2,"validation":"passed"}
+{"workers":8,"native_integration_seconds":4.709814438,"total_seconds":4.717158589,"checked_epochs":46088,"arcs":8,"degree":50,"days_per_arc":2,"validation":"passed"}

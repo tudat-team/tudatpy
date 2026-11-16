@@ -26,3 +26,7 @@ TUDAT_ADD_TEST_LIBRARY("support"
         "${test_support_SOURCES}"
         "${test_support_HEADERS}")
 
+# Public Tudat model headers include archive-independent Cereal declarations,
+# also when building without the serialization implementations.
+target_link_libraries(tudat_test_support PUBLIC cereal::cereal)
+

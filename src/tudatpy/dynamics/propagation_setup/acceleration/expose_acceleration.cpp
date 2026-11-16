@@ -48,7 +48,6 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
-namespace tse = tudat::serialization;
 
 namespace tudat
 {

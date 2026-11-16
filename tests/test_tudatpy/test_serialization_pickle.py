@@ -71,6 +71,7 @@ def assert_roundtrip_fails(obj):
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestAccelerationSettingsPickle:
     """Pickle roundtrip tests for AccelerationSettings and all derived types."""
 
@@ -132,6 +133,7 @@ class TestAccelerationSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestTorqueSettingsPickle:
     """Pickle roundtrip tests for TorqueSettings and derived types."""
 
@@ -158,6 +160,7 @@ class TestTorqueSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestPropagationTerminationSettingsPickle:
     """Pickle roundtrip tests for PropagationTerminationSettings and derived types."""
 
@@ -204,6 +207,7 @@ class TestPropagationTerminationSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestDependentVariableSettingsPickle:
     """Pickle roundtrip tests for VariableSettings and all derived save-settings types."""
 
@@ -298,6 +302,7 @@ class TestDependentVariableSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestObservationDependentVariableSettingsPickle:
     """Pickle roundtrip tests for ObservationDependentVariableSettings and derived types."""
 
@@ -322,6 +327,7 @@ class TestObservationDependentVariableSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestObservationAncillarySimulationSettingsPickle:
     """Pickle roundtrip tests for ObservationAncillarySimulationSettings."""
 
@@ -334,6 +340,7 @@ class TestObservationAncillarySimulationSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestLinkTypesPickle:
     """Pickle roundtrip tests for LinkEndId and LinkDefinition."""
 
@@ -397,6 +404,7 @@ class TestLinkTypesPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestRootFinderSettingsPickle:
     """Pickle roundtrip tests for RootFinderSettings."""
 
@@ -419,7 +427,7 @@ class TestRootFinderSettingsPickle:
 
 
 class TestTimePickle:
-    """Pickle roundtrip tests for Time."""
+    """Time's tuple-based pickle is available even when Cereal is disabled."""
 
     def test_time_zero(self):
         assert_roundtrip(Time(0, 0.0))
@@ -436,6 +444,7 @@ class TestTimePickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestGravityFieldVariationSettingsPickle:
     """Pickle roundtrip tests for GravityFieldVariationSettings."""
 
@@ -478,9 +487,6 @@ class TestGravityFieldVariationSettingsPickle:
             )
         )
 
-    @pytest.mark.xfail(
-        reason="Love numbers nested dict with tuple keys does not survive pickle roundtrip"
-    )
     def test_mode_coupled_solid_body_tide(self):
         """ModeCoupledSolidBodyGravityFieldVariationSettings."""
         love_numbers = {(2, 0): {(2, 0): 0.3}}
@@ -494,6 +500,7 @@ class TestGravityFieldVariationSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestPolymorphicDispatch:
     """
     Verify that cereal correctly identifies and reconstructs the concrete
@@ -693,169 +700,25 @@ class TestPolymorphicDispatch:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestSimulationBasedPickle:
-    """
-    Pickle roundtrip tests that require running a real propagation.
-    Tests PropagationTerminationDetails, SimulationResults, and related types.
-    """
+    """Roundtrips of actual short-propagation results, without legacy skips."""
 
-    @staticmethod
-    def _run_propagation():
-        """Run a simple propagation and return the dynamics simulator."""
-        from tudatpy.interface import spice
-        from tudatpy.astro import element_conversion
-        from tudatpy.astro.time_representation import DateTime
-        from tudatpy.dynamics import environment_setup, propagation_setup, simulator
+    def test_propagation_termination_details(self, serialization_simulator):
+        sim = serialization_simulator()
+        assert_roundtrip(sim.propagation_results.termination_details)
 
-        spice.load_standard_kernels()
-        bodies = environment_setup.create_system_of_bodies(
-            environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
-        )
-        bodies.add_empty_settings("Delfi-C3")
-        bodies.get("Delfi-C3").mass = 2.2
+    def test_single_arc_simulation_results(self, serialization_simulator):
+        sim = serialization_simulator()
+        assert_roundtrip(sim.propagation_results)
 
-        start = DateTime(2008, 4, 28).to_epoch()
-        initial_state = element_conversion.keplerian_to_cartesian_elementwise(
-            gravitational_parameter=bodies.get("Earth").gravitational_parameter,
-            semi_major_axis=6.99276221e06,
-            eccentricity=4.03294322e-03,
-            inclination=1.71065169e00,
-            argument_of_periapsis=1.31226971e00,
-            longitude_of_ascending_node=3.82958313e-01,
-            true_anomaly=3.07018490e00,
-        )
-        propagator_settings = propagation_setup.propagator.translational(
-            ["Earth"],
-            propagation_setup.create_acceleration_models(
-                bodies,
-                {"Delfi-C3": {"Earth": [propagation_setup.acceleration.point_mass_gravity()]}},
-                ["Delfi-C3"],
-                ["Earth"],
-            ),
-            ["Delfi-C3"],
-            initial_state,
-            start,
-            propagation_setup.integrator.runge_kutta_fixed_step(
-                30.0, coefficient_set=propagation_setup.integrator.CoefficientSets.rk_4
-            ),
-            propagation_setup.propagator.time_termination(start + 600.0),
-        )
-        return simulator.create_dynamics_simulator(bodies, propagator_settings)
+    def test_propagation_termination_details_from_hybrid(self, serialization_simulator):
+        sim = serialization_simulator(hybrid=True)
+        assert_roundtrip(sim.propagation_results.termination_details)
 
-    def test_propagation_termination_details(self):
-        """Pickle roundtrip for PropagationTerminationDetails."""
-        pytest.importorskip("spice")
-        sim = self._run_propagation()
-        obj = sim.propagation_results.termination_details
-        assert_roundtrip(obj)
-
-    def test_single_arc_simulation_results(self):
-        """Pickle roundtrip for SingleArcSimulationResults."""
-        pytest.importorskip("spice")
-        sim = self._run_propagation()
-        obj = sim.propagation_results
-        assert_roundtrip(obj)
-
-    def test_propagation_termination_details_from_hybrid(self):
-        """Pickle roundtrip for PropagationTerminationDetailsFromHybridCondition."""
-        pytest.importorskip("spice")
-        from tudatpy.interface import spice
-        from tudatpy.astro import element_conversion
-        from tudatpy.astro.time_representation import DateTime
-        from tudatpy.dynamics import environment_setup, propagation_setup, simulator
-
-        spice.load_standard_kernels()
-        bodies = environment_setup.create_system_of_bodies(
-            environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
-        )
-        bodies.add_empty_settings("Delfi-C3")
-        bodies.get("Delfi-C3").mass = 2.2
-
-        start = DateTime(2008, 4, 28).to_epoch()
-        initial_state = element_conversion.keplerian_to_cartesian_elementwise(
-            gravitational_parameter=bodies.get("Earth").gravitational_parameter,
-            semi_major_axis=6.99276221e06,
-            eccentricity=4.03294322e-03,
-            inclination=1.71065169e00,
-            argument_of_periapsis=1.31226971e00,
-            longitude_of_ascending_node=3.82958313e-01,
-            true_anomaly=3.07018490e00,
-        )
-        propagator_settings = propagation_setup.propagator.translational(
-            ["Earth"],
-            propagation_setup.create_acceleration_models(
-                bodies,
-                {"Delfi-C3": {"Earth": [propagation_setup.acceleration.point_mass_gravity()]}},
-                ["Delfi-C3"],
-                ["Earth"],
-            ),
-            ["Delfi-C3"],
-            initial_state,
-            start,
-            propagation_setup.propagator.hybrid_termination(
-                [
-                    propagation_setup.propagator.time_termination(start + 600.0),
-                    propagation_setup.propagator.cpu_time_termination(600.0),
-                ],
-                fulfill_single_condition=True,
-            ),
-        )
-        sim = simulator.create_dynamics_simulator(bodies, propagator_settings)
-        obj = sim.propagation_results.termination_details
-        assert_roundtrip(obj)
-
-    def test_single_arc_variational_simulation_results(self):
-        """Pickle roundtrip for SingleArcVariationalSimulationResults."""
-        pytest.importorskip("spice")
-        from tudatpy.interface import spice
-        from tudatpy.astro import element_conversion
-        from tudatpy.astro.time_representation import DateTime
-        from tudatpy.dynamics import environment_setup, propagation_setup, simulator
-
-        spice.load_standard_kernels()
-        bodies = environment_setup.create_system_of_bodies(
-            environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
-        )
-        bodies.add_empty_settings("Delfi-C3")
-        bodies.get("Delfi-C3").mass = 2.2
-
-        start = DateTime(2008, 4, 28).to_epoch()
-        initial_state = element_conversion.keplerian_to_cartesian_elementwise(
-            gravitational_parameter=bodies.get("Earth").gravitational_parameter,
-            semi_major_axis=6.99276221e06,
-            eccentricity=4.03294322e-03,
-            inclination=1.71065169e00,
-            argument_of_periapsis=1.31226971e00,
-            longitude_of_ascending_node=3.82958313e-01,
-            true_anomaly=3.07018490e00,
-        )
-        propagator_settings = propagation_setup.propagator.translational(
-            ["Earth"],
-            propagation_setup.create_acceleration_models(
-                bodies,
-                {"Delfi-C3": {"Earth": [propagation_setup.acceleration.point_mass_gravity()]}},
-                ["Delfi-C3"],
-                ["Earth"],
-            ),
-            ["Delfi-C3"],
-            initial_state,
-            start,
-            propagation_setup.integrator.runge_kutta_fixed_step(
-                30.0, coefficient_set=propagation_setup.integrator.CoefficientSets.rk_4
-            ),
-            propagation_setup.propagator.time_termination(start + 600.0),
-        )
-        variational_equations = propagation_setup.variational_equations(
-            bodies,
-            ["Delfi-C3"],
-            [propagation_setup.variation.estimated_bodies_settings(["Delfi-C3"])],
-            propagate_on_creation=True,
-        )
-        sim = simulator.create_dynamics_simulator(
-            bodies, propagator_settings, variational_equations
-        )
-        obj = sim.propagation_results
-        assert_roundtrip(obj)
+    def test_single_arc_variational_simulation_results(self, serialization_simulator):
+        sim = serialization_simulator(variational=True)
+        assert_roundtrip(sim.variational_propagation_results)
 
 
 # ===========================================================================

@@ -207,6 +207,18 @@ public:
         performPropagationPostProcessingSteps( propagationResults );
     }
 
+    //! Integrate into a caller-owned arc result; leave environment/interpolator updates to the multi-arc owner.
+    template< typename SimulationResults >
+    void integrateIndependentArc( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& processedInitialState,
+                                  const std::shared_ptr< SimulationResults > propagationResults )
+    {
+        performPropagationPreProcessingSteps( propagationResults );
+        propagateDynamics< SimulationResults >( processedInitialState, propagationResults );
+        propagationResults->finalizePropagation( dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( ) );
+        PropagationPrintingInterface< SimulationResults, StateScalarType, TimeType >::printSingleArcPostPropagationMessages(
+                outputSettings_->getPrintSettings( ), outputSettings_->getPropagationEndHeader( ), propagationResults );
+    }
+
     //! Function to return the map of state history of numerically integrated bodies (base class interface).
     /*!
      * Function to return the map of state history of numerically integrated bodies (base class interface).
