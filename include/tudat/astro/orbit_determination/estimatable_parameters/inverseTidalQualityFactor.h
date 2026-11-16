@@ -116,24 +116,6 @@ public:
         return bodiesCausingDeformation_;
     }
 
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "of " + parameterName_.second.first;
-        for( unsigned int i = 0; i < bodiesCausingDeformation_.size( ); i++ )
-        {
-            if( i == 0 )
-            {
-                parameterDescription += " due to ";
-            }
-            parameterDescription += bodiesCausingDeformation_[ i ];
-            if( i != bodiesCausingDeformation_.size( ) - 1 )
-            {
-                parameterDescription += " & ";
-            }
-        }
-        return parameterDescription;
-    }
-
 private:
     //! List of acceleration models of which the tidal time lag is to be estimated
     std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels_;

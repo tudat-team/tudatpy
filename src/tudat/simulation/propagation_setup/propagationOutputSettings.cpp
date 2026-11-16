@@ -12,6 +12,10 @@
 
 #include <sstream>
 
+#include <boost/algorithm/string.hpp>
+
+#include "tudat/basics/utilities.h"
+
 namespace tudat
 {
 
@@ -63,70 +67,70 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
     switch( propagationDependentVariables )
     {
         case mach_number_dependent_variable:
-            variableName = "Mach number ";
+            variableName = "Mach number";
             break;
         case altitude_dependent_variable:
-            variableName = "Altitude ";
+            variableName = "Altitude";
             break;
         case airspeed_dependent_variable:
-            variableName = "Airspeed ";
+            variableName = "Airspeed";
             break;
         case local_density_dependent_variable:
-            variableName = "Density ";
+            variableName = "Density";
             break;
         case relative_speed_dependent_variable:
-            variableName = "Relative speed ";
+            variableName = "Relative speed";
             break;
         case relative_position_dependent_variable:
-            variableName = "Relative position ";
+            variableName = "Relative position";
             break;
         case relative_distance_dependent_variable:
-            variableName = "Relative distance ";
+            variableName = "Relative distance";
             break;
         case relative_velocity_dependent_variable:
-            variableName = "Relative velocity ";
+            variableName = "Relative velocity";
             break;
         case radiation_pressure_dependent_variable:
-            variableName = "Radiation pressure ";
+            variableName = "Radiation pressure";
             break;
         case total_acceleration_norm_dependent_variable:
-            variableName = "Total acceleration norm ";
+            variableName = "Total acceleration norm";
             break;
         case single_acceleration_norm_dependent_variable:
-            variableName = "Single acceleration norm of type ";
+            variableName = "Single acceleration norm of type";
             break;
         case total_acceleration_dependent_variable:
-            variableName = "Total acceleration in inertial frame ";
+            variableName = "Total acceleration in inertial frame";
             break;
         case single_acceleration_dependent_variable:
-            variableName = "Single acceleration in inertial frame of type ";
+            variableName = "Single acceleration in inertial frame of type";
             break;
         case aerodynamic_force_coefficients_dependent_variable:
-            variableName = "Aerodynamic force coefficients ";
+            variableName = "Aerodynamic force coefficients";
             break;
         case aerodynamic_moment_coefficients_dependent_variable:
-            variableName = "Aerodynamic moment coefficients ";
+            variableName = "Aerodynamic moment coefficients";
             break;
         case aerodynamic_control_surface_free_force_coefficients_dependent_variable:
-            variableName = "Aerodynamic control-surface free force coefficients ";
+            variableName = "Aerodynamic control-surface free force coefficients";
             break;
         case aerodynamic_control_surface_free_moment_coefficients_dependent_variable:
-            variableName = "Aerodynamic control-surface free moment coefficients ";
+            variableName = "Aerodynamic control-surface free moment coefficients";
             break;
         case aerodynamic_control_surface_force_coefficients_increment_dependent_variable:
-            variableName = "Aerodynamic force coefficients control surface increment ";
+            variableName = "Aerodynamic force coefficients control surface increment";
             break;
         case aerodynamic_control_surface_moment_coefficients_increment_dependent_variable:
-            variableName = "Aerodynamic moment coefficients control surface increment ";
+            variableName = "Aerodynamic moment coefficients control surface increment";
             break;
         case inertial_to_body_fixed_rotation_matrix_variable:
-            variableName = "Rotation matrix to body-fixed frame ";
+            variableName = "Rotation matrix to body-fixed frame";
             break;
         case vehicle_part_rotation_matrix_dependent_variable:
-            variableName = "Vehicle part rotation matrix ";
+            variableName = "Vehicle part rotation matrix";
             break;
         case intermediate_aerodynamic_rotation_matrix_variable:
-            variableName = "Rotation matrix from ";
+            variableName = "Rotation matrix from";
             break;
         case relative_body_aerodynamic_orientation_angle_variable: {
             std::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > angleDependentVariableSettings =
@@ -140,112 +144,112 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
                 reference_frames::AerodynamicsReferenceFrameAngles angleToSave = angleDependentVariableSettings->angle_;
                 if( angleToSave == reference_frames::latitude_angle || angleToSave == reference_frames::longitude_angle )
                 {
-                    variableName = "Spherical position angle ";
+                    variableName = "Spherical position angle";
                 }
                 else if( angleToSave == reference_frames::heading_angle || angleToSave == reference_frames::flight_path_angle )
                 {
-                    variableName = "Velocity orientation angle  ";
+                    variableName = "Velocity orientation angle";
                 }
                 else if( angleToSave == reference_frames::angle_of_attack || angleToSave == reference_frames::angle_of_sideslip ||
                          angleToSave == reference_frames::bank_angle )
                 {
-                    variableName = "Aerodynamic body orientation angle ";
+                    variableName = "Aerodynamic body orientation angle";
                 }
             }
             break;
         }
         case body_fixed_airspeed_based_velocity_variable:
-            variableName = "Airspeed-based velocity ";
+            variableName = "Airspeed-based velocity";
             break;
         case body_fixed_groundspeed_based_velocity_variable:
-            variableName = "Groundspeed-based velocity ";
+            variableName = "Groundspeed-based velocity";
             break;
         case local_wind_velocity_dependent_variable:
-            variableName = "Local wind velocity ";
+            variableName = "Local wind velocity";
             break;
         case total_aerodynamic_g_load_variable:
-            variableName = "Aerodynamic g-load ";
+            variableName = "Aerodynamic g-load";
             break;
         case stagnation_point_heat_flux_dependent_variable:
-            variableName = "Stagnation-point heat flux ";
+            variableName = "Stagnation-point heat flux";
             break;
         case local_temperature_dependent_variable:
-            variableName = "Local freestream temperature ";
+            variableName = "Local freestream temperature";
             break;
         case local_dynamic_pressure_dependent_variable:
-            variableName = "Local dynamic pressure ";
+            variableName = "Local dynamic pressure";
             break;
         case local_aerodynamic_heat_rate_dependent_variable:
-            variableName = "Local aerodynamic heat rate ";
+            variableName = "Local aerodynamic heat rate";
             break;
         case geodetic_latitude_dependent_variable:
-            variableName = "Geodetic latitude ";
+            variableName = "Geodetic latitude";
             break;
         case control_surface_deflection_dependent_variable:
-            variableName = "Control Surface Deflection ";
+            variableName = "Control surface deflection";
             break;
         case total_mass_rate_dependent_variables:
-            variableName = "Body mass rate ";
+            variableName = "Body mass rate";
             break;
         case tnw_to_inertial_frame_rotation_dependent_variable:
-            variableName = "TNW to inertial frame rotation matrix ";
+            variableName = "TNW to inertial frame rotation matrix";
             break;
         case rsw_to_inertial_frame_rotation_dependent_variable:
-            variableName = "RSW to inertial frame rotation matrix ";
+            variableName = "RSW to inertial frame rotation matrix";
             break;
         case periapsis_altitude_dependent_variable:
-            variableName = "Periapsis altitude ";
+            variableName = "Periapsis altitude";
             break;
         case apoapsis_altitude_dependent_variable:
-            variableName = "Apoapsis altitude ";
+            variableName = "Apoapsis altitude";
             break;
         case single_torque_dependent_variable:
-            variableName = "Single torque in body-fixed frame of type ";
+            variableName = "Single torque in body-fixed frame of type";
             break;
         case total_torque_dependent_variable:
-            variableName = "Total torque in body-fixed frame ";
+            variableName = "Total torque in body-fixed frame";
             break;
         case single_torque_norm_dependent_variable:
-            variableName = "Single torque norm in body-fixed frame of type ";
+            variableName = "Single torque norm in body-fixed frame of type";
             break;
         case total_torque_norm_dependent_variable:
-            variableName = "Total torque norm in body-fixed frame ";
+            variableName = "Total torque norm in body-fixed frame";
             break;
         case keplerian_state_dependent_variable:
-            variableName = "Kepler elements ";
+            variableName = "Kepler elements";
             break;
         case modified_equinocial_state_dependent_variable:
-            variableName = "Modified equinoctial elements ";
+            variableName = "Modified equinoctial elements";
             break;
         case spherical_harmonic_acceleration_norm_terms_dependent_variable:
-            variableName = "Spherical harmonic acceleration term norms ";
+            variableName = "Spherical harmonic acceleration term norms";
             break;
         case spherical_harmonic_acceleration_terms_dependent_variable:
-            variableName = "Spherical harmonic acceleration terms ";
+            variableName = "Spherical harmonic acceleration terms";
             break;
         case body_fixed_relative_cartesian_position:
-            variableName = "Body-fixed relative Cartesian position ";
+            variableName = "Body-fixed relative Cartesian position";
             break;
         case body_fixed_relative_spherical_position:
-            variableName = "Body-fixed relative spherical position ";
+            variableName = "Body-fixed relative spherical position";
             break;
         case euler_angles_to_body_fixed_313:
-            variableName = "313 Euler angles to body-fixed frame ";
+            variableName = "313 Euler angles to body-fixed frame";
             break;
         case total_gravity_field_variation_acceleration:
-            variableName = "Total time-variable gravity field acceleration correction ";
+            variableName = "Total time-variable gravity field acceleration correction";
             break;
         case single_gravity_field_variation_acceleration:
-            variableName = "Single-source time-variable gravity field acceleration correction ";
+            variableName = "Single-source time-variable gravity field acceleration correction";
             break;
         case single_gravity_field_variation_acceleration_terms:
-            variableName = "Single-source time-variable gravity field per-term acceleration correction ";
+            variableName = "Single-source time-variable gravity field per-term acceleration correction";
             break;
         case total_spherical_harmonic_cosine_coefficient_variation:
-            variableName = "Total spherical-harmonic cosine coefficient variation ";
+            variableName = "Total spherical-harmonic cosine coefficient variation";
             break;
         case total_spherical_harmonic_sine_coefficient_variation:
-            variableName = "Total spherical-harmonic sine coefficient variation ";
+            variableName = "Total spherical-harmonic sine coefficient variation";
             break;
         case acceleration_partial_wrt_body_translational_state: {
             std::shared_ptr< AccelerationPartialWrtStateSaveSettings > partialDependentVariableSettings =
@@ -256,36 +260,36 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
             }
             else
             {
-                std::string accelerationName =
-                        basic_astrodynamics::getAccelerationModelName( partialDependentVariableSettings->accelerationModelType_ );
+                std::string accelerationName = boost::algorithm::trim_right_copy(
+                        basic_astrodynamics::getAccelerationModelName( partialDependentVariableSettings->accelerationModelType_ ) );
                 accelerationName[ 0 ] = std::toupper( accelerationName[ 0 ] );
-                variableName = accelerationName + "acceleration partial";
+                variableName = accelerationName + " acceleration partial";
             }
             break;
         }
         case current_body_mass_dependent_variable:
-            variableName = "Current body mass ";
+            variableName = "Current body mass";
             break;
         case radiation_pressure_coefficient_dependent_variable:
-            variableName = "Radiation pressure coefficient ";
+            variableName = "Radiation pressure coefficient";
             break;
         case custom_dependent_variable:
-            variableName = "Custom dependent variable ";
+            variableName = "Custom dependent variable";
             break;
         case gravity_field_potential_dependent_variable:
-            variableName = "Gravity field potential ";
+            variableName = "Gravity field potential";
             break;
         case gravity_field_laplacian_of_potential_dependent_variable:
             variableName = "Gravity field laplacian of potential";
             break;
         case total_acceleration_partial_wrt_body_translational_state:
-            variableName = "Total acceleration partial w.r.t. translational state";
+            variableName = "Total acceleration partial";
             break;
         case acceleration_derivative_partial_wrt_parameter:
-            variableName = "Acceleration derivative partial w.r.t. parameter";
+            variableName = "Acceleration derivative partial of type";
             break;
         case total_acceleration_derivative_partial_wrt_parameter:
-            variableName = "Total acceleration derivative partial w.r.t. parameter";
+            variableName = "Total acceleration derivative partial";
             break;
         case minimum_constellation_distance:
             variableName = "Minimum instantaneous constellation distance";
@@ -378,65 +382,45 @@ static std::shared_ptr< SettingsType > getDerivedSettingsForId(
     return derivedSettings;
 }
 
-//! Function to get the dependent variable ID sub-string for a list of spherical harmonic degree/order terms
-static std::string getDegreeOrderTermsIdString( const std::vector< std::pair< int, int > >& degreeOrderTerms )
+//! Function to get a name without trailing spaces, as some name functions add these
+static std::string getTrimmedName( const std::string& name )
 {
-    std::string idString = ", degree/order";
-    for( const std::pair< int, int >& degreeOrderTerm : degreeOrderTerms )
-    {
-        idString += " (" + std::to_string( degreeOrderTerm.first ) + "," + std::to_string( degreeOrderTerm.second ) + ")";
-    }
-    return idString;
-}
-
-//! Function to get the dependent variable ID sub-string for a list of bodies
-static std::string getBodyListIdString( const std::vector< std::string >& bodies )
-{
-    std::string idString = ", bodies";
-    for( const std::string& body : bodies )
-    {
-        idString += " " + body;
-    }
-    return idString;
+    return boost::algorithm::trim_right_copy( name );
 }
 
 //! Function to get the dependent variable ID sub-string for a single gravity field variation
 static std::string getGravityFieldVariationIdString( const gravitation::BodyDeformationTypes deformationType,
                                                      const std::string& identifier )
 {
-    std::string idString = ( identifier != "" ) ? ( ", tide raised by " + identifier ) : "";
-    return idString + ", deformation type " + std::to_string( deformationType );
+    const std::map< gravitation::BodyDeformationTypes, std::string > deformationTypeNames = {
+        { gravitation::basic_solid_body, "basic solid body" },
+        { gravitation::mode_coupled_solid_body, "mode-coupled solid body" },
+        { gravitation::tabulated_variation, "tabulated" },
+        { gravitation::periodic_variation, "periodic" },
+        { gravitation::polynomial_variation, "polynomial" },
+        { gravitation::iers_2010, "IERS 2010" },
+        { gravitation::pole_tide, "pole tide" },
+        { gravitation::ocean_tide, "ocean tide" }
+    };
+    return ", deformation type " + deformationTypeNames.at( deformationType ) +
+            ( ( identifier != "" ) ? ( ", tide raised by " + identifier ) : "" );
 }
 
 //! Function to get the dependent variable ID sub-string for a partial w.r.t. a body's translational state
 static std::string getStatePartialIdString( const std::string& derivativeWrtBody )
 {
-    return " w.r.t. body translational state of " + derivativeWrtBody;
+    return " w.r.t. translational state of " + derivativeWrtBody;
 }
 
-//! Function to get the dependent variable ID sub-string for a partial w.r.t. an estimatable parameter
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+//! Function to get the dependent variable ID sub-string for a partial w.r.t. an estimatable parameter, using the same description as
+//! the parameter object (EstimatableParameterBase::getParameterDescription)
 static std::string getParameterPartialIdString(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
 {
-    if( parameterSettings == nullptr )
-    {
-        throw std::runtime_error( "Error when getting dependent variable ID, no parameter settings found for parameter partial" );
-    }
-    std::string idString = " w.r.t. parameter " +
-            estimatable_parameters::getParameterTypeString( parameterSettings->parameterType_.first ) + " of " +
-            parameterSettings->parameterType_.second.first;
-    if( parameterSettings->parameterType_.second.second != "" )
-    {
-        idString += ", " + parameterSettings->parameterType_.second.second;
-    }
-    return idString;
+    return " w.r.t. parameter " + estimatable_parameters::getParameterSettingsDescription( parameterSettings );
 }
-
-//! Function to get the dependent variable ID sub-string for a body and the radiation source w.r.t. which it is defined
-static std::string getBodyAndSourceIdString( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
-{
-    return " of body " + dependentVariableSettings->associatedBody_ + " w.r.t. source " + dependentVariableSettings->secondaryBody_;
-}
+#endif
 
 //! Function to get the dependent variable ID sub-string for the model type (acceleration, torque, frame, angle)
 static std::string getModelTypeIdString( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
@@ -445,22 +429,33 @@ static std::string getModelTypeIdString( const std::shared_ptr< SingleDependentV
     {
         case single_acceleration_dependent_variable:
         case single_acceleration_norm_dependent_variable:
-            return basic_astrodynamics::getAccelerationModelName(
-                    getDerivedSettingsForId< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings )
-                            ->accelerationModelType_ );
+            return " " +
+                    getTrimmedName( basic_astrodynamics::getAccelerationModelName(
+                            getDerivedSettingsForId< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings )
+                                    ->accelerationModelType_ ) );
         case single_torque_dependent_variable:
         case single_torque_norm_dependent_variable:
-            return basic_astrodynamics::getTorqueModelName(
-                    getDerivedSettingsForId< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings )->torqueModelType_ );
+            return " " +
+                    getTrimmedName( basic_astrodynamics::getTorqueModelName(
+                            getDerivedSettingsForId< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings )
+                                    ->torqueModelType_ ) );
         case intermediate_aerodynamic_rotation_matrix_variable: {
             std::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings > rotationSettings =
                     getDerivedSettingsForId< IntermediateAerodynamicRotationVariableSaveSettings >( dependentVariableSettings );
-            return reference_frames::getAerodynamicFrameName( rotationSettings->baseFrame_ ) + "to " +
-                    reference_frames::getAerodynamicFrameName( rotationSettings->targetFrame_ );
+            return " " + getTrimmedName( reference_frames::getAerodynamicFrameName( rotationSettings->baseFrame_ ) ) + " to " +
+                    getTrimmedName( reference_frames::getAerodynamicFrameName( rotationSettings->targetFrame_ ) );
         }
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+        case acceleration_derivative_partial_wrt_parameter:
+            return " " +
+                    getTrimmedName( basic_astrodynamics::getAccelerationModelName(
+                            getDerivedSettingsForId< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings )
+                                    ->accelerationModelType_ ) );
+#endif
         case relative_body_aerodynamic_orientation_angle_variable:
-            return reference_frames::getAerodynamicAngleName(
-                    getDerivedSettingsForId< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings )->angle_ );
+            return " " +
+                    getTrimmedName( reference_frames::getAerodynamicAngleName(
+                            getDerivedSettingsForId< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings )->angle_ ) );
         default:
             return "";
     }
@@ -478,6 +473,7 @@ static std::string getBodiesIdString( const std::shared_ptr< SingleDependentVari
         case spherical_harmonic_acceleration_terms_dependent_variable:
         case spherical_harmonic_acceleration_norm_terms_dependent_variable:
         case acceleration_partial_wrt_body_translational_state:
+        case acceleration_derivative_partial_wrt_parameter:
             return ", acting on " + associatedBody + ( ( secondaryBody != associatedBody ) ? ( ", exerted by " + secondaryBody ) : "" );
         case visible_and_emitting_source_panel_count:
         case visible_source_area:
@@ -485,8 +481,10 @@ static std::string getBodiesIdString( const std::shared_ptr< SingleDependentVari
         case received_irradiance:
         case received_fraction:
             return " at " + associatedBody + " due to " + secondaryBody;
+        case custom_dependent_variable:
+            return "";
         default:
-            return "of " + associatedBody + ( ( secondaryBody != "" ) ? ( " w.r.t. " + secondaryBody ) : "" );
+            return " of " + associatedBody + ( ( secondaryBody != "" ) ? ( " w.r.t. " + secondaryBody ) : "" );
     }
 }
 
@@ -499,13 +497,16 @@ static std::string getDerivedSettingsIdString( const std::shared_ptr< SingleDepe
     {
         case spherical_harmonic_acceleration_terms_dependent_variable:
         case spherical_harmonic_acceleration_norm_terms_dependent_variable:
-            return getDegreeOrderTermsIdString(
-                    getDerivedSettingsForId< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings )
-                            ->componentIndices_ );
+            return ", degree/order " +
+                    utilities::getIntegerPairListString(
+                            getDerivedSettingsForId< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+                                    dependentVariableSettings )
+                                    ->componentIndices_ );
         case total_spherical_harmonic_cosine_coefficient_variation:
         case total_spherical_harmonic_sine_coefficient_variation:
-            return getDegreeOrderTermsIdString(
-                    getDerivedSettingsForId< TotalGravityFieldVariationSettings >( dependentVariableSettings )->componentIndices_ );
+            return ", degree/order " +
+                    utilities::getIntegerPairListString(
+                            getDerivedSettingsForId< TotalGravityFieldVariationSettings >( dependentVariableSettings )->componentIndices_ );
         case single_gravity_field_variation_acceleration: {
             std::shared_ptr< SingleVariationSphericalHarmonicAccelerationSaveSettings > variationSettings =
                     getDerivedSettingsForId< SingleVariationSphericalHarmonicAccelerationSaveSettings >( dependentVariableSettings );
@@ -515,7 +516,7 @@ static std::string getDerivedSettingsIdString( const std::shared_ptr< SingleDepe
             std::shared_ptr< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings > termsSettings =
                     getDerivedSettingsForId< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
                             dependentVariableSettings );
-            return getDegreeOrderTermsIdString( termsSettings->componentIndices_ ) +
+            return ", degree/order " + utilities::getIntegerPairListString( termsSettings->componentIndices_ ) +
                     getGravityFieldVariationIdString( termsSettings->deformationType_, termsSettings->identifier_ );
         }
         case acceleration_partial_wrt_body_translational_state:
@@ -525,69 +526,73 @@ static std::string getDerivedSettingsIdString( const std::shared_ptr< SingleDepe
             return getStatePartialIdString(
                     getDerivedSettingsForId< TotalAccelerationPartialWrtStateSaveSettings >( dependentVariableSettings )
                             ->derivativeWrtBody_ );
-        case acceleration_derivative_partial_wrt_parameter: {
-            std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialSettings =
-                    getDerivedSettingsForId< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
-            return getParameterPartialIdString( partialSettings->parameterSettings_ ) + ", acceleration type " +
-                    basic_astrodynamics::getAccelerationModelName( partialSettings->accelerationModelType_ );
-        }
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+        case acceleration_derivative_partial_wrt_parameter:
+            return getParameterPartialIdString(
+                    getDerivedSettingsForId< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings )
+                            ->parameterSettings_ );
         case total_acceleration_derivative_partial_wrt_parameter:
             return getParameterPartialIdString(
                     getDerivedSettingsForId< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings )
                             ->parameterSettings_ );
+#endif
         case local_wind_velocity_dependent_variable:
             return ", in " +
-                    reference_frames::getAerodynamicFrameName(
+                    getTrimmedName( reference_frames::getAerodynamicFrameName(
                             getDerivedSettingsForId< LocalWindVelocityDependentVariableSaveSettings >( dependentVariableSettings )
-                                    ->targetFrame_ );
+                                    ->targetFrame_ ) );
         case aerodynamic_control_surface_force_coefficients_increment_dependent_variable:
         case aerodynamic_control_surface_moment_coefficients_increment_dependent_variable:
             return ", control surface " +
                     getDerivedSettingsForId< ControlSurfaceCoefficientDependentVariableSettings >( dependentVariableSettings )
                             ->controlSurfaceName_;
         case minimum_constellation_distance:
-            return getBodyListIdString(
-                    getDerivedSettingsForId< MinimumConstellationDistanceDependentVariableSaveSettings >( dependentVariableSettings )
-                            ->bodiesToCheck_ );
+            return ", bodies " +
+                    boost::algorithm::join( getDerivedSettingsForId< MinimumConstellationDistanceDependentVariableSaveSettings >(
+                                                    dependentVariableSettings )
+                                                    ->bodiesToCheck_,
+                                            ", " );
         case minimum_constellation_ground_station_distance: {
             std::shared_ptr< MinimumConstellationStationDistanceDependentVariableSaveSettings > stationDistanceSettings =
                     getDerivedSettingsForId< MinimumConstellationStationDistanceDependentVariableSaveSettings >(
                             dependentVariableSettings );
-            return getBodyListIdString( stationDistanceSettings->bodiesToCheck_ ) + ", elevation limit " +
-                    std::to_string( stationDistanceSettings->elevationAngleLimit_ );
+            return ", bodies " + boost::algorithm::join( stationDistanceSettings->bodiesToCheck_, ", " ) + ", elevation limit " +
+                    utilities::getNumberListString( std::vector< double >( { stationDistanceSettings->elevationAngleLimit_ } ) ) + " rad";
         }
         case custom_dependent_variable: {
             // Custom functions cannot be compared, so the settings object itself identifies the variable
             std::ostringstream settingsAddress;
             settingsAddress << dependentVariableSettings.get( );
-            return "(settings object " + settingsAddress.str( ) + ")";
+            return " (settings object " + settingsAddress.str( ) + ")";
         }
         case illuminated_panel_fraction:
-            return getBodyAndSourceIdString( dependentVariableSettings ) + " for panel " +
+            return ", panel " +
                     getDerivedSettingsForId< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings )
                             ->panelTypeId_;
         case cross_section_change:
         case actual_cross_section:
-            return getBodyAndSourceIdString( dependentVariableSettings ) + ", acceleration type " +
+            return ", acceleration type " +
                     getDerivedSettingsForId< CrossSectionDependentVariableSaveSettings >( dependentVariableSettings )->accelerationType_;
-        case full_body_paneled_geometry:
-        case aerodynamic_coefficients:
-            return " of body " + dependentVariableSettings->associatedBody_;
         default:
             return "";
     }
 }
 
-//! Function to get a string representing a 'named identification' of a dependent variable
+//! Function to get the dependent variable ID sub-string for the saved component of a vectorial dependent variable
+static std::string getComponentIdString( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    return ( dependentVariableSettings->componentIndex_ >= 0 )
+            ? ( ", component " + std::to_string( dependentVariableSettings->componentIndex_ ) )
+            : "";
+}
+
+//! Function to get a string representing a 'named identification' of a dependent variable. All sub-strings after the name start
+//! with their own separator (space or comma) and have no trailing spaces.
 std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
-    std::string variableId = getDependentVariableName( dependentVariableSettings ) + getModelTypeIdString( dependentVariableSettings ) +
-            getBodiesIdString( dependentVariableSettings ) + getDerivedSettingsIdString( dependentVariableSettings );
-    if( dependentVariableSettings->componentIndex_ >= 0 )
-    {
-        variableId += ", component " + std::to_string( dependentVariableSettings->componentIndex_ );
-    }
-    return variableId;
+    return getDependentVariableName( dependentVariableSettings ) + getModelTypeIdString( dependentVariableSettings ) +
+            getBodiesIdString( dependentVariableSettings ) + getDerivedSettingsIdString( dependentVariableSettings ) +
+            getComponentIdString( dependentVariableSettings );
 }
 
 }  // namespace propagators

@@ -218,6 +218,9 @@ std::vector< std::pair< double, double > > getArcWiseParameterTimeIntervalsOfInf
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
 
+//! Function to get the description of a parameter identifier: "<type> of (<associated body>, <secondary identifier>)"
+std::string getParameterIdentifierDescription( const EstimatebleParameterIdentifier& parameterIdentifier );
+
 class CustomAccelerationPartialSettings
 {
 public:
@@ -336,18 +339,16 @@ public:
         return parameterName_;
     }
 
-    virtual std::string getParameterDescription( )
+    //! Function to retrieve the description of the parameter, as set from its settings when it is created (identifier only otherwise)
+    std::string getParameterDescription( )
     {
-        std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "of (" + parameterName_.second.first;
-        if( parameterName_.second.second == "" )
-        {
-            parameterDescription += ").";
-        }
-        else
-        {
-            parameterDescription += ", " + parameterName_.second.second + ").";
-        }
-        return parameterDescription;
+        return parameterDescription_.empty( ) ? getParameterIdentifierDescription( parameterName_ ) : parameterDescription_;
+    }
+
+    //! Function to set the description of the parameter (see getParameterSettingsDescription)
+    void setParameterDescription( const std::string& parameterDescription )
+    {
+        parameterDescription_ = parameterDescription;
     }
 
     //! Function to retrieve the size of the parameter
@@ -479,6 +480,9 @@ public:
 protected:
     //! Identifier of parameter.
     EstimatebleParameterIdentifier parameterName_;
+
+    //! Description of parameter, empty if not set
+    std::string parameterDescription_;
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
 

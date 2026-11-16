@@ -112,17 +112,6 @@ public:
         return degrees_.size( );
     }
 
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription =
-                getParameterTypeString( parameterName_.first ) + "of " + parameterName_.second.first + " for degrees: ";
-        for( unsigned int i = 0; i < degrees_.size( ); i++ )
-        {
-            parameterDescription += std::to_string( degrees_.at( i ) ) + ( i + 1 < degrees_.size( ) ? ", " : "." );
-        }
-        return parameterDescription;
-    }
-
     std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > > getDeformationModels( ) const
     {
         return deformationModels_;

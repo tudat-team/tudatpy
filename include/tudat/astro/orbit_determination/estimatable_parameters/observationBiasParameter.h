@@ -172,8 +172,6 @@ public:
 
     observation_models::ObservableType getObservableType( );
 
-    std::string getParameterDescription( );
-
     //! Link geometry this estimatable bias parameter belongs to.
     observation_models::LinkEnds linkEnds_;
 
@@ -207,8 +205,6 @@ public:
     observation_models::LinkEnds getLinkEnds( );
 
     observation_models::ObservableType getObservableType( );
-
-    std::string getParameterDescription( );
 
     std::vector< double > getArcStartTimes( );
 
@@ -260,9 +256,6 @@ public:
 
     //! Return the observable dimension (one for time biases) multiplied by the number of bias arcs.
     int getParameterSize( ) override;
-
-    //! Describe the observable, selected link end, and bias type for diagnostics.
-    std::string getParameterDescription( ) override;
 
     //! Match the observable type and the complete identifier at the selected link-end role.
     bool doesObservationMatch( const observation_models::LinkEnds& linkEnds, observation_models::ObservableType observableType ) const;
@@ -382,8 +375,6 @@ public:
 
     observation_models::ObservableType getObservableType( );
 
-    std::string getParameterDescription( );
-
     int getLinkEndIndex( );
 
 protected:
@@ -426,8 +417,6 @@ public:
     observation_models::LinkEnds getLinkEnds( );
 
     observation_models::ObservableType getObservableType( );
-
-    std::string getParameterDescription( );
 
     std::vector< double > getArcStartTimes( );
 

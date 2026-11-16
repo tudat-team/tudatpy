@@ -3444,12 +3444,15 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             initialDynamicalParametersToEstimate.push_back(
                     createInitialDynamicalStateParameterToEstimate< InitialStateParameterType >( bodies, parameterNames.at( i ) ) );
+            initialDynamicalParametersToEstimate.back( )->setParameterDescription(
+                    getParameterSettingsDescription( parameterNames.at( i ) ) );
         }
         // Create parameters defined by single double value
         else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == true )
         {
             doubleParametersToEstimate.push_back( createDoubleParameterToEstimate< InitialStateParameterType, TimeType >(
                     parameterNames[ i ], bodies, propagatorSettings ) );
+            doubleParametersToEstimate.back( )->setParameterDescription( getParameterSettingsDescription( parameterNames.at( i ) ) );
             checkParameterTimeIntervalsOfInfluence( doubleParametersToEstimate.back( ) );
             if( vectorParameterIsFound == true && parameterOrderWarningPrinted == false )
             {
@@ -3472,6 +3475,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             vectorParametersToEstimate.push_back( createVectorParameterToEstimate< InitialStateParameterType, TimeType >(
                     parameterNames[ i ], bodies, propagatorSettings ) );
+            vectorParametersToEstimate.back( )->setParameterDescription( getParameterSettingsDescription( parameterNames.at( i ) ) );
             checkParameterTimeIntervalsOfInfluence( vectorParametersToEstimate.back( ) );
             vectorParameterIsFound = true;
         }

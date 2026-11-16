@@ -63,11 +63,6 @@ public:
         return 3;
     }
 
-    std::string getParameterDescription( ) override
-    {
-        return "three-coefficient radiation-pressure areas A1, A2, and A3";
-    }
-
 private:
     std::vector< std::shared_ptr< electromagnetism::ThreeCoefficientRadiationPressureAcceleration > > accelerationModels_;
 };

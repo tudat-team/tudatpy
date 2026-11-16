@@ -18,6 +18,11 @@
 #include "tudat/astro/observation_models/observationBias.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
 
+#include <cmath>
+
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/basics/utilities.h"
+
 namespace tudat
 {
 
@@ -1943,6 +1948,256 @@ inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelPoleLibra
         const std::vector< double >& librationAngularFrequencies )
 {
     return std::make_shared< PoleLibrationTermsParameterSettings >( bodyName, librationAngularFrequencies );
+}
+
+//! Function to get the description sub-string of the arc start times of an arc-wise parameter
+inline std::string getArcStartTimesDescription( const std::vector< double >& arcStartTimes )
+{
+    return ", arc start times " + utilities::getNumberListString( arcStartTimes ) + " s";
+}
+
+//! Function to get the description sub-string of the link end that defines the time of an observation bias
+inline std::string getLinkEndForTimeDescription( const observation_models::LinkEndType linkEndForTime )
+{
+    return ", time at " + observation_models::getLinkEndTypeString( linkEndForTime );
+}
+
+//! Function to get the description sub-string of the bodies causing a tidal deformation
+inline std::string getDeformingBodiesDescription( const std::vector< std::string >& deformingBodies )
+{
+    return deformingBodies.empty( ) ? "" : ", deforming bodies " + boost::algorithm::join( deformingBodies, ", " );
+}
+
+//! Function to get the description sub-string of the (complex or real) Love number type
+inline std::string getComplexValueDescription( const bool useComplexValue )
+{
+    return useComplexValue ? ", complex" : ", real";
+}
+
+//! Function to get the description sub-string of the gravity field variation coefficients per power
+inline std::string getBlockIndicesPerPowerDescription(
+        const std::map< int, std::vector< std::pair< int, int > > >& cosineBlockIndicesPerPower,
+        const std::map< int, std::vector< std::pair< int, int > > >& sineBlockIndicesPerPower )
+{
+    std::string description;
+    for( const auto& powerBlock : cosineBlockIndicesPerPower )
+    {
+        description +=
+                ", cosine power " + std::to_string( powerBlock.first ) + " " + utilities::getIntegerPairListString( powerBlock.second );
+    }
+    for( const auto& powerBlock : sineBlockIndicesPerPower )
+    {
+        description +=
+                ", sine power " + std::to_string( powerBlock.first ) + " " + utilities::getIntegerPairListString( powerBlock.second );
+    }
+    return description;
+}
+
+//! Function to get the description sub-string of the components and functional shapes of empirical accelerations
+inline std::string getEmpiricalAccelerationComponentsDescription(
+        const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > >& componentsToEstimate )
+{
+    const std::map< basic_astrodynamics::EmpiricalAccelerationComponents, std::string > componentNames = {
+        { basic_astrodynamics::radial_empirical_acceleration_component, "radial" },
+        { basic_astrodynamics::along_track_empirical_acceleration_component, "along-track" },
+        { basic_astrodynamics::across_track_empirical_acceleration_component, "across-track" }
+    };
+
+    std::string description;
+    for( const auto& component : componentsToEstimate )
+    {
+        std::vector< std::string > shapeNames;
+        for( const basic_astrodynamics::EmpiricalAccelerationFunctionalShapes shape : component.second )
+        {
+            shapeNames.push_back( basic_astrodynamics::getEmpiricalAccelerationFunctionalShapeString( shape ) );
+        }
+        description += ", " + componentNames.at( component.first ) + " " + boost::algorithm::join( shapeNames, ", " );
+    }
+    return description;
+}
+
+//! Function to get the description sub-string of the settings of an initial state parameter (empty for other parameters)
+template< typename InitialStateParameterType >
+inline std::string getInitialStateSettingsDescription( const std::shared_ptr< EstimatableParameterSettings > parameterSettings )
+{
+    std::string description;
+    if( auto translationalSettings =
+                std::dynamic_pointer_cast< InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                        parameterSettings ) )
+    {
+        description =
+                ", central body " + translationalSettings->centralBody_ + ", frame orientation " + translationalSettings->frameOrientation_;
+        if( !std::isnan( translationalSettings->initialTime_ ) )
+        {
+            description += ", initial time " +
+                    utilities::getNumberListString( std::vector< double >( { translationalSettings->initialTime_ } ) ) + " s";
+        }
+    }
+    else if( auto arcWiseSettings =
+                     std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                             parameterSettings ) )
+    {
+        description = getArcStartTimesDescription( arcWiseSettings->arcStartTimes_ );
+        if( !arcWiseSettings->centralBodies_.empty( ) )
+        {
+            description += ", central bodies " + boost::algorithm::join( arcWiseSettings->centralBodies_, ", " );
+        }
+        description += ", frame orientation " + arcWiseSettings->frameOrientation_;
+    }
+    else if( auto rotationalSettings =
+                     std::dynamic_pointer_cast< InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                             parameterSettings ) )
+    {
+        description = ", base orientation " + rotationalSettings->baseOrientation_;
+        if( !std::isnan( rotationalSettings->initialTime_ ) )
+        {
+            description += ", initial time " +
+                    utilities::getNumberListString( std::vector< double >( { rotationalSettings->initialTime_ } ) ) + " s";
+        }
+    }
+    return description;
+}
+
+//! Function to get the description sub-string of the settings that are specific to a derived settings class. Every member that
+//! distinguishes two parameters must be included.
+inline std::string getDerivedParameterSettingsDescription( const std::shared_ptr< EstimatableParameterSettings > parameterSettings )
+{
+    if( auto settings = std::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return ", degree/order " + utilities::getIntegerPairListString( { settings->blockIndices_.front( ) } ) + " to " +
+                utilities::getIntegerPairListString( { settings->blockIndices_.back( ) } );
+    }
+    if( auto settings = std::dynamic_pointer_cast< SharedObservationBiasEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return settings->arcStartTimes_.empty( )
+                ? ""
+                : getArcStartTimesDescription( settings->arcStartTimes_ ) + getLinkEndForTimeDescription( settings->timeLinkEnd_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getArcStartTimesDescription( settings->arcStartTimes_ ) + getLinkEndForTimeDescription( settings->linkEndForTime_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ConstantTimeDriftBiasEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getLinkEndForTimeDescription( settings->linkEndForTime_ ) + ", reference epoch " +
+                utilities::getNumberListString( std::vector< double >( { settings->referenceEpoch_ } ) ) + " s";
+    }
+    if( auto settings = std::dynamic_pointer_cast< ArcWiseTimeDriftBiasEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getArcStartTimesDescription( settings->arcStartTimes_ ) + getLinkEndForTimeDescription( settings->linkEndForTime_ ) +
+                ", reference epochs " + utilities::getNumberListString( settings->referenceEpochs_ ) + " s";
+    }
+    if( auto settings = std::dynamic_pointer_cast< ConstantTimeBiasEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getLinkEndForTimeDescription( settings->linkEndForTime_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ArcWiseTimeBiasEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getArcStartTimesDescription( settings->arcStartTimes_ ) + getLinkEndForTimeDescription( settings->linkEndForTime_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< EmpiricalAccelerationEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getEmpiricalAccelerationComponentsDescription( settings->componentsToEstimate_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getEmpiricalAccelerationComponentsDescription( settings->componentsToEstimate_ ) +
+                getArcStartTimesDescription( settings->arcStartTimeList_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getArcStartTimesDescription( settings->arcStartTimeList_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ArcWiseDragCoefficientEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getArcStartTimesDescription( settings->arcStartTimeList_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getArcStartTimesDescription( settings->arcStartTimeList_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ArcWiseExponentialAtmosphereParameterSettings >( parameterSettings ) )
+    {
+        return getArcStartTimesDescription( settings->arcStartTimeList_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< FullDegreeTidalLoveNumberEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return ", degree " + std::to_string( settings->degree_ ) + getDeformingBodiesDescription( settings->deformingBodies_ ) +
+                getComplexValueDescription( settings->useComplexValue_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return ", degree " + std::to_string( settings->degree_ ) + ", orders " + utilities::getNumberListString( settings->orders_ ) +
+                getDeformingBodiesDescription( settings->deformingBodies_ ) + getComplexValueDescription( settings->useComplexValue_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< ModeCoupledTidalLoveNumberEstimatableParameterSettings >( parameterSettings ) )
+    {
+        std::string description;
+        for( const auto& loveNumberIndices : settings->loveNumberIndices_ )
+        {
+            description += ", forcing degree/order " + utilities::getIntegerPairListString( { loveNumberIndices.first } ) +
+                    " response degree/order " + utilities::getIntegerPairListString( loveNumberIndices.second );
+        }
+        return description + getDeformingBodiesDescription( settings->deformingBodies_ ) +
+                getComplexValueDescription( settings->useComplexValue_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< DirectTidalTimeLagEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getDeformingBodiesDescription( settings->deformingBodies_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< InverseTidalQualityFactorEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getDeformingBodiesDescription( settings->deformingBodies_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< PolynomialGravityFieldVariationEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getBlockIndicesPerPowerDescription( settings->cosineBlockIndicesPerPower_, settings->sineBlockIndicesPerPower_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< PeriodicGravityFieldVariationEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return getBlockIndicesPerPowerDescription( settings->cosineBlockIndicesPerPower_, settings->sineBlockIndicesPerPower_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< GlobalPolynomialClockCorrectionsParameterSettings >( parameterSettings ) )
+    {
+        return ", powers " + utilities::getNumberListString( settings->correctionPowers_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< MultiArcPolynomialClockCorrectionsParameterSettings >( parameterSettings ) )
+    {
+        return ", powers " + utilities::getNumberListString( settings->correctionPowers_ ) + ", arc indices " +
+                utilities::getNumberListString( settings->arcIndices_ );
+    }
+    if( auto settings = std::dynamic_pointer_cast< LongitdinalLibrationTermsParameterSettings >( parameterSettings ) )
+    {
+        return ", angular frequencies " + utilities::getNumberListString( settings->librationAngularFrequencies_ ) + " rad/s";
+    }
+    if( auto settings = std::dynamic_pointer_cast< PoleLibrationTermsParameterSettings >( parameterSettings ) )
+    {
+        return ", angular frequencies " + utilities::getNumberListString( settings->librationAngularFrequencies_ ) + " rad/s";
+    }
+    if( auto settings = std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( parameterSettings ) )
+    {
+        return ", acceleration type " +
+                boost::algorithm::trim_right_copy( basic_astrodynamics::getAccelerationModelName( settings->accelerationType_ ) );
+    }
+    if( auto settings = std::dynamic_pointer_cast< DisplacementLoveNumberEstimatableParameterSettings >( parameterSettings ) )
+    {
+        return ", degrees " + utilities::getNumberListString( settings->degrees_ );
+    }
+    return getInitialStateSettingsDescription< double >( parameterSettings ) +
+            getInitialStateSettingsDescription< long double >( parameterSettings );
+}
+
+//! Function to get the description of a parameter from its settings. This description is set on the parameter object when it is
+//! created (EstimatableParameterBase::getParameterDescription) and used in the ID of dependent variables w.r.t. the parameter.
+inline std::string getParameterSettingsDescription( const std::shared_ptr< EstimatableParameterSettings > parameterSettings )
+{
+    if( parameterSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when getting parameter description, no parameter settings found" );
+    }
+    return getParameterIdentifierDescription( parameterSettings->parameterType_ ) +
+            getDerivedParameterSettingsDescription( parameterSettings );
 }
 
 }  // namespace estimatable_parameters

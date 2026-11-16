@@ -107,25 +107,6 @@ public:
         return parameterSize_;
     }
 
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription;
-        switch( parameterName_.first )
-        {
-            case exponential_atmosphere_base_density: {
-                parameterDescription = "Base density of exponential atmosphere model";
-                break;
-            }
-            case exponential_atmosphere_scale_height: {
-                parameterDescription = "Scale height of exponential atmosphere model";
-                break;
-            }
-            default:
-                break;
-        }
-        return parameterDescription;
-    }
-
     //! Function to retrieve list of components in rtg accelerations that are to be estimated it.
     Eigen::Vector3i getIndices( )
     {
@@ -295,25 +276,6 @@ public:
         }
         fullParameterValues_[ parameterValues_.size( ) ] = parameterValues_.at( parameterValues_.size( ) - 1 );
         parameterInterpolator_->resetDependentValues( fullParameterValues_ );
-    }
-
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription;
-        switch( parameterName_.first )
-        {
-            case arc_wise_exponential_atmosphere_base_density: {
-                parameterDescription = "Base density of exponential atmosphere model";
-                break;
-            }
-            case arc_wise_exponential_atmosphere_scale_height: {
-                parameterDescription = "Scale height of exponential atmosphere model";
-                break;
-            }
-            default:
-                break;
-        }
-        return parameterDescription;
     }
 
     //! Function to retrieve list of components in rtg accelerations that are to be estimated it.

@@ -10,6 +10,8 @@
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
+#include <boost/algorithm/string/trim.hpp>
+
 namespace tudat
 {
 
@@ -267,6 +269,17 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
             throw std::runtime_error( errorMessage );
     }
     return parameterDescription;
+}
+
+//! Function to get the description of a parameter identifier: "<type> of (<associated body>, <secondary identifier>)"
+std::string getParameterIdentifierDescription( const EstimatebleParameterIdentifier& parameterIdentifier )
+{
+    std::string identifierString = parameterIdentifier.second.first;
+    if( parameterIdentifier.second.second != "" )
+    {
+        identifierString += ( identifierString != "" ? ", " : "" ) + parameterIdentifier.second.second;
+    }
+    return boost::algorithm::trim_right_copy( getParameterTypeString( parameterIdentifier.first ) ) + " of (" + identifierString + ")";
 }
 
 //! Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.

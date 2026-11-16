@@ -886,6 +886,31 @@ std::string paddedZeroIntString( const IntType valueToConvert, const int numberO
     return intString;
 }
 
+//! Function to get a comma-separated list of numbers (with 15 significant digits)
+template< typename ValueType >
+std::string getNumberListString( const std::vector< ValueType >& values )
+{
+    std::vector< std::string > entries;
+    for( const ValueType value : values )
+    {
+        std::ostringstream valueStream;
+        valueStream << std::setprecision( 15 ) << value;
+        entries.push_back( valueStream.str( ) );
+    }
+    return boost::algorithm::join( entries, ", " );
+}
+
+//! Function to get a comma-separated list of integer pairs, such as spherical harmonic degrees/orders: (2,0), (2,1)
+inline std::string getIntegerPairListString( const std::vector< std::pair< int, int > >& integerPairs )
+{
+    std::vector< std::string > entries;
+    for( const std::pair< int, int >& integerPair : integerPairs )
+    {
+        entries.push_back( "(" + std::to_string( integerPair.first ) + "," + std::to_string( integerPair.second ) + ")" );
+    }
+    return boost::algorithm::join( entries, ", " );
+}
+
 template< typename T >
 std::pair< std::string, bool > to_string_with_precision( const T a_value, const int n = 6 )
 {

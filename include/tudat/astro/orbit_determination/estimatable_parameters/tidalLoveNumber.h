@@ -221,38 +221,6 @@ public:
         return false;
     }
 
-    //! Function to retrieve parameter description.
-    /*!
-     * Function to retrieve parameter description.
-     * \return Description tidal Love number.
-     */
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription =
-                getParameterTypeString( this->parameterName_.first ) + "of " + this->parameterName_.second.first + " due to ";
-        for( unsigned int i = 0; i < getDeformingBodies( ).size( ); i++ )
-        {
-            parameterDescription += getDeformingBodies( )[ i ];
-            if( i != getDeformingBodies( ).size( ) - 1 )
-            {
-                parameterDescription += " & ";
-            }
-        }
-        parameterDescription += " for degree " + std::to_string( degree_ ) + " and orders: ";
-        for( unsigned int i = 0; i < orders_.size( ); i++ )
-        {
-            if( i != orders_.size( ) - 1 )
-            {
-                parameterDescription += std::to_string( orders_[ i ] ) + ", ";
-            }
-            else
-            {
-                parameterDescription += std::to_string( orders_[ i ] ) + ".";
-            }
-        }
-        return parameterDescription;
-    }
-
 protected:
     //! Degree of Love number that is to be estimated
     int degree_;
@@ -350,27 +318,6 @@ public:
      *  \param parameterValue New value of Love number k_{n} (complex part as second vector entry if complex value is used)
      */
     void setParameterValue( Eigen::VectorXd parameterValue );
-
-    //! Function to retrieve parameter description.
-    /*!
-     * Function to retrieve parameter description.
-     * \return Description tidal Love number.
-     */
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription =
-                getParameterTypeString( this->parameterName_.first ) + "of " + this->parameterName_.second.first + " due to ";
-        for( unsigned int i = 0; i < getDeformingBodies( ).size( ); i++ )
-        {
-            parameterDescription += getDeformingBodies( )[ i ];
-            if( i != getDeformingBodies( ).size( ) - 1 )
-            {
-                parameterDescription += " & ";
-            }
-        }
-        parameterDescription += " for degree " + std::to_string( degree_ ) + ".";
-        return parameterDescription;
-    }
 };
 
 //! Class for estimating the tidal Love number k_{n} at a single degree that is constant for all orders
@@ -572,38 +519,6 @@ public:
      *  \param parameterValue New values of Love numbers k_{n,m}
      */
     void setParameterValue( Eigen::VectorXd parameterValue );
-
-    //! Function to retrieve parameter description.
-    /*!
-     * Function to retrieve parameter description.
-     * \return Description tidal Love number.
-     */
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription =
-                getParameterTypeString( this->parameterName_.first ) + "of " + this->parameterName_.second.first + " due to ";
-        for( unsigned int i = 0; i < getDeformingBodies( ).size( ); i++ )
-        {
-            parameterDescription += getDeformingBodies( )[ i ];
-            if( i != getDeformingBodies( ).size( ) - 1 )
-            {
-                parameterDescription += " & ";
-            }
-        }
-        parameterDescription += " for degree " + std::to_string( degree_ ) + " and orders: ";
-        for( unsigned int i = 0; i < orders_.size( ); i++ )
-        {
-            if( i != orders_.size( ) - 1 )
-            {
-                parameterDescription += std::to_string( orders_[ i ] ) + ", ";
-            }
-            else
-            {
-                parameterDescription += std::to_string( orders_[ i ] ) + ".";
-            }
-        }
-        return parameterDescription;
-    }
 };
 
 }  // namespace estimatable_parameters

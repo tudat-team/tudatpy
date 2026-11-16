@@ -93,12 +93,6 @@ public:
         return parameterSize_;
     }
 
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription = "RTG force vector (body-fixed) at user-defined reference epoch";
-        return parameterDescription;
-    }
-
     //! Function to retrieve list of components in rtg accelerations that are to be estimated it.
     Eigen::Vector3i getIndices( )
     {
@@ -185,12 +179,6 @@ public:
     int getParameterSize( )
     {
         return parameterSize_;
-    }
-
-    std::string getParameterDescription( )
-    {
-        std::string parameterDescription = "RTG force magnitude at user-defined reference epoch";
-        return parameterDescription;
     }
 
     //! Function to retrieve list of components in rtg accelerations that are to be estimated

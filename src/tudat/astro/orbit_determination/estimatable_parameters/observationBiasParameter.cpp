@@ -118,14 +118,6 @@ observation_models::ObservableType SingleArcObservationBiasParameter::getObserva
     return observableType_;
 }
 
-std::string SingleArcObservationBiasParameter::getParameterDescription( )
-{
-    std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-            observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
-            observation_models::getLinkEndsString( linkEnds_ ) + ")";
-    return parameterDescription;
-}
-
 MultiArcObservationBiasParameter::MultiArcObservationBiasParameter(
         const EstimatebleParametersEnum parameterName,
         const std::vector< double > arcStartTimes,
@@ -216,14 +208,6 @@ observation_models::ObservableType MultiArcObservationBiasParameter::getObservab
     return observableType_;
 }
 
-std::string MultiArcObservationBiasParameter::getParameterDescription( )
-{
-    std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-            observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
-            observation_models::getLinkEndsString( linkEnds_ ) + ")";
-    return parameterDescription;
-}
-
 std::vector< double > MultiArcObservationBiasParameter::getArcStartTimes( )
 {
     return arcStartTimes_;
@@ -266,14 +250,6 @@ int SharedObservationBiasParameter::getParameterSize( )
     const int sizePerArc =
             observation_models::isSharedObservationBiasTimeBias( biasType_ ) ? 1 : observation_models::getObservableSize( observableType_ );
     return sizePerArc * ( observation_models::isSharedObservationBiasArcWise( biasType_ ) ? arcStartTimes_.size( ) : 1 );
-}
-
-//! Describe the shared selector and bias type for parameter listings and error messages.
-std::string SharedObservationBiasParameter::getParameterDescription( )
-{
-    return "shared observation bias for " + observation_models::getObservableName( observableType_ ) + ", link-end role " +
-            observation_models::getLinkEndTypeString( linkEndType_ ) + ", (" + linkEndId_.bodyName_ + ", " +
-            linkEndId_.getReferencePointName( ) + "), bias type " + observation_models::getObservationBiasTypeString( biasType_ );
 }
 
 //! Select observations by type and by the complete link-end identifier at the requested role.
@@ -495,14 +471,6 @@ observation_models::ObservableType SingleArcTimeBiasParameter::getObservableType
     return observableType_;
 }
 
-std::string SingleArcTimeBiasParameter::getParameterDescription( )
-{
-    std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-            observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
-            observation_models::getLinkEndsString( linkEnds_ ) + ")";
-    return parameterDescription;
-}
-
 int SingleArcTimeBiasParameter::getLinkEndIndex( )
 {
     return linkEndIndex_;
@@ -601,14 +569,6 @@ observation_models::LinkEnds MultiArcTimeBiasParameter::getLinkEnds( )
 observation_models::ObservableType MultiArcTimeBiasParameter::getObservableType( )
 {
     return observableType_;
-}
-
-std::string MultiArcTimeBiasParameter::getParameterDescription( )
-{
-    std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-            observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
-            observation_models::getLinkEndsString( linkEnds_ ) + ")";
-    return parameterDescription;
 }
 
 std::vector< double > MultiArcTimeBiasParameter::getArcStartTimes( )
