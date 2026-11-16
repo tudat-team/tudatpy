@@ -289,6 +289,11 @@ void expose_close_encounters( py::module& m )
  float
      Radius of the capture cross section [m].
 
+ Raises
+ ------
+ RuntimeError
+     If the body radius, gravitational parameter or asymptotic velocity is not positive.
+
      )doc" );
 }
 
