@@ -74,6 +74,8 @@ Functions
 
    cartesian_velocity
 
+   euler_angles_313
+
    differenced_time_of_arrival
 
    differenced_frequency_of_arrival
@@ -135,6 +137,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_cartesian_position
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_velocity
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.euler_angles_313
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_time_of_arrival
 

@@ -1,0 +1,30 @@
+clc
+close all
+clear all
+
+x=linspace(0,6,10);
+xAcc=linspace(0,6,1000);
+func = sin(2*x);
+funcDer = 2*cos(2*x);
+
+xx = linspace(0,5.5,4);
+
+pp = pchipd(x,func,funcDer,xx);
+
+scatter(x,func)
+hold on
+scatter(xx,pp)
+plot(xAcc,sin(2*xAcc))
+
+x2=[0.1 0.25 0.6 0.62 1.0 1.4 1.51 2.0 3.0];
+func2 = sin(2*x2);
+funcDer2 = 2*cos(2*x2);
+
+xx2 = linspace(0,2.8,4);
+
+pp2 = pchipd(x2,func2,funcDer2,xx2);
+scatter(xx2,pp2)
+
+
+
+

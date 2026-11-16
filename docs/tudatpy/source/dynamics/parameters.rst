@@ -10,8 +10,20 @@ Functions
 .. autosummary::
 
    print_parameter_names
+   set_parameter_correction_constraint
+   set_initial_state_correction_constraint
+   remove_parameter_correction_constraint
+   remove_parameter_correction_constraints
 
 .. autofunction:: tudatpy.dynamics.parameters.print_parameter_names
+
+.. autofunction:: tudatpy.dynamics.parameters.set_parameter_correction_constraint
+
+.. autofunction:: tudatpy.dynamics.parameters.set_initial_state_correction_constraint
+
+.. autofunction:: tudatpy.dynamics.parameters.remove_parameter_correction_constraint
+
+.. autofunction:: tudatpy.dynamics.parameters.remove_parameter_correction_constraints
 
 
 

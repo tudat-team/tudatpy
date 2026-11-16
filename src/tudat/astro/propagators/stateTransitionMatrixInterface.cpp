@@ -47,10 +47,14 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
         combinedStateTransitionMatrix_.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
                 stateTransitionMatrixInterpolator_->interpolate( evaluationTime );
 
-        if( sensitivityMatrixSize_ > 0 )
+        if( reducedSensitivityMatrixColumns_.size( ) > 0 )
         {
-            combinedStateTransitionMatrix_.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
-                    sensitivityMatrixInterpolator_->interpolate( evaluationTime );
+            Eigen::MatrixXd reducedSensitivityMatrix = sensitivityMatrixInterpolator_->interpolate( evaluationTime );
+            for( unsigned int i = 0; i < reducedSensitivityMatrixColumns_.size( ); i++ )
+            {
+                combinedStateTransitionMatrix_.col( stateTransitionMatrixSize_ + reducedSensitivityMatrixColumns_.at( i ) ) =
+                        reducedSensitivityMatrix.col( i );
+            }
         }
     }
     catch( std::runtime_error& caughtException )

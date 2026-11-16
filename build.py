@@ -111,6 +111,15 @@ class BuildParser(argparse.ArgumentParser):
             action="store_true",
             help="Build with Mars Climate Database support [Default: False]",
         )
+        cmake_group.add_argument(
+            "--profiling",
+            dest="build_with_profiling_symbols",
+            action="store_true",
+            help=(
+                "Add debug symbols and frame pointers without changing the "
+                "optimization level, for use with profilers. [Default: False]"
+            ),
+        )
 
         # Misc
         misc_group = self.add_argument_group("Miscellaneous")
@@ -222,7 +231,10 @@ class StubGenerator:
     }
 
     # Ignored modules and methods
-    ignored_modules: list[str] = ["temp", "io", "numerical_simulation", "_deprecation.py"]
+    ignored_modules: list[str] = ["temp", "io", "numerical_simulation", "_deprecation.py", "data"]
+    ignored_module_paths: list[Path] = [
+        Path("estimation/observations_setup/observations_wrapper"),
+    ]
     ignored_methods: list[str] = ["_pybind11_conduit_v1_"]
 
     def __init__(self, build_dir: Path, mock_env: "Environment") -> None:
@@ -650,7 +662,7 @@ class StubGenerator:
             item = item.relative_to(self.python_source_dir)
 
             # Create directory if the module should not be ignored
-            if item.parts[0] not in self.ignored_modules:
+            if item.parts[0] not in self.ignored_modules and item not in self.ignored_module_paths:
                 (self.stubs_dir / item).mkdir(exist_ok=True, parents=True)
 
         return None
@@ -688,6 +700,13 @@ class StubGenerator:
 
             # Get path relative to output directory of pybind11-stubgen
             relative_path = stub.relative_to(tmp_stubs_dir)
+
+            # Pybind11-stubgen discovers all submodules exposed by the kernel,
+            # including compatibility modules that are intentionally omitted
+            # from the final stubs tree.
+            top_level_module = Path(relative_path.parts[0]).stem
+            if top_level_module in self.ignored_modules:
+                continue
 
             # Handle special case for __init__.pyi
             if stub.name == "__init__.pyi":
@@ -1338,6 +1357,7 @@ class Builder:
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
+                    f"-DTUDAT_BUILD_WITH_PROFILING_SYMBOLS={'ON' if self.args.build_with_profiling_symbols else 'OFF'}",
                 ]
 
                 # Add Fortran compiler path if building with MCD

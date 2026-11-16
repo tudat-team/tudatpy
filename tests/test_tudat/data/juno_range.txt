@@ -1,0 +1,47 @@
+# Juno spacecraft range data
+#
+# Range measurements to Juno spacecraft.
+#
+# These are subject to improvement as the gravity field estimate improves with time
+# and the spacecraft trajectories are subsequently improved.
+#
+# Current as of 15 Oct 2019
+#
+#
+# Description of columns;
+# --------------------------------------------------------------------------------
+#    Bytes Format  Units   Label    Explanations
+# --------------------------------------------------------------------------------
+#    1-  3  I3     ---     nnn      Spacecraft identifying number (061 for Juno)
+#    5-  6  I2     ---     up       DSN transmitting station ID
+#    8-  9  I2     ---     dn       DSN receiving station ID
+#   11- 14  I4     ---     yyyy     Year of measurement time (UTC)
+#   16- 18  I3     ---     mm       Month of measurement time (UTC)
+#   20- 21  I2     ---     dd       Day of measurement time (UTC)
+#   23- 24  I2     h       hh       Hour of measurement time (UTC)
+#   26- 27  I2     min     min      Minute of measurement time (UTC)
+#   29- 30  I2     sec     sec      Second of measurement time (UTC)
+#   32- 48  F17.10 sec     rtlt     Round trip light time
+#   53- 58  F5.2   us      Ddelay   Delay between arrival of the spacecraft signal
+#                                   at the station and the time of the measurement, in microseconds.
+#   61- 62  I2     ---     pl       Planet number (5 for Jupiter)
+#   64- 80  F17.6  s       t2       TDB time of spacecraft position and velocity
+#                                   in second past the TDB epoch J2000.0
+#   82- 99  F18.6  km      x        X coordinate of Juno spacecraft with
+#                                      respect to Jupiter System Barycenter
+#  101-117  F18.6  km      y        Y coordinate of Juno spacecraft with
+#                                      respect to Jupiter System Barycenter
+#  119-136  F18.6  km      z        Z coordinate of Juno spacecraft with
+#                                      respect to Jupiter System Barycenter
+#  139-149  F11.6  km/s    vx       X velocity of Juno spacecraft with
+#                                      respect to Jupiter System Barycenter
+#  151-161  F11.6  km/s    vy       Y velocity of Juno spacecraft with
+#                                      respect to Jupiter System Barycenter
+#  163-173  F11.6  km/s    vz       Z velocity of Juno spacecraft with
+#                                      respect to Jupiter System Barycenter
+# --------------------------------------------------------------------------------
+#
+061 55 55 2016 008 27 13 45 06   6355.0487233317    00.000   5  525574396.542800         976.985733      68435.520227       32772.692214     0.727110   26.571899  -51.299726
+061 25 25 2016 012 11 17 51 15   5843.1445817306    77.000   5  534747821.869700         758.853139      62663.238940       42400.667559     1.155283   31.163033  -48.651149
+061 25 25 2017 005 19 06 37 09   4678.0372682236    77.000   5  548445559.006600         213.479400      56844.437127       49295.656059     2.573258   35.268608  -45.911591
+061 25 25 2017 009 01 22 37 39   6135.2100850249    77.000   5  557574460.377400        -313.054452      55858.627335       50316.253260     3.878421   36.428100  -44.949704

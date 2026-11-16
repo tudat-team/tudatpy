@@ -23,7 +23,8 @@
 #include "tudat/astro/system_models/engineModel.h"
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
+#include "tudat/astro/system_models/transponderTurnaroundRatios.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/system_models/camera.h"
 
@@ -323,8 +324,8 @@ public:
     }
 
     void setTransponderTurnaroundRatio(
-            std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
-                    transponderRatioFunction = &observation_models::getDsnDefaultTurnaroundRatios )
+            std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
+                    transponderRatioFunction = &getDsnDefaultTurnaroundRatios )
     {
         transponderTurnaroundRatio_ = transponderRatioFunction;
     }
@@ -334,16 +335,17 @@ public:
         setTransponderTurnaroundRatio( );
     }
 
-    void setTransponderTurnaroundRatio( std::map< std::pair< observation_models::FrequencyBands, observation_models::FrequencyBands >,
-                                                  double >& transponderRatioPerUplinkAndDownlinkFrequencyBand )
+    void setTransponderTurnaroundRatio(
+            const std::map< std::pair< basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands >, double >&
+                    transponderRatioPerUplinkAndDownlinkFrequencyBand )
     {
-        transponderTurnaroundRatio_ = [ = ]( observation_models::FrequencyBands uplinkBand,
-                                             observation_models::FrequencyBands downlinkBand ) {
+        transponderTurnaroundRatio_ = [ = ]( basic_astrodynamics::FrequencyBands uplinkBand,
+                                             basic_astrodynamics::FrequencyBands downlinkBand ) {
             return transponderRatioPerUplinkAndDownlinkFrequencyBand.at( std::make_pair( uplinkBand, downlinkBand ) );
         };
     }
 
-    std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
+    std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
     getTransponderTurnaroundRatio( )
     {
         if( transponderTurnaroundRatio_ == nullptr )
@@ -533,7 +535,7 @@ private:
     //! Wall emissivity of the vehicle (used for heating computations)
     double wallEmissivity_;
 
-    std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
+    std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
             transponderTurnaroundRatio_;
 
     double transponderDelay_;

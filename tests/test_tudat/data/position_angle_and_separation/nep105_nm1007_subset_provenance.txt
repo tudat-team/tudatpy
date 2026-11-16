@@ -1,0 +1,6 @@
+Source: JPL/NAIF generic satellite kernel nep105.bsp
+https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/nep105.bsp
+Sampling: 1977-01-01 00:00:00 TDB through 1985-01-01 00:00:00 TDB, 6-hour step, Type 9 degree 15
+399 Earth: maximum half-grid position error 2.624434627e-06 km; velocity error 2.851585839e-11 km/s
+899 Neptune: maximum half-grid position error 1.097591408e-02 km; velocity error 2.545033125e-06 km/s
+802 Nereid: maximum half-grid position error 4.270258135e-05 km; velocity error 2.809859693e-10 km/s

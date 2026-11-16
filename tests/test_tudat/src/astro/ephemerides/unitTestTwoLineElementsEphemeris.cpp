@@ -240,6 +240,34 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsParsing )
     }
 }
 
+//! Test that a TLE object created from its mean elements gives the same SGP4 state as the TLE created from its two lines
+BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisFromElements )
+{
+    using namespace tudat;
+    using namespace tudat::ephemerides;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::shared_ptr< Tle > tleFromLines =
+            std::make_shared< Tle >( "1 32789U 07021G   08119.60740078 -.00000054  00000-0  00000+0 0  9999",
+                                     "2 32789 098.0082 179.6267 0015321 307.2977 051.0656 14.81417433    68" );
+    std::shared_ptr< Tle > tleFromElements = std::make_shared< Tle >( tleFromLines->getEpoch( ),
+                                                                      tleFromLines->getBStar( ),
+                                                                      tleFromLines->getInclination( ),
+                                                                      tleFromLines->getRightAscension( ),
+                                                                      tleFromLines->getEccentricity( ),
+                                                                      tleFromLines->getArgOfPerigee( ),
+                                                                      tleFromLines->getMeanAnomaly( ),
+                                                                      tleFromLines->getMeanMotion( ) );
+
+    double testEpoch = tleFromLines->getEpoch( ) + 3600.0;
+    Eigen::Vector6d stateFromLines = TleEphemeris( "Earth", "J2000", tleFromLines, false ).getCartesianState( testEpoch );
+    Eigen::Vector6d stateFromElements = TleEphemeris( "Earth", "J2000", tleFromElements, false ).getCartesianState( testEpoch );
+
+    BOOST_CHECK_SMALL( ( stateFromElements - stateFromLines ).segment( 0, 3 ).norm( ), 1.0E-6 );
+    BOOST_CHECK_SMALL( ( stateFromElements - stateFromLines ).segment( 3, 3 ).norm( ), 1.0E-9 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

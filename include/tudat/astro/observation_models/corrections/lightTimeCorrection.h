@@ -33,7 +33,8 @@ enum LightTimeCorrectionType {
     jakowski_vtec_ionospheric,
     inverse_power_series_solar_corona,
     ionex_vtec_ionospheric,
-    nequick2_ionospheric
+    nequick2_ionospheric,
+    measured_tropospheric
 };
 
 bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrectionType );
@@ -162,6 +163,21 @@ public:
     {
         isDownlinkOfTwoWayLink_ = isDownlinkOfTwoWayLink;
     }
+
+    //! Function to retrieve whether the correction has a fallback model (used if the primary model is not available)
+    virtual bool hasFallback( ) const
+    {
+        return false;
+    }
+
+    //! Function to retrieve whether the fallback model was used in the last computation (for corrections with a fallback model)
+    virtual bool isFallbackUsed( ) const
+    {
+        return false;
+    }
+
+    //! Function to set whether the fallback model is always used (for corrections with a fallback model)
+    virtual void setForceFallback( const bool forceFallback ) {}
 
 protected:
     /*!

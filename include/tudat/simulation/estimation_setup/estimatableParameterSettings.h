@@ -1612,6 +1612,44 @@ inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition( c
     return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > groundStationLinearVelocity( const std::string& body,
+                                                                                    const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, ground_station_linear_velocity, groundStationName );
+}
+
+//! Class for settings of the displacement Love number h_n or Shida number l_n of the basic tidal deformation of a body
+class DisplacementLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    DisplacementLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                        const std::vector< int >& degrees,
+                                                        const bool useShidaNumber ):
+        EstimatableParameterSettings( associatedBody, useShidaNumber ? displacement_shida_number : displacement_love_number ),
+        degrees_( degrees )
+    {}
+
+    //! Degree of each estimated number
+    std::vector< int > degrees_;
+};
+
+//! Function to create settings for the displacement Love number h_n of each of the given degrees of a body
+inline std::shared_ptr< EstimatableParameterSettings > displacementLoveNumber( const std::string& body, const std::vector< int >& degrees )
+{
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, false );
+}
+
+//! Function to create settings for the displacement Shida number l_n of each of the given degrees of a body
+inline std::shared_ptr< EstimatableParameterSettings > displacementShidaNumber( const std::string& body, const std::vector< int >& degrees )
+{
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, true );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > cameraPointingCorrection( const std::string& body, const std::string& cameraName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, camera_pointing_correction, cameraName );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime( const std::string& body,
                                                                                       const std::vector< std::string >& deformingBodies )
 {
@@ -1738,6 +1776,11 @@ inline std::shared_ptr< EstimatableParameterSettings > scaledLongitudeLibrationA
 inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const std::string bodyName, const std::string centralBodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > relativeGravitationalParameterRate( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, relative_gravitational_parameter_rate );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetDirectionScaling( const std::string targetName,

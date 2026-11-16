@@ -35,6 +35,8 @@ Functions
 
    dsn_tabulated_tropospheric_light_time_correction
 
+   measured_tropospheric_light_time_correction
+
    saastamoinen_tropospheric_light_time_correction
 
    dsn_tabulated_ionospheric_light_time_correction
@@ -51,6 +53,8 @@ Functions
 
    inverse_power_series_solar_corona_light_time_correction
 
+   solar_corona_model_coefficients
+
    set_vmf_troposphere_data
 
    set_ionosphere_model_from_ionex
@@ -62,6 +66,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.approximated_second_order_relativistic_light_time_correction
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.dsn_tabulated_tropospheric_light_time_correction
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.measured_tropospheric_light_time_correction
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.saastamoinen_tropospheric_light_time_correction
 
@@ -79,6 +85,8 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.inverse_power_series_solar_corona_light_time_correction
 
+.. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.solar_corona_model_coefficients
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.set_vmf_troposphere_data
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.light_time_corrections.set_ionosphere_model_from_ionex
@@ -95,6 +103,8 @@ Enumerations
 
    WaterVaporPartialPressureModel
 
+   SolarCoronaModel
+
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeFailureHandling
    :members:
@@ -103,6 +113,9 @@ Enumerations
    :members:
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.WaterVaporPartialPressureModel
+   :members:
+
+.. autoclass:: tudatpy.estimation.observable_models_setup.light_time_corrections.SolarCoronaModel
    :members:
 
 

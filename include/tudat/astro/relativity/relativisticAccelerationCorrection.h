@@ -400,6 +400,24 @@ public:
         return primaryBodyName_;
     }
 
+    //! Function to return the state function of the primary body (used for the de Sitter term)
+    std::function< Eigen::Vector6d( ) > getStateFunctionOfPrimaryBody( )
+    {
+        return stateFunctionOfPrimaryBody_;
+    }
+
+    //! Function to return the gravitational parameter function of the primary body (used for the de Sitter term)
+    std::function< double( ) > getGravitationalParameterFunctionOfPrimaryBody( )
+    {
+        return gravitationalParameterFunctionOfPrimaryBody_;
+    }
+
+    //! Function to return the angular momentum function of the central body (used for the Lense-Thirring term)
+    std::function< Eigen::Vector3d( ) > getCentralBodyAngularMomentumFunction( )
+    {
+        return centalBodyAngularMomentumFunction_;
+    }
+
 private:
     //! State function of vehicle undergoing acceleration
     std::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody_;
