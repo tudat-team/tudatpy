@@ -29,6 +29,8 @@ set(estimation_HEADERS
         orbitDeterminationManagerUtilitiesImplementation.h
         orbitDeterminationManagerCovarianceImplementation.h
         orbitDeterminationManagerEstimationImplementation.h
+        outlierRejectionSettings.h
+        outlierRejection.h
         createLightTimeCorrectionPartials.h
         createEstimatableParameters.h
         createEstimatableParametersInterface.h
@@ -67,6 +69,20 @@ set(estimation_HEADERS
         interArcStateContinuityConstraintSettings.h
         interArcContinuityConstraint.h
         compressDopplerObservationCollection.h
+        observationVectorData.h
+        observationCondition.h
+        observationDataset.h
+        observationDatasetAccessorsImplementation.h
+        observationDatasetVectorDataImplementation.h
+        observationDatasetMutationImplementation.h
+        observationDatasetPrivateImplementation.h
+        observationDatasetRows.h
+        observationDatasetSelectionImplementation.h
+        observationDatasetInspectionImplementation.h
+        observationDatasetWeightsImplementation.h
+        observationCollectionConversion.h
+        observationWeights.h
+        simulateObservationsLegacy.h
         )
 
 # Add header files.

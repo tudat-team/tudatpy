@@ -18,6 +18,7 @@
 #include <map>
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 #include <Eigen/SVD>
 
 namespace tudat
@@ -91,6 +92,14 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd
                                                            const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
                                                            const double limitConditionNumberForWarning = 1.0E8 );
 
+//! Same as the diagonal-weight overload, but with a sparse full observation weight matrix W (computes H^T W H + P^-1).
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
+                                                           const Eigen::SparseMatrix< double >& weightMatrix,
+                                                           const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+                                                           const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+                                                           const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+                                                           const double limitConditionNumberForWarning = 1.0E8 );
+
 //! Function to compute inverse of covariance matrix at current iteration
 /*!
  * Function to compute inverse of covariance matrix at current iteration
@@ -106,6 +115,13 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd
 Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
                                                                    const Eigen::MatrixXd& designMatrix,
                                                                    const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                                   const Eigen::MatrixXd& considerDesignMatrix,
+                                                                   const Eigen::MatrixXd& considerCovariance );
+
+//! Same as the diagonal-weight overload, but with a sparse full observation weight matrix.
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
+                                                                   const Eigen::MatrixXd& designMatrix,
+                                                                   const Eigen::SparseMatrix< double >& weightMatrix,
                                                                    const Eigen::MatrixXd& considerDesignMatrix,
                                                                    const Eigen::MatrixXd& considerCovariance );
 
@@ -132,6 +148,21 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const double limitConditionNumberForWarning = 1.0E8,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ),
+        const Eigen::VectorXd& aprioriParameterDeviation = Eigen::VectorXd( 0 ) );
+
+//! Same as the diagonal-weight overload, but with a sparse full observation weight matrix W (uses H^T W H and H^T W r).
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::SparseMatrix< double >& weightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
         const double limitConditionNumberForWarning = 1.0E8,
         const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),

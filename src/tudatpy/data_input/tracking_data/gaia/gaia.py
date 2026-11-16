@@ -1,0 +1,1055 @@
+"""
+Retrieve Gaia FPR astrometry from the archives
+"""
+
+import numpy as np
+import pandas as pd
+from datetime import datetime
+from tudatpy.astro.time_representation import (
+    julian_day_to_seconds_since_epoch,
+    TCB_to_TDB,
+    DateTime,
+    TimeScales,
+    default_time_scale_converter,
+    tdb_scale,
+)
+from tudatpy.data_input.tracking_data import (
+    AngularObservationCorrectionSettings,
+    set_block_weights,
+    TrackingData,
+    TrackingSupplementaryData,
+    TranslationalStateSupplementaryData,
+)
+from tudatpy.constants import ASTRONOMICAL_UNIT, JULIAN_DAY
+from scipy.linalg import block_diag
+from scipy.constants import arcsec
+from warnings import warn
+from tudatpy.data_input.environment_data import spice
+import copy
+from pathlib import Path
+from tudatpy.astro.element_conversion import j2000_to_eclipj2000
+from collections.abc import Iterable
+from tudatpy.data_input.tracking_data.gaia.utils import _DEFAULT_GAIA_RESOURCES
+
+# Constants
+_J2010 = 2455197.5  # Reference time J2010.0 in Julian days
+_TIME_SCALE_CORRECTION = 1 - 1.550519768e-8  # See e.g. Klioner (2003)
+_STATE_SCALING_FACTOR = 1.0000000051686297  # account for Gaia FPR state vector inconsistency (see Gaia Collaboration 2023)
+_TIME_SCALE_CONVERTER = default_time_scale_converter()
+_CATALOG = "gaiafpr"  # Gaia Focused Product Release
+
+
+def _check_for_missing_entries(
+    table: pd.DataFrame,
+    requested_mpc_numbers: list,
+    requested_denominations: list,
+):
+    """Check if there are any missing entries in the retrieved astrometry table and warn. If empty, raise error."""
+    if table.empty:
+        raise RuntimeError(
+            f"No observations found for {requested_mpc_numbers + requested_denominations}"
+        )
+    missing_entries = list(set(requested_mpc_numbers) - set(table["number_mp"]))
+    missing_entries += list(set(requested_denominations) - set(table["denomination"]))
+    if len(missing_entries) > 0:
+        warn(f"No data found for {missing_entries}")
+
+
+def _split_targets(targets: int | str | Iterable) -> tuple[list[int], list[str]]:
+    """Split targets into MPC numbers and denominations. Strings of digits are MPC numbers"""
+    mpc_numbers, denominations = [], []
+    for target in [targets] if np.isscalar(targets) else targets:
+        if isinstance(target, str) and target.strip().isdigit():
+            target = int(target)
+        if isinstance(target, (int, np.integer)):
+            if target <= 0:
+                raise ValueError(
+                    f"Invalid MPC number {target}: Gaia assigns MPC number 0 to all natural "
+                    "satellites, query these by denomination"
+                )
+            mpc_numbers.append(int(target))
+        elif isinstance(target, str):
+            denominations.append(target.strip().lower())
+        else:
+            raise TypeError(f"Unknown target input type {type(target)}")
+    if not mpc_numbers and not denominations:
+        raise ValueError("No targets given")
+    return mpc_numbers, denominations
+
+
+def _adql_target_condition(mpc_numbers: list[int], denominations: list[str]) -> str:
+    """ADQL 'WHERE' condition that selects rows by MPC number or denomination"""
+    conditions = []
+    if mpc_numbers:
+        conditions.append(f"number_mp IN ({', '.join(str(number) for number in mpc_numbers)})")
+    if denominations:
+        quoted = ", ".join("'" + name.replace("'", "''") + "'" for name in denominations)
+        conditions.append(f"denomination IN ({quoted})")
+    return " OR ".join(conditions)
+
+
+def _filter_duplicate_denominations(
+    table: pd.DataFrame, mpc_numbers: Iterable[int] = ()
+) -> pd.DataFrame:
+    """When object is queried by denomination, only keep the observations of the moon if there is both a moon
+    and asteroid matching the denomination. Asteroids requested by MPC number are always kept."""
+    is_moon = table["number_mp"] == 0
+    shares_moon_name = table["denomination"].isin(table.loc[is_moon, "denomination"])
+    return table[is_moon | ~shares_moon_name | table["number_mp"].isin(mpc_numbers)].copy()
+
+
+class GaiaAstrometry:
+    """The class acts as a container for all Gaia astrometric observations and its metadata. It takes care of
+    retrieval, filtering/correcting of observations, applying weights and conversion to a tudat-compatible format.
+
+    Usually the GaiaAstrometry class is instantiated via one of the classmethods:
+    :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_astroquery` (online),
+    :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_aip` (online) or
+    :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_parquet` (local).
+
+    Parameters
+    ----------
+    observations_and_metadata : pd.DataFrame
+        A dataframe containing the observations and metadata in SI units and in the TDB timescale. Raises when columns
+        are missing or the dataframe is empty. The dataframe is typically created by one of the classmethods.
+
+    Examples
+    --------
+    Typical short usage example:
+
+    .. code-block:: python
+
+        from tudatpy.data_input.tracking_data.gaia import GaiaAstrometry
+        from tudatpy.dynamics import environment_setup
+        from tudatpy.estimation import observations
+
+        asteroid_mpc_number = 779
+
+        # Load from the online database...
+        ga = GaiaAstrometry.from_astroquery(asteroid_mpc_number)
+        # or from a locally saved .parquet of the observations
+        # ga = GaiaAstrometry.from_parquet(asteroid_mpc_number, _path_to_parquet_)
+
+        # Show a summary of observation...
+        ga.print_summary()
+        # or inspect the table of observations and metadata
+        print(ga.table.head())
+
+        # Create environment settings
+        body_settings = environment_setup.get_default_body_settings(
+            ['Sun', 'Earth', 'Jupiter'], 'SSB', 'J2000')
+
+        bodies = environment_setup.create_system_of_bodies(body_settings)
+
+        # Apply filters
+        ga.apply_filters(exclude_poor_observations = True)
+
+        # Corrections can be requested here once a reference asteroid ephemeris is available.
+        tracking_data, supplementary_data = ga.to_tracking_data()
+        observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+        observation_dataset = observations.create_observation_dataset_from_tracking_data(
+            tracking_data, bodies)
+    """
+
+    def __init__(self, observations_and_metadata: pd.DataFrame) -> None:
+        """Default constructor"""
+
+        if not isinstance(observations_and_metadata, pd.DataFrame):
+            raise TypeError("observations_and_metadata must be a pandas.DataFrame.")
+        if observations_and_metadata.empty:
+            raise ValueError("observations_and_metadata must not be empty.")
+        required_columns = (
+            "number_mp",
+            "source_id",
+            "denomination",
+            "transit_id",
+            "astrometric_outcome_ccd",
+            "astrometric_outcome_transit",
+            "ra",
+            "dec",
+            "epoch",
+            "ra_error_random",
+            "dec_error_random",
+            "ra_error_systematic",
+            "dec_error_systematic",
+            "ra_dec_correlation_random",
+            "ra_dec_correlation_systematic",
+            "position_angle_scan",
+            "x_gaia_geocentric",
+            "y_gaia_geocentric",
+            "z_gaia_geocentric",
+            "vx_gaia_geocentric",
+            "vy_gaia_geocentric",
+            "vz_gaia_geocentric",
+        )
+        missing_columns = [
+            col for col in required_columns if col not in observations_and_metadata.columns
+        ]
+        if missing_columns:
+            raise ValueError(
+                f"Missing columns from observation and metadata table: {missing_columns}"
+            )
+
+        self._table = observations_and_metadata
+
+    @property
+    def table(self) -> pd.DataFrame:
+        """Read-only copy of the astrometry table."""
+        return self._table.copy()
+
+    @property
+    def sources(self) -> pd.DataFrame:
+        """Returns a dataframe of the sources (asteroids/natural satellites) on this ``GaiaAstrometry`` object"""
+        table = self._table.drop_duplicates("source_id").set_index("source_id")
+        return table[["number_mp", "denomination"]]
+
+    def copy(self) -> "GaiaAstrometry":
+        """Get a copy of the ``GaiaAstrometry`` object.
+
+        Returns
+        -------
+        GaiaAstrometry
+            Deep copy of the current ``GaiaAstrometry`` object.
+        """
+        return copy.deepcopy(self)
+
+    def _get_observation_covariance(self, table: pd.DataFrame) -> list:
+        """
+        Build observation covariance matrix for one asteroid. Returns a list of blocks that represent the covariance
+        over single transits, in the same order as  the observations
+        """
+        components_to_matrix = lambda ra, dec, corr: np.array(
+            [[ra**2, ra * dec * corr], [ra * dec * corr, dec**2]]
+        )
+        observation_covariance_matrix = []
+
+        # Transit ID must be increasing with epoch to build a matrix consistent with the observations:
+        if not table["transit_id"].is_monotonic_increasing:
+            raise RuntimeError(
+                "Error while building observation covariance matrix: possible broken observation entries"
+            )
+
+        for transit_id, transit_rows in table.groupby("transit_id", sort=False):
+
+            transit_length = len(transit_rows)
+
+            # Sigma's and correlation for current transit:
+            uncertainty_random = transit_rows[
+                ["ra_error_random", "dec_error_random", "ra_dec_correlation_random"]
+            ]
+            uncertainty_systematic = transit_rows[
+                ["ra_error_systematic", "dec_error_systematic", "ra_dec_correlation_systematic"]
+            ]
+
+            # Random and systematic components of covariance for current transit
+            covariance_random = block_diag(
+                *[
+                    components_to_matrix(ra, dec, corr)
+                    for ra, dec, corr in uncertainty_random.to_numpy()
+                ]
+            )
+            covariance_systematic_submatrix = components_to_matrix(
+                *uncertainty_systematic.iloc[0]
+            )  # Systematic component is constant over transit
+            covariance_systematic = np.tile(
+                covariance_systematic_submatrix, (transit_length, transit_length)
+            )
+
+            observation_covariance_matrix.append(covariance_random + covariance_systematic)
+
+        return observation_covariance_matrix
+
+    def to_tracking_data(
+        self,
+        target_body_names: dict[int, str] | None = None,
+        light_deflection_bodies: Iterable[str] | None = None,
+        photocenter_correction: bool = False,
+    ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
+        """Collect Gaia observations into one :class:`~tudatpy.data_input.tracking_data.TrackingData` object per
+        transit and attach the observation weights according to the Gaia weighting scheme.
+        Observations remain uncorrected, in the ``J2000`` frame. Requested corrections
+        are evaluated when creating the observation dataset with ``apply_corrections=True``.
+        Each CCD observation carries its scan angle [rad] as numerical metadata
+        under the key ``"along_scan_angle"``.
+
+        Parameters
+        ----------
+        target_body_names: dict, optional
+            Provide the names to use for the object(s) in the Tudat environment. By default, asteroids are named by
+            their MPC number (e.g. "433") and natural satellites are named by their denomination (e.g. "Enceladus").
+            To change this, provide a dict with keys being the ``source_id`` of an object, and the value being
+            the desired name
+        light_deflection_bodies : Iterable[str] | None, optional
+            Body names of bodies that exert relativistic light-deflection in the environment. Each body must have an
+            ephemeris and mass. The bodies being estimated must also have an ephemeris so that their position in time
+            can be retrieved. If ``None``, no correction will be applied.
+        photocenter_correction : bool, optional
+            If true, computes the photocenter-barycenter offset for each observation. The sun, Gaia and the estimated
+            bodies must have an ephemeris in the environment. The estimated bodies must also have a shape model, of the
+            type ``SphericalBodyShapeModel`` or ``TriAxialEllipsoidBodyShapeModel``.
+
+        Returns
+        -------
+        tuple[list[TrackingData], list[TrackingSupplementaryData]]
+            One tracking-data object per transit and one shared Gaia geocentric state
+            history, including velocities, with Earth origin, J2000 orientation and
+            TDB epochs.
+        """
+        # Force the weight matrix to be completely symmetric (due to possible numerical error introduced in inversion)
+        force_symmetric = lambda mat: (mat + mat.T) / 2
+
+        sources = self.sources
+        if target_body_names is not None:
+            unknown_source_ids = set(target_body_names) - set(sources.index)
+            if unknown_source_ids:
+                raise ValueError(
+                    f"Unknown source_ids in target_body_names: {sorted(unknown_source_ids)}. "
+                    "Keys must be source_ids, see GaiaAstrometry.sources"
+                )
+
+        def _body_name(source_id: int) -> str:
+            """Create a body name for the target"""
+            if isinstance(target_body_names, dict) and source_id in target_body_names:
+                return str(target_body_names[source_id])
+            elif sources.loc[source_id, "number_mp"] == 0:
+                return sources.loc[source_id, "denomination"].capitalize()
+            else:
+                return str(sources.loc[source_id, "number_mp"])
+
+        correction_settings = AngularObservationCorrectionSettings(
+            light_deflection_bodies=(
+                [] if light_deflection_bodies is None else list(light_deflection_bodies)
+            ),
+            photocenter_correction=photocenter_correction,
+        )
+        tracking_data_objects = []
+
+        for source_id, table_for_object in self._table.groupby("source_id", sort=False):
+
+            body_name = _body_name(source_id)
+            observation_covariance_matrices = self._get_observation_covariance(table_for_object)
+
+            for (_, transit_rows), covariance_matrix in zip(
+                table_for_object.groupby("transit_id", sort=False),
+                observation_covariance_matrices,
+            ):
+                observation_angles = transit_rows.loc[:, ["ra", "dec"]].to_numpy()
+                observation_times = transit_rows["epoch"].to_numpy()
+
+                tracking_data = TrackingData(
+                    observable_type="AngularPosition",
+                    link_ends=[
+                        ((body_name, ""), "transmitter"),
+                        (("Gaia", ""), "receiver"),
+                    ],
+                    observations=[
+                        np.array(observation, dtype=float) for observation in observation_angles
+                    ],
+                    epochs=observation_times.tolist(),
+                    reference_link_end="receiver",
+                    time_scale="TDB",
+                )
+
+                weight_matrix = force_symmetric(np.linalg.inv(covariance_matrix))
+                tracking_data.weight_settings.set_observation_weight_settings(
+                    set_block_weights(weight_matrix)
+                )
+                tracking_data.correction_settings.set_observation_correction_settings(
+                    correction_settings
+                )
+                tracking_data.add_numerical_observation_metadata(
+                    "along_scan_angle", transit_rows["position_angle_scan"].tolist()
+                )
+                tracking_data_objects.append(tracking_data)
+
+        if self._table.empty:
+            return tracking_data_objects, []
+        state_columns = [
+            component + "_gaia_geocentric" for component in ("x", "y", "z", "vx", "vy", "vz")
+        ]
+        supplementary_data = TrackingSupplementaryData("Gaia", "")
+        supplementary_data.translational_state_supplementary_data = (
+            TranslationalStateSupplementaryData(
+                state_history=dict(
+                    zip(self._table["epoch"], self._table[state_columns].to_numpy())
+                ),
+                frame_origin="Earth",
+                is_velocity_defined=True,
+                time_scale="TDB",
+                frame_orientation="J2000",
+            )
+        )
+        return tracking_data_objects, [supplementary_data]
+
+    @classmethod
+    def from_astroquery(
+        cls,
+        targets: int | str | Iterable,
+        username: str | None = None,
+        password: str | None = None,
+        save_to_parquet: str | Path | None = None,
+    ) -> "GaiaAstrometry":
+        """
+        Retrieve the Gaia FPR astrometric observations through astroquery.
+
+        Requires an internet connection. Login to the Gaia archive website is optional. Note this method of loading the
+        data may be slow or unreliable. For loading large batches of data, it is recommended to use
+        :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.from_parquet` instead.
+
+        Observations and metadata are stored on the :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.table` attribute.
+
+        Parameters
+        ----------
+        targets : int | str | list
+            Targets to query observations for. Integers and strings of digits are interpreted as numbered asteroid
+            MPC numbers, other strings as the denomination. Moons can only be queried by denomination. If a target belongs
+            to both a moon and asteroid (e.g. Io), it is assumed the observations of the moon are queried.
+        username : str, optional
+            Username for the Gaia archives, by default None.
+        password : str, optional
+            Password for the Gaia archives, by default None.
+        save_to_parquet : str | Path, optional
+            Save the full query response in its original archive units to this
+            parquet file, before conversion or filtering. Empty responses are
+            saved too. The file can be read with ``from_parquet``.
+
+        Returns
+        -------
+        GaiaAstrometry
+            A ``GaiaAstrometry`` object with observations loaded
+        """
+        from astroquery.gaia import Gaia  # late import because it tends to be slow
+
+        mpc_numbers, denominations = _split_targets(targets)
+
+        try:
+            if username and password:
+                Gaia.login(user=username, password=password)
+            query = f"""
+            SELECT *
+            FROM {_CATALOG}.sso_observation
+            WHERE {_adql_target_condition(mpc_numbers, denominations)}
+            """
+            job = Gaia.launch_job_async(query)
+            table = job.get_results().to_pandas()
+        except Exception as err:
+            raise RuntimeError(f"Error while retrieving astrometric observations: \n{err}") from err
+
+        if save_to_parquet is not None:
+            table.to_parquet(save_to_parquet, index=False)
+            print(f"Saved Gaia astrometry to {save_to_parquet}", flush=True)
+        _check_for_missing_entries(table, mpc_numbers, denominations)
+
+        return cls(cls._prepare_table(table, mpc_numbers))
+
+    @classmethod
+    def from_aip(
+        cls,
+        targets: int | str | Iterable,
+        save_to_parquet: str | Path | None = None,
+    ) -> "GaiaAstrometry":
+        """Load Gaia FPR astrometry from the AIP mirror, looking up source IDs before CCD observations.
+
+        Failed or truncated queries raise an error without saving a file.
+
+        Parameters
+        ----------
+        targets : int | str | list
+            Targets to query observations for. Integers and strings of digits are interpreted as numbered asteroid
+            MPC numbers, other strings as the denomination. Moons can only be queried by denomination. If a target
+            belongs to both a moon and asteroid (e.g. Io), it is assumed the observations of the moon are queried.
+        save_to_parquet : str | Path, optional
+            Save the full query response in its original archive units to this
+            parquet file, before conversion or filtering. Empty responses are
+            saved too. The file can be read with ``from_parquet``.
+
+        Returns
+        -------
+        GaiaAstrometry
+            A ``GaiaAstrometry`` object with observations loaded
+        """
+        from io import BytesIO
+        from astropy.io.votable import parse
+        import requests
+
+        def query_table(query):
+            response = requests.get(
+                "https://gaia.aip.de/tap/sync",
+                params={
+                    "REQUEST": "doQuery",
+                    "LANG": "ADQL",
+                    "FORMAT": "votable",
+                    "MAXREC": 200000,
+                    "QUERY": query,
+                },
+                timeout=30.0,
+            )
+            response.raise_for_status()
+            result = parse(BytesIO(response.content))
+            for resource in result.resources:
+                for info in resource.infos:
+                    if info.name == "QUERY_STATUS" and info.value != "OK":
+                        raise RuntimeError(f"Gaia AIP query {info.value}: {info.content}")
+            return result.get_first_table().to_table(use_names_over_ids=True)
+
+        mpc_numbers, denominations = _split_targets(targets)
+        sources = query_table(
+            f"SELECT source_id FROM {_CATALOG}.sso_source "
+            f"WHERE {_adql_target_condition(mpc_numbers, denominations)}"
+        )
+        source_ids = ", ".join(str(int(source_id)) for source_id in sources["source_id"])
+        condition = f"source_id IN ({source_ids})" if len(sources) else "1 = 0"
+        table = query_table(
+            f"SELECT * FROM {_CATALOG}.sso_observation WHERE {condition}"
+        ).to_pandas()
+        if save_to_parquet is not None:
+            table.to_parquet(save_to_parquet, index=False)
+            print(f"Saved Gaia astrometry to {save_to_parquet}", flush=True)
+        _check_for_missing_entries(table, mpc_numbers, denominations)
+        return cls(cls._prepare_table(table, mpc_numbers))
+
+    @classmethod
+    def from_parquet(
+        cls,
+        targets: int | str | Iterable,
+        parquet_path: str | Path | None = None,
+    ) -> "GaiaAstrometry":
+        """
+        Retrieve observations from a cached parquet file. Use
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` to download and generate a parquet file
+        containing all observations.
+
+        Parameters
+        ----------
+        targets : int | str | list
+            Targets to query observations for. Integers and strings of digits are interpreted as numbered asteroid
+            MPC numbers, other strings as the denomination. Query asteroids by MPC number for faster lookups. Moons can
+            only be queried by denomination. If a target belongs to both a moon and asteroid (e.g. Io), it is assumed
+            the observations of the moon are queried.
+        parquet_path : str | Path, optional
+            Path to the .parquet file. If None, it searches for the parquet in the tudat resources directory
+
+        Returns
+        -------
+        GaiaAstrometry
+            A ``GaiaAstrometry`` object with observations loaded
+        """
+        if parquet_path is None:
+            parquet_path = _DEFAULT_GAIA_RESOURCES / "sso_observation.parquet"
+            if not parquet_path.exists():
+                raise FileNotFoundError(
+                    f"No parquet_path was specified, and no path was found in default directory "
+                    f"{str(_DEFAULT_GAIA_RESOURCES)}"
+                )
+
+        mpc_numbers, denominations = _split_targets(targets)
+        filters = [
+            [(column, "in", values)]
+            for column, values in (("number_mp", mpc_numbers), ("denomination", denominations))
+            if values
+        ]
+        table = pd.read_parquet(parquet_path, filters=filters)
+        _check_for_missing_entries(table, mpc_numbers, denominations)
+
+        return cls(cls._prepare_table(table, mpc_numbers))
+
+    @staticmethod
+    def _prepare_table(table: pd.DataFrame, mpc_numbers: Iterable[int] = ()) -> pd.DataFrame:
+        """Convert raw table values into a tudat-compatible format."""
+        # Removes asteroid observations if table returns both moon and asteroid observations for some denomination,
+        # unless the asteroid was requested by MPC number
+        table = _filter_duplicate_denominations(table, mpc_numbers)
+
+        # Convert Gaia TCB to tudat TDB epoch
+        gaia_to_tudat_epoch = lambda jd: TCB_to_TDB(julian_day_to_seconds_since_epoch(jd + _J2010))
+        table["epoch"] = table["epoch"].apply(gaia_to_tudat_epoch)
+
+        # Convert angles to rad
+        table["ra"] = (np.deg2rad(table["ra"]) + np.pi) % (2 * np.pi) - np.pi
+        table["dec"] = np.deg2rad(table["dec"])
+        table["position_angle_scan"] = np.deg2rad(table["position_angle_scan"])
+
+        # Convert mas to radians
+        table[
+            ["ra_error_random", "dec_error_random", "ra_error_systematic", "dec_error_systematic"]
+        ] *= (arcsec / 1e3)
+
+        # Remove the cos delta factor from the right ascension uncertainty values
+        table["ra_error_random"] /= np.cos(table["dec"])
+        table["ra_error_systematic"] /= np.cos(table["dec"])
+
+        # Convert Gaia state vectors to SI, apply correction to position vectors due to time scale change
+        position_labels = [
+            "x_gaia",
+            "y_gaia",
+            "z_gaia",
+            "x_gaia_geocentric",
+            "y_gaia_geocentric",
+            "z_gaia_geocentric",
+        ]
+        table.loc[:, position_labels] *= ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION
+        velocity_labels = [
+            "vx_gaia",
+            "vy_gaia",
+            "vz_gaia",
+            "vx_gaia_geocentric",
+            "vy_gaia_geocentric",
+            "vz_gaia_geocentric",
+        ]
+        table.loc[:, velocity_labels] *= ASTRONOMICAL_UNIT / JULIAN_DAY
+
+        # Sort
+        table = table.sort_values(by=["number_mp", "source_id", "epoch"]).reset_index(drop=True)
+
+        return table
+
+    def apply_filters(
+        self,
+        exclude_poor_observations: bool = True,
+        targets_to_remove: int | str | Iterable | None = None,
+        epoch_start: float | DateTime | None = None,
+        epoch_end: float | DateTime | None = None,
+        transit_ids: list[int] | None = None,
+        observation_ids: list[int] | None = None,
+    ) -> None:
+        """
+        Apply filters to the set of observations in-place. This modifies the dataset. In any case, this function should
+        be called **before** creating ``TrackingData`` objects.
+
+        Parameters
+        ----------
+        exclude_poor_observations : bool
+            Exclude observations which have ``astrometric_outcome_ccd != 1`` or ``astrometric_outcome_transit != 1``.
+            These observations may be affected by one of several issues and can be unreliable. See Gaia documentation
+            for more information.
+        targets_to_remove : int | str | Iterable, optional
+            Remove objects with these MPC numbers (integers or strings of digits) or denominations (other strings).
+            A denomination shared by a moon and an asteroid removes only the moon; use the MPC number to remove the
+            asteroid.
+        epoch_start : float | DateTime, optional
+            Remove observations before this epoch
+        epoch_end : float | DateTime, optional
+            Remove observations later than this epoch.
+        transit_ids : list[int] | None, optional
+            Removes complete transits with this ID.
+        observation_ids : list[int] | None, optional
+            Removes individual CCD observations with this observation ID.
+        """
+        # Filter observations
+        if exclude_poor_observations:
+            poor_observation_filter = (self._table["astrometric_outcome_ccd"] != 1) | (
+                self._table["astrometric_outcome_transit"] != 1
+            )
+            self._table = self._table[~poor_observation_filter]
+
+        # Filter by epoch
+        if isinstance(epoch_start, DateTime):
+            epoch_start = epoch_start.epoch()
+        if isinstance(epoch_end, DateTime):
+            epoch_end = epoch_end.epoch()
+
+        if epoch_start is not None:
+            epoch_start_filter = self._table["epoch"] >= epoch_start
+            self._table = self._table[epoch_start_filter]
+        if epoch_end is not None:
+            epoch_end_filter = self._table["epoch"] <= epoch_end
+            self._table = self._table[epoch_end_filter]
+
+        # Filter MPC numbers and denominations
+        if targets_to_remove is not None:
+            mpc_numbers, denominations = _split_targets(targets_to_remove)
+            named_objects = _filter_duplicate_denominations(
+                self._table[self._table["denomination"].isin(denominations)]
+            )
+            target_filter = self._table["number_mp"].isin(mpc_numbers) | self._table[
+                "source_id"
+            ].isin(named_objects["source_id"])
+            self._table = self._table[~target_filter]
+
+        # Filter transits and CCD observations
+        if transit_ids is not None:
+            self._table = self._table[~self._table["transit_id"].isin(transit_ids)]
+        if observation_ids is not None:
+            self._table = self._table[~self._table["observation_id"].isin(observation_ids)]
+
+        if self._table.empty:
+            raise RuntimeError("No observations left after applying filters")
+
+    def print_summary(self) -> None:
+        """Print a summary of the loaded observations."""
+        print("GAIA OBSERVATIONS SUMMARY: \n")
+        print(f"Observations loaded for {self._table['source_id'].nunique()} object(s):")
+        print(
+            "MPC | DENOMINATION | NUMBER OF OBSERVATIONS | FIRST OBSERVATION TIME | LAST OBSERVATION TIME"
+        )
+
+        for _, table in self._table.groupby("source_id", sort=False):
+
+            mpc_number = table["number_mp"].iloc[0]
+            object_name = table["denomination"].iloc[0]
+            number_of_obs = len(table)
+            dt_first = DateTime.from_epoch(table["epoch"].min())
+            dt_final = DateTime.from_epoch(table["epoch"].max())
+            first_epoch = f"{dt_first.year}/{dt_first.month}/{dt_first.day}"
+            last_epoch = f"{dt_final.year}/{dt_final.month}/{dt_final.day}"
+
+            asteroid_data = (
+                f"{mpc_number}   {object_name}   {number_of_obs}   {first_epoch}   {last_epoch}\n"
+            )
+            print(asteroid_data)
+
+
+def read_gaia_astrometry_data(
+    target: int | str,
+    target_body_name: str | None = None,
+    parquet_path: str | Path | None = None,
+    epoch_start: float | DateTime | datetime | None = None,
+    epoch_end: float | DateTime | datetime | None = None,
+    time_scale: TimeScales = tdb_scale,
+) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
+    """Convenience wrapper function around :class:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry`, that
+    retrieves the astrometry for one object and converts it into ``TrackingData``. Filters poor observations
+    (``exclude_poor_observations=True``) and applies the solar relativistic light-deflection correction.
+
+    Parameters
+    ----------
+    target : int | str
+        Permanent MPC asteroid number, or denomination (needed for natural satellites).
+    target_body_name : str, optional
+        Body name to use for the target in the environment. If None, uses the default name.
+    parquet_path : str | Path, optional
+        Local FPR parquet archive. Read it if it exists; otherwise query AIP
+        and save the full response there before conversion and filtering.
+        If omitted, read the archive written by
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` in the default directory if it
+        exists, and otherwise query AIP without saving a file. Source IDs are looked up
+        before retrieving the CCD observations from the same FPR catalogue.
+    epoch_start, epoch_end : float | DateTime | datetime, optional
+        Inclusive interval bounds, in seconds since J2000 or calendar dates.
+    time_scale : TimeScales, default tdb_scale
+        Time scale of the interval bounds. They are converted to Gaia's TDB scale.
+
+    Returns
+    -------
+    list[TrackingData]
+        List of TrackingData objects (empty if no data is found)
+    list[TrackingSupplementaryData]
+        List of supplementary TrackingData objects (empty if no data is found)
+    """
+    if isinstance(epoch_start, datetime):
+        epoch_start = DateTime.from_python_datetime(epoch_start).epoch()
+    elif isinstance(epoch_start, DateTime):
+        epoch_start = epoch_start.epoch()
+    if isinstance(epoch_end, datetime):
+        epoch_end = DateTime.from_python_datetime(epoch_end).epoch()
+    elif isinstance(epoch_end, DateTime):
+        epoch_end = epoch_end.epoch()
+    if time_scale != tdb_scale:
+        if epoch_start is not None:
+            epoch_start = _TIME_SCALE_CONVERTER.convert_time(
+                time_scale, tdb_scale, float(epoch_start)
+            )
+        if epoch_end is not None:
+            epoch_end = _TIME_SCALE_CONVERTER.convert_time(time_scale, tdb_scale, float(epoch_end))
+    if epoch_start is not None and epoch_end is not None and epoch_start > epoch_end:
+        raise ValueError("Gaia interval start must not be later than its end.")
+    if parquet_path is not None:
+        parquet_path = Path(parquet_path)
+    elif (_DEFAULT_GAIA_RESOURCES / "sso_observation.parquet").is_file():
+        parquet_path = _DEFAULT_GAIA_RESOURCES / "sso_observation.parquet"
+    try:
+        if parquet_path is None or not parquet_path.is_file():
+            print(
+                f"Querying the Gaia AIP mirror for {target}; waiting for the response...",
+                flush=True,
+            )
+            gaia = GaiaAstrometry.from_aip(target, save_to_parquet=parquet_path)
+        else:
+            print(f"Loading Gaia astrometry from {parquet_path}", flush=True)
+            gaia = GaiaAstrometry.from_parquet(target, parquet_path)
+    except RuntimeError as error:
+        if str(error).startswith("No observations found"):
+            print(f"No Gaia observations for {target}.", flush=True)
+            return [], []
+        raise
+    try:
+        gaia.apply_filters(
+            exclude_poor_observations=True, epoch_start=epoch_start, epoch_end=epoch_end
+        )
+    except RuntimeError as error:
+        if str(error) == "No observations left after applying filters":
+            print(f"No Gaia observations for {target} in the selected interval.", flush=True)
+            return [], []
+        raise
+    table = gaia.table
+    if table.empty:
+        print(f"No Gaia observations for {target} in the selected interval.", flush=True)
+        return [], []
+    if table["source_id"].nunique() != 1:
+        raise RuntimeError(f"Gaia astrometry must contain only target {target}.")
+    print(
+        f"Loaded {len(table)} Gaia CCD observations in "
+        f"{table.transit_id.nunique()} transits for {target}.",
+        flush=True,
+    )
+    source_id = gaia.sources.index.item()
+    return gaia.to_tracking_data(
+        target_body_names={source_id: target_body_name} if target_body_name else None,
+        light_deflection_bodies=("Sun",),
+    )
+
+
+def _prepare_gaia_asteroid_table(table: pd.DataFrame) -> pd.DataFrame:
+    """Prepare the Gaia asteroid table into a tudat-compatible format"""
+    # Gaia assigns MPC number 0 to every natural planetary satellite, so these rows cannot be
+    # represented unambiguously by an interface keyed on MPC number.
+    table = table[table["number_mp"] != 0]
+
+    # Throw away asteroids which have no solution
+    table = table[table["epoch_state_vector"] != 0]
+    assert not table.empty, "No valid entries in the Gaia Asteroid table"
+
+    # Convert TCB epoch to TDB seconds since J2000
+    gaia_to_tudat_epoch = lambda jd: TCB_to_TDB(julian_day_to_seconds_since_epoch(jd + _J2010))
+    table["epoch_state_vector"] = table["epoch_state_vector"].apply(gaia_to_tudat_epoch)
+
+    # Scaling factors
+    length_conversion = (
+        ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION * _STATE_SCALING_FACTOR
+    )  # AU to SI
+    velocity_conversion = ASTRONOMICAL_UNIT * _STATE_SCALING_FACTOR / JULIAN_DAY  # AU/day to SI
+
+    # Upper triangle components to matrix
+    to_matrix = lambda a: np.array(
+        [
+            [a[0], a[1], a[2], a[3], a[4], a[5]],
+            [a[1], a[6], a[7], a[8], a[9], a[10]],
+            [a[2], a[7], a[11], a[12], a[13], a[14]],
+            [a[3], a[8], a[12], a[15], a[16], a[17]],
+            [a[4], a[9], a[13], a[16], a[18], a[19]],
+            [a[5], a[10], a[14], a[17], a[19], a[20]],
+        ]
+    )
+
+    table["orbital_elements_var_covar_matrix"] = table["orbital_elements_var_covar_matrix"].apply(
+        to_matrix
+    )
+    table["h_state_vector_var_covar_matrix"] = table["h_state_vector_var_covar_matrix"].apply(
+        to_matrix
+    )
+
+    # Convert orbital element covariance
+    a_scaling = np.identity(6)
+    a_scaling[0, 0] = length_conversion  # SMA from AU -> m, rest are unitless
+    scale_covariance_orbit_elements = lambda x: a_scaling @ x @ a_scaling
+    table["orbital_elements_var_covar_matrix"] = table["orbital_elements_var_covar_matrix"].apply(
+        scale_covariance_orbit_elements
+    )
+
+    # Convert state vector elements
+    scale_state = lambda x: np.concatenate((length_conversion * x[:3], velocity_conversion * x[3:]))
+    table["h_state_vector"] = table["h_state_vector"].apply(scale_state)
+
+    # Convert cartesian covariance
+    state_vector_scaling = np.diag(
+        (
+            length_conversion,
+            length_conversion,
+            length_conversion,
+            velocity_conversion,
+            velocity_conversion,
+            velocity_conversion,
+        )
+    )
+    scale_covariance_cartesian = lambda x: state_vector_scaling @ x @ state_vector_scaling
+    table["h_state_vector_var_covar_matrix"] = table["h_state_vector_var_covar_matrix"].apply(
+        scale_covariance_cartesian
+    )
+
+    # Sort and apply indexing
+    table = table.sort_values(by="number_mp").set_index("number_mp", drop=False)
+
+    return table
+
+
+def _get_asteroid_table_row(
+    mpc_number: int, parquet_path: Path | str | None = None
+) -> pd.DataFrame:
+    """Retrieve and prepare Gaia-derived data for one asteroid (one row in the full table)"""
+    if mpc_number == 0:
+        raise ValueError(
+            "Natural planetary satellites cannot be queried by MPC number because Gaia "
+            "assigns MPC number 0 to all of them"
+        )
+
+    if parquet_path is None and (_DEFAULT_GAIA_RESOURCES / "sso_source.parquet").is_file():
+        parquet_path = _DEFAULT_GAIA_RESOURCES / "sso_source.parquet"
+
+    # Load from the .parquet
+    if parquet_path is not None:
+        table = pd.read_parquet(parquet_path, filters=[("number_mp", "in", [mpc_number])])
+
+    # Load from astroquery
+    else:
+        from astroquery.gaia import Gaia  # late import because it tends to be slow
+
+        query = f"SELECT * FROM {_CATALOG}.sso_source WHERE number_mp = {mpc_number}"
+
+        try:
+            job = Gaia.launch_job_async(query)
+            table = job.get_results()
+        except Exception as e:
+            raise RuntimeError("Error while querying Gaia archives") from e
+
+        table = table.to_pandas()
+
+    if table.empty:
+        raise LookupError(f"No Gaia-derived asteroid data could be found for {mpc_number}")
+
+    return _prepare_gaia_asteroid_table(table)
+
+
+def get_state_from_gaia_archive(
+    mpc_number: int,
+    parquet_path: Path | str | None = None,
+    frame_origin: str = "Sun",
+    frame_orientation: str = "J2000",
+) -> tuple[float, np.ndarray]:
+    """
+    Retrieve a state vector for an object queried by MPC number. An appropriate spice kernel must be loaded to
+    translate the ``frame_origin``.
+
+    An internet connection is required to retrieve the state through astroquery.
+
+    Parameters
+    ----------
+    mpc_number : int
+        Positive MPC number of asteroid to retrieve state for. Gaia's shared MPC number 0 for natural planetary
+        satellites is not supported.
+    parquet_path : Path | str, optional
+        Path to the archive .parquet file. If None, it is read from the archive written by
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` in the default directory if it exists,
+        and otherwise retrieved with astroquery. By default None
+    frame_origin : str
+        Origin of the state vector, by default 'Sun'
+    frame_orientation : str
+        Orientation of the state vector, by default 'J2000'
+
+    Returns
+    -------
+    float
+        Epoch of the state vector in seconds since J2000.
+    np.ndarray
+        State vector in SI units.
+    """
+    object_row = _get_asteroid_table_row(mpc_number, parquet_path).loc[mpc_number]
+    epoch, state = (
+        object_row["epoch_state_vector"],
+        object_row["h_state_vector"],
+    )  # Heliocentric J2000
+
+    # Translate origin
+    if frame_origin != "Sun":
+        origin_state = spice.get_body_cartesian_state_at_epoch(
+            target_body_name="Sun",
+            observer_body_name=frame_origin,
+            reference_frame_name="J2000",
+            aberration_corrections="NONE",
+            ephemeris_time=epoch,
+        )
+        state = state + origin_state
+
+    # Rotate frame
+    if frame_orientation == "J2000":
+        pass
+    elif frame_orientation == "ECLIPJ2000":
+        to_ecliptic = lambda x: np.concatenate(
+            (j2000_to_eclipj2000() @ x[:3], j2000_to_eclipj2000() @ x[3:])
+        )
+        state = to_ecliptic(state)
+    else:
+        raise ValueError("frame_orientation must be J2000 or ECLIPJ2000")
+
+    return epoch, state
+
+
+def get_state_covariance_from_gaia_archive(
+    mpc_number: int, parquet_path: Path | str | None = None
+) -> tuple[float, np.ndarray]:
+    """
+    Retrieve a Cartesian state covariance matrix for an object queried by MPC number.
+
+    An internet connection is required to retrieve the covariance matrix through astroquery.
+    The covariance matrix follows Gaia convention and is Heliocentric J2000.
+
+    Parameters
+    ----------
+    mpc_number : int
+        Positive MPC number of asteroid to retrieve covariance for. Gaia's shared MPC number 0 for natural planetary
+        satellites is not supported.
+    parquet_path : Path | str, optional
+        Path to the archive .parquet file. If None, it is read from the archive written by
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` in the default directory if it exists,
+        and otherwise retrieved with astroquery. By default None
+
+    Returns
+    -------
+    float
+        Epoch of the covariance in seconds since J2000.
+    np.ndarray
+        Cartesian state covariance matrix in SI units.
+    """
+    object_row = _get_asteroid_table_row(mpc_number, parquet_path).loc[mpc_number]
+    return object_row["epoch_state_vector"], object_row["h_state_vector_var_covar_matrix"]
+
+
+def get_kepler_covariance_from_gaia_archive(
+    mpc_number: int, parquet_path: Path | str | None = None
+) -> tuple[float, np.ndarray]:
+    """
+    Retrieve a Keplerian covariance matrix for an object queried by MPC number.
+
+    An internet connection is required to retrieve the covariance matrix through astroquery.
+
+    Parameters
+    ----------
+    mpc_number : int
+        Positive MPC number of asteroid to retrieve covariance for. Gaia's shared MPC number 0 for natural planetary
+        satellites is not supported.
+    parquet_path : Path | str, optional
+        Path to the archive .parquet file. If None, it is read from the archive written by
+        :func:`~tudatpy.data_input.tracking_data.gaia.download_gaia_archive` in the default directory if it exists,
+        and otherwise retrieved with astroquery. By default None
+
+    Returns
+    -------
+    float
+        Epoch of the covariance in seconds since J2000.
+    np.ndarray
+        Keplerian covariance matrix in SI and radians, ordered as
+        ``[semi-major axis, eccentricity, inclination, RAAN, arg. of periapsis, mean anomaly]``
+    """
+    object_row = _get_asteroid_table_row(mpc_number, parquet_path).loc[mpc_number]
+    return object_row["epoch_state_vector"], object_row["orbital_elements_var_covar_matrix"]
+
+
+def gaia_object_catalog(parquet_path: Path | str) -> pd.DataFrame:
+    """
+    Retrieve the Gaia object catalog (sso_source in Gaia documentation). This table contains primarily the state
+    and covariance of asteroids that were derived using the latest Gaia dataset (see :cite:t:`gaiacollaboration2023`). The functions
+    :func:`~tudatpy.data_input.tracking_data.gaia.get_state_from_gaia_archive`, :func:`~tudatpy.data_input.tracking_data.gaia.get_state_covariance_from_gaia_archive`,
+    and :func:`~tudatpy.data_input.tracking_data.gaia.get_kepler_covariance_from_gaia_archive` can be used to obtain this information for a
+    single object queried by MPC number.
+
+    Parameters
+    ----------
+    parquet_path : Path | str
+        Path to the archive .parquet file.
+
+    Returns
+    -------
+    pd.DataFrame
+        Complete asteroid catalog in tudat-compatible units, indexed by MPC number. Natural planetary satellites are
+        excluded because Gaia assigns MPC number 0 to all of them.
+    """
+    return _prepare_gaia_asteroid_table(pd.read_parquet(parquet_path))

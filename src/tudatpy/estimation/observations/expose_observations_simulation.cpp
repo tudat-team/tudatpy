@@ -39,7 +39,7 @@ void expose_observations_simulation_bindings( py::module& m )
            py::overload_cast< const tss::SystemOfBodies&,
                               const std::vector< std::string >&,
                               const std::vector< std::string >&,
-                              const std::vector< TIME_TYPE > >( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
+                              const std::vector< TIME_TYPE >& >( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies" ),
            py::arg( "observed_bodies" ),
            py::arg( "central_bodies" ),
@@ -176,6 +176,205 @@ void expose_observations_simulation_bindings( py::module& m )
          -------
          ObservationCollection
              Collection containing the supplied measurements for the single observable and link definition.
+
+      )doc" );
+
+    m.def( "create_pseudo_observation_dataset_and_models",
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
+                              const TIME_TYPE,
+                              const TIME_TYPE,
+                              const TIME_TYPE >( &tss::simulatePseudoObservationDataset< TIME_TYPE, STATE_SCALAR_TYPE > ),
+           py::arg( "bodies" ),
+           py::arg( "observed_bodies" ),
+           py::arg( "central_bodies" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "time_step" ),
+           R"doc(
+
+         Create relative-position model settings and pseudo-observations from ephemerides, at regular intervals.
+
+         Same as :func:`~tudatpy.estimation.observations.create_pseudo_observation_dataset_and_models_from_observation_times`,
+         but with the observation epochs generated from ``initial_time`` + 3600 s up to (but excluding) ``final_time`` - 3600 s,
+         with an interval of ``time_step``. ``observed_bodies`` are paired with ``central_bodies`` in the supplied system of
+         ``bodies``.
+
+         Parameters
+         ----------
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         observed_bodies : list[str]
+             Names of the bodies whose ephemerides provide the observations.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the observed bodies.
+         initial_time : Time
+             Start of the time interval, in seconds since J2000.
+         final_time : Time
+             End of the time interval, in seconds since J2000.
+         time_step : Time
+             Time between two subsequent observation epochs, in seconds.
+
+         Returns
+         -------
+         tuple[list[ObservationModelSettings], ObservationDataset]
+             Pair containing the relative-position model settings and the simulated observation dataset.
+
+      )doc" );
+
+    m.def( "create_pseudo_observation_dataset_and_models_from_observation_times",
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
+                              const std::vector< TIME_TYPE >& >( &tss::simulatePseudoObservationDataset< TIME_TYPE, STATE_SCALAR_TYPE > ),
+           py::arg( "bodies" ),
+           py::arg( "observed_bodies" ),
+           py::arg( "central_bodies" ),
+           py::arg( "observation_times" ),
+           R"doc(
+
+         Create relative-position model settings and pseudo-observations from ephemerides at ``observation_times``.
+
+         Same as :func:`~tudatpy.estimation.observations.simulate_pseudo_observations`, but returning an
+         :class:`~tudatpy.estimation.observations.ObservationDataset` instead of a (deprecated)
+         :class:`~tudatpy.estimation.observations.ObservationCollection`. ``observed_bodies`` are paired with ``central_bodies``
+         in the supplied system of ``bodies``. Epochs are in seconds since J2000.
+
+         Parameters
+         ----------
+         bodies : SystemOfBodies
+             System of bodies defining the physical environment.
+         observed_bodies : list[str]
+             Names of the bodies whose ephemerides provide the observations.
+         central_bodies : list[str]
+             Names of the reference bodies, paired with the observed bodies.
+         observation_times : list[Time]
+             Observation epochs, in seconds since J2000.
+
+         Returns
+         -------
+         tuple[list[ObservationModelSettings], ObservationDataset]
+             Pair containing the relative-position model settings and the simulated observation dataset.
+
+      )doc" );
+
+    m.def( "create_observation_dataset_from_arrays",
+           &tss::setExistingObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observations" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancillary_settings_per_observable" ) =
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
+           R"doc(
+
+         Create an ObservationDataset from existing measurements grouped by observable type.
+
+         ``observations`` maps each observable type to its link ends and a pair of measurement-vector and epoch lists; each
+         entry becomes one observation set, with the measurements sorted by epoch. ``reference_link_end`` identifies the time
+         reference. ``ancillary_settings_per_observable`` optionally supplies ancillary data for each observable type. This
+         function replaces :func:`~tudatpy.estimation.observations.create_observation_collection_from_arrays`.
+
+         Parameters
+         ----------
+         observations : dict[ObservableType, tuple[dict[LinkEndType, LinkEndId], tuple[list[numpy.ndarray[numpy.float64[m, 1]]], list[Time]]]]
+             Measurements grouped by observable type; each entry contains the link ends and paired lists of measurement vectors and epochs.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         ancillary_settings_per_observable : dict[ObservableType, ObservationAncillarySimulationSettings], default = {}
+             Ancillary data for each observable type.
+
+         Returns
+         -------
+         ObservationDataset
+             Dataset containing the supplied measurements and epochs.
+
+      )doc" );
+
+    m.def( "simulate_observation_dataset",
+           &tss::simulateObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "simulation_settings" ),
+           py::arg( "observation_simulators" ),
+           py::arg( "bodies" ),
+           R"doc(
+
+         Function to simulate observations.
+
+         Function to simulate observations from set observation simulators and observation simulator settings.
+         Automatically iterates over all provided observation simulators, generating the full set of simulated observations,
+         with one observation set per entry of ``simulation_settings``. This function replaces
+         :func:`~tudatpy.estimation.observations.simulate_observations`, which returns a (deprecated)
+         :class:`~tudatpy.estimation.observations.ObservationCollection`.
+
+         Parameters
+         ----------
+         simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
+             List of settings objects, each object providing the observation time settings for simulating one type of observable and link end set.
+
+         observation_simulators : List[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]
+             List of :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` objects, each object hosting the functionality for simulating one type of observable and link end set.
+
+         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+             Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
+
+         Returns
+         -------
+         :class:`~tudatpy.estimation.observations.ObservationDataset`
+             Object collecting all products of the observation simulation.
+
+      )doc" );
+
+    m.def(
+            "create_single_type_observation_dataset_from_arrays",
+            []( const tom::ObservableType observableType,
+                const tom::LinkDefinition& linkEnds,
+                const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& observationsList,
+                const std::vector< TIME_TYPE > timesList,
+                const tom::LinkEndType referenceLinkEnd,
+                const std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings ) {
+                auto dataset = std::make_shared< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >( );
+                dataset->addObservationSet( observableType,
+                                            linkEnds,
+                                            observationsList,
+                                            timesList,
+                                            referenceLinkEnd,
+                                            std::vector< Eigen::VectorXd >( ),
+                                            nullptr,
+                                            ancillarySettings );
+                return dataset;
+            },
+            py::arg( "observable_type" ),
+            py::arg( "link_ends" ),
+            py::arg( "observations_list" ),
+            py::arg( "times_list" ),
+            py::arg( "reference_link_end" ),
+            py::arg( "ancillary_settings" ) = nullptr,
+            R"doc(
+
+         Create an ObservationDataset for one ``observable_type`` and ``link_ends`` definition.
+
+         ``observations_list`` contains measurement vectors and ``times_list`` the corresponding epochs in seconds
+         since J2000, referenced to ``reference_link_end``. ``ancillary_settings`` optionally supplies observable-
+         specific supporting data. The dataset contains a single observation set.
+
+         Parameters
+         ----------
+         observable_type : ObservableType
+             Type of observable to which the settings or measurements apply.
+         link_ends : LinkDefinition
+             Definition of the bodies and reference points participating in the observation link.
+         observations_list : list[numpy.ndarray[numpy.float64[m, 1]]]
+             Measurement vectors, with one vector for each epoch.
+         times_list : list[Time]
+             Observation epochs in seconds since J2000, paired with the measurement vectors.
+         reference_link_end : LinkEndType
+             Link end at which the observation epochs are defined.
+         ancillary_settings : ObservationAncillarySimulationSettings, default = None
+             Optional observable-specific ancillary data.
+
+         Returns
+         -------
+         ObservationDataset
+             Dataset containing the supplied measurements for the single observable and link definition.
 
       )doc" );
 }

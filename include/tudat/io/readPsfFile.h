@@ -242,7 +242,8 @@ convertRawPsfFiles( const std::vector< RawPsfFileContents >& rawPsfDataVector,
                                                                                            observationTimesMap.at( observationEntry.first ),
                                                                                            "receiver",
                                                                                            "UTC" );
-        trackingData->setObservationWeights( weightsMap.at( observationEntry.first ) );
+        trackingData->getWeightSettings( )->setObservationWeightSettings(
+                observation_models::diagonalPerObservationWeights( weightsMap.at( observationEntry.first ) ) );
         trackingDataSets.push_back( trackingData );
     }
 

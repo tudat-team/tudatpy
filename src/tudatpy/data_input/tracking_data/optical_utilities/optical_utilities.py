@@ -16,9 +16,13 @@ import os
 import re
 from tudatpy.astro import time_representation
 from tudatpy.data_input.tracking_data import (
+    BlockDeweightingRule,
+    NamedWeightingMethod,
+    ObservationBlockDefinition,
     TrackingData,
     TrackingSupplementaryData,
     TranslationalStateSupplementaryData,
+    diagonal_per_observation_weights,
 )
 
 BIAS_LOWRES_FILE = os.path.join(
@@ -560,12 +564,32 @@ def _resolve_optical_target_names(table):
     return target_names
 
 
+def _set_ades_explicit_weights(tracking_data_object, group):
+    """Set the weights computed from the ADES rmsRA and rmsDec uncertainties (in arcseconds) as explicit weights.
+
+    The rmsRA uncertainty is that of RA cos(Dec).
+    """
+    rms_ra, rms_dec = (
+        pd.to_numeric(group[column]).to_numpy(dtype=float) for column in ("rmsRA", "rmsDec")
+    )
+    sigma_ra = np.deg2rad(rms_ra / 3600.0) / np.cos(group["DEC"].to_numpy(dtype=float))
+    sigma_dec = np.deg2rad(rms_dec / 3600.0)
+    tracking_data_object.weight_settings.set_observation_weight_settings(
+        diagonal_per_observation_weights(
+            list(np.stack([1.0 / sigma_ra**2, 1.0 / sigma_dec**2], axis=1))
+        )
+    )
+
+
 def optical_table_to_tracking_data(
     table: pd.DataFrame,
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str | None = "",
+    *,
+    ades_weights: bool = False,
+    vfcc17_weights: bool = False,
+    nightly_deweighting: bool = False,
 ):
     """Convert an augmented optical table to TrackingData and supplementary data lists.
 
@@ -578,19 +602,26 @@ def optical_table_to_tracking_data(
     table : pandas.DataFrame
         Augmented optical astrometry table to convert.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
+        Deprecated, use ``vfcc17_weights`` instead.
     add_star_catalog_corrections : bool, default False
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
-        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
-        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
-        weights divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
-        weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+    ades_weights : bool, default False
+        Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds) are used as
+        weights (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
+        Requires rmsRA and rmsDec for every observation.
+    vfcc17_weights : bool, default False
+        Whether the observations get the weights of :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
+        Cannot be combined with ``ades_weights``.
+    nightly_deweighting : bool, default False
+        Whether the ADES weights are divided by the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for the weights of
+        :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
 
     Returns
     -------
@@ -600,19 +631,16 @@ def optical_table_to_tracking_data(
     table = create_augmented_optical_table(table, in_degrees=False)
 
     if add_weights:
-        if weighing_scheme:
-            raise ValueError(
-                "Both 'add_weights' and 'weighing_scheme' are specified; use only 'weighing_scheme'."
-            )
         warnings.warn(
-            "'add_weights' is deprecated, use 'weighing_scheme' instead. "
-            "If 'add_weights' is True then weighting scheme 'VFCC17' will be applied."
-            "For different weighing schemes do not specify 'add_weights' and "
-            "indicate the appropriate string in 'weighing_scheme' instead.",
+            "'add_weights' is deprecated, use 'vfcc17_weights' instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        weighing_scheme = "VFCC17"
+        vfcc17_weights = True
+    if ades_weights and vfcc17_weights:
+        raise ValueError("'ades_weights' and 'vfcc17_weights' cannot be combined")
+    if nightly_deweighting and not ades_weights:
+        raise ValueError("'nightly_deweighting' requires 'ades_weights'")
 
     roving_mask = _roving_observation_mask(table)
     if roving_mask.any():
@@ -622,7 +650,7 @@ def optical_table_to_tracking_data(
         )
         table = table.loc[~roving_mask]
 
-    if weighing_scheme in ("ADES", "ADES_NIGHT"):
+    if ades_weights:
         uncertainties = (
             table.reindex(columns=["rmsRA", "rmsDec"])
             .apply(pd.to_numeric, errors="coerce")
@@ -630,8 +658,8 @@ def optical_table_to_tracking_data(
         )
         if not (np.isfinite(uncertainties) & (uncertainties > 0)).all():
             raise ValueError(
-                f"{weighing_scheme} weighing requires rmsRA and rmsDec to be "
-                "valid (positive, finite) for every observation"
+                "ADES weights require rmsRA and rmsDec to be valid (positive, finite) for every "
+                "observation"
             )
 
     if add_star_catalog_corrections:
@@ -639,12 +667,9 @@ def optical_table_to_tracking_data(
         table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
 
     metadata_columns = set(ANCILLARY_STRING_COLUMNS) if add_ancillary_data else set()
-    # add data required to adopt the VFCC17 weighing scheme
-    if weighing_scheme == "VFCC17":
+    # add data required to compute the VFCC17 weights
+    if vfcc17_weights:
         metadata_columns.update(["note2", "catalog"])
-    # add data required to adopt the ADES weighing schemes
-    if weighing_scheme in ("ADES", "ADES_NIGHT"):
-        metadata_columns.update(["rmsRA", "rmsDec"])
     metadata_columns.add("number")
 
     target_names = _resolve_optical_target_names(table)
@@ -678,7 +703,6 @@ def optical_table_to_tracking_data(
             epochs=group["epoch_seconds_UTC"],
             reference_link_end=reference_link_end_type,
             time_scale="UTC",
-            weighing_scheme=weighing_scheme,
         )
 
         if add_star_catalog_corrections:
@@ -691,6 +715,16 @@ def optical_table_to_tracking_data(
         for column in sorted(metadata_columns):
             tracking_data_object.add_observation_metadata(
                 column, group[column].fillna("").astype(str).tolist()
+            )
+
+        if ades_weights:
+            _set_ades_explicit_weights(tracking_data_object, group)
+        if vfcc17_weights:
+            tracking_data_object.weight_settings.set_named_weights(NamedWeightingMethod.vfcc17)
+        if nightly_deweighting:
+            tracking_data_object.weight_settings.set_block_deweighting(
+                ObservationBlockDefinition.local_night,
+                BlockDeweightingRule.divide_by_number_of_observations,
             )
 
         tracking_data_objects.append(tracking_data_object)
@@ -706,7 +740,10 @@ def read_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str | None = "",
+    *,
+    ades_weights: bool = False,
+    vfcc17_weights: bool = False,
+    nightly_deweighting: bool = False,
 ):
     """Read optical astrometry from a table into TrackingData objects.
 
@@ -731,19 +768,26 @@ def read_optical_data(
     custom_name : str | None, default None
         Optional target name assigned to all observations.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
+        Deprecated, use ``vfcc17_weights`` instead.
     add_star_catalog_corrections : bool, default False
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
-        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
-        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
-        weights divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
-        weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+    ades_weights : bool, default False
+        Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds) are used as
+        weights (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
+        Requires rmsRA and rmsDec for every observation.
+    vfcc17_weights : bool, default False
+        Whether the observations get the weights of :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
+        Cannot be combined with ``ades_weights``.
+    nightly_deweighting : bool, default False
+        Whether the ADES weights are divided by the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for the weights of
+        :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
 
     Returns
     -------
@@ -759,7 +803,9 @@ def read_optical_data(
             add_weights,
             add_star_catalog_corrections,
             add_ancillary_data,
-            weighing_scheme,
+            ades_weights=ades_weights,
+            vfcc17_weights=vfcc17_weights,
+            nightly_deweighting=nightly_deweighting,
         )
 
     if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
@@ -771,7 +817,9 @@ def read_optical_data(
             add_weights,
             add_star_catalog_corrections,
             add_ancillary_data,
-            weighing_scheme,
+            ades_weights=ades_weights,
+            vfcc17_weights=vfcc17_weights,
+            nightly_deweighting=nightly_deweighting,
         )
 
     raise TypeError("read_optical_data expects a pandas DataFrame or astropy Table/QTable.")
@@ -785,7 +833,10 @@ def read_pandas_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str | None = "",
+    *,
+    ades_weights: bool = False,
+    vfcc17_weights: bool = False,
+    nightly_deweighting: bool = False,
 ):
     """Read optical astrometry from a pandas table into TrackingData objects.
 
@@ -803,19 +854,26 @@ def read_pandas_optical_data(
     custom_name : str | None, default None
         Optional target name assigned to all observations.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
+        Deprecated, use ``vfcc17_weights`` instead.
     add_star_catalog_corrections : bool, default False
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
-        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
-        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
-        weights divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
-        weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+    ades_weights : bool, default False
+        Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds) are used as
+        weights (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
+        Requires rmsRA and rmsDec for every observation.
+    vfcc17_weights : bool, default False
+        Whether the observations get the weights of :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
+        Cannot be combined with ``ades_weights``.
+    nightly_deweighting : bool, default False
+        Whether the ADES weights are divided by the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for the weights of
+        :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
 
     Returns
     -------
@@ -828,7 +886,9 @@ def read_pandas_optical_data(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
-        weighing_scheme,
+        ades_weights=ades_weights,
+        vfcc17_weights=vfcc17_weights,
+        nightly_deweighting=nightly_deweighting,
     )
 
 
@@ -840,7 +900,10 @@ def read_astropy_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str | None = "",
+    *,
+    ades_weights: bool = False,
+    vfcc17_weights: bool = False,
+    nightly_deweighting: bool = False,
 ):
     """Read optical astrometry from an astropy table into TrackingData objects.
 
@@ -858,19 +921,26 @@ def read_astropy_optical_data(
     custom_name : str | None, default None
         Optional target name assigned to all observations.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
+        Deprecated, use ``vfcc17_weights`` instead.
     add_star_catalog_corrections : bool, default False
         Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Weighing scheme that is to be used for the observations: ``"VFCC17"`` (see
-        :cite:p:`veres2017`), ``"ADES"`` (weights computed from the rmsRA and rmsDec
-        uncertainties of each observation) or ``"ADES_NIGHT"`` (as ``"ADES"``, but with the
-        weights divided by the number of observations of the same target,
-        from the same observatory, in the same local night, as defined for ``"VFCC17"``). The
-        weights are computed when the observation collection is created. If empty, no weights
-        are assigned.
+    ades_weights : bool, default False
+        Whether the rmsRA and rmsDec uncertainties of each observation (in arcseconds) are used as
+        weights (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_observation_weight_settings`).
+        Requires rmsRA and rmsDec for every observation.
+    vfcc17_weights : bool, default False
+        Whether the observations get the weights of :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_named_weights`).
+        Cannot be combined with ``ades_weights``.
+    nightly_deweighting : bool, default False
+        Whether the ADES weights are divided by the number of observations of the same target,
+        from the same observatory, in the same local night, as defined for the weights of
+        :cite:p:`veres2017` (see
+        :meth:`~tudatpy.data_input.tracking_data.TrackingDataWeightSettings.set_block_deweighting`).
+        Requires ``ades_weights``.
 
     Returns
     -------
@@ -883,7 +953,9 @@ def read_astropy_optical_data(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
-        weighing_scheme,
+        ades_weights=ades_weights,
+        vfcc17_weights=vfcc17_weights,
+        nightly_deweighting=nightly_deweighting,
     )
 
 

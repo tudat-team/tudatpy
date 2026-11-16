@@ -72,6 +72,7 @@ public:
     ObservationCollection( const SortedObservationSets& observationSetList = SortedObservationSets( ) ):
         observationSetList_( observationSetList )
     {
+        printObservationCollectionDeprecationWarning( );
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
     }
@@ -80,6 +81,7 @@ public:
             const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSetList ):
         observationSetList_( createSortedObservationSetList< ObservationScalarType, TimeType >( observationSetList ) )
     {
+        printObservationCollectionDeprecationWarning( );
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
     }
