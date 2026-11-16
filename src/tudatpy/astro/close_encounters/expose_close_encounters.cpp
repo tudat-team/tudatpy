@@ -121,7 +121,7 @@ void expose_close_encounters( py::module& m )
      )doc" );
 
     m.def( "compute_b_plane_coordinates",
-           &tce::computeBPlaneCoordinates,
+           &tce::makeBPlane,
            py::arg( "relative_state" ),
            py::arg( "gravitational_parameter" ),
            py::arg( "reference_direction" ) = Eigen::Vector3d( -Eigen::Vector3d::UnitZ( ) ),
@@ -154,68 +154,6 @@ void expose_close_encounters( py::module& m )
  RuntimeError
      If the relative orbit is not hyperbolic, or if the reference direction is zero or (almost) parallel to the
      incoming asymptote.
-
-     )doc" );
-
-    m.def( "compute_opik_coordinates",
-           &tce::computeOpikCoordinates,
-           py::arg( "relative_state" ),
-           py::arg( "gravitational_parameter" ),
-           py::arg( "encountered_body_heliocentric_state" ),
-           R"doc(
-
- Compute the coordinates :math:`(\xi, \zeta)` of the Öpik theory on the B-plane of a hyperbolic relative state.
-
- The :math:`(\xi, \eta, \zeta)` frame of Valsecchi et al. (2003) is right-handed, with :math:`\eta` along the
- incoming asymptote and :math:`\zeta` opposite to the projection on the B-plane of the direction of motion of the
- encountered body. That direction is the :math:`Y` axis of the planetocentric Öpik frame (:math:`X` from the Sun to
- the encountered body, :math:`Y` in the direction of motion and perpendicular to :math:`X`,
- :math:`Z = X \times Y`), i.e. the transverse component
- :math:`\vec{v} - (\vec{v} \cdot \hat{r}) \hat{r}` of the heliocentric velocity of the encountered body
- (see :func:`compute_opik_reference_direction`). For an eccentric orbit of the encountered body this differs from
- the full heliocentric velocity by the flight path angle. Then :math:`\xi = \vec{B} \cdot \hat{T}` and
- :math:`\zeta = -\vec{B} \cdot \hat{R}`, with :math:`\hat{T}` and :math:`\hat{R}` computed with this
- direction as reference direction (see :func:`compute_b_plane_coordinates`).
-
- Parameters
- ----------
- relative_state : numpy.ndarray
-     Cartesian state of the small body relative to the encountered body [m, m/s].
- gravitational_parameter : float
-     Gravitational parameter of the encountered body [m^3/s^2].
- encountered_body_heliocentric_state : numpy.ndarray
-     Heliocentric Cartesian state of the encountered body, in the frame orientation of the relative state [m, m/s].
-
- Returns
- -------
- numpy.ndarray
-     Öpik coordinates :math:`(\xi, \zeta)` [m].
-
- Raises
- ------
- RuntimeError
-     If the relative orbit is not hyperbolic, or if the heliocentric velocity of the encountered body has no
-     component perpendicular to its position.
-
-     )doc" );
-
-    m.def( "compute_opik_reference_direction",
-           &tce::computeOpikReferenceDirection,
-           py::arg( "encountered_body_heliocentric_state" ),
-           R"doc(
-
- Compute the direction of motion of the encountered body that defines the Öpik :math:`\zeta` axis.
-
- Parameters
- ----------
- encountered_body_heliocentric_state : numpy.ndarray
-     Heliocentric Cartesian state of the encountered body [m, m/s].
-
- Returns
- -------
- numpy.ndarray
-     Unit vector along the transverse component :math:`\vec{v} - (\vec{v} \cdot \hat{r}) \hat{r}` of the
-     heliocentric velocity of the encountered body.
 
      )doc" );
 

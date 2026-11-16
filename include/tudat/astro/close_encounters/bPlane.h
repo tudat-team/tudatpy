@@ -100,35 +100,9 @@ Eigen::Vector3d computeOutgoingAsymptoteDirection( const Eigen::Vector6d& relati
  *  parallel to the incoming asymptote.
  *  \return B-plane data (coordinates and reference frame) of the encounter.
  */
-BPlaneData computeBPlaneCoordinates( const Eigen::Vector6d& relativeState,
-                                     const double centralBodyGravitationalParameter,
-                                     const Eigen::Vector3d& referenceDirection = -Eigen::Vector3d::UnitZ( ) );
-
-//! Compute the coordinates (xi, zeta) of the Opik theory on the B-plane of a hyperbolic relative state.
-/*!
- *  The (xi, eta, zeta) frame of Valsecchi et al. (2003) is right-handed, with eta along the incoming asymptote
- *  and zeta opposite to the projection on the B-plane of the direction of motion of the encountered body. That
- *  direction is the Y axis of the planetocentric Opik frame (X from the Sun to the encountered body, Y in the
- *  direction of motion and perpendicular to X, Z = X x Y), i.e. the transverse component of the heliocentric
- *  velocity of the encountered body, v - (v.r_hat) r_hat. For a circular orbit of the encountered body it equals
- *  the full heliocentric velocity; for an eccentric orbit the two differ by the flight path angle (up to ~e rad).
- *  Then xi = B.T and zeta = -B.R, with T and R computed with this transverse direction as reference direction.
- *  \param relativeState Cartesian state of the small body relative to the encountered body [m, m/s].
- *  \param centralBodyGravitationalParameter Gravitational parameter of the encountered body [m^3/s^2].
- *  \param encounteredBodyHeliocentricState Heliocentric Cartesian state of the encountered body, in the frame
- *  orientation of the relative state [m, m/s].
- *  \return Opik coordinates (xi, zeta) [m].
- */
-Eigen::Vector2d computeOpikCoordinates( const Eigen::Vector6d& relativeState,
-                                        const double centralBodyGravitationalParameter,
-                                        const Eigen::Vector6d& encounteredBodyHeliocentricState );
-
-//! Compute the direction of motion of the encountered body that defines the Opik zeta axis.
-/*!
- *  \param encounteredBodyHeliocentricState Heliocentric Cartesian state of the encountered body [m, m/s].
- *  \return Unit vector along the transverse component of the heliocentric velocity, v - (v.r_hat) r_hat.
- */
-Eigen::Vector3d computeOpikReferenceDirection( const Eigen::Vector6d& encounteredBodyHeliocentricState );
+BPlaneData makeBPlane( const Eigen::Vector6d& relativeState,
+                       const double centralBodyGravitationalParameter,
+                       const Eigen::Vector3d& referenceDirection = -Eigen::Vector3d::UnitZ( ) );
 
 //! Compute the radius of the capture cross section of a body on the B-plane.
 /*!

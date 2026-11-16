@@ -104,9 +104,9 @@ Eigen::Vector3d computeOutgoingAsymptoteDirection( const Eigen::Vector6d& relati
             computeOsculatingHyperbola( relativeState, centralBodyGravitationalParameter ), centralBodyGravitationalParameter, false );
 }
 
-BPlaneData computeBPlaneCoordinates( const Eigen::Vector6d& relativeState,
-                                     const double centralBodyGravitationalParameter,
-                                     const Eigen::Vector3d& referenceDirection )
+BPlaneData makeBPlane( const Eigen::Vector6d& relativeState,
+                       const double centralBodyGravitationalParameter,
+                       const Eigen::Vector3d& referenceDirection )
 {
     const OsculatingHyperbola hyperbola = computeOsculatingHyperbola( relativeState, centralBodyGravitationalParameter );
 
@@ -137,36 +137,6 @@ BPlaneData computeBPlaneCoordinates( const Eigen::Vector6d& relativeState,
     bPlane.bR = bPlane.bVector.dot( bPlane.rUnitVector );
 
     return bPlane;
-}
-
-Eigen::Vector3d computeOpikReferenceDirection( const Eigen::Vector6d& encounteredBodyHeliocentricState )
-{
-    const Eigen::Vector3d position = encounteredBodyHeliocentricState.segment< 3 >( 0 );
-    const Eigen::Vector3d velocity = encounteredBodyHeliocentricState.segment< 3 >( 3 );
-    if( !( position.norm( ) > 0.0 ) )
-    {
-        throw std::runtime_error( "Error when computing Opik coordinates: heliocentric position of the encountered body has zero norm" );
-    }
-    const Eigen::Vector3d radialUnitVector = position.normalized( );
-    const Eigen::Vector3d transverseVelocity = velocity - velocity.dot( radialUnitVector ) * radialUnitVector;
-    if( !( transverseVelocity.norm( ) > MINIMUM_REFERENCE_DIRECTION_ANGLE_SINE * velocity.norm( ) ) )
-    {
-        throw std::runtime_error(
-                "Error when computing Opik coordinates: heliocentric velocity of the encountered body has no component "
-                "perpendicular to its position, the Opik frame is undefined" );
-    }
-    return transverseVelocity.normalized( );
-}
-
-Eigen::Vector2d computeOpikCoordinates( const Eigen::Vector6d& relativeState,
-                                        const double centralBodyGravitationalParameter,
-                                        const Eigen::Vector6d& encounteredBodyHeliocentricState )
-{
-    // With the transverse direction of motion of the encountered body as reference direction, R is the normalised
-    // projection of that direction on the B-plane, so that the zeta axis is -R and the xi axis is T
-    const BPlaneData bPlane = computeBPlaneCoordinates(
-            relativeState, centralBodyGravitationalParameter, computeOpikReferenceDirection( encounteredBodyHeliocentricState ) );
-    return Eigen::Vector2d( bPlane.bT, -bPlane.bR );
 }
 
 double computeCaptureRadius( const double bodyRadius, const double centralBodyGravitationalParameter, const double asymptoticVelocity )
