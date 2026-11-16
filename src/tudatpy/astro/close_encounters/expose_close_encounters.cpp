@@ -31,7 +31,7 @@ void expose_close_encounters( py::module& m )
 {
     py::class_< tce::BPlaneData >( m, "BPlaneData", R"doc(
 
- Data of the B-plane (target plane) of a hyperbolic encounter: coordinates and reference frame.
+ Data of the B-plane (target plane) of a hyperbolic encounter: coordinates and reference frame. Follows :cite:t:`Farnocchia2019`.
 
  The B-plane passes through the centre of the encountered body and is perpendicular to the incoming
  asymptote :math:`\hat{S}`. Its axes are :math:`\hat{T} = (\hat{V} \times \hat{S}) / |\hat{V} \times \hat{S}|`
@@ -40,7 +40,7 @@ void expose_close_encounters( py::module& m )
  the encountered body to the point where the incoming asymptote crosses the B-plane.
 
  All vectors are expressed in the frame of the relative state from which the B-plane was computed. Objects of
- this class are created with :func:`compute_b_plane_coordinates`.
+ this class are created with :func:`make_b_plane`.
 
      )doc" )
             .def_readonly( "asymptotic_velocity", &tce::BPlaneData::asymptoticVelocity, R"doc(
@@ -120,7 +120,7 @@ void expose_close_encounters( py::module& m )
  :type: numpy.ndarray
      )doc" );
 
-    m.def( "compute_b_plane_coordinates",
+    m.def( "make_b_plane",
            &tce::makeBPlane,
            py::arg( "relative_state" ),
            py::arg( "gravitational_parameter" ),
@@ -147,7 +147,7 @@ void expose_close_encounters( py::module& m )
  Returns
  -------
  BPlaneData
-     B-plane data (coordinates and reference frame) of the encounter.
+     B-plane data (coordinates and reference frame) of the encounter, as described in :cite:t:`Farnocchia2019`.
 
  Raises
  ------
