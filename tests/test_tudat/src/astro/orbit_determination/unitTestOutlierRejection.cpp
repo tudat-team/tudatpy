@@ -203,7 +203,7 @@ class FixedListOutlierRejection : public OutlierRejection< double, double >
 public:
     FixedListOutlierRejection( const std::shared_ptr< ObservationDataset< double, double > >& observationDataset,
                                const std::vector< unsigned int >& observationsToReject ):
-        OutlierRejection< double, double >( OutlierRejectionType::carpino_outlier_rejection, observationDataset ),
+        OutlierRejection< double, double >( OutlierRejectionType::carpino_outlier_rejection, observationDataset, 0 ),
         observationsToReject_( observationsToReject )
     {}
 
@@ -758,42 +758,43 @@ BOOST_AUTO_TEST_SUITE( simple_outlier_rejection )
 //! Check that the settings are validated on creation, and that they return what was provided.
 BOOST_AUTO_TEST_CASE( test_SimpleOutlierRejectionSettings )
 {
-    const std::shared_ptr< OutlierRejectionSettings > settings = simpleOutlierRejectionSettings( 10.0, 2, false );
+    const std::shared_ptr< OutlierRejectionSettings > settings = simpleOutlierRejectionSettings( std::make_pair( 5.0, 10.0 ), 2 );
 
     const std::shared_ptr< SimpleOutlierRejectionSettings > simpleSettings =
             std::dynamic_pointer_cast< SimpleOutlierRejectionSettings >( settings );
     BOOST_REQUIRE( simpleSettings != nullptr );
     BOOST_CHECK( ( simpleSettings->getOutlierRejectionType( ) == OutlierRejectionType::simple_outlier_rejection ) );
-    BOOST_CHECK_CLOSE_FRACTION( simpleSettings->getMaximumAllowedResidualValue( ), 10.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( simpleSettings->getResidualThresholds( ).first, 5.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( simpleSettings->getResidualThresholds( ).second, 10.0, 1.0E-15 );
     BOOST_CHECK_EQUAL( simpleSettings->getFirstIterationWithRejection( ), 2 );
-    BOOST_CHECK_EQUAL( simpleSettings->getAllowRestore( ), false );
+    BOOST_CHECK_EQUAL( simpleOutlierRejectionSettings( std::make_pair( 5.0, 10.0 ) )->getFirstIterationWithRejection( ), 1 );
 
-    // Observations are restored and rejection starts in the second iteration, unless the user asks otherwise
-    const std::shared_ptr< SimpleOutlierRejectionSettings > defaultSettings =
-            std::dynamic_pointer_cast< SimpleOutlierRejectionSettings >( simpleOutlierRejectionSettings( 10.0 ) );
-    BOOST_CHECK_EQUAL( defaultSettings->getFirstIterationWithRejection( ), 1 );
-    BOOST_CHECK_EQUAL( defaultSettings->getAllowRestore( ), true );
+    // Recovery may equal rejection, and may be 0 (never recover)
+    BOOST_CHECK_NO_THROW( simpleOutlierRejectionSettings( std::make_pair( 10.0, 10.0 ) ) );
+    BOOST_CHECK_NO_THROW( simpleOutlierRejectionSettings( std::make_pair( 0.0, 10.0 ) ) );
 
-    // A threshold that is not a positive value rejects every observation, and an iteration cannot be negative
-    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( 0.0 ), std::runtime_error );
-    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( -1.0 ), std::runtime_error );
-    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( 10.0, -1 ), std::runtime_error );
+    // Rejection must be positive, 0 <= recovery <= rejection, and the iteration not negative
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( 0.0, 0.0 ) ), std::runtime_error );
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( 11.0, 10.0 ) ), std::runtime_error );
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( -1.0, 10.0 ) ), std::runtime_error );
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( 5.0, 10.0 ), -1 ), std::runtime_error );
 
-    // A threshold per observable type is validated in the same way, and may not be left empty
-    const std::map< ObservableType, double > thresholdMap = { { one_way_range, 6.0 }, { angular_position, 15.0 } };
+    // Thresholds per observable type are validated in the same way, and may not be left empty
+    using ThresholdMap = std::map< ObservableType, std::pair< double, double > >;
+    const ThresholdMap thresholdMap = { { one_way_range, { 3.0, 6.0 } }, { angular_position, { 15.0, 15.0 } } };
     const std::shared_ptr< SimpleOutlierRejectionSettings > mapSettings =
             std::dynamic_pointer_cast< SimpleOutlierRejectionSettings >( simpleOutlierRejectionSettings( thresholdMap ) );
     BOOST_REQUIRE( mapSettings != nullptr );
-    BOOST_CHECK_EQUAL( mapSettings->getMaximumAllowedResidualValueMap( ).size( ), 2 );
-    BOOST_CHECK_CLOSE_FRACTION( mapSettings->getMaximumAllowedResidualValueMap( ).at( one_way_range ), 6.0, 1.0E-15 );
+    BOOST_CHECK_EQUAL( mapSettings->getResidualThresholdsMap( ).size( ), 2 );
+    BOOST_CHECK_CLOSE_FRACTION( mapSettings->getResidualThresholdsMap( ).at( one_way_range ).first, 3.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( mapSettings->getResidualThresholdsMap( ).at( one_way_range ).second, 6.0, 1.0E-15 );
 
-    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::map< ObservableType, double >( ) ), std::runtime_error );
-    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::map< ObservableType, double >( { { one_way_range, -1.0 } } ) ),
-                       std::runtime_error );
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( ThresholdMap( ) ), std::runtime_error );
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( ThresholdMap( { { one_way_range, { 7.0, 6.0 } } } ) ), std::runtime_error );
 
-    // The single threshold is not used when a threshold per observable type was provided
-    BOOST_CHECK( mapSettings->getMaximumAllowedResidualValueMap( ).empty( ) == false );
-    BOOST_CHECK( simpleSettings->getMaximumAllowedResidualValueMap( ).empty( ) == true );
+    // Only one of the two threshold definitions is used
+    BOOST_CHECK( simpleSettings->getResidualThresholdsMap( ).empty( ) );
+    BOOST_CHECK_CLOSE_FRACTION( mapSettings->getResidualThresholds( ).second, -1.0, 1.0E-15 );
 }
 
 //! Check that the outlier rejection object created from the settings is of the corresponding type.
@@ -802,7 +803,7 @@ BOOST_AUTO_TEST_CASE( test_SimpleOutlierRejectionCreation )
     const std::shared_ptr< ObservationDataset< double, double > > dataset = createResidualDataset( { 4.0, 5.0, 8.0 } );
 
     const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
-            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0 ), dataset );
+            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( std::make_pair( 10.0, 10.0 ) ), dataset );
     BOOST_REQUIRE( outlierRejection != nullptr );
     BOOST_CHECK( ( std::dynamic_pointer_cast< SimpleOutlierRejection< double, double > >( outlierRejection ) != nullptr ) );
 
@@ -815,7 +816,8 @@ BOOST_AUTO_TEST_CASE( test_SimpleOutlierRejectionCreation )
             std::make_shared< ObservationDataset< double, double > >( );
     datasetWithoutWeights->addObservationSet(
             one_way_range, createTestLinkDefinition( "StationA" ), { ( Eigen::VectorXd( 1 ) << 10.0 ).finished( ) }, { 1.0 }, receiver );
-    BOOST_CHECK_NO_THROW( ( createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0 ), datasetWithoutWeights ) ) );
+    BOOST_CHECK_NO_THROW( ( createOutlierRejection< double, double >( simpleOutlierRejectionSettings( std::make_pair( 10.0, 10.0 ) ),
+                                                                      datasetWithoutWeights ) ) );
 }
 
 //! Check that observations are rejected on the size of their residual, whatever the sign of that residual is.
@@ -826,7 +828,7 @@ BOOST_AUTO_TEST_CASE( test_SimpleRejectionByResidualSize )
 
     // Rejection is allowed from the first iteration onwards, so that this test case is not concerned with iterations
     const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
-            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0, 0 ), dataset );
+            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( std::make_pair( 10.0, 10.0 ), 0 ), dataset );
     outlierRejection->updateRejectionStatus( iterationData.getInput( 0 ) );
 
     // Observation 1 has a residual of -20, which is further from zero than the threshold of 10 and is therefore
@@ -848,7 +850,7 @@ BOOST_AUTO_TEST_CASE( test_SimpleRejectionByResidualSize )
     const std::shared_ptr< ObservationDataset< double, double > > thresholdDataset = createResidualDataset( { 10.0, -10.0 } );
     const TestIterationData thresholdIterationData( thresholdDataset );
     const std::shared_ptr< OutlierRejection< double, double > > thresholdOutlierRejection =
-            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0, 0 ), thresholdDataset );
+            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( std::make_pair( 10.0, 10.0 ), 0 ), thresholdDataset );
     thresholdOutlierRejection->updateRejectionStatus( thresholdIterationData.getInput( 0 ) );
     BOOST_CHECK_EQUAL( thresholdOutlierRejection->getNumberOfRejectedObservations( ), 0 );
 }
@@ -861,8 +863,8 @@ BOOST_AUTO_TEST_CASE( test_SimpleFirstIterationWithRejection )
     const std::shared_ptr< ObservationDataset< double, double > > dataset = createResidualDataset( { 4.0, -20.0, 8.0, 30.0 } );
     const TestIterationData iterationData( dataset );
 
-    const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
-            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0, firstIterationWithRejection ), dataset );
+    const std::shared_ptr< OutlierRejection< double, double > > outlierRejection = createOutlierRejection< double, double >(
+            simpleOutlierRejectionSettings( std::make_pair( 10.0, 10.0 ), firstIterationWithRejection ), dataset );
 
     // The first iterations use the a priori parameter values and can have large residuals for every observation, so
     // the status of all observations is left unchanged until the requested iteration is reached
@@ -876,54 +878,58 @@ BOOST_AUTO_TEST_CASE( test_SimpleFirstIterationWithRejection )
     BOOST_CHECK_EQUAL( outlierRejection->getNumberOfRejectedObservations( ), 2 );
 }
 
-//! Check that an observation whose residual drops below the threshold is recovered only if the settings allow it.
-BOOST_AUTO_TEST_CASE( test_SimpleRestore )
+//! Check that a rejected observation is recovered only once its residual drops below the recovery threshold.
+BOOST_AUTO_TEST_CASE( test_SimpleRecovery )
 {
-    // Residuals of the first iteration, of which the second observation is an outlier, and residuals of a later
-    // iteration, in which that observation fits the estimated parameters again
-    const std::vector< double > outlyingResiduals = { 4.0, 30.0, 8.0, 6.0 };
-    const std::vector< Eigen::VectorXd > improvedResiduals = { ( Eigen::VectorXd( 1 ) << 4.0 ).finished( ),
-                                                               ( Eigen::VectorXd( 1 ) << 2.0 ).finished( ),
-                                                               ( Eigen::VectorXd( 1 ) << 8.0 ).finished( ),
-                                                               ( Eigen::VectorXd( 1 ) << 6.0 ).finished( ) };
+    // Observation 1 is an outlier in the first iteration. In the second, its residual is between the recovery and
+    // rejection thresholds (5 and 10), and in the third it is below both. Observation 2 is accepted throughout, with a
+    // residual between the thresholds in the second iteration.
+    const std::vector< std::vector< double > > residualsPerIteration = { { 4.0, 30.0, 4.0, 4.0 },
+                                                                         { 4.0, 8.0, 8.0, 4.0 },
+                                                                         { 4.0, 2.0, 4.0, 4.0 } };
 
-    {
-        const bool allowRestore = true;
-        const std::shared_ptr< ObservationDataset< double, double > > dataset = createResidualDataset( outlyingResiduals );
+    // Return the rejection status after each iteration
+    const auto runIterations = [ &residualsPerIteration ]( const std::pair< double, double >& residualThresholds ) {
+        const std::shared_ptr< ObservationDataset< double, double > > dataset = createResidualDataset( residualsPerIteration.at( 0 ) );
         const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
-                createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0, 0, allowRestore ), dataset );
+                createOutlierRejection< double, double >( simpleOutlierRejectionSettings( residualThresholds, 0 ), dataset );
 
-        const TestIterationData firstIterationData( dataset );
-        outlierRejection->updateRejectionStatus( firstIterationData.getInput( 0 ) );
-        BOOST_REQUIRE_EQUAL( outlierRejection->getRejectionStatus( ).at( 1 ), true );
+        std::vector< std::vector< bool > > rejectionStatusPerIteration;
+        for( unsigned int iteration = 0; iteration < residualsPerIteration.size( ); iteration++ )
+        {
+            std::vector< Eigen::VectorXd > residualVectors;
+            for( const double residual : residualsPerIteration.at( iteration ) )
+            {
+                residualVectors.push_back( ( Eigen::VectorXd( 1 ) << residual ).finished( ) );
+            }
+            dataset->setResidualsForSet( 0, residualVectors );
+            const TestIterationData iterationData( dataset );
+            outlierRejection->updateRejectionStatus( iterationData.getInput( iteration ) );
+            rejectionStatusPerIteration.push_back( outlierRejection->getRejectionStatus( ) );
+        }
+        return rejectionStatusPerIteration;
+    };
 
-        // The residual of the observation is now below the threshold, so it is put back into the fit
-        dataset->setResidualsForSet( 0, improvedResiduals );
-        const TestIterationData secondIterationData( dataset );
-        outlierRejection->updateRejectionStatus( secondIterationData.getInput( 1 ) );
-
-        BOOST_CHECK_EQUAL( outlierRejection->getNumberOfRejectedObservations( ), 0 );
-        BOOST_CHECK_EQUAL( dataset->getObservationRow( 1 ).isActive_, true );
+    // Between the thresholds the status is unchanged: observation 1 stays rejected, observation 2 stays accepted
+    {
+        const std::vector< std::vector< bool > > status = runIterations( std::make_pair( 5.0, 10.0 ) );
+        BOOST_CHECK_EQUAL( status.at( 0 ).at( 1 ), true );
+        BOOST_CHECK_EQUAL( status.at( 1 ).at( 1 ), true );
+        BOOST_CHECK_EQUAL( status.at( 1 ).at( 2 ), false );
+        BOOST_CHECK_EQUAL( status.at( 2 ).at( 1 ), false );
     }
 
+    // With equal thresholds, observation 1 is recovered as soon as its residual is below the threshold
     {
-        const bool allowRestore = false;
-        const std::shared_ptr< ObservationDataset< double, double > > dataset = createResidualDataset( outlyingResiduals );
-        const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
-                createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0, 0, allowRestore ), dataset );
+        const std::vector< std::vector< bool > > status = runIterations( std::make_pair( 10.0, 10.0 ) );
+        BOOST_CHECK_EQUAL( status.at( 0 ).at( 1 ), true );
+        BOOST_CHECK_EQUAL( status.at( 1 ).at( 1 ), false );
+    }
 
-        const TestIterationData firstIterationData( dataset );
-        outlierRejection->updateRejectionStatus( firstIterationData.getInput( 0 ) );
-        BOOST_REQUIRE_EQUAL( outlierRejection->getRejectionStatus( ).at( 1 ), true );
-
-        // Once rejected, the observation stays out of the fit, however small its residual becomes
-        dataset->setResidualsForSet( 0, improvedResiduals );
-        const TestIterationData secondIterationData( dataset );
-        outlierRejection->updateRejectionStatus( secondIterationData.getInput( 1 ) );
-
-        BOOST_CHECK_EQUAL( outlierRejection->getNumberOfRejectedObservations( ), 1 );
-        BOOST_CHECK_EQUAL( outlierRejection->getRejectionStatus( ).at( 1 ), true );
-        BOOST_CHECK_EQUAL( dataset->getObservationRow( 1 ).isActive_, false );
+    // A recovery threshold of 0 never recovers a rejected observation
+    {
+        const std::vector< std::vector< bool > > status = runIterations( std::make_pair( 0.0, 10.0 ) );
+        BOOST_CHECK_EQUAL( status.at( 2 ).at( 1 ), true );
     }
 }
 
@@ -935,7 +941,8 @@ BOOST_AUTO_TEST_CASE( test_SimpleThresholdPerObservableType )
 
     // The residuals of the range observations are 4, 5 and 8, and those of the angular position observations are
     // (2, 10) and (20, 40). Each observable type is compared against its own threshold.
-    const std::map< ObservableType, double > thresholdMap = { { one_way_range, 6.0 }, { angular_position, 15.0 } };
+    const std::map< ObservableType, std::pair< double, double > > thresholdMap = { { one_way_range, { 6.0, 6.0 } },
+                                                                                   { angular_position, { 15.0, 15.0 } } };
     const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
             createOutlierRejection< double, double >( simpleOutlierRejectionSettings( thresholdMap, 0 ), dataset );
     outlierRejection->updateRejectionStatus( iterationData.getInput( 0 ) );
@@ -951,7 +958,7 @@ BOOST_AUTO_TEST_CASE( test_SimpleThresholdPerObservableType )
                                    expectedRejectedObservationIds.end( ) );
 
     // An observable type of the dataset that has no threshold cannot be checked, which must be reported
-    const std::map< ObservableType, double > incompleteThresholdMap = { { one_way_range, 6.0 } };
+    const std::map< ObservableType, std::pair< double, double > > incompleteThresholdMap = { { one_way_range, { 6.0, 6.0 } } };
     const std::shared_ptr< OutlierRejection< double, double > > incompleteOutlierRejection =
             createOutlierRejection< double, double >( simpleOutlierRejectionSettings( incompleteThresholdMap, 0 ), createTestDataset( ) );
     BOOST_CHECK_THROW( incompleteOutlierRejection->updateRejectionStatus( iterationData.getInput( 0 ) ), std::runtime_error );
@@ -968,9 +975,8 @@ BOOST_AUTO_TEST_CASE( test_SimpleDisabledObservationsAreNotRestored )
     BOOST_REQUIRE_EQUAL( dataset->getObservationRow( 0 ).isActive_, false );
 
     const TestIterationData iterationData( dataset );
-    const bool allowRestore = true;
     const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
-            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( 10.0, 0, allowRestore ), dataset );
+            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( std::make_pair( 10.0, 10.0 ), 0 ), dataset );
     BOOST_CHECK_EQUAL( outlierRejection->getNumberOfRejectedObservations( ), 1 );
 
     outlierRejection->updateRejectionStatus( iterationData.getInput( 0 ) );

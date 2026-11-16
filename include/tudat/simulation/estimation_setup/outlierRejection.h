@@ -117,6 +117,16 @@ private:
     }
 };
 
+//! Return the first iteration with rejection from the settings, throwing if the settings are null.
+inline int getFirstIterationWithRejectionFromSettings( const std::shared_ptr< OutlierRejectionSettings >& outlierRejectionSettings )
+{
+    if( outlierRejectionSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating outlier rejection object, settings are null." );
+    }
+    return outlierRejectionSettings->getFirstIterationWithRejection( );
+}
+
 //! Base class for algorithms that reject and recover outlying observations during an estimation.
 /*!
  * One object of this type is created at the start of an estimation, from the settings that the user provided, and is
@@ -135,11 +145,14 @@ public:
      * \param outlierRejectionType Algorithm implemented by the derived class, used for logging and error messages.
      * \param observationDataset Dataset holding the observations of the estimation. Observations that are already
      * rejected in this dataset (for instance by the user, before the estimation) start out as rejected.
+     * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be rejected.
      */
     OutlierRejection(
             const OutlierRejectionType outlierRejectionType,
-            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
-        outlierRejectionType_( outlierRejectionType ), observationDataset_( observationDataset )
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
+            const int firstIterationWithRejection ):
+        outlierRejectionType_( outlierRejectionType ), firstIterationWithRejection_( firstIterationWithRejection ),
+        observationDataset_( observationDataset )
     {
         if( observationDataset_ == nullptr )
         {
@@ -168,11 +181,15 @@ public:
     //! Update the rejection status of all observations, using the data of the current estimation iteration.
     /*!
      * This function is called once per iteration by the estimation. It first lets the algorithm decide which
-     * observations are outliers, and then applies that decision to the observation dataset.
+     * observations are outliers, and then applies that decision to the observation dataset. Before the first iteration with
+     * rejection, the status is left unchanged.
      */
     void updateRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput )
     {
-        computeRejectionStatus( outlierRejectionInput );
+        if( outlierRejectionInput.iterationNumber_ >= firstIterationWithRejection_ )
+        {
+            computeRejectionStatus( outlierRejectionInput );
+        }
 
         if( isRejected_.size( ) != observationDataset_->getNumberOfObservations( ) )
         {
@@ -217,6 +234,11 @@ public:
         return numberOfRejectedObservations;
     }
 
+    int getFirstIterationWithRejection( ) const
+    {
+        return firstIterationWithRejection_;
+    }
+
 protected:
     //! A method that must update the isRejected_ member of OutlierRejection
     virtual void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) = 0;
@@ -246,6 +268,9 @@ protected:
 
     //! Algorithm implemented by the derived class.
     const OutlierRejectionType outlierRejectionType_;
+
+    //! Index of the first estimation iteration in which observations may be rejected.
+    const int firstIterationWithRejection_;
 
     //! Observation ids in the order used by the rejection status vectors.
     std::vector< unsigned int > observationIds_;
@@ -279,14 +304,11 @@ public:
     CarpinoOutlierRejection(
             const std::shared_ptr< CarpinoOutlierRejectionSettings >& outlierRejectionSettings,
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
-        OutlierRejection< ObservationScalarType, TimeType >( OutlierRejectionType::carpino_outlier_rejection, observationDataset ),
+        OutlierRejection< ObservationScalarType, TimeType >( OutlierRejectionType::carpino_outlier_rejection,
+                                                             observationDataset,
+                                                             getFirstIterationWithRejectionFromSettings( outlierRejectionSettings ) ),
         outlierRejectionSettings_( outlierRejectionSettings )
     {
-        if( outlierRejectionSettings_ == nullptr )
-        {
-            throw std::runtime_error( "Error when creating Carpino outlier rejection object, settings are null." );
-        }
-
         // If the weights of the observation dataset are all equal to 1 (the default), they are most likely not set, in which case the
         // Carpino outlier rejection algorithm gives meaningless results. Unit weights are correct for an uncertainty of 1 (in
         // the unit of the observations), so this is a warning.
@@ -309,11 +331,6 @@ protected:
 
     void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) override
     {
-        // Only update rejections if later than first iteration with rejection
-        if( outlierRejectionInput.iterationNumber_ < outlierRejectionSettings_->getFirstIterationWithRejection( ) )
-        {
-            return;
-        }
         std::vector< double > chiSquaredPerObservation;
 
         // Compute chi-squared for each observation, using its persistent dataset id to find the matching rows. Observations
@@ -520,8 +537,8 @@ protected:
 
 //! Simple outlier rejection algorithm
 /*!
- * This algorithm rejects and recovers outliers based on only the residual value. It is compared against the maximum allowed residual value
- * provided in the settings, and rejected or recovered accordingly.
+ * Rejects an accepted observation if its largest absolute residual exceeds the rejection threshold, and recovers a rejected observation if
+ * it drops below the recovery threshold.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class SimpleOutlierRejection : public OutlierRejection< ObservationScalarType, TimeType >
@@ -530,25 +547,17 @@ public:
     SimpleOutlierRejection(
             const std::shared_ptr< SimpleOutlierRejectionSettings >& outlierRejectionSettings,
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
-        OutlierRejection< ObservationScalarType, TimeType >( OutlierRejectionType::simple_outlier_rejection, observationDataset ),
+        OutlierRejection< ObservationScalarType, TimeType >( OutlierRejectionType::simple_outlier_rejection,
+                                                             observationDataset,
+                                                             getFirstIterationWithRejectionFromSettings( outlierRejectionSettings ) ),
         outlierRejectionSettings_( outlierRejectionSettings )
-    {
-        if( outlierRejectionSettings_ == nullptr )
-        {
-            throw std::runtime_error( "Error when creating simple outlier rejection object, settings are null." );
-        }
-    }
+    {}
 
 protected:
     void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) override
     {
-        if( outlierRejectionInput.iterationNumber_ < outlierRejectionSettings_->getFirstIterationWithRejection( ) )
-        {
-            return;  // Outlier rejection starts at a later iteration
-        }
-        const std::map< ObservableType, double >& maximumAllowedResidualValueMap =
-                outlierRejectionSettings_->getMaximumAllowedResidualValueMap( );
-        const bool useMaximumAllowedResidualValueMap = !maximumAllowedResidualValueMap.empty( );
+        const std::map< ObservableType, std::pair< double, double > >& residualThresholdsMap =
+                outlierRejectionSettings_->getResidualThresholdsMap( );
 
         for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
@@ -558,37 +567,32 @@ protected:
                 continue;
             }
             const unsigned int observationId = this->observationIds_.at( observationIndex );
-            const Eigen::VectorXd residualVector = outlierRejectionInput.getResidualBlock( observationId ).template cast< double >( );
-            double rejectionThreshold;
 
-            if( useMaximumAllowedResidualValueMap )
+            // (recovery, rejection) thresholds for this observation
+            std::pair< double, double > residualThresholds = outlierRejectionSettings_->getResidualThresholds( );
+            if( !residualThresholdsMap.empty( ) )
             {
                 const ObservableType observableType = this->getObservableType( observationId );
-                if( maximumAllowedResidualValueMap.find( observableType ) == maximumAllowedResidualValueMap.end( ) )
+                if( residualThresholdsMap.count( observableType ) == 0 )
                 {
-                    throw std::runtime_error(
-                            "Error in outlier rejection: no maximum allowed residual value was provided for the "
-                            "observable type " +
-                            tudat::observation_models::getObservableName( observableType ) );
+                    throw std::runtime_error( "Error in outlier rejection: no residual thresholds were provided for the observable type " +
+                                              tudat::observation_models::getObservableName( observableType ) );
                 }
-                rejectionThreshold = maximumAllowedResidualValueMap.at( observableType );
+                residualThresholds = residualThresholdsMap.at( observableType );
             }
-            else
-            {
-                rejectionThreshold = outlierRejectionSettings_->getMaximumAllowedResidualValue( );
-            }
-            const bool residualAboveThreshold = ( residualVector.array( ).abs( ) > rejectionThreshold ).any( );
 
-            // If any of the residual values for the observation exceeds threshold, reject
-            if( residualAboveThreshold )
+            const double maximumAbsoluteResidual =
+                    outlierRejectionInput.getResidualBlock( observationId ).template cast< double >( ).cwiseAbs( ).maxCoeff( );
+            if( this->isRejected_.at( observationIndex ) )
+            {
+                if( maximumAbsoluteResidual < residualThresholds.first )
+                {
+                    this->isRejected_.at( observationIndex ) = false;
+                }
+            }
+            else if( maximumAbsoluteResidual > residualThresholds.second )
             {
                 this->isRejected_.at( observationIndex ) = true;
-            }
-
-            // If restoring is enabled, accept observation if below the threshold
-            if( !residualAboveThreshold && outlierRejectionSettings_->getAllowRestore( ) )
-            {
-                this->isRejected_.at( observationIndex ) = false;
             }
         }
     }

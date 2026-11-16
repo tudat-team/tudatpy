@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <string>
 #include <map>
+#include <utility>
 #include <tudat/astro/observation_models/observableTypes.h>
 
 namespace tudat
@@ -52,7 +53,22 @@ inline std::string getOutlierRejectionTypeString( const OutlierRejectionType out
 class OutlierRejectionSettings
 {
 public:
-    OutlierRejectionSettings( const OutlierRejectionType outlierRejectionType ): outlierRejectionType_( outlierRejectionType ) {}
+    //! Constructor.
+    /*!
+     * \param outlierRejectionType Algorithm that these settings define.
+     * \param firstIterationWithRejection Index of the first estimation iteration (counted from zero) in which observations may be
+     * rejected.
+     */
+    OutlierRejectionSettings( const OutlierRejectionType outlierRejectionType, const int firstIterationWithRejection ):
+        outlierRejectionType_( outlierRejectionType ), firstIterationWithRejection_( firstIterationWithRejection )
+    {
+        if( firstIterationWithRejection_ < 0 )
+        {
+            throw std::runtime_error(
+                    "Error when creating outlier rejection settings, the first iteration with rejection must not be "
+                    "negative." );
+        }
+    }
 
     //! Destructor.
     virtual ~OutlierRejectionSettings( ) = default;
@@ -63,9 +79,17 @@ public:
         return outlierRejectionType_;
     }
 
+    int getFirstIterationWithRejection( ) const
+    {
+        return firstIterationWithRejection_;
+    }
+
 protected:
     //! Algorithm that these settings define, used to select the outlier rejection object that is to be created.
     const OutlierRejectionType outlierRejectionType_;
+
+    //! Index of the first estimation iteration in which observations may be rejected.
+    const int firstIterationWithRejection_;
 };
 
 //! Settings for the outlier rejection algorithm of Carpino et al. (2003).
@@ -97,9 +121,9 @@ public:
                                      const double chi2RecoveryThreshold = 8.0,
                                      const double maximumRejectedFraction = 0.25,
                                      const int firstIterationWithRejection = 1 ):
-        OutlierRejectionSettings( OutlierRejectionType::carpino_outlier_rejection ), chi2RejectionThreshold_( chi2RejectionThreshold ),
-        chi2RecoveryThreshold_( chi2RecoveryThreshold ), maximumRejectedFraction_( maximumRejectedFraction ),
-        firstIterationWithRejection_( firstIterationWithRejection )
+        OutlierRejectionSettings( OutlierRejectionType::carpino_outlier_rejection, firstIterationWithRejection ),
+        chi2RejectionThreshold_( chi2RejectionThreshold ), chi2RecoveryThreshold_( chi2RecoveryThreshold ),
+        maximumRejectedFraction_( maximumRejectedFraction )
     {
         if( chi2RejectionThreshold_ <= 0.0 || chi2RecoveryThreshold_ <= 0.0 )
         {
@@ -118,12 +142,6 @@ public:
             throw std::runtime_error(
                     "Error when creating Carpino outlier rejection settings, the maximum rejected fraction must be between 0 and 1." );
         }
-
-        if( firstIterationWithRejection_ < 0 )
-        {
-            throw std::runtime_error(
-                    "Error when creating Carpino outlier rejection settings, the first iteration with rejection must not be negative." );
-        }
     }
 
     double getChi2RejectionThreshold( ) const
@@ -141,11 +159,6 @@ public:
         return maximumRejectedFraction_;
     }
 
-    int getFirstIterationWithRejection( ) const
-    {
-        return firstIterationWithRejection_;
-    }
-
 protected:
     //! Chi-squared value above which an accepted observation is rejected.
     const double chi2RejectionThreshold_;
@@ -155,113 +168,85 @@ protected:
 
     //! Maximum fraction of the observations not rejected before the estimation, that the algorithm may hold in the rejected state.
     const double maximumRejectedFraction_;
-
-    //! Index of the first estimation iteration in which observations may be rejected.
-    const int firstIterationWithRejection_;
 };
 
-//! Create settings for the Simple outlier rejection algorithm
+//! Settings for the simple outlier rejection algorithm.
 /*!
- * This algorithm rejects and recovers observations based on the absolute value of the O-C residuals. If a residual exceeds the threshold,
- * the observation is rejected. There are two options: a scalar residual threshold is provided, which holds for all types of observation
- * used in the estimation, or a map (dictionary) of thresholds is provided per observable type. Units are assumed SI.
+ * This algorithm rejects and recovers observations based on the largest absolute O-C residual of an observation. Thresholds are given as
+ * a (recovery, rejection) pair: an accepted observation is rejected when its residual exceeds the rejection threshold, and a rejected
+ * observation is recovered when its residual drops below the recovery threshold. One pair is used for all observable types, or one pair
+ * per observable type is provided. Units are SI.
  */
 class SimpleOutlierRejectionSettings : public OutlierRejectionSettings
 {
 public:
-    //! Constructor
+    //! Constructor.
     /*!
-     *\param maximumAllowedResidualValue: the absolute threshold for residuals
-     *\param firstIterationWithRejection: iteration at which outlier rejection kicks in
-     *\param allowRestore: bool if observations are allowed to be restored in later iterations or not
+     * \param residualThresholds (recovery, rejection) residual thresholds, used for all observable types. A recovery threshold of 0
+     * means rejected observations are never recovered.
+     * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be rejected.
      */
-    SimpleOutlierRejectionSettings( const double maximumAllowedResidualValue,
-                                    const int firstIterationWithRejection = 1,
-                                    const bool allowRestore = true ):
-        OutlierRejectionSettings( OutlierRejectionType::simple_outlier_rejection ),
-        firstIterationWithRejection_( firstIterationWithRejection ), allowRestore_( allowRestore ),
-        maximumAllowedResidualValue_( maximumAllowedResidualValue )
+    SimpleOutlierRejectionSettings( const std::pair< double, double >& residualThresholds, const int firstIterationWithRejection = 1 ):
+        OutlierRejectionSettings( OutlierRejectionType::simple_outlier_rejection, firstIterationWithRejection ),
+        residualThresholds_( residualThresholds )
     {
-        if( firstIterationWithRejection < 0 )
-        {
-            throw std::runtime_error(
-                    "Error when creating simple outlier rejection settings, the first iteration with rejection must not be negative." );
-        }
-        if( !( maximumAllowedResidualValue > 0.0 ) )
-        {
-            throw std::runtime_error(
-                    "Error when creating simple outlier rejection settings. The maximum allowed residual value must be a positive value" );
-        }
+        checkResidualThresholds( residualThresholds_ );
     }
 
-    //! Constructor
+    //! Constructor.
     /*!
-     *\param maximumAllowedResidualValueMap: absolute residual threshold for each observable type that may be used in the estimation. Will
-     *throw an error downstream if an entry is missing. Units are assumed SI
-     *\param firstIterationWithRejection: iteration at which outlier rejection kicks in
-     *\param allowRestore: bool if observations are allowed to be restored in later iterations or not
+     * \param residualThresholdsMap (recovery, rejection) residual thresholds per observable type. An error is thrown during the
+     * estimation if an observable type is missing.
+     * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be rejected.
      */
-    SimpleOutlierRejectionSettings( const std::map< tudat::observation_models::ObservableType, double >& maximumAllowedResidualValueMap,
-                                    const int firstIterationWithRejection = 1,
-                                    const bool allowRestore = true ):
-        OutlierRejectionSettings( OutlierRejectionType::simple_outlier_rejection ),
-        firstIterationWithRejection_( firstIterationWithRejection ), allowRestore_( allowRestore ),
-        maximumAllowedResidualValueMap_( maximumAllowedResidualValueMap ), maximumAllowedResidualValue_( -1.0 )
+    SimpleOutlierRejectionSettings( const std::map< ObservableType, std::pair< double, double > >& residualThresholdsMap,
+                                    const int firstIterationWithRejection = 1 ):
+        OutlierRejectionSettings( OutlierRejectionType::simple_outlier_rejection, firstIterationWithRejection ),
+        residualThresholdsMap_( residualThresholdsMap ), residualThresholds_( -1.0, -1.0 )
     {
-        if( firstIterationWithRejection < 0 )
+        if( residualThresholdsMap_.empty( ) )
         {
             throw std::runtime_error(
-                    "Error when creating simple outlier rejection settings, the first iteration with rejection must not be negative" );
+                    "Error when creating simple outlier rejection settings, the map of residual thresholds per observable type is "
+                    "empty." );
         }
-        if( maximumAllowedResidualValueMap.empty( ) )
+        for( const auto& thresholdsPerObservable : residualThresholdsMap_ )
         {
-            throw std::runtime_error(
-                    "Error when creating simple outlier rejection settings, the map for the maximum residual values per "
-                    "observable type was left empty" );
-        }
-        for( const auto& pair : maximumAllowedResidualValueMap )
-        {
-            if( !( pair.second > 0.0 ) )
-            {
-                throw std::runtime_error(
-                        "Error when creating simple outlier rejection settings. The maximum allowed residual value must be a positive "
-                        "value" );
-            }
+            checkResidualThresholds( thresholdsPerObservable.second );
         }
     }
 
-    const std::map< ObservableType, double >& getMaximumAllowedResidualValueMap( ) const
+    const std::map< ObservableType, std::pair< double, double > >& getResidualThresholdsMap( ) const
     {
-        return maximumAllowedResidualValueMap_;
+        return residualThresholdsMap_;
     }
 
-    double getMaximumAllowedResidualValue( ) const
+    const std::pair< double, double >& getResidualThresholds( ) const
     {
-        return maximumAllowedResidualValue_;
-    }
-
-    int getFirstIterationWithRejection( ) const
-    {
-        return firstIterationWithRejection_;
-    }
-
-    bool getAllowRestore( ) const
-    {
-        return allowRestore_;
+        return residualThresholds_;
     }
 
 protected:
-    // First iteration at which to start outlier rejection process
-    const int firstIterationWithRejection_;
+    //! Check that 0 <= recovery <= rejection, and rejection > 0.
+    static void checkResidualThresholds( const std::pair< double, double >& residualThresholds )
+    {
+        if( !( residualThresholds.second > 0.0 ) )
+        {
+            throw std::runtime_error( "Error when creating simple outlier rejection settings, the rejection threshold must be positive." );
+        }
+        if( !( residualThresholds.first >= 0.0 ) || residualThresholds.first > residualThresholds.second )
+        {
+            throw std::runtime_error(
+                    "Error when creating simple outlier rejection settings, the recovery threshold must be between 0 and the rejection "
+                    "threshold." );
+        }
+    }
 
-    // If true, allow rejected observations to be restored in later iterations
-    const bool allowRestore_;
+    //! (recovery, rejection) residual thresholds per observable type; empty if one pair is used for all types.
+    const std::map< ObservableType, std::pair< double, double > > residualThresholdsMap_;
 
-    // A map of the maximum allowed residual value per observable type
-    const std::map< ObservableType, double > maximumAllowedResidualValueMap_;
-
-    // One maximum allowed value per observable type
-    const double maximumAllowedResidualValue_;
+    //! (recovery, rejection) residual thresholds for all observable types; (-1, -1) if the map is used.
+    const std::pair< double, double > residualThresholds_;
 };
 
 //! Function to create settings for the outlier rejection algorithm of Carpino et al. (2003).
@@ -274,20 +259,19 @@ inline std::shared_ptr< OutlierRejectionSettings > carpinoOutlierRejectionSettin
             chi2RejectionThreshold, chi2RecoveryThreshold, maximumRejectedFraction, firstIterationWithRejection );
 }
 
-//! Function to create settings the simple residual based outlier rejection settings
-inline std::shared_ptr< OutlierRejectionSettings > simpleOutlierRejectionSettings( const double maximumAllowedResidualValue,
-                                                                                   const int firstIterationWithRejection = 1,
-                                                                                   const bool allowRestore = true )
+//! Function to create settings for the simple outlier rejection algorithm, with one (recovery, rejection) pair for all observables.
+inline std::shared_ptr< OutlierRejectionSettings > simpleOutlierRejectionSettings( const std::pair< double, double >& residualThresholds,
+                                                                                   const int firstIterationWithRejection = 1 )
 {
-    return std::make_shared< SimpleOutlierRejectionSettings >( maximumAllowedResidualValue, firstIterationWithRejection, allowRestore );
+    return std::make_shared< SimpleOutlierRejectionSettings >( residualThresholds, firstIterationWithRejection );
 }
 
+//! Function to create settings for the simple outlier rejection algorithm, with a (recovery, rejection) pair per observable type.
 inline std::shared_ptr< OutlierRejectionSettings > simpleOutlierRejectionSettings(
-        const std::map< ObservableType, double >& maximumAllowedResidualValueMap_,
-        const int firstIterationWithRejection = 1,
-        const bool allowRestore = true )
+        const std::map< ObservableType, std::pair< double, double > >& residualThresholdsMap,
+        const int firstIterationWithRejection = 1 )
 {
-    return std::make_shared< SimpleOutlierRejectionSettings >( maximumAllowedResidualValueMap_, firstIterationWithRejection, allowRestore );
+    return std::make_shared< SimpleOutlierRejectionSettings >( residualThresholdsMap, firstIterationWithRejection );
 }
 
 }  // namespace simulation_setup
