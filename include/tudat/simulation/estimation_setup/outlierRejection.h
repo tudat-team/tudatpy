@@ -117,14 +117,15 @@ private:
     }
 };
 
-//! Return the first iteration with rejection from the settings, throwing if the settings are null.
-inline int getFirstIterationWithRejectionFromSettings( const std::shared_ptr< OutlierRejectionSettings >& outlierRejectionSettings )
+//! Return the outlier rejection settings, throwing if they are null.
+template< typename SettingsType >
+const std::shared_ptr< SettingsType >& getNonNullOutlierRejectionSettings( const std::shared_ptr< SettingsType >& outlierRejectionSettings )
 {
     if( outlierRejectionSettings == nullptr )
     {
         throw std::runtime_error( "Error when creating outlier rejection object, settings are null." );
     }
-    return outlierRejectionSettings->getFirstIterationWithRejection( );
+    return outlierRejectionSettings;
 }
 
 //! Base class for algorithms that reject and recover outlying observations during an estimation.
@@ -135,6 +136,10 @@ inline int getFirstIterationWithRejectionFromSettings( const std::shared_ptr< Ou
  * Derived classes implement one function only: computeRejectionStatus, which fills the isRejected_ vector for the
  * current iteration. The surrounding steps (initializing the status from the dataset, and writing the new status back
  * to it) are identical for every algorithm and are handled by this base class.
+ *
+ * Each observation is assigned to (at most) one threshold group, defined by the observation selection conditions of the settings, which
+ * are evaluated once, when this object is created. Observations that match no condition are not affected by the outlier rejection, and
+ * an error is thrown if an observation matches more than one condition.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class OutlierRejection
@@ -142,17 +147,19 @@ class OutlierRejection
 public:
     //! Constructor.
     /*!
-     * \param outlierRejectionType Algorithm implemented by the derived class, used for logging and error messages.
+     * \param outlierRejectionSettings Settings of the algorithm implemented by the derived class. They define the algorithm type (used
+     * for logging and error messages), the first iteration with rejection, and the thresholds per observation selection condition; the
+     * index of a condition in the settings is the index of its threshold group.
      * \param observationDataset Dataset holding the observations of the estimation. Observations that are already
      * rejected in this dataset (for instance by the user, before the estimation) start out as rejected.
-     * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be rejected.
      */
     OutlierRejection(
-            const OutlierRejectionType outlierRejectionType,
-            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
-            const int firstIterationWithRejection ):
-        outlierRejectionType_( outlierRejectionType ), firstIterationWithRejection_( firstIterationWithRejection ),
-        observationDataset_( observationDataset )
+            const std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > >& outlierRejectionSettings,
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
+        outlierRejectionType_( getNonNullOutlierRejectionSettings( outlierRejectionSettings )->getOutlierRejectionType( ) ),
+        firstIterationWithRejection_( outlierRejectionSettings->getFirstIterationWithRejection( ) ),
+        numberOfThresholdGroups_( static_cast< unsigned int >( outlierRejectionSettings->getThresholdsPerCondition( ).size( ) ) ),
+        observationDataset_( observationDataset ), outlierRejectionSettings_( outlierRejectionSettings )
     {
         if( observationDataset_ == nullptr )
         {
@@ -173,6 +180,8 @@ public:
         }
         isDisabled_ = isRejected_;
         numberOfDisabledObservations_ = getNumberOfRejectedObservations( );
+
+        assignThresholdGroups( outlierRejectionSettings_->getConditions( ) );
     }
 
     //! Destructor
@@ -239,6 +248,19 @@ public:
         return firstIterationWithRejection_;
     }
 
+    //! Return the threshold group (index of the matching condition) of each observation, in order of increasing observation id; -1 if
+    //! the observation matches no condition.
+    const std::vector< int >& getThresholdGroupIndices( ) const
+    {
+        return thresholdGroupIndex_;
+    }
+
+    //! Return the number of threshold groups (equal to the number of conditions).
+    unsigned int getNumberOfThresholdGroups( ) const
+    {
+        return numberOfThresholdGroups_;
+    }
+
 protected:
     //! A method that must update the isRejected_ member of OutlierRejection
     virtual void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) = 0;
@@ -260,10 +282,38 @@ protected:
         observationDataset_->restoreObservations( !isRejectedCondition );
     }
 
-    ObservableType getObservableType( const unsigned int observationId ) const
+    //! Return whether the algorithm may change the rejection status of an observation: it was not rejected at the start of the
+    //! estimation, and it matches one of the conditions.
+    bool isManaged( const unsigned int observationIndex ) const
     {
-        const unsigned int setId = observationDataset_->getObservationRow( observationId ).setId_;
-        return observationDataset_->getObservationSetMetadata( setId ).observableType_;
+        return !isDisabled_.at( observationIndex ) && thresholdGroupIndex_.at( observationIndex ) >= 0;
+    }
+
+    //! Evaluate the conditions for each observation, and store the index of the matching condition in thresholdGroupIndex_.
+    void assignThresholdGroups(
+            const std::vector< observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > >& conditions )
+    {
+        thresholdGroupIndex_.assign( observationIds_.size( ), -1 );
+        for( unsigned int observationIndex = 0; observationIndex < observationIds_.size( ); observationIndex++ )
+        {
+            const unsigned int observationId = observationIds_.at( observationIndex );
+            for( unsigned int conditionIndex = 0; conditionIndex < conditions.size( ); conditionIndex++ )
+            {
+                if( !conditions.at( conditionIndex )( *observationDataset_, observationId ) )
+                {
+                    continue;
+                }
+                if( thresholdGroupIndex_.at( observationIndex ) >= 0 )
+                {
+                    throw std::runtime_error( "Error when creating " + getOutlierRejectionTypeString( outlierRejectionType_ ) +
+                                              " object, observation " + std::to_string( observationId ) + " matches both condition " +
+                                              std::to_string( thresholdGroupIndex_.at( observationIndex ) ) + " and condition " +
+                                              std::to_string( conditionIndex ) +
+                                              " of the outlier rejection settings; each observation may match at most one condition." );
+                }
+                thresholdGroupIndex_.at( observationIndex ) = static_cast< int >( conditionIndex );
+            }
+        }
     }
 
     //! Algorithm implemented by the derived class.
@@ -286,8 +336,17 @@ protected:
 
     unsigned int numberOfDisabledObservations_;
 
+    //! Number of threshold groups (equal to the number of conditions).
+    const unsigned int numberOfThresholdGroups_;
+
+    //! Threshold group of each observation in observationIds_ order; -1 if the observation matches no condition.
+    std::vector< int > thresholdGroupIndex_;
+
     //! Dataset holding the observations of the estimation.
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
+
+    //! Settings defining the thresholds of the algorithm.
+    const std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > outlierRejectionSettings_;
 };
 
 //! Outlier rejection algorithm of Carpino et al. (2003).
@@ -295,19 +354,17 @@ protected:
  * The algorithm computes, for each observation, a chi-squared value from the residual of that observation and the
  * covariance of that residual, and compares this value against the rejection and recovery thresholds in the
  * settings. Computing the residual covariance requires the observation covariance, the design matrix and the
- * covariance of the estimated parameters, all of which are available from the OutlierRejectionInput object.
+ * covariance of the estimated parameters, all of which are available from the OutlierRejectionInput object. The adaptive rejection
+ * threshold and the limit on the number of new rejections per iteration are computed separately for each threshold group.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class CarpinoOutlierRejection : public OutlierRejection< ObservationScalarType, TimeType >
 {
 public:
     CarpinoOutlierRejection(
-            const std::shared_ptr< CarpinoOutlierRejectionSettings >& outlierRejectionSettings,
+            const std::shared_ptr< CarpinoOutlierRejectionSettings< ObservationScalarType, TimeType > >& outlierRejectionSettings,
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
-        OutlierRejection< ObservationScalarType, TimeType >( OutlierRejectionType::carpino_outlier_rejection,
-                                                             observationDataset,
-                                                             getFirstIterationWithRejectionFromSettings( outlierRejectionSettings ) ),
-        outlierRejectionSettings_( outlierRejectionSettings )
+        OutlierRejection< ObservationScalarType, TimeType >( outlierRejectionSettings, observationDataset )
     {
         // If the weights of the observation dataset are all equal to 1 (the default), they are most likely not set, in which case the
         // Carpino outlier rejection algorithm gives meaningless results. Unit weights are correct for an uncertainty of 1 (in
@@ -331,43 +388,43 @@ protected:
 
     void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) override
     {
-        std::vector< double > chiSquaredPerObservation;
-
-        // Compute chi-squared for each observation, using its persistent dataset id to find the matching rows. Observations
-        // that were rejected at the start of the estimation are never used, and get no chi-squared value.
+        // Compute chi-squared for each observation, using its persistent dataset id to find the matching rows. Observations that are
+        // not managed by the algorithm (rejected at the start of the estimation, or matching no condition) get no chi-squared value.
+        std::vector< double > chiSquaredPerObservation( this->isRejected_.size( ), 0.0 );
         for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
-            if( this->isDisabled_.at( observationIndex ) )
+            if( !this->isManaged( observationIndex ) )
             {
-                chiSquaredPerObservation.push_back( 0.0 );
                 continue;
             }
             const unsigned int observationId = this->observationIds_.at( observationIndex );
-            const double chiSquared = computeChiSquared( outlierRejectionInput.getDesignMatrixBlock( observationId ),
-                                                         outlierRejectionInput.getResidualBlock( observationId ).template cast< double >( ),
-                                                         outlierRejectionInput.parameterCorrection_.template cast< double >( ),
-                                                         outlierRejectionInput.parameterCovariance_,
-                                                         outlierRejectionInput.getObservationCovariance( observationId ),
-                                                         this->getRejectionStatus( ).at( observationIndex ) );
-
-            chiSquaredPerObservation.push_back( chiSquared );
+            chiSquaredPerObservation.at( observationIndex ) =
+                    computeChiSquared( outlierRejectionInput.getDesignMatrixBlock( observationId ),
+                                       outlierRejectionInput.getResidualBlock( observationId ).template cast< double >( ),
+                                       outlierRejectionInput.parameterCorrection_.template cast< double >( ),
+                                       outlierRejectionInput.parameterCovariance_,
+                                       outlierRejectionInput.getObservationCovariance( observationId ),
+                                       this->getRejectionStatus( ).at( observationIndex ) );
         }
 
-        const double rejectionThreshold = getRejectionThreshold( chiSquaredPerObservation );
+        const std::vector< double > rejectionThresholdPerGroup = getRejectionThresholdPerGroup( chiSquaredPerObservation );
 
         // Rejection status for the next iteration. The isRejected_ member keeps the status of the current
         // iteration until the end of this function, so that every step below can compare against it.
         std::vector< bool > newRejectionStatus = this->isRejected_;
         for( unsigned int observationIndex = 0; observationIndex < newRejectionStatus.size( ); observationIndex++ )
         {
-            // Observations that were excluded at start of estimation cannot be recovered
-            if( this->isDisabled_.at( observationIndex ) )
+            if( !this->isManaged( observationIndex ) )
             {
                 continue;
             }
+            const int groupIndex = this->thresholdGroupIndex_.at( observationIndex );
             const bool isCurrentlyRejected = this->getRejectionStatus( ).at( observationIndex );
             newRejectionStatus.at( observationIndex ) =
-                    decideRejectionStatus( isCurrentlyRejected, chiSquaredPerObservation.at( observationIndex ), rejectionThreshold );
+                    decideRejectionStatus( isCurrentlyRejected,
+                                           chiSquaredPerObservation.at( observationIndex ),
+                                           this->outlierRejectionSettings_->getThresholds( groupIndex ).first,
+                                           rejectionThresholdPerGroup.at( groupIndex ) );
         }
 
         // Limit the number of observations that are newly rejected in this iteration
@@ -376,15 +433,15 @@ protected:
         this->isRejected_ = newRejectionStatus;
     }
 
-    //! Maximum fraction of the observations in the fit at the start of an iteration that may be newly rejected in that iteration.
+    //! No more than 20% of the number of available observations (within a group) may be rejected per iteration
     static constexpr double maximumRejectedFractionPerIteration = 0.2;
 
-    //! Limit the number of observations that are newly rejected in this iteration.
+    //! Limit the number of observations that are newly rejected in this iteration, per threshold group.
     /*!
-     * At most maximumRejectedFractionPerIteration of the observations that are in the fit at the start of this iteration may be newly
-     * rejected. If more observations meet the rejection criterion, only those with the largest chi-squared values are rejected, and the
-     * others stay in the fit. Observations that were already rejected, and observations that are recovered, are not touched and do not
-     * count towards the limit.
+     * At most maximumRejectedFractionPerIteration of the observations of a threshold group that are in the fit at the start of this
+     * iteration may be newly rejected. If more observations of that group meet the rejection criterion, only those with the largest
+     * chi-squared values are rejected, and the others stay in the fit. Observations that were already rejected, observations that are
+     * recovered, and observations that are not managed by the algorithm, are not touched and do not count towards the limit.
      *
      * \param newRejectionStatus Rejection status for the next iteration, modified in place by this function.
      * \param chiSquaredPerObservation Chi-squared value of each observation, in order of increasing observation id.
@@ -392,81 +449,104 @@ protected:
     void applyMaximumRejectionsPerIteration( std::vector< bool >& newRejectionStatus,
                                              const std::vector< double >& chiSquaredPerObservation ) const
     {
-        // Count the observations that are in the fit at the start of this iteration, and collect those that are newly rejected
-        std::size_t numberOfAcceptedObservations = 0;
-        std::vector< unsigned int > newlyRejectedObservationIndices;
+        // Count the observations of each group that are in the fit at the start of this iteration, and collect those that are newly
+        // rejected
+        std::vector< std::size_t > numberOfAcceptedObservations( this->numberOfThresholdGroups_, 0 );
+        std::vector< std::vector< unsigned int > > newlyRejectedObservationIndices( this->numberOfThresholdGroups_ );
         for( unsigned int observationIndex = 0; observationIndex < newRejectionStatus.size( ); observationIndex++ )
         {
-            if( this->isDisabled_.at( observationIndex ) || this->isRejected_.at( observationIndex ) )
+            if( !this->isManaged( observationIndex ) || this->isRejected_.at( observationIndex ) )
             {
                 continue;
             }
-            numberOfAcceptedObservations++;
+            const int groupIndex = this->thresholdGroupIndex_.at( observationIndex );
+            numberOfAcceptedObservations.at( groupIndex )++;
             if( newRejectionStatus.at( observationIndex ) )
             {
-                newlyRejectedObservationIndices.push_back( observationIndex );
+                newlyRejectedObservationIndices.at( groupIndex ).push_back( observationIndex );
             }
         }
 
-        const std::size_t allowedNumberOfNewRejections = static_cast< std::size_t >(
-                std::floor( maximumRejectedFractionPerIteration * static_cast< double >( numberOfAcceptedObservations ) ) );
-
-        if( newlyRejectedObservationIndices.size( ) <= allowedNumberOfNewRejections )
+        std::size_t numberOfKeptObservations = 0;
+        for( unsigned int groupIndex = 0; groupIndex < this->numberOfThresholdGroups_; groupIndex++ )
         {
-            return;
+            std::vector< unsigned int >& newlyRejectedInGroup = newlyRejectedObservationIndices.at( groupIndex );
+            const std::size_t allowedNumberOfNewRejections = static_cast< std::size_t >( std::floor(
+                    maximumRejectedFractionPerIteration * static_cast< double >( numberOfAcceptedObservations.at( groupIndex ) ) ) );
+
+            if( newlyRejectedInGroup.size( ) <= allowedNumberOfNewRejections )
+            {
+                continue;
+            }
+
+            // Order the new rejections by decreasing chi-squared, so that the worst observations are the ones that are rejected
+            std::stable_sort( newlyRejectedInGroup.begin( ),
+                              newlyRejectedInGroup.end( ),
+                              [ &chiSquaredPerObservation ]( const unsigned int firstIndex, const unsigned int secondIndex ) {
+                                  return chiSquaredPerObservation.at( firstIndex ) > chiSquaredPerObservation.at( secondIndex );
+                              } );
+
+            for( std::size_t i = allowedNumberOfNewRejections; i < newlyRejectedInGroup.size( ); i++ )
+            {
+                newRejectionStatus.at( newlyRejectedInGroup.at( i ) ) = false;
+            }
+            numberOfKeptObservations += newlyRejectedInGroup.size( ) - allowedNumberOfNewRejections;
         }
 
-        // Order the new rejections by decreasing chi-squared, so that the worst observations are the ones that are rejected
-        std::stable_sort( newlyRejectedObservationIndices.begin( ),
-                          newlyRejectedObservationIndices.end( ),
-                          [ &chiSquaredPerObservation ]( const unsigned int firstIndex, const unsigned int secondIndex ) {
-                              return chiSquaredPerObservation.at( firstIndex ) > chiSquaredPerObservation.at( secondIndex );
-                          } );
-
-        for( std::size_t i = allowedNumberOfNewRejections; i < newlyRejectedObservationIndices.size( ); i++ )
+        if( numberOfKeptObservations > 0 )
         {
-            newRejectionStatus.at( newlyRejectedObservationIndices.at( i ) ) = false;
+            std::cerr << "Warning during outlier rejection, " << numberOfKeptObservations
+                      << " observations that met the rejection criterion were kept in the fit, since at most "
+                      << 100.0 * maximumRejectedFractionPerIteration
+                      << "% of the observations in the fit may be rejected per iteration, per outlier rejection condition." << std::endl;
         }
-
-        std::cerr << "Warning during outlier rejection, " << newlyRejectedObservationIndices.size( ) - allowedNumberOfNewRejections
-                  << " observations that met the rejection criterion were kept in the fit, since at most "
-                  << 100.0 * maximumRejectedFractionPerIteration << "% of the observations in the fit may be rejected per iteration."
-                  << std::endl;
     }
 
-    double getRejectionThreshold( const std::vector< double >& chiSquaredPerObservation ) const
+    //! Compute the rejection threshold of each threshold group for the current iteration.
+    /*!
+     * Carpino et al. (2003), Section 2.4: the threshold of a group is the maximum of a quarter of the largest chi-squared value of the
+     * accepted observations in that group, and the rejection threshold from the settings plus a fudge term that increases when few
+     * accepted observations are left in that group.
+     */
+    std::vector< double > getRejectionThresholdPerGroup( const std::vector< double >& chiSquaredPerObservation ) const
     {
-        // Get Maximum chi-squared of all accepted observations
-        double chiSquaredMax = 0.0;
+        // Maximum chi-squared and number of accepted observations, per group
+        std::vector< double > chiSquaredMax( this->numberOfThresholdGroups_, 0.0 );
+        std::vector< int > numberOfAcceptedObservations( this->numberOfThresholdGroups_, 0 );
         for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
-            if( !this->isRejected_.at( observationIndex ) )
+            if( !this->isManaged( observationIndex ) || this->isRejected_.at( observationIndex ) )
             {
-                chiSquaredMax = std::max( chiSquaredMax, chiSquaredPerObservation.at( observationIndex ) );
+                continue;
             }
+            const int groupIndex = this->thresholdGroupIndex_.at( observationIndex );
+            chiSquaredMax.at( groupIndex ) = std::max( chiSquaredMax.at( groupIndex ), chiSquaredPerObservation.at( observationIndex ) );
+            numberOfAcceptedObservations.at( groupIndex )++;
         }
 
-        const int numberOfAcceptedObservations =
-                this->observationDataset_->getNumberOfObservations( ) - this->getNumberOfRejectedObservations( );
-
-        // Increases rejection threshold when small number of observations are left
-        const double fudgeTerm = 400 * std::pow( 1.2, -numberOfAcceptedObservations );
-
-        // Carpino et al. (2003), Section 2.4: the fudge term is added to the rejection threshold from the settings
-        double rejectionThreshold =
-                std::max( 0.25 * chiSquaredMax, this->outlierRejectionSettings_->getChi2RejectionThreshold( ) + fudgeTerm );
-
-        return rejectionThreshold;
+        std::vector< double > rejectionThresholdPerGroup( this->numberOfThresholdGroups_ );
+        for( unsigned int groupIndex = 0; groupIndex < this->numberOfThresholdGroups_; groupIndex++ )
+        {
+            // Increases rejection threshold when small number of observations are left
+            const double fudgeTerm = 400 * std::pow( 1.2, -numberOfAcceptedObservations.at( groupIndex ) );
+            rejectionThresholdPerGroup.at( groupIndex ) =
+                    std::max( 0.25 * chiSquaredMax.at( groupIndex ),
+                              this->outlierRejectionSettings_->getThresholds( groupIndex ).second + fudgeTerm );
+        }
+        return rejectionThresholdPerGroup;
     }
 
-    bool decideRejectionStatus( const bool isCurrentlyRejected, const double chiSquared, const double chiSquaredRejectionThreshold ) const
+    bool decideRejectionStatus( const bool isCurrentlyRejected,
+                                const double chiSquared,
+                                const double chiSquaredRecoveryThreshold,
+                                const double chiSquaredRejectionThreshold ) const
     {
         if( chiSquared >= 0 && std::isfinite( chiSquared ) )
         {
             if( isCurrentlyRejected )
             {
                 // Observation was rejected but is now below recovery threshold
-                if( chiSquared < outlierRejectionSettings_->getChi2RecoveryThreshold( ) )
+                if( chiSquared < chiSquaredRecoveryThreshold )
                 {
                     return false;
                 }
@@ -515,56 +595,38 @@ protected:
         // Chi-squared value
         return ( residualsVectorPostFit.transpose( ) * residualCovariance.inverse( ) * residualsVectorPostFit ).value( );
     }
-
-    //! Settings defining the thresholds of the algorithm.
-    std::shared_ptr< CarpinoOutlierRejectionSettings > outlierRejectionSettings_;
 };
 
 //! Simple outlier rejection algorithm
 /*!
- * Rejects an accepted observation if its largest absolute residual exceeds the rejection threshold, and recovers a rejected observation if
- * it drops below the recovery threshold.
+ * Rejects an accepted observation if its largest absolute residual exceeds the rejection threshold of its threshold group, and recovers a
+ * rejected observation if it drops below the recovery threshold of its threshold group.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class SimpleOutlierRejection : public OutlierRejection< ObservationScalarType, TimeType >
 {
 public:
     SimpleOutlierRejection(
-            const std::shared_ptr< SimpleOutlierRejectionSettings >& outlierRejectionSettings,
+            const std::shared_ptr< SimpleOutlierRejectionSettings< ObservationScalarType, TimeType > >& outlierRejectionSettings,
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
-        OutlierRejection< ObservationScalarType, TimeType >( OutlierRejectionType::simple_outlier_rejection,
-                                                             observationDataset,
-                                                             getFirstIterationWithRejectionFromSettings( outlierRejectionSettings ) ),
-        outlierRejectionSettings_( outlierRejectionSettings )
+        OutlierRejection< ObservationScalarType, TimeType >( outlierRejectionSettings, observationDataset )
     {}
 
 protected:
     void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) override
     {
-        const std::map< ObservableType, std::pair< double, double > >& residualThresholdsMap =
-                outlierRejectionSettings_->getResidualThresholdsMap( );
-
         for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
-            // Skip observations that were excluded at the start of the estimation
-            if( this->isDisabled_.at( observationIndex ) )
+            // Skip observations that were excluded at the start of the estimation, or that match no condition
+            if( !this->isManaged( observationIndex ) )
             {
                 continue;
             }
             const unsigned int observationId = this->observationIds_.at( observationIndex );
 
             // (recovery, rejection) thresholds for this observation
-            std::pair< double, double > residualThresholds = outlierRejectionSettings_->getResidualThresholds( );
-            if( !residualThresholdsMap.empty( ) )
-            {
-                const ObservableType observableType = this->getObservableType( observationId );
-                if( residualThresholdsMap.count( observableType ) == 0 )
-                {
-                    throw std::runtime_error( "Error in outlier rejection: no residual thresholds were provided for the observable type " +
-                                              tudat::observation_models::getObservableName( observableType ) );
-                }
-                residualThresholds = residualThresholdsMap.at( observableType );
-            }
+            const std::pair< double, double >& residualThresholds =
+                    this->outlierRejectionSettings_->getThresholds( this->thresholdGroupIndex_.at( observationIndex ) );
 
             const double maximumAbsoluteResidual =
                     outlierRejectionInput.getResidualBlock( observationId ).template cast< double >( ).cwiseAbs( ).maxCoeff( );
@@ -581,8 +643,6 @@ protected:
             }
         }
     }
-
-    const std::shared_ptr< SimpleOutlierRejectionSettings > outlierRejectionSettings_;
 };
 
 //! Function to create the outlier rejection object defined by a set of outlier rejection settings.
@@ -594,7 +654,7 @@ protected:
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > > createOutlierRejection(
-        const std::shared_ptr< OutlierRejectionSettings >& outlierRejectionSettings,
+        const std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > >& outlierRejectionSettings,
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset )
 {
     if( outlierRejectionSettings == nullptr )
@@ -608,8 +668,9 @@ std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > > createOut
             // The settings are held as a pointer to the base class, so they must be converted to a pointer to the
             // derived class before the algorithm-specific parameters can be read. dynamic_pointer_cast performs this
             // conversion, and returns a null pointer if the object is not of the requested type.
-            const std::shared_ptr< CarpinoOutlierRejectionSettings > carpinoSettings =
-                    std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings >( outlierRejectionSettings );
+            const std::shared_ptr< CarpinoOutlierRejectionSettings< ObservationScalarType, TimeType > > carpinoSettings =
+                    std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings< ObservationScalarType, TimeType > >(
+                            outlierRejectionSettings );
             if( carpinoSettings == nullptr )
             {
                 throw std::runtime_error(
@@ -620,11 +681,14 @@ std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > > createOut
         }
 
         case OutlierRejectionType::simple_outlier_rejection: {
-            const std::shared_ptr< SimpleOutlierRejectionSettings > simpleSettings =
-                    std::dynamic_pointer_cast< SimpleOutlierRejectionSettings >( outlierRejectionSettings );
+            const std::shared_ptr< SimpleOutlierRejectionSettings< ObservationScalarType, TimeType > > simpleSettings =
+                    std::dynamic_pointer_cast< SimpleOutlierRejectionSettings< ObservationScalarType, TimeType > >(
+                            outlierRejectionSettings );
             if( simpleSettings == nullptr )
             {
-                throw std::runtime_error( "Error while creating simple outlier rejection object" );
+                throw std::runtime_error(
+                        "Error when creating outlier rejection object, settings are of type simple_outlier_rejection, but are not "
+                        "SimpleOutlierRejectionSettings." );
             }
             return std::make_shared< SimpleOutlierRejection< ObservationScalarType, TimeType > >( simpleSettings, observationDataset );
         }

@@ -150,6 +150,51 @@ std::shared_ptr< ObservationDataset< double, double > > createResidualDataset( c
     return dataset;
 }
 
+//! Create a dataset with one set of one-way range observations per station, with the requested residuals.
+/*!
+ * Observation ids follow the order of the stations, and within a station the order of the residuals. All observations
+ * are one-way range observations with the same weight, so that they can only be told apart by their link ends.
+ */
+std::shared_ptr< ObservationDataset< double, double > > createMultiStationResidualDataset(
+        const std::vector< std::pair< std::string, std::vector< double > > >& residualsPerStation )
+{
+    std::shared_ptr< ObservationDataset< double, double > > dataset = std::make_shared< ObservationDataset< double, double > >( );
+    double time = 1.0;
+    for( const auto& stationResiduals : residualsPerStation )
+    {
+        std::vector< Eigen::VectorXd > observations;
+        std::vector< double > times;
+        std::vector< Eigen::VectorXd > residuals;
+        for( const double residual : stationResiduals.second )
+        {
+            observations.push_back( ( Eigen::VectorXd( 1 ) << 10.0 + time ).finished( ) );
+            times.push_back( time );
+            residuals.push_back( ( Eigen::VectorXd( 1 ) << residual ).finished( ) );
+            time += 1.0;
+        }
+        dataset->addObservationSet( one_way_range,
+                                    createTestLinkDefinition( stationResiduals.first ),
+                                    observations,
+                                    times,
+                                    receiver,
+                                    std::vector< Eigen::VectorXd >( ),
+                                    nullptr,
+                                    nullptr,
+                                    std::vector< Eigen::VectorXd >( ),
+                                    residuals );
+    }
+    dataset->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::all( ), testRangeWeight );
+    return dataset;
+}
+
+//! Condition selecting the observations of one ground station of the test link definitions.
+ObservationSelectionCondition< double, double > fromStation( const std::string& stationName )
+{
+    return ObservationSelectionCondition< double, double >::linkEnd( transmitter, LinkEndId( "Earth", stationName ) );
+}
+
+using TestThresholdsPerCondition = OutlierRejectionSettings<>::ThresholdsPerCondition;
+
 //! Data of one estimation iteration, of the size that a dataset requires.
 /*!
  * An OutlierRejectionInput stores references only, so everything it refers to must stay alive for as long as the
@@ -191,6 +236,17 @@ std::vector< unsigned int > getRejectedObservationIds( const std::vector< bool >
     return rejectedObservationIds;
 }
 
+//! Check the expected rejected observation ids, for a rejection status computed by the algorithm.
+void checkRejectedObservationIds( const std::vector< bool >& rejectionStatus,
+                                  const std::vector< unsigned int >& expectedRejectedObservationIds )
+{
+    const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( rejectionStatus );
+    BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
+                                   rejectedObservationIds.end( ),
+                                   expectedRejectedObservationIds.begin( ),
+                                   expectedRejectedObservationIds.end( ) );
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////  Tests of the outlier rejection framework, independent of any algorithm       ////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +259,7 @@ class FixedListOutlierRejection : public OutlierRejection< double, double >
 public:
     FixedListOutlierRejection( const std::shared_ptr< ObservationDataset< double, double > >& observationDataset,
                                const std::vector< unsigned int >& observationsToReject ):
-        OutlierRejection< double, double >( OutlierRejectionType::carpino_outlier_rejection, observationDataset, 0 ),
+        OutlierRejection< double, double >( carpinoOutlierRejectionSettings( { 1.0, 1.0 }, 0 ), observationDataset ),
         observationsToReject_( observationsToReject )
     {}
 
@@ -230,22 +286,44 @@ private:
 //! Check that the settings are validated on creation, and that they are stored on the estimation input.
 BOOST_AUTO_TEST_CASE( test_OutlierRejectionSettings )
 {
-    const std::shared_ptr< OutlierRejectionSettings > settings = carpinoOutlierRejectionSettings( { 8.0, 9.0 }, 2 );
+    const std::shared_ptr< OutlierRejectionSettings<> > settings = carpinoOutlierRejectionSettings( { 8.0, 9.0 }, 2 );
 
-    const std::shared_ptr< CarpinoOutlierRejectionSettings > carpinoSettings =
-            std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings >( settings );
+    const std::shared_ptr< CarpinoOutlierRejectionSettings<> > carpinoSettings =
+            std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings<> >( settings );
     BOOST_REQUIRE( carpinoSettings != nullptr );
     BOOST_CHECK( ( carpinoSettings->getOutlierRejectionType( ) == OutlierRejectionType::carpino_outlier_rejection ) );
-    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2Thresholds( ).first, 8.0, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2Thresholds( ).second, 9.0, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2RecoveryThreshold( ), 8.0, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2RejectionThreshold( ), 9.0, 1.0E-15 );
     BOOST_CHECK_EQUAL( carpinoSettings->getFirstIterationWithRejection( ), 2 );
 
-    // The recovery threshold may not exceed the rejection threshold, but may be equal to it, and both must be positive
+    // A single pair of thresholds is stored as one condition that selects all observations
+    BOOST_REQUIRE_EQUAL( carpinoSettings->getThresholdsPerCondition( ).size( ), 1 );
+    BOOST_CHECK( ( carpinoSettings->getThresholdsPerCondition( ).at( 0 ).first.getType( ) ==
+                   ObservationSelectionCondition< double, double >::Type::all ) );
+    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getThresholds( 0 ).first, 8.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getThresholds( 0 ).second, 9.0, 1.0E-15 );
+
+    // Thresholds per condition are stored in the order in which they are provided
+    const TestThresholdsPerCondition thresholdsPerCondition = { { fromStation( "StationA" ), { 1.0, 2.0 } },
+                                                                { fromStation( "StationB" ), { 3.0, 4.0 } } };
+    const std::shared_ptr< CarpinoOutlierRejectionSettings<> > conditionSettings =
+            std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings<> >( carpinoOutlierRejectionSettings( thresholdsPerCondition ) );
+    BOOST_REQUIRE( conditionSettings != nullptr );
+    BOOST_REQUIRE_EQUAL( conditionSettings->getConditions( ).size( ), 2 );
+    BOOST_CHECK_CLOSE_FRACTION( conditionSettings->getThresholds( 1 ).first, 3.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( conditionSettings->getThresholds( 1 ).second, 4.0, 1.0E-15 );
+    BOOST_CHECK_EQUAL( conditionSettings->getFirstIterationWithRejection( ), 1 );
+
+    // Each pair of thresholds per condition is validated, and the list may not be empty
+    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( TestThresholdsPerCondition( ) ), std::runtime_error );
+    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( TestThresholdsPerCondition{ { fromStation( "StationA" ), { 1.0, 2.0 } },
+                                                                                    { fromStation( "StationB" ), { 4.0, 3.0 } } } ),
+                       std::runtime_error );
+
+    // The recovery threshold may not exceed the rejection threshold, but may be equal to it, and both must not be negative
     BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( { 9.0, 8.0 } ), std::runtime_error );
     BOOST_CHECK_NO_THROW( carpinoOutlierRejectionSettings( { 9.0, 9.0 } ) );
-    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( { 0.0, 9.0 } ), std::runtime_error );
+    BOOST_CHECK_NO_THROW( carpinoOutlierRejectionSettings( { 0.0, 9.0 } ) );
+    BOOST_CHECK_NO_THROW( carpinoOutlierRejectionSettings( { 0.0, 0.0 } ) );
+    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( { -1.0, 9.0 } ), std::runtime_error );
     BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( { -1.0, -0.5 } ), std::runtime_error );
 
     // No outlier rejection is performed by default; settings can be provided on construction or afterwards
@@ -449,7 +527,7 @@ BOOST_AUTO_TEST_SUITE( carpino_outlier_rejection )
 class TestableCarpinoOutlierRejection : public CarpinoOutlierRejection< double, double >
 {
 public:
-    TestableCarpinoOutlierRejection( const std::shared_ptr< CarpinoOutlierRejectionSettings >& outlierRejectionSettings,
+    TestableCarpinoOutlierRejection( const std::shared_ptr< CarpinoOutlierRejectionSettings<> >& outlierRejectionSettings,
                                      const std::shared_ptr< ObservationDataset< double, double > >& observationDataset ):
         CarpinoOutlierRejection< double, double >( outlierRejectionSettings, observationDataset )
     {}
@@ -462,7 +540,7 @@ public:
 
     using CarpinoOutlierRejection< double, double >::applyMaximumRejectionsPerIteration;
     using CarpinoOutlierRejection< double, double >::decideRejectionStatus;
-    using CarpinoOutlierRejection< double, double >::getRejectionThreshold;
+    using CarpinoOutlierRejection< double, double >::getRejectionThresholdPerGroup;
     using CarpinoOutlierRejection< double, double >::computeChiSquared;
 };
 
@@ -492,7 +570,7 @@ BOOST_AUTO_TEST_CASE( test_FirstIterationWithRejection )
     const Eigen::VectorXd parameterCorrection = Eigen::VectorXd::Zero( numberOfParameters );
 
     CarpinoOutlierRejection< double, double > outlierRejection(
-            std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, 9.0 ), firstIterationWithRejection ), dataset );
+            std::make_shared< CarpinoOutlierRejectionSettings<> >( std::make_pair( 8.0, 9.0 ), firstIterationWithRejection ), dataset );
 
     // In every iteration before the first iteration with rejection, the status of all observations is left unchanged,
     // even though the last angular position observation has by far the largest residual of the dataset
@@ -520,7 +598,7 @@ BOOST_AUTO_TEST_CASE( test_DecideRejectionStatus )
     const double recoveryThreshold = 8.0;
 
     TestableCarpinoOutlierRejection outlierRejection(
-            std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( recoveryThreshold, settingsRejectionThreshold ) ),
+            std::make_shared< CarpinoOutlierRejectionSettings<> >( std::make_pair( recoveryThreshold, settingsRejectionThreshold ) ),
             createRangeDataset( 4 ) );
 
     // The threshold against which observations are rejected is recomputed in every iteration, and is passed to the
@@ -533,30 +611,34 @@ BOOST_AUTO_TEST_CASE( test_DecideRejectionStatus )
     const bool isRejected = true;
 
     // An observation that is in the fit is rejected when its chi-squared exceeds the threshold of this iteration
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, 30.0, iterationRejectionThreshold ), true );
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, 30.0, recoveryThreshold, iterationRejectionThreshold ), true );
 
     // A chi-squared above the threshold from the settings, but below the threshold of this iteration, is not enough:
     // only the threshold of this iteration is used for rejection
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, 20.0, iterationRejectionThreshold ), false );
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, 20.0, recoveryThreshold, iterationRejectionThreshold ), false );
 
     // The comparison is strict, so an observation exactly at the threshold is kept
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, iterationRejectionThreshold, iterationRejectionThreshold ),
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus(
+                               isAccepted, iterationRejectionThreshold, recoveryThreshold, iterationRejectionThreshold ),
                        false );
 
     // An observation that is out of the fit is recovered when its chi-squared drops below the recovery threshold, for
     // which the comparison is strict as well
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, 7.0, iterationRejectionThreshold ), false );
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, 0.0, iterationRejectionThreshold ), false );
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, 0.0, iterationRejectionThreshold ), false );
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, recoveryThreshold, iterationRejectionThreshold ), true );
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, 7.0, recoveryThreshold, iterationRejectionThreshold ), false );
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, 0.0, recoveryThreshold, iterationRejectionThreshold ), false );
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, 0.0, recoveryThreshold, iterationRejectionThreshold ), false );
+    BOOST_CHECK_EQUAL(
+            outlierRejection.decideRejectionStatus( isRejected, recoveryThreshold, recoveryThreshold, iterationRejectionThreshold ), true );
 
     // The recovery threshold is lower than the rejection threshold, so an observation with a chi-squared in between
     // the two keeps whichever status it had. This hysteresis is what prevents observations from oscillating between
     // the two states in successive iterations.
     const double chiSquaredBetweenThresholds = 0.5 * ( recoveryThreshold + iterationRejectionThreshold );
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, chiSquaredBetweenThresholds, iterationRejectionThreshold ),
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus(
+                               isRejected, chiSquaredBetweenThresholds, recoveryThreshold, iterationRejectionThreshold ),
                        isRejected );
-    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, chiSquaredBetweenThresholds, iterationRejectionThreshold ),
+    BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus(
+                               isAccepted, chiSquaredBetweenThresholds, recoveryThreshold, iterationRejectionThreshold ),
                        isAccepted );
 
     // A chi-squared that is not a usable number cannot be compared against a threshold, and leaves the status of the
@@ -566,10 +648,12 @@ BOOST_AUTO_TEST_CASE( test_DecideRejectionStatus )
                                                             std::numeric_limits< double >::infinity( ) };
     for( const double invalidChiSquared : invalidChiSquaredValues )
     {
-        BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isAccepted, invalidChiSquared, iterationRejectionThreshold ),
-                           isAccepted );
-        BOOST_CHECK_EQUAL( outlierRejection.decideRejectionStatus( isRejected, invalidChiSquared, iterationRejectionThreshold ),
-                           isRejected );
+        BOOST_CHECK_EQUAL(
+                outlierRejection.decideRejectionStatus( isAccepted, invalidChiSquared, recoveryThreshold, iterationRejectionThreshold ),
+                isAccepted );
+        BOOST_CHECK_EQUAL(
+                outlierRejection.decideRejectionStatus( isRejected, invalidChiSquared, recoveryThreshold, iterationRejectionThreshold ),
+                isRejected );
     }
 }
 
@@ -581,7 +665,7 @@ BOOST_AUTO_TEST_CASE( test_RejectionThreshold )
     const unsigned int numberOfObservations = 6;
 
     TestableCarpinoOutlierRejection outlierRejection(
-            std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, settingsRejectionThreshold ) ),
+            std::make_shared< CarpinoOutlierRejectionSettings<> >( std::make_pair( 8.0, settingsRejectionThreshold ) ),
             createRangeDataset( numberOfObservations ) );
 
     // The last two observations are out of the fit, so their (very large) chi-squared may not influence the threshold
@@ -592,15 +676,17 @@ BOOST_AUTO_TEST_CASE( test_RejectionThreshold )
         // The largest chi-squared of the observations that are in the fit is 1000. A quarter of that is larger than the
         // threshold from the settings plus the fudge term, so the threshold follows the data.
         const std::vector< double > chiSquaredPerObservation = { 4.0, 1000.0, 40.0, 12.0, 1.0E4, 2.0E4 };
-        BOOST_CHECK_CLOSE_FRACTION( outlierRejection.getRejectionThreshold( chiSquaredPerObservation ), 0.25 * 1000.0, 1.0E-12 );
+        BOOST_CHECK_CLOSE_FRACTION(
+                outlierRejection.getRejectionThresholdPerGroup( chiSquaredPerObservation ).at( 0 ), 0.25 * 1000.0, 1.0E-12 );
     }
 
     {
         // The largest chi-squared of the observations that are in the fit is now 20. A quarter of that is below the
         // threshold from the settings, so the threshold from the settings is used instead.
         const std::vector< double > chiSquaredPerObservation = { 4.0, 20.0, 10.0, 12.0, 1.0E4, 2.0E4 };
-        BOOST_CHECK_CLOSE_FRACTION(
-                outlierRejection.getRejectionThreshold( chiSquaredPerObservation ), settingsRejectionThreshold + fudgeTerm, 1.0E-12 );
+        BOOST_CHECK_CLOSE_FRACTION( outlierRejection.getRejectionThresholdPerGroup( chiSquaredPerObservation ).at( 0 ),
+                                    settingsRejectionThreshold + fudgeTerm,
+                                    1.0E-12 );
     }
 
     {
@@ -610,24 +696,14 @@ BOOST_AUTO_TEST_CASE( test_RejectionThreshold )
 
         const unsigned int largeNumberOfObservations = 100;
         TestableCarpinoOutlierRejection largeDatasetOutlierRejection(
-                std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, settingsRejectionThreshold ) ),
+                std::make_shared< CarpinoOutlierRejectionSettings<> >( std::make_pair( 8.0, settingsRejectionThreshold ) ),
                 createRangeDataset( largeNumberOfObservations ) );
 
         std::vector< double > chiSquaredPerObservation( largeNumberOfObservations, 4.0 );
         chiSquaredPerObservation.at( 1 ) = 100.0;
-        BOOST_CHECK_CLOSE_FRACTION( largeDatasetOutlierRejection.getRejectionThreshold( chiSquaredPerObservation ), 0.25 * 100.0, 1.0E-6 );
+        BOOST_CHECK_CLOSE_FRACTION(
+                largeDatasetOutlierRejection.getRejectionThresholdPerGroup( chiSquaredPerObservation ).at( 0 ), 0.25 * 100.0, 1.0E-6 );
     }
-}
-
-//! Check the expected rejected observation ids, for a rejection status computed by the algorithm.
-void checkRejectedObservationIds( const std::vector< bool >& rejectionStatus,
-                                  const std::vector< unsigned int >& expectedRejectedObservationIds )
-{
-    const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( rejectionStatus );
-    BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
-                                   rejectedObservationIds.end( ),
-                                   expectedRejectedObservationIds.begin( ),
-                                   expectedRejectedObservationIds.end( ) );
 }
 
 //! Check that in each iteration no more than 20% of the observations in the fit are newly rejected, and that the worst
@@ -636,7 +712,7 @@ BOOST_AUTO_TEST_CASE( test_MaximumRejectionsPerIteration )
 {
     const unsigned int numberOfObservations = 10;
 
-    TestableCarpinoOutlierRejection outlierRejection( std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, 9.0 ) ),
+    TestableCarpinoOutlierRejection outlierRejection( std::make_shared< CarpinoOutlierRejectionSettings<> >( std::make_pair( 8.0, 9.0 ) ),
                                                       createRangeDataset( numberOfObservations ) );
 
     const std::vector< bool > noObservationRejected( numberOfObservations, false );
@@ -700,12 +776,104 @@ BOOST_AUTO_TEST_CASE( test_MaximumRejectionsPerIteration )
     }
 }
 
+//! Check that the adaptive rejection threshold and the limit on new rejections are computed per threshold group, and that
+//! observations that match no condition are left alone.
+BOOST_AUTO_TEST_CASE( test_CarpinoThresholdGroups )
+{
+    // Observations 0 to 9 are from station A, 10 to 14 from station B, and 15 and 16 from station C. Only stations A and
+    // B have thresholds.
+    const std::vector< std::pair< std::string, std::vector< double > > > residualsPerStation = {
+        { "StationA", std::vector< double >( 10, 1.0 ) },
+        { "StationB", std::vector< double >( 5, 1.0 ) },
+        { "StationC", std::vector< double >( 2, 1.0 ) }
+    };
+    const double rejectionThresholdA = 9.0;
+    const double rejectionThresholdB = 16.0;
+    const std::shared_ptr< CarpinoOutlierRejectionSettings<> > settings = std::make_shared< CarpinoOutlierRejectionSettings<> >(
+            TestThresholdsPerCondition{ { fromStation( "StationA" ), { 8.0, rejectionThresholdA } },
+                                        { fromStation( "StationB" ), { 15.0, rejectionThresholdB } } } );
+    TestableCarpinoOutlierRejection outlierRejection( settings, createMultiStationResidualDataset( residualsPerStation ) );
+
+    const std::vector< int > expectedGroupIndices = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, -1, -1 };
+    BOOST_CHECK_EQUAL_COLLECTIONS( outlierRejection.getThresholdGroupIndices( ).begin( ),
+                                   outlierRejection.getThresholdGroupIndices( ).end( ),
+                                   expectedGroupIndices.begin( ),
+                                   expectedGroupIndices.end( ) );
+
+    {
+        // The large chi-squared of observation 3 raises the threshold of group A only. Observation 11 is out of the fit, so
+        // group B has four observations left, which sets its fudge term. The chi-squared of station C does not count.
+        outlierRejection.setRejectionStatus(
+                { false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false } );
+        std::vector< double > chiSquaredPerObservation( 17, 1.0 );
+        chiSquaredPerObservation.at( 3 ) = 1000.0;
+        chiSquaredPerObservation.at( 11 ) = 1.0E4;
+        chiSquaredPerObservation.at( 16 ) = 1.0E5;
+
+        const std::vector< double > rejectionThresholds = outlierRejection.getRejectionThresholdPerGroup( chiSquaredPerObservation );
+        BOOST_REQUIRE_EQUAL( rejectionThresholds.size( ), 2 );
+        BOOST_CHECK_CLOSE_FRACTION( rejectionThresholds.at( 0 ), 0.25 * 1000.0, 1.0E-12 );
+        BOOST_CHECK_CLOSE_FRACTION( rejectionThresholds.at( 1 ), rejectionThresholdB + carpinoFudgeTerm( 4 ), 1.0E-12 );
+    }
+
+    {
+        // Group A has ten observations in the fit, so two may be newly rejected; group B has five, so one may be. The
+        // limits are applied separately, by decreasing chi-squared within each group.
+        const std::vector< bool > noObservationRejected( 17, false );
+        outlierRejection.setRejectionStatus( noObservationRejected );
+        std::vector< double > chiSquaredPerObservation( 17, 1.0 );
+        chiSquaredPerObservation.at( 0 ) = 100.0;
+        chiSquaredPerObservation.at( 1 ) = 300.0;
+        chiSquaredPerObservation.at( 2 ) = 200.0;
+        chiSquaredPerObservation.at( 10 ) = 50.0;
+        chiSquaredPerObservation.at( 12 ) = 60.0;
+
+        std::vector< bool > newRejectionStatus = noObservationRejected;
+        for( const unsigned int observationIndex : { 0, 1, 2, 10, 12 } )
+        {
+            newRejectionStatus.at( observationIndex ) = true;
+        }
+        outlierRejection.applyMaximumRejectionsPerIteration( newRejectionStatus, chiSquaredPerObservation );
+        checkRejectedObservationIds( newRejectionStatus, { 1, 2, 12 } );
+    }
+
+    {
+        // In a complete iteration, the outlier of station A is rejected, and the outliers of station C (which matches no
+        // condition) are left in the fit. With a zero design matrix and parameter covariance, the chi-squared of an
+        // observation is the square of its residual times its weight.
+        const std::vector< std::pair< std::string, std::vector< double > > > iterationResiduals = {
+            { "StationA", { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 100.0 } },
+            { "StationB", std::vector< double >( 5, 1.0 ) },
+            { "StationC", { 1000.0, 1000.0 } }
+        };
+        const std::shared_ptr< ObservationDataset< double, double > > dataset = createMultiStationResidualDataset( iterationResiduals );
+        const TestIterationData iterationData( dataset );
+        CarpinoOutlierRejection< double, double > iterationOutlierRejection( settings, dataset );
+        iterationOutlierRejection.updateRejectionStatus( iterationData.getInput( 1 ) );
+        checkRejectedObservationIds( iterationOutlierRejection.getRejectionStatus( ), { 9 } );
+        BOOST_CHECK_EQUAL( dataset->getObservationRow( 15 ).isActive_, true );
+        BOOST_CHECK_EQUAL( dataset->getObservationRow( 16 ).isActive_, true );
+    }
+
+    {
+        // Overlapping conditions are reported when the outlier rejection object is created
+        const TestThresholdsPerCondition overlappingThresholds = {
+            { fromStation( "StationA" ), { 8.0, 9.0 } },
+            { ObservationSelectionCondition< double, double >::observableType( one_way_range ), { 8.0, 9.0 } }
+        };
+        const std::shared_ptr< ObservationDataset< double, double > > dataset = createMultiStationResidualDataset( residualsPerStation );
+        BOOST_CHECK_THROW(
+                ( createOutlierRejection< double, double >( carpinoOutlierRejectionSettings( overlappingThresholds ), dataset ) ),
+                std::runtime_error );
+    }
+}
+
 //! Test computation of Chi-squared for an arbitrary case. Expected values computed seperately
 //! using a Python implementation of Carpino outlier rejection
 BOOST_AUTO_TEST_CASE( test_ChiSquaredCalculation )
 {
-    std::shared_ptr< CarpinoOutlierRejectionSettings > settings =
-            std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, 9.0 ) );
+    std::shared_ptr< CarpinoOutlierRejectionSettings<> > settings =
+            std::make_shared< CarpinoOutlierRejectionSettings<> >( std::make_pair( 8.0, 9.0 ) );
     TestableCarpinoOutlierRejection outlierRejection( settings, createRangeDataset( 10 ) );
 
     Eigen::MatrixXd covariance( 2, 2 );
@@ -749,43 +917,44 @@ BOOST_AUTO_TEST_SUITE( simple_outlier_rejection )
 //! Check that the settings are validated on creation, and that they return what was provided.
 BOOST_AUTO_TEST_CASE( test_SimpleOutlierRejectionSettings )
 {
-    const std::shared_ptr< OutlierRejectionSettings > settings = simpleOutlierRejectionSettings( std::make_pair( 5.0, 10.0 ), 2 );
+    const std::shared_ptr< OutlierRejectionSettings<> > settings = simpleOutlierRejectionSettings( std::make_pair( 5.0, 10.0 ), 2 );
 
-    const std::shared_ptr< SimpleOutlierRejectionSettings > simpleSettings =
-            std::dynamic_pointer_cast< SimpleOutlierRejectionSettings >( settings );
+    const std::shared_ptr< SimpleOutlierRejectionSettings<> > simpleSettings =
+            std::dynamic_pointer_cast< SimpleOutlierRejectionSettings<> >( settings );
     BOOST_REQUIRE( simpleSettings != nullptr );
     BOOST_CHECK( ( simpleSettings->getOutlierRejectionType( ) == OutlierRejectionType::simple_outlier_rejection ) );
-    BOOST_CHECK_CLOSE_FRACTION( simpleSettings->getResidualThresholds( ).first, 5.0, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( simpleSettings->getResidualThresholds( ).second, 10.0, 1.0E-15 );
+    BOOST_REQUIRE_EQUAL( simpleSettings->getThresholdsPerCondition( ).size( ), 1 );
+    BOOST_CHECK( ( simpleSettings->getThresholdsPerCondition( ).at( 0 ).first.getType( ) ==
+                   ObservationSelectionCondition< double, double >::Type::all ) );
+    BOOST_CHECK_CLOSE_FRACTION( simpleSettings->getThresholds( 0 ).first, 5.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( simpleSettings->getThresholds( 0 ).second, 10.0, 1.0E-15 );
     BOOST_CHECK_EQUAL( simpleSettings->getFirstIterationWithRejection( ), 2 );
     BOOST_CHECK_EQUAL( simpleOutlierRejectionSettings( std::make_pair( 5.0, 10.0 ) )->getFirstIterationWithRejection( ), 1 );
 
     // Recovery may equal rejection, and may be 0 (never recover)
     BOOST_CHECK_NO_THROW( simpleOutlierRejectionSettings( std::make_pair( 10.0, 10.0 ) ) );
     BOOST_CHECK_NO_THROW( simpleOutlierRejectionSettings( std::make_pair( 0.0, 10.0 ) ) );
+    BOOST_CHECK_NO_THROW( simpleOutlierRejectionSettings( std::make_pair( 0.0, 0.0 ) ) );
 
-    // Rejection must be positive, 0 <= recovery <= rejection, and the iteration not negative
-    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( 0.0, 0.0 ) ), std::runtime_error );
+    // 0 <= recovery <= rejection must hold, and the iteration must not be negative
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( 0.0, -1.0 ) ), std::runtime_error );
     BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( 11.0, 10.0 ) ), std::runtime_error );
     BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( -1.0, 10.0 ) ), std::runtime_error );
     BOOST_CHECK_THROW( simpleOutlierRejectionSettings( std::make_pair( 5.0, 10.0 ), -1 ), std::runtime_error );
 
-    // Thresholds per observable type are validated in the same way, and may not be left empty
-    using ThresholdMap = std::map< ObservableType, std::pair< double, double > >;
-    const ThresholdMap thresholdMap = { { one_way_range, { 3.0, 6.0 } }, { angular_position, { 15.0, 15.0 } } };
-    const std::shared_ptr< SimpleOutlierRejectionSettings > mapSettings =
-            std::dynamic_pointer_cast< SimpleOutlierRejectionSettings >( simpleOutlierRejectionSettings( thresholdMap ) );
-    BOOST_REQUIRE( mapSettings != nullptr );
-    BOOST_CHECK_EQUAL( mapSettings->getResidualThresholdsMap( ).size( ), 2 );
-    BOOST_CHECK_CLOSE_FRACTION( mapSettings->getResidualThresholdsMap( ).at( one_way_range ).first, 3.0, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( mapSettings->getResidualThresholdsMap( ).at( one_way_range ).second, 6.0, 1.0E-15 );
+    // Thresholds per condition are validated in the same way, and may not be left empty
+    const TestThresholdsPerCondition thresholdsPerCondition = { { fromStation( "StationA" ), { 3.0, 6.0 } },
+                                                                { fromStation( "StationB" ), { 15.0, 15.0 } } };
+    const std::shared_ptr< SimpleOutlierRejectionSettings<> > conditionSettings =
+            std::dynamic_pointer_cast< SimpleOutlierRejectionSettings<> >( simpleOutlierRejectionSettings( thresholdsPerCondition ) );
+    BOOST_REQUIRE( conditionSettings != nullptr );
+    BOOST_CHECK_EQUAL( conditionSettings->getThresholdsPerCondition( ).size( ), 2 );
+    BOOST_CHECK_CLOSE_FRACTION( conditionSettings->getThresholds( 0 ).first, 3.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( conditionSettings->getThresholds( 0 ).second, 6.0, 1.0E-15 );
 
-    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( ThresholdMap( ) ), std::runtime_error );
-    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( ThresholdMap( { { one_way_range, { 7.0, 6.0 } } } ) ), std::runtime_error );
-
-    // Only one of the two threshold definitions is used
-    BOOST_CHECK( simpleSettings->getResidualThresholdsMap( ).empty( ) );
-    BOOST_CHECK_CLOSE_FRACTION( mapSettings->getResidualThresholds( ).second, -1.0, 1.0E-15 );
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( TestThresholdsPerCondition( ) ), std::runtime_error );
+    BOOST_CHECK_THROW( simpleOutlierRejectionSettings( TestThresholdsPerCondition{ { fromStation( "StationA" ), { 7.0, 6.0 } } } ),
+                       std::runtime_error );
 }
 
 //! Check that the outlier rejection object created from the settings is of the corresponding type.
@@ -924,7 +1093,7 @@ BOOST_AUTO_TEST_CASE( test_SimpleRecovery )
     }
 }
 
-//! Check that a threshold can be provided per observable type, which is what a dataset of several observables needs.
+//! Check that thresholds can be provided per observation selection condition, for instance per observable type.
 BOOST_AUTO_TEST_CASE( test_SimpleThresholdPerObservableType )
 {
     const std::shared_ptr< ObservationDataset< double, double > > dataset = createTestDataset( );
@@ -932,27 +1101,79 @@ BOOST_AUTO_TEST_CASE( test_SimpleThresholdPerObservableType )
 
     // The residuals of the range observations are 4, 5 and 8, and those of the angular position observations are
     // (2, 10) and (20, 40). Each observable type is compared against its own threshold.
-    const std::map< ObservableType, std::pair< double, double > > thresholdMap = { { one_way_range, { 6.0, 6.0 } },
-                                                                                   { angular_position, { 15.0, 15.0 } } };
+    const TestThresholdsPerCondition thresholdsPerCondition = {
+        { ObservationSelectionCondition< double, double >::observableType( one_way_range ), { 6.0, 6.0 } },
+        { ObservationSelectionCondition< double, double >::observableType( angular_position ), { 15.0, 15.0 } }
+    };
     const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
-            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( thresholdMap, 0 ), dataset );
+            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( thresholdsPerCondition, 0 ), dataset );
     outlierRejection->updateRejectionStatus( iterationData.getInput( 0 ) );
 
     // Observation 2 exceeds the threshold of the range observations, and observation 4 that of the angular position
     // observations. Observation 3 has a component of 10, which would be an outlier under the range threshold but is
     // not under its own.
-    const std::vector< unsigned int > expectedRejectedObservationIds = { 2, 4 };
-    const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( outlierRejection->getRejectionStatus( ) );
-    BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
-                                   rejectedObservationIds.end( ),
-                                   expectedRejectedObservationIds.begin( ),
-                                   expectedRejectedObservationIds.end( ) );
+    checkRejectedObservationIds( outlierRejection->getRejectionStatus( ), { 2, 4 } );
+}
 
-    // An observable type of the dataset that has no threshold cannot be checked, which must be reported
-    const std::map< ObservableType, std::pair< double, double > > incompleteThresholdMap = { { one_way_range, { 6.0, 6.0 } } };
-    const std::shared_ptr< OutlierRejection< double, double > > incompleteOutlierRejection =
-            createOutlierRejection< double, double >( simpleOutlierRejectionSettings( incompleteThresholdMap, 0 ), createTestDataset( ) );
-    BOOST_CHECK_THROW( incompleteOutlierRejection->updateRejectionStatus( iterationData.getInput( 0 ) ), std::runtime_error );
+//! Check that observations of the same observable type can have different thresholds, depending on their link ends.
+BOOST_AUTO_TEST_CASE( test_SimpleThresholdPerLinkEnd )
+{
+    // Both stations have the same residuals; observations 0 to 2 are from station A, 3 to 5 from station B
+    const std::vector< std::pair< std::string, std::vector< double > > > residualsPerStation = { { "StationA", { 4.0, 8.0, 30.0 } },
+                                                                                                 { "StationB", { 4.0, 8.0, 30.0 } } };
+    const std::shared_ptr< ObservationDataset< double, double > > dataset = createMultiStationResidualDataset( residualsPerStation );
+    const TestIterationData iterationData( dataset );
+
+    // Station A is accurate and gets a tight threshold, station B a loose one
+    const std::shared_ptr< OutlierRejection< double, double > > outlierRejection = createOutlierRejection< double, double >(
+            simpleOutlierRejectionSettings( TestThresholdsPerCondition{ { fromStation( "StationA" ), { 6.0, 6.0 } },
+                                                                        { fromStation( "StationB" ), { 20.0, 20.0 } } },
+                                            0 ),
+            dataset );
+    const std::vector< int > expectedGroupIndices = { 0, 0, 0, 1, 1, 1 };
+    BOOST_CHECK_EQUAL_COLLECTIONS( outlierRejection->getThresholdGroupIndices( ).begin( ),
+                                   outlierRejection->getThresholdGroupIndices( ).end( ),
+                                   expectedGroupIndices.begin( ),
+                                   expectedGroupIndices.end( ) );
+
+    outlierRejection->updateRejectionStatus( iterationData.getInput( 0 ) );
+    checkRejectedObservationIds( outlierRejection->getRejectionStatus( ), { 1, 2, 5 } );
+}
+
+//! Check that observations that match no condition are not affected, and that overlapping conditions are reported.
+BOOST_AUTO_TEST_CASE( test_SimpleUnmatchedAndOverlappingConditions )
+{
+    const std::vector< std::pair< std::string, std::vector< double > > > residualsPerStation = { { "StationA", { 4.0, 8.0, 30.0 } },
+                                                                                                 { "StationB", { 4.0, 8.0, 30.0 } } };
+
+    {
+        // Only station A has thresholds, so the observations of station B are never rejected, however large their residual
+        const std::shared_ptr< ObservationDataset< double, double > > dataset = createMultiStationResidualDataset( residualsPerStation );
+        const TestIterationData iterationData( dataset );
+        const std::shared_ptr< OutlierRejection< double, double > > outlierRejection = createOutlierRejection< double, double >(
+                simpleOutlierRejectionSettings( TestThresholdsPerCondition{ { fromStation( "StationA" ), { 6.0, 6.0 } } }, 0 ), dataset );
+
+        const std::vector< int > expectedGroupIndices = { 0, 0, 0, -1, -1, -1 };
+        BOOST_CHECK_EQUAL_COLLECTIONS( outlierRejection->getThresholdGroupIndices( ).begin( ),
+                                       outlierRejection->getThresholdGroupIndices( ).end( ),
+                                       expectedGroupIndices.begin( ),
+                                       expectedGroupIndices.end( ) );
+
+        outlierRejection->updateRejectionStatus( iterationData.getInput( 0 ) );
+        checkRejectedObservationIds( outlierRejection->getRejectionStatus( ), { 1, 2 } );
+        BOOST_CHECK_EQUAL( dataset->getObservationRow( 5 ).isActive_, true );
+    }
+
+    {
+        // The observations of station A match both conditions, which is ambiguous and must be reported when the outlier
+        // rejection object is created
+        const std::shared_ptr< ObservationDataset< double, double > > dataset = createMultiStationResidualDataset( residualsPerStation );
+        const TestThresholdsPerCondition overlappingThresholds = {
+            { ObservationSelectionCondition< double, double >::all( ), { 20.0, 20.0 } }, { fromStation( "StationA" ), { 6.0, 6.0 } }
+        };
+        BOOST_CHECK_THROW( ( createOutlierRejection< double, double >( simpleOutlierRejectionSettings( overlappingThresholds ), dataset ) ),
+                           std::runtime_error );
+    }
 }
 
 //! Check that observations that were excluded before the estimation are left out of the fit.

@@ -15,10 +15,15 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
+
+using BaseSettings = tss::OutlierRejectionSettings< STATE_SCALAR_TYPE, TIME_TYPE >;
+using CarpinoSettings = tss::CarpinoOutlierRejectionSettings< STATE_SCALAR_TYPE, TIME_TYPE >;
+using SimpleSettings = tss::SimpleOutlierRejectionSettings< STATE_SCALAR_TYPE, TIME_TYPE >;
 
 namespace tudatpy
 {
@@ -29,18 +34,21 @@ namespace estimation_analysis
 
 void expose_estimation_analysis_outlier_rejection( py::module& m )
 {
-    py::class_< tss::OutlierRejectionSettings, std::shared_ptr< tss::OutlierRejectionSettings > >( m,
-                                                                                                   "OutlierRejectionSettings",
-                                                                                                   R"doc(
+    py::class_< BaseSettings, std::shared_ptr< BaseSettings > >( m, "OutlierRejectionSettings", R"doc(
 
          Base class for defining the settings of an outlier rejection algorithm.
 
          Base class for defining the settings of an outlier rejection algorithm. This object is not instantiated directly but is created
          through one of its derived classes.
 
+         All algorithms use a (recovery, rejection) pair of thresholds per
+         :class:`~tudatpy.estimation.observations.ObservationSelectionCondition`. Each condition defines a group of
+         observations that share one pair of thresholds. Observations that match no condition are not affected by the outlier
+         rejection, and an error is raised at the start of the estimation if an observation matches more than one condition.
+
       )doc" )
             .def_property_readonly( "first_iteration_with_rejection",
-                                    &tss::OutlierRejectionSettings::getFirstIterationWithRejection,
+                                    &BaseSettings::getFirstIterationWithRejection,
                                     R"doc(
 
          **read-only**
@@ -48,13 +56,23 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
          Index of the first estimation iteration (counted from zero) in which observations may be rejected.
 
          :type: int
+      )doc" )
+            .def_property_readonly( "thresholds_per_condition",
+                                    &BaseSettings::getThresholdsPerCondition,
+                                    R"doc(
+
+         **read-only**
+
+         (recovery, rejection) thresholds per observation selection condition, in the order in which they were provided.
+         If a single pair of thresholds was provided, this list holds one entry, with a condition that
+         selects all observations (:meth:`~tudatpy.estimation.observations.ObservationSelectionCondition.all`).
+
+         :type: list[tuple[ObservationSelectionCondition, tuple[float, float]]]
       )doc" );
 
-    py::class_< tss::CarpinoOutlierRejectionSettings,
-                std::shared_ptr< tss::CarpinoOutlierRejectionSettings >,
-                tss::OutlierRejectionSettings >( m,
-                                                 "CarpinoOutlierRejectionSettings",
-                                                 R"doc(
+    py::class_< CarpinoSettings, std::shared_ptr< CarpinoSettings >, BaseSettings >( m,
+                                                                                     "CarpinoOutlierRejectionSettings",
+                                                                                     R"doc(
 
          Class for defining the settings of the outlier rejection algorithm of :cite:t:`carpino2003`.
 
@@ -62,22 +80,73 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
          class are typically created through the
          :func:`~tudatpy.estimation.estimation_analysis.carpino_outlier_rejection_settings` function.
 
-      )doc" )
-            .def_property_readonly( "chi2_thresholds",
-                                    &tss::CarpinoOutlierRejectionSettings::getChi2Thresholds,
-                                    R"doc(
-
-         **read-only**
-
-         (recovery, rejection) chi-squared thresholds. An observation that is used in the estimation is rejected when its
-         chi-squared value exceeds the rejection threshold, and an observation that was rejected in an earlier iteration is
-         recovered when its chi-squared value drops below the recovery threshold.
-
-         :type: tuple[float, float]
       )doc" );
 
     m.def( "carpino_outlier_rejection_settings",
-           &tss::carpinoOutlierRejectionSettings,
+           py::overload_cast< const CarpinoSettings::ThresholdsPerCondition&, const int >(
+                   &tss::carpinoOutlierRejectionSettings< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "chi2_thresholds_per_condition" ),
+           py::arg( "first_iteration_with_rejection" ) = 1,
+           R"doc(
+
+ Function for creating settings for the outlier rejection algorithm of :cite:t:`carpino2003`, with thresholds per observation selection condition.
+
+ As the other overload of this function, but with a (recovery, rejection) pair of :math:`\chi^2` thresholds for each
+ :class:`~tudatpy.estimation.observations.ObservationSelectionCondition`. Since the :math:`\chi^2` value of an
+ observation grows with its number of components (one for a range observation, two for a right ascension/declination
+ pair), a single pair of thresholds is not suitable when observables of different sizes are combined. With this overload,
+ for instance, the thresholds for range observations can be based on a :math:`\chi^2` distribution with one degree of
+ freedom , and those for angular position observations on one with two degrees of freedom.
+
+ Each condition defines a group of observations. The adaptive rejection threshold (using :math:`N` and
+ :math:`\chi^2_{\max}`) and the limit of 20% new rejections per iteration are applied per group, using only the
+ observations of that group. Note that a group with fewer than 5 observations in the fit can therefore not have any
+ observations rejected.
+
+ The conditions are evaluated once for each observation, when the estimation starts:
+
+ * observations that match none of the conditions are not affected by the outlier rejection;
+ * if an observation matches more than one condition, an error is raised;
+ * conditions that depend on values that change during the estimation (such as the residuals, or whether an observation
+   is rejected) use the values from before the estimation.
+
+
+ Parameters
+ ----------
+ chi2_thresholds_per_condition : list[tuple[ObservationSelectionCondition, tuple[float, float]]]
+     List of (condition, (recovery, rejection)) entries. Must not be empty. For each entry, both thresholds must not be
+     negative, and the recovery threshold must not exceed the rejection threshold.
+ first_iteration_with_rejection : int, default = 1
+     Index of the first estimation iteration in which observations may be rejected, counted from zero.
+
+ Returns
+ -------
+ :class:`~tudatpy.estimation.estimation_analysis.CarpinoOutlierRejectionSettings`
+     Instance of the :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings` derived
+     :class:`~tudatpy.estimation.estimation_analysis.CarpinoOutlierRejectionSettings` class.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+     from tudatpy.estimation.observable_models_setup import model_settings
+     from tudatpy.estimation.observations import observation_query
+
+     # Range observations have one component, angular position observations two. A rejection threshold with the
+     # same false-rejection probability as 5 sigma is therefore 25 for range, and about 29 for angular position.
+     settings = estimation_analysis.carpino_outlier_rejection_settings(
+         [
+             (observation_query.observable_type == model_settings.one_way_range_type, (24.0, 25.0)),
+             (observation_query.observable_type == model_settings.angular_position_type, (28.0, 29.0)),
+         ]
+     )
+
+     )doc" );
+
+    m.def( "carpino_outlier_rejection_settings",
+           py::overload_cast< const std::pair< double, double >&, const int >(
+                   &tss::carpinoOutlierRejectionSettings< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "chi2_thresholds" ),
            py::arg( "first_iteration_with_rejection" ) = 1,
            R"doc(
@@ -108,6 +177,10 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  observations from being alternately rejected and recovered in the later iterations. The two may also be equal.
  Observations that are rejected before the estimation remain rejected, and are not considered by the algorithm.
 
+ This overload uses one pair of thresholds for all observations. This may not be suitable when using different observable types
+ as :math:`\chi^2` grows with the number of components in the observable. In this case, provide thresholds per observation
+ selection condition instead.
+
  Note that this algorithm requires that the observation covariance (or the inverse weight matrix) is compatible with the
  true errors. If all weights are equal to 1 (the default), a warning is printed, since the results are then only meaningful
  if the observation uncertainty is 1. If
@@ -125,10 +198,10 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  Parameters
  ----------
  chi2_thresholds : tuple[float, float]
-     (recovery, rejection) :math:`\chi^2` thresholds. An observation that is used in the estimation is rejected when its
-     :math:`\chi^2` value exceeds the rejection threshold, and an observation that was rejected in an earlier iteration
-     is recovered when its :math:`\chi^2` value drops below the recovery threshold. Both must be positive, and the
-     recovery threshold must not exceed the rejection threshold.
+     (recovery, rejection) :math:`\chi^2` thresholds, used for all observations. An observation that is used in the
+     estimation is rejected when its :math:`\chi^2` value exceeds the rejection threshold, and an observation that was
+     rejected in an earlier iteration is recovered when its :math:`\chi^2` value drops below the recovery threshold. Both
+     must not be negative, and the recovery threshold must not exceed the rejection threshold.
  first_iteration_with_rejection : int, default = 1
      Index of the first estimation iteration in which observations may be rejected, counted from zero. The default
      value of 1 leaves the first iteration untouched, since the residuals of that iteration are computed with the
@@ -151,11 +224,9 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
      )doc" );
 
-    py::class_< tss::SimpleOutlierRejectionSettings,
-                std::shared_ptr< tss::SimpleOutlierRejectionSettings >,
-                tss::OutlierRejectionSettings >( m,
-                                                 "SimpleOutlierRejectionSettings",
-                                                 R"doc(
+    py::class_< SimpleSettings, std::shared_ptr< SimpleSettings >, BaseSettings >( m,
+                                                                                   "SimpleOutlierRejectionSettings",
+                                                                                   R"doc(
 
          Class for defining the settings of the simple outlier rejection algorithm.
 
@@ -163,32 +234,67 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
          against a (recovery, rejection) pair of thresholds. Objects of this class are typically created through the
          :func:`~tudatpy.estimation.estimation_analysis.simple_outlier_rejection_settings` function.
 
-      )doc" )
-            .def_property_readonly( "residual_thresholds",
-                                    &tss::SimpleOutlierRejectionSettings::getResidualThresholds,
-                                    R"doc(
-
-         **read-only**
-
-         (recovery, rejection) residual thresholds, used for every observable type. Equal to ``(-1.0, -1.0)`` if
-         thresholds were provided per observable type, in which case ``residual_thresholds_per_observable_type`` is used.
-
-         :type: tuple[float, float]
-      )doc" )
-            .def_property_readonly( "residual_thresholds_per_observable_type",
-                                    &tss::SimpleOutlierRejectionSettings::getResidualThresholdsMap,
-                                    R"doc(
-
-         **read-only**
-
-         (recovery, rejection) residual thresholds per observable type. Empty if one pair was provided for all
-         observable types, in which case ``residual_thresholds`` is used.
-
-         :type: dict[ObservableType, tuple[float, float]]
       )doc" );
 
     m.def( "simple_outlier_rejection_settings",
-           py::overload_cast< const std::pair< double, double >&, const int >( &tss::simpleOutlierRejectionSettings ),
+           py::overload_cast< const SimpleSettings::ThresholdsPerCondition&, const int >(
+                   &tss::simpleOutlierRejectionSettings< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "residual_thresholds_per_condition" ),
+           py::arg( "first_iteration_with_rejection" ) = 1,
+           R"doc(
+
+ Function for creating settings for the simple outlier rejection algorithm, with thresholds per observation selection condition.
+
+ As the other overload of this function, but with a (recovery, rejection) pair of residual thresholds for each
+ :class:`~tudatpy.estimation.observations.ObservationSelectionCondition`. This allows, for instance, different thresholds
+ for observations of the same observable type that come from sources with a different accuracy (such as space-based and
+ ground-based astrometry), by selecting observations on their link ends.
+
+ The conditions are evaluated once for each observation, when the estimation starts:
+
+ * observations that match none of the conditions are not affected by the outlier rejection;
+ * if an observation matches more than one condition, an error is raised;
+ * conditions that depend on values that change during the estimation (such as the residuals, or whether an observation
+   is rejected) use the values from before the estimation.
+
+
+ Parameters
+ ----------
+ residual_thresholds_per_condition : list[tuple[ObservationSelectionCondition, tuple[float, float]]]
+     List of (condition, (recovery, rejection)) entries, in SI units. Must not be empty. For each entry, both thresholds
+     must not be negative, and the recovery threshold must not exceed the rejection threshold.
+ first_iteration_with_rejection : int, default = 1
+     Index of the first estimation iteration in which observations may be rejected, counted from zero.
+
+ Returns
+ -------
+ :class:`~tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings`
+     Instance of the :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings` derived
+     :class:`~tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings` class.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+     from tudatpy.estimation.observable_models_setup import links
+     from tudatpy.estimation.observations import observation_query
+
+     # Astrometry from Gaia is far more accurate than ground-based astrometry, so it gets tighter thresholds
+     # (in radians)
+     from_gaia = observation_query.receiver == links.body_origin_link_end_id("Gaia")
+     settings = estimation_analysis.simple_outlier_rejection_settings(
+         [
+             (from_gaia, (5.0e-9, 1.0e-8)),
+             (~from_gaia, (5.0e-6, 1.0e-5)),
+         ]
+     )
+
+     )doc" );
+
+    m.def( "simple_outlier_rejection_settings",
+           py::overload_cast< const std::pair< double, double >&, const int >(
+                   &tss::simpleOutlierRejectionSettings< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "residual_thresholds" ),
            py::arg( "first_iteration_with_rejection" ) = 1,
            R"doc(
@@ -204,8 +310,9 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  * otherwise, the status is unchanged.
 
  A recovery threshold below the rejection threshold prevents observations from being alternately rejected and recovered. The
- two may be equal. A recovery threshold of 0 means rejected observations are never recovered. One pair is used for all
- observable types (in SI units). Observations that are rejected before the estimation are not considered.
+ two may be equal. A recovery threshold of 0 means rejected observations are never recovered. This overload uses one pair
+ for all observations (in SI units); use the overload with thresholds per observation selection condition to use different
+ thresholds for different groups of observations. Observations that are rejected before the estimation are not considered.
 
  The rejection threshold should be larger than the residuals of the observations that are not outliers at the iteration
  ``first_iteration_with_rejection``: otherwise many valid observations are rejected, and the estimation may select an
@@ -219,8 +326,8 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  Parameters
  ----------
  residual_thresholds : tuple[float, float]
-     (recovery, rejection) residual thresholds, used for every observable type. The rejection threshold must be positive,
-     and the recovery threshold between 0 and the rejection threshold (inclusive).
+     (recovery, rejection) residual thresholds, used for all observations. Both must not be negative, and the recovery
+     threshold must not exceed the rejection threshold.
  first_iteration_with_rejection : int, default = 1
      Index of the first estimation iteration in which observations may be rejected, counted from zero. The default
      value of 1 leaves the first iteration untouched, since the residuals of that iteration are computed with the
@@ -239,35 +346,6 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
      # Reject residuals above 10 m, recover them once below 5 m
      settings = estimation_analysis.simple_outlier_rejection_settings((5.0, 10.0))
-
-     )doc" );
-
-    m.def( "simple_outlier_rejection_settings",
-           py::overload_cast< const std::map< tss::ObservableType, std::pair< double, double > >&, const int >(
-                   &tss::simpleOutlierRejectionSettings ),
-           py::arg( "residual_thresholds_per_observable_type" ),
-           py::arg( "first_iteration_with_rejection" ) = 1,
-           R"doc(
-
- Function for creating settings for the simple outlier rejection algorithm, with thresholds per observable type.
-
- As the other overload of this function, but with a (recovery, rejection) pair of residual thresholds for each observable
- type. If an observable type is used in the estimation but missing from the dictionary, an error is thrown.
-
-
- Parameters
- ----------
- residual_thresholds_per_observable_type : dict[ObservableType, tuple[float, float]]
-     (recovery, rejection) residual thresholds per observable type. Must not be empty. Each rejection threshold must be
-     positive, and each recovery threshold between 0 and its rejection threshold (inclusive).
- first_iteration_with_rejection : int, default = 1
-     Index of the first estimation iteration in which observations may be rejected, counted from zero.
-
- Returns
- -------
- :class:`~tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings`
-     Instance of the :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings` derived
-     :class:`~tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings` class.
 
      )doc" );
 }

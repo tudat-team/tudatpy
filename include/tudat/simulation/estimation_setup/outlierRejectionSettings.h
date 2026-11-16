@@ -14,9 +14,10 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <map>
 #include <utility>
+#include <vector>
 #include <tudat/astro/observation_models/observableTypes.h>
+#include "tudat/simulation/estimation_setup/observationCondition.h"
 
 namespace tudat
 {
@@ -45,28 +46,68 @@ inline std::string getOutlierRejectionTypeString( const OutlierRejectionType out
     }
 }
 
+//! Check that a (recovery, rejection) pair of thresholds is valid: 0 <= recovery <= rejection.
+inline void checkOutlierRejectionThresholds( const std::pair< double, double >& thresholds,
+                                             const OutlierRejectionType outlierRejectionType )
+{
+    if( !( thresholds.first >= 0.0 ) || !( thresholds.second >= 0.0 ) )
+    {
+        throw std::runtime_error( "Error when creating " + getOutlierRejectionTypeString( outlierRejectionType ) +
+                                  " settings, the recovery and rejection thresholds must not be negative." );
+    }
+    if( thresholds.first > thresholds.second )
+    {
+        throw std::runtime_error( "Error when creating " + getOutlierRejectionTypeString( outlierRejectionType ) +
+                                  " settings, the recovery threshold must not exceed the rejection threshold." );
+    }
+}
+
 //! Base class for the settings of an outlier rejection algorithm.
 /*!
  * The base class is never instantiated itself, the derived classes are. They hold the configuration settings for the outlier rejection
  * mechanisms. The settings object is used to create the actual OutlierRejection object when the estimation is performed.
+ *
+ * Every algorithm uses a (recovery, rejection) pair of thresholds per observation selection condition. Each condition defines a group of
+ * observations that share one pair of thresholds. When the estimation starts, every condition is evaluated once for every observation.
+ * Observations that match no condition are not affected by the outlier rejection, and an error is thrown if an observation matches more
+ * than one condition. Since the conditions are evaluated once, conditions that depend on the residuals or the rejection status use the
+ * state of the observations before the estimation.
  */
+template< typename ObservationScalarType = double, typename TimeType = double >
 class OutlierRejectionSettings
 {
 public:
+    using Condition = observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >;
+    using ThresholdsPerCondition = std::vector< std::pair< Condition, std::pair< double, double > > >;
+
     //! Constructor.
     /*!
      * \param outlierRejectionType Algorithm that these settings define.
+     * \param thresholdsPerCondition (recovery, rejection) thresholds per observation selection condition. Must not be empty, and
+     * for each pair 0 <= recovery <= rejection must hold.
      * \param firstIterationWithRejection Index of the first estimation iteration (counted from zero) in which observations may be
      * rejected.
      */
-    OutlierRejectionSettings( const OutlierRejectionType outlierRejectionType, const int firstIterationWithRejection ):
-        outlierRejectionType_( outlierRejectionType ), firstIterationWithRejection_( firstIterationWithRejection )
+    OutlierRejectionSettings( const OutlierRejectionType outlierRejectionType,
+                              const ThresholdsPerCondition& thresholdsPerCondition,
+                              const int firstIterationWithRejection ):
+        outlierRejectionType_( outlierRejectionType ), thresholdsPerCondition_( thresholdsPerCondition ),
+        firstIterationWithRejection_( firstIterationWithRejection )
     {
         if( firstIterationWithRejection_ < 0 )
         {
             throw std::runtime_error(
                     "Error when creating outlier rejection settings, the first iteration with rejection must not be "
                     "negative." );
+        }
+        if( thresholdsPerCondition_.empty( ) )
+        {
+            throw std::runtime_error( "Error when creating " + getOutlierRejectionTypeString( outlierRejectionType ) +
+                                      " settings, the list of thresholds per condition is empty." );
+        }
+        for( const auto& thresholdsForCondition : thresholdsPerCondition_ )
+        {
+            checkOutlierRejectionThresholds( thresholdsForCondition.second, outlierRejectionType );
         }
     }
 
@@ -84,9 +125,35 @@ public:
         return firstIterationWithRejection_;
     }
 
+    //! Return the (recovery, rejection) thresholds per observation selection condition.
+    const ThresholdsPerCondition& getThresholdsPerCondition( ) const
+    {
+        return thresholdsPerCondition_;
+    }
+
+    //! Return the observation selection conditions, in the order in which they were provided.
+    std::vector< Condition > getConditions( ) const
+    {
+        std::vector< Condition > conditions;
+        for( const auto& thresholdsForCondition : thresholdsPerCondition_ )
+        {
+            conditions.push_back( thresholdsForCondition.first );
+        }
+        return conditions;
+    }
+
+    //! Return the (recovery, rejection) thresholds of the condition with the given index.
+    const std::pair< double, double >& getThresholds( const unsigned int conditionIndex ) const
+    {
+        return thresholdsPerCondition_.at( conditionIndex ).second;
+    }
+
 protected:
     //! Algorithm that these settings define, used to select the outlier rejection object that is to be created.
     const OutlierRejectionType outlierRejectionType_;
+
+    //! (recovery, rejection) thresholds per observation selection condition.
+    const ThresholdsPerCondition thresholdsPerCondition_;
 
     //! Index of the first estimation iteration in which observations may be rejected.
     const int firstIterationWithRejection_;
@@ -102,159 +169,111 @@ protected:
  * was rejected in an earlier iteration is recovered when its chi-squared value drops below the recovery threshold. Thresholds are
  * given as a (recovery, rejection) pair. Using a recovery threshold that is lower than the rejection threshold prevents observations
  * from oscillating between the rejected and the accepted state in successive iterations; the two may also be equal.
- *
- * In each iteration, at most 20% of the observations that are in the fit at the start of that iteration may be newly rejected. If
- * more observations meet the rejection criterion, only those with the largest chi-squared values are rejected.
  */
-class CarpinoOutlierRejectionSettings : public OutlierRejectionSettings
+template< typename ObservationScalarType = double, typename TimeType = double >
+class CarpinoOutlierRejectionSettings : public OutlierRejectionSettings< ObservationScalarType, TimeType >
 {
 public:
+    using Base = OutlierRejectionSettings< ObservationScalarType, TimeType >;
+    using typename Base::Condition;
+    using typename Base::ThresholdsPerCondition;
+
     //! Constructor.
     /*!
-     * \param chi2Thresholds (recovery, rejection) chi-squared thresholds. An accepted observation is rejected when its chi-squared value
-     * exceeds the rejection threshold, and a rejected observation is recovered when its chi-squared value drops below the recovery
-     * threshold. Both must be positive, and the recovery threshold must not exceed the rejection threshold.
+     * \param chi2ThresholdsPerCondition (recovery, rejection) chi-squared thresholds per observation selection condition. An accepted
+     * observation is rejected when its chi-squared value exceeds the rejection threshold, and a rejected observation is recovered when
+     * its chi-squared value drops below the recovery threshold. Both must not be negative, and the recovery threshold must not exceed
+     * the rejection threshold.
      * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be
      * rejected. Iterations are counted from zero, so the default value of 1 leaves the first iteration (which uses
      * the a priori parameter values, and can therefore have large residuals for all observations) untouched.
      */
+    CarpinoOutlierRejectionSettings( const ThresholdsPerCondition& chi2ThresholdsPerCondition, const int firstIterationWithRejection = 1 ):
+        Base( OutlierRejectionType::carpino_outlier_rejection, chi2ThresholdsPerCondition, firstIterationWithRejection )
+    {}
+
+    //! Constructor, with one (recovery, rejection) pair of chi-squared thresholds for all observations.
     CarpinoOutlierRejectionSettings( const std::pair< double, double >& chi2Thresholds, const int firstIterationWithRejection = 1 ):
-        OutlierRejectionSettings( OutlierRejectionType::carpino_outlier_rejection, firstIterationWithRejection ),
-        chi2Thresholds_( chi2Thresholds )
-    {
-        if( !( chi2Thresholds_.first > 0.0 ) || !( chi2Thresholds_.second > 0.0 ) )
-        {
-            throw std::runtime_error( "Error when creating Carpino outlier rejection settings, chi-squared thresholds must be positive." );
-        }
-
-        if( chi2Thresholds_.first > chi2Thresholds_.second )
-        {
-            throw std::runtime_error(
-                    "Error when creating Carpino outlier rejection settings, the chi-squared recovery threshold must not exceed the "
-                    "chi-squared rejection threshold." );
-        }
-    }
-
-    //! Return the (recovery, rejection) chi-squared thresholds.
-    const std::pair< double, double >& getChi2Thresholds( ) const
-    {
-        return chi2Thresholds_;
-    }
-
-    double getChi2RecoveryThreshold( ) const
-    {
-        return chi2Thresholds_.first;
-    }
-
-    double getChi2RejectionThreshold( ) const
-    {
-        return chi2Thresholds_.second;
-    }
-
-protected:
-    //! (recovery, rejection) chi-squared thresholds.
-    const std::pair< double, double > chi2Thresholds_;
+        CarpinoOutlierRejectionSettings( ThresholdsPerCondition{ { Condition::all( ), chi2Thresholds } }, firstIterationWithRejection )
+    {}
 };
 
 //! Settings for the simple outlier rejection algorithm.
 /*!
  * This algorithm rejects and recovers observations based on the largest absolute O-C residual of an observation. Thresholds are given as
  * a (recovery, rejection) pair: an accepted observation is rejected when its residual exceeds the rejection threshold, and a rejected
- * observation is recovered when its residual drops below the recovery threshold. One pair is used for all observable types, or one pair
- * per observable type is provided. Units are SI.
+ * observation is recovered when its residual drops below the recovery threshold. One pair is used for all observations, or one pair
+ * per observation selection condition is provided (see OutlierRejectionSettings). Units are assumed SI.
  */
-class SimpleOutlierRejectionSettings : public OutlierRejectionSettings
+template< typename ObservationScalarType = double, typename TimeType = double >
+class SimpleOutlierRejectionSettings : public OutlierRejectionSettings< ObservationScalarType, TimeType >
 {
 public:
-    //! Constructor.
-    /*!
-     * \param residualThresholds (recovery, rejection) residual thresholds, used for all observable types. A recovery threshold of 0
-     * means rejected observations are never recovered.
-     * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be rejected.
-     */
-    SimpleOutlierRejectionSettings( const std::pair< double, double >& residualThresholds, const int firstIterationWithRejection = 1 ):
-        OutlierRejectionSettings( OutlierRejectionType::simple_outlier_rejection, firstIterationWithRejection ),
-        residualThresholds_( residualThresholds )
-    {
-        checkResidualThresholds( residualThresholds_ );
-    }
+    using Base = OutlierRejectionSettings< ObservationScalarType, TimeType >;
+    using typename Base::Condition;
+    using typename Base::ThresholdsPerCondition;
 
     //! Constructor.
     /*!
-     * \param residualThresholdsMap (recovery, rejection) residual thresholds per observable type. An error is thrown during the
-     * estimation if an observable type is missing.
+     * \param residualThresholdsPerCondition (recovery, rejection) residual thresholds per observation selection condition. Both must not
+     * be negative, and the recovery threshold must not exceed the rejection threshold. A recovery threshold of 0 means rejected
+     * observations are never recovered.
      * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be rejected.
      */
-    SimpleOutlierRejectionSettings( const std::map< ObservableType, std::pair< double, double > >& residualThresholdsMap,
+    SimpleOutlierRejectionSettings( const ThresholdsPerCondition& residualThresholdsPerCondition,
                                     const int firstIterationWithRejection = 1 ):
-        OutlierRejectionSettings( OutlierRejectionType::simple_outlier_rejection, firstIterationWithRejection ),
-        residualThresholdsMap_( residualThresholdsMap ), residualThresholds_( -1.0, -1.0 )
-    {
-        if( residualThresholdsMap_.empty( ) )
-        {
-            throw std::runtime_error(
-                    "Error when creating simple outlier rejection settings, the map of residual thresholds per observable type is "
-                    "empty." );
-        }
-        for( const auto& thresholdsPerObservable : residualThresholdsMap_ )
-        {
-            checkResidualThresholds( thresholdsPerObservable.second );
-        }
-    }
+        Base( OutlierRejectionType::simple_outlier_rejection, residualThresholdsPerCondition, firstIterationWithRejection )
+    {}
 
-    const std::map< ObservableType, std::pair< double, double > >& getResidualThresholdsMap( ) const
-    {
-        return residualThresholdsMap_;
-    }
-
-    const std::pair< double, double >& getResidualThresholds( ) const
-    {
-        return residualThresholds_;
-    }
-
-protected:
-    //! Check that 0 <= recovery <= rejection, and rejection > 0.
-    static void checkResidualThresholds( const std::pair< double, double >& residualThresholds )
-    {
-        if( !( residualThresholds.second > 0.0 ) )
-        {
-            throw std::runtime_error( "Error when creating simple outlier rejection settings, the rejection threshold must be positive." );
-        }
-        if( !( residualThresholds.first >= 0.0 ) || residualThresholds.first > residualThresholds.second )
-        {
-            throw std::runtime_error(
-                    "Error when creating simple outlier rejection settings, the recovery threshold must be between 0 and the rejection "
-                    "threshold." );
-        }
-    }
-
-    //! (recovery, rejection) residual thresholds per observable type; empty if one pair is used for all types.
-    const std::map< ObservableType, std::pair< double, double > > residualThresholdsMap_;
-
-    //! (recovery, rejection) residual thresholds for all observable types; (-1, -1) if the map is used.
-    const std::pair< double, double > residualThresholds_;
+    //! Constructor, with one (recovery, rejection) pair of residual thresholds for all observations.
+    SimpleOutlierRejectionSettings( const std::pair< double, double >& residualThresholds, const int firstIterationWithRejection = 1 ):
+        SimpleOutlierRejectionSettings( ThresholdsPerCondition{ { Condition::all( ), residualThresholds } }, firstIterationWithRejection )
+    {}
 };
 
-//! Function to create settings for the outlier rejection algorithm of Carpino et al. (2003).
-inline std::shared_ptr< OutlierRejectionSettings > carpinoOutlierRejectionSettings( const std::pair< double, double >& chi2Thresholds,
-                                                                                    const int firstIterationWithRejection = 1 )
-{
-    return std::make_shared< CarpinoOutlierRejectionSettings >( chi2Thresholds, firstIterationWithRejection );
-}
-
-//! Function to create settings for the simple outlier rejection algorithm, with one (recovery, rejection) pair for all observables.
-inline std::shared_ptr< OutlierRejectionSettings > simpleOutlierRejectionSettings( const std::pair< double, double >& residualThresholds,
-                                                                                   const int firstIterationWithRejection = 1 )
-{
-    return std::make_shared< SimpleOutlierRejectionSettings >( residualThresholds, firstIterationWithRejection );
-}
-
-//! Function to create settings for the simple outlier rejection algorithm, with a (recovery, rejection) pair per observable type.
-inline std::shared_ptr< OutlierRejectionSettings > simpleOutlierRejectionSettings(
-        const std::map< ObservableType, std::pair< double, double > >& residualThresholdsMap,
+//! Function to create settings for the outlier rejection algorithm of Carpino et al. (2003), with one (recovery, rejection) pair for all
+//! observations.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > carpinoOutlierRejectionSettings(
+        const std::pair< double, double >& chi2Thresholds,
         const int firstIterationWithRejection = 1 )
 {
-    return std::make_shared< SimpleOutlierRejectionSettings >( residualThresholdsMap, firstIterationWithRejection );
+    return std::make_shared< CarpinoOutlierRejectionSettings< ObservationScalarType, TimeType > >( chi2Thresholds,
+                                                                                                   firstIterationWithRejection );
+}
+
+//! Function to create settings for the outlier rejection algorithm of Carpino et al. (2003), with a (recovery, rejection) pair per
+//! observation selection condition.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > carpinoOutlierRejectionSettings(
+        const typename CarpinoOutlierRejectionSettings< ObservationScalarType, TimeType >::ThresholdsPerCondition&
+                chi2ThresholdsPerCondition,
+        const int firstIterationWithRejection = 1 )
+{
+    return std::make_shared< CarpinoOutlierRejectionSettings< ObservationScalarType, TimeType > >( chi2ThresholdsPerCondition,
+                                                                                                   firstIterationWithRejection );
+}
+
+//! Function to create settings for the simple outlier rejection algorithm, with one (recovery, rejection) pair for all observations.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > simpleOutlierRejectionSettings(
+        const std::pair< double, double >& residualThresholds,
+        const int firstIterationWithRejection = 1 )
+{
+    return std::make_shared< SimpleOutlierRejectionSettings< ObservationScalarType, TimeType > >( residualThresholds,
+                                                                                                  firstIterationWithRejection );
+}
+
+//! Function to create settings for the simple outlier rejection algorithm, with a (recovery, rejection) pair per observation selection
+//! condition.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > simpleOutlierRejectionSettings(
+        const typename SimpleOutlierRejectionSettings< ObservationScalarType, TimeType >::ThresholdsPerCondition&
+                residualThresholdsPerCondition,
+        const int firstIterationWithRejection = 1 )
+{
+    return std::make_shared< SimpleOutlierRejectionSettings< ObservationScalarType, TimeType > >( residualThresholdsPerCondition,
+                                                                                                  firstIterationWithRejection );
 }
 
 }  // namespace simulation_setup
