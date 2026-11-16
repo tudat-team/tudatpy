@@ -23,6 +23,9 @@
 #define BOOST_TEST_MAIN
 
 #include <cmath>
+#include <atomic>
+#include <thread>
+#include <vector>
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -39,6 +42,51 @@ BOOST_AUTO_TEST_SUITE( test_runge_kutta_coefficients )
 
 using numerical_integrators::CoefficientSets;
 using numerical_integrators::RungeKuttaCoefficients;
+
+// Run before the ordinary DP87 checks so initialization and repeated copying are both exercised.
+BOOST_AUTO_TEST_CASE( testConcurrentDP87CoefficientCopies )
+{
+    std::atomic< bool > start{ false };
+    std::atomic< bool > valid{ true };
+    std::vector< std::thread > workers;
+    try
+    {
+        for( unsigned int worker = 0; worker < 4; ++worker )
+        {
+            workers.emplace_back( [ & ] {
+                while( !start.load( ) )
+                {
+                    std::this_thread::yield( );
+                }
+                for( unsigned int iteration = 0; iteration < 1000; ++iteration )
+                {
+                    const auto coefficients = RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince );
+                    if( coefficients.higherOrder != 8 || coefficients.lowerOrder != 7 || coefficients.aCoefficients.rows( ) != 13 ||
+                        coefficients.aCoefficients.cols( ) != 12 || !coefficients.aCoefficients.allFinite( ) ||
+                        coefficients.aCoefficients( 1, 0 ) != 1.0 / 18.0 )
+                    {
+                        valid.store( false );
+                    }
+                }
+            } );
+        }
+    }
+    catch( ... )
+    {
+        start.store( true );
+        for( auto& worker : workers )
+        {
+            worker.join( );
+        }
+        throw;
+    }
+    start.store( true );
+    for( auto& worker : workers )
+    {
+        worker.join( );
+    }
+    BOOST_CHECK( valid.load( ) );
+}
 
 void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet, const double tolerance )
 {
