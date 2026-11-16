@@ -646,14 +646,10 @@ class HorizonsQuery:
         self,
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",
-        **kwargs,
+        vector_table: Union[str, None] = None,
     ) -> astropy.table.Table:
         """Retrieve Horizons Vectors api data in raw astropy format.
         For general purposes, use the `.cartesian()` method instead.
-
-        Additional keyword arguments (e.g. `vector_table`) are passed directly to the
-        astroquery `vectors` call, see the `astroquery documentation
-        <https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.vectors>`_.
 
         Parameters
         ----------
@@ -671,6 +667,15 @@ class HorizonsQuery:
             See the Horizons System Manual for more info:
 
             https://ssd.jpl.nasa.gov/horizons/manual.html#output
+        vector_table : Union[str, None], optional
+            Horizons `VEC_TABLE` parameter, selecting the quantities to be retrieved
+            (e.g. '2x' for the state and its 1-sigma uncertainties). If None, the
+            Horizons default is used, by default None.
+            Values other than None require astroquery version 0.4.12 or higher.
+
+            See the Horizons API documentation for more info:
+
+            https://ssd-api.jpl.nasa.gov/doc/horizons.html#vec_table
 
         Returns
         -------
@@ -702,12 +707,15 @@ class HorizonsQuery:
         else:
             frame_orientation = frame_orientation
 
+        # only pass vector_table if set, to support astroquery versions without it
+        optional_arguments = {} if vector_table is None else {"vector_table": vector_table}
+
         res_list = []
         for query in self.queries:
             res = query.vectors(
                 refplane=frame_orientation,
                 aberrations=aberations,
-                **kwargs,
+                **optional_arguments,
             )
 
             res_list.append(res)
