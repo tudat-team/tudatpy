@@ -42,11 +42,11 @@ std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings
     return sortedObservationModelSettings;
 }
 
-std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > getTurnaroundFunction(
+std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) > getTurnaroundFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds )
 {
-    std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
+    std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) > turnaroundRatioFunction;
     // Check if retransmitter is a body
     if( linkEnds.at( observation_models::retransmitter ).getReferencePointName( ) == "" ||
         !simulation_setup::isReferencePointGroundStation( bodies,

@@ -13,7 +13,10 @@
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
+#include <boost/algorithm/string.hpp>
+
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
 
 namespace tudat
@@ -219,7 +222,8 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
     int counter = 0;
     std::string previousLine = "";
     // Read coefficients up to required maximum degree and order.
-    while( !stream.fail( ) && !stream.eof( ) && ( currentDegree <= maximumDegree && currentOrder < maximumOrder ) )
+    while( !stream.fail( ) && !stream.eof( ) &&
+           ( currentDegree < maximumDegree || ( currentDegree == maximumDegree && currentOrder < maximumOrder ) ) )
     {
         // Read current line
         std::getline( stream, line );
@@ -282,6 +286,77 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
     coefficients = std::make_pair( cosineCoefficients, sineCoefficients );
 
     return std::make_pair( gravitationalParameter, referenceRadius );
+}
+
+//! Function to read a spherical harmonics ASCII data record (SHADR) gravity field file
+std::pair< double, double > readShadrGravityFieldFile( const std::string& fileName,
+                                                       const int maximumDegree,
+                                                       const int maximumOrder,
+                                                       std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients )
+{
+    // Read header record: reference radius (km), GM (km^3/s^2), GM uncertainty, degree, order, normalization state,
+    // reference longitude, reference latitude
+    std::ifstream stream( fileName );
+    std::string line;
+    std::getline( stream, line );
+    std::vector< std::string > header;
+    boost::algorithm::split(
+            header, boost::algorithm::trim_copy( line ), boost::algorithm::is_any_of( ", \t" ), boost::algorithm::token_compress_on );
+    if( header.size( ) < 6 )
+    {
+        throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName + ", could not read header record." );
+    }
+    const int fileMaximumDegree = std::stoi( header.at( 3 ) );
+    const int fileMaximumOrder = std::stoi( header.at( 4 ) );
+    if( maximumDegree > fileMaximumDegree || maximumOrder > fileMaximumOrder )
+    {
+        throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName + ", requested degree/order (" +
+                                  std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + ") exceeds that of the file (" +
+                                  std::to_string( fileMaximumDegree ) + "/" + std::to_string( fileMaximumOrder ) + ")." );
+    }
+
+    // Normalization state 0 denotes unnormalized, and 1 normalized, coefficients
+    const int normalizationState = std::stoi( header.at( 5 ) );
+    if( normalizationState != 0 && normalizationState != 1 )
+    {
+        throw std::runtime_error( "Error when reading SHADR gravity field file " + fileName +
+                                  ", only files with unnormalized (normalization state 0) or normalized (normalization state 1) "
+                                  "coefficients are supported." );
+    }
+
+    // Read coefficient records (degree, order, C, S, C uncertainty, S uncertainty), which may be in any order. Covariance
+    // records (with 8 fields) are skipped.
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
+    std::vector< std::string > fields;
+    while( std::getline( stream, line ) )
+    {
+        boost::algorithm::split(
+                fields, boost::algorithm::trim_copy( line ), boost::algorithm::is_any_of( ", \t" ), boost::algorithm::token_compress_on );
+        if( fields.back( ).empty( ) )
+        {
+            fields.pop_back( );
+        }
+        if( fields.size( ) == 6 )
+        {
+            const int degree = std::stoi( fields.at( 0 ) );
+            const int order = std::stoi( fields.at( 1 ) );
+            if( degree <= maximumDegree && order <= maximumOrder )
+            {
+                cosineCoefficients( degree, order ) = std::stod( fields.at( 2 ) );
+                sineCoefficients( degree, order ) = std::stod( fields.at( 3 ) );
+            }
+        }
+    }
+    cosineCoefficients( 0, 0 ) = 1.0;
+    coefficients = std::make_pair( cosineCoefficients, sineCoefficients );
+    if( normalizationState == 0 )
+    {
+        coefficients = basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients( coefficients.first, coefficients.second );
+    }
+
+    // Convert gravitational parameter and reference radius from km^3/s^2 and km to SI units
+    return std::make_pair( std::stod( header.at( 1 ) ) * 1.0E9, std::stod( header.at( 0 ) ) * 1.0E3 );
 }
 
 //! Function to create a gravity field model.

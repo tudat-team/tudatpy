@@ -304,6 +304,12 @@ public:
         return coefficientInterpolator_->getLookUpScheme( );
     }
 
+    //! Function to retrieve the time intervals in which each parameter entry can influence the dynamics
+    std::vector< std::pair< double, double > > getTimeIntervalsOfInfluencePerEntry( ) override
+    {
+        return getArcWiseParameterTimeIntervalsOfInfluence( timeLimits_, getParameterSize( ) );
+    }
+
 protected:
 private:
     //! Object containing the radiation pressure coefficient to be estimated.

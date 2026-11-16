@@ -24,6 +24,8 @@ set(sources
         ${TUDATPY_SOURCE_DIR}/add_constants_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_interface_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_data_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_data_input_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_util_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_dynamics_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_estimation_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_exceptions_to_kernel.cpp
@@ -33,7 +35,8 @@ update_sources(astro sources)
 update_sources(trajectory_design sources)
 update_sources(constants sources)
 update_sources(interface sources)
-update_sources(data sources)
+update_sources(data_input sources)
+update_sources(util sources)
 update_sources(numerical_simulation sources)
 update_sources(dynamics sources)
 update_sources(estimation sources)
@@ -48,7 +51,7 @@ if(TUDAT_BUILD_WITH_MCD_INTERFACE)
         ${NetCDF_Fortran_LIBRARIES}
         ${NetCDF_C_LIBRARIES}
     )
-    target_include_directories(kernel SYSTEM PRIVATE 
+    target_include_directories(kernel SYSTEM PRIVATE
         "${NetCDF_INCLUDE_DIRS}"
         "${CMAKE_SOURCE_DIR}/third_parties/mcd")
     message(STATUS "Tudatpy: MCD support linked to kernel")
@@ -118,6 +121,20 @@ endif ()
         set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
         set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
     endif ()
+
+# On macOS, debug info stays in the object files, bundle it into a .dSYM so profilers can symbolize after the objects are cleaned.
+if (APPLE AND TUDAT_BUILD_WITH_PROFILING_SYMBOLS)
+    find_program(DSYMUTIL_EXECUTABLE dsymutil)
+    if (DSYMUTIL_EXECUTABLE)
+        add_custom_command(TARGET kernel POST_BUILD
+            COMMAND ${DSYMUTIL_EXECUTABLE} $<TARGET_FILE:kernel>
+            COMMENT "Generating dSYM for kernel"
+            VERBATIM
+        )
+    else ()
+        message(WARNING "dsymutil not found: kernel.dSYM will not be generated.")
+    endif ()
+endif ()
 
 # Install
 #################################################################

@@ -119,6 +119,8 @@ Functions
 
    iau_rotation_model
 
+   damit
+
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.simple
 
@@ -149,6 +151,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_full_custom
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model
+
+.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.damit
 
 
 Enumerations

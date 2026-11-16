@@ -20,8 +20,6 @@
 
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 
-#include "tudat/io/readIonexFile.h"
-
 namespace tudat
 {
 namespace unit_tests
@@ -256,6 +254,34 @@ BOOST_AUTO_TEST_CASE( setDsnWeatherData )
     }
 }
 
+BOOST_AUTO_TEST_CASE( setDsnWeatherDataInGroundStationSettings )
+{
+    double tolerance = 1e-13;  // Corresponds to numerical precision for temperature values
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
+
+    simulation_setup::setDsnWeatherDataInGroundStationSettings(
+            bodySettings.at( "Earth" )->groundStationSettings,
+            std::vector< std::string >{ tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_10.wea.txt" },
+            interpolators::linearInterpolation( ),
+            std::map< int, std::vector< std::string > >{ { 10, { "DSS-13" } } } );
+
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    std::shared_ptr< ground_stations::GroundStation > gs = bodies.getBody( "Earth" )->getGroundStation( "DSS-13" );
+
+    double time = 536500800.0;
+    BOOST_CHECK_CLOSE_FRACTION( gs->getDewPointFunction( )( time ) - 273.15, 2.8, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( time ) - 273.15, 10.7, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getPressureFunction( )( time ) * 1e-2, 897.1, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getWaterVaporPartialPressureFunction( )( time ) * 1e-2, 7.6, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( time ) * 100, 58, tolerance );
+}
+
 BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
 {
     double tolerance = 1e-13;  // Corresponds to numerical precision for temperature values
@@ -421,6 +447,121 @@ BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
                                         tolerance );
             BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( testEpoch ), testHumidity, tolerance );
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( setEstrackWeatherDataInGroundStationSettings )
+{
+    double tolerance = 1e-13;  // Corresponds to numerical precision for temperature values
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
+
+    std::vector< std::string > estrackDataFiles =
+            std::vector< std::string >{ tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_00.TAB",
+                                        tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_01.TAB" };
+
+    simulation_setup::setEstrackWeatherDataInGroundStationSettings(
+            bodySettings.at( "Earth" )->groundStationSettings, estrackDataFiles, "NWNORCIA", interpolators::linearInterpolation( ) );
+
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    std::shared_ptr< ground_stations::GroundStation > gs = bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" );
+    std::shared_ptr< ground_stations::PiecewiseInterpolatedMeteoData > meteoDataObject =
+            std::dynamic_pointer_cast< ground_stations::PiecewiseInterpolatedMeteoData >( gs->getMeteoData( ) );
+    BOOST_REQUIRE( meteoDataObject != nullptr );
+    BOOST_CHECK_EQUAL( meteoDataObject->getMeteoDataInterpolators( ).size( ), 1 );
+
+    double testEpoch = basic_astrodynamics::DateTime::fromIsoString( "2013-12-28T17:43:20.000" ).epoch< double >( );
+
+    double testTemperature = 19.6 + 273.15;
+    double testHumidity = 0.549;
+    double testPressure = 97950.0;
+
+    BOOST_CHECK_CLOSE_FRACTION(
+            gs->getDewPointFunction( )( testEpoch ), ground_stations::computeDewPoint( testHumidity, testTemperature ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( testEpoch ), testTemperature, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getPressureFunction( )( testEpoch ), testPressure, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getWaterVaporPartialPressureFunction( )( testEpoch ),
+                                testHumidity * ground_stations::computeSaturationWaterVaporPressure( testTemperature ),
+                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( testEpoch ), testHumidity, tolerance );
+}
+
+BOOST_AUTO_TEST_CASE( testEstrackWeatherDataGapExtrapolation )
+{
+    // When the query epoch falls in a gap between two ESTRACK meteo file segment,
+    // PiecewiseInterpolatedMeteoData should extrapolate from whichever segment is closer
+    // in time, not always from the earlier (lower) one.
+    double tolerance = 1e-10;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Load meteo files with a gap in between, so that the meteo data object will have two segments.
+    std::vector< std::string > estrackDataFiles = { tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_00.TAB",
+                                                    tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_04.TAB" };
+    setEstrackWeatherDataInGroundStation( bodies, estrackDataFiles, "NWNORCIA", interpolators::linearInterpolation( ) );
+
+    std::shared_ptr< ground_stations::GroundStation > gs = bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" );
+    std::shared_ptr< ground_stations::PiecewiseInterpolatedMeteoData > meteoDataObject =
+            std::dynamic_pointer_cast< ground_stations::PiecewiseInterpolatedMeteoData >( gs->getMeteoData( ) );
+
+    BOOST_CHECK_EQUAL( meteoDataObject->getMeteoDataInterpolators( ).size( ), 2 );
+
+    double lowerSegmentEnd = meteoDataObject->getEndTimes( ).at( 0 );
+    double upperSegmentStart = meteoDataObject->getStartTimes( ).at( 1 );
+    BOOST_CHECK( upperSegmentStart > lowerSegmentEnd );
+
+    int temperatureIndex = 2;
+
+    // Query point closer to the start of the upper segment than to the end of the lower segment:
+    // extrapolation must come from the upper segment.
+    {
+        double testEpoch = upperSegmentStart - 0.1 * ( upperSegmentStart - lowerSegmentEnd );
+
+        double expectedTemperature = meteoDataObject->getMeteoDataInterpolators( ).at( 1 )->interpolate( testEpoch )( temperatureIndex );
+        double wrongTemperature = meteoDataObject->getMeteoDataInterpolators( ).at( 0 )->interpolate( testEpoch )( temperatureIndex );
+
+        // Check that the two segments actually extrapolate to different values
+        BOOST_CHECK( std::fabs( expectedTemperature - wrongTemperature ) > 1.0E-6 );
+
+        BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( testEpoch ), expectedTemperature, tolerance );
+    }
+
+    // Query point closer to the end of the lower segment than to the start of the upper segment:
+    // extrapolation must still come from the lower segment.
+    {
+        double testEpoch = lowerSegmentEnd + 0.1 * ( upperSegmentStart - lowerSegmentEnd );
+
+        double expectedTemperature = meteoDataObject->getMeteoDataInterpolators( ).at( 0 )->interpolate( testEpoch )( temperatureIndex );
+        double wrongTemperature = meteoDataObject->getMeteoDataInterpolators( ).at( 1 )->interpolate( testEpoch )( temperatureIndex );
+
+        // Check that the two segments actually extrapolate to different values
+        BOOST_CHECK( std::fabs( expectedTemperature - wrongTemperature ) > 1.0E-6 );
+
+        BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( testEpoch ), expectedTemperature, tolerance );
+    }
+
+    // Query point beyond the end of the upper segment, should extrapolate from the upper segment.
+    {
+        double upperSegmentEnd = meteoDataObject->getEndTimes( ).at( 1 );
+        double testEpoch = upperSegmentEnd + 0.1 * ( upperSegmentStart - lowerSegmentEnd );
+
+        double expectedTemperature = meteoDataObject->getMeteoDataInterpolators( ).at( 1 )->interpolate( testEpoch )( temperatureIndex );
+        double wrongTemperature = meteoDataObject->getMeteoDataInterpolators( ).at( 0 )->interpolate( testEpoch )( temperatureIndex );
+
+        // Check that the two segments actually extrapolate to different values
+        BOOST_CHECK( std::fabs( expectedTemperature - wrongTemperature ) > 1.0E-6 );
+
+        BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( testEpoch ), expectedTemperature, tolerance );
     }
 }
 

@@ -153,7 +153,8 @@ public:
 
     void setFrequencyInterpolatorAndTurnaroundRatio(
             std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
-            std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio ) override
+            std::function< double( basic_astrodynamics::FrequencyBands uplinkBand, basic_astrodynamics::FrequencyBands downlinkBand ) >
+                    turnaroundRatio ) override
     {
         arcStartObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );
         arcEndObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );

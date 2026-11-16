@@ -265,6 +265,36 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
     }
 }
 
+//! Test that the partials closer than 1.0E-8 rad to the singularities are those at 1.0E-8 rad, with both signs of the quaternion
+BOOST_AUTO_TEST_CASE( testEulerAnglePartialsAtSingularities )
+{
+    for( double singularAngle : { 0.0, mathematical_constants::PI } )
+    {
+        const double signToValidAngle = ( singularAngle == 0.0 ) ? 1.0 : -1.0;
+        const Eigen::Matrix< double, 3, 4 > partialAtMinimumAngle = calculateEulerAngle313WrtQuaternionPartial(
+                getQuaternionFrom313EulerAngles( Eigen::Vector3d( 0.7, singularAngle + signToValidAngle * 1.0E-8, -1.9 ) ) );
+
+        // Angle from the singularity [rad]
+        for( double angleFromSingularity : { 1.0E-9, 1.0E-12, 0.0 } )
+        {
+            const Eigen::Quaterniond rotation = getQuaternionFrom313EulerAngles(
+                    Eigen::Vector3d( 0.7, singularAngle + signToValidAngle * angleFromSingularity, -1.9 ) );
+            const Eigen::Matrix< double, 3, 4 > partial = calculateEulerAngle313WrtQuaternionPartial( rotation );
+            const Eigen::Matrix< double, 3, 4 > partialWithOppositeSign = calculateEulerAngle313WrtQuaternionPartial(
+                    Eigen::Quaterniond( -rotation.w( ), -rotation.x( ), -rotation.y( ), -rotation.z( ) ) );
+
+            BOOST_CHECK( partial.allFinite( ) );
+            BOOST_CHECK_SMALL( ( partial + partialWithOppositeSign ).norm( ), 1.0E-6 * partial.norm( ) );
+
+            // At the singularity itself, the entries that determine the direction have no significance
+            if( angleFromSingularity > 0.0 )
+            {
+                BOOST_CHECK_SMALL( ( partial - partialAtMinimumAngle ).norm( ), 1.0E-6 * partial.norm( ) );
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

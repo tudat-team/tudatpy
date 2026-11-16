@@ -172,6 +172,9 @@ void expose_acceleration_setup( py::module& m )
                     tba::AvailableAcceleration::yarkovsky_acceleration,
                     R"doc(
       )doc" )
+            .value( "gravitational_parameter_rate_acceleration_type",
+                    tba::AvailableAcceleration::gravitational_parameter_rate_acceleration,
+                    R"doc(Point-mass acceleration due to a linear variation of the gravitational parameter of the exerting body.)doc" )
             .value( "relativistic_acceleration_from_metric_type",
                     tba::AvailableAcceleration::relativistic_acceleration_from_metric,
                     R"doc(
@@ -347,6 +350,19 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
     )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::YarkovskyAccelerationSettings )
             TUDATPY_DEF_EQ_NE( tss::YarkovskyAccelerationSettings );
+
+    py::class_< tss::GravitationalParameterRateAccelerationSettings,
+                std::shared_ptr< tss::GravitationalParameterRateAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "GravitationalParameterRateAccelerationSettings",
+                                             R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the point-mass acceleration due to a linear variation of the
+       gravitational parameter of the exerting body. The variation is introduced in this acceleration only: the gravitational
+       parameter of the gravity field of the exerting body, used by all other models, remains constant.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::GravitationalParameterRateAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::GravitationalParameterRateAccelerationSettings );
 
     py::class_< tss::RelativisticAccelerationCorrectionSettings,
                 std::shared_ptr< tss::RelativisticAccelerationCorrectionSettings >,
@@ -657,6 +673,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
            &tss::sphericalHarmonicAcceleration,
            py::arg( "maximum_degree" ),
            py::arg( "maximum_order" ),
+           py::arg( "remove_point_mass" ) = false,
            R"doc(
 
  Creates settings for the spherical harmonic gravity acceleration.
@@ -682,6 +699,9 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum degree of the spherical harmonic expansion.
  maximum_order : int
      Maximum order of the spherical harmonic expansion.
+ remove_point_mass : bool, default=False
+     Whether the central (degree zero) term is excluded, e.g. when the point mass of the body is part of another
+     acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  SphericalHarmonicAccelerationSettings
@@ -719,6 +739,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
            py::arg( "maximum_order_body_undergoing" ),
            py::arg( "maximum_degree_central_body" ) = 0,
            py::arg( "maximum_order_central_body" ) = 0,
+           py::arg( "remove_point_mass_body_exerting" ) = false,
            R"doc(
 
  Creates settings for the mutual spherical harmonic gravity acceleration.
@@ -754,6 +775,9 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Maximum degree of the spherical harmonic expansion for the central body, if needed.
  maximum_order_central_body : int, default=0
      Maximum order of the spherical harmonic expansion for the central body, if needed.
+ remove_point_mass_body_exerting : bool, default=False
+     Whether the central (degree zero) term of the field of the body exerting the acceleration is excluded, e.g. when its
+     point mass is part of another acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  Returns
  -------
  MutualSphericalHarmonicAccelerationSettings
@@ -1305,6 +1329,47 @@ AccelerationSettings
  -------
  RTGAccelerationSettings
      RTG acceleration settings object.
+
+     )doc" );
+
+    m.def( "gravitational_parameter_rate",
+           &tss::gravitationalParameterRateAcceleration,
+           py::arg( "relative_gravitational_parameter_rate" ),
+           py::arg( "reference_epoch" ) = 0.0,
+           R"doc(
+
+ Creates settings for the acceleration due to a linear variation of the gravitational parameter of the exerting body.
+
+ Creates settings for the point-mass acceleration due to the change since a reference epoch :math:`t_{0}` of the gravitational
+ parameter :math:`\mu` of the exerting body (e.g. the solar mass loss), with a constant relative rate
+ :math:`\rho=\dot{\mu}/\mu` :cite:p:`Genova2018`:
+
+ .. math::
+
+    \mathbf{a}=-\mu\rho\left(t-t_{0}\right)\frac{\mathbf{r}}{r^{3}}
+
+ where :math:`\mathbf{r}` is the position of the accelerated body w.r.t. the exerting body, and :math:`\mu` is the gravitational
+ parameter of the gravity field of the exerting body, which is its value at :math:`t_{0}`. The acceleration is to be used next to
+ a point-mass (or Einstein-Infeld-Hoffmann) acceleration. Only the direct acceleration is implemented: the central body of the
+ propagation must be the exerting body or an inertial origin.
+
+ .. note::
+
+    The time variation of :math:`\mu` is introduced in this acceleration **only**. The gravitational parameter of the gravity field
+    of the exerting body remains constant at its value at :math:`t_{0}`, and that constant value is used by all other models, such
+    as other accelerations (including the point-mass or Einstein-Infeld-Hoffmann acceleration next to this one), light-time
+    corrections and the mass of the body.
+
+ Parameters
+ ----------
+ relative_gravitational_parameter_rate : float
+     Relative rate :math:`\rho=\dot{\mu}/\mu` of the gravitational parameter of the exerting body [1/s].
+ reference_epoch : float, default = 0.0
+     Epoch :math:`t_{0}` at which the gravitational parameter is that of the gravity field of the exerting body [s].
+ Returns
+ -------
+ GravitationalParameterRateAccelerationSettings
+     Acceleration settings object.
 
      )doc" );
 

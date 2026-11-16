@@ -466,6 +466,7 @@ void expose_estimation_analysis( py::module& m )
                             const Eigen::MatrixXd,
                             const Eigen::VectorXd,
                             const bool,
+                            const bool,
                             const bool >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -476,6 +477,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
                   py::arg( "apply_apriori_parameter_deviation" ) = false,
+                  py::arg( "reset_parameters_to_best_iteration" ) = false,
                   R"doc(
 
          Class constructor.
@@ -496,11 +498,17 @@ void expose_estimation_analysis( py::module& m )
          consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
              Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
          apply_final_parameter_correction : bool, default = True
-             Whether to apply the final estimated parameter correction to the simulation models after convergence.
+             Whether to apply the final estimated parameter correction to the simulation models after convergence. Only used to set
+             the simulation models if ``reset_parameters_to_best_iteration`` is ``False``.
          apply_apriori_parameter_deviation : bool, default = False
              Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
              of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
              each differential correction independently.
+         reset_parameters_to_best_iteration : bool, default = False
+             Whether to set the estimated parameters (in the ``parameters_to_estimate``) to those of the best iteration of the
+             estimation after the estimation is finished. If ``False``, they are set to those of the last iteration (see
+             :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`). Setting this to ``False`` is deprecated:
+             the default will change to ``True``, after which this input will be removed.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
@@ -511,6 +519,19 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" )
+            .def_readwrite( "iteration_callback",
+                            &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::iterationCallback_,
+                            R"doc(
+
+         Function called in each iteration of the estimation, after the normal equations are solved, as
+         ``f(iteration, residuals, inverse_covariance)``: the iteration number (from 0), the residuals of this iteration (ordered as in
+         :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`) and the unnormalized inverse covariance
+         matrix of this iteration (as in
+         :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.inverse_covariance`).
+         It can be used to monitor a long estimation while it runs. Default is ``None`` (no callback).
+
+         :type: Callable[[int, numpy.ndarray, numpy.ndarray], None]
+      )doc" )
             .def( "define_estimation_settings",
                   &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -521,6 +542,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "save_state_history_per_iteration" ) = false,
                   py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
                   py::arg( "condition_number_warning_each_iteration" ) = true,
+                  py::arg( "save_variational_results_per_iteration" ) = true,
                   R"doc(
 
          Function to define specific settings for the estimation process
@@ -550,6 +572,10 @@ void expose_estimation_analysis( py::module& m )
 
          save_state_history_per_iteration : bool, default = False
              Boolean denoting whether the state history and dependent variables are to be saved on each iteration.
+
+         save_variational_results_per_iteration : bool, default = True
+             Boolean denoting whether the state transition and sensitivity matrices are to be saved on each iteration.
+             Only used if ``save_state_history_per_iteration`` is True.
 
          Returns
          -------
@@ -872,6 +898,16 @@ void expose_estimation_analysis( py::module& m )
          Residual vectors, concatenated per iteration into a matrix; the :math:`i^{th}` column has the residuals from the :math:`i^{th}` iteration.
 
          :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
+            .def_property_readonly( "residual_times",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualTimes,
+                                    R"doc(
+
+         **read-only**
+
+         Observation times corresponding to the entries of the residual vectors (in :attr:`final_residuals` and :attr:`residual_history`), in the same order as :attr:`~tudatpy.estimation.observations.ObservationCollection.concatenated_times` of the observation collection used in the estimation.
+
+         :type: list[float]
       )doc" )
             .def_property_readonly( "parameter_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getParameterHistoryMatrix,

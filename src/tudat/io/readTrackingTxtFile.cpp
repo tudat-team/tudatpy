@@ -10,13 +10,44 @@
 
 #include "tudat/io/readTrackingTxtFile.h"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
+#include <sstream>
 
 namespace tudat
 {
 namespace input_output
 {
+
+basic_astrodynamics::DateTime parseTrackingDateTime( const std::string& dateTimeString )
+{
+    std::stringstream stream( dateTimeString );
+    int year = 0;
+    std::string monthString;
+    int day = 0;
+    std::string timeString;
+    stream >> year >> monthString >> day >> timeString;
+    if( stream.fail( ) || timeString.empty( ) )
+    {
+        throw std::runtime_error( "Malformed calendar epoch '" + dateTimeString + "'." );
+    }
+
+    std::replace( timeString.begin( ), timeString.end( ), ':', ' ' );
+    std::stringstream timeStream( timeString );
+    int hour = 0;
+    int minute = 0;
+    double seconds = 0.0;
+    timeStream >> hour >> minute >> seconds;
+    if( timeStream.fail( ) )
+    {
+        throw std::runtime_error( "Malformed time field in calendar epoch '" + dateTimeString + "'." );
+    }
+
+    TrackingFileMonthFieldConverter monthConverter( TrackingDataType::month );
+    const int month = static_cast< int >( monthConverter.toDouble( monthString ) );
+    return basic_astrodynamics::DateTime( year, month, day, hour, minute, seconds );
+}
 
 static const std::vector< std::string >& getDefaultFdetsDatetimeStringColumnTypes( )
 {

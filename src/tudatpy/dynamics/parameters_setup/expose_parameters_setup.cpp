@@ -134,6 +134,9 @@ void expose_parameters_setup_types( py::module& m )
             .value( "shared_observation_bias_type",
                     tep::EstimatebleParametersEnum::shared_observation_bias,
                     R"doc(Estimatable parameter for shared observation bias.)doc" )
+            .value( "relative_gravitational_parameter_rate_type",
+                    tep::EstimatebleParametersEnum::relative_gravitational_parameter_rate,
+                    R"doc(Estimatable parameter for the relative rate of the gravitational parameter of a body.)doc" )
             .value( "arcwise_constant_additive_observation_bias_type",
                     tep::EstimatebleParametersEnum::arcwise_constant_additive_observation_bias,
                     R"doc(Estimatable parameter for arc-wise constant additive observation bias.)doc" )
@@ -149,9 +152,21 @@ void expose_parameters_setup_types( py::module& m )
             .value( "ppn_parameter_beta_type",
                     tep::EstimatebleParametersEnum::ppn_parameter_beta,
                     R"doc(Estimatable parameter for PPN parameter beta.)doc" )
+            .value( "displacement_love_number_type",
+                    tep::EstimatebleParametersEnum::displacement_love_number,
+                    R"doc(Estimatable parameter for the displacement Love number of the basic tidal deformation of a body.)doc" )
+            .value( "displacement_shida_number_type",
+                    tep::EstimatebleParametersEnum::displacement_shida_number,
+                    R"doc(Estimatable parameter for the displacement Shida number of the basic tidal deformation of a body.)doc" )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position,
                     R"doc(Estimatable parameter for ground station position.)doc" )
+            .value( "ground_station_linear_velocity_type",
+                    tep::EstimatebleParametersEnum::ground_station_linear_velocity,
+                    R"doc(Estimatable parameter for the body-fixed velocity of the linear motion of a ground station.)doc" )
+            .value( "camera_pointing_correction_type",
+                    tep::EstimatebleParametersEnum::camera_pointing_correction,
+                    R"doc(Estimatable parameter for camera pointing correction.)doc" )
             .value( "equivalence_principle_lpi_violation_parameter_type",
                     tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter,
                     R"doc(Estimatable parameter for equivalence principle lpi violation parameter.)doc" )
@@ -719,7 +734,7 @@ void expose_parameters_setup( py::module& m )
 
 Creates settings for estimating the three constants of a three-coefficient radiation-pressure acceleration.
 
-The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square metres. It is
+The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square meters. It is
 linked to every matching acceleration created with
 :func:`~tudatpy.dynamics.propagation_setup.acceleration.three_coefficient_radiation_pressure` from
 ``radiation_source`` acting on ``body`` in the supplied propagator settings.
@@ -2144,13 +2159,110 @@ EstimatableParameterSettings
 
      )doc" );
 
+    m.def( "ground_station_linear_velocity",
+           &tep::groundStationLinearVelocity,
+           py::arg( "body" ),
+           py::arg( "ground_station_name" ),
+           R"doc(
+
+ Function for creating parameter settings for ground station linear velocity.
+
+ Function for creating parameter settings object for the body-fixed Cartesian velocity (in m/s) of a ground station's linear motion model.
+ Using the ground station linear velocity as estimatable parameter requires:
+
+ * The ground station to have a linear motion model (see :func:`~tudatpy.dynamics.environment_setup.ground_station.linear_station_motion`)
+ * At least one observation model to rely on the specified ground station
+
+
+ Parameters
+ ----------
+ body : str
+     Body name identifying the body, with which the ground station is associated.
+ ground_station_name : str
+     Name which identifies the ground station with the linear motion model.
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified ground station's linear velocity.
+
+
+     )doc" );
+
+    m.def( "displacement_love_number",
+           &tep::displacementLoveNumber,
+           py::arg( "deformed_body" ),
+           py::arg( "degrees" ),
+           R"doc(
+
+Function for creating parameter settings for a body's displacement Love number :math:`h_{n}`.
+
+Function for creating parameter settings for the displacement Love number :math:`h_{n}` of each of the given degrees :math:`n` of
+a body's basic tidal deformation. The parameter has one entry per degree, and its value is used in all basic tidal deformation
+models of the body. The displacement Shida number :math:`l_{n}` is estimated with a separate parameter
+(see :func:`~tudatpy.dynamics.parameters_setup.displacement_shida_number`).
+
+Using the displacement Love number as estimatable parameter requires:
+
+* A :func:`~tudatpy.dynamics.environment_setup.shape_deformation.basic_solid_body_tidal` shape deformation model of the ``deformed_body``, which includes each of the given degrees
+* At least one observation model to rely on a ground station on the ``deformed_body``, of which the motion includes the body deformation
+
+
+Parameters
+----------
+deformed_body : str
+    Name of the body that is undergoing tidal deformation
+degrees : list[int]
+    Degree :math:`n` (2 or 3) of each Love number :math:`h_{n}` that is to be estimated
+
+Returns
+-------
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+    Object for the specified body's displacement Love number :math:`h_{n}` of each given degree
+
+
+    )doc" );
+
+    m.def( "displacement_shida_number",
+           &tep::displacementShidaNumber,
+           py::arg( "deformed_body" ),
+           py::arg( "degrees" ),
+           R"doc(
+
+Function for creating parameter settings for a body's displacement Shida number :math:`l_{n}`.
+
+Function for creating parameter settings for the displacement Shida number :math:`l_{n}` of each of the given degrees :math:`n` of
+a body's basic tidal deformation. The parameter has one entry per degree, and its value is used in all basic tidal deformation
+models of the body. The displacement Love number :math:`h_{n}` is estimated with a separate parameter
+(see :func:`~tudatpy.dynamics.parameters_setup.displacement_love_number`).
+
+Using the displacement Shida number as estimatable parameter requires:
+
+* A :func:`~tudatpy.dynamics.environment_setup.shape_deformation.basic_solid_body_tidal` shape deformation model of the ``deformed_body``, which includes each of the given degrees
+* At least one observation model to rely on a ground station on the ``deformed_body``, of which the motion includes the body deformation
+
+
+Parameters
+----------
+deformed_body : str
+    Name of the body that is undergoing tidal deformation
+degrees : list[int]
+    Degree :math:`n` (2 or 3) of each Shida number :math:`l_{n}` that is to be estimated
+
+Returns
+-------
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+    Object for the specified body's displacement Shida number :math:`l_{n}` of each given degree
+
+
+    )doc" );
+
     m.def( "reference_point_position",
            &tep::referencePointPosition,
            py::arg( "body" ),
            py::arg( "reference_point_name" ),
            R"doc(
 
-         Configure estimation of the body-fixed Cartesian position of ``reference_point_name`` on ``body``, in metres.
+         Configure estimation of the body-fixed Cartesian position of ``reference_point_name`` on ``body``, in meters.
 
          Parameters
          ----------
@@ -2165,6 +2277,65 @@ EstimatableParameterSettings
              Settings for the requested estimatable parameter.
 
       )doc" );
+
+    m.def( "camera_pointing_correction",
+           &tep::cameraPointingCorrection,
+           py::arg( "body" ),
+           py::arg( "camera_name" ),
+           R"doc(
+
+ Function for creating parameter settings for a per-image camera pointing correction.
+
+ Function for creating parameter settings object for the pointing corrections of a camera registered on a
+ body. One correction, with three components, is estimated for each image taken with this camera. The images are
+ known to the camera if it is created from tracking supplementary data, such as SUM or PSF data. Any other camera
+ has a single correction, which applies to all its observations.
+
+ The correction :math:`\boldsymbol{\theta}_{i}` of image :math:`i` modifies the rotation from the inertial frame
+ :math:`I` to the camera frame :math:`C` as follows:
+
+ .. math::
+    \mathbf{R}^{(C/I)}_{i}=\Delta\mathbf{R}_{i}\mathbf{R}^{(C/I)}_{i,0}
+
+ where :math:`\mathbf{R}^{(C/I)}_{i,0}` is the rotation of image :math:`i` without correction. The rotation matrix
+ :math:`\Delta\mathbf{R}_{i}` rotates a position :math:`\mathbf{r}_{C}` in the camera frame by the angle
+ :math:`\alpha_{i}=|\boldsymbol{\theta}_{i}|` about the axis
+ :math:`\mathbf{e}_{i}=\boldsymbol{\theta}_{i}/|\boldsymbol{\theta}_{i}|`, expressed in the camera frame:
+
+ .. math::
+    \Delta\mathbf{R}_{i}\mathbf{r}_{C}=\mathbf{r}_{C}\cos\alpha_{i}+(\mathbf{e}_{i}\times\mathbf{r}_{C})\sin\alpha_{i}+\mathbf{e}_{i}(\mathbf{e}_{i}\cdot\mathbf{r}_{C})(1-\cos\alpha_{i})
+
+ For small corrections, this reduces to :math:`\Delta\mathbf{R}_{i}\mathbf{r}_{C}\approx\mathbf{r}_{C}+\boldsymbol{\theta}_{i}\times\mathbf{r}_{C}`.
+
+ The parameter values are the components of all corrections, in radians, with the :math:`N` images in time order
+ (see :attr:`~tudatpy.dynamics.environment.Camera.picture_epochs`), so that the parameter has size :math:`3N`
+ (with :math:`N=1` for a camera with a single correction):
+
+ .. math::
+    \mathbf{p}=[\theta_{0,x},\theta_{0,y},\theta_{0,z},\ldots,\theta_{N-1,x},\theta_{N-1,y},\theta_{N-1,z}]^{T}
+
+ These values are stored in :attr:`~tudatpy.dynamics.environment.Camera.pointing_correction`, and are zero by default.
+
+ Using it as estimatable parameter requires:
+
+ * The body to carry a ``VehicleSystems`` with the named camera.
+ * At least one pixel-coordinate observation model to rely on the specified camera.
+
+
+ Parameters
+ ----------
+ body : str
+     Body name identifying the body (spacecraft) carrying the camera.
+ camera_name : str
+     Name which identifies the camera whose pointing is corrected.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the camera pointing correction.
+
+
+     )doc" );
 
     // ###############  Tidal Model Parameters
     // ################################
@@ -2569,6 +2740,30 @@ Returns
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's radiation pressure coefficient.
 
+
+     )doc" );
+
+    m.def( "relative_gravitational_parameter_rate",
+           &tep::relativeGravitationalParameterRate,
+           py::arg( "body_name" ),
+           R"doc(
+
+ Function for creating parameter settings for the relative rate of the gravitational parameter of a body.
+
+ Function for creating parameter settings for the relative rate :math:`\rho=\dot{\mu}/\mu` [1/s] of the gravitational parameter
+ of a body, in all :func:`~tudatpy.dynamics.propagation_setup.acceleration.gravitational_parameter_rate` accelerations that it
+ exerts :cite:p:`Genova2018`. The rate applies to these accelerations only: the gravitational parameter of the gravity field of the
+ body, used by all other models, remains constant.
+
+ Parameters
+ ----------
+ body_name : str
+     Name of the body exerting the accelerations.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the relative gravitational parameter rate.
 
      )doc" );
 

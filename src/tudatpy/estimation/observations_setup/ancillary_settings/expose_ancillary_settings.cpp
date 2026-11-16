@@ -19,10 +19,12 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
+namespace tba = tudat::basic_astrodynamics;
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;
 
@@ -81,16 +83,6 @@ void expose_ancillary_settings_types( py::module& m )
                     tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate,
                     R"doc(Intermediate received frequency used in the observation calculation.)doc" )
             .export_values( );
-
-    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
-        Enumeration of frequency bands.
-
-        This enum lists common frequency bands used in deep space navigation.
-        )doc" )
-            .value( "s_band", tom::FrequencyBands::s_band, R"doc(S-band radio frequency identifier.)doc" )
-            .value( "x_band", tom::FrequencyBands::x_band, R"doc(X-band radio frequency identifier.)doc" )
-            .value( "ka_band", tom::FrequencyBands::ka_band, R"doc(Ka-band radio frequency identifier.)doc" )
-            .value( "ku_band", tom::FrequencyBands::ku_band, R"doc(Ku-band radio frequency identifier.)doc" );
 
     py::enum_< tom::PositionAngleReferenceFrame >( m,
                                                    "PositionAngleReferenceFrame",
@@ -152,8 +144,8 @@ void expose_ancillary_settings_types( py::module& m )
                     This ancillary setting is retrieved and set using the
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_list_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_list_settings`
-                    the mapping of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands`
-                    enum to integers (with s-band equal to 0, x-band to 1, ku band to 2, ka-band to 3). So, for an s-band up and x-band downlink, this
+                    the mapping of the :class:`~tudatpy.dynamics.environment.FrequencyBands`
+                    enum to integers (with s-band equal to 0, x-band to 1, ka-band to 2, ku-band to 3). So, for an s-band up and x-band downlink, this
                     ancillary setting gets the value ``[0, 1]``
                     )doc" )
             .value( "reception_reference_frequency_band",
@@ -373,10 +365,11 @@ void expose_ancillary_settings_types( py::module& m )
              # Code snippet to show how to retrieve ObservationAncillarySimulationSettings info
              # using the ObservationAncillarySimulationSettings.get_float_settings function
 
+             from tudatpy.dynamics import environment
              from tudatpy.estimation.observations_setup import ancillary_settings
 
              # Create Ancillary Settings
-             n_way_range_ancillary_settings = ancillary_settings.n_way_range_ancillary_settings(frequency_bands=[ancillary_settings.FrequencyBands.x_band])
+             n_way_range_ancillary_settings = ancillary_settings.n_way_range_ancillary_settings(frequency_bands=[environment.FrequencyBands.x_band])
 
              # Verify that we indeed added Frequency Bands as Ancillary Simulation Variables, using n_way_range_ancillary_settings.get_float_list_settings
              list_num = n_way_range_ancillary_settings.get_float_list_settings(ancillary_settings.ObservationAncillarySimulationVariable.frequency_bands)
@@ -437,12 +430,20 @@ void expose_ancillary_settings( py::module& m )
 
  The following reference frames can be used for the north pole: J2000/ICRF (default), B1950, the IAU 1976 or IAU 2006 mean-of-date
  frame, and the IAU 1976/1980 or IAU 2006/2000A true-of-date frame. The orientation of the mean- and true-of-date frames is
- computed using SOFA. Note that the B1950 option only rotates the pole, using the B1950 to J2000 rotation defined by NAIF, and
- is not a full FK4 to ICRF conversion of catalogue coordinates. To use a user-defined north pole, use
+ computed using SOFA. The IAU 1976 and IAU 1976/1980 frames include the frame bias between the ICRF (the frame called J2000 in
+ Tudat) and FK5 J2000. The B1950 option uses the constant FK4 to J2000 rotation defined by NAIF (which includes the FK4 equinox
+ correction at B1950.0). It does not include the E-terms of aberration (up to 0.34 arcsec), nor the epoch-dependent FK4 equinox and
+ proper-motion errors; to process observed FK4 B1950.0 positions exactly, convert them to the ICRF with
+ :func:`~tudatpy.astro.frame_conversion.fk4_b1950_to_icrf_right_ascension_declination`. To use a user-defined north pole, use
  :func:`custom_position_angle_ancillary_settings`.
 
  The reference frame only affects the position angle, while stellar aberration affects both the position angle and the
- separation.
+ separation. Stellar aberration uses the velocity of the receiver w.r.t. the global frame origin, which should be the solar system
+ barycentre (a warning is printed otherwise).
+
+ For angular position observables, the same settings define the frame (other than a custom pole) of the right ascension and
+ declination, and whether stellar aberration is included. Without these settings, the angular position is computed w.r.t. the
+ axes of the global frame orientation (for ECLIPJ2000, these angles are therefore ecliptic longitude and latitude).
 
  Parameters
  ----------
@@ -527,7 +528,7 @@ void expose_ancillary_settings( py::module& m )
            &tom::getTwoWayRangeAncillarySettings,
            py::arg( "retransmission_delay" ) = 0.0,
            // py::arg("frequency_band") =
-           // tom::FrequencyBands::x_band,
+           // tba::FrequencyBands::x_band,
            R"doc(
 
  Function for creating ancillary settings for two-way range observable.
@@ -590,7 +591,7 @@ void expose_ancillary_settings( py::module& m )
     m.def( "n_way_range_ancillary_settings",
            &tom::getNWayRangeAncillarySettings,
            py::arg( "link_end_delays" ) = std::vector< double >( ),
-           py::arg( "frequency_bands" ) = std::vector< tom::FrequencyBands >( ),
+           py::arg( "frequency_bands" ) = std::vector< tba::FrequencyBands >( ),
            R"doc(
 
  Function for creating ancillary settings for n-way range observable.
@@ -619,7 +620,7 @@ void expose_ancillary_settings( py::module& m )
            &tom::getNWayAveragedDopplerAncillarySettings,
            py::arg( "integration_time" ) = 60.0,
            py::arg( "link_end_delays" ) = std::vector< double >( ),
-           py::arg( "frequency_bands" ) = std::vector< tom::FrequencyBands >( ),
+           py::arg( "frequency_bands" ) = std::vector< tba::FrequencyBands >( ),
            R"doc(
 
  Function for creating ancillary settings for n-way averaged Doppler observable.
@@ -660,9 +661,9 @@ void expose_ancillary_settings( py::module& m )
 
         Parameters
         ----------
-        frequency_bands : list[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands]
+        frequency_bands : list[tudatpy.dynamics.environment.FrequencyBands]
             List of frequency bands for each link.
-        reference_frequency_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+        reference_frequency_band : tudatpy.dynamics.environment.FrequencyBands
             Reference frequency band at reception.
         reference_frequency : float
             Reference frequency for Doppler calculation.
@@ -687,7 +688,7 @@ void expose_ancillary_settings( py::module& m )
 
         Parameters
         ----------
-        frequency_bands : list[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands]
+        frequency_bands : list[tudatpy.dynamics.environment.FrequencyBands]
             List of frequency bands for each link.
         lowest_ranging_component : float
             Lowest ranging component for sequential range.
@@ -709,7 +710,7 @@ void expose_ancillary_settings( py::module& m )
 
         Parameters
         ----------
-        frequency_bands : list[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands]
+        frequency_bands : list[tudatpy.dynamics.environment.FrequencyBands]
             List of frequency bands for each link.
 
         Returns
@@ -761,54 +762,6 @@ void expose_ancillary_settings( py::module& m )
             Observable type for which to add the ancillary settings.
         link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
             Link ends for which to add the ancillary settings.
-        )doc" );
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-    // FREQUENCIES
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-
-    m.def( "dsn_default_turnaround_ratios",
-           &tom::getDsnDefaultTurnaroundRatios,
-           py::arg( "uplink_band" ),
-           py::arg( "downlink_band" ),
-           R"doc(
-
-        Get the default DSN turnaround ratio for given uplink and downlink bands.
-
-        Parameters
-        ----------
-        uplink_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-            Uplink frequency band.
-        downlink_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-            Downlink frequency band.
-
-        Returns
-        -------
-        float
-            The turnaround ratio.
-        )doc" );
-
-    m.def( "cassini_turnaround_ratios",
-           &tom::getCassiniTurnaroundRatio,
-           py::arg( "uplink_band" ),
-           py::arg( "downlink_band" ),
-           R"doc(
-        Get the Cassini turnaround ratio for given uplink and downlink bands.
-
-        This function returns the specific Ka-band turnaround ratio for Cassini if both bands are Ka-band,
-        otherwise it falls back to the DSN default turnaround ratios.
-
-        Parameters
-        ----------
-        uplink_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-            Uplink frequency band.
-        downlink_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-            Downlink frequency band.
-
-        Returns
-        -------
-        float
-            The turnaround ratio.
         )doc" );
 }
 

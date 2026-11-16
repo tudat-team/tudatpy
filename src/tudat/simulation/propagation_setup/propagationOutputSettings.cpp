@@ -540,6 +540,30 @@ std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariab
     {
         variableId += " of body " + dependentVariableSettings->associatedBody_;
     }
+    if( ( dependentVariableSettings->dependentVariableType_ == single_gravity_field_variation_acceleration ) ||
+        ( dependentVariableSettings->dependentVariableType_ == single_gravity_field_variation_acceleration_terms ) )
+    {
+        std::string identifier;
+        if( auto variationSettings =
+                    std::dynamic_pointer_cast< SingleVariationSphericalHarmonicAccelerationSaveSettings >( dependentVariableSettings ) )
+        {
+            identifier = variationSettings->identifier_;
+        }
+        else if( auto termsSettings = std::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                         dependentVariableSettings ) )
+        {
+            identifier = termsSettings->identifier_;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (single gravity field variation)" );
+        }
+
+        if( identifier != "" )
+        {
+            variableId += ", tide raised by " + identifier;
+        }
+    }
 
     return variableId;
 }

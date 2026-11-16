@@ -1,1 +1,16 @@
-from .mission_data_downloader import LoadPDS, DownloadAtmosphericData
+from tudatpy.data._compat import deprecated_dir, deprecated_getattr
+
+_ALIASES = {
+    "LoadPDS": "tudatpy.data_input.data_retrieval.missions.LoadPDS",
+    "DownloadAtmosphericData": "tudatpy.data_input.data_retrieval.media_corrections.DownloadAtmosphericData",
+}
+
+__all__ = sorted(_ALIASES)
+
+
+def __getattr__(name):
+    return deprecated_getattr(__name__, _ALIASES, name)
+
+
+def __dir__():
+    return deprecated_dir(globals(), _ALIASES)

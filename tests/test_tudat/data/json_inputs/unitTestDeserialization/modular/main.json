@@ -1,0 +1,8 @@
+{
+  "bodies": "$(bodies.json){Earth:Earth,satellite:sat}",
+  "propagators": [
+    "$(propagator.json)"
+  ],
+  "integrator": "$(rk4)",
+  "export": "$(export/export)"
+}

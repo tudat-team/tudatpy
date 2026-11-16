@@ -211,13 +211,20 @@ Eigen::Vector3d getBodyFixedSpecialRelativisticDisplacementFunction( const doubl
                                                                      const simulation_setup::SystemOfBodies& bodies,
                                                                      const Eigen::Vector3d& nominalStationState )
 {
+    // Spatial part of IERS Conventions 2010 Eq. (11.19), without the terms that depend on the Earth's acceleration
     Eigen::Quaterniond bodyFixedToInertial = bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( time );
     Eigen::Vector3d inertialStationPosition = bodyFixedToInertial * nominalStationState;
-    Eigen::Vector3d earthBarycentricVelocity = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( time ).segment( 3, 3 );
+    Eigen::Vector6d earthBarycentricState = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< double, double, false >( time );
+    double sunPotential = bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) /
+            ( earthBarycentricState.segment( 0, 3 ) -
+              bodies.at( "Sun" )->getPositionInBaseFrameFromEphemeris< double, double, false >( time ) )
+                    .norm( );
+    double lc = 1.48082686741E-8;
 
     return bodyFixedToInertial.inverse( ) *
-            ( inertialStationPosition.dot( earthBarycentricVelocity ) * earthBarycentricVelocity *
-              physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
+            ( -( sunPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT + lc ) * inertialStationPosition -
+              0.5 * inertialStationPosition.dot( earthBarycentricState.segment( 3, 3 ) ) * earthBarycentricState.segment( 3, 3 ) *
+                      physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
 }
 
 Eigen::Vector3d getExpectedPiecewiseConstantDisplacement( const int j )
@@ -299,13 +306,13 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             }
             if( i == 4 )
             {
-                stationMotionSettings.push_back( std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( "", false ) );
+                stationMotionSettings.push_back( std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( "Sun", true ) );
             }
             stationMotionSettings.push_back( std::make_shared< BodyDeformationStationMotionSettings >( true ) );
 
             std::shared_ptr< GroundStationSettings > stationSettings = std::make_shared< GroundStationSettings >(
                     "Station1", nominalStationState, coordinate_conversions::cartesian_position, stationMotionSettings );
-            createGroundStation( bodies.at( "Earth" ), stationSettings );
+            createGroundStation( bodies.at( "Earth" ), stationSettings, bodies );
 
             std::shared_ptr< tudat::ground_stations::GroundStationState > stationState =
                     bodies.at( "Earth" )->getGroundStation( "Station1" )->getNominalStationState( );
@@ -318,6 +325,14 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             if( bodyDeformationType == 1 )
             {
                 deformationModels = bodies.at( "Earth" )->getBodyDeformationModels( );
+            }
+
+            // Set current states of the bodies, which must not be changed by evaluating station motion and deformation
+            std::map< std::string, Eigen::Vector6d > currentBodyStates;
+            for( const std::string& bodyName : bodyNames )
+            {
+                bodies.at( bodyName )->setStateFromEphemeris< double, double >( 1.0E5 );
+                currentBodyStates[ bodyName ] = bodies.at( bodyName )->getState( );
             }
             if( i == 0 )
             {
@@ -424,6 +439,11 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-6 );
                     }
                 }
+            }
+
+            for( const std::string& bodyName : bodyNames )
+            {
+                BOOST_CHECK( bodies.at( bodyName )->getState( ) == currentBodyStates.at( bodyName ) );
             }
         }
     }

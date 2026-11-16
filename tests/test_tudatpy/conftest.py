@@ -5,6 +5,7 @@ from urllib.error import HTTPError, URLError
 import pytest
 import requests
 
+_REMOTE_SERVICE_UNAVAILABLE_STATUSES = (500, 502, 503, 504)
 _JPL_HORIZONS_OUTAGE_SIGNATURES = (
     "wldini(): missing required file LTKERNL",
     "ERROR in VLRDC: Var not declared: IP_ADDR",
@@ -13,6 +14,15 @@ _JPL_HORIZONS_OUTAGE_SIGNATURES = (
 
 def _is_connectivity_failure(exception):
     """Return whether an exception represents an unavailable remote service."""
+    # Servers and gateways respond with these statuses when the service is failing or unavailable.
+    if isinstance(exception, requests.exceptions.HTTPError):
+        return (
+            exception.response is not None
+            and exception.response.status_code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
+        )
+    if isinstance(exception, HTTPError):
+        return exception.code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
+
     if isinstance(
         exception,
         (
