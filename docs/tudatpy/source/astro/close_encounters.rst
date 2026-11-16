@@ -18,11 +18,7 @@ Functions
 
 .. autosummary::
 
-   compute_b_plane_coordinates
-
-   compute_opik_coordinates
-
-   compute_opik_reference_direction
+   make_b_plane
 
    compute_incoming_asymptote_direction
 
@@ -32,11 +28,7 @@ Functions
 
 
 
-.. autofunction:: tudatpy.astro.close_encounters.compute_b_plane_coordinates
-
-.. autofunction:: tudatpy.astro.close_encounters.compute_opik_coordinates
-
-.. autofunction:: tudatpy.astro.close_encounters.compute_opik_reference_direction
+.. autofunction:: tudatpy.astro.close_encounters.make_b_plane
 
 .. autofunction:: tudatpy.astro.close_encounters.compute_incoming_asymptote_direction
 
