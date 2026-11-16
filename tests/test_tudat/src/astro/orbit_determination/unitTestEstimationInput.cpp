@@ -117,6 +117,12 @@ BOOST_AUTO_TEST_CASE( test_ConstraintWithStronglyWeightedNormalEquations )
         }
         BOOST_CHECK_SMALL( constraint.dot( solution ), 1.0E-12 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( solution, solutionWithUnitWeight, 1.0E-10 );
+
+        // Check that the sparse solver gives the same solution
+        const Eigen::SparseMatrix< double > sparseNormalMatrix = normalMatrix.sparseView( );
+        const Eigen::Vector3d sparseSolution =
+                linear_algebra::solveSystemOfEquations( sparseNormalMatrix, rightHandSide, TUDAT_NAN ).segment( 0, 3 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseSolution, solution, 1.0E-10 );
     }
 }
 

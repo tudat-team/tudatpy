@@ -15,6 +15,8 @@
 #ifndef TUDAT_LEASTSQUARESTRAITS_H
 #define TUDAT_LEASTSQUARESTRAITS_H
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <optional>
 #include <sstream>
@@ -366,7 +368,51 @@ struct MatrixTraits< Real, Sparse > {
     }
 };
 
-/*! Solver traits for dense matrices, using a singular value decomposition.
+/*! Function to compute the symmetric diagonal scaling D of a (dense or sparse) square system of equations A*x = b, which is then
+ * solved as ( D*A*D ) * y = D*b, with x = D*y.
+ *
+ * Each row is scaled by the inverse square root of its diagonal entry (Jacobi scaling), so that strongly different diagonal entries
+ * (e.g. from observables with very different weights) do not limit the precision of the solution. Rows with a zero diagonal
+ * (constraints in a KKT system) are scaled by their largest scaled entry: next to strongly weighted normal equations, they would
+ * otherwise fall below the threshold of the decomposition, and the constraint would be silently dropped.
+ */
+template< typename MatrixType >
+Eigen::Matrix< typename MatrixType::Scalar, Eigen::Dynamic, 1 > getSymmetricScalingOfSystemOfEquations( const MatrixType& A )
+{
+    using vector_type = Eigen::Matrix< typename MatrixType::Scalar, Eigen::Dynamic, 1 >;
+
+    const vector_type diagonal = A.diagonal( );
+    vector_type scaling = diagonal.cwiseAbs( ).cwiseSqrt( );
+    for( int i = 0; i < scaling.rows( ); i++ )
+    {
+        scaling( i ) = ( scaling( i ) > 0.0 ) ? 1.0 / scaling( i ) : 1.0;
+    }
+
+    // Largest scaled entry in each row with a zero diagonal, looping over the (non-zero) entries of the matrix
+    vector_type largestEntries = vector_type::Zero( scaling.rows( ) );
+    for( Eigen::Index k = 0; k < A.outerSize( ); k++ )
+    {
+        for( Eigen::InnerIterator< MatrixType > it( A, k ); it; ++it )
+        {
+            if( diagonal( it.row( ) ) == 0.0 )
+            {
+                largestEntries( it.row( ) ) = std::max( largestEntries( it.row( ) ), std::abs( it.value( ) ) * scaling( it.col( ) ) );
+            }
+        }
+    }
+
+    for( int i = 0; i < scaling.rows( ); i++ )
+    {
+        if( largestEntries( i ) > 0.0 )
+        {
+            scaling( i ) = 1.0 / largestEntries( i );
+        }
+    }
+    return scaling;
+}
+
+/*! Solver traits for dense matrices, using a singular value decomposition of the scaled system (see
+ * getSymmetricScalingOfSystemOfEquations).
  *
  * Emits a warning on stdout when the condition number exceeds `limitConditionNumberForWarning`.
  * A NaN limit disables the check.
@@ -378,29 +424,7 @@ struct SolverTraits< Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >, SVD 
 
     static vector_type solve( const matrix_type& A, const vector_type& b, Real limitConditionNumberForWarning )
     {
-        // Symmetric diagonal (Jacobi) scaling, so that strongly different diagonal entries (e.g. from observables with very different
-        // weights) do not limit the precision of the solution
-        vector_type scaling = A.diagonal( ).cwiseAbs( ).cwiseSqrt( );
-        for( int i = 0; i < scaling.rows( ); i++ )
-        {
-            scaling( i ) = ( scaling( i ) > 0.0 ) ? 1.0 / scaling( i ) : 1.0;
-        }
-
-        // Rows with a zero diagonal (constraints in a KKT system) are scaled by their largest scaled entry: next to strongly weighted
-        // normal equations, they would otherwise fall below the threshold of the decomposition, and the constraint would be silently
-        // dropped
-        for( int i = 0; i < scaling.rows( ); i++ )
-        {
-            if( A( i, i ) == 0.0 )
-            {
-                const Real largestEntry = A.row( i ).cwiseAbs( ).cwiseProduct( scaling.transpose( ) ).maxCoeff( );
-                if( largestEntry > 0.0 )
-                {
-                    scaling( i ) = 1.0 / largestEntry;
-                }
-            }
-        }
-
+        const vector_type scaling = getSymmetricScalingOfSystemOfEquations( A );
         auto svd = ( scaling.asDiagonal( ) * A * scaling.asDiagonal( ) ).template jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
         if( limitConditionNumberForWarning == limitConditionNumberForWarning )
         {
@@ -415,7 +439,8 @@ struct SolverTraits< Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >, SVD 
     }
 };
 
-/*! Solver traits for sparse matrices, using a sparse QR decomposition.
+/*! Solver traits for sparse matrices, using a sparse QR decomposition of the scaled system (see
+ * getSymmetricScalingOfSystemOfEquations).
  *
  * Eigen's sparse QR does not provide a condition number estimate, so the limit is ignored.
  */
@@ -426,13 +451,17 @@ struct SolverTraits< Eigen::SparseMatrix< Real >, QR > {
 
     static vector_type solve( const matrix_type& A, const vector_type& b, Real /* limitConditionNumberForWarning */ )
     {
+        const vector_type scaling = getSymmetricScalingOfSystemOfEquations( A );
+        const matrix_type scaledA = scaling.asDiagonal( ) * A * scaling.asDiagonal( );
+
         Eigen::SparseQR< matrix_type, Eigen::COLAMDOrdering< int > > qr;
-        qr.compute( A );
+        qr.compute( scaledA );
         if( qr.info( ) != Eigen::Success )
         {
             throw std::runtime_error( "Error when solving sparse least-squares system: sparse QR decomposition failed" );
         }
-        return qr.solve( b );
+        const vector_type scaledSolution = qr.solve( scaling.asDiagonal( ) * b );
+        return scaling.asDiagonal( ) * scaledSolution;
     }
 };
 
