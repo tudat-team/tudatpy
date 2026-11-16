@@ -11,6 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include <filesystem>
+#include "tudat/astro/ephemerides/customEphemeris.h"
 #include <thread>
 
 #include <boost/test/included/unit_test.hpp>
@@ -57,6 +58,56 @@ using namespace tudat::aerodynamics;
 using namespace tudat::electromagnetism;
 
 BOOST_AUTO_TEST_SUITE( test_system_of_bodies_copy )
+
+// Warning verbosity must never determine whether an unsafe worker copy is accepted.
+BOOST_AUTO_TEST_CASE( testStrictCopyRejectsCustomFunctions )
+{
+    SystemOfBodies bodies( "SSB", "J2000" );
+    bodies.createEmptyBody( "Custom" );
+    bodies.at( "Custom" )
+            ->setEphemeris(
+                    std::make_shared< CustomEphemeris<> >( []( double ) { return Eigen::Vector6d::Zero( ).eval( ); }, "SSB", "J2000" ) );
+    for( bool warnings : { false, true } )
+    {
+        BOOST_CHECK_EXCEPTION( createSystemOfBodiesCopy( bodies, BodyCopyOptions{ warnings, true } ),
+                               std::runtime_error,
+                               []( const std::runtime_error& error ) {
+                                   const std::string message = error.what( );
+                                   return message.find( "Custom" ) != std::string::npos &&
+                                           message.find( "ephemeris" ) != std::string::npos &&
+                                           message.find( "custom function" ) != std::string::npos;
+                               } );
+    }
+    // General-purpose copying keeps the existing permissive contract.
+    SystemOfBodies copy = createSystemOfBodiesCopy( bodies, false );
+    BOOST_CHECK( copy.at( "Custom" )->getEphemeris( ) == bodies.at( "Custom" )->getEphemeris( ) );
+}
+
+BOOST_AUTO_TEST_CASE( testStrictCopyRejectsGravityFieldCallback )
+{
+    SystemOfBodies bodies( "SSB", "J2000" );
+    bodies.createEmptyBody( "Central" );
+    bodies.at( "Central" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >( 3.986004418E14, []( ) {} ) );
+    BOOST_CHECK_EXCEPTION(
+            createSystemOfBodiesCopy( bodies, BodyCopyOptions{ false, true } ), std::runtime_error, []( const std::runtime_error& error ) {
+                return std::string( error.what( ) ).find( "inertia update callback" ) != std::string::npos;
+            } );
+}
+
+BOOST_AUTO_TEST_CASE( testStrictCopyAcceptsKnownImmutableModels )
+{
+    BodyListSettings settings( "SSB", "J2000" );
+    settings.addSettings( "Central" );
+    settings.at( "Central" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    settings.at( "Central" )->gravityFieldSettings = centralGravitySettings( 3.986004418E14 );
+    SystemOfBodies bodies = createSystemOfBodies( settings );
+    SystemOfBodies copy = createSystemOfBodiesCopy( bodies, BodyCopyOptions{ false, true } );
+    BOOST_CHECK( copy.at( "Central" ) != bodies.at( "Central" ) );
+    BOOST_CHECK( copy.at( "Central" )->getEphemeris( ) == bodies.at( "Central" )->getEphemeris( ) );
+    BOOST_CHECK( copy.at( "Central" )->getGravityFieldModel( ) != bodies.at( "Central" )->getGravityFieldModel( ) );
+    copy.at( "Central" )->getGravityFieldModel( )->resetGravitationalParameter( 4.0E14 );
+    BOOST_CHECK_EQUAL( bodies.at( "Central" )->getGravityFieldModel( )->getGravitationalParameter( ), 3.986004418E14 );
+}
 
 const double initialTime = 1.0E7;
 const double finalTime = initialTime + 86400.0;

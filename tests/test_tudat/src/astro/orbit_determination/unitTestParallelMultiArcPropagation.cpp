@@ -15,6 +15,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
@@ -36,6 +37,216 @@ using namespace tudat::propagators;
 using namespace tudat::simulation_setup;
 
 BOOST_AUTO_TEST_SUITE( test_parallel_multi_arc_propagation )
+
+// A small native-only acceptance case: ordinary settings, shared mu, unequal arc durations,
+// and more arcs than worker environments. No SPICE, files, or Python callbacks are used.
+struct ClosureArcRun {
+    SystemOfBodies bodies;
+    std::shared_ptr< MultiArcPropagatorSettings< double > > settings;
+    std::shared_ptr< MultiArcVariationalEquationsSolver<> > solver;
+};
+
+ClosureArcRun makeClosureArcRun( const unsigned int workers, const bool customEnvironment = false )
+{
+    ClosureArcRun run;
+    BodyListSettings bodySettings( "Central", "J2000" );
+    bodySettings.addSettings( "Central" );
+    bodySettings.at( "Central" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings.at( "Central" )->gravityFieldSettings = centralGravitySettings( 3.986004418E14 );
+    bodySettings.addSettings( "Satellite" );
+    bodySettings.at( "Satellite" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "Central", "J2000" );
+    bodySettings.at( "Satellite" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+    run.bodies = createSystemOfBodies( bodySettings );
+    if( customEnvironment )
+    {
+        run.bodies.createEmptyBody( "Custom" );
+        run.bodies.at( "Custom" )
+                ->setEphemeris( std::make_shared< CustomEphemeris<> >(
+                        []( double ) { return Eigen::Vector6d::Zero( ).eval( ); }, "SSB", "J2000" ) );
+    }
+    SelectedAccelerationMap accelerations;
+    accelerations[ "Satellite" ][ "Central" ].push_back( pointMassGravityAcceleration( ) );
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcs;
+    std::vector< double > starts;
+    for( unsigned int arc = 0; arc < 4; ++arc )
+    {
+        const double start = 1000.0 * arc;
+        starts.push_back( start );
+        Eigen::Vector6d initialState;
+        initialState << 7.0E6 + 100.0 * arc, 0.0, 0.0, 0.0, 7500.0, 10.0;
+        auto settings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                std::vector< std::string >{ "Central" },
+                AccelerationMap( ),
+                std::vector< std::string >{ "Satellite" },
+                initialState,
+                start,
+                rungeKuttaFixedStepSettings( 10.0, rungeKuttaFehlberg78 ),
+                propagationTimeTerminationSettings( start + 100.0 + 20.0 * arc ),
+                cowell,
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >{
+                        relativePositionDependentVariable( "Satellite", "Central" ) } );
+        settings->resetAccelerationModelsMap( accelerations, run.bodies );
+        arcs.push_back( settings );
+    }
+    run.settings = std::make_shared< MultiArcPropagatorSettings< double > >( arcs, false );
+    run.settings->setNumberOfThreads( workers );
+    run.settings->getOutputSettings( )->setIntegratedResult( true );
+    run.settings->getOutputSettings( )->setUpdateDependentVariableInterpolator( true );
+    auto parameters = getInitialMultiArcParameterSettings< double >( run.settings, run.bodies, starts );
+    parameters.push_back( std::make_shared< EstimatableParameterSettings >( "Central", gravitational_parameter ) );
+    run.solver = std::make_shared< MultiArcVariationalEquationsSolver<> >( run.bodies, run.settings, parameters, false );
+    const auto environments = run.solver->getDynamicsSimulator( )->getThreadBodies( );
+    BOOST_CHECK_EQUAL( environments.size( ), workers > 1 ? workers : 0 );
+    for( unsigned int worker = 0; worker < environments.size( ); ++worker )
+    {
+        const auto gravity = environments.at( worker ).at( "Central" )->getGravityFieldModel( );
+        BOOST_CHECK( gravity != run.bodies.at( "Central" )->getGravityFieldModel( ) );
+        for( unsigned int other = 0; other < worker; ++other )
+        {
+            BOOST_CHECK( gravity != environments.at( other ).at( "Central" )->getGravityFieldModel( ) );
+        }
+    }
+    for( unsigned int arc = 0; arc < 4; ++arc )
+    {
+        BOOST_CHECK_EQUAL( run.solver->getDynamicsSimulator( )->getArcThreadIndex( arc ), workers > 1 ? arc % workers : 0 );
+    }
+    return run;
+}
+
+// Mixed absolute/relative comparison also checks entries whose reference is zero.
+void checkClosureMatrix( const Eigen::MatrixXd& actual, const Eigen::MatrixXd& expected )
+{
+    BOOST_REQUIRE_EQUAL( actual.rows( ), expected.rows( ) );
+    BOOST_REQUIRE_EQUAL( actual.cols( ), expected.cols( ) );
+    BOOST_REQUIRE( actual.size( ) > 0 );
+    BOOST_REQUIRE( actual.allFinite( ) && expected.allFinite( ) );
+    const double normalizedError = ( ( actual - expected ).array( ).abs( ) / ( 1.0 + expected.array( ).abs( ) ) ).maxCoeff( );
+    BOOST_CHECK_LE( normalizedError, 1.0E-11 );
+}
+
+void compareClosureRuns( ClosureArcRun& actual, ClosureArcRun& expected )
+{
+    BOOST_REQUIRE( actual.solver->getDynamicsSimulator( )->integrationCompletedSuccessfully( ) );
+    BOOST_REQUIRE( expected.solver->getDynamicsSimulator( )->integrationCompletedSuccessfully( ) );
+    const auto a = actual.solver->getDynamicsSimulator( )->getSingleArcDynamicsSimulators( );
+    const auto b = expected.solver->getDynamicsSimulator( )->getSingleArcDynamicsSimulators( );
+    const auto av = actual.solver->getNumericalVariationalEquationsSolution( );
+    const auto bv = expected.solver->getNumericalVariationalEquationsSolution( );
+    BOOST_REQUIRE_EQUAL( a.size( ), b.size( ) );
+    for( unsigned int arc = 0; arc < a.size( ); ++arc )
+    {
+        const auto states = a.at( arc )->getEquationsOfMotionNumericalSolution( );
+        BOOST_REQUIRE( !states.empty( ) );
+        BOOST_REQUIRE_EQUAL( states.size( ), b.at( arc )->getEquationsOfMotionNumericalSolution( ).size( ) );
+        for( const auto& entry : states )
+        {
+            checkClosureMatrix( entry.second, b.at( arc )->getEquationsOfMotionNumericalSolution( ).at( entry.first ) );
+            checkClosureMatrix( a.at( arc )->getDependentVariableHistory( ).at( entry.first ),
+                                b.at( arc )->getDependentVariableHistory( ).at( entry.first ) );
+            for( unsigned int kind = 0; kind < 2; ++kind )
+            {
+                // Express the tiny d(state)/d(mu) column per fractional mu change so
+                // an absolute tolerance cannot hide a missing or sign-flipped sensitivity.
+                const double scale =
+                        kind == 1 ? expected.bodies.at( "Central" )->getGravityFieldModel( )->getGravitationalParameter( ) : 1.0;
+                checkClosureMatrix( scale * av.at( arc ).at( kind ).at( entry.first ), scale * bv.at( arc ).at( kind ).at( entry.first ) );
+            }
+        }
+        BOOST_CHECK_EQUAL( a.at( arc )->getSingleArcPropagationResults( )->getTotalNumberOfFunctionEvaluations( ),
+                           b.at( arc )->getSingleArcPropagationResults( )->getTotalNumberOfFunctionEvaluations( ) );
+        BOOST_CHECK_EQUAL( a.at( arc )->getPropagationTerminationReason( )->getPropagationTerminationReason( ),
+                           b.at( arc )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) );
+        const double epoch = states.rbegin( )->first;
+        checkClosureMatrix( actual.bodies.at( "Satellite" )->getEphemeris( )->getCartesianState( epoch ),
+                            expected.bodies.at( "Satellite" )->getEphemeris( )->getCartesianState( epoch ) );
+        const double middle = 0.5 * ( states.begin( )->first + epoch );
+        checkClosureMatrix( actual.solver->getDynamicsSimulator( )
+                                    ->getMultiArcPropagationResults( )
+                                    ->getMultiArcDependentVariablesInterface( )
+                                    ->getDependentVariables( middle ),
+                            expected.solver->getDynamicsSimulator( )
+                                    ->getMultiArcPropagationResults( )
+                                    ->getMultiArcDependentVariablesInterface( )
+                                    ->getDependentVariables( middle ) );
+
+        Eigen::MatrixXd matrix =
+                actual.solver->getStateTransitionMatrixInterface( )->getFullCombinedStateTransitionAndSensitivityMatrix( epoch );
+        Eigen::MatrixXd referenceMatrix =
+                expected.solver->getStateTransitionMatrixInterface( )->getFullCombinedStateTransitionAndSensitivityMatrix( epoch );
+        BOOST_REQUIRE_EQUAL( matrix.cols( ), 25 );  // 4 * 6 initial states, one shared mu column
+        const double mu = expected.bodies.at( "Central" )->getGravityFieldModel( )->getGravitationalParameter( );
+        matrix.col( 24 ) *= mu;
+        referenceMatrix.col( 24 ) *= mu;
+        checkClosureMatrix( matrix, referenceMatrix );
+        checkClosureMatrix( actual.bodies.at( "Satellite" )->getEphemeris( )->getCartesianState( epoch ),
+                            expected.bodies.at( "Satellite" )->getEphemeris( )->getCartesianState( epoch ) );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testParallelSetupRejectsUnverifiedSharing )
+{
+    BOOST_CHECK_THROW( makeClosureArcRun( 2, true ), std::runtime_error );
+    BOOST_CHECK_NO_THROW( makeClosureArcRun( 1, true ) );
+}
+
+BOOST_AUTO_TEST_CASE( testClosureArcParameterAndResultContract )
+{
+    auto reference = makeClosureArcRun( 1 );
+    reference.solver->integrateVariationalAndDynamicalEquations( reference.settings->getInitialStateList( ), true );
+    for( unsigned int workers : { 2, 3, 4 } )
+    {
+        auto parallel = makeClosureArcRun( workers );
+        auto dynamics = parallel.solver->getDynamicsSimulator( );
+        const auto results = dynamics->getMultiArcPropagationResults( );
+        const auto variationalResults = parallel.solver->getVariationalPropagationResults( );
+        parallel.solver->integrateVariationalAndDynamicalEquations( parallel.settings->getInitialStateList( ), true );
+        const auto interface = parallel.solver->getStateTransitionMatrixInterface( );
+        compareClosureRuns( parallel, reference );
+        const auto environments = dynamics->getThreadBodies( );
+        BOOST_REQUIRE_EQUAL( environments.size( ), workers );
+        for( unsigned int arc = 0; arc < 4; ++arc )
+        {
+            BOOST_CHECK_EQUAL( dynamics->getArcThreadIndex( arc ), arc % workers );
+        }
+        for( unsigned int worker = 0; worker < workers; ++worker )
+        {
+            BOOST_CHECK( environments.at( worker ).at( "Central" )->getGravityFieldModel( ) !=
+                         parallel.bodies.at( "Central" )->getGravityFieldModel( ) );
+            for( unsigned int other = worker + 1; other < workers; ++other )
+            {
+                BOOST_CHECK( environments.at( worker ).at( "Central" )->getGravityFieldModel( ) !=
+                             environments.at( other ).at( "Central" )->getGravityFieldModel( ) );
+            }
+        }
+        // A fresh reference per worker count keeps this reset independent of previous iterations.
+        auto changedReference = makeClosureArcRun( 1 );
+        Eigen::VectorXd values = reference.solver->getParametersToEstimate( )->getFullParameterValues< double >( );
+        values( 0 ) += 10.0;
+        values( values.size( ) - 1 ) *= 1.00001;
+        parallel.solver->resetParameterEstimate( values, true );
+        changedReference.solver->resetParameterEstimate( values, true );
+        compareClosureRuns( parallel, changedReference );
+        const auto changedStates = dynamics->getSingleArcDynamicsSimulators( ).front( )->getEquationsOfMotionNumericalSolution( );
+        BOOST_REQUIRE( !changedStates.empty( ) );
+        BOOST_CHECK_SMALL( changedStates.begin( )->second( 0 ) - values( 0 ), 1.0E-8 );
+        BOOST_CHECK( std::abs( changedStates.rbegin( )->second( 0 ) -
+                               reference.solver->getDynamicsSimulator( )
+                                       ->getSingleArcDynamicsSimulators( )
+                                       .front( )
+                                       ->getEquationsOfMotionNumericalSolution( )
+                                       .rbegin( )
+                                       ->second( 0 ) ) > 1.0 );
+
+        BOOST_CHECK( dynamics->getMultiArcPropagationResults( ) == results );
+        BOOST_CHECK( parallel.solver->getVariationalPropagationResults( ) == variationalResults );
+        BOOST_CHECK( parallel.solver->getStateTransitionMatrixInterface( ) == interface );
+        for( const auto& environment : environments )
+        {
+            BOOST_CHECK_EQUAL( environment.at( "Central" )->getGravityFieldModel( )->getGravitationalParameter( ),
+                               values( values.size( ) - 1 ) );
+        }
+    }
+}
 
 // Estimate arc-wise atmosphere parameters as in unitTestEstimationArcWiseAtmosphereParameters.cpp, using four arcs, and with
 // environment models that require no SPICE calls during propagation. For numberOfThreads equal to 1, the acceleration models are

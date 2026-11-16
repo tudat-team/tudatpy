@@ -331,7 +331,8 @@ public:
                                                          static_cast< unsigned int >( singleArcSettings.size( ) ) );
                 for( unsigned int i = 0; i < numberOfThreads; i++ )
                 {
-                    threadBodies_.push_back( simulation_setup::createSystemOfBodiesCopy< StateScalarType, TimeType >( bodies, i == 0 ) );
+                    threadBodies_.push_back( simulation_setup::createSystemOfBodiesCopy< StateScalarType, TimeType >(
+                            bodies, simulation_setup::BodyCopyOptions{ i == 0, true } ) );
                 }
                 // Arc settings are cloned, so that the models in the settings provided to this object remain linked to the
                 // original bodies. Integrator settings are cloned, since they are modified during non-sequential propagation

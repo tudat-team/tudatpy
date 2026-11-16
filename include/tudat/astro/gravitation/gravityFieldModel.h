@@ -61,6 +61,12 @@ public:
         }
     }
 
+    //! Whether copying this model would retain an inertia-update callback.
+    bool hasInertiaTensorUpdateFunction( ) const
+    {
+        return static_cast< bool >( updateInertiaTensor_ );
+    }
+
     //! Get the gravitational parameter.
     /*!
      * Return the gravitational parameter in meter^3 per second^2.

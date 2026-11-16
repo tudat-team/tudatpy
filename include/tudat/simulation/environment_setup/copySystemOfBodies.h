@@ -19,6 +19,17 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Conservative policy for copying environments used by native workers.
+//! Strict mode rejects all sharing already classified as unverified by the copy implementation.
+//! Point-mass fields are also copied because estimated parameters can change their mu.
+//! This is not a proof of thread safety for every model or third-party library.
+struct BodyCopyOptions {
+    bool printWarnings = true;
+    bool rejectUnverifiedSharing = false;
+};
+
+SystemOfBodies copySystemOfBodiesWithoutFrameProcessing( const SystemOfBodies& bodies, const BodyCopyOptions& options );
+
 //! Function to copy the environment models of a system of bodies, without processing the frame definitions of the copy
 /*!
  * Function to copy the environment models of a system of bodies, without processing the frame definitions of the copy. See
@@ -30,9 +41,9 @@ namespace simulation_setup
  */
 SystemOfBodies copySystemOfBodiesWithoutFrameProcessing( const SystemOfBodies& bodies, const bool printWarnings );
 
-//! Function to create a copy of a system of bodies that can be used in a separate thread from the original
+//! Function to copy a system of bodies under the sharing rules described below
 /*!
- * Function to create a copy of a system of bodies that can be used in a separate thread from the original. Environment models
+ * Function to create an environment copy. Suitability for concurrent use depends on its shared models. Environment models
  * that store data during the propagation (current states, caches, interpolator look-up indices) are copied, and the links
  * between models are recreated for the copy. Environment models without such data are shared between the original and the copy.
  * Model types for which no copy is implemented, and models containing user-defined functions, are shared between original and
@@ -47,6 +58,15 @@ template< typename StateScalarType = double, typename TimeType = double >
 SystemOfBodies createSystemOfBodiesCopy( const SystemOfBodies& bodies, const bool printWarnings = true )
 {
     SystemOfBodies bodiesCopy = copySystemOfBodiesWithoutFrameProcessing( bodies, printWarnings );
+    bodiesCopy.processBodyFrameDefinitions< StateScalarType, TimeType >( );
+    return bodiesCopy;
+}
+
+//! Copy with an explicit sharing policy; the bool overload retains its original behavior.
+template< typename StateScalarType = double, typename TimeType = double >
+SystemOfBodies createSystemOfBodiesCopy( const SystemOfBodies& bodies, const BodyCopyOptions& options )
+{
+    SystemOfBodies bodiesCopy = copySystemOfBodiesWithoutFrameProcessing( bodies, options );
     bodiesCopy.processBodyFrameDefinitions< StateScalarType, TimeType >( );
     return bodiesCopy;
 }
