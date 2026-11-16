@@ -16,7 +16,6 @@ Functions
    get_tudat_data_path
    get_tudat_path
    get_default_output_path
-   get_test_data_path
    get_ephemeris_path
    get_earth_deformation_path
    get_earth_orientation_path
@@ -32,7 +31,6 @@ Functions
 .. autofunction:: tudatpy.data_input.resource_paths.get_tudat_data_path
 .. autofunction:: tudatpy.data_input.resource_paths.get_tudat_path
 .. autofunction:: tudatpy.data_input.resource_paths.get_default_output_path
-.. autofunction:: tudatpy.data_input.resource_paths.get_test_data_path
 .. autofunction:: tudatpy.data_input.resource_paths.get_ephemeris_path
 .. autofunction:: tudatpy.data_input.resource_paths.get_earth_deformation_path
 .. autofunction:: tudatpy.data_input.resource_paths.get_earth_orientation_path
