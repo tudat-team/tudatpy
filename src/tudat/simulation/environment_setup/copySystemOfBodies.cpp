@@ -180,7 +180,12 @@ std::shared_ptr< ephemerides::Ephemeris > copyEphemeris( const std::shared_ptr< 
     std::shared_ptr< ScaledEphemeris > scaledEphemeris = std::dynamic_pointer_cast< ScaledEphemeris >( ephemeris );
     if( scaledEphemeris != nullptr )
     {
-        printSharedModelWarning( options, bodyName, "state scaling function of the ephemeris", "custom function" );
+        printSharedModelWarning(
+                options,
+                bodyName,
+                "state scaling function of the ephemeris",
+                "custom function",
+                scaledEphemeris->getStateScalingFunction( ).target< ConstantModelScaling< Eigen::Vector6d > >( ) == nullptr );
         return std::make_shared< ScaledEphemeris >( copyEphemeris( scaledEphemeris->getBaseEphemeris( ), bodyName, options ),
                                                     scaledEphemeris->getStateScalingFunction( ),
                                                     scaledEphemeris->getIsScalingAbsolute( ) );
@@ -582,7 +587,11 @@ std::shared_ptr< aerodynamics::AtmosphereModel > copyAtmosphereModel(
     std::shared_ptr< ScaledAtmosphereModel > scaledAtmosphere = std::dynamic_pointer_cast< ScaledAtmosphereModel >( atmosphereModel );
     if( scaledAtmosphere != nullptr )
     {
-        printSharedModelWarning( options, bodyName, "density scaling function of the atmosphere", "custom function" );
+        printSharedModelWarning( options,
+                                 bodyName,
+                                 "density scaling function of the atmosphere",
+                                 "custom function",
+                                 scaledAtmosphere->getDensityScalingFunction( ).target< ConstantModelScaling< double > >( ) == nullptr );
         atmosphereModelCopy =
                 std::make_shared< ScaledAtmosphereModel >( copyAtmosphereModel( scaledAtmosphere->getBaseAtmosphere( ), bodyName, options ),
                                                            scaledAtmosphere->getDensityScalingFunction( ),
@@ -667,7 +676,14 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > copyAerodynamic
     }
     else if( scaledInterface != nullptr )
     {
-        printSharedModelWarning( options, bodyName, "scaling functions of the aerodynamic coefficients", "custom function" );
+        printSharedModelWarning(
+                options,
+                bodyName,
+                "scaling functions of the aerodynamic coefficients",
+                "custom function",
+                scaledInterface->getForceCoefficientScalingFunction( ).target< ConstantModelScaling< Eigen::Vector3d > >( ) == nullptr ||
+                        scaledInterface->getMomentCoefficientScalingFunction( ).target< ConstantModelScaling< Eigen::Vector3d > >( ) ==
+                                nullptr );
         coefficientInterfaceCopy = std::make_shared< ScaledAerodynamicCoefficientInterface >(
                 copyAerodynamicCoefficientInterface(
                         scaledInterface->getBaseCoefficientInterface( ), vehicleSystemsCopy, bodyName, options ),

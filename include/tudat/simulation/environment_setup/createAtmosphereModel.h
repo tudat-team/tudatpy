@@ -11,6 +11,7 @@
 #ifndef TUDAT_CREATEATMOSPHEREMODEL_H
 #define TUDAT_CREATEATMOSPHEREMODEL_H
 
+#include "tudat/simulation/environment_setup/constantModelScaling.h"
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -1351,7 +1352,7 @@ public:
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                               const double scaling,
                               const bool isScalingAbsolute ):
-        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return scaling; } ),
+        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( ConstantModelScaling< double >( scaling ) ),
         isScalingAbsolute_( isScalingAbsolute )
     {}
 

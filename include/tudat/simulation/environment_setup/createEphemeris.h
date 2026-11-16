@@ -11,6 +11,7 @@
 #ifndef TUDAT_CREATEEPHEMERIS_H
 #define TUDAT_CREATEEPHEMERIS_H
 
+#include "tudat/simulation/environment_setup/constantModelScaling.h"
 #include <string>
 #include <map>
 
@@ -185,7 +186,7 @@ class ScaledEphemerisSettings : public EphemerisSettings
 public:
     ScaledEphemerisSettings( const std::shared_ptr< EphemerisSettings > baseSettings, const double scaling, const bool isScalingAbsolute ):
         EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
-        baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return Eigen::Vector6d::Constant( scaling ); } ),
+        baseSettings_( baseSettings ), scaling_( ConstantModelScaling< Eigen::Vector6d >( Eigen::Vector6d::Constant( scaling ) ) ),
         isScalingAbsolute_( isScalingAbsolute )
     {}
 
@@ -193,7 +194,8 @@ public:
                              const Eigen::Vector6d scaling,
                              const bool isScalingAbsolute ):
         EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
-        baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return scaling; } ), isScalingAbsolute_( isScalingAbsolute )
+        baseSettings_( baseSettings ), scaling_( ConstantModelScaling< Eigen::Vector6d >( scaling ) ),
+        isScalingAbsolute_( isScalingAbsolute )
     {}
 
     ScaledEphemerisSettings( const std::shared_ptr< EphemerisSettings > baseSettings,

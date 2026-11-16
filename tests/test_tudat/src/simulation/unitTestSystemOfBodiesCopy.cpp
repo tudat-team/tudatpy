@@ -16,6 +16,8 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include "tudat/basics/testMacros.h"
+
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/aerodynamics/comaWindModel.h"
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
@@ -107,6 +109,123 @@ BOOST_AUTO_TEST_CASE( testStrictCopyAcceptsKnownImmutableModels )
     BOOST_CHECK( copy.at( "Central" )->getGravityFieldModel( ) != bodies.at( "Central" )->getGravityFieldModel( ) );
     copy.at( "Central" )->getGravityFieldModel( )->resetGravitationalParameter( 4.0E14 );
     BOOST_CHECK_EQUAL( bodies.at( "Central" )->getGravityFieldModel( )->getGravitationalParameter( ), 3.986004418E14 );
+}
+
+// Numerical settings retain a recognizable value-only function, across std::function copies.
+// Test both numerical overloads and both existing scaling modes against explicit values.
+BOOST_AUTO_TEST_CASE( testStrictCopyOfConstantModelScaling )
+{
+    for( bool flag : { false, true } )
+    {
+        for( bool vectorScaling : { false, true } )
+        {
+            BodyListSettings settings( "SSB", "J2000" );
+            settings.addSettings( "Model" );
+            const Eigen::Vector3d forceScale = vectorScaling ? Eigen::Vector3d( 2.0, 3.0, 4.0 ) : Eigen::Vector3d::Constant( 2.0 );
+            const Eigen::Vector3d momentScale = vectorScaling ? Eigen::Vector3d( 5.0, 6.0, 7.0 ) : Eigen::Vector3d::Constant( 3.0 );
+            const Eigen::Vector6d stateScale =
+                    vectorScaling ? ( Eigen::Vector6d( ) << 2, 3, 4, 5, 6, 7 ).finished( ) : Eigen::Vector6d::Constant( 2.0 );
+            auto baseEphemeris = constantEphemerisSettings( Eigen::Vector6d::Constant( 2.0 ), "SSB", "J2000" );
+            settings.at( "Model" )->ephemerisSettings = vectorScaling ? scaledEphemerisSettings( baseEphemeris, stateScale, flag )
+                                                                      : scaledEphemerisSettings( baseEphemeris, 2.0, flag );
+            settings.at( "Model" )->atmosphereSettings =
+                    scaledAtmosphereSettings( exponentialAtmosphereSettings( 1000.0, 0.02, 210.0 ), 0.5, flag );
+            auto baseCoefficients = constantAerodynamicForceAndMomentCoefficientSettings(
+                    1.0, 2.0, Eigen::Vector3d::Zero( ), Eigen::Vector3d( 1, 2, 3 ), Eigen::Vector3d( 4, 5, 6 ) );
+            settings.at( "Model" )->aerodynamicCoefficientSettings = vectorScaling
+                    ? scaledAerodynamicCoefficientSettings( baseCoefficients, forceScale, momentScale, flag )
+                    : scaledAerodynamicCoefficientSettings( baseCoefficients, 2.0, 3.0, flag );
+            SystemOfBodies bodies = createSystemOfBodies( settings );
+            SystemOfBodies copy = createSystemOfBodiesCopy( bodies, BodyCopyOptions{ false, true } );
+            auto original = std::dynamic_pointer_cast< ScaledAerodynamicCoefficientInterface >(
+                    bodies.at( "Model" )->getAerodynamicCoefficientInterface( ) );
+            auto copied = std::dynamic_pointer_cast< ScaledAerodynamicCoefficientInterface >(
+                    copy.at( "Model" )->getAerodynamicCoefficientInterface( ) );
+            BOOST_REQUIRE( original != nullptr && copied != nullptr );
+            BOOST_CHECK( original != copied );
+            BOOST_CHECK( original->getBaseCoefficientInterface( ) != copied->getBaseCoefficientInterface( ) );
+            BOOST_CHECK_EQUAL( copied->getIsScalingRelative( ), flag );
+            Eigen::Vector3d expectedForce( 1, 2, 3 ), expectedMoment( 4, 5, 6 );
+            Eigen::Vector6d expectedState = Eigen::Vector6d::Constant( 2.0 );
+            // Preserve the existing aerodynamic flag forwarding; do not change API semantics here.
+            if( flag )
+            {
+                expectedForce.array( ) *= forceScale.array( );
+                expectedMoment.array( ) *= momentScale.array( );
+                expectedState += stateScale;
+            }
+            else
+            {
+                expectedForce += forceScale;
+                expectedMoment += momentScale;
+                expectedState.array( ) *= stateScale.array( );
+            }
+            for( double time : { 0.0, 123.0 } )
+            {
+                original->updateCurrentCoefficients( {}, time );
+                copied->updateCurrentCoefficients( {}, time );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( copied->getCurrentForceCoefficients( ), expectedForce, 1.0E-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( copied->getCurrentMomentCoefficients( ), expectedMoment, 1.0E-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( original->getCurrentForceCoefficients( ), expectedForce, 1.0E-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( copy.at( "Model" )->getEphemeris( )->getCartesianState( time ), expectedState, 1.0E-14 );
+                BOOST_CHECK_CLOSE_FRACTION(
+                        copy.at( "Model" )->getAtmosphereModel( )->getDensity( 0.0, 0.0, 0.0, time ), flag ? 0.52 : 0.01, 1.0E-14 );
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testStrictCopyRejectsUnrecognizedScalingFunctions )
+{
+    for( int model = 0; model < 4; ++model )
+    {
+        unsigned int calls = 0;
+        BodyListSettings settings( "SSB", "J2000" );
+        settings.addSettings( "Model" );
+        auto baseEphemeris = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+        settings.at( "Model" )->ephemerisSettings = baseEphemeris;
+        if( model == 0 )
+        {
+            settings.at( "Model" )->ephemerisSettings = scaledEphemerisSettings(
+                    baseEphemeris,
+                    [ & ]( double ) {
+                        ++calls;
+                        return Eigen::Vector6d::Ones( ).eval( );
+                    },
+                    false );
+        }
+        else if( model == 1 )
+        {
+            settings.at( "Model" )->atmosphereSettings = scaledAtmosphereSettings(
+                    exponentialAtmosphereSettings( 1000.0, 0.02, 210.0 ),
+                    [ & ]( double ) {
+                        ++calls;
+                        return 1.0;
+                    },
+                    false );
+        }
+        else
+        {
+            auto base = constantAerodynamicCoefficientSettings( 1.0, Eigen::Vector3d::Ones( ) );
+            std::function< Eigen::Vector3d( double ) > known = ConstantModelScaling< Eigen::Vector3d >( Eigen::Vector3d::Ones( ) );
+            std::function< Eigen::Vector3d( double ) > unknown = [ & ]( double ) {
+                ++calls;
+                return Eigen::Vector3d::Ones( ).eval( );
+            };
+            auto custom = scaledAerodynamicCoefficientSettings( base, model == 2 ? unknown : known, model == 2 ? known : unknown, false );
+            // A recognized outer constant must not hide an unrecognized nested callback.
+            settings.at( "Model" )->aerodynamicCoefficientSettings = scaledAerodynamicCoefficientSettings( custom, 2.0, 3.0, false );
+        }
+        SystemOfBodies bodies = createSystemOfBodies( settings );
+        calls = 0;
+        BOOST_CHECK_EXCEPTION( createSystemOfBodiesCopy( bodies, BodyCopyOptions{ false, true } ),
+                               std::runtime_error,
+                               []( const std::runtime_error& error ) {
+                                   const std::string message = error.what( );
+                                   return message.find( "Model" ) != std::string::npos && message.find( "scaling" ) != std::string::npos;
+                               } );
+        BOOST_CHECK_EQUAL( calls, 0 );
+    }
 }
 
 const double initialTime = 1.0E7;
@@ -1167,12 +1286,21 @@ BOOST_AUTO_TEST_CASE( testConcurrentEvaluationOfSharedInterpolator )
 }
 
 // Propagate vehicles in the test environment (with as many types of environment models as possible) in a number of arcs
-std::vector< std::map< double, Eigen::VectorXd > > propagateTestVehicleArcs( const unsigned int numberOfThreads )
+std::vector< std::map< double, Eigen::VectorXd > > propagateTestVehicleArcs( const unsigned int numberOfThreads,
+                                                                             const bool customAuxiliaryAtmosphere = false )
 {
     using namespace propagators;
     using namespace basic_astrodynamics;
 
-    SystemOfBodies bodies = createTestBodies( );
+    BodyListSettings bodySettings = getTestBodySettings( );
+    if( !customAuxiliaryAtmosphere )
+    {
+        // Mars is not used by the propagated vehicles. Keep a numeric scaling in the
+        // supported worker fixture, and separately check rejection of its custom function.
+        bodySettings.at( "Mars" )->atmosphereSettings =
+                scaledAtmosphereSettings( exponentialAtmosphereSettings( 11.1E3, 0.02, 210.0 ), 1.1, false );
+    }
+    SystemOfBodies bodies = createTestBodies( bodySettings );
     const std::vector< std::string > bodiesToPropagate = { "Vehicle", "Vehicle3" };
     const std::vector< std::string > centralBodies = { "Earth", "Earth" };
 
@@ -1231,7 +1359,12 @@ std::vector< std::map< double, Eigen::VectorXd > > propagateTestVehicleArcs( con
 //! Test whether multi-threaded multi-arc propagation in the test environment gives the same results as single-threaded propagation
 BOOST_AUTO_TEST_CASE( testParallelPropagationInCopiedEnvironment )
 {
-    std::vector< std::map< double, Eigen::VectorXd > > singleThreadResults = propagateTestVehicleArcs( 1 );
+    BOOST_CHECK_EXCEPTION( propagateTestVehicleArcs( 2, true ), std::runtime_error, []( const std::runtime_error& error ) {
+        const std::string message = error.what( );
+        return message.find( "Mars" ) != std::string::npos && message.find( "density scaling" ) != std::string::npos;
+    } );
+    // Retain the original serial reference with its custom auxiliary atmosphere.
+    std::vector< std::map< double, Eigen::VectorXd > > singleThreadResults = propagateTestVehicleArcs( 1, true );
     BOOST_CHECK_EQUAL( singleThreadResults.size( ), 5 );
 
     for( unsigned int numberOfThreads : { 2, 3 } )

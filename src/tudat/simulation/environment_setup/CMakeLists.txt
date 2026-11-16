@@ -42,6 +42,7 @@ set(environment_HEADERS
         createRelativisticTimeConverter.h
         createMetric.h
         copySystemOfBodies.h
+        constantModelScaling.h
         environmentModelClosure.h
         )
 
