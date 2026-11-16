@@ -230,20 +230,23 @@ private:
 //! Check that the settings are validated on creation, and that they are stored on the estimation input.
 BOOST_AUTO_TEST_CASE( test_OutlierRejectionSettings )
 {
-    const std::shared_ptr< OutlierRejectionSettings > settings = carpinoOutlierRejectionSettings( 9.0, 8.0, 0.3, 2 );
+    const std::shared_ptr< OutlierRejectionSettings > settings = carpinoOutlierRejectionSettings( { 8.0, 9.0 }, 2 );
 
     const std::shared_ptr< CarpinoOutlierRejectionSettings > carpinoSettings =
             std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings >( settings );
     BOOST_REQUIRE( carpinoSettings != nullptr );
     BOOST_CHECK( ( carpinoSettings->getOutlierRejectionType( ) == OutlierRejectionType::carpino_outlier_rejection ) );
-    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2RejectionThreshold( ), 9.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2Thresholds( ).first, 8.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2Thresholds( ).second, 9.0, 1.0E-15 );
     BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2RecoveryThreshold( ), 8.0, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getMaximumRejectedFraction( ), 0.3, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( carpinoSettings->getChi2RejectionThreshold( ), 9.0, 1.0E-15 );
     BOOST_CHECK_EQUAL( carpinoSettings->getFirstIterationWithRejection( ), 2 );
 
-    // The recovery threshold must be smaller than the rejection threshold, and the rejected fraction must be a fraction
-    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( 8.0, 9.0 ), std::runtime_error );
-    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( 9.0, 8.0, 1.5 ), std::runtime_error );
+    // The recovery threshold may not exceed the rejection threshold, but may be equal to it, and both must be positive
+    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( { 9.0, 8.0 } ), std::runtime_error );
+    BOOST_CHECK_NO_THROW( carpinoOutlierRejectionSettings( { 9.0, 9.0 } ) );
+    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( { 0.0, 9.0 } ), std::runtime_error );
+    BOOST_CHECK_THROW( carpinoOutlierRejectionSettings( { -1.0, -0.5 } ), std::runtime_error );
 
     // No outlier rejection is performed by default; settings can be provided on construction or afterwards
     const std::shared_ptr< ObservationDataset< double, double > > dataset = createTestDataset( );
@@ -273,7 +276,7 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionCreation )
     BOOST_CHECK( ( createOutlierRejection< double, double >( nullptr, dataset ) == nullptr ) );
 
     const std::shared_ptr< OutlierRejection< double, double > > outlierRejection =
-            createOutlierRejection< double, double >( carpinoOutlierRejectionSettings( ), dataset );
+            createOutlierRejection< double, double >( carpinoOutlierRejectionSettings( { 8.0, 9.0 } ), dataset );
     BOOST_REQUIRE( outlierRejection != nullptr );
     BOOST_CHECK( ( std::dynamic_pointer_cast< CarpinoOutlierRejection< double, double > >( outlierRejection ) != nullptr ) );
 
@@ -284,7 +287,7 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionCreation )
     // Observations that are already rejected in the dataset start out as rejected
     dataset->rejectObservations( ObservationSelectionCondition< double, double >::observableType( angular_position ) );
     const std::shared_ptr< OutlierRejection< double, double > > rejectionFromRejectedDataset =
-            createOutlierRejection< double, double >( carpinoOutlierRejectionSettings( ), dataset );
+            createOutlierRejection< double, double >( carpinoOutlierRejectionSettings( { 8.0, 9.0 } ), dataset );
     BOOST_CHECK_EQUAL( rejectionFromRejectedDataset->getNumberOfRejectedObservations( ), 2 );
 }
 
@@ -457,7 +460,7 @@ public:
         isRejected_ = isRejected;
     }
 
-    using CarpinoOutlierRejection< double, double >::applyMaximumRejectedFraction;
+    using CarpinoOutlierRejection< double, double >::applyMaximumRejectionsPerIteration;
     using CarpinoOutlierRejection< double, double >::decideRejectionStatus;
     using CarpinoOutlierRejection< double, double >::getRejectionThreshold;
     using CarpinoOutlierRejection< double, double >::computeChiSquared;
@@ -489,7 +492,7 @@ BOOST_AUTO_TEST_CASE( test_FirstIterationWithRejection )
     const Eigen::VectorXd parameterCorrection = Eigen::VectorXd::Zero( numberOfParameters );
 
     CarpinoOutlierRejection< double, double > outlierRejection(
-            std::make_shared< CarpinoOutlierRejectionSettings >( 9.0, 8.0, 0.25, firstIterationWithRejection ), dataset );
+            std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, 9.0 ), firstIterationWithRejection ), dataset );
 
     // In every iteration before the first iteration with rejection, the status of all observations is left unchanged,
     // even though the last angular position observation has by far the largest residual of the dataset
@@ -517,7 +520,8 @@ BOOST_AUTO_TEST_CASE( test_DecideRejectionStatus )
     const double recoveryThreshold = 8.0;
 
     TestableCarpinoOutlierRejection outlierRejection(
-            std::make_shared< CarpinoOutlierRejectionSettings >( settingsRejectionThreshold, recoveryThreshold ), createRangeDataset( 4 ) );
+            std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( recoveryThreshold, settingsRejectionThreshold ) ),
+            createRangeDataset( 4 ) );
 
     // The threshold against which observations are rejected is recomputed in every iteration, and is passed to the
     // function as an argument. It is deliberately chosen larger than the threshold from the settings here, so that the
@@ -577,7 +581,7 @@ BOOST_AUTO_TEST_CASE( test_RejectionThreshold )
     const unsigned int numberOfObservations = 6;
 
     TestableCarpinoOutlierRejection outlierRejection(
-            std::make_shared< CarpinoOutlierRejectionSettings >( settingsRejectionThreshold, 8.0 ),
+            std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, settingsRejectionThreshold ) ),
             createRangeDataset( numberOfObservations ) );
 
     // The last two observations are out of the fit, so their (very large) chi-squared may not influence the threshold
@@ -606,7 +610,7 @@ BOOST_AUTO_TEST_CASE( test_RejectionThreshold )
 
         const unsigned int largeNumberOfObservations = 100;
         TestableCarpinoOutlierRejection largeDatasetOutlierRejection(
-                std::make_shared< CarpinoOutlierRejectionSettings >( settingsRejectionThreshold, 8.0 ),
+                std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, settingsRejectionThreshold ) ),
                 createRangeDataset( largeNumberOfObservations ) );
 
         std::vector< double > chiSquaredPerObservation( largeNumberOfObservations, 4.0 );
@@ -615,16 +619,25 @@ BOOST_AUTO_TEST_CASE( test_RejectionThreshold )
     }
 }
 
-//! Check that no more observations are rejected than the settings allow, and that the worst outliers are the ones
-//! that stay rejected.
-BOOST_AUTO_TEST_CASE( test_MaximumRejectedFraction )
+//! Check the expected rejected observation ids, for a rejection status computed by the algorithm.
+void checkRejectedObservationIds( const std::vector< bool >& rejectionStatus,
+                                  const std::vector< unsigned int >& expectedRejectedObservationIds )
+{
+    const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( rejectionStatus );
+    BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
+                                   rejectedObservationIds.end( ),
+                                   expectedRejectedObservationIds.begin( ),
+                                   expectedRejectedObservationIds.end( ) );
+}
+
+//! Check that in each iteration no more than 20% of the observations in the fit are newly rejected, and that the worst
+//! outliers are the ones that are rejected.
+BOOST_AUTO_TEST_CASE( test_MaximumRejectionsPerIteration )
 {
     const unsigned int numberOfObservations = 10;
-    const double maximumRejectedFraction = 0.4;  // 4 of the 10 observations may be rejected
 
-    TestableCarpinoOutlierRejection outlierRejection(
-            std::make_shared< CarpinoOutlierRejectionSettings >( 9.0, 8.0, maximumRejectedFraction ),
-            createRangeDataset( numberOfObservations ) );
+    TestableCarpinoOutlierRejection outlierRejection( std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, 9.0 ) ),
+                                                      createRangeDataset( numberOfObservations ) );
 
     const std::vector< bool > noObservationRejected( numberOfObservations, false );
 
@@ -633,80 +646,57 @@ BOOST_AUTO_TEST_CASE( test_MaximumRejectedFraction )
     const std::vector< double > chiSquaredPerObservation = { 10.0, 60.0, 30.0, 50.0, 20.0, 40.0, 15.0, 25.0, 1.0E3, 2.0E3 };
 
     {
-        // Six observations meet the rejection criterion while four may be rejected, so the two with the smallest
-        // chi-squared (observations 0 and 4) are put back into the fit
+        // All ten observations are in the fit, so two may be newly rejected. Six meet the rejection criterion, of which
+        // the two with the largest chi-squared (observations 1 and 3) are rejected.
         outlierRejection.setRejectionStatus( noObservationRejected );
         std::vector< bool > newRejectionStatus = { true, true, true, true, true, true, false, false, false, false };
-        outlierRejection.applyMaximumRejectedFraction( newRejectionStatus, chiSquaredPerObservation );
-
-        const std::vector< unsigned int > expectedRejectedObservationIds = { 1, 2, 3, 5 };
-        const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( newRejectionStatus );
-        BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
-                                       rejectedObservationIds.end( ),
-                                       expectedRejectedObservationIds.begin( ),
-                                       expectedRejectedObservationIds.end( ) );
+        outlierRejection.applyMaximumRejectionsPerIteration( newRejectionStatus, chiSquaredPerObservation );
+        checkRejectedObservationIds( newRejectionStatus, { 1, 3 } );
     }
 
     {
-        // Observations 8 and 9 were already out of the fit before this iteration. They take up two of the four allowed
-        // rejections and are not reconsidered, so only the two worst of the four new outliers remain rejected.
+        // Observations 8 and 9 were already out of the fit before this iteration. They stay rejected and do not count
+        // towards the limit, which is computed from the eight observations in the fit: one may be newly rejected.
         outlierRejection.setRejectionStatus( { false, false, false, false, false, false, false, false, true, true } );
         std::vector< bool > newRejectionStatus = { true, true, true, true, false, false, false, false, true, true };
-        outlierRejection.applyMaximumRejectedFraction( newRejectionStatus, chiSquaredPerObservation );
-
-        const std::vector< unsigned int > expectedRejectedObservationIds = { 1, 3, 8, 9 };
-        const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( newRejectionStatus );
-        BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
-                                       rejectedObservationIds.end( ),
-                                       expectedRejectedObservationIds.begin( ),
-                                       expectedRejectedObservationIds.end( ) );
+        outlierRejection.applyMaximumRejectionsPerIteration( newRejectionStatus, chiSquaredPerObservation );
+        checkRejectedObservationIds( newRejectionStatus, { 1, 8, 9 } );
     }
 
     {
-        // Five observations were already out of the fit, which is more than the maximum allows. No new observation may
-        // then be rejected, but the observations that were already rejected are left alone.
-        const std::vector< bool > previouslyRejected = { false, false, false, false, true, true, true, true, true, false };
-        outlierRejection.setRejectionStatus( previouslyRejected );
-        std::vector< bool > newRejectionStatus = { true, true, false, false, true, true, true, true, true, false };
-        outlierRejection.applyMaximumRejectedFraction( newRejectionStatus, chiSquaredPerObservation );
-
-        const std::vector< unsigned int > expectedRejectedObservationIds = { 4, 5, 6, 7, 8 };
-        const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( newRejectionStatus );
-        BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
-                                       rejectedObservationIds.end( ),
-                                       expectedRejectedObservationIds.begin( ),
-                                       expectedRejectedObservationIds.end( ) );
+        // Observation 9 is recovered in the same iteration. The recovery is kept, and does not change the limit, which
+        // is computed from the observations in the fit at the start of the iteration.
+        outlierRejection.setRejectionStatus( { false, false, false, false, false, false, false, false, true, true } );
+        std::vector< bool > newRejectionStatus = { false, true, false, true, false, false, false, false, true, false };
+        outlierRejection.applyMaximumRejectionsPerIteration( newRejectionStatus, chiSquaredPerObservation );
+        checkRejectedObservationIds( newRejectionStatus, { 1, 8 } );
     }
 
     {
-        // Fewer rejections than the maximum are left untouched
+        // Fewer new rejections than the limit are left untouched
         outlierRejection.setRejectionStatus( noObservationRejected );
-        std::vector< bool > newRejectionStatus = { false, true, false, true, false, true, false, false, false, false };
-        outlierRejection.applyMaximumRejectedFraction( newRejectionStatus, chiSquaredPerObservation );
-
-        const std::vector< unsigned int > expectedRejectedObservationIds = { 1, 3, 5 };
-        const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( newRejectionStatus );
-        BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
-                                       rejectedObservationIds.end( ),
-                                       expectedRejectedObservationIds.begin( ),
-                                       expectedRejectedObservationIds.end( ) );
+        std::vector< bool > newRejectionStatus = { false, true, false, false, false, false, false, false, false, false };
+        outlierRejection.applyMaximumRejectionsPerIteration( newRejectionStatus, chiSquaredPerObservation );
+        checkRejectedObservationIds( newRejectionStatus, { 1 } );
     }
 
     {
-        // Five observations with an equal chi-squared meet the criterion, of which one has to be put back into the
-        // fit. The choice is made by observation id, so that it does not depend on the order in which the
-        // observations happen to be stored.
+        // Only four observations are in the fit, so no observation may be newly rejected. The observations that were
+        // already rejected are left alone.
+        outlierRejection.setRejectionStatus( { false, false, false, false, true, true, true, true, true, true } );
+        std::vector< bool > newRejectionStatus = { true, true, false, false, true, true, true, true, true, true };
+        outlierRejection.applyMaximumRejectionsPerIteration( newRejectionStatus, chiSquaredPerObservation );
+        checkRejectedObservationIds( newRejectionStatus, { 4, 5, 6, 7, 8, 9 } );
+    }
+
+    {
+        // Five observations with an equal chi-squared meet the criterion, of which two may be rejected. The choice is
+        // made by observation id, so that it does not depend on the order in which the observations happen to be stored.
         outlierRejection.setRejectionStatus( noObservationRejected );
         const std::vector< double > equalChiSquaredPerObservation( numberOfObservations, 50.0 );
         std::vector< bool > newRejectionStatus = { true, false, true, false, true, false, true, false, true, false };
-        outlierRejection.applyMaximumRejectedFraction( newRejectionStatus, equalChiSquaredPerObservation );
-
-        const std::vector< unsigned int > expectedRejectedObservationIds = { 0, 2, 4, 6 };
-        const std::vector< unsigned int > rejectedObservationIds = getRejectedObservationIds( newRejectionStatus );
-        BOOST_CHECK_EQUAL_COLLECTIONS( rejectedObservationIds.begin( ),
-                                       rejectedObservationIds.end( ),
-                                       expectedRejectedObservationIds.begin( ),
-                                       expectedRejectedObservationIds.end( ) );
+        outlierRejection.applyMaximumRejectionsPerIteration( newRejectionStatus, equalChiSquaredPerObservation );
+        checkRejectedObservationIds( newRejectionStatus, { 0, 2 } );
     }
 }
 
@@ -714,7 +704,8 @@ BOOST_AUTO_TEST_CASE( test_MaximumRejectedFraction )
 //! using a Python implementation of Carpino outlier rejection
 BOOST_AUTO_TEST_CASE( test_ChiSquaredCalculation )
 {
-    std::shared_ptr< CarpinoOutlierRejectionSettings > settings = std::make_shared< CarpinoOutlierRejectionSettings >( 9.0, 8.0 );
+    std::shared_ptr< CarpinoOutlierRejectionSettings > settings =
+            std::make_shared< CarpinoOutlierRejectionSettings >( std::make_pair( 8.0, 9.0 ) );
     TestableCarpinoOutlierRejection outlierRejection( settings, createRangeDataset( 10 ) );
 
     Eigen::MatrixXd covariance( 2, 2 );

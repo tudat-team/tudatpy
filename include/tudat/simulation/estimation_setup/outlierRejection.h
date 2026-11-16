@@ -370,61 +370,53 @@ protected:
                     decideRejectionStatus( isCurrentlyRejected, chiSquaredPerObservation.at( observationIndex ), rejectionThreshold );
         }
 
-        // Limit the number of observations that the algorithm holds in the rejected state
-        applyMaximumRejectedFraction( newRejectionStatus, chiSquaredPerObservation );
+        // Limit the number of observations that are newly rejected in this iteration
+        applyMaximumRejectionsPerIteration( newRejectionStatus, chiSquaredPerObservation );
 
         this->isRejected_ = newRejectionStatus;
     }
 
-    //! Limit the number of observations rejected by the algorithm (over all iterations) to the fraction that the settings allow.
+    //! Maximum fraction of the observations in the fit at the start of an iteration that may be newly rejected in that iteration.
+    static constexpr double maximumRejectedFractionPerIteration = 0.2;
+
+    //! Limit the number of observations that are newly rejected in this iteration.
     /*!
-     * If more observations are rejected in this iteration than allowed, the best ones are kept. This does not touch observations
-     * that were already rejected and are still rejected during this iteration.
+     * At most maximumRejectedFractionPerIteration of the observations that are in the fit at the start of this iteration may be newly
+     * rejected. If more observations meet the rejection criterion, only those with the largest chi-squared values are rejected, and the
+     * others stay in the fit. Observations that were already rejected, and observations that are recovered, are not touched and do not
+     * count towards the limit.
      *
      * \param newRejectionStatus Rejection status for the next iteration, modified in place by this function.
      * \param chiSquaredPerObservation Chi-squared value of each observation, in order of increasing observation id.
      */
-    void applyMaximumRejectedFraction( std::vector< bool >& newRejectionStatus,
-                                       const std::vector< double >& chiSquaredPerObservation ) const
+    void applyMaximumRejectionsPerIteration( std::vector< bool >& newRejectionStatus,
+                                             const std::vector< double >& chiSquaredPerObservation ) const
     {
-        const unsigned int numberOfTotalObservations =
-                static_cast< unsigned int >( newRejectionStatus.size( ) ) - this->numberOfDisabledObservations_;
-        const std::size_t maximumNumberRejected = static_cast< std::size_t >(
-                std::floor( outlierRejectionSettings_->getMaximumRejectedFraction( ) * numberOfTotalObservations ) );
-
-        // Split the observations that are to be rejected into those that were already rejected before this
-        // iteration, and those that are rejected by the criteria of this iteration
-        std::size_t numberOfRetainedRejections = 0;
+        // Count the observations that are in the fit at the start of this iteration, and collect those that are newly rejected
+        std::size_t numberOfAcceptedObservations = 0;
         std::vector< unsigned int > newlyRejectedObservationIndices;
         for( unsigned int observationIndex = 0; observationIndex < newRejectionStatus.size( ); observationIndex++ )
         {
-            if( this->isDisabled_.at( observationIndex ) )
+            if( this->isDisabled_.at( observationIndex ) || this->isRejected_.at( observationIndex ) )
             {
                 continue;
             }
+            numberOfAcceptedObservations++;
             if( newRejectionStatus.at( observationIndex ) )
             {
-                if( this->isRejected_.at( observationIndex ) )
-                {
-                    numberOfRetainedRejections++;  // Number of observations that were already rejected
-                }
-                else
-                {
-                    newlyRejectedObservationIndices.push_back( observationIndex );  // Observations newly rejected
-                }
+                newlyRejectedObservationIndices.push_back( observationIndex );
             }
         }
 
-        if( numberOfRetainedRejections + newlyRejectedObservationIndices.size( ) <= maximumNumberRejected )
+        const std::size_t allowedNumberOfNewRejections = static_cast< std::size_t >(
+                std::floor( maximumRejectedFractionPerIteration * static_cast< double >( numberOfAcceptedObservations ) ) );
+
+        if( newlyRejectedObservationIndices.size( ) <= allowedNumberOfNewRejections )
         {
             return;
         }
 
-        // Number of new rejections that fits in what is left of the allowed number of rejected observations
-        const std::size_t allowedNumberOfNewRejections =
-                ( maximumNumberRejected > numberOfRetainedRejections ) ? maximumNumberRejected - numberOfRetainedRejections : 0;
-
-        // Order the new rejections by decreasing chi-squared, so that the worst observations are the ones that are kept
+        // Order the new rejections by decreasing chi-squared, so that the worst observations are the ones that are rejected
         std::stable_sort( newlyRejectedObservationIndices.begin( ),
                           newlyRejectedObservationIndices.end( ),
                           [ &chiSquaredPerObservation ]( const unsigned int firstIndex, const unsigned int secondIndex ) {
@@ -436,14 +428,10 @@ protected:
             newRejectionStatus.at( newlyRejectedObservationIndices.at( i ) ) = false;
         }
 
-        if( !isMaximumRejectedFractionWarningPrinted_ )
-        {
-            std::cerr << "Warning during outlier rejection, " << newlyRejectedObservationIndices.size( ) - allowedNumberOfNewRejections
-                      << " observations that met the rejection criterion were kept, since the maximum rejected fraction of "
-                      << outlierRejectionSettings_->getMaximumRejectedFraction( )
-                      << " was reached (this warning is printed once per estimation)." << std::endl;
-            isMaximumRejectedFractionWarningPrinted_ = true;
-        }
+        std::cerr << "Warning during outlier rejection, " << newlyRejectedObservationIndices.size( ) - allowedNumberOfNewRejections
+                  << " observations that met the rejection criterion were kept in the fit, since at most "
+                  << 100.0 * maximumRejectedFractionPerIteration << "% of the observations in the fit may be rejected per iteration."
+                  << std::endl;
     }
 
     double getRejectionThreshold( const std::vector< double >& chiSquaredPerObservation ) const
@@ -530,9 +518,6 @@ protected:
 
     //! Settings defining the thresholds of the algorithm.
     std::shared_ptr< CarpinoOutlierRejectionSettings > outlierRejectionSettings_;
-
-    //! Whether the warning that the maximum rejected fraction was reached has been printed (it is printed once per estimation).
-    mutable bool isMaximumRejectedFractionWarningPrinted_ = false;
 };
 
 //! Simple outlier rejection algorithm

@@ -99,75 +99,61 @@ protected:
  * residual vector. Note that the residual covariance, that is used in this algorithm, is different from the typical observation
  * covariance. The former also takes into account whether an observation was used in the least-squares inversion or not. An observation
  * that is currently used in the estimation is rejected when its chi-squared value exceeds the rejection threshold. An observation that
- * was rejected in an earlier iteration is recovered when its chi-squared value drops below the recovery threshold. Using a recovery
- * threshold that is lower than the rejection threshold prevents observations from oscillating between the rejected and the accepted
- * state in successive iterations.
+ * was rejected in an earlier iteration is recovered when its chi-squared value drops below the recovery threshold. Thresholds are
+ * given as a (recovery, rejection) pair. Using a recovery threshold that is lower than the rejection threshold prevents observations
+ * from oscillating between the rejected and the accepted state in successive iterations; the two may also be equal.
+ *
+ * In each iteration, at most 20% of the observations that are in the fit at the start of that iteration may be newly rejected. If
+ * more observations meet the rejection criterion, only those with the largest chi-squared values are rejected.
  */
 class CarpinoOutlierRejectionSettings : public OutlierRejectionSettings
 {
 public:
     //! Constructor.
     /*!
-     * \param chi2RejectionThreshold Chi-squared value above which an accepted observation is rejected.
-     * \param chi2RecoveryThreshold Chi-squared value below which a rejected observation is recovered. Must be smaller
-     * than the rejection threshold.
-     * \param maximumRejectedFraction Maximum fraction (0 to 1) of the observations that are not rejected before the estimation, that the
-     * algorithm may hold in the rejected state (over all iterations).
+     * \param chi2Thresholds (recovery, rejection) chi-squared thresholds. An accepted observation is rejected when its chi-squared value
+     * exceeds the rejection threshold, and a rejected observation is recovered when its chi-squared value drops below the recovery
+     * threshold. Both must be positive, and the recovery threshold must not exceed the rejection threshold.
      * \param firstIterationWithRejection Index of the first estimation iteration in which observations may be
      * rejected. Iterations are counted from zero, so the default value of 1 leaves the first iteration (which uses
      * the a priori parameter values, and can therefore have large residuals for all observations) untouched.
      */
-    CarpinoOutlierRejectionSettings( const double chi2RejectionThreshold = 9.0,
-                                     const double chi2RecoveryThreshold = 8.0,
-                                     const double maximumRejectedFraction = 0.25,
-                                     const int firstIterationWithRejection = 1 ):
+    CarpinoOutlierRejectionSettings( const std::pair< double, double >& chi2Thresholds, const int firstIterationWithRejection = 1 ):
         OutlierRejectionSettings( OutlierRejectionType::carpino_outlier_rejection, firstIterationWithRejection ),
-        chi2RejectionThreshold_( chi2RejectionThreshold ), chi2RecoveryThreshold_( chi2RecoveryThreshold ),
-        maximumRejectedFraction_( maximumRejectedFraction )
+        chi2Thresholds_( chi2Thresholds )
     {
-        if( chi2RejectionThreshold_ <= 0.0 || chi2RecoveryThreshold_ <= 0.0 )
+        if( !( chi2Thresholds_.first > 0.0 ) || !( chi2Thresholds_.second > 0.0 ) )
         {
             throw std::runtime_error( "Error when creating Carpino outlier rejection settings, chi-squared thresholds must be positive." );
         }
 
-        if( chi2RecoveryThreshold_ >= chi2RejectionThreshold_ )
+        if( chi2Thresholds_.first > chi2Thresholds_.second )
         {
             throw std::runtime_error(
-                    "Error when creating Carpino outlier rejection settings, the chi-squared recovery threshold must be smaller than the "
+                    "Error when creating Carpino outlier rejection settings, the chi-squared recovery threshold must not exceed the "
                     "chi-squared rejection threshold." );
-        }
-
-        if( maximumRejectedFraction_ < 0.0 || maximumRejectedFraction_ > 1.0 )
-        {
-            throw std::runtime_error(
-                    "Error when creating Carpino outlier rejection settings, the maximum rejected fraction must be between 0 and 1." );
         }
     }
 
-    double getChi2RejectionThreshold( ) const
+    //! Return the (recovery, rejection) chi-squared thresholds.
+    const std::pair< double, double >& getChi2Thresholds( ) const
     {
-        return chi2RejectionThreshold_;
+        return chi2Thresholds_;
     }
 
     double getChi2RecoveryThreshold( ) const
     {
-        return chi2RecoveryThreshold_;
+        return chi2Thresholds_.first;
     }
 
-    double getMaximumRejectedFraction( ) const
+    double getChi2RejectionThreshold( ) const
     {
-        return maximumRejectedFraction_;
+        return chi2Thresholds_.second;
     }
 
 protected:
-    //! Chi-squared value above which an accepted observation is rejected.
-    const double chi2RejectionThreshold_;
-
-    //! Chi-squared value below which a rejected observation is recovered.
-    const double chi2RecoveryThreshold_;
-
-    //! Maximum fraction of the observations not rejected before the estimation, that the algorithm may hold in the rejected state.
-    const double maximumRejectedFraction_;
+    //! (recovery, rejection) chi-squared thresholds.
+    const std::pair< double, double > chi2Thresholds_;
 };
 
 //! Settings for the simple outlier rejection algorithm.
@@ -250,13 +236,10 @@ protected:
 };
 
 //! Function to create settings for the outlier rejection algorithm of Carpino et al. (2003).
-inline std::shared_ptr< OutlierRejectionSettings > carpinoOutlierRejectionSettings( const double chi2RejectionThreshold = 9.0,
-                                                                                    const double chi2RecoveryThreshold = 8.0,
-                                                                                    const double maximumRejectedFraction = 0.25,
+inline std::shared_ptr< OutlierRejectionSettings > carpinoOutlierRejectionSettings( const std::pair< double, double >& chi2Thresholds,
                                                                                     const int firstIterationWithRejection = 1 )
 {
-    return std::make_shared< CarpinoOutlierRejectionSettings >(
-            chi2RejectionThreshold, chi2RecoveryThreshold, maximumRejectedFraction, firstIterationWithRejection );
+    return std::make_shared< CarpinoOutlierRejectionSettings >( chi2Thresholds, firstIterationWithRejection );
 }
 
 //! Function to create settings for the simple outlier rejection algorithm, with one (recovery, rejection) pair for all observables.

@@ -63,43 +63,22 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
          :func:`~tudatpy.estimation.estimation_analysis.carpino_outlier_rejection_settings` function.
 
       )doc" )
-            .def_property_readonly( "chi2_rejection_threshold",
-                                    &tss::CarpinoOutlierRejectionSettings::getChi2RejectionThreshold,
+            .def_property_readonly( "chi2_thresholds",
+                                    &tss::CarpinoOutlierRejectionSettings::getChi2Thresholds,
                                     R"doc(
 
          **read-only**
 
-         Chi-squared value above which an observation that is used in the estimation is rejected.
+         (recovery, rejection) chi-squared thresholds. An observation that is used in the estimation is rejected when its
+         chi-squared value exceeds the rejection threshold, and an observation that was rejected in an earlier iteration is
+         recovered when its chi-squared value drops below the recovery threshold.
 
-         :type: float
-      )doc" )
-            .def_property_readonly( "chi2_recovery_threshold",
-                                    &tss::CarpinoOutlierRejectionSettings::getChi2RecoveryThreshold,
-                                    R"doc(
-
-         **read-only**
-
-         Chi-squared value below which an observation that was rejected in an earlier iteration is recovered.
-
-         :type: float
-      )doc" )
-            .def_property_readonly( "maximum_rejected_fraction",
-                                    &tss::CarpinoOutlierRejectionSettings::getMaximumRejectedFraction,
-                                    R"doc(
-
-         **read-only**
-
-         Maximum fraction of the observations that are not rejected before the estimation, that the algorithm may hold in
-         the rejected state (over all iterations).
-
-         :type: float
+         :type: tuple[float, float]
       )doc" );
 
     m.def( "carpino_outlier_rejection_settings",
            &tss::carpinoOutlierRejectionSettings,
-           py::arg( "chi2_rejection_threshold" ) = 9.0,
-           py::arg( "chi2_recovery_threshold" ) = 8.0,
-           py::arg( "maximum_rejected_fraction" ) = 0.25,
+           py::arg( "chi2_thresholds" ),
            py::arg( "first_iteration_with_rejection" ) = 1,
            R"doc(
 
@@ -118,15 +97,16 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  least-squares inversion or not.
 
  When the :math:`\chi^2` value of an observation exceeds the rejection threshold, the observation is marked as an outlier
- and excluded from the next iteration. The rejection threshold used by the algorithm is increased when the largest
+ and excluded from the next iteration. Only 20% of the available observations may be rejected per iteration for stability: when the newly
+ rejected fraction is larger, only the worst 20% is rejected. The rejection threshold used by the algorithm is increased when the largest
  :math:`\chi^2` value of the observations that are not rejected is large, or when few of these observations remain:
  it is :math:`\max(\chi^2_{\text{rej}} + 400\cdot 1.2^{-N}, \chi^2_{\max}/4)`, with :math:`\chi^2_{\text{rej}}` the
  rejection threshold from the settings, :math:`N` the number of observations that are not rejected, and
  :math:`\chi^2_{\max}` the largest :math:`\chi^2` value of these observations. If a
  rejected observation has a :math:`\chi^2` value below the recovery threshold, it is no longer an outlier, and is included
- in the next iteration of the least-squares fit again. Separate recovery and rejection thresholds are used to prevent
- observations from being alternately rejected and recovered in the later iterations. Observations that are rejected
- before the estimation remain rejected, and are not considered by the algorithm.
+ in the next iteration of the least-squares fit again. A recovery threshold below the rejection threshold prevents
+ observations from being alternately rejected and recovered in the later iterations. The two may also be equal.
+ Observations that are rejected before the estimation remain rejected, and are not considered by the algorithm.
 
  Note that this algorithm requires that the observation covariance (or the inverse weight matrix) is compatible with the
  true errors. If all weights are equal to 1 (the default), a warning is printed, since the results are then only meaningful
@@ -144,22 +124,30 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
  Parameters
  ----------
- chi2_rejection_threshold : float, default = 9.0
-     Chi-squared value above which an observation that is used in the estimation is rejected.
- chi2_recovery_threshold : float, default = 8.0
-     Chi-squared value below which an observation that was rejected in an earlier iteration is recovered. Must be
-     smaller than ``chi2_rejection_threshold``.
- maximum_rejected_fraction : float, default = 0.25
-     Maximum fraction (between 0 and 1) of the observations that are not rejected before the estimation, that the
-     algorithm may hold in the rejected state (over all iterations).
+ chi2_thresholds : tuple[float, float]
+     (recovery, rejection) :math:`\chi^2` thresholds. An observation that is used in the estimation is rejected when its
+     :math:`\chi^2` value exceeds the rejection threshold, and an observation that was rejected in an earlier iteration
+     is recovered when its :math:`\chi^2` value drops below the recovery threshold. Both must be positive, and the
+     recovery threshold must not exceed the rejection threshold.
  first_iteration_with_rejection : int, default = 1
-     Index of the first estimation iteration in which observations may be rejected, counted from zero.
+     Index of the first estimation iteration in which observations may be rejected, counted from zero. The default
+     value of 1 leaves the first iteration untouched, since the residuals of that iteration are computed with the
+     a priori parameter values and can be large for all observations.
 
  Returns
  -------
  :class:`~tudatpy.estimation.estimation_analysis.CarpinoOutlierRejectionSettings`
      Instance of the :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings` derived
      :class:`~tudatpy.estimation.estimation_analysis.CarpinoOutlierRejectionSettings` class.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Reject observations with a chi-squared above 25 (roughly 5 sigma for a scalar observable), and recover them
+     # once their chi-squared drops below 24
+     settings = estimation_analysis.carpino_outlier_rejection_settings((24.0, 25.0))
 
      )doc" );
 
