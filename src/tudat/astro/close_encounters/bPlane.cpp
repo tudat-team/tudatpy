@@ -141,6 +141,21 @@ BPlaneData makeBPlane( const Eigen::Vector6d& relativeState,
 
 double computeCaptureRadius( const double bodyRadius, const double centralBodyGravitationalParameter, const double asymptoticVelocity )
 {
+    if( !( bodyRadius > 0.0 ) )
+    {
+        throw std::runtime_error( "Error when computing capture radius: body radius must be positive, but is " +
+                                  std::to_string( bodyRadius ) );
+    }
+    if( !( centralBodyGravitationalParameter > 0.0 ) )
+    {
+        throw std::runtime_error( "Error when computing capture radius: gravitational parameter must be positive, but is " +
+                                  std::to_string( centralBodyGravitationalParameter ) );
+    }
+    if( !( asymptoticVelocity > 0.0 ) )
+    {
+        throw std::runtime_error( "Error when computing capture radius: asymptotic velocity must be positive, but is " +
+                                  std::to_string( asymptoticVelocity ) );
+    }
     return bodyRadius *
             std::sqrt( 1.0 + 2.0 * centralBodyGravitationalParameter / ( bodyRadius * asymptoticVelocity * asymptoticVelocity ) );
 }

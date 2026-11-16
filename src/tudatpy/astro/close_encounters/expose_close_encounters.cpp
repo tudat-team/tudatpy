@@ -132,7 +132,7 @@ void expose_close_encounters( py::module& m )
  The B-plane describes the encounter with the osculating two-body hyperbola that matches the relative state. The
  default reference direction is the :math:`-z` axis of the frame of the relative state. When the relative state is
  given with ICRF (J2000 equatorial) axes, :math:`\hat{T}` then lies in the equatorial plane, as in the B-plane
- definition of Kizner.
+ definition of :cite:t:`Kizner1961`.
 
  Parameters
  ----------
@@ -226,6 +226,11 @@ void expose_close_encounters( py::module& m )
  -------
  float
      Radius of the capture cross section [m].
+
+ Raises
+ ------
+ RuntimeError
+     If the body radius, gravitational parameter or asymptotic velocity is not positive.
 
      )doc" );
 }
