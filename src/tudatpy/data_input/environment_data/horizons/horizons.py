@@ -646,7 +646,7 @@ class HorizonsQuery:
         self,
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",
-        vector_table: Union[str, None] = None,
+        vector_table: str | None = None,
     ) -> astropy.table.Table:
         """Retrieve Horizons Vectors api data in raw astropy format.
         For general purposes, use the `.cartesian()` method instead.
@@ -667,7 +667,7 @@ class HorizonsQuery:
             See the Horizons System Manual for more info:
 
             https://ssd.jpl.nasa.gov/horizons/manual.html#output
-        vector_table : Union[str, None], optional
+        vector_table : str | None, optional
             Horizons `VEC_TABLE` parameter, selecting the quantities to be retrieved
             (e.g. '2x' for the state and its 1-sigma uncertainties). If None, the
             Horizons default is used, by default None.
