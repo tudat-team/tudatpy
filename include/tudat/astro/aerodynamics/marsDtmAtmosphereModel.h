@@ -245,7 +245,6 @@ public:
     }
     double getSolarLongitude( ) const
     {
-        std::cout << "Solar Longitude: " << Ls_ << std::endl;
         return Ls_;
     }
 

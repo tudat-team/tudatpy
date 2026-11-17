@@ -442,7 +442,7 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
                         std::make_shared< ScaledAerodynamicCoefficientInterface >( baseInterface,
                                                                                    scaledCoefficientSettings->getForceScaling( ),
                                                                                    scaledCoefficientSettings->getMomentScaling( ),
-                                                                                   scaledCoefficientSettings->getIsScalingAbsolute( ) );
+                                                                                   !scaledCoefficientSettings->getIsScalingAbsolute( ) );
             }
             break;
         }
