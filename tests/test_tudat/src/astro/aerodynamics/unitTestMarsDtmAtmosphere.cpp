@@ -77,6 +77,9 @@ BOOST_AUTO_TEST_CASE( testMarsDtmAtmosphere )
     double rho_diff = std::abs( rho - rho_ref );
     // Check density
     BOOST_CHECK_SMALL( rho - rho_ref, tolerance );
+
+    // Check solar longitude computed from the time against the one used for the density
+    BOOST_CHECK_EQUAL( computeSolarLongitudeFromTime( time ), atmosphereModel->getSolarLongitude( ) );
 }
 
 // Test is Mars DTM model is being used properly (no crashes)

@@ -670,6 +670,11 @@ public:
         }
     }
 
+    std::shared_ptr< AerodynamicCoefficientInterface > getBaseCoefficientInterface( ) const
+    {
+        return baseCoefficientInterface_;
+    }
+
 private:
     std::shared_ptr< AerodynamicCoefficientInterface > baseCoefficientInterface_;
 

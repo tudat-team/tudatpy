@@ -760,7 +760,8 @@ bool isScalarDependentVariable( const std::shared_ptr< SingleDependentVariableSa
     int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings, bodies );
     if( dependentVariableSize > 1 ||
         dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable ||
-        dependentVariableSettings->dependentVariableType_ == custom_dependent_variable )
+        dependentVariableSettings->dependentVariableType_ == custom_dependent_variable ||
+        dependentVariableSettings->dependentVariableType_ == illuminated_panel_fraction )
     {
         return false;
     }

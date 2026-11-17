@@ -607,8 +607,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                                 std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
                                         accelerationModelIterator->second.at( i ) );
                         auto panelledAerodynamicCoefficientInterface =
-                                std::dynamic_pointer_cast< aerodynamics::PanelledAerodynamicCoefficientInterface >(
-                                        aerodynamicAcceleration->getCoefficientInterface( ) );
+                                aerodynamics::getPanelledCoefficientInterface( aerodynamicAcceleration->getCoefficientInterface( ) );
                         if( panelledAerodynamicCoefficientInterface != nullptr )
                         {
                             singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );

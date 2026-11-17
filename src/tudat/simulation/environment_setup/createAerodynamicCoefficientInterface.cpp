@@ -272,17 +272,23 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createUnivariat
     }
 }
 
+//! Function to retrieve the aerodynamic angle calculator of a body when evaluating its moment contribution; the flight
+//! conditions are created with the aerodynamic acceleration, after the coefficient interface.
+std::shared_ptr< reference_frames::AerodynamicAngleCalculator > getMomentContributionAngleCalculator( const std::shared_ptr< Body > body )
+{
+    if( body->getFlightConditions( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when computing aerodynamic moment contribution, body " + body->getBodyName( ) +
+                                  " has no flight conditions." );
+    }
+    return body->getFlightConditions( )->getAerodynamicAngleCalculator( );
+}
+
 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
         const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame,
         const std::shared_ptr< Body > body )
 {
-    if( body->getFlightConditions( ) == nullptr )
-    {
-        throw std::runtime_error( "Error when creating moment contribution interface, body " + body->getBodyName( ) +
-                                  " has no flight conditions." );
-    }
-
     std::pair< reference_frames::AerodynamicsReferenceFrames, double > forceCoefficientFrameId =
             convertCoefficientFrameToGeneralAerodynamicFrame( forceCoefficientFrame );
     std::pair< reference_frames::AerodynamicsReferenceFrames, double > momentCoefficientFrameId =
@@ -297,8 +303,8 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
     else
     {
         coefficientRotationFunction = [ = ]( ) {
-            return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
-                    forceCoefficientFrameId.first, momentCoefficientFrameId.first );
+            return getMomentContributionAngleCalculator( body )->getRotationMatrixBetweenFrames( forceCoefficientFrameId.first,
+                                                                                                 momentCoefficientFrameId.first );
         };
     }
 
@@ -309,8 +315,8 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
     else
     {
         armRotationFunction = [ = ]( ) {
-            return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
-                    reference_frames::body_frame, momentCoefficientFrameId.first );
+            return getMomentContributionAngleCalculator( body )->getRotationMatrixBetweenFrames( reference_frames::body_frame,
+                                                                                                 momentCoefficientFrameId.first );
         };
     }
 

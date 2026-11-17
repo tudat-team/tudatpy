@@ -219,8 +219,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings( const st
     }
     else
     {
-        // Create settings for a point mass gravity with data from Spice
-        return centralGravityFromSpiceSettings( );
+        // Create settings for a point mass gravity with data from Spice, also when the body is created with another name
+        return centralGravityFromSpiceSettings( bodyName );
     }
 }
 

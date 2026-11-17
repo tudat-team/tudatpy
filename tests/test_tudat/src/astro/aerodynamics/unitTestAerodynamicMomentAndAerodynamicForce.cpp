@@ -924,12 +924,13 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
 
                 addRigidBodyProperties( bodies, "Apollo", rigidBodyProperties );
 
-                addFlightConditions( bodies, "Apollo", "Earth" );
+                // Moment contribution is created before the flight conditions, as when created from body settings
                 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > momentCoefficientInterface =
                         createMomentContributionInterface( aerodynamicCoefficients->getForceCoefficientsFrame( ),
                                                            aerodynamicCoefficients->getMomentCoefficientsFrame( ),
                                                            bodies.at( "Apollo" ) );
                 bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( )->setMomentContributionInterface( momentCoefficientInterface );
+                addFlightConditions( bodies, "Apollo", "Earth" );
             }
 
             bodies.at( "Apollo" )
