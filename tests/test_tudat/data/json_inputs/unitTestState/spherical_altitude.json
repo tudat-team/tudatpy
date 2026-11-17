@@ -1,0 +1,11 @@
+{
+  "centralBodyAverageRadius": 0.5,
+  "altitude": 1.5,
+  "epoch": -800000,
+  "latitude": 0.5,
+  "longitude": -1.4,
+  "speed": 5,
+  "flightPathAngle": 0.08,
+  "headingAngle": -0.12,
+  "type": "spherical"
+}

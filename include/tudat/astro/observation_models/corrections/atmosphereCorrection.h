@@ -33,6 +33,7 @@
 
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
@@ -650,6 +651,59 @@ protected:
 
     // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
     bool isUplinkCorrection_;
+};
+
+//! Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers)
+/*!
+ * Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers).
+ * The measured zenith [dry, wet] path delays (indexed by TDB time) are interpolated (using interpolatorSettings), at times between
+ * measurements separated by at most maximumInterpolationGap. The measured wet delay replaces that of the fallback model, the measured dry
+ * delay is only used if useMeasuredDryDelay is true (in which case measurements with NaN dry delay are skipped). Outside of the measured
+ * data, or if forced (see setForceFallback), the fallback model is used.
+ */
+class MeasuredTroposphericCorrection : public MappedTroposphericCorrection
+{
+public:
+    MeasuredTroposphericCorrection(
+            const std::map< double, Eigen::Vector2d >& zenithDelays,
+            const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+            const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+            const bool isUplinkCorrection,
+            const double maximumInterpolationGap,
+            const bool useMeasuredDryDelay = false,
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
+
+    bool hasFallback( ) const override
+    {
+        return true;
+    }
+
+    bool isFallbackUsed( ) const override
+    {
+        return isFallbackUsed_;
+    }
+
+    void setForceFallback( const bool forceFallback ) override
+    {
+        forceFallback_ = forceFallback;
+    }
+
+private:
+    bool isMeasurementAvailable( const double time ) const;
+
+    double computeZenithCorrection( const double stationTime, const int component );
+
+    std::map< double, Eigen::Vector2d > zenithDelays_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > interpolator_;
+    std::shared_ptr< MappedTroposphericCorrection > fallbackCorrection_;
+    double maximumInterpolationGap_;
+    bool useMeasuredDryDelay_;
+
+    // Boolean denoting whether the fallback model was used for the wet delay in the last computation
+    bool isFallbackUsed_ = false;
+
+    // Boolean denoting whether the fallback model is used, irrespective of the availability of measurements
+    bool forceFallback_ = false;
 };
 
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.

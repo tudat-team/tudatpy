@@ -19,6 +19,7 @@
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 
 namespace tudat
 {
@@ -278,16 +279,10 @@ void setDsnWeatherDataInGroundStations( simulation_setup::SystemOfBodies& bodies
             throw std::runtime_error( "Error when setting weather data in ground station: no ground stations in complex." );
         }
 
-        std::map< ground_stations::MeteoDataEntries, int > dsnMeteoEntries = { { ground_stations::temperature_meteo_data, 1 },
-                                                                               { ground_stations::pressure_meteo_data, 2 },
-                                                                               { ground_stations::water_vapor_pressure_meteo_data, 3 },
-                                                                               { ground_stations::relative_humidity_meteo_data, 4 },
-                                                                               { ground_stations::dew_point_meteo_data, 0 } };
-
+        std::shared_ptr< simulation_setup::WeatherDataSettings > weatherDataSettings =
+                std::make_shared< simulation_setup::DsnWeatherDataSettings >( weatherData, interpolatorSettings );
         std::shared_ptr< ground_stations::StationMeteoData > meteoData =
-                std::make_shared< ground_stations::ContinuousInterpolatedMeteoData >(
-                        interpolators::createOneDimensionalInterpolator( weatherData->meteoDataMap_, interpolatorSettings ),
-                        dsnMeteoEntries );
+                simulation_setup::createGroundStationMeteoData( weatherDataSettings );
         // Set functions in ground stations
         for( const std::string& groundStation : groundStations )
         {
@@ -302,21 +297,11 @@ void setEstrackWeatherDataInGroundStation( simulation_setup::SystemOfBodies& bod
                                            std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
                                            const std::string& bodyWithGroundStations )
 {
-    EstrackWeatherData weatherData = EstrackWeatherData( weatherFiles );
-    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > interpolators;
-    auto meteoDataList = weatherData.getMeteoDataPerFile( );
-    for( unsigned int i = 0; i < meteoDataList.size( ); i++ )
-    {
-        interpolators.push_back( interpolators::createOneDimensionalInterpolator( meteoDataList.at( i ), interpolatorSettings ) );
-    }
-
-    std::map< ground_stations::MeteoDataEntries, int > estrackMeteoEntries = { { ground_stations::temperature_meteo_data, 2 },
-                                                                               { ground_stations::pressure_meteo_data, 1 },
-                                                                               { ground_stations::relative_humidity_meteo_data, 0 } };
-
-    std::shared_ptr< ground_stations::StationMeteoData > meteoData =
-            std::make_shared< ground_stations::PiecewiseInterpolatedMeteoData >( interpolators, estrackMeteoEntries );
-    bodies.at( bodyWithGroundStations )->getGroundStation( groundStation )->setMeteoData( meteoData );
+    std::shared_ptr< simulation_setup::WeatherDataSettings > weatherDataSettings =
+            std::make_shared< simulation_setup::EstrackWeatherDataSettings >( std::make_shared< EstrackWeatherData >( weatherFiles ),
+                                                                              interpolatorSettings );
+    simulation_setup::setWeatherDataInGroundStation( bodies.at( bodyWithGroundStations )->getGroundStation( groundStation ),
+                                                     weatherDataSettings );
 }
 
 }  // namespace input_output

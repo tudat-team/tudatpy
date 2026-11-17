@@ -28,6 +28,8 @@ Classes
 
    LagrangeInterpolationOutOfBoundsError
 
+   InterpolationDerivativeNotImplementedError
+
    MaximumIterationsExceededError
 
 
@@ -40,6 +42,10 @@ Classes
    :show-inheritance:
 
 .. autoexception:: tudatpy.exceptions.LagrangeInterpolationOutOfBoundsError
+   :members:
+   :show-inheritance:
+
+.. autoexception:: tudatpy.exceptions.InterpolationDerivativeNotImplementedError
    :members:
    :show-inheritance:
 

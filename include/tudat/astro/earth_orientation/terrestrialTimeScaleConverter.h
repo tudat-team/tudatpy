@@ -117,8 +117,8 @@ public:
         utcIntroductionEpochInTai_ = ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
                 physical_constants::JULIAN_DAY;
 
-        // Read historical Delta T values
-        std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
+        // Read historical Delta T values (only once)
+        static const std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
                 paths::getEarthOrientationDataFilesPath( ) + "/historicalDeltaT.txt", ",", "#" );
 
         historicalDeltaTInterpolator_ =
@@ -400,6 +400,12 @@ public:
             throw std::runtime_error( "Error when getting UT1 correction: UTC to UT1 interpolator was not provided." );
         }
 
+        // Before the introduction of UTC, UTC is set equal to UT1 (see calculateUniversalTimes)
+        if( getCurrentTime( inputScale, basic_astrodynamics::tai_scale, inputTimeValue, currentPosition ) < utcIntroductionEpochInTai_ )
+        {
+            return 0.0;
+        }
+
         try
         {
             return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
@@ -576,10 +582,11 @@ private:
  * Function to create the default Earth time scales conversion object. All (sub-)diurnal corrections to UTC-UT1
  * according to IERS 2010, and UT1 daily corrections published by IERS (read from input EOPReader).
  * \param eopReader Object that reads an Earth Orientation Parameters file.
+ * \param reuseExistingConverter Reuse a previously created default converter. This option is only used when eopReader is nullptr.
  * \return Default Earth time scales conversion object
  */
-std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter(
-        const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
+std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader = nullptr,
+                                                                             const bool reuseExistingConverter = true );
 
 // static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
 

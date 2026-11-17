@@ -8,7 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <cmath>
+
 #include "tudat/astro/orbit_determination/acceleration_partials/relativisticAccelerationPartial.h"
+#include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat
 {
@@ -102,8 +105,16 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RelativisticAccelera
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
 
+    // Create partial function if parameter is primary body gravitational parameter (de Sitter term)
+    if( calculateDeSitterCorrection_ && parameter->getParameterName( ).second.first == primaryBodyName_ &&
+        parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter && primaryBodyName_ != acceleratingBody_ )
+    {
+        partialFunction =
+                std::bind( &RelativisticAccelerationPartial::wrtGravitationalParameterOfPrimaryBody, this, std::placeholders::_1 );
+        numberOfRows = 1;
+    }
     // Create partial function if parameter is central body gravitational parameter
-    if( parameter->getParameterName( ).second.first == acceleratingBody_ )
+    else if( parameter->getParameterName( ).second.first == acceleratingBody_ )
     {
         switch( parameter->getParameterName( ).first )
         {
@@ -136,29 +147,127 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RelativisticAccelera
     return std::make_pair( partialFunction, numberOfRows );
 }
 
+//! Function to compute partial derivative of relativistic acceleration correction w.r.t. central body gravitational parameter.
+void RelativisticAccelerationPartial::wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix = Eigen::MatrixXd::Zero( 3, 1 );
+    if( calculateSchwarzschildCorrection_ )
+    {
+        computePartialOfSchwarzschildAccelerationCorrectionWrtGravitationalParameter( currentRelativeState_,
+                                                                                      centralBodyGravitationalParameterFunction_( ),
+                                                                                      partialMatrix,
+                                                                                      ppnGammaParameterFunction_( ),
+                                                                                      ppnBetaParameterFunction_( ) );
+    }
+    // The Lense-Thirring term is linear in the central body gravitational parameter
+    partialMatrix += currentLenseThirringAcceleration_ / centralBodyGravitationalParameterFunction_( );
+}
+
+//! Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter gamma
+void RelativisticAccelerationPartial::wrtPpnParameterGamma( Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix = Eigen::MatrixXd::Zero( 3, 1 );
+    if( calculateSchwarzschildCorrection_ )
+    {
+        computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterGamma(
+                currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix );
+    }
+    // The Lense-Thirring and de Sitter terms are proportional to ( 1 + gamma ) and ( 1 + 2 gamma ), respectively
+    const double ppnParameterGamma = ppnGammaParameterFunction_( );
+    partialMatrix += currentLenseThirringAcceleration_ / ( 1.0 + ppnParameterGamma ) +
+            2.0 * currentDeSitterAcceleration_ / ( 1.0 + 2.0 * ppnParameterGamma );
+}
+
+//! Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter beta
+void RelativisticAccelerationPartial::wrtPpnParameterBeta( Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix = Eigen::MatrixXd::Zero( 3, 1 );
+    if( calculateSchwarzschildCorrection_ )
+    {
+        computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterBeta(
+                currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix );
+    }
+}
+
 //! Function for updating partial w.r.t. the bodies' states
 void RelativisticAccelerationPartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
     {
         currentRelativeState_ = ( acceleratedBodyState_( ) - centralBodyState_( ) );
-        // Schwarzschild term only (the position partial below uses its 1/r^3 scaling)
-        currentAcceleration_ =
-                relativity::calculateScharzschildGravitationalAccelerationCorrection( centralBodyGravitationalParameterFunction_( ),
-                                                                                      currentRelativeState_,
-                                                                                      ppnGammaParameterFunction_( ),
-                                                                                      ppnBetaParameterFunction_( ) );
+        const double gravitationalParameter = centralBodyGravitationalParameterFunction_( );
+        const double ppnParameterGamma = ppnGammaParameterFunction_( );
+        currentPartialWrtPosition_.setZero( );
+        currentPartialWrtVelocity_.setZero( );
 
-        computePartialOfSchwarzschildAccelerationCorrectionWrtPosition( currentRelativeState_,
-                                                                        currentAcceleration_,
-                                                                        currentPartialWrtPosition_,
-                                                                        centralBodyGravitationalParameterFunction_( ),
-                                                                        ppnGammaParameterFunction_( ),
-                                                                        ppnBetaParameterFunction_( ) );
-        computePartialOfSchwarzschildAccelerationCorrectionWrtVelocity( currentRelativeState_,
-                                                                        currentPartialWrtVelocity_,
-                                                                        centralBodyGravitationalParameterFunction_( ),
-                                                                        ppnGammaParameterFunction_( ) );
+        if( calculateSchwarzschildCorrection_ )
+        {
+            currentAcceleration_ = relativity::calculateScharzschildGravitationalAccelerationCorrection(
+                    gravitationalParameter, currentRelativeState_, ppnParameterGamma, ppnBetaParameterFunction_( ) );
+            computePartialOfSchwarzschildAccelerationCorrectionWrtPosition( currentRelativeState_,
+                                                                            currentAcceleration_,
+                                                                            currentPartialWrtPosition_,
+                                                                            gravitationalParameter,
+                                                                            ppnParameterGamma,
+                                                                            ppnBetaParameterFunction_( ) );
+            computePartialOfSchwarzschildAccelerationCorrectionWrtVelocity(
+                    currentRelativeState_, currentPartialWrtVelocity_, gravitationalParameter, ppnParameterGamma );
+        }
+
+        // Lense-Thirring term a = k ( 3 / r^5 ( r x v ) ( r . J ) + 1 / r^3 ( v x J ) ), with k = ( 1 + gamma ) mu / c^2 and J the
+        // (state-independent) angular momentum per unit mass of the central body
+        currentLenseThirringAcceleration_.setZero( );
+        if( calculateLenseThirringCorrection_ )
+        {
+            const Eigen::Vector3d position = currentRelativeState_.segment( 0, 3 );
+            const Eigen::Vector3d velocity = currentRelativeState_.segment( 3, 3 );
+            const Eigen::Vector3d angularMomentum = centralBodyAngularMomentumFunction_( );
+            const double distance = position.norm( );
+            const double coefficient =
+                    ( 1.0 + ppnParameterGamma ) * gravitationalParameter * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+            const double inverseDistanceFifth = 1.0 / std::pow( distance, 5 );
+            const double positionDotAngularMomentum = position.dot( angularMomentum );
+            const Eigen::Vector3d positionCrossVelocity = position.cross( velocity );
+
+            currentLenseThirringAcceleration_ = relativity::calculateLenseThirringCorrectionAcceleration(
+                    gravitationalParameter, currentRelativeState_, angularMomentum, ppnParameterGamma );
+            currentPartialWrtPosition_ += coefficient *
+                    ( 3.0 * inverseDistanceFifth *
+                              ( -positionDotAngularMomentum * linear_algebra::getCrossProductMatrix( velocity ) +
+                                positionCrossVelocity * angularMomentum.transpose( ) -
+                                velocity.cross( angularMomentum ) * position.transpose( ) ) -
+                      15.0 * inverseDistanceFifth / ( distance * distance ) * positionDotAngularMomentum * positionCrossVelocity *
+                              position.transpose( ) );
+            currentPartialWrtVelocity_ += coefficient *
+                    ( 3.0 * inverseDistanceFifth * positionDotAngularMomentum * linear_algebra::getCrossProductMatrix( position ) -
+                      linear_algebra::getCrossProductMatrix( angularMomentum ) / ( distance * distance * distance ) );
+        }
+
+        // de Sitter term a = -K ( ( V x R ) x v ), with K = ( 1 + 2 gamma ) mu_P / ( c^2 R^3 ), R and V the state of the central body
+        // w.r.t. the primary body P, and v the relative velocity of the accelerated body
+        currentDeSitterAcceleration_.setZero( );
+        currentDeSitterPartialWrtCentralBodyPosition_.setZero( );
+        currentDeSitterPartialWrtCentralBodyVelocity_.setZero( );
+        if( calculateDeSitterCorrection_ )
+        {
+            const Eigen::Vector6d centralBodyStateWrtPrimary = centralBodyState_( ) - primaryBodyState_( );
+            const Eigen::Vector3d primaryPosition = centralBodyStateWrtPrimary.segment( 0, 3 );
+            const Eigen::Vector3d primaryVelocity = centralBodyStateWrtPrimary.segment( 3, 3 );
+            const Eigen::Vector3d velocity = currentRelativeState_.segment( 3, 3 );
+            const double primaryDistance = primaryPosition.norm( );
+            const double coefficient = ( 1.0 + 2.0 * ppnParameterGamma ) * primaryBodyGravitationalParameterFunction_( ) *
+                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / std::pow( primaryDistance, 3 );
+            const Eigen::Vector3d precessionVector = primaryVelocity.cross( primaryPosition );
+
+            currentDeSitterAcceleration_ = -coefficient * precessionVector.cross( velocity );
+            currentPartialWrtVelocity_ -= coefficient * linear_algebra::getCrossProductMatrix( precessionVector );
+            currentDeSitterPartialWrtCentralBodyPosition_ = 3.0 * coefficient / ( primaryDistance * primaryDistance ) *
+                            precessionVector.cross( velocity ) * primaryPosition.transpose( ) +
+                    coefficient * linear_algebra::getCrossProductMatrix( velocity ) *
+                            linear_algebra::getCrossProductMatrix( primaryVelocity );
+            currentDeSitterPartialWrtCentralBodyVelocity_ = -coefficient * linear_algebra::getCrossProductMatrix( velocity ) *
+                    linear_algebra::getCrossProductMatrix( primaryPosition );
+        }
         currentTime_ = currentTime;
     }
 }

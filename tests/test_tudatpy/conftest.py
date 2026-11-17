@@ -1,10 +1,27 @@
 import os
 import socket
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 
 import pytest
 import requests
 
+_TESTS_DIR = Path(__file__).resolve().parent
+
+
+@pytest.fixture(scope="session")
+def data_dir() -> Path:
+    """Return the tudatpy test data directory, ``tests/test_tudatpy/data``."""
+    return _TESTS_DIR / "data"
+
+
+@pytest.fixture(scope="session")
+def tudat_data_dir() -> Path:
+    """Return the shared Tudat (C++) test data directory, ``tests/test_tudat/data``."""
+    return _TESTS_DIR.parent / "test_tudat" / "data"
+
+
+_REMOTE_SERVICE_UNAVAILABLE_STATUSES = (500, 502, 503, 504)
 _JPL_HORIZONS_OUTAGE_SIGNATURES = (
     "wldini(): missing required file LTKERNL",
     "ERROR in VLRDC: Var not declared: IP_ADDR",
@@ -13,6 +30,15 @@ _JPL_HORIZONS_OUTAGE_SIGNATURES = (
 
 def _is_connectivity_failure(exception):
     """Return whether an exception represents an unavailable remote service."""
+    # Servers and gateways respond with these statuses when the service is failing or unavailable.
+    if isinstance(exception, requests.exceptions.HTTPError):
+        return (
+            exception.response is not None
+            and exception.response.status_code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
+        )
+    if isinstance(exception, HTTPError):
+        return exception.code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
+
     if isinstance(
         exception,
         (

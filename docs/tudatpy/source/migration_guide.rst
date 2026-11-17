@@ -4,12 +4,201 @@
 Migration Guides
 ******************************
 
-TudatPy v1.0
------------------
-
-This section provides a guide for users migrating from TudatPy v0.9 and older to v1.0.
+This section provides guides for users migrating from older to later versions of TudatPy.
+For the full list of changes, refer to the :ref:`release notes <release_notes>`.
 
 Have questions or feedback? As always, let us know in our `Github Discussion forum <https://github.com/orgs/tudat-team/discussions?discussions_q=>`_!
+
+TudatPy v1.2
+------------
+
+Tracking Data Processing
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+We have restructured the processing of tracking data in TudatPy v1.2. The new workflow is more modular, and allows for easier addition of new data formats and combination of data from different sources.
+For a general introduction to the new workflow, see `our user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-handling/observation-collection-creation/loading-real-data.html>`_.
+
+Why was this needed?
+====================
+
+Each tracking data format used to come with its own processing chain: ODF files, for example, had dedicated functions
+to read them, to create an observation collection and to set the ramp information in the environment. Supporting a new
+format meant building a new chain, and the format-specific choices (which observables, which time windows, how to
+handle duplicates) were baked into the creation of the observation collection.
+Reading and processing data from different sources looked very different, depending on when the interface was implemented and which format it was for.
+This made it hard to add new formats, and combine data from different sources.
+
+Tracking data processing is now split at a common intermediate stage:
+
+* everything specific to a file format or data source lives in :mod:`tudatpy.data_input.tracking_data` and its submodules, and ends in two
+  unified containers, :class:`~tudatpy.data_input.tracking_data.TrackingData` (the observations) and
+  :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` (the information the environment needs to model
+  them);
+* turning :class:`~tudatpy.data_input.tracking_data.TrackingData` into an :class:`~tudatpy.estimation.observations.ObservationCollection` is the same for every
+  source.
+
+Note that, depending on the data source, different intermediate functions may be exposed to support users inspecting the raw data.
+This is particularly useful for binary formats, e.g., for ODF files the :func:`~tudatpy.data_input.tracking_data.odf.read_raw_odf_file_contents` can be used to just parse the file, before using the :func:`~tudatpy.data_input.tracking_data.odf.convert_raw_odf_file_contents` to convert it to the unified containers.
+
+Adding a data format only requires a reader that fills these containers. Data from different sources can be combined
+by concatenating the containers.
+
+
+How to migrate?
+=========================
+
+While the legacy functions remain available in this release, new data formats and features are only available
+through the new workflow, thus migration to the new workflow is recommended.
+
+The fundamental changes are:
+
+* **Reading is separated from the environment.** Readers return
+  :class:`~tudatpy.data_input.tracking_data.TrackingData` and
+  :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects without needing a
+  :class:`~tudatpy.dynamics.environment.SystemOfBodies`. Their contents (observable types, link ends, epochs and
+  ancillary settings) are plain, inspectable data.
+* **Common naming across formats.** The containers are the same for every data source, and the readers have similar names and signatures (``read_<format>_data``).
+* **Setting the environment is one generic function.** Format-specific setters (e.g. ``set_odf_information_in_bodies``)
+  are replaced by :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
+* **The collection is created from the containers and the bodies.**
+  :func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data` replaces the format-specific
+  creation functions (e.g. ``create_odf_observed_observation_collection``).
+
+.. tip::
+
+    If you run into any issues while migrating, please let us know in our `Github Discussion forum <https://github.com/orgs/tudat-team/discussions?discussions_q=>`_.
+
+The new workflow has four steps.
+
+1. Load the data
+""""""""""""""""
+
+Replace the format-specific loading and processing functions by the reader of your data type.
+While previous functions were defined in different modules depending on the data format (e.g., ``tudatpy.data`` or ``tudatpy.estimation.observations_setup.observations_wrapper``), the new readers are all defined in the submodules of :mod:`tudatpy.data_input.tracking_data`.
+All readers below return
+``(list[TrackingData], list[TrackingSupplementaryData])``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 40 30
+
+   * - Data type
+     - Reader
+     - Replaces
+   * - DSN ODF
+     - :func:`~tudatpy.data_input.tracking_data.odf.read_odf_data`
+     - ``process_odf_data_multiple_files``, ``create_odf_observed_observation_collection``
+   * - DSN TNF
+     - :func:`~tudatpy.data_input.tracking_data.tnf.read_tnf_data`
+     - ``Trk234Processor.process()``
+   * - DSN ATDF
+     - :func:`~tudatpy.data_input.tracking_data.atdf.read_atdf_data`
+     - (new)
+   * - ESA IFMS Doppler
+     - :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data`
+     - ``observations_from_multi_station_ifms_files``
+   * - PRIDE Fdets Doppler
+     - :func:`~tudatpy.data_input.tracking_data.fdets.read_fdets_data`
+     - ``observations_from_fdets_files``
+   * - JPL radar astrometry
+     - :func:`~tudatpy.data_input.tracking_data.jpl_radar.read_jpl_radar_data`
+     - (new)
+   * - Optical astrometry, MPC database
+     - :func:`~tudatpy.data_input.tracking_data.mpc.read_mpc_data`
+     - ``BatchMPC`` → observation collection
+   * - Optical astrometry, MPC 80-column files
+     - :func:`~tudatpy.data_input.tracking_data.obs_80_cols.read_80_column_data`
+     - (new)
+   * - Optical astrometry, tables (pandas / astropy)
+     - :func:`~tudatpy.data_input.tracking_data.optical_utilities.read_optical_data`
+     - (new)
+   * - Spacecraft optical images (JPL PSF)
+     - :func:`~tudatpy.data_input.tracking_data.psf.read_psf_data`
+     - (new)
+
+Reading does not need a :class:`~tudatpy.dynamics.environment.SystemOfBodies`. The outputs of different readers can
+simply be concatenated.
+
+.. note::
+
+   The epochs in :class:`~tudatpy.data_input.tracking_data.TrackingData` are given in the time scale of the data source
+   (e.g. UTC for DSN data), as stored in the file and encoded in :attr:`~tudatpy.data_input.tracking_data.TrackingData.time_scale`. The conversion to TDB happens when the observation collection is
+   created (step 4).
+
+2. Select data (optional)
+"""""""""""""""""""""""""
+
+Selections that used to be arguments of the format-specific creation functions are now made on the
+:class:`~tudatpy.data_input.tracking_data.TrackingData` list, with plain Python. Each object holds observations of one
+observable type, one set of link ends and one combination of ancillary settings (e.g. frequency bands, integration
+time), so you can keep or drop whole objects by observable type, station, band or time span. Individual observations
+can be removed with :meth:`~tudatpy.data_input.tracking_data.TrackingData.remove_single_observation_entry`.
+
+Selections that depend on the environment (e.g. elevation) or on TDB epochs are best made with observation parsers and
+filters on the observation collection after step 4, as before.
+
+3. Set the supplementary data in the environment
+""""""""""""""""""""""""""""""""""""""""""""""""
+
+Apply the supplementary data to every :class:`~tudatpy.dynamics.environment.SystemOfBodies` that you use to simulate the observations using the :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies` function.
+
+.. code-block:: python
+
+   observations.set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+
+Each :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` object refers to a body and, optionally, a
+reference point on it (e.g. a ground station). What is set depends on the data type:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 40 35
+
+   * - Observation types (loosely)
+     - Supplementary data
+     - Set in the environment as
+   * - Radiometric (Doppler, range, radar)
+     - :class:`~tudatpy.data_input.tracking_data.RampedFrequencySupplementaryData`,
+       :class:`~tudatpy.data_input.tracking_data.PiecewiseConstantFrequencySupplementaryData`
+     - transmission frequency history of the ground station (or of the body's vehicle systems)
+   * - Spacecraft optical images
+     - :class:`~tudatpy.data_input.tracking_data.CameraInstrumentSupplementaryData`
+     - camera settings of the observing body (calibration, mounting, orientation history)
+   * - Observer or target states
+     - :class:`~tudatpy.data_input.tracking_data.TranslationalStateSupplementaryData`,
+       :class:`~tudatpy.data_input.tracking_data.RotationalStateSupplementaryData`
+     - tabulated ephemeris / rotation model of the body
+
+Some environment settings are not part of the supplementary data and have to be set separately, e.g. the transponder
+turnaround ratio for DSN n-way Doppler, which ``set_odf_information_in_bodies`` used to set as well:
+
+.. code-block:: python
+
+   bodies.get(spacecraft_name).system_models.set_default_transponder_turnaround_ratio_function()
+
+4. Create the observation collection
+""""""""""""""""""""""""""""""""""""
+
+Using the :func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data` function, convert the :class:`~tudatpy.data_input.tracking_data.TrackingData` list into an :class:`~tudatpy.estimation.observations.ObservationCollection`:
+
+.. code-block:: python
+
+   observation_collection = observations.create_observation_collection_from_tracking_data(tracking_data, bodies)
+
+This resolves the link ends against the bodies and converts the epochs to TDB. Any ground stations involved must
+therefore exist in ``bodies`` before this call.
+
+From here on, the processing is unchanged: compression
+(:func:`~tudatpy.estimation.observations.create_compressed_doppler_collection`), parsers, filters, weights, observation
+models and estimation work on the collection as before.
+
+.. tip::
+
+   While the legacy functions are still available, you can create the collection both ways in one script and compare
+   them set by set (link ends, number of observations, epochs, observables) before switching.
+
+
+TudatPy v1.0
+-----------------
 
 Installation
 ^^^^^^^^^^^^

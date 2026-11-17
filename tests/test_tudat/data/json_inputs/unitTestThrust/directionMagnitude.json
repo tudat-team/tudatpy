@@ -1,0 +1,14 @@
+{
+  "direction": {
+    "type": "colinearWithStateSegment",
+    "relativeBody": "Mercury",
+    "colinearWithVelocity": true,
+    "towardsRelativeBody": false
+  },
+  "magnitude": {
+    "useAllEngines": false,
+    "type": "fromEngineProperties",
+    "originID": "booster"
+  },
+  "type": "thrust"
+}

@@ -121,6 +121,11 @@ option(
     OFF
 )
 option(
+    TUDAT_BUILD_WITH_PROFILING_SYMBOLS
+    "Add debug symbols and frame pointers without changing the optimization level (for profiling)."
+    OFF
+)
+option(
     TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME
     "Force optimization independently of CMAKE_BUILD_TYPE: ON uses -O1 (/O1); OFF uses -O3 (/O2) with -Og (/Od) for Debug."
     OFF

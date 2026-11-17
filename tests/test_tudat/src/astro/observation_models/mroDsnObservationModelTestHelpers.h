@@ -46,6 +46,7 @@ namespace mro_dsn_test
 {
 
 using namespace tudat::observation_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::simulation_setup;
 
 static const double mroTransponderDelay = 1.4149e-6;
@@ -94,15 +95,15 @@ inline FrequencyBands frequencyBandFromString( const std::string& frequencyBand 
 {
     if( frequencyBand == "S" )
     {
-        return s_band;
+        return FrequencyBands::s_band;
     }
     if( frequencyBand == "X" )
     {
-        return x_band;
+        return FrequencyBands::x_band;
     }
     if( frequencyBand == "Ka" )
     {
-        return ka_band;
+        return FrequencyBands::ka_band;
     }
     throw std::runtime_error( "Unsupported DSN frequency band in MRO fixture: " + frequencyBand );
 }

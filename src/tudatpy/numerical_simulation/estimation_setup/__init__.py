@@ -29,7 +29,7 @@ from tudatpy.kernel.estimation.observable_models_setup.model_settings import *
 from tudatpy.kernel.estimation.observations_setup.ancillary_settings import *
 from tudatpy.kernel.estimation.observations_setup.observations_dependent_variables import *
 from tudatpy.kernel.estimation.observations_setup.observations_simulation_settings import *
-from tudatpy.kernel.estimation.observations_setup.observations_wrapper import *
+from tudatpy.kernel.estimation.observations import *
 from tudatpy.kernel.estimation.observations_setup.random_noise import *
 from tudatpy.kernel.estimation.observations_setup.viability import *
 

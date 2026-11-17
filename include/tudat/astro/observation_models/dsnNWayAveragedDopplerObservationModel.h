@@ -21,7 +21,7 @@
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/transmissionFrequencyInterface.h"
 
@@ -53,7 +53,8 @@ namespace observation_models
  */
 template< typename ObservationScalarType >
 inline double getDsnNWayAveragedDopplerScalingFactor(
-        const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > receivedFrequencyFunction,
+        const std::function< double( std::vector< basic_astrodynamics::FrequencyBands > frequencyBands, double time ) >
+                receivedFrequencyFunction,
         const bool subtractDopplerSignature,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
@@ -62,11 +63,12 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
         const bool isFirstPartial )
 {
     double integrationTime;
-    std::vector< FrequencyBands > frequencyBands;
+    std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
     try
     {
         integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
-        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+        frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -135,8 +137,8 @@ public:
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel,
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-            const std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >&
-                    turnaroundRatio,
+            const std::function< double( basic_astrodynamics::FrequencyBands uplinkBand,
+                                         basic_astrodynamics::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ),
@@ -149,7 +151,8 @@ public:
                         arcStartObservationModel->getFullLinkLightTimeCalculator( ),
                         arcEndObservationModel->getFullLinkLightTimeCalculator( ) } ),
         arcStartObservationModel_( arcStartObservationModel ), arcEndObservationModel_( arcEndObservationModel ),
-        numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ), subtractDopplerSignature_( subtractDopplerSignature )
+        numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ), subtractDopplerSignature_( subtractDopplerSignature ),
+        checkLightTimeCorrectionFallbacks_( doLightTimeCorrectionsHaveFallback( arcStartObservationModel->getLightTimeCalculators( ) ) )
     {
         this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
         if( !std::is_same< Time, TimeType >::value )
@@ -209,15 +212,16 @@ public:
 
         TimeType integrationTime;
         ObservationScalarType referenceFrequency;
-        std::vector< FrequencyBands > frequencyBands;
-        FrequencyBands referenceUplinkBand;
+        std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
+        basic_astrodynamics::FrequencyBands referenceUplinkBand;
         try
         {
             integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
             referenceFrequency = ancillarySettings->getAncillaryDoubleData( doppler_reference_frequency );
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
-            referenceUplinkBand =
-                    convertDoubleToFrequencyBand( ancillarySettings->getAncillaryDoubleData( reception_reference_frequency_band ) );
+            frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                    ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+            referenceUplinkBand = basic_astrodynamics::convertDoubleToFrequencyBand(
+                    ancillarySettings->getAncillaryDoubleData( reception_reference_frequency_band ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -233,8 +237,8 @@ public:
                     std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
                     std::to_string( numberOfLinkEnds_ - 1 ) + ")." );
         }
-        FrequencyBands uplinkBand = frequencyBands.at( 0 );
-        FrequencyBands downlinkBand = frequencyBands.at( 1 );
+        basic_astrodynamics::FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        basic_astrodynamics::FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Set approximate up- and down-link frequencies.
         ObservationScalarType currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
@@ -259,40 +263,49 @@ public:
                 ? Eigen::Vector3d::Zero( )
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
-        // Set frequencies for ionosphere/corona
-        if( arcStartObservationModel_->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        // Compute light times at the start and end of the integration time
+        if( checkLightTimeCorrectionFallbacks_ )
         {
-            setTransmissionReceptionFrequencies( arcStartObservationModel_->getFullLinkLightTimeCalculator( ),
-                                                 timeScaleConverter_,
-                                                 frequencyInterpolator_,
-                                                 receptionTdbStartTime,
-                                                 linkEndAssociatedWithTime,
-                                                 ancillarySettings,
-                                                 currentTurnAroundRatio );
+            resetLightTimeCorrectionFallbacks( arcStartObservationModel_->getLightTimeCalculators( ) );
+            resetLightTimeCorrectionFallbacks( arcEndObservationModel_->getLightTimeCalculators( ) );
         }
+        TimeType startLightTime = computeArcLightTime( arcStartObservationModel_,
+                                                       receptionTdbStartTime,
+                                                       linkEndAssociatedWithTime,
+                                                       ancillarySettings,
+                                                       currentTurnAroundRatio,
+                                                       arcStartLinkEndTimes,
+                                                       arcStartLinkEndStates );
+        TimeType endLightTime = computeArcLightTime( arcEndObservationModel_,
+                                                     receptionTdbEndTime,
+                                                     linkEndAssociatedWithTime,
+                                                     ancillarySettings,
+                                                     currentTurnAroundRatio,
+                                                     arcEndLinkEndTimes,
+                                                     arcEndLinkEndStates );
 
-        TimeType startLightTime =
-                arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
-                        receptionTdbStartTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancillarySettings )(
-                        0, 0 ) /
-                physical_constants::getSpeedOfLight< ObservationScalarType >( );
-
-        // Set frequencies for ionosphere/corona
-        if( arcEndObservationModel_->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        // If a light-time correction used its fallback model at only one of the start and end (e.g. at the edge of measured
+        // tropospheric data), recompute with the fallback model forced at both. The forcing remains set until the next call of this
+        // function.
+        if( checkLightTimeCorrectionFallbacks_ &&
+            forceConsistentLightTimeCorrectionFallbacks( arcStartObservationModel_->getLightTimeCalculators( ),
+                                                         arcEndObservationModel_->getLightTimeCalculators( ) ) )
         {
-            setTransmissionReceptionFrequencies( arcEndObservationModel_->getFullLinkLightTimeCalculator( ),
-                                                 timeScaleConverter_,
-                                                 frequencyInterpolator_,
-                                                 receptionTdbEndTime,
-                                                 linkEndAssociatedWithTime,
-                                                 ancillarySettings,
-                                                 currentTurnAroundRatio );
+            startLightTime = computeArcLightTime( arcStartObservationModel_,
+                                                  receptionTdbStartTime,
+                                                  linkEndAssociatedWithTime,
+                                                  ancillarySettings,
+                                                  currentTurnAroundRatio,
+                                                  arcStartLinkEndTimes,
+                                                  arcStartLinkEndStates );
+            endLightTime = computeArcLightTime( arcEndObservationModel_,
+                                                receptionTdbEndTime,
+                                                linkEndAssociatedWithTime,
+                                                ancillarySettings,
+                                                currentTurnAroundRatio,
+                                                arcEndLinkEndTimes,
+                                                arcEndLinkEndStates );
         }
-        TimeType endLightTime =
-                arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
-                        receptionTdbEndTime, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySettings )( 0,
-                                                                                                                                      0 ) /
-                physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Moyer (2000), eqs. 13-52 and 13-53
         TimeType transmissionTdbStartTime = receptionTdbStartTime - startLightTime;
@@ -366,6 +379,31 @@ public:
     }
 
 private:
+    // Function to compute the light time of the start or end of the Doppler integration time, setting the frequencies (for
+    // ionosphere/corona) if needed
+    TimeType computeArcLightTime( const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcObservationModel,
+                                  const TimeType receptionTdbTime,
+                                  const LinkEndType linkEndAssociatedWithTime,
+                                  const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
+                                  const ObservationScalarType turnAroundRatio,
+                                  std::vector< double >& arcLinkEndTimes,
+                                  std::vector< Eigen::Matrix< double, 6, 1 > >& arcLinkEndStates )
+    {
+        if( arcObservationModel->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        {
+            setTransmissionReceptionFrequencies( arcObservationModel->getFullLinkLightTimeCalculator( ),
+                                                 timeScaleConverter_,
+                                                 frequencyInterpolator_,
+                                                 receptionTdbTime,
+                                                 linkEndAssociatedWithTime,
+                                                 ancillarySettings,
+                                                 turnAroundRatio );
+        }
+        return arcObservationModel->computeIdealObservationsWithLinkEndData(
+                       receptionTdbTime, linkEndAssociatedWithTime, arcLinkEndTimes, arcLinkEndStates, ancillarySettings )( 0, 0 ) /
+                physical_constants::getSpeedOfLight< ObservationScalarType >( );
+    }
+
     // N-way range observation model associated with the start of the Doppler integration time.
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
 
@@ -378,6 +416,10 @@ private:
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 
     bool subtractDopplerSignature_;
+
+    // Boolean denoting whether any light-time correction has a fallback model, for which consistency between start and end of the
+    // integration time is to be checked
+    bool checkLightTimeCorrectionFallbacks_;
 };
 
 }  // namespace observation_models
