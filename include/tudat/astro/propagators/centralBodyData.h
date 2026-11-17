@@ -53,13 +53,21 @@ public:
      *  \param bodyStateFunctions List of functions for the origins of selected bodies.
      *  \param globalFrameOriginBarycentricStateFunction State function of global frame origin w.r.t. barycenter
      *  \param globalFrameOrigin Origin of global frame.
+     *  \param centralBodyStatesWrtIntegratedBodies For central bodies that are not integrated, but have an ephemeris defined
+     *  (directly or indirectly) w.r.t. an integrated body: name of this integrated body, and function returning the state of
+     *  the central body w.r.t. this integrated body (map key is the name of the central body).
      */
     CentralBodyData(
             const std::vector< std::string >& centralBodies,
             const std::vector< std::string >& bodiesToIntegrate,
             const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >& bodyStateFunctions,
             const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricStateFunction,
-            const std::string globalFrameOrigin ):
+            const std::string globalFrameOrigin,
+            const std::map< std::string,
+                            std::pair< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >&
+                    centralBodyStatesWrtIntegratedBodies = std::map<
+                            std::string,
+                            std::pair< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >( ) ):
         centralBodies_( centralBodies ), globalFrameOriginBarycentricStateFunction_( globalFrameOriginBarycentricStateFunction )
     {
         // Check consistency of input.
@@ -69,6 +77,17 @@ public:
         }
 
         bodyOriginType_.resize( bodiesToIntegrate.size( ) );
+
+        // Replace central bodies defined w.r.t. an integrated body by this integrated body, and store their state w.r.t. it
+        std::vector< std::string > integratedCentralBodies = centralBodies;
+        for( unsigned int i = 0; i < centralBodies.size( ); i++ )
+        {
+            if( centralBodyStatesWrtIntegratedBodies.count( centralBodies.at( i ) ) > 0 )
+            {
+                integratedCentralBodies[ i ] = centralBodyStatesWrtIntegratedBodies.at( centralBodies.at( i ) ).first;
+                centralBodyStatesWrtIntegratedCentralBodies_[ i ] = centralBodyStatesWrtIntegratedBodies.at( centralBodies.at( i ) ).second;
+            }
+        }
 
         // Iterate over all integrated bodies to set body origin, its type and associated data.
         for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
@@ -86,12 +105,13 @@ public:
                 {
                     // If there is a match between central body and an integrated body, store body
                     // index.
-                    if( centralBodies.at( i ) == bodiesToIntegrate[ j ] )
+                    if( integratedCentralBodies.at( i ) == bodiesToIntegrate[ j ] )
                     {
                         centralBodyIndex = j;
                         if( i == j )
                         {
-                            throw std::runtime_error( "Error, body " + bodiesToIntegrate[ j ] + " cannot be its own central body" );
+                            throw std::runtime_error( "Error, body " + bodiesToIntegrate[ j ] + " cannot be propagated w.r.t. " +
+                                                      centralBodies.at( i ) + ", which is (or has an ephemeris w.r.t.) this body itself" );
                         }
                     }
                 }
@@ -139,7 +159,7 @@ public:
         {
             for( unsigned int j = 0; j < i; j++ )
             {
-                if( centralBodies[ numericalBodies_[ j ] ] == bodiesToIntegrate[ numericalBodies_.at( i ) ] )
+                if( integratedCentralBodies[ numericalBodies_[ j ] ] == bodiesToIntegrate[ numericalBodies_.at( i ) ] )
                 {
                     // Move central body to index before integrated body.
                     bodyToMove = numericalBodies_.at( i );
@@ -254,6 +274,10 @@ private:
     //! as propagation origin
     std::map< int, int > centralBodiesFromIntegration_;
 
+    //! State functions of central bodies w.r.t. the integrated body from which their state is obtained (if not integrated
+    //! central body itself), with index of the body for which this is the central body as key.
+    std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > centralBodyStatesWrtIntegratedCentralBodies_;
+
     //! State of propagated bodies, with the origins translated to the global origin
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > localInternalState_;
 
@@ -286,6 +310,10 @@ private:
                 break;
             case from_integration:
                 originState = internalSolution.segment( centralBodiesFromIntegration_.at( bodyIndex ) * 6, 6 );
+                if( centralBodyStatesWrtIntegratedCentralBodies_.count( bodyIndex ) > 0 )
+                {
+                    originState += centralBodyStatesWrtIntegratedCentralBodies_.at( bodyIndex )( time );
+                }
                 break;
             default:
                 throw std::runtime_error( "Error, do not recognize boy origin type " + std::to_string( bodyOriginType_[ bodyIndex ] ) );

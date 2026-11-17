@@ -21,6 +21,7 @@
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
+#include "tudat/astro/gravitation/gravitationalParameterRateAcceleration.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "tudat/astro/gravitation/polyhedronGravityModel.h"
 #include "tudat/astro/gravitation/ringGravityModel.h"
@@ -121,6 +122,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
             break;
         case custom_acceleration:
             accelerationName = "custom acceleration";
+            break;
+        case gravitational_parameter_rate_acceleration:
+            accelerationName = "gravitational parameter rate acceleration";
             break;
         default:
             std::string errorMessage =
@@ -244,6 +248,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = custom_acceleration;
     }
+    else if( std::dynamic_pointer_cast< GravitationalParameterRateAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = gravitational_parameter_rate_acceleration;
+    }
     else if( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = einstein_infeld_hoffmann_acceleration;
@@ -289,6 +297,7 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case yarkovsky_acceleration:
         case rtg_acceleration:
         case relativistic_acceleration_from_metric:
+        case gravitational_parameter_rate_acceleration:
             return false;
         case aerodynamic:
         case radiation_pressure:

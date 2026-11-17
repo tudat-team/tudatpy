@@ -41,6 +41,7 @@ set(io_SOURCES
         "readSinexFile.cpp"
         "mapTextFileReader.cpp"
         "readTabulatedMediaCorrections.cpp"
+        "readDsnAmcFile.cpp"
         "readTabulatedWeatherData.cpp"
         "readTrackingTxtFile.cpp"
         "readVariousPdsFiles.cpp"
@@ -49,6 +50,7 @@ set(io_SOURCES
         "readInpopEphemerisFile.cpp"
         "readNeQuick2Data.cpp"
         "comaModelInputOutput.cpp"
+        "readSp3File.cpp"
 )
 
 # Add header files.
@@ -94,6 +96,7 @@ set(io_HEADERS
         "readSinexFile.h"
         "readBinaryFile.h"
         "readTabulatedMediaCorrections.h"
+        "readDsnAmcFile.h"
         "readTabulatedWeatherData.h"
         "readTrackingTxtFile.h"
         "readVariousPdsFiles.h"
@@ -101,6 +104,9 @@ set(io_HEADERS
         "comaModelInputOutput.h"
         "observationWeightSettings.h"
         "trackingData.h"
+        "trackingDataWeightSettings.h"
+        "trackingDataCorrectionSettings.h"
+        "readSp3File.h"
         )
 
 # Add library.

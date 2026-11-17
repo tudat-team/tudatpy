@@ -660,7 +660,7 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
     return observationBias;
 }
 
-std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > getTurnaroundFunction(
+std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) > getTurnaroundFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds );
 
@@ -711,7 +711,8 @@ std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeT
                                                                           observationSettings->lightTimeCorrectionsList_,
                                                                           observationSettings->lightTimeConvergenceCriteria_ ),
             observationBias,
-            getJ2000ToGlobalFrameTransformation( bodies ) );
+            getJ2000ToGlobalFrameTransformation( bodies ),
+            bodies.getFrameOrigin( ) == "SSB" );
 }
 
 //! Interface class for creating observation models
@@ -926,7 +927,8 @@ public:
                             oneWayDopplerSettings->normalizeWithSpeedOfLight_ );
                 }
 
-                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                // A leg of a two-way/measured-frequency model gets its frequencies through the parent's ancillary settings
+                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) && topLevelObservableType == one_way_doppler )
                 {
                     oneWayDopplerModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
                 }
@@ -1040,6 +1042,13 @@ public:
                                                     one_way_doppler, downlinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ),
                                             bodies,
                                             topLevelObservableType ) );
+                }
+
+                // The downlink model evaluates its corrections as a single leg: flag them, so that frequency-dependent
+                // corrections select the downlink frequency (also when computing partials)
+                for( const auto& downlinkCorrection : downlinkDopplerCalculator->getLightTimeCalculator( )->getLightTimeCorrection( ) )
+                {
+                    downlinkCorrection->setIsDownlinkOfTwoWayLink( true );
                 }
 
                 bool normalizeWithSpeedOfLight = false;
@@ -1323,8 +1332,8 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
-                std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
-                        getTurnaroundFunction( bodies, linkEnds );
+                std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) >
+                        turnaroundRatioFunction = getTurnaroundFunction( bodies, linkEnds );
 
                 std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
                         getTransmittingFrequencyInterpolator( bodies, linkEnds );
@@ -1422,7 +1431,7 @@ public:
                     }
 
                     // Determine the turnaround ratio function
-                    std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) >
+                    std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) >
                             turnaroundRatioFunction = getTurnaroundFunction( bodies, linkEnds );
 
                     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
@@ -1491,19 +1500,18 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
+                // Retrieve ground station states, used to convert the transmission time to UTC when evaluating the
+                // transmitted frequency
                 std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
-                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                for( auto it : linkEnds )
                 {
-                    for( auto it : linkEnds )
+                    if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                ->getGroundStationMap( )
+                                .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                     {
-                        if( bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                    ->getGroundStationMap( )
-                                    .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
-                        {
-                            stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                                ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
-                                                                ->getNominalStationState( );
-                        }
+                        stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                            ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
+                                                            ->getNominalStationState( );
                     }
                 }
 
@@ -1579,8 +1587,8 @@ public:
                 }
 
                 // Determine the turnaround ratio function
-                std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
-                        getTurnaroundFunction( bodies, linkEnds );
+                std::function< double( basic_astrodynamics::FrequencyBands, basic_astrodynamics::FrequencyBands ) >
+                        turnaroundRatioFunction = getTurnaroundFunction( bodies, linkEnds );
 
                 // Check if transmitter has frequency calculator
                 std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
@@ -1856,6 +1864,20 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
+                // Without position-angle ancillary settings, the angles are w.r.t. the axes of the global frame orientation
+                if( bodies.getFrameOrientation( ) != "J2000" && bodies.getFrameOrientation( ) != "ICRF" )
+                {
+                    static bool isWarningPrinted = false;
+                    if( !isWarningPrinted )
+                    {
+                        std::cerr << "Warning, the global frame orientation is " << bodies.getFrameOrientation( )
+                                  << ". Angular position observations without position-angle ancillary settings are computed w.r.t. "
+                                     "this frame, not as right ascension and declination w.r.t. J2000."
+                                  << std::endl;
+                        isWarningPrinted = true;
+                    }
+                }
+
                 // Create observation model
                 observationModel = std::make_shared< AngularPositionObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
@@ -1867,7 +1889,13 @@ public:
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias,
-                        observationSettings->useNormalization_ );
+                        observationSettings->useNormalization_,
+                        // Only used for observations with celestial frame ancillary settings (NaN if not defined)
+                        ( bodies.getFrameOrientation( ) == "J2000" || bodies.getFrameOrientation( ) == "ICRF" ||
+                          bodies.getFrameOrientation( ) == "ECLIPJ2000" )
+                                ? getJ2000ToGlobalFrameTransformation( bodies )
+                                : Eigen::Matrix3d::Constant( TUDAT_NAN ),
+                        bodies.getFrameOrigin( ) == "SSB" );
 
                 break;
             }

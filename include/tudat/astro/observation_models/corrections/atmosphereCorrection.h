@@ -25,12 +25,15 @@
 #ifndef TUDAT_TABULATEDMEDIACORRECTION_H
 #define TUDAT_TABULATEDMEDIACORRECTION_H
 
+#include <algorithm>
 #include <array>
 #include <cmath>
+#include <utility>
 #include <vector>
 
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
@@ -294,6 +297,17 @@ public:
      * @return Atmospheric correction value.
      */
     double computeMediaCorrection( double time );
+
+    /*!
+     * Function to compute the largest forward and backward time steps from the given time for which the set of
+     * corrections that is active does not change (i.e. no validity boundary is crossed), limited to a maximum step.
+     * A margin is kept w.r.t. the boundaries, to be robust to rounding errors in the perturbed times.
+     *
+     * @param time Time from which the steps are computed.
+     * @param maximumTimeStep Maximum (absolute) value of the time steps.
+     * @return Pair with forward (first) and backward (second) time step (both non-negative).
+     */
+    std::pair< double, double > getTimeStepsWithinValidity( const double time, const double maximumTimeStep ) const;
 
 private:
     // Vector with the start validity times of the corrections.
@@ -639,6 +653,59 @@ protected:
     bool isUplinkCorrection_;
 };
 
+//! Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers)
+/*!
+ * Class to compute tropospheric corrections from measured zenith path delays (e.g. from water vapour radiometers).
+ * The measured zenith [dry, wet] path delays (indexed by TDB time) are interpolated (using interpolatorSettings), at times between
+ * measurements separated by at most maximumInterpolationGap. The measured wet delay replaces that of the fallback model, the measured dry
+ * delay is only used if useMeasuredDryDelay is true (in which case measurements with NaN dry delay are skipped). Outside of the measured
+ * data, or if forced (see setForceFallback), the fallback model is used.
+ */
+class MeasuredTroposphericCorrection : public MappedTroposphericCorrection
+{
+public:
+    MeasuredTroposphericCorrection(
+            const std::map< double, Eigen::Vector2d >& zenithDelays,
+            const std::shared_ptr< MappedTroposphericCorrection >& fallbackCorrection,
+            const std::shared_ptr< TroposhericElevationMapping >& elevationMapping,
+            const bool isUplinkCorrection,
+            const double maximumInterpolationGap,
+            const bool useMeasuredDryDelay = false,
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
+
+    bool hasFallback( ) const override
+    {
+        return true;
+    }
+
+    bool isFallbackUsed( ) const override
+    {
+        return isFallbackUsed_;
+    }
+
+    void setForceFallback( const bool forceFallback ) override
+    {
+        forceFallback_ = forceFallback;
+    }
+
+private:
+    bool isMeasurementAvailable( const double time ) const;
+
+    double computeZenithCorrection( const double stationTime, const int component );
+
+    std::map< double, Eigen::Vector2d > zenithDelays_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > interpolator_;
+    std::shared_ptr< MappedTroposphericCorrection > fallbackCorrection_;
+    double maximumInterpolationGap_;
+    bool useMeasuredDryDelay_;
+
+    // Boolean denoting whether the fallback model was used for the wet delay in the last computation
+    bool isFallbackUsed_ = false;
+
+    // Boolean denoting whether the fallback model is used, irrespective of the availability of measurements
+    bool forceFallback_ = false;
+};
+
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.
 // Derived class from MappedTroposphericCorrection.
 class TabulatedTroposphericCorrection : public MappedTroposphericCorrection
@@ -967,6 +1034,13 @@ public:
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
+
+protected:
+    // Limits the time perturbations such that the station time does not cross a validity boundary of the tabulated data,
+    // outside of which the correction is discontinuous
+    std::pair< double, double > getLinkEndTimePerturbations( const double transmissionTime,
+                                                             const double receptionTime,
+                                                             const LinkEndType linkEndAtWhichPartialIsEvaluated ) override;
 
 private:
     // Range correction calculator. Correction determined for referenceFrequency_

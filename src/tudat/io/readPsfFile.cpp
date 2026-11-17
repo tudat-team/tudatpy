@@ -542,10 +542,10 @@ void rebuildPsfCameraSupplementaryDataWithPointingHistory( RawPsfFileContents& p
 
         std::shared_ptr< data::CameraInstrumentSupplementaryData > updatedCameraData =
                 std::make_shared< data::CameraInstrumentSupplementaryData >( cameraData->getCameraId( ),
-                                                                             cameraData->getFocalLength( ),
-                                                                             cameraData->getPrincipalPoint( ),
-                                                                             cameraData->getFieldOfViewBounds( ),
-                                                                             cameraData->getKMatrix( ),
+                                                                             cameraData->getCalibration( ).focalLength_,
+                                                                             cameraData->getCalibration( ).principalPoint_,
+                                                                             cameraData->getCalibration( ).fieldOfViewBounds_,
+                                                                             cameraData->getCalibration( ).kMatrix_,
                                                                              cameraData->getDistortionCoefficients( ),
                                                                              cameraData->getMountingOffsets( ),
                                                                              pointingHistory );

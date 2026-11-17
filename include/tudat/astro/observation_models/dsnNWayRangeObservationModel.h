@@ -23,7 +23,7 @@
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/basic_astro/frequencyBands.h"
 
 namespace tudat
 {
@@ -40,19 +40,19 @@ namespace observation_models
  * @param uplinkBand Frequency band of the uplink signal.
  * @return Conversion factor from transmitter frequency integral (cycles) to range units.
  */
-inline double getDsnRangeUnitConversionFactor( const FrequencyBands uplinkBand )
+inline double getDsnRangeUnitConversionFactor( const basic_astrodynamics::FrequencyBands uplinkBand )
 {
     switch( uplinkBand )
     {
-        case s_band:
+        case basic_astrodynamics::FrequencyBands::s_band:
             return 0.5;
-        case x_band:
+        case basic_astrodynamics::FrequencyBands::x_band:
             return 221.0 / ( 749.0 * 2.0 );
-        case ka_band:
+        case basic_astrodynamics::FrequencyBands::ka_band:
             return 221.0 / ( 3599.0 * 2.0 );
         default:
             throw std::runtime_error( "Error when computing DSN range unit conversion factor: unsupported uplink frequency band " +
-                                      getFrequencyBandString( uplinkBand ) );
+                                      basic_astrodynamics::getFrequencyBandString( uplinkBand ) );
     }
 }
 
@@ -80,8 +80,8 @@ public:
             const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-            const std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >&
-                    turnaroundRatio,
+            const std::function< double( basic_astrodynamics::FrequencyBands uplinkBand,
+                                         basic_astrodynamics::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
@@ -152,13 +152,14 @@ public:
         }
 
         ObservationScalarType lowestRangingComponent;
-        std::vector< FrequencyBands > frequencyBands;
+        std::vector< basic_astrodynamics::FrequencyBands > frequencyBands;
         try
         {
             lowestRangingComponent = ancillarySettings->getAncillaryDoubleData( sequential_range_lowest_ranging_component );
             //            referenceFrequency = ancillarySettings->getAncillaryDoubleData(
             //            sequential_range_reference_frequency );
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = basic_astrodynamics::convertDoubleVectorToFrequencyBands(
+                    ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -175,8 +176,8 @@ public:
                     std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
                     std::to_string( numberOfLinkEnds_ - 1 ) + ")." );
         }
-        FrequencyBands uplinkBand = frequencyBands.at( 0 );
-        FrequencyBands downlinkBand = frequencyBands.at( 1 );
+        basic_astrodynamics::FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        basic_astrodynamics::FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Define the conversion factor based on the value of the uplink frequency band
         double conversionFactor = getDsnRangeUnitConversionFactor( uplinkBand );

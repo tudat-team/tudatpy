@@ -26,6 +26,7 @@ namespace unit_tests
 
 using namespace tudat;
 using namespace tudat::observation_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
@@ -700,7 +701,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
                 std::make_shared< ObservationAncillarySimulationSettings >( );
 
-        ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+        ancillarySettings->setAncillaryDoubleVectorData(
+                frequency_bands, convertFrequencyBandsToDoubleVector( { FrequencyBands::x_band, FrequencyBands::x_band } ) );
 
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
@@ -891,27 +893,28 @@ BOOST_AUTO_TEST_CASE( testDeprecatedObservationCollectionTransponderDelay )
     std::shared_ptr< ObservationAncillarySimulationSettings > moonAncillarySettings =
             getNWayRangeAncillarySettings( { 0.0, originalMoonDelay, 0.0 } );
 
-    ObservationDataset< double, double > observationDataset;
-    observationDataset.addObservationSet( n_way_range,
-                                          LinkDefinition( marsLinkEnds ),
-                                          observations,
-                                          observationTimes,
-                                          receiver,
-                                          std::vector< Eigen::VectorXd >( ),
-                                          nullptr,
-                                          marsAncillarySettings );
-    observationDataset.addObservationSet( n_way_range,
-                                          LinkDefinition( moonLinkEnds ),
-                                          observations,
-                                          observationTimes,
-                                          receiver,
-                                          std::vector< Eigen::VectorXd >( ),
-                                          nullptr,
-                                          moonAncillarySettings );
+    std::shared_ptr< SingleObservationSet< double, double > > marsObservationSet =
+            std::make_shared< SingleObservationSet< double, double > >( n_way_range,
+                                                                        LinkDefinition( marsLinkEnds ),
+                                                                        observations,
+                                                                        observationTimes,
+                                                                        receiver,
+                                                                        std::vector< Eigen::VectorXd >( ),
+                                                                        nullptr,
+                                                                        marsAncillarySettings );
+    std::shared_ptr< SingleObservationSet< double, double > > moonObservationSet =
+            std::make_shared< SingleObservationSet< double, double > >( n_way_range,
+                                                                        LinkDefinition( moonLinkEnds ),
+                                                                        observations,
+                                                                        observationTimes,
+                                                                        receiver,
+                                                                        std::vector< Eigen::VectorXd >( ),
+                                                                        nullptr,
+                                                                        moonAncillarySettings );
 
-    std::vector< double > updatedMarsLinkEndDelays = marsAncillarySettings->getAncillaryDoubleVectorData( link_ends_delays );
-    updatedMarsLinkEndDelays.at( 1 ) = updatedMarsDelay;
-    marsAncillarySettings->setAncillaryDoubleVectorData( link_ends_delays, updatedMarsLinkEndDelays );
+    std::vector< std::shared_ptr< SingleObservationSet< double, double > > > observationSets = { marsObservationSet, moonObservationSet };
+    ObservationCollection< double, double > observationCollection( observationSets );
+    observationCollection.setTransponderDelay( "Mars", updatedMarsDelay );
 
     std::vector< double > marsLinkEndDelays = marsAncillarySettings->getAncillaryDoubleVectorData( link_ends_delays );
     std::vector< double > moonLinkEndDelays = moonAncillarySettings->getAncillaryDoubleVectorData( link_ends_delays );

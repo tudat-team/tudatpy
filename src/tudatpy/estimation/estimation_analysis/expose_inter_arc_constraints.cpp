@@ -94,16 +94,6 @@ void expose_inter_arc_constraints( py::module& m )
          :math:`\mathbf{C}_{bk}`; and ``constraint_scaling_factor`` is :math:`\mu_s`. Larger values of
          :math:`\mu_s` weaken the constraint.
 
-         Attributes
-         ----------
-         bodies : list[str]
-             Bodies whose multi-arc translational states are constrained.
-         connection_epochs : dict[str, list[float]]
-             Body-specific connection epochs :math:`t_{c,bk}`, in seconds since J2000.
-         constraint_scaling_factor : float
-             Positive penalty scaling factor :math:`\mu_s`.
-         arc_pairs : dict[str, list[tuple[int, int]]]
-             Optional body-specific zero-based ``(left_arc, right_arc)`` pairs.
       )doc" )
             .def_property_readonly( "bodies",
                                     &tss::InterArcStateContinuityConstraintSettings::bodies,
@@ -122,7 +112,7 @@ void expose_inter_arc_constraints( py::module& m )
 
          **read-only**
 
-         Connection epochs for each constrained body, in seconds since J2000.
+         Connection epochs for each constrained body :math:`t_{c,bk}`, in seconds since J2000.
 
          :type: dict[str, list[float]]
 
@@ -133,7 +123,7 @@ void expose_inter_arc_constraints( py::module& m )
 
          **read-only**
 
-         Scaling factor applied to the state continuity constraint equations.
+         Scaling factor :math:`\mu_s` applied to the state continuity constraint equations.
 
          :type: float
 
@@ -144,7 +134,7 @@ void expose_inter_arc_constraints( py::module& m )
 
          **read-only**
 
-         Pairs of arc indices connected by continuity constraints for each body.
+         Pairs of arc indices ``(left_arc, right_arc)`` connected by continuity constraints for each body.
 
          :type: dict[str, list[tuple[int, int]]]
 

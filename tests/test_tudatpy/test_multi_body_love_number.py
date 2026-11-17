@@ -6,10 +6,10 @@ without depending on optional pure-Python ephemeris wrappers.
 
 import numpy as np
 
-from tudatpy.kernel.dynamics import environment_setup, parameters_setup, propagation_setup
-from tudatpy.kernel.dynamics.parameters_setup import EstimatableParameterTypes
-from tudatpy.kernel.estimation import estimation_analysis
-from tudatpy.kernel.interface import spice
+from tudatpy.dynamics import environment_setup, parameters_setup, propagation_setup
+from tudatpy.dynamics.parameters_setup import EstimatableParameterTypes
+from tudatpy.estimation import estimation_analysis
+from tudatpy.interface import spice
 
 
 def _create_multi_body_tide_environment():

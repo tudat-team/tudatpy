@@ -367,6 +367,16 @@ public:
         return totalManeuverTime_;
     }
 
+    //! Function to get the start times of the desaturation maneuvers.
+    /*!
+     * Function to get the start times of the desaturation maneuvers.
+     * \return Start time of each maneuver (with the maximum double value appended as final entry).
+     */
+    std::vector< double > getThrustStartTimes( )
+    {
+        return thrustStartTimes_;
+    }
+
     //! Function to get the rise time of the desaturation maneuvers.
     /*!
      * Function to get the rise time of the desaturation maneuvers.

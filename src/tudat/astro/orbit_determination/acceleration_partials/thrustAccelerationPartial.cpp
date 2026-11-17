@@ -169,9 +169,14 @@ MomentumWheelDesaturationPartial::getParameterPartialFunctionDerivedAcceleration
     if( parameter->getParameterName( ).first == estimatable_parameters::desaturation_delta_v_values )
     {
         // If parameter is desaturation deltaV values, check and create dependency function .
-        partialFunctionPair =
-                std::make_pair( std::bind( &MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues, this, std::placeholders::_1 ),
-                                parameter->getParameterSize( ) );
+        // Only the partial w.r.t. the deltaV of the nearest maneuver can be non-zero
+        partialFunctionPair = std::make_pair(
+                orbit_determination::ParameterPartialBlockFunction(
+                        std::bind( &MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues, this, std::placeholders::_1 ),
+                        accelerationSize_,
+                        3,
+                        parameter->getParameterSize( ) ),
+                parameter->getParameterSize( ) );
     }
     else
     {
@@ -182,13 +187,12 @@ MomentumWheelDesaturationPartial::getParameterPartialFunctionDerivedAcceleration
 }
 
 //! Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
-void MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues( Eigen::MatrixXd& accelerationPartial )
+int MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues( Eigen::MatrixXd& accelerationPartial )
 {
     // Compute partials.
-    accelerationPartial.setZero( );
-    accelerationPartial.block( 0, 3 * thrustAcceleration_->getCurrentNearestTimeIndex( ), 3, 3 ) = Eigen::Matrix3d::Identity( ) *
-            thrustAcceleration_->getCurrentThrustMultiplier( ) /
+    accelerationPartial = Eigen::Matrix3d::Identity( ) * thrustAcceleration_->getCurrentThrustMultiplier( ) /
             ( thrustAcceleration_->getTotalManeuverTime( ) - thrustAcceleration_->getManeuverRiseTime( ) );
+    return 3 * thrustAcceleration_->getCurrentNearestTimeIndex( );
 }
 
 }  // namespace acceleration_partials

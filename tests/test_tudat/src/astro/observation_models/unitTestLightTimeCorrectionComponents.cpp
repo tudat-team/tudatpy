@@ -78,22 +78,16 @@ SimulationOutputs simulateRangeObservableWithDependentVariables(
         addDependentVariablesToObservationSimulationSettings( measurementSimulationInput, dependentVariablesList, bodies );
     }
 
+    std::shared_ptr< ObservationCollection<> > collection =
+            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+    std::shared_ptr< SingleObservationSet< double, double > > singleSet =
+            collection->getSingleLinkAndTypeObservationSets( observableType, LinkDefinition( linkEnds ) ).at( 0 );
+
     SimulationOutputs outputs;
-    std::shared_ptr< ObservationDataset<> > dataset =
-            simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
-    const ObservationSelectionCondition< double, double > selectedRows =
-            ObservationSelectionCondition< double, double >::observableType( observableType ) &&
-            ObservationSelectionCondition< double, double >::linkDefinition( LinkDefinition( linkEnds ) );
-    for( const unsigned int observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
-    {
-        outputs.observations[ dataset->getObservationTime( observationId ) ] = dataset->getObservationValue( observationId );
-    }
+    outputs.observations = singleSet->getObservationsHistory( );
     if( dependentVariablesList.empty( ) == false )
     {
-        for( const unsigned int observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
-        {
-            outputs.dependentVariables[ dataset->getObservationTime( observationId ) ] = dataset->getDependentVariables( observationId );
-        }
+        outputs.dependentVariables = singleSet->getDependentVariableHistory( );
     }
     return outputs;
 }
@@ -618,16 +612,12 @@ BOOST_AUTO_TEST_CASE( testAngularPositionCorrectionComponents )
     };
     addDependentVariablesToObservationSimulationSettings( measurementSimulationInput, dependentVariablesList, bodies );
 
-    std::shared_ptr< ObservationDataset<> > dataset =
-            simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
-    const ObservationSelectionCondition< double, double > selectedRows =
-            ObservationSelectionCondition< double, double >::observableType( angular_position ) &&
-            ObservationSelectionCondition< double, double >::linkDefinition( LinkDefinition( linkEnds ) );
-    std::map< double, Eigen::VectorXd > dependentVariableHistory;
-    for( const unsigned int observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
-    {
-        dependentVariableHistory[ dataset->getObservationTime( observationId ) ] = dataset->getDependentVariables( observationId );
-    }
+    std::shared_ptr< ObservationCollection<> > collection =
+            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+    std::shared_ptr< SingleObservationSet< double, double > > singleSet =
+            collection->getSingleLinkAndTypeObservationSets( angular_position, LinkDefinition( linkEnds ) ).at( 0 );
+
+    std::map< double, Eigen::VectorXd > dependentVariableHistory = singleSet->getDependentVariableHistory( );
     BOOST_REQUIRE_EQUAL( dependentVariableHistory.size( ), 1 );
     BOOST_REQUIRE_EQUAL( dependentVariableHistory.begin( )->second.size( ), 1 );
     BOOST_CHECK( dependentVariableHistory.begin( )->second( 0 ) == dependentVariableHistory.begin( )->second( 0 ) );

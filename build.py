@@ -111,6 +111,15 @@ class BuildParser(argparse.ArgumentParser):
             action="store_true",
             help="Build with Mars Climate Database support [Default: False]",
         )
+        cmake_group.add_argument(
+            "--profiling",
+            dest="build_with_profiling_symbols",
+            action="store_true",
+            help=(
+                "Add debug symbols and frame pointers without changing the "
+                "optimization level, for use with profilers. [Default: False]"
+            ),
+        )
 
         # Misc
         misc_group = self.add_argument_group("Miscellaneous")
@@ -192,11 +201,11 @@ class StubGenerator:
         "FrequencyGapHandling": "tudatpy.kernel.dynamics.environment",
         "IAUConventions": ("tudatpy.kernel.dynamics.environment_setup.rotation_model"),
         "IntegratedObservationPropertyHandling": (
-            "tudatpy.kernel.estimation.observations_setup." "observations_dependent_variables"
+            "tudatpy.kernel.estimation.observations_setup.observations_dependent_variables"
         ),
         "LagrangeInterpolatorBoundaryHandling": ("tudatpy.kernel.math.interpolators"),
         "LightTimeFailureHandling": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
         "LinkEndType": ("tudatpy.kernel.estimation.observable_models_setup.links"),
         "MaximumIterationHandling": "tudatpy.kernel.math.root_finders",
@@ -205,19 +214,19 @@ class StubGenerator:
         ),
         "OrderToIntegrate": ("tudatpy.kernel.dynamics.propagation_setup.integrator"),
         "PositionElementTypes": "tudatpy.kernel.astro.element_conversion",
+        "PositionAngleReferenceFrame": "tudatpy.kernel.estimation.observations_setup.ancillary_settings.PositionAngleReferenceFrame",
         "RadiationPressureTargetModelType": (
             "tudatpy.kernel.dynamics.environment_setup.radiation_pressure"
         ),
         "RotationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
-        "ThrustFrames": "tudatpy.kernel.dynamics.propagation_setup.thrust",
         "TimeScales": "tudatpy.kernel.astro.time_representation",
         "TrackingTxtFileReadFilterType": "tudatpy.kernel.data",
         "TranslationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
         "TroposphericMappingModel": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
         "WaterVaporPartialPressureModel": (
-            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+            "tudatpy.kernel.estimation.observable_models_setup.light_time_corrections"
         ),
     }
 
@@ -1050,45 +1059,6 @@ class StubGenerator:
             # Assign statements
             if isinstance(statement, ast.Assign) or isinstance(statement, ast.AnnAssign):
 
-                # Dynamic submodule imports
-                # e.g. "observations = import_module(__name__ + '.observations')"
-                # These are used when a kernel star import already creates an
-                # attribute with the submodule name, making a regular Python
-                # import bind the wrong module at runtime. In the stub, this is
-                # represented as the equivalent static relative import.
-                if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
-                    target = statement.targets[0]
-                    value = statement.value
-                    is_import_module_call = isinstance(value, ast.Call) and (
-                        (isinstance(value.func, ast.Name) and value.func.id == "import_module")
-                        or (
-                            isinstance(value.func, ast.Attribute)
-                            and value.func.attr == "import_module"
-                        )
-                    )
-                    if (
-                        isinstance(target, ast.Name)
-                        and is_import_module_call
-                        and len(value.args) == 1
-                        and isinstance(value.args[0], ast.BinOp)
-                        and isinstance(value.args[0].left, ast.Name)
-                        and value.args[0].left.id == "__name__"
-                        and isinstance(value.args[0].op, ast.Add)
-                        and isinstance(value.args[0].right, ast.Constant)
-                        and isinstance(value.args[0].right.value, str)
-                        and value.args[0].right.value.startswith(".")
-                    ):
-                        submodule_name = value.args[0].right.value[1:]
-                        if target.id == submodule_name and (module_path / submodule_name).is_dir():
-                            import_statement = ast.ImportFrom(
-                                module="",
-                                names=[ast.alias(submodule_name)],
-                                level=1,
-                            )
-                            stub_body.append(import_statement)
-                            stub_all.append(submodule_name)
-                            continue
-
                 # __all__ statement
                 if "__all__ =" in ast.unparse(statement):
 
@@ -1412,6 +1382,7 @@ class Builder:
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
+                    f"-DTUDAT_BUILD_WITH_PROFILING_SYMBOLS={'ON' if self.args.build_with_profiling_symbols else 'OFF'}",
                 ]
 
                 # Add Fortran compiler path if building with MCD

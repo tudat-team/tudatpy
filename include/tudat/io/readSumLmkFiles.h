@@ -136,7 +136,7 @@ double getSumImageObservationTime( const SumImageData& image );
 Eigen::Quaterniond getSumImageRotationFromBodyFixedToCameraFrame( const SumImageData& image );
 
 //! Get the camera calibration of a SUM image: MMFL, CTR, K-MATRIX and the image size as field-of-view bounds.
-data::CameraPictureCalibration getSumImageCalibration( const SumImageData& image );
+data::CameraCalibration getSumImageCalibration( const SumImageData& image );
 
 //! Check SUM/LMK data before conversion, and return the images to convert.
 /*!

@@ -21,6 +21,7 @@ Details on the procedure to create observation models, and the various top-level
 Functions
 ---------
 .. currentmodule:: tudatpy.estimation.observable_models_setup.model_settings
+
 .. autosummary::
 
    one_way_range
@@ -65,11 +66,15 @@ Functions
 
    relative_angular_position
 
+   pixel_coordinates
+
    cartesian_position
 
    relative_cartesian_position
 
    cartesian_velocity
+
+   euler_angles_313
 
    differenced_time_of_arrival
 
@@ -125,11 +130,15 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_angular_position
 
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.pixel_coordinates
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_position
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_cartesian_position
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_velocity
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.euler_angles_313
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_time_of_arrival
 

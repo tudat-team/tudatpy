@@ -152,13 +152,10 @@ public:
         }
         else
         {
-            pixelCoordinates =
-                    camera_->getProjectionModel( static_cast< double >( time ) )
-                            ->projectUnitVectorToPixelLine(
-                                    camera_->getRotationFromInertialToCameraFrame(
-                                            receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ),
-                                            static_cast< double >( time ) ) *
-                                    inertialDirectionToProject );
+            pixelCoordinates = camera_->calculateObservableFromInertial(
+                    inertialDirectionToProject,
+                    receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ),
+                    static_cast< double >( time ) );
         }
         return pixelCoordinates.template cast< ObservationScalarType >( );
     }

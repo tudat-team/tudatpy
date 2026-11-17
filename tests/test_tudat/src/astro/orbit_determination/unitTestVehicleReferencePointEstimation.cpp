@@ -221,17 +221,16 @@ BOOST_AUTO_TEST_CASE( test_ReferencePointEstimation )
     }
 
     // Simulate observations.
-    std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
+    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Set observation weights
-    observationsAndTimes->setConstantSingleObservationScalarWeight(
-            ObservationSelectionCondition< double, double >::observableType( one_way_range ), 1.0 / ( 1.0 * 1.0 ) );
-    observationsAndTimes->setConstantSingleObservationScalarWeight(
-            ObservationSelectionCondition< double, double >::observableType( angular_position ), 1.0 / ( 1.0E-5 * 1.0E-5 ) );
-    observationsAndTimes->setConstantSingleObservationScalarWeight(
-            ObservationSelectionCondition< double, double >::observableType( one_way_doppler ),
-            1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT ) );
+    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
+    weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
+    weightsPerObservationParser[ observationParser( one_way_doppler ) ] =
+            1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+    observationsAndTimes->setConstantWeightPerObservable( weightsPerObservationParser );
 
     // Perturb parameter estimate.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
@@ -254,8 +253,35 @@ BOOST_AUTO_TEST_CASE( test_ReferencePointEstimation )
     estimationInput->defineEstimationSettings( true, true, true, true, false );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
+    // Record the iteration number, number of residuals and inverse covariance passed to the iteration callback
+    std::vector< int > callbackIterations;
+    std::vector< int > callbackResidualSizes;
+    std::vector< Eigen::MatrixXd > callbackInverseCovariances;
+    estimationInput->iterationCallback_ =
+            [ & ]( const int iteration, const Eigen::VectorXd& residuals, const Eigen::MatrixXd& inverseCovariance ) {
+                callbackIterations.push_back( iteration );
+                callbackResidualSizes.push_back( residuals.rows( ) );
+                callbackInverseCovariances.push_back( inverseCovariance );
+            };
+
     // Perform estimation
     std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+
+    // Check that the callback is called once per iteration, with all residuals and with the inverse covariance
+    BOOST_CHECK( callbackIterations.size( ) > static_cast< unsigned int >( estimationOutput->bestIteration_ ) );
+    BOOST_CHECK( callbackIterations.size( ) <= 4 );
+    for( unsigned int i = 0; i < callbackIterations.size( ); i++ )
+    {
+        BOOST_CHECK_EQUAL( callbackIterations.at( i ), static_cast< int >( i ) );
+        BOOST_CHECK_EQUAL( callbackResidualSizes.at( i ), observationsAndTimes->getTotalObservableSize( ) );
+        BOOST_CHECK_EQUAL( callbackInverseCovariances.at( i ).rows( ), truthParameters.rows( ) );
+        BOOST_CHECK_EQUAL( callbackInverseCovariances.at( i ).cols( ), truthParameters.rows( ) );
+    }
+    const Eigen::MatrixXd bestInverseCovariance = estimationOutput->getUnnormalizedInverseCovarianceMatrix( );
+    BOOST_CHECK_SMALL(
+            ( callbackInverseCovariances.at( estimationOutput->bestIteration_ ) - bestInverseCovariance ).cwiseAbs( ).maxCoeff( ) /
+                    bestInverseCovariance.cwiseAbs( ).maxCoeff( ),
+            1.0E-10 );
 
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout << "estimation error: " << ( estimationError ).transpose( ) << std::endl;

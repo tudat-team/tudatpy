@@ -11,7 +11,7 @@
 #ifndef TUDAT_SIMULATEOBSERVATIONSLEGACY_H
 #define TUDAT_SIMULATEOBSERVATIONSLEGACY_H
 
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationCollectionConversion.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
@@ -20,68 +20,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Simulate one legacy observation set while retaining link-end output and viability checks.
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >
-simulateObservationsWithCheckAndLinkEndIdOutput(
-        const std::vector< TimeType >& observationTimes,
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const observation_models::LinkEndType referenceLinkEnd,
-        const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
-                std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
-        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
-        const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            simulateObservationDatasetWithCheckAndLinkEndIdOutput< ObservationSize, ObservationScalarType, TimeType >(
-                    observationTimes,
-                    observationModel,
-                    referenceLinkEnd,
-                    linkViabilityCalculators,
-                    noiseFunction,
-                    dependentVariableCalculator,
-                    ancillarySettings ) );
-}
-
-//! Simulate one legacy observation set from per-arc settings.
-template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulatePerArcSingleObservationSet(
-        const std::shared_ptr< PerArcObservationSimulationSettings< TimeType > > observationsToSimulate,
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const SystemOfBodies& bodies )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            simulatePerArcObservationDataset< ObservationScalarType, TimeType, ObservationSize >(
-                    observationsToSimulate, observationModel, bodies ) );
-}
-
-//! Simulate one legacy observation set using an observation model.
-template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulateSingleObservationSet(
-        const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationsToSimulate,
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const SystemOfBodies& bodies )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            simulateSingleObservationDataset< ObservationScalarType, TimeType, ObservationSize >(
-                    observationsToSimulate, observationModel, bodies ) );
-}
-
-//! Simulate one legacy observation set using an observation simulator.
-template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulateSingleObservationSet(
-        const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationsToSimulate,
-        const std::shared_ptr< observation_models::ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >
-                observationSimulator,
-        const SystemOfBodies& bodies )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            simulateSingleObservationDataset< ObservationScalarType, TimeType, ObservationSize >(
-                    observationsToSimulate, observationSimulator, bodies ) );
-}
-
-//! Simulate a legacy observation collection through the dataset backend.
+//! Simulate observations, returning a (deprecated) observation collection; see simulateObservationDataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > simulateObservations(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationsToSimulate,
@@ -93,7 +32,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             simulateObservationDataset< ObservationScalarType, TimeType >( observationsToSimulate, observationSimulators, bodies ) );
 }
 
-//! Create a legacy observation collection from existing observations.
+//! Create a (deprecated) observation collection from existing observations; see setExistingObservationDataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > setExistingObservations(
         const std::map< observation_models::ObservableType,
@@ -109,79 +48,31 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             setExistingObservationDataset< ObservationScalarType, TimeType >( observationsInput, referenceLinkEnd, ancillarySettings ) );
 }
 
-//! Create simulation settings from a legacy observation collection.
+//! Create observation simulation settings from a (deprecated) observation collection; see
+//! getObservationSimulationSettingsFromObservationDataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >
 getObservationSimulationSettingsFromObservations(
-        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection,
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection,
         const SystemOfBodies& bodies )
 {
     return getObservationSimulationSettingsFromObservationDataset< ObservationScalarType, TimeType >(
-            observedObservationCollection->getObservationDataset( ), bodies );
+            observation_models::createObservationDataset( observedObservationCollection ), bodies );
 }
 
-//! Compute residuals and dependent variables for a legacy observation collection.
+//! Compute residuals and dependent variables for a (deprecated) observation collection, storing them in the collection; see the
+//! ObservationDataset overload.
 template< typename ObservationScalarType = double, typename TimeType = double >
 void computeResidualsAndDependentVariables(
-        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
                 observationSimulators,
         const SystemOfBodies& bodies )
 {
-    const auto dataset = observationCollection->getObservationDataset( );
-    computeResidualsAndDependentVariables< ObservationScalarType, TimeType >( dataset, observationSimulators, bodies );
-
-    // Grouped legacy collections prepare an independent dataset. Copy the results
-    // back into their original sets; dataset-backed facades already see the writes.
-    const auto sets = observationCollection->getSingleObservationSets( );
-    const auto setIds = dataset->getSetIdsInObservationVectorOrder( );
-    for( std::size_t i = 0; i < sets.size( ); ++i )
-    {
-        if( sets.at( i )->getObservationDataset( ) != dataset )
-        {
-            sets.at( i )->setResiduals( dataset->getResidualsForSet( setIds.at( i ) ) );
-            auto dependentVariables = dataset->getDependentVariablesForSet( setIds.at( i ) );
-            sets.at( i )->setObservationsDependentVariables( dependentVariables );
-        }
-    }
-}
-
-//! Estimate one time bias per legacy observation set.
-template< typename ObservationScalarType = double, typename TimeType = double >
-void estimateTimeBiasPerSet(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const Eigen::VectorXd& timePartials,
-        std::vector< double >& timeBiases,
-        Eigen::VectorXd& correctedResiduals )
-{
-    estimateTimeBiasPerSet< ObservationScalarType, TimeType >(
-            observationCollection->getObservationDataset( ), timePartials, timeBiases, correctedResiduals );
-}
-
-//! Estimate time bias and polynomial residual corrections per legacy observation set.
-template< typename ObservationScalarType = double, typename TimeType = double >
-void estimateTimeBiasAndPolynomialFitPerSet(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const Eigen::VectorXd& timePartials,
-        std::vector< double >& timeBiases,
-        std::vector< Eigen::VectorXd >& polynomialCoefficientsList,
-        Eigen::VectorXd& correctedResiduals )
-{
-    estimateTimeBiasAndPolynomialFitPerSet< ObservationScalarType, TimeType >(
-            observationCollection->getObservationDataset( ), timePartials, timeBiases, polynomialCoefficientsList, correctedResiduals );
-}
-
-//! Compute interval residual statistics for a legacy observation collection.
-template< typename ObservationScalarType = double, typename TimeType = double >
-void getResidualStatistics(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        Eigen::VectorXd& startTimes,
-        Eigen::VectorXd& durations,
-        Eigen::VectorXd& meanValues,
-        Eigen::VectorXd& rmsValues )
-{
-    getResidualStatistics< ObservationScalarType, TimeType >(
-            observationCollection->getObservationDataset( ), startTimes, durations, meanValues, rmsValues );
+    const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset =
+            observation_models::createObservationDataset( observationCollection );
+    computeResidualsAndDependentVariables< ObservationScalarType, TimeType >( observationDataset, observationSimulators, bodies );
+    observation_models::writeObservationDatasetToCollection( *observationDataset, observationCollection );
 }
 
 }  // namespace simulation_setup

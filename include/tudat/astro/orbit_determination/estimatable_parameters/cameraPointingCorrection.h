@@ -51,12 +51,6 @@ public:
 
     void setParameterValue( Eigen::VectorXd parameterValue )
     {
-        if( parameterValue.size( ) != getParameterSize( ) )
-        {
-            throw std::runtime_error( "Error when setting camera pointing correction parameter for " + parameterName_.second.first + ", " +
-                                      parameterName_.second.second + ": parameter size must be " + std::to_string( getParameterSize( ) ) +
-                                      "." );
-        }
         systemModels_->getCamera( parameterName_.second.second )->setPointingCorrection( parameterValue );
     }
 

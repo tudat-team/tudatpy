@@ -34,6 +34,7 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
@@ -235,6 +236,45 @@ SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoc
 }
 
 BOOST_AUTO_TEST_SUITE( test_rotational_dynamics_propagation )
+
+//! Test consistency of rotation matrices, their time derivatives and angular velocities when setting the rotational state of a body
+BOOST_AUTO_TEST_CASE( testBodyRotationalStateConsistency )
+{
+    Body body;
+    const Eigen::Quaterniond orientation( Eigen::AngleAxisd( 0.4, Eigen::Vector3d( 1.0, 2.0, -1.0 ).normalized( ) ) );
+    const Eigen::Vector3d omegaBody( 1.0e-4, -2.0e-4, 3.0e-4 );
+    Eigen::Vector7d state;
+    state.head< 4 >( ) = linear_algebra::convertQuaternionToVectorFormat( orientation );
+    state.tail< 3 >( ) = omegaBody;
+    body.setCurrentRotationalStateToLocalFrame( state );
+    const Eigen::Matrix3d rotation = body.getCurrentRotationToGlobalFrame( ).toRotationMatrix( );
+    const Eigen::Matrix3d inverseRotation = body.getCurrentRotationToLocalFrame( ).toRotationMatrix( );
+    const Eigen::Matrix3d rotationRate = body.getCurrentRotationMatrixDerivativeToGlobalFrame( );
+    const Eigen::Matrix3d inverseRotationRate = body.getCurrentRotationMatrixDerivativeToLocalFrame( );
+
+    // Check consistency of rotations, their derivatives and angular velocities in both frames
+    BOOST_CHECK_SMALL( ( rotation - orientation.toRotationMatrix( ) ).norm( ), 1.0e-15 );
+    BOOST_CHECK_SMALL( ( inverseRotation * rotation - Eigen::Matrix3d::Identity( ) ).norm( ), 1.0e-15 );
+    BOOST_CHECK_SMALL( ( inverseRotationRate - rotationRate.transpose( ) ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( body.getCurrentAngularVelocityVectorInLocalFrame( ) - omegaBody ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( body.getCurrentAngularVelocityVectorInGlobalFrame( ) - rotation * omegaBody ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( inverseRotationRate * rotation + linear_algebra::getCrossProductMatrix( omegaBody ) ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( rotationRate * inverseRotation -
+                         linear_algebra::getCrossProductMatrix( body.getCurrentAngularVelocityVectorInGlobalFrame( ) ) )
+                               .norm( ),
+                       1.0e-18 );
+
+    const double step = 0.1;
+    const Eigen::Quaterniond increment( Eigen::AngleAxisd( omegaBody.norm( ) * step, omegaBody.normalized( ) ) );
+    const Eigen::Matrix3d numericalRate =
+            ( ( orientation * increment ).toRotationMatrix( ) - ( orientation * increment.inverse( ) ).toRotationMatrix( ) ) /
+            ( 2.0 * step );
+    // Compare rotation matrix derivative with numerical derivative, and with derivative from constant rotational ephemeris
+    BOOST_CHECK_SMALL( ( rotationRate - numericalRate ).norm( ), 1.0e-12 );
+    ConstantRotationalEphemeris constantRotation( state );
+    BOOST_CHECK_SMALL( ( constantRotation.getDerivativeOfRotationToTargetFrame( 0.0 ) - inverseRotationRate ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( constantRotation.getRotationalVelocityVectorInTargetFrame( 0.0 ) - omegaBody ).norm( ), 1.0e-18 );
+}
 
 //! Function to test torque-free propagation with initial rotation around one of its principal axes
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
@@ -1366,6 +1406,45 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
                                  << maximumJupiterTorqueNormAbsoluteDifference << " (tolerance=" << absoluteTorqueNormTolerance
                                  << "), relative=" << maximumJupiterTorqueNormRelativeDifference
                                  << " (tolerance=" << relativeTorqueNormTolerance << ")" );
+}
+
+// Check that a propagation with Time as time type resets a tabulated rotational ephemeris with double time type
+BOOST_AUTO_TEST_CASE( testRotationalEphemerisResetWithOtherTimeType )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Phobos has a TabulatedRotationalEphemeris< double, double >; torque-free rotation about the body-fixed z-axis
+    SystemOfBodies bodies = getTestBodyMap( 9376.0E3 );
+    std::vector< std::string > bodiesToIntegrate = { "Phobos" };
+    double initialEphemerisTime = 1.0E7;
+    double rotationRate = 1.0E-4;
+    Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
+    systemInitialState( 0 ) = 1.0;
+    systemInitialState( 6 ) = rotationRate;
+
+    std::shared_ptr< RotationalStatePropagatorSettings< double, Time > > propagatorSettings =
+            std::make_shared< RotationalStatePropagatorSettings< double, Time > >(
+                    createTorqueModelsMap( bodies, SelectedTorqueMap( ), bodiesToIntegrate ),
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    Time( initialEphemerisTime ),
+                    rungeKuttaFixedStepSettings< Time >( 60.0, rungeKuttaFehlberg78 ),
+                    std::make_shared< PropagationTimeTerminationSettings >( initialEphemerisTime + 86400.0 ) );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+    SingleArcDynamicsSimulator< double, Time > dynamicsSimulator( bodies, propagatorSettings, true );
+
+    double testTime = initialEphemerisTime + 43230.0;
+    Eigen::Matrix3d expectedRotationToBaseFrame =
+            Eigen::AngleAxisd( rotationRate * ( testTime - initialEphemerisTime ), Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
+    Eigen::Matrix3d rotationToBaseFrame =
+            bodies.at( "Phobos" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( rotationToBaseFrame( i, j ) - expectedRotationToBaseFrame( i, j ) ), 1.0E-10 );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

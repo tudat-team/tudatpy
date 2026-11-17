@@ -1,0 +1,14 @@
+{
+  "initialTime": 2,
+  "finalTime": 100,
+  "timeStep": 10,
+  "interpolator": {
+    "order": 4,
+    "type": "lagrange"
+  },
+  "correctForLightTimeAberration": true,
+  "type": "interpolatedSpice",
+  "frameOrigin": "Foo",
+  "frameOrientation": "FOO",
+  "makeMultiArc": true
+}

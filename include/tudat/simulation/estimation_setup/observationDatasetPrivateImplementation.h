@@ -23,10 +23,10 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::ObservationDataset( const ObservationDataset& other ):
-    std::enable_shared_from_this< ObservationDataset >( ), observationRows_( other.observationRows_ ),
-    rowPositionById_( other.rowPositionById_ ), nextObservationId_( other.nextObservationId_ ), setMetadata_( other.setMetadata_ ),
-    observationIdsBySet_( other.observationIdsBySet_ ), linkDefinitionRegistry_( other.linkDefinitionRegistry_ ),
-    observedValues_( other.observedValues_ ), residualValues_( other.residualValues_ ), observationWeights_( other.observationWeights_ ),
+    observationRows_( other.observationRows_ ), rowPositionById_( other.rowPositionById_ ), nextObservationId_( other.nextObservationId_ ),
+    setMetadata_( other.setMetadata_ ), observationIdsBySet_( other.observationIdsBySet_ ),
+    linkDefinitionRegistry_( other.linkDefinitionRegistry_ ), observedValues_( other.observedValues_ ),
+    residualValues_( other.residualValues_ ), observationWeights_( other.observationWeights_ ),
     numericalObservationMetadata_( other.numericalObservationMetadata_ )
 {
     for( const auto& settings : other.ancillarySettingsRegistry_ )
@@ -38,39 +38,6 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::ObservationDataset
     {
         dependentVariableLayoutRegistry_.push_back( bookkeeping ? bookkeeping->clone( ) : nullptr );
     }
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rebuildRowIndex( )
-{
-    std::unordered_map< unsigned int, std::size_t > index;
-    index.reserve( observationRows_.size( ) );
-    unsigned int nextScalar = 0;
-    for( std::size_t i = 0; i < observationRows_.size( ); ++i )
-    {
-        const auto& row = observationRows_.at( i );
-        if( !index.emplace( row.observationId_, i ).second || row.observationId_ >= nextObservationId_ ||
-            row.firstScalarComponent_ != nextScalar || row.scalarSize_ == 0 ||
-            row.scalarSize_ != setMetadata_.at( row.setId_ ).observableSize_ ||
-            observationIdsBySet_.at( row.setId_ ).at( row.indexInSet_ ) != row.observationId_ )
-        {
-            throw std::runtime_error( "Observation row identity or component mapping is inconsistent." );
-        }
-        nextScalar += row.scalarSize_;
-    }
-    std::size_t groupedRows = 0;
-    for( const auto& ids : observationIdsBySet_ )
-    {
-        groupedRows += ids.size( );
-    }
-    if( nextScalar != observedValues_.size( ) || residualValues_.size( ) != observedValues_.size( ) ||
-        observationWeights_.size( ) != observedValues_.size( ) || groupedRows != observationRows_.size( ) )
-    {
-        throw std::runtime_error( "Observation scalar storage or set membership is inconsistent." );
-    }
-    rowPositionById_ = std::move( index );
 }
 
 template< typename ObservationScalarType,
@@ -132,7 +99,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObserva
             rows.at( index.at( ids.at( i ) ) ).indexInSet_ = i;
         }
     }
-    // Publish all mutually dependent storage only after successful validation and allocation.
+    // Only modify the dataset after all checks have passed.
     observationRows_ = std::move( rows );
     rowPositionById_ = std::move( index );
     observationIdsBySet_ = std::move( groups );
@@ -397,54 +364,17 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-int ObservationDataset< ObservationScalarType, TimeType, Dummy >::registerLinkDefinition( const LinkDefinition& linkDefinition )
+template< typename EntryType >
+unsigned int ObservationDataset< ObservationScalarType, TimeType, Dummy >::registerEntry( std::vector< EntryType >& registry,
+                                                                                          const EntryType& entry )
 {
-    for( std::size_t i = 0; i < linkDefinitionRegistry_.size( ); ++i )
+    const auto existing = std::find( registry.begin( ), registry.end( ), entry );
+    if( existing != registry.end( ) )
     {
-        if( linkDefinitionRegistry_.at( i ) == linkDefinition )
-        {
-            return static_cast< int >( i );
-        }
+        return static_cast< unsigned int >( existing - registry.begin( ) );
     }
-
-    linkDefinitionRegistry_.push_back( linkDefinition );
-    return static_cast< int >( linkDefinitionRegistry_.size( ) - 1 );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-int ObservationDataset< ObservationScalarType, TimeType, Dummy >::registerAncillarySettings(
-        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
-{
-    for( std::size_t i = 0; i < ancillarySettingsRegistry_.size( ); ++i )
-    {
-        if( ancillarySettingsRegistry_.at( i ) == ancillarySettings )
-        {
-            return static_cast< int >( i );
-        }
-    }
-
-    ancillarySettingsRegistry_.push_back( ancillarySettings );
-    return static_cast< int >( ancillarySettingsRegistry_.size( ) - 1 );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-int ObservationDataset< ObservationScalarType, TimeType, Dummy >::registerDependentVariableLayout(
-        const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& bookkeeping )
-{
-    for( std::size_t i = 0; i < dependentVariableLayoutRegistry_.size( ); ++i )
-    {
-        if( dependentVariableLayoutRegistry_.at( i ) == bookkeeping )
-        {
-            return static_cast< int >( i );
-        }
-    }
-
-    dependentVariableLayoutRegistry_.push_back( bookkeeping );
-    return static_cast< int >( dependentVariableLayoutRegistry_.size( ) - 1 );
+    registry.push_back( entry );
+    return static_cast< unsigned int >( registry.size( ) - 1 );
 }
 
 }  // namespace observation_models

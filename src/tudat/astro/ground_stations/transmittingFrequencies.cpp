@@ -69,7 +69,6 @@ void PiecewiseLinearFrequencyInterpolator::initialize( )
 {
     invalidTimeBlocksStartTimes_.clear( );
     invalidTimeBlocksEndTimes_.clear( );
-    invalidStartTimeLookupScheme_ = nullptr;
 
     // Check if dimensions of all vectors are consistent
     if( startTimes_.size( ) != endTimes_.size( ) || startTimes_.size( ) != rampRates_.size( ) ||
@@ -122,11 +121,6 @@ void PiecewiseLinearFrequencyInterpolator::initialize( )
     }
 
     startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< Time > >( startTimes_ );
-
-    if( !invalidTimeBlocksStartTimes_.empty( ) )
-    {
-        invalidStartTimeLookupScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< Time > >( invalidTimeBlocksStartTimes_ );
-    }
 }
 
 void PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator(

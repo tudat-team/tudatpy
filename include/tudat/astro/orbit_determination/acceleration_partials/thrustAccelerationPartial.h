@@ -303,9 +303,11 @@ protected:
     //! Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
     /*!
      * Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
-     * \param accelerationPartial Partial derivative w.r.t. deltaV values of the momentum desaturation maneuvers
+     * \param accelerationPartial Partial derivative w.r.t. deltaV values of the nearest momentum desaturation maneuver
+     * (returned by reference)
+     * \return Column of the deltaV values of the nearest maneuver in the full partial
      */
-    void wrtDesaturationDeltaVValues( Eigen::MatrixXd& accelerationPartial );
+    int wrtDesaturationDeltaVValues( Eigen::MatrixXd& accelerationPartial );
 
     //! Momentum wheel desaturation thrust acceleration.
     std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration_;

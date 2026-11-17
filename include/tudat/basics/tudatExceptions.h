@@ -92,6 +92,17 @@ public:
     ~LagrangeInterpolationOutOfBoundsError( ) {}
 };
 
+/// @brief Error class when the derivative of the interpolated value is requested from an interpolator for which it is not implemented.
+class InterpolationDerivativeNotImplementedError : public TudatError
+{
+public:
+    /// @brief Constructor for interpolation derivative not implemented error.
+    /// @param interpolatorName Name of the interpolator for which the derivative is not implemented.
+    InterpolationDerivativeNotImplementedError( const std::string& interpolatorName ):
+        TudatError( "Error, derivative of interpolated value is not implemented for the " + interpolatorName + " interpolator." )
+    {}
+};
+
 /// @brief Error class for the number of maximum iterations have been exceeded.
 class MaximumIterationsExceededError : public TudatError
 {

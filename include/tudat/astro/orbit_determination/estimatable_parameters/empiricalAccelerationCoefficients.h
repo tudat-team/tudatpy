@@ -445,6 +445,12 @@ public:
         return empiricalAccelerationInterpolator_->getLookUpScheme( );
     }
 
+    //! Function to retrieve the time intervals in which each parameter entry can influence the dynamics
+    std::vector< std::pair< double, double > > getTimeIntervalsOfInfluencePerEntry( ) override
+    {
+        return getArcWiseParameterTimeIntervalsOfInfluence( arcStartTimeList_, arcStartTimeList_.size( ) - 1, singleArcParameterSize_ );
+    }
+
 protected:
 private:
     //! Class defining properties of empirical acceleration used in propagation.

@@ -55,6 +55,7 @@ set(acceleration_partials_HEADERS
   "ringAccelerationPartial.h"
   "einsteinInfeldHoffmannPartials.h"
   "yarkovskyAccelerationPartial.h"
+  "gravitationalParameterRateAccelerationPartial.h"
   "fullRadiationPressureAccelerationPartial.h"
 )
 

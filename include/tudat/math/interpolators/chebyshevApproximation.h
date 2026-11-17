@@ -196,6 +196,12 @@ public:
         return interpolatedValue;
     }
 
+    //! Function to compute the derivative of the interpolated value w.r.t. the independent variable (not implemented).
+    DependentVariableType interpolateDerivative( const IndependentVariableType independentVariableValue )
+    {
+        throw tudat::exceptions::InterpolationDerivativeNotImplementedError( "Chebyshev" );
+    }
+
     InterpolatorTypes getInterpolatorType( )
     {
         return chebyshev_interpolator;

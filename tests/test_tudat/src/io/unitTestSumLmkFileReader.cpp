@@ -64,11 +64,20 @@ BOOST_AUTO_TEST_CASE( testReadSumAndLmkFiles )
     BOOST_CHECK( landmarks.at( "LMK0001" ).pictures_.at( 0 ).flagged_ );
 }
 
-//! Read a real SPC SUM file (Rosetta/OSIRIS), with Fortran D exponents, a three-valued SIGMA_PTG and km -> m conversion.
-BOOST_AUTO_TEST_CASE( testReadRealSumFile )
+//! Read a real SPC SUM file (Rosetta/OSIRIS), with Fortran D exponents, a three-valued SIGMA_PTG and km -> m conversion, and real
+//! SPC LMK files, including the combined labels ("SIZE, SCALE(KM)" and "SIGKM, RMSLMK") of production files. Then convert their
+//! contents to tracking data and supplementary data: one observation per (image, landmark), with the measured pixels, the UTC
+//! image epoch and the landmark/camera link ends, and a camera carrying the SUM calibration, the CX/CY/CZ attitude (relative to
+//! the target body-fixed frame) and SIGMA_PTG. Images of two cameras share the landmarks.
+BOOST_AUTO_TEST_CASE( testReadAndConvertRealSumLmkFiles )
 {
     const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
-    const SumImageData image = readSumFile( testDataPath + "/W48230079013.SUM" );
+    const std::vector< std::string > sumFiles = { testDataPath + "/W48230079013.SUM" };
+    const std::vector< std::string > lmkFiles = { testDataPath + "/FA0115.LMK",
+                                                  testDataPath + "/FC0098.LMK",
+                                                  testDataPath + "/GD0036.LMK" };
+    const SumImageData image = readSumFile( sumFiles.at( 0 ) );
+    const std::map< std::string, LmkLandmarkData > landmarks = readLmkFiles( lmkFiles );
 
     BOOST_CHECK_EQUAL( image.imageId_, "W48230079013" );
     BOOST_CHECK_EQUAL( image.utcEpochString_, "2015 APR 14 16:26:27.974" );
@@ -108,14 +117,7 @@ BOOST_AUTO_TEST_CASE( testReadRealSumFile )
     BOOST_CHECK_SMALL( ( image.landmarkObservations_.at( 0 ).pixelCoordinates_ - Eigen::Vector2d( 533.53, 475.22 ) ).norm( ), 1.0E-12 );
     BOOST_CHECK_EQUAL( image.landmarkObservations_.at( 2 ).landmarkId_, "GD0036" );
     BOOST_CHECK_EQUAL( image.limbFitObservations_.size( ), 0 );
-}
 
-//! Read real SPC LMK files, including the combined labels ("SIZE, SCALE(KM)" and "SIGKM, RMSLMK") of production files.
-BOOST_AUTO_TEST_CASE( testReadRealLmkFile )
-{
-    const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
-    const std::map< std::string, LmkLandmarkData > landmarks =
-            readLmkFiles( { testDataPath + "/FA0115.LMK", testDataPath + "/FC0098.LMK", testDataPath + "/GD0036.LMK" } );
     BOOST_REQUIRE_EQUAL( landmarks.size( ), 3 );
 
     const LmkLandmarkData& landmark = landmarks.at( "FA0115" );
@@ -139,20 +141,6 @@ BOOST_AUTO_TEST_CASE( testReadRealLmkFile )
     BOOST_CHECK_EQUAL( landmark.pictures_.at( 0 ).imageId_, "N46299874022" );
     BOOST_CHECK_SMALL( landmark.pictures_.at( 1 ).pixelCoordinates_( 1 ) - -481.78, 1.0E-12 );
     BOOST_CHECK( !landmark.pictures_.at( 0 ).flagged_ );
-}
-
-//! Conversion of SUM/LMK contents to tracking data and supplementary data: one observation per (image, landmark), with the
-//! measured pixels, the UTC image epoch and the landmark/camera link ends, and a camera carrying the SUM calibration, the
-//! CX/CY/CZ attitude (relative to the target body-fixed frame) and SIGMA_PTG. Images of two cameras share the landmarks.
-BOOST_AUTO_TEST_CASE( testSumLmkConversion )
-{
-    const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
-    const std::vector< std::string > sumFiles = { testDataPath + "/W48230079013.SUM" };
-    const std::vector< std::string > lmkFiles = { testDataPath + "/FA0115.LMK",
-                                                  testDataPath + "/FC0098.LMK",
-                                                  testDataPath + "/GD0036.LMK" };
-    const SumImageData image = readSumFile( sumFiles.at( 0 ) );
-    const std::map< std::string, LmkLandmarkData > landmarks = readLmkFiles( lmkFiles );
 
     const auto convertedData = readSumLmkData< double, double >( { { "OSIRIS_WAC", sumFiles } }, lmkFiles, "Comet", "Spacecraft" );
 
@@ -200,9 +188,10 @@ BOOST_AUTO_TEST_CASE( testSumLmkConversion )
             BOOST_CHECK_EQUAL( supplementaryData->getBodyName( ), "Spacecraft" );
             BOOST_CHECK_EQUAL( camera->getCameraId( ), cameraName );
             BOOST_CHECK_EQUAL( camera->getPointingReferenceBodyName( ), "Comet" );
-            BOOST_CHECK_SMALL( camera->getFocalLength( ) - image.focalLengthMm_, 1.0E-12 );
-            BOOST_CHECK_SMALL( ( camera->getPrincipalPoint( ) - image.opticalCenter_ ).norm( ), 1.0E-12 );
-            BOOST_CHECK_SMALL( ( camera->getKMatrix( ) - image.kMatrix_ ).norm( ), 1.0E-12 );
+            const data::CameraCalibration& calibration = camera->getCalibration( );
+            BOOST_CHECK_SMALL( calibration.focalLength_ - image.focalLengthMm_, 1.0E-12 );
+            BOOST_CHECK_SMALL( ( calibration.principalPoint_ - image.opticalCenter_ ).norm( ), 1.0E-12 );
+            BOOST_CHECK_SMALL( ( calibration.kMatrix_ - image.kMatrix_ ).norm( ), 1.0E-12 );
             BOOST_REQUIRE_EQUAL( camera->getPointingUncertaintyHistory( ).size( ), 1 );
             BOOST_CHECK_SMALL( ( camera->getPointingUncertaintyHistory( ).begin( )->second - image.pointingSigma_ ).norm( ), 1.0E-15 );
 

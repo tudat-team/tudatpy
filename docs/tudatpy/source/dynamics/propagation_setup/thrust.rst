@@ -48,6 +48,7 @@ Enumerations
    ThrustMagnitudeTypes
 
 
+
 .. autoclass:: tudatpy.dynamics.propagation_setup.thrust.ThrustMagnitudeTypes
    :members:
 

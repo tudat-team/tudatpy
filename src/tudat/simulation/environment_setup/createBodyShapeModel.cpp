@@ -13,6 +13,7 @@
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/basic_astro/polyhedronBodyShapeModel.h"
 #include "tudat/astro/basic_astro/hybridBodyShapeModel.h"
+#include "tudat/astro/basic_astro/triAxialEllipsoidBodyShapeModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
 
 namespace tudat
@@ -60,6 +61,23 @@ std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel( con
                 // Creat oblate spheroid shape model
                 shapeModel = std::make_shared< OblateSpheroidBodyShapeModel >( oblateSpheroidShapeSettings->getEquatorialRadius( ),
                                                                                oblateSpheroidShapeSettings->getFlattening( ) );
+            }
+            break;
+        }
+        case triaxial_ellipsoid: {
+            // Check input consistency
+            std::shared_ptr< TriAxialEllipsoidBodyShapeSettings > ellipsoidShapeSettings =
+                    std::dynamic_pointer_cast< TriAxialEllipsoidBodyShapeSettings >( shapeSettings );
+            if( ellipsoidShapeSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected tri-axial ellipsoid shape settings for body " + body );
+            }
+            else
+            {
+                // Create tri-axial ellipsoid shape model
+                shapeModel = std::make_shared< TriAxialEllipsoidBodyShapeModel >( ellipsoidShapeSettings->getSemiAxisA( ),
+                                                                                  ellipsoidShapeSettings->getSemiAxisB( ),
+                                                                                  ellipsoidShapeSettings->getSemiAxisC( ) );
             }
             break;
         }

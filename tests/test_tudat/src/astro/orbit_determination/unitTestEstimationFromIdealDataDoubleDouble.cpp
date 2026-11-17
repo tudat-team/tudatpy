@@ -125,14 +125,19 @@ BOOST_AUTO_TEST_CASE( testEstimationWithOutlierRejection )
 
     const auto configureEstimation = []( const std::shared_ptr< observation_models::ObservationDataset< double, double > >& dataset,
                                          const std::shared_ptr< simulation_setup::EstimationInput< double, double > >& input ) {
-        const std::vector< double > times = dataset->createOrderedObservationVectorData( ).getTimes( );
+        const std::vector< double > times = dataset->createObservationVectorData( true ).getTimes( );
         const double firstTime = *std::min_element( times.begin( ), times.end( ) );
         dataset->removeObservations(
                 observation_models::ObservationSelectionCondition< double, double >::timeGreaterThan( firstTime + 1000.0 ) );
 
-        Eigen::VectorXd rangeObservations = dataset->getObservationVectorForObservableType( observation_models::one_way_range );
-        rangeObservations( 0 ) += 1.0E6;
-        dataset->setObservationVectorForObservableType( observation_models::one_way_range, rangeObservations );
+        const unsigned int rangeSetId =
+                dataset->getSetIds( observation_models::ObservationSelectionCondition< double, double >::observableType(
+                                            observation_models::one_way_range ),
+                                    observation_models::ObservationOrdering::estimation )
+                        .at( 0 );
+        std::vector< Eigen::VectorXd > rangeObservations = dataset->getObservationsForSet( rangeSetId );
+        rangeObservations.at( 0 )( 0 ) += 1.0E6;
+        dataset->setObservationsForSet( rangeSetId, rangeObservations );
         const auto rangeIds = dataset->getObservationIdsMatchingCondition(
                 observation_models::ObservationSelectionCondition< double, double >::observableType( observation_models::one_way_range ) );
         const double crossWeight =
@@ -148,16 +153,23 @@ BOOST_AUTO_TEST_CASE( testEstimationWithOutlierRejection )
     BOOST_REQUIRE_GE( activeFlags.cols( ), 2 );
     BOOST_CHECK_EQUAL( activeFlags.col( 0 ).cast< int >( ).sum( ), activeFlags.rows( ) );
     BOOST_CHECK_EQUAL( activeFlags.col( 1 ).cast< int >( ).sum( ), activeFlags.rows( ) - 1 );
-    BOOST_CHECK_EQUAL( dataset->createOrderedObservationVectorData( false ).getObservationVector( ).size( ),
-                       dataset->createOrderedObservationVectorData( true ).getObservationVector( ).size( ) - 1 );
+    BOOST_CHECK_EQUAL( dataset->createObservationVectorData( false ).getObservationVector( ).size( ),
+                       dataset->createObservationVectorData( true ).getObservationVector( ).size( ) - 1 );
     BOOST_CHECK( podData.first->parameterEstimate_.allFinite( ) );
-    const auto allData = dataset->createOrderedObservationVectorData( true );
+    const auto allData = dataset->createObservationVectorData( true );
+
+    // After the estimation, the observations that are rejected in the dataset are those that were not used in the best iteration
+    for( int row = 0; row < activeFlags.rows( ); row++ )
+    {
+        BOOST_CHECK_EQUAL( dataset->getObservationRow( allData.getObservationIds( ).at( row ) ).isActive_,
+                           activeFlags( row, podData.first->bestIteration_ ) );
+    }
     auto bestDataset = *dataset;
     bestDataset.restoreObservations( observation_models::ObservationSelectionCondition< double, double >::all( ) );
     bestDataset.rejectObservations( observation_models::ObservationSelectionCondition< double, double >(
             [ & ]( const auto&, const int id ) { return !activeFlags( allData.getVectorRow( id, 0 ), podData.first->bestIteration_ ); } ) );
     const Eigen::MatrixXd savedWeights = podData.first->getWeightsMatrix( );
-    const Eigen::MatrixXd expectedWeights = bestDataset.createOrderedObservationVectorData( false ).getSparseWeightMatrix( );
+    const Eigen::MatrixXd expectedWeights = bestDataset.createObservationVectorData( false ).getSparseWeightMatrix( );
     BOOST_REQUIRE_EQUAL( savedWeights.rows( ), expectedWeights.rows( ) );
     BOOST_CHECK_MESSAGE( savedWeights.isApprox( expectedWeights ),
                          "Saved weights differ from the best iteration by " << ( savedWeights - expectedWeights ).cwiseAbs( ).maxCoeff( ) );

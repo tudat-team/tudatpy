@@ -18,12 +18,11 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/io/preProcessFdetsFile.h"
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
-#include "tudat/simulation/estimation_setup/createObservationDataset.h"
+#include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -40,6 +39,7 @@ namespace unit_tests
 
 using namespace tudat;
 using namespace tudat::observation_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
 
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
-        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        vehicleSystems->setTransponderTurnaroundRatio( &system_models::getDsnDefaultTurnaroundRatios );
         bodies.at( spacecraftName )->setVehicleSystems( vehicleSystems );
 
         bodies.processBodyFrameDefinitions( );
@@ -132,27 +132,31 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         LinkEndType referenceLinkEnd = receiver;
 
         // Ancillary Settings
+        std::shared_ptr< observation_models::ObservationCollection< double, Time > > observationCollection;
         std::string juiceDataFile = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2024.08.20.Yg.r2i.txt";
-        std::pair< std::vector< std::shared_ptr< data::TrackingData< double, Time > > >,
-                   std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
-                trackingDataAndSupplementaryData;
         if( testType == 0 )
         {
             std::shared_ptr< TrackingTxtFileContents > fdetsFileContents = readFdetsFile( juiceDataFile, FdetDateFormat::datetime_string );
-            trackingDataAndSupplementaryData =
-                    convertRawFdetsFiles< double, Time >( { fdetsFileContents }, { 8422.49E6 }, "JUICE", { "NWNORCIA" }, { "YARRAGAD" } );
+            fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, "YARRAGAD" );
+            fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
+            fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, 8422.49E6 );
+
+            observationCollection = createTrackingTxtFileObservationCollection< double, Time >( fdetsFileContents, "JUICE" );
         }
         else
         {
-            trackingDataAndSupplementaryData = readFdetsFiles< double, Time >(
-                    { juiceDataFile }, 8422.49E6, FdetDateFormat::datetime_string, "JUICE", "NWNORCIA", "YARRAGAD" );
+            observationCollection = createFdetsObservedObservationCollectionFromFile( juiceDataFile,
+                                                                                      8422.49E6,
+                                                                                      FdetDateFormat::datetime_string,
+                                                                                      "JUICE",
+                                                                                      "NWNORCIA",
+                                                                                      "YARRAGAD",
+                                                                                      FrequencyBands::x_band,
+                                                                                      FrequencyBands::x_band );
         }
-        std::shared_ptr< observation_models::ObservationDataset< double, Time > > observationDataset =
-                createObservationDatasetFromTrackingData< double, Time >( trackingDataAndSupplementaryData.first, bodies );
 
-        auto observationVectorData = observationDataset->createObservationVectorData( );
-        auto observationTimes = observationVectorData.getTimes( );
-        auto observations = observationVectorData.getObservationVector( );
+        auto observationTimes = observationCollection->getConcatenatedObservationTimes( );
+        auto observations = observationCollection->getConcatenatedObservations( );
 
         // Compute observables
         std::vector< double > linkEndTimes;
@@ -162,7 +166,8 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         Eigen::VectorXd residualVector = Eigen::VectorXd::Zero( observationTimes.size( ) );
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
                 std::make_shared< ObservationAncillarySimulationSettings >( );
-        ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+        ancillarySettings->setAncillaryDoubleVectorData(
+                frequency_bands, convertFrequencyBandsToDoubleVector( { FrequencyBands::x_band, FrequencyBands::x_band } ) );
         for( unsigned int i = 0; i < observationTimes.size( ); i++ )
         {
             double dopplerObservable = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(

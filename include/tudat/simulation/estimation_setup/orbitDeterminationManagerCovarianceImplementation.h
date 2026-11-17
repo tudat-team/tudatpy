@@ -13,8 +13,6 @@
 
 #include <iostream>
 
-#include <Eigen/SparseCore>
-
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/simulation/estimation_setup/interArcContinuityConstraint.h"
@@ -34,35 +32,27 @@ std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
+    if( considerParametersIncluded_ && parametersToEstimate_->getConstraintSize( ) > 0 )
+    {
+        throw std::runtime_error(
+                "Error when computing covariance, linear parameter constraints cannot be combined with consider parameters" );
+    }
+
     const auto observationDataset = estimationInput->getObservationDataset( );
     const observation_models::ObservationVectorData< ObservationScalarType, TimeType > weightData =
             observationDataset->createObservationVectorData( );
+
+    // Get total number of observations
     const int totalNumberOfObservations = static_cast< int >( weightData.getObservationVector( ).size( ) );
     if( totalNumberOfObservations == 0 )
     {
         throw std::runtime_error( "Cannot run estimation or covariance analysis without active observations." );
     }
-    const Eigen::VectorXd weightsMatrixDiagonal = weightData.getWeightVector( );
-    const bool hasOffDiagonalWeights = weightData.hasOffDiagonalWeights( );
+    Eigen::VectorXd weightsMatrixDiagonal;
     Eigen::SparseMatrix< double > weightsMatrix;
-
-    if( hasOffDiagonalWeights )
-    {
-        weightsMatrix = weightData.getSparseWeightMatrix( );
-        if( weightsMatrix.rows( ) != totalNumberOfObservations || weightsMatrix.cols( ) != totalNumberOfObservations )
-        {
-            throw std::runtime_error( "Error when computing covariance, size of weights matrix (" +
-                                      std::to_string( weightsMatrix.rows( ) ) + ", " + std::to_string( weightsMatrix.cols( ) ) +
-                                      ") is not compatible with number of observations (" + std::to_string( totalNumberOfObservations ) +
-                                      ")" );
-        }
-    }
-    else if( weightsMatrixDiagonal.rows( ) != totalNumberOfObservations )
-    {
-        throw std::runtime_error( "Error when computing covariance, size of weights diagonal (" +
-                                  std::to_string( weightsMatrixDiagonal.rows( ) ) + ") is not compatible with number of observations (" +
-                                  std::to_string( totalNumberOfObservations ) + ")" );
-    }
+    bool hasOffDiagonalWeights = false;
+    retrieveObservationWeights< ObservationScalarType, TimeType >(
+            weightData, weightsMatrixDiagonal, weightsMatrix, hasOffDiagonalWeights );
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
         estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
@@ -200,9 +190,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                     covarianceContributionConsiderParameters,
                     estimationInput->getConsiderCovariance( ),
                     exceptionDuringPropagation,
-                    hasOffDiagonalWeights ? weightsMatrix : Eigen::SparseMatrix< double >( ),
                     interArcContribution.totalConstraintCost,
-                    interArcContribution.perPairDiscrepancies );
+                    interArcContribution.perPairDiscrepancies,
+                    hasOffDiagonalWeights ? weightsMatrix : Eigen::SparseMatrix< double >( ) );
 
     return estimationOutput;
 }
