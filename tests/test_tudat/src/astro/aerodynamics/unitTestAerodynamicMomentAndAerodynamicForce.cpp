@@ -191,6 +191,22 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         bodies.at( "Legacy" )
                 ->setAerodynamicCoefficientInterface(
                         createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Legacy", bodies ) );
+
+        // Check scaled coefficients: a relative scaling multiplies the coefficients, an absolute scaling is added to them
+        const Eigen::Vector3d coefficientScaling( 2.0, 3.0, 4.0 );
+        for( const bool isScalingAbsolute : { false, true } )
+        {
+            std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > scaledCoefficients = createAerodynamicCoefficientInterface(
+                    scaledAerodynamicCoefficientSettings(
+                            aerodynamicCoefficientSettings, coefficientScaling, Eigen::Vector3d::Ones( ), isScalingAbsolute ),
+                    "Legacy",
+                    bodies );
+            scaledCoefficients->updateCurrentCoefficients( std::vector< double >( ) );
+            const Eigen::Vector3d expectedCoefficients = isScalingAbsolute
+                    ? Eigen::Vector3d( forceCoefficients + coefficientScaling )
+                    : Eigen::Vector3d( forceCoefficients.cwiseProduct( coefficientScaling ) );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scaledCoefficients->getCurrentForceCoefficients( ), expectedCoefficients, 1.0E-15 );
+        }
         bodies.at( "Legacy" )
                 ->setRotationalEphemeris( createRotationModel(
                         constantRotationModelSettings( "ECLIPJ2000", "LegacyFixed", Eigen::Matrix3d::Identity( ) ), "Legacy", bodies ) );
