@@ -90,14 +90,15 @@ public:
                                          const double panelTemperature = 273.0,
                                          const std::string& frameOrientation = "" ):
         BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal.normalized( ) ), positionVector_( positionVector ),
-        area_( area ), panelTemperature_( panelTemperature ), geometry3dLoaded_( false )
+        area_( area ), panelTemperature_( panelTemperature ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometry3dLoaded_( false )
     {}
 
     FrameFixedBodyPanelGeometrySettings( const Eigen::Vector3d& surfaceNormal,
                                          const double area,
                                          const std::string& frameOrientation = "" ):
-        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal.normalized( ) ), area_( area ),
-        geometry3dLoaded_( false )
+        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal.normalized( ) ),
+        positionVector_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), area_( area ), panelTemperature_( 273.0 ),
+        frameOrigin_( Eigen::Vector3d::Zero( ) ), geometry3dLoaded_( false )
     {}
 
     // added constructor for triangle

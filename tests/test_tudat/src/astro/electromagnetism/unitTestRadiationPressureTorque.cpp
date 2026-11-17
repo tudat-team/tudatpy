@@ -15,6 +15,7 @@
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
@@ -169,6 +170,42 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTorquePropagation )
             {
                 BOOST_CHECK_SMALL( torque( i ) - expectedTorque( i ), 1.0E-12 * expectedTorque.norm( ) );
             }
+        }
+
+        // Sensitivity of the final rotational state to the scaling factors: variational equations, using the torque partials,
+        // against central differences of propagations with perturbed scaling factors
+        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings =
+                getInitialStateParameterSettings< double, double >( propagatorSettings, bodies );
+        parameterSettings.push_back( estimatable_parameters::radiationPressureTargetDirectionScaling( "Satellite", "Sun" ) );
+        parameterSettings.push_back( estimatable_parameters::radiationPressureTargetPerpendicularDirectionScaling( "Satellite", "Sun" ) );
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > estimatedParameters =
+                createParametersToEstimate< double, double >( parameterSettings, bodies, propagatorSettings );
+        const Eigen::VectorXd nominalParameters = estimatedParameters->getFullParameterValues< double >( );
+
+        SingleArcVariationalEquationsSolver< double, double > variationalEquationsSolver( bodies, propagatorSettings, estimatedParameters );
+        const Eigen::MatrixXd finalSensitivity =
+                variationalEquationsSolver.getSingleArcVariationalPropagationResults( )->getSensitivitySolution( ).rbegin( )->second;
+
+        const double scalingPerturbation = 0.01;
+        for( unsigned int j = 0; j < 2; j++ )
+        {
+            std::vector< Eigen::VectorXd > perturbedFinalStates;
+            for( const double sign : { 1.0, -1.0 } )
+            {
+                Eigen::VectorXd perturbedParameters = nominalParameters;
+                perturbedParameters( 13 + j ) += sign * scalingPerturbation;
+                estimatedParameters->resetParameterValues( perturbedParameters );
+                SingleArcDynamicsSimulator<> perturbedSimulator( bodies, propagatorSettings );
+                perturbedFinalStates.push_back( perturbedSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second );
+            }
+            estimatedParameters->resetParameterValues( nominalParameters );
+
+            const Eigen::VectorXd numericalSensitivity =
+                    ( perturbedFinalStates.at( 0 ) - perturbedFinalStates.at( 1 ) ) / ( 2.0 * scalingPerturbation );
+            const Eigen::VectorXd rotationalSensitivity = finalSensitivity.block( 6, j, 7, 1 );
+            // With an absolute floor, as a cannonball has no force perpendicular to the source direction
+            BOOST_CHECK_SMALL( ( rotationalSensitivity - numericalSensitivity.segment( 6, 7 ) ).norm( ),
+                               1.0E-6 * numericalSensitivity.segment( 6, 7 ).norm( ) + 1.0E-15 );
         }
     }
 }

@@ -122,7 +122,9 @@ public:
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );
 
-            currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+            // Only defined for bodies with a spherical harmonic gravity field
+            currentInertiaTensorNormalizationFactor_ =
+                    ( getInertiaTensorNormalizationFactor_ != nullptr ) ? getInertiaTensorNormalizationFactor_( ) : TUDAT_NAN;
 
             currentTotalTorque_.setZero( );
             for( auto it = torqueVector_.begin( ); it != torqueVector_.end( ); it++ )

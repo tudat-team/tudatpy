@@ -15,6 +15,7 @@ set(rotational_dynamics_partials_SOURCES
   "sphericalHarmonicGravitationalTorquePartial.cpp"
   "fullTwoBodySphericalHarmonicGravitationalTorquePartial.cpp"
   "fourthDegreeFullTwoBodyGravitationalTorquePartial.cpp"
+  "radiationPressureTorquePartial.cpp"
 )
 
 # Set the header files.
@@ -27,6 +28,7 @@ set(rotational_dynamics_partials_HEADERS
   "sphericalHarmonicGravitationalTorquePartial.h"
   "fullTwoBodySphericalHarmonicGravitationalTorquePartial.h"
   "fourthDegreeFullTwoBodyGravitationalTorquePartial.h"
+  "radiationPressureTorquePartial.h"
 )
 
 

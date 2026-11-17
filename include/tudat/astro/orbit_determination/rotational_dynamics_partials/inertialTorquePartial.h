@@ -123,8 +123,11 @@ public:
             currentAngularVelocityVector_ = angularVelocityFunction_( );
             currentAngularVelocityCrossProductMatrix_ = linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ );
 
-            currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
-            currentGravitationalParameter_ = bodyGravitationalParameterFunction_( );
+            // Only defined for bodies with a (spherical harmonic) gravity field
+            currentInertiaTensorNormalizationFactor_ =
+                    ( getInertiaTensorNormalizationFactor_ != nullptr ) ? getInertiaTensorNormalizationFactor_( ) : TUDAT_NAN;
+            currentGravitationalParameter_ =
+                    ( bodyGravitationalParameterFunction_ != nullptr ) ? bodyGravitationalParameterFunction_( ) : TUDAT_NAN;
 
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );

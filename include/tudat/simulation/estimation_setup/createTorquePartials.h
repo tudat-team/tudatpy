@@ -20,6 +20,7 @@
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/secondDegreeGravitationalTorquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/radiationPressureTorquePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 
@@ -177,7 +178,15 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
             break;
         case radiation_pressure_torque:
-            throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );
+            if( std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureTorque >( torqueModel ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Torque class type does not match torque type (radiation_pressure_torque) when making torque partial" );
+            }
+            torquePartial = std::make_shared< RadiationPressureTorquePartial >(
+                    std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureTorque >( torqueModel ),
+                    acceleratedBody.first,
+                    acceleratingBody.first );
             break;
         case inertial_torque: {
             std::function< Eigen::Vector3d( ) > angularVelocityFunction =

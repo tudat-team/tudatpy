@@ -72,5 +72,5 @@ TUDAT_ADD_TEST_CASE(YarkovskyAcceleration
 
 TUDAT_ADD_TEST_CASE(RadiationPressureTorque
         PRIVATE_LINKS
-        ${Tudat_PROPAGATION_LIBRARIES}
+        ${Tudat_ESTIMATION_LIBRARIES}
         )

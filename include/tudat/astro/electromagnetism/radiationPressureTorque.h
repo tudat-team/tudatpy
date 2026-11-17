@@ -94,6 +94,16 @@ public:
         return radiationPressureAcceleration_;
     }
 
+    std::function< Eigen::Vector3d( ) > getCenterOfMassFunction( ) const
+    {
+        return centerOfMassFunction_;
+    }
+
+    std::function< Eigen::Quaterniond( ) > getTargetRotationFromLocalToGlobalFrameFunction( ) const
+    {
+        return targetRotationFromLocalToGlobalFrameFunction_;
+    }
+
     void resetAccelerationModel( const std::shared_ptr< IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration )
     {
         radiationPressureAcceleration_ = radiationPressureAcceleration;

@@ -24,6 +24,7 @@
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
 #include "tudat/simulation/estimation_setup/createTorquePartials.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
@@ -1024,6 +1025,155 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTorquePartialWrtLoveNumberAfterTimeRe
 
     BOOST_CHECK_GT( partialOfNewObject.norm( ), 0.0 );
     BOOST_CHECK_SMALL( ( partialOfReusedObject - partialOfNewObject ).norm( ) / partialOfNewObject.norm( ), 1.0E-12 );
+}
+
+//! Test radiation pressure torque partials of a cannonball and a panelled target against numerical partials, with scaled radiation
+//! pressure
+BOOST_AUTO_TEST_CASE( testRadiationPressureTorquePartials )
+{
+    const double testTime = 1000.0;
+    for( const bool usePanelledTarget : { false, true } )
+    {
+        BodyListSettings bodySettings( "SSB", "ECLIPJ2000" );
+        bodySettings.addSettings( "Sun" );
+        bodySettings.at( "Sun" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
+        bodySettings.at( "Sun" )->radiationSourceModelSettings =
+                isotropicPointRadiationSourceModelSettings( constantLuminosityModelSettings( 3.828E26 ) );
+
+        bodySettings.addSettings( "Satellite" );
+        bodySettings.at( "Satellite" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+                ( Eigen::Vector6d( ) << 1.0, 0.2, 0.1, 0.0, 0.0, 0.0 ).finished( ) * physical_constants::ASTRONOMICAL_UNIT );
+        bodySettings.at( "Satellite" )->rotationModelSettings =
+                constantRotationModelSettings( "ECLIPJ2000", "Satellite_Fixed", Eigen::Quaterniond::Identity( ) );
+        bodySettings.at( "Satellite" )->rigidBodyPropertiesSettings = constantRigidBodyPropertiesSettings(
+                100.0, Eigen::Vector3d( 0.1, 0.05, 0.5 ), Eigen::Vector3d( 10.0, 20.0, 30.0 ).asDiagonal( ) );
+        if( usePanelledTarget )
+        {
+            // Two illuminated panels with specular and diffuse reflection
+            bodySettings.at( "Satellite" )->bodyExteriorPanelSettings_ = fullPanelledBodySettings(
+                    { bodyPanelSettings( frameFixedPanelGeometry( -Eigen::Vector3d::UnitX( ), Eigen::Vector3d( 0.3, 0.2, -0.1 ), 2.0 ),
+                                         specularDiffuseBodyPanelReflectionLawSettings( 0.3, 0.2 ) ),
+                      bodyPanelSettings( frameFixedPanelGeometry(
+                                                 Eigen::Vector3d( -1.0, 1.0, 0.0 ).normalized( ), Eigen::Vector3d( -0.2, 0.4, 0.3 ), 1.0 ),
+                                         specularDiffuseBodyPanelReflectionLawSettings( 0.1, 0.5 ) ) } );
+            bodySettings.at( "Satellite" )->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettings( );
+        }
+        else
+        {
+            bodySettings.at( "Satellite" )->radiationPressureTargetModelSettings =
+                    cannonballRadiationPressureTargetModelSettings( 2.0, 1.5 );
+        }
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+        std::shared_ptr< Body > sun = bodies.at( "Sun" );
+        std::shared_ptr< Body > satellite = bodies.at( "Satellite" );
+
+        // Set states and update environment models
+        sun->setStateFromEphemeris( testTime );
+        satellite->setStateFromEphemeris( testTime );
+        Eigen::Vector7d satelliteRotationalState = Eigen::Vector7d::Zero( );
+        satelliteRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond(
+                Eigen::AngleAxisd( 0.2, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 0.3, Eigen::Vector3d::UnitX( ) ) ) );
+        satellite->setCurrentRotationalStateToLocalFrame( satelliteRotationalState );
+        satellite->getMassProperties( )->update( testTime );
+        sun->getRadiationSourceModel( )->updateMembers( testTime );
+        satellite->getRadiationPressureTargetModel( )->updateMembers( testTime );
+        if( usePanelledTarget )
+        {
+            satellite->getVehicleSystems( )->updatePartOrientations( testTime );
+        }
+
+        // Create torque, with scaled radiation pressure
+        SelectedTorqueMap torqueSettings;
+        torqueSettings[ "Satellite" ][ "Sun" ].push_back(
+                std::make_shared< TorqueSettings >( basic_astrodynamics::radiation_pressure_torque ) );
+        std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque > radiationPressureTorque =
+                std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureTorque >(
+                        createTorqueModelsMap( bodies, torqueSettings, { "Satellite" } ).at( "Satellite" ).at( "Sun" ).at( 0 ) );
+
+        std::vector< std::shared_ptr< EstimatableParameter< double > > > parameters;
+        parameters.push_back(
+                std::make_shared< RadiationPressureScalingFactor >( radiationPressureTorque->getRadiationPressureAcceleration( ),
+                                                                    source_direction_radiation_pressure_scaling_factor,
+                                                                    "Satellite",
+                                                                    "Sun" ) );
+        parameters.push_back(
+                std::make_shared< RadiationPressureScalingFactor >( radiationPressureTorque->getRadiationPressureAcceleration( ),
+                                                                    source_perpendicular_direction_radiation_pressure_scaling_factor,
+                                                                    "Satellite",
+                                                                    "Sun" ) );
+        parameters.at( 0 )->setParameterValue( 1.3 );
+        parameters.at( 1 )->setParameterValue( 0.7 );
+        if( !usePanelledTarget )
+        {
+            parameters.push_back( std::make_shared< RadiationPressureCoefficient >(
+                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                            satellite->getRadiationPressureTargetModel( ) ),
+                    "Satellite" ) );
+        }
+
+        // Calculate analytical partials
+        std::shared_ptr< TorquePartial > torquePartial = createAnalyticalTorquePartial(
+                radiationPressureTorque, std::make_pair( "Satellite", satellite ), std::make_pair( "Sun", sun ) );
+        torquePartial->update( testTime );
+
+        Eigen::MatrixXd partialWrtOrientation = Eigen::MatrixXd::Zero( 3, 4 );
+        torquePartial->wrtOrientationOfAcceleratedBody( partialWrtOrientation.block( 0, 0, 3, 4 ) );
+        Eigen::MatrixXd partialWrtSatelliteState = Eigen::MatrixXd::Zero( 3, 6 );
+        torquePartial->wrtNonRotationalStateOfAdditionalBody(
+                partialWrtSatelliteState.block( 0, 0, 3, 6 ), std::make_pair( "Satellite", "" ), propagators::translational_state );
+        Eigen::MatrixXd partialWrtSunState = Eigen::MatrixXd::Zero( 3, 6 );
+        torquePartial->wrtNonRotationalStateOfAdditionalBody(
+                partialWrtSunState.block( 0, 0, 3, 6 ), std::make_pair( "Sun", "" ), propagators::translational_state );
+
+        // Calculate numerical partials and compare
+        std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
+        Eigen::MatrixXd torqueDeviations = calculateTorqueDeviationDueToOrientationChange(
+                std::bind( &Body::setCurrentRotationalStateToLocalFrame, satellite, std::placeholders::_1 ),
+                radiationPressureTorque,
+                satellite->getRotationalStateVector( ),
+                Eigen::Vector4d::Constant( 1.0E-7 ),
+                appliedQuaternionPerturbation,
+                emptyFunction,
+                testTime );
+        for( int index = 1; index < 4; index++ )
+        {
+            Eigen::Vector3d analyticalChangeInTorque =
+                    partialWrtOrientation.block( 0, 0, 3, 1 ) * appliedQuaternionPerturbation[ index ]( 0 ) +
+                    partialWrtOrientation.block( 0, index, 3, 1 ) * appliedQuaternionPerturbation[ index ]( index );
+            // One-sided differences: the truncation error is up to about 6E-6 for this perturbation
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( torqueDeviations.block( 0, index - 1, 3, 1 ), analyticalChangeInTorque, 1.0E-5 );
+        }
+
+        const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 1.0E5 );
+        Eigen::Matrix3d testPartialWrtSatellitePosition =
+                calculateTorqueWrtTranslationalStatePartials( std::bind( &Body::setState, satellite, std::placeholders::_1 ),
+                                                              radiationPressureTorque,
+                                                              satellite->getState( ),
+                                                              positionPerturbation,
+                                                              0,
+                                                              emptyFunction,
+                                                              testTime );
+        Eigen::Matrix3d testPartialWrtSunPosition =
+                calculateTorqueWrtTranslationalStatePartials( std::bind( &Body::setState, sun, std::placeholders::_1 ),
+                                                              radiationPressureTorque,
+                                                              sun->getState( ),
+                                                              positionPerturbation,
+                                                              0,
+                                                              emptyFunction,
+                                                              testTime );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtSatelliteState.block( 0, 0, 3, 3 ), testPartialWrtSatellitePosition, 1.0E-6 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtSunState.block( 0, 0, 3, 3 ), testPartialWrtSunPosition, 1.0E-6 );
+        BOOST_CHECK_EQUAL( partialWrtSatelliteState.block( 0, 3, 3, 3 ).norm( ), 0.0 );
+
+        for( const auto& parameter : parameters )
+        {
+            Eigen::Vector3d analyticalPartial = torquePartial->wrtParameter( parameter );
+            Eigen::Vector3d numericalPartial =
+                    calculateTorqueWrtParameterPartials( parameter, radiationPressureTorque, 1.0E-3, emptyFunction, testTime );
+            // Relative to the torque, as some partials are zero (perpendicular scaling of a cannonball)
+            BOOST_CHECK_SMALL( ( analyticalPartial - numericalPartial ).norm( ), 1.0E-9 * radiationPressureTorque->getTorque( ).norm( ) );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
