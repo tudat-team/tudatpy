@@ -194,6 +194,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
     dependentVariablesToSave.push_back( std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "Vehicle" ) );
     dependentVariablesToSave.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_force_coefficients_dependent_variable, "Vehicle" ) );
+    dependentVariablesToSave.push_back(
             std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_moment_coefficients_dependent_variable, "Vehicle" ) );
 
     std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
@@ -241,6 +243,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
         BOOST_CHECK_CLOSE_FRACTION( computedDragCoefficient, currentCoefficients( 0 ), 4.0 * std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL( std::fabs( currentCoefficients( 1 ) ), std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL( std::fabs( currentCoefficients( 2 ) ), std::numeric_limits< double >::epsilon( ) );
+
+        // No moment coefficients are tabulated
+        BOOST_CHECK_EQUAL( outputIterator->second.segment( 4, 3 ).norm( ), 0.0 );
     }
 }
 

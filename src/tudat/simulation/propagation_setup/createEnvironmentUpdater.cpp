@@ -705,7 +705,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             {
                                 std::string bodyTrackedByPanel =
                                         paneledRadiationPressureTargetModel->getBodyFixedPanels( ).at( j )->getTrackedBody( );
-                                if( bodyTrackedByPanel != bodyTrackedByPanel )
+                                if( bodyTrackedByPanel != "" )
                                 {
                                     singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
                                 }
@@ -720,7 +720,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                                 for( unsigned int j = 0; j < it.second.size( ); j++ )
                                 {
                                     std::string bodyTrackedByPanel = it.second.at( j )->getTrackedBody( );
-                                    if( bodyTrackedByPanel != bodyTrackedByPanel )
+                                    if( bodyTrackedByPanel != "" )
                                     {
                                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
                                     }

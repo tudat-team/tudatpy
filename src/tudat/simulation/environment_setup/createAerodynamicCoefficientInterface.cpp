@@ -246,7 +246,7 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createUnivariat
         {
             forceInterpolator = createOneDimensionalInterpolator( tabulatedCoefficientSettings->getForceCoefficients( ),
                                                                   std::make_shared< InterpolatorSettings >( linear_interpolator ) );
-            momentInterpolator = createOneDimensionalInterpolator( tabulatedCoefficientSettings->getForceCoefficients( ),
+            momentInterpolator = createOneDimensionalInterpolator( tabulatedCoefficientSettings->getMomentCoefficients( ),
                                                                    std::make_shared< InterpolatorSettings >( linear_interpolator ) );
         }
         else
@@ -255,7 +255,7 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createUnivariat
                     tabulatedCoefficientSettings->getForceCoefficients( ),
                     std::dynamic_pointer_cast< InterpolatorSettings >( tabulatedCoefficientSettings->getInterpolatorSettings( ) ) );
             momentInterpolator = createOneDimensionalInterpolator(
-                    tabulatedCoefficientSettings->getForceCoefficients( ),
+                    tabulatedCoefficientSettings->getMomentCoefficients( ),
                     std::dynamic_pointer_cast< InterpolatorSettings >( tabulatedCoefficientSettings->getInterpolatorSettings( ) ) );
         }
 
