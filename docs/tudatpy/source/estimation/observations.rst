@@ -33,6 +33,8 @@ Functions
 
    set_tracking_supplementary_data_in_bodies
 
+   get_observed_reference_point_position_parameter_settings
+
    compute_residuals_and_dependent_variables
 
    observation_simulation_settings_from_dataset
@@ -55,6 +57,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_tracking_data
 
 .. autofunction:: tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies
+
+.. autofunction:: tudatpy.estimation.observations.get_observed_reference_point_position_parameter_settings
 
 .. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 

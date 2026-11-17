@@ -15,6 +15,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -32,6 +33,7 @@
 #include "tudat/io/trackingSupplementaryData.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/simulation/estimation_setup/trackingDataWeighting.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
@@ -445,6 +447,51 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
 
 void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bodies,
                                            const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
+
+//! Function to create position parameter settings for the reference points (e.g. landmarks) on a body that have observations.
+/*!
+ *  Gives one ground_station_position parameter per reference point, ordered by name. Reference points whose observations
+ *  were all rejected or removed get no parameter.
+ *  \param observationDataset Observations to be used in the estimation.
+ *  \param bodyName Name of the body the reference points are fixed to.
+ *  \return Position parameter settings, one per observed reference point.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getObservedReferencePointPositionParameterSettings(
+        const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
+        const std::string& bodyName )
+{
+    // Use the sets that still hold active observations, since rejecting or removing observations can leave a set unused.
+    std::set< unsigned int > observedSetIds;
+    for( const ObservationDatasetRow< TimeType >& row : observationDataset->getObservationRows( ) )
+    {
+        if( row.isActive_ )
+        {
+            observedSetIds.insert( row.setId_ );
+        }
+    }
+
+    std::set< std::string > observedReferencePoints;
+    for( const unsigned int setId : observedSetIds )
+    {
+        const unsigned int linkDefinitionId = observationDataset->getObservationSetMetadata( setId ).linkDefinitionId_;
+        for( const auto& linkEnd : observationDataset->getLinkDefinition( linkDefinitionId ).linkEnds_ )
+        {
+            if( linkEnd.second.bodyName_ == bodyName && !linkEnd.second.getReferencePointName( ).empty( ) )
+            {
+                observedReferencePoints.insert( linkEnd.second.getReferencePointName( ) );
+            }
+        }
+    }
+
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings;
+    for( const std::string& referencePointName : observedReferencePoints )
+    {
+        parameterSettings.push_back( estimatable_parameters::groundStationPosition( bodyName, referencePointName ) );
+    }
+    return parameterSettings;
+}
+
 }  // namespace observation_models
 
 }  // namespace tudat

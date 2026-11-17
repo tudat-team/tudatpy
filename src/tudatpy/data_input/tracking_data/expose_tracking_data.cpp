@@ -1132,6 +1132,15 @@ night, computed from the observatory, the epoch and the ``note2`` and ``catalog`
          Cartesian position of the reference point in the body-fixed frame [m].
 
          :type: numpy.ndarray[numpy.float64[3, 1]]
+      )doc" )
+            .def_property( "position_uncertainty",
+                           &tdat::ReferencePointSupplementaryData::getPositionUncertainty,
+                           &tdat::ReferencePointSupplementaryData::setPositionUncertainty,
+                           R"doc(
+         A-priori uncertainty of each body-fixed position component [m].
+         Entries are NaN when the source gives no value.
+
+         :type: numpy.ndarray[numpy.float64[3, 1]]
       )doc" );
 
     py::class_< tdat::TranslationalStateSupplementaryData >( m, "TranslationalStateSupplementaryData", R"doc(

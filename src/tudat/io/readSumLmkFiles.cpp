@@ -615,8 +615,21 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getSumLmkTrack
     for( const auto& landmarkEntry : landmarks )
     {
         auto landmarkData = std::make_shared< data::TrackingSupplementaryData >( targetBodyName, landmarkEntry.second.landmarkId_ );
-        landmarkData->setReferencePointSupplementaryData(
-                std::make_shared< data::ReferencePointSupplementaryData >( landmarkEntry.second.bodyFixedPosition_ ) );
+        const LmkLandmarkData& landmark = landmarkEntry.second;
+        auto referencePoint = std::make_shared< data::ReferencePointSupplementaryData >( landmark.bodyFixedPosition_ );
+
+        // SIGMA_LMK is given per body-fixed position component.
+        if( !landmark.landmarkPositionSigma_.array( ).isNaN( ).all( ) )
+        {
+            if( !landmark.landmarkPositionSigma_.allFinite( ) || ( landmark.landmarkPositionSigma_.array( ) <= 0.0 ).any( ) )
+            {
+                throw std::runtime_error( "Error when converting LMK landmark " + landmark.landmarkId_ +
+                                          ": SIGMA_LMK must contain three finite positive values, or be absent." );
+            }
+            referencePoint->setPositionUncertainty( landmark.landmarkPositionSigma_ );
+        }
+
+        landmarkData->setReferencePointSupplementaryData( referencePoint );
         supplementaryData.push_back( landmarkData );
     }
 

@@ -482,8 +482,21 @@ public:
         return bodyFixedPosition_;
     }
 
+    //! A-priori uncertainty of each body-fixed position component [m]. NaN when the source gives no value.
+    const Eigen::Vector3d& getPositionUncertainty( ) const
+    {
+        return positionUncertainty_;
+    }
+
+    void setPositionUncertainty( const Eigen::Vector3d& positionUncertainty )
+    {
+        positionUncertainty_ = positionUncertainty;
+    }
+
 private:
     Eigen::Vector3d bodyFixedPosition_;
+
+    Eigen::Vector3d positionUncertainty_ = Eigen::Vector3d::Constant( std::numeric_limits< double >::quiet_NaN( ) );
 };
 
 class TrackingSupplementaryData

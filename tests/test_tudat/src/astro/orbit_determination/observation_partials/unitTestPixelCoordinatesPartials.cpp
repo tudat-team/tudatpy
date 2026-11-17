@@ -29,6 +29,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/cameraPointingCorrection.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
@@ -297,6 +298,124 @@ BOOST_AUTO_TEST_CASE( testSumLmkProcessingRealData )
                                                       pixelCoordinatesSettings( LinkDefinition( linkEnds ) ), bodies )
                                                       ->computeObservations( epoch, receiver );
         BOOST_CHECK_SMALL( ( modelledPixel - observation.pixelCoordinates_ ).norm( ), 3.0 );
+    }
+}
+
+//! The pixel partial w.r.t. a landmark position (ground_station_position on the target body) matches central differences,
+//! and is only created for the landmark in the link ends.
+BOOST_AUTO_TEST_CASE( testLandmarkPositionPartial )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+
+    // Non-identity target orientation, so that a missing body-fixed to inertial rotation would be caught.
+    const Eigen::Quaterniond targetOrientation(
+            Eigen::AngleAxisd( 0.7, ( Eigen::Vector3d( ) << 0.3, -0.5, 0.81 ).finished( ).normalized( ) ) );
+    bodies.at( "Target" )
+            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >( targetOrientation, "J2000", "Target_Fixed" ) );
+
+    // Landmarks off the camera boresight, so that every body-fixed component moves the pixel.
+    const Eigen::Vector3d nominalLandmarkPosition = ( Eigen::Vector3d( ) << 400.0, -250.0, 100.0 ).finished( );
+    createGroundStation( bodies.at( "Target" ),
+                         "LMK0001",
+                         nominalLandmarkPosition,
+                         coordinate_conversions::cartesian_position,
+                         std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
+    createGroundStation( bodies.at( "Target" ),
+                         "LMK0002",
+                         ( Eigen::Vector3d( ) << -300.0, 150.0, -50.0 ).finished( ),
+                         coordinate_conversions::cartesian_position,
+                         std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
+
+    const std::string cameraName = "Camera_BodyFixed";
+    createCamera( bodies.at( "Spacecraft" ),
+                  cameraName,
+                  ( Eigen::Vector3d( ) << -mathematical_constants::PI / 2.0, mathematical_constants::PI / 2.0, 0.0 ).finished( ),
+                  std::make_pair( 1200.0, 900.0 ),
+                  std::make_pair( 320.0, 240.0 ),
+                  Eigen::Vector3d::Zero( ) );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Target", "LMK0001" );
+    linkEnds[ receiver ] = LinkEndId( "Spacecraft", cameraName );
+    std::shared_ptr< ObservationModel< 2, double, double > > pixelCoordinatesModel =
+            ObservationModelCreator< 2, double, double >::createObservationModel( pixelCoordinatesSettings( LinkDefinition( linkEnds ) ),
+                                                                                  bodies );
+
+    std::shared_ptr< GroundStationPosition > landmarkParameter = std::make_shared< GroundStationPosition >(
+            bodies.at( "Target" )->getGroundStation( "LMK0001" )->getNominalStationState( ), "Target", "LMK0001" );
+
+    std::shared_ptr< EstimatableParameterSet< double > > parameterSet = std::make_shared< EstimatableParameterSet< double > >(
+            std::vector< std::shared_ptr< EstimatableParameter< double > > >( ),
+            std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( { landmarkParameter } ) );
+
+    auto partialsAndScaling =
+            ObservationPartialCreator< 2, double, double >::createObservationPartials( pixelCoordinatesModel, bodies, parameterSet );
+    BOOST_REQUIRE_EQUAL( partialsAndScaling.first.size( ), 1 );
+    std::shared_ptr< ObservationPartial< 2 > > landmarkPartial = partialsAndScaling.first.begin( )->second;
+
+    const double observationTime = 0.0;
+    auto computePixelObservation = [ & ]( const Eigen::Vector3d& landmarkPosition ) {
+        landmarkParameter->setParameterValue( landmarkPosition );
+        std::vector< Eigen::Vector6d > currentStates;
+        std::vector< double > currentTimes;
+        return Eigen::Vector2d( pixelCoordinatesModel->computeObservationsWithLinkEndData(
+                observationTime, receiver, currentTimes, currentStates, nullptr ) );
+    };
+
+    auto computeAnalyticalPartial = [ & ]( const Eigen::Vector3d& landmarkPosition ) {
+        landmarkParameter->setParameterValue( landmarkPosition );
+        std::vector< Eigen::Vector6d > currentStates;
+        std::vector< double > currentTimes;
+        const Eigen::Vector2d currentObservation = pixelCoordinatesModel->computeObservationsWithLinkEndData(
+                observationTime, receiver, currentTimes, currentStates, nullptr );
+        partialsAndScaling.second->update( currentStates, currentTimes, receiver, currentObservation );
+        return Eigen::Matrix< double, 2, 3 >(
+                landmarkPartial->calculatePartial( currentStates, currentTimes, receiver, nullptr, currentObservation ).at( 0 ).first );
+    };
+
+    auto computeNumericalPartial = [ & ]( const Eigen::Vector3d& landmarkPosition ) {
+        const double perturbation = 1.0;
+        Eigen::Matrix< double, 2, 3 > numericalPartial = Eigen::Matrix< double, 2, 3 >::Zero( );
+        for( int i = 0; i < 3; ++i )
+        {
+            Eigen::Vector3d perturbationVector = Eigen::Vector3d::Zero( );
+            perturbationVector( i ) = perturbation;
+            numericalPartial.col( i ) = ( computePixelObservation( landmarkPosition + perturbationVector ) -
+                                          computePixelObservation( landmarkPosition - perturbationVector ) ) /
+                    ( 2.0 * perturbation );
+        }
+        landmarkParameter->setParameterValue( landmarkPosition );
+        return numericalPartial;
+    };
+
+    const Eigen::Vector3d displacedLandmarkPosition = nominalLandmarkPosition + ( Eigen::Vector3d( ) << 25.0, -40.0, 15.0 ).finished( );
+    for( const Eigen::Vector3d& evaluationPoint : { nominalLandmarkPosition, displacedLandmarkPosition } )
+    {
+        const Eigen::Matrix< double, 2, 3 > analyticalPartial = computeAnalyticalPartial( evaluationPoint );
+        const Eigen::Matrix< double, 2, 3 > numericalPartial = computeNumericalPartial( evaluationPoint );
+
+        // Compared per column, because the component along the line of sight is much less sensitive than the others.
+        for( int i = 0; i < 3; ++i )
+        {
+            BOOST_CHECK_SMALL( ( analyticalPartial.col( i ) - numericalPartial.col( i ) ).norm( ) / analyticalPartial.col( i ).norm( ),
+                               1.0E-6 );
+        }
+    }
+
+    landmarkParameter->setParameterValue( nominalLandmarkPosition );
+
+    // A parameter for a different landmark on the same body gives no partial for this link.
+    {
+        std::shared_ptr< GroundStationPosition > otherLandmarkParameter = std::make_shared< GroundStationPosition >(
+                bodies.at( "Target" )->getGroundStation( "LMK0002" )->getNominalStationState( ), "Target", "LMK0002" );
+        std::shared_ptr< EstimatableParameterSet< double > > otherParameterSet = std::make_shared< EstimatableParameterSet< double > >(
+                std::vector< std::shared_ptr< EstimatableParameter< double > > >( ),
+                std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( { otherLandmarkParameter } ) );
+        auto otherPartials = ObservationPartialCreator< 2, double, double >::createObservationPartials(
+                pixelCoordinatesModel, bodies, otherParameterSet );
+        BOOST_CHECK_EQUAL( otherPartials.first.size( ), 0 );
     }
 }
 

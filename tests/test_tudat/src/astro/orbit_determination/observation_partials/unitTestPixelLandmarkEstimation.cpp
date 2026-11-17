@@ -10,8 +10,8 @@
 
 // Estimation tests for the SUM/LMK pixel-landmark observable, through the OrbitDeterminationManager: recovery of per-image camera
 // pointing corrections with the trajectory fixed, and of the spacecraft initial state together with the pointing corrections
-// (without and with the SIGMA_PTG a-priori), on synthetic data; and state and joint state/pointing estimation on real Rosetta
-// SUM/LMK data of comet 67P.
+// (without and with the SIGMA_PTG a-priori), on synthetic data; state and joint state/pointing estimation on real Rosetta
+// SUM/LMK data of comet 67P; and landmark position estimation, on synthetic and real data.
 
 #define BOOST_TEST_MAIN
 
@@ -30,6 +30,7 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
+#include "tudat/astro/ephemerides/multiArcEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
@@ -128,7 +129,9 @@ std::string makeUtcString( const int secondsOffsetFromBase )
 
 //! Body-fixed landmark positions on the target [m], spread within a small radius so the full set
 //! stays in the field of view across the synthetic orbit arc while still spanning three dimensions.
-std::map< std::string, input_output::sum_lmk::LmkLandmarkData > makeOrbitLandmarks( )
+//! A finite landmarkSigma sets SIGMA_LMK on every landmark.
+std::map< std::string, input_output::sum_lmk::LmkLandmarkData > makeOrbitLandmarks(
+        const double landmarkSigma = std::numeric_limits< double >::quiet_NaN( ) )
 {
     const std::map< std::string, Eigen::Vector3d > positions = { { "LMK01", ( Eigen::Vector3d( ) << 700.0, 200.0, 150.0 ).finished( ) },
                                                                  { "LMK02", ( Eigen::Vector3d( ) << -600.0, 300.0, -100.0 ).finished( ) },
@@ -142,6 +145,7 @@ std::map< std::string, input_output::sum_lmk::LmkLandmarkData > makeOrbitLandmar
         input_output::sum_lmk::LmkLandmarkData landmark;
         landmark.landmarkId_ = entry.first;
         landmark.bodyFixedPosition_ = entry.second;
+        landmark.landmarkPositionSigma_ = Eigen::Vector3d::Constant( landmarkSigma );
         landmarks[ entry.first ] = landmark;
     }
     return landmarks;
@@ -415,6 +419,139 @@ RealRosettaScenario buildRealRosettaScenario( )
     return scenario;
 }
 
+//! Observation-only scenario for landmark estimation: the spacecraft follows a known Keplerian arc (tabulated, not
+//! propagated) while the target rotates. The changing viewing geometry makes all three landmark coordinates observable.
+struct LandmarkObservationScenario {
+    SystemOfBodies bodies_;
+    std::map< std::string, input_output::sum_lmk::LmkLandmarkData > landmarks_;
+    LoadedPixelTestData conversionResult_;
+    std::vector< std::string > imageIds_;
+    std::vector< double > epochs_;
+};
+
+LandmarkObservationScenario buildLandmarkObservationScenario( const int numberOfImages,
+                                                              const double landmarkSigma = std::numeric_limits< double >::quiet_NaN( ) )
+{
+    const int epochSpacingSeconds = 500;
+    LandmarkObservationScenario scenario;
+
+    SystemOfBodies bodies( "SSB", "J2000" );
+    bodies.createEmptyBody< double, double >( "Target", false );
+    bodies.createEmptyBody< double, double >( "Spacecraft", false );
+    bodies.at( "Target" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "J2000" ) );
+    bodies.at( "Target" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >( targetGravitationalParameter ) );
+    bodies.at( "Target" )
+            ->setRotationalEphemeris( std::make_shared< SimpleRotationalEphemeris >(
+                    0.3, 1.1, 0.2, 2.0 * mathematical_constants::PI / 12000.0, 0.0, "J2000", "Target_Fixed" ) );
+    bodies.at( "Spacecraft" )
+            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >(
+                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Spacecraft_Fixed" ) );
+
+    Eigen::Vector6d keplerianElements = Eigen::Vector6d::Zero( );
+    keplerianElements( semiMajorAxisIndex ) = 1.0E4;
+    keplerianElements( eccentricityIndex ) = 0.05;
+    keplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 30.0 );
+    keplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 40.0 );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 25.0 );
+    keplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 10.0 );
+
+    // Image epochs first: the Keplerian arc is defined relative to the first of them.
+    for( int imageIndex = 0; imageIndex < numberOfImages; ++imageIndex )
+    {
+        input_output::sum_lmk::SumImageData epochOnlyImage;
+        epochOnlyImage.utcEpochString_ = makeUtcString( imageIndex * epochSpacingSeconds );
+        scenario.epochs_.push_back( sumImageTdbTimeForTest( epochOnlyImage ) );
+    }
+
+    // The same tabulated ephemeris is used to simulate and to estimate, so interpolation errors cancel.
+    const double sampleStep = 5.0;
+    const double firstEpoch = scenario.epochs_.front( );
+    const double lastEpoch = scenario.epochs_.back( );
+    std::map< double, Eigen::Vector6d > spacecraftStates;
+    for( double epoch = firstEpoch - 100.0; epoch <= lastEpoch + 100.0 + 0.5 * sampleStep; epoch += sampleStep )
+    {
+        const Eigen::Vector6d keplerianAtEpoch =
+                propagateKeplerOrbit< double >( keplerianElements, epoch - firstEpoch, targetGravitationalParameter );
+        spacecraftStates[ epoch ] = convertKeplerianToCartesianElements( keplerianAtEpoch, targetGravitationalParameter );
+    }
+    bodies.at( "Spacecraft" )
+            ->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
+                    std::make_shared< interpolators::CubicSplineInterpolator< double, Eigen::Vector6d > >( spacecraftStates ),
+                    "SSB",
+                    "J2000" ) );
+    bodies.processBodyFrameDefinitions< double, double >( );
+
+    scenario.landmarks_ = makeOrbitLandmarks( landmarkSigma );
+    std::vector< std::string > landmarkIds;
+    for( const auto& entry : scenario.landmarks_ )
+    {
+        landmarkIds.push_back( entry.first );
+    }
+
+    std::vector< input_output::sum_lmk::SumImageData > images;
+    for( int imageIndex = 0; imageIndex < numberOfImages; ++imageIndex )
+    {
+        const double epoch = scenario.epochs_.at( imageIndex );
+
+        input_output::sum_lmk::SumImageData image;
+        image.imageId_ = "LIMG" + std::to_string( imageIndex );
+        image.utcEpochString_ = makeUtcString( imageIndex * epochSpacingSeconds );
+        image.imageSize_ = Eigen::Vector2i( 1024, 1024 );
+        image.focalLengthMm_ = 100.0;
+        image.opticalCenter_ = Eigen::Vector2d( 512.0, 512.0 );
+        image.kMatrix_ << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
+
+        const Eigen::Vector3d inertialPosition =
+                bodies.at( "Spacecraft" )->getStateInBaseFrameFromEphemeris< double, double >( epoch ).head( 3 );
+        const Eigen::Vector3d spacecraftBodyFixedPosition =
+                bodies.at( "Target" )->getRotationalEphemeris( )->getRotationToTargetFrame( epoch ).toRotationMatrix( ) * inertialPosition;
+        image.spacecraftObjectVector_ = -spacecraftBodyFixedPosition;
+        image.cameraAxes_ = boresightCameraAxes( spacecraftBodyFixedPosition );
+
+        for( const std::string& landmarkId : landmarkIds )
+        {
+            input_output::sum_lmk::SumLandmarkObservation observation;
+            observation.landmarkId_ = landmarkId;
+            observation.pixelCoordinates_ = Eigen::Vector2d::Zero( );  // overwritten by simulation
+            image.landmarkObservations_.push_back( observation );
+        }
+        images.push_back( image );
+        scenario.imageIds_.push_back( image.imageId_ );
+    }
+
+    scenario.conversionResult_ = loadPixelTestData( images, scenario.landmarks_, bodies );
+    scenario.bodies_ = bodies;
+    return scenario;
+}
+
+//! Position parameter settings for all observed landmarks on the target.
+std::vector< std::shared_ptr< EstimatableParameterSettings > > landmarkParameterSettings( const LoadedPixelTestData& loaded,
+                                                                                          const std::string& targetBody = "Target" )
+{
+    return getObservedReferencePointPositionParameterSettings< double, double >(
+            createObservationDataset< double, double >( loaded.observationCollection_ ), targetBody );
+}
+
+//! Inverse a-priori covariance from SIGMA_LMK, for the landmarks in the parameter set.
+Eigen::MatrixXd landmarkInverseAprioriCovariance( const LoadedPixelTestData& loaded,
+                                                  const std::shared_ptr< EstimatableParameterSet< double > >& parameters )
+{
+    return createCovarianceFromDiagonalEntries(
+            parameters, getReferencePointPositionInverseAprioriCovarianceEntries( loaded.supplementaryData_ ), false );
+}
+
+//! Start index of a landmark's position in the parameter vector.
+int landmarkStartIndex( const std::shared_ptr< EstimatableParameterSet< double > >& parameters,
+                        const std::string& landmarkId,
+                        const std::string& targetBody = "Target" )
+{
+    return parameters
+            ->getIndicesForParameterType(
+                    EstimatebleParameterIdentifier( ground_station_position, std::make_pair( targetBody, landmarkId ) ) )
+            .at( 0 )
+            .first;
+}
+
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE( test_pixel_landmark_estimation )
@@ -650,6 +787,350 @@ BOOST_AUTO_TEST_CASE( testRealRosettaEstimation )
     BOOST_CHECK_LT( largestCorrection, 5.0E-3 );
     BOOST_CHECK_LT( ( stateOnlyOutput->parameterEstimate_.segment( 0, 3 ) - aprioriPosition ).norm( ), 5.0E3 );
     BOOST_CHECK_LT( ( jointOutput->parameterEstimate_.segment( 0, 3 ) - aprioriPosition ).norm( ), 5.0E3 );
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+//! Landmark positions are estimated through the ground_station_position parameter. This parameter is not arc-wise, so
+//! each landmark is one parameter shared by all arcs that observe it.
+BOOST_AUTO_TEST_SUITE( test_pixel_landmark_position_estimation )
+
+//! Recover perturbed landmark positions from ideal observations, with the trajectory held fixed.
+BOOST_AUTO_TEST_CASE( testLandmarkPositionRecovery )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    LandmarkObservationScenario scenario = buildLandmarkObservationScenario( 12 );
+    const std::shared_ptr< EstimatableParameterSet< double > > parameters =
+            createParametersToEstimate< double, double >( landmarkParameterSettings( scenario.conversionResult_ ), scenario.bodies_ );
+    BOOST_REQUIRE_EQUAL( parameters->getEstimatedParameterSetSize( ), static_cast< int >( 3 * scenario.landmarks_.size( ) ) );
+
+    const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            scenario.bodies_, parameters, scenario.conversionResult_.observationModelSettings_, nullPropagatorSettings );
+    const Eigen::VectorXd truthParameters = parameters->getFullParameterValues< double >( );
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
+            simulatePixelObservations( scenario.conversionResult_, orbitDeterminationManager, scenario.bodies_ );
+
+    Eigen::VectorXd perturbedParameters = truthParameters;
+    for( int i = 0; i < perturbedParameters.size( ); ++i )
+    {
+        perturbedParameters( i ) += 5.0 * std::sin( 0.9 * i + 0.4 );
+    }
+    parameters->resetParameterValues( perturbedParameters );
+
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+    estimationInput->defineEstimationSettings( true, true, true, false, true, false );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 10 ) );
+    const std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+
+    BOOST_CHECK_SMALL( ( estimationOutput->parameterEstimate_ - truthParameters ).cwiseAbs( ).maxCoeff( ), 1.0E-5 );
+}
+
+//! Only landmarks that still have observations get a parameter, also after filtering leaves an empty observation set.
+BOOST_AUTO_TEST_CASE( testObservedLandmarkParameterSettings )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // makeLandmarks defines L1 to L4, and only L1 and L2 are observed.
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( -10000.0 );
+    input_output::sum_lmk::SumImageData earlyImage = makeSyntheticSumImage( "IMGEARLY", { "L1" }, -10000.0 );
+    input_output::sum_lmk::SumImageData lateImage = makeSyntheticSumImage( "IMGLATE", { "L2" }, -10000.0 );
+    lateImage.utcEpochString_ = "2015 JUN 05 08:24:42.053";
+    const LoadedPixelTestData loaded = loadPixelTestData( { earlyImage, lateImage }, makeLandmarks( ), bodies );
+    const std::shared_ptr< ObservationDataset< double, double > > dataset =
+            createObservationDataset< double, double >( loaded.observationCollection_ );
+    BOOST_CHECK_EQUAL( getObservedReferencePointPositionParameterSettings( dataset, "Target" ).size( ), 2 );
+
+    // Reject the observations of L2. They stay in the dataset, but are no longer used.
+    const double earlyTime = sumImageTdbTimeForTest( earlyImage );
+    dataset->rejectObservations( !ObservationSelectionCondition< double, double >::timeBounds( earlyTime - 1.0, earlyTime + 1.0 ) );
+
+    const std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettings =
+            getObservedReferencePointPositionParameterSettings( dataset, "Target" );
+    BOOST_REQUIRE_EQUAL( parameterSettings.size( ), 1 );
+    BOOST_CHECK_EQUAL( parameterSettings.at( 0 )->parameterType_.first, ground_station_position );
+    BOOST_CHECK_EQUAL( parameterSettings.at( 0 )->parameterType_.second.first, "Target" );
+    BOOST_CHECK_EQUAL( parameterSettings.at( 0 )->parameterType_.second.second, "L1" );
+}
+
+//! SIGMA_LMK gives the landmark a-priori covariance, and the consider covariance when landmarks are held fixed. The
+//! consider contribution to the covariance must match the standard consider formula.
+BOOST_AUTO_TEST_CASE( testLandmarkAprioriAndConsiderCovariance )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double landmarkSigma = 0.5;
+    LandmarkObservationScenario scenario = buildLandmarkObservationScenario( 6, landmarkSigma );
+    const int numberOfLandmarkParameters = 3 * static_cast< int >( scenario.landmarks_.size( ) );
+    const Eigen::MatrixXd identity = Eigen::MatrixXd::Identity( numberOfLandmarkParameters, numberOfLandmarkParameters );
+
+    // Landmarks estimated: the inverse a-priori covariance is 1 / sigma^2 on the diagonal.
+    const std::shared_ptr< EstimatableParameterSet< double > > estimatedLandmarks =
+            createParametersToEstimate< double, double >( landmarkParameterSettings( scenario.conversionResult_ ), scenario.bodies_ );
+    BOOST_CHECK_SMALL( ( landmarkInverseAprioriCovariance( scenario.conversionResult_, estimatedLandmarks ) -
+                         identity / ( landmarkSigma * landmarkSigma ) )
+                               .norm( ),
+                       1.0E-10 );
+
+    // Pointing estimated and landmarks held fixed: the consider covariance is sigma^2 on the diagonal.
+    const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
+    const std::shared_ptr< EstimatableParameterSet< double > > parameters =
+            createParametersToEstimate< double, double >( pointingSettingsForTest( scenario.conversionResult_ ),
+                                                          scenario.bodies_,
+                                                          nullPropagatorSettings,
+                                                          landmarkParameterSettings( scenario.conversionResult_ ) );
+    const Eigen::MatrixXd considerCovariance =
+            createReferencePointConsiderCovariance( scenario.conversionResult_.supplementaryData_, parameters );
+    BOOST_REQUIRE_EQUAL( considerCovariance.rows( ), numberOfLandmarkParameters );
+    BOOST_CHECK_SMALL( ( considerCovariance - landmarkSigma * landmarkSigma * identity ).norm( ), 1.0E-12 );
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            scenario.bodies_, parameters, scenario.conversionResult_.observationModelSettings_, nullPropagatorSettings );
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
+            simulatePixelObservations( scenario.conversionResult_, orbitDeterminationManager, scenario.bodies_ );
+    const std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
+            std::make_shared< CovarianceAnalysisInput< double, double > >(
+                    simulatedObservations, Eigen::MatrixXd::Zero( 0, 0 ), considerCovariance );
+    covarianceInput->defineCovarianceSettings( true, true, true, false );
+    const std::shared_ptr< CovarianceAnalysisOutput< double, double > > covarianceOutput =
+            orbitDeterminationManager.computeCovariance( covarianceInput );
+
+    // Consider formula with unit weights: P H^T Hc C Hc^T H P, with P the covariance without the landmark uncertainty.
+    const Eigen::MatrixXd designMatrix = covarianceOutput->getUnnormalizedDesignMatrix( );
+    const Eigen::MatrixXd considerDesignMatrix = covarianceOutput->getUnnormalizedDesignMatrixConsiderParameters( );
+    const Eigen::MatrixXd covariance = covarianceOutput->getUnnormalizedCovarianceMatrix( );
+    const Eigen::MatrixXd sensitivity = covariance * designMatrix.transpose( ) * considerDesignMatrix;
+    const Eigen::MatrixXd expectedContribution = sensitivity * considerCovariance * sensitivity.transpose( );
+    const Eigen::MatrixXd actualContribution = covarianceOutput->getUnnormalizedCovarianceWithConsiderParameters( ) - covariance;
+    BOOST_REQUIRE_GT( expectedContribution.norm( ), 0.0 );
+    BOOST_CHECK_SMALL( ( actualContribution - expectedContribution ).norm( ) / expectedContribution.norm( ), 1.0E-8 );
+}
+
+//! A landmark seen in two arcs is one parameter, informed by the observations of both arcs. The arc states and the
+//! landmark positions are recovered together.
+BOOST_AUTO_TEST_CASE( testLandmarkAcrossMultipleArcs )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const int numberOfImagesPerArc = 6;
+    const int epochSpacingSeconds = 250;
+    const int arcGapSeconds = 3000;
+
+    SystemOfBodies bodies( "SSB", "J2000" );
+    bodies.createEmptyBody< double, double >( "Target", false );
+    bodies.createEmptyBody< double, double >( "Spacecraft", false );
+    bodies.at( "Target" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "J2000" ) );
+    bodies.at( "Target" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >( targetGravitationalParameter ) );
+    bodies.at( "Target" )
+            ->setRotationalEphemeris( std::make_shared< SimpleRotationalEphemeris >(
+                    0.3, 1.1, 0.2, 2.0 * mathematical_constants::PI / 12000.0, 0.0, "J2000", "Target_Fixed" ) );
+    bodies.at( "Spacecraft" )
+            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >(
+                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Spacecraft_Fixed" ) );
+    bodies.at( "Spacecraft" )
+            ->setEphemeris(
+                    std::make_shared< MultiArcEphemeris >( std::map< double, std::shared_ptr< Ephemeris > >( ), "Target", "J2000" ) );
+    bodies.processBodyFrameDefinitions< double, double >( );
+
+    Eigen::Vector6d keplerianElements = Eigen::Vector6d::Zero( );
+    keplerianElements( semiMajorAxisIndex ) = 1.0E4;
+    keplerianElements( eccentricityIndex ) = 0.05;
+    keplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 30.0 );
+    keplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 40.0 );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 25.0 );
+    keplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 10.0 );
+    auto stateAtTime = [ & ]( const double timeSinceStart ) {
+        return convertKeplerianToCartesianElements(
+                propagateKeplerOrbit< double >( keplerianElements, timeSinceStart, targetGravitationalParameter ),
+                targetGravitationalParameter );
+    };
+
+    const std::map< std::string, input_output::sum_lmk::LmkLandmarkData > landmarks = makeOrbitLandmarks( );
+
+    // Two groups of images on one continuous orbit, separated by a gap.
+    std::vector< input_output::sum_lmk::SumImageData > images;
+    std::vector< double > epochs;
+    for( int arcIndex = 0; arcIndex < 2; ++arcIndex )
+    {
+        for( int imageIndex = 0; imageIndex < numberOfImagesPerArc; ++imageIndex )
+        {
+            input_output::sum_lmk::SumImageData image;
+            image.imageId_ = "MARC" + std::to_string( arcIndex ) + "IMG" + std::to_string( imageIndex );
+            image.utcEpochString_ = makeUtcString( arcIndex * arcGapSeconds + imageIndex * epochSpacingSeconds );
+            image.imageSize_ = Eigen::Vector2i( 1024, 1024 );
+            image.focalLengthMm_ = 100.0;
+            image.opticalCenter_ = Eigen::Vector2d( 512.0, 512.0 );
+            image.kMatrix_ << 10.0, 0.0, 0.0, 0.0, 10.0, 0.0;
+
+            const double epoch = sumImageTdbTimeForTest( image );
+            epochs.push_back( epoch );
+            const Eigen::Vector3d spacecraftBodyFixedPosition =
+                    bodies.at( "Target" )->getRotationalEphemeris( )->getRotationToTargetFrame( epoch ).toRotationMatrix( ) *
+                    stateAtTime( epoch - epochs.front( ) ).head( 3 );
+            image.spacecraftObjectVector_ = -spacecraftBodyFixedPosition;
+            image.cameraAxes_ = boresightCameraAxes( spacecraftBodyFixedPosition );
+            for( const auto& landmark : landmarks )
+            {
+                input_output::sum_lmk::SumLandmarkObservation observation;
+                observation.landmarkId_ = landmark.first;
+                image.landmarkObservations_.push_back( observation );
+            }
+            images.push_back( image );
+        }
+    }
+    LoadedPixelTestData loaded = loadPixelTestData( images, landmarks, bodies );
+
+    SelectedAccelerationMap accelerationSettingsMap;
+    accelerationSettingsMap[ "Spacecraft" ][ "Target" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    const std::vector< std::string > bodiesToIntegrate = { "Spacecraft" };
+    const std::vector< std::string > centralBodies = { "Target" };
+    const AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationSettingsMap, bodiesToIntegrate, centralBodies );
+
+    std::vector< double > arcStartTimes;
+    Eigen::VectorXd arcInitialStates = Eigen::VectorXd::Zero( 12 );
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double, double > > > arcPropagatorSettingsList;
+    for( int arcIndex = 0; arcIndex < 2; ++arcIndex )
+    {
+        const double arcFirstEpoch = epochs.at( arcIndex * numberOfImagesPerArc );
+        const double arcLastEpoch = epochs.at( ( arcIndex + 1 ) * numberOfImagesPerArc - 1 );
+        arcStartTimes.push_back( arcFirstEpoch - 10.0 );
+        arcInitialStates.segment( 6 * arcIndex, 6 ) = stateAtTime( arcFirstEpoch - epochs.front( ) );
+        arcPropagatorSettingsList.push_back( translationalStatePropagatorSettings< double, double >(
+                centralBodies,
+                accelerationModelMap,
+                bodiesToIntegrate,
+                arcInitialStates.segment( 6 * arcIndex, 6 ),
+                arcFirstEpoch - 10.0,
+                rungeKuttaFixedStepSettings< double >( 10.0, CoefficientSets::rungeKuttaFehlberg78 ),
+                propagationTimeTerminationSettings( arcLastEpoch + 100.0 ) ) );
+    }
+    const std::shared_ptr< MultiArcPropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< double, double > >( arcPropagatorSettingsList );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = landmarkParameterSettings( loaded );
+    parameterNames.insert( parameterNames.begin( ),
+                           std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
+                                   "Spacecraft", arcInitialStates, arcStartTimes, "Target" ) );
+    const std::shared_ptr< EstimatableParameterSet< double > > parameters =
+            createParametersToEstimate< double, double >( parameterNames, bodies, propagatorSettings );
+
+    // Two arc states, plus one position per landmark (not one per arc).
+    BOOST_REQUIRE_EQUAL( parameters->getEstimatedParameterSetSize( ), static_cast< int >( 12 + 3 * landmarks.size( ) ) );
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies, parameters, loaded.observationModelSettings_, propagatorSettings );
+    const Eigen::VectorXd truthParameters = parameters->getFullParameterValues< double >( );
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
+            createObservationDataset< double, double >( simulatePixelObservations( loaded, orbitDeterminationManager, bodies ) );
+
+    Eigen::VectorXd perturbedParameters = truthParameters;
+    for( int arcIndex = 0; arcIndex < 2; ++arcIndex )
+    {
+        perturbedParameters.segment( 6 * arcIndex, 3 ) += Eigen::Vector3d::Constant( 5.0 );
+        perturbedParameters.segment( 6 * arcIndex + 3, 3 ) += Eigen::Vector3d::Constant( 0.005 );
+    }
+    for( const auto& landmark : landmarks )
+    {
+        perturbedParameters.segment( landmarkStartIndex( parameters, landmark.first ), 3 ) +=
+                ( Eigen::Vector3d( ) << 2.0, -3.0, 1.5 ).finished( );
+    }
+    parameters->resetParameterValues( perturbedParameters );
+
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+    estimationInput->defineEstimationSettings( true, true, true, true, true, false );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 12 ) );
+    const std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+
+    // Each landmark's partials are non-zero for observations in both arcs.
+    const Eigen::MatrixXd designMatrix = estimationOutput->getUnnormalizedDesignMatrix( );
+    std::vector< double > observationTimes;
+    for( const auto& component : simulatedObservations->getScalarComponents( ObservationSelectionCondition< double, double >::all( ),
+                                                                             ObservationOrdering::estimation ) )
+    {
+        observationTimes.push_back( simulatedObservations->getObservationRow( component.first ).time_ );
+    }
+    const double arcBoundaryTime = 0.5 * ( epochs.at( numberOfImagesPerArc - 1 ) + epochs.at( numberOfImagesPerArc ) );
+    for( const auto& landmark : landmarks )
+    {
+        const int startIndex = landmarkStartIndex( parameters, landmark.first );
+        Eigen::Vector2d partialNormPerArc = Eigen::Vector2d::Zero( );
+        for( int row = 0; row < designMatrix.rows( ); ++row )
+        {
+            partialNormPerArc( observationTimes.at( row ) < arcBoundaryTime ? 0 : 1 ) +=
+                    designMatrix.block( row, startIndex, 1, 3 ).norm( );
+        }
+        BOOST_CHECK_GT( partialNormPerArc.minCoeff( ), 0.0 );
+    }
+
+    const Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
+    BOOST_CHECK_SMALL( estimationError.segment( 0, 3 ).norm( ), 1.0E-3 );
+    BOOST_CHECK_SMALL( estimationError.segment( 6, 3 ).norm( ), 1.0E-3 );
+    for( const auto& landmark : landmarks )
+    {
+        BOOST_CHECK_SMALL( estimationError.segment( landmarkStartIndex( parameters, landmark.first ), 3 ).norm( ), 1.0E-3 );
+    }
+}
+
+//! Joint state and landmark estimation on the real Rosetta/67P arc. The SIGMA_LMK a-priori must keep the landmarks much
+//! closer to their LMK positions than a solve without it.
+BOOST_AUTO_TEST_CASE( testRealRosettaLandmarkEstimation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    RealRosettaScenario scenario = buildRealRosettaScenario( );
+    const std::vector< std::shared_ptr< EstimatableParameterSettings > > landmarkSettings =
+            landmarkParameterSettings( scenario.conversionResult_, "Comet" );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = landmarkSettings;
+    parameterNames.insert( parameterNames.begin( ),
+                           std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                                   "Spacecraft", scenario.initialStateGuess_, "Comet" ) );
+    const std::shared_ptr< EstimatableParameterSet< double > > parameters =
+            createParametersToEstimate< double, double >( parameterNames, scenario.bodies_, scenario.propagatorSettings_ );
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            scenario.bodies_, parameters, scenario.conversionResult_.observationModelSettings_, scenario.propagatorSettings_ );
+    const Eigen::VectorXd aprioriParameters = parameters->getFullParameterValues< double >( );
+    std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
+    scenario.conversionResult_.observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
+
+    // Solve with or without the SIGMA_LMK a-priori, and return the median landmark displacement from the LMK position.
+    auto medianLandmarkDisplacement = [ & ]( const bool useApriori, double& finalResidualRms ) {
+        parameters->resetParameterValues( aprioriParameters );
+        const Eigen::MatrixXd inverseApriori =
+                useApriori ? landmarkInverseAprioriCovariance( scenario.conversionResult_, parameters ) : Eigen::MatrixXd::Zero( 0, 0 );
+        const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+                std::make_shared< EstimationInput< double, double > >( scenario.conversionResult_.observationCollection_, inverseApriori );
+        estimationInput->defineEstimationSettings( true, true, true, false, true, false );
+        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 6 ) );
+        const std::shared_ptr< EstimationOutput< double > > output = orbitDeterminationManager.estimateParameters( estimationInput );
+        finalResidualRms = residualRms( output->residuals_ );
+
+        std::vector< double > displacements;
+        for( const std::shared_ptr< EstimatableParameterSettings >& settings : landmarkSettings )
+        {
+            const int startIndex = landmarkStartIndex( parameters, settings->parameterType_.second.second, "Comet" );
+            displacements.push_back(
+                    ( output->parameterEstimate_.segment( startIndex, 3 ) - aprioriParameters.segment( startIndex, 3 ) ).norm( ) );
+        }
+        std::sort( displacements.begin( ), displacements.end( ) );
+        return displacements.at( displacements.size( ) / 2 );
+    };
+
+    double constrainedRms, unconstrainedRms;
+    const double constrainedDisplacement = medianLandmarkDisplacement( true, constrainedRms );
+    const double unconstrainedDisplacement = medianLandmarkDisplacement( false, unconstrainedRms );
+    BOOST_TEST_MESSAGE( "Median landmark displacement: " << constrainedDisplacement << " m with a-priori, " << unconstrainedDisplacement
+                                                         << " m without. Pixel RMS with a-priori: " << constrainedRms );
+
+    // Measured: about 1 m with the a-priori and about 54 m without it, at a final pixel RMS of about 1.1 px.
+    BOOST_CHECK_LT( constrainedRms, 2.0 );
+    BOOST_CHECK_LT( constrainedDisplacement, 5.0 );
+    BOOST_CHECK_GT( unconstrainedDisplacement, 10.0 * constrainedDisplacement );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
