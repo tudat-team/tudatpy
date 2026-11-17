@@ -432,7 +432,7 @@ public:
             const bool applyFinalParameterCorrection = true,
             const bool applyAprioriParameterDeviation = false,
             const bool resetParametersToBestIteration = false,
-            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr ):
+            const std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > outlierRejectionSettings = nullptr ):
         EstimationInput( std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( ),
                          inverseOfAprioriCovariance,
                          convergenceChecker,
@@ -520,13 +520,14 @@ public:
     }
 
     //! Function to return the settings for the outlier rejection during the estimation (null if no outlier rejection is used)
-    std::shared_ptr< OutlierRejectionSettings > getOutlierRejectionSettings( )
+    std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > getOutlierRejectionSettings( )
     {
         return outlierRejectionSettings_;
     }
 
     //! Function to set the settings for the outlier rejection during the estimation (null to use no outlier rejection)
-    void setOutlierRejectionSettings( const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings )
+    void setOutlierRejectionSettings(
+            const std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > outlierRejectionSettings )
     {
         if( outlierRejectionSettings != nullptr && this->observationCollection_ != nullptr )
         {
@@ -572,7 +573,7 @@ public:
     bool applyFinalParameterCorrection_;
 
     //! Settings defining the outlier rejection algorithm used during the estimation; null if no outlier rejection is used
-    std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings_;
+    std::shared_ptr< OutlierRejectionSettings< ObservationScalarType, TimeType > > outlierRejectionSettings_;
 
     //! Whether to use the total parameter deviation for the iterative a priori constraint.
     bool applyAprioriParameterDeviation_;
