@@ -122,6 +122,11 @@ public:
         return currentUnscaledAcceleration_;
     }
 
+    std::string getSourceName( ) const
+    {
+        return sourceName_;
+    }
+
 protected:
     RadiationPressureAcceleration( const std::function< Eigen::Vector3d( ) >& sourcePositionFunction,
                                    const std::shared_ptr< RadiationPressureTargetModel >& targetModel,

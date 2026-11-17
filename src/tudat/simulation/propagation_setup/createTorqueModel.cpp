@@ -276,7 +276,7 @@ std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque >
     std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration =
             std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >(
                     createRadiationPressureAccelerationModel(
-                            bodyExertingTorque, bodyUndergoingTorque, nameOfBodyExertingTorque, nameOfBodyUndergoingTorque, bodies ) );
+                            bodyUndergoingTorque, bodyExertingTorque, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque, bodies ) );
 
     if( radiationPressureAcceleration == nullptr )
     {
@@ -296,8 +296,10 @@ std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque >
         centerOfMassFunction = std::bind( &RigidBodyProperties::getCurrentCenterOfMass, massProperties );
     }
 
-    return std::make_shared< electromagnetism::IsotropicPointSourceRadiationPressureTorque >( radiationPressureAcceleration,
-                                                                                              centerOfMassFunction );
+    return std::make_shared< electromagnetism::IsotropicPointSourceRadiationPressureTorque >(
+            radiationPressureAcceleration, centerOfMassFunction, [ bodyUndergoingTorque ]( ) {
+                return bodyUndergoingTorque->getCurrentRotationToGlobalFrame( );
+            } );
 }
 
 std::shared_ptr< basic_astrodynamics::CustomTorqueModel > createCustomTorqueModel( const std::shared_ptr< TorqueSettings > torqueSettings,

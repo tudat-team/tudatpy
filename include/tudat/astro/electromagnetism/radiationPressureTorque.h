@@ -34,8 +34,10 @@ class IsotropicPointSourceRadiationPressureTorque : public basic_astrodynamics::
 public:
     IsotropicPointSourceRadiationPressureTorque(
             const std::shared_ptr< IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration,
-            const std::function< Eigen::Vector3d( ) > centerOfMassFunction ):
-        radiationPressureAcceleration_( radiationPressureAcceleration ), centerOfMassFunction_( centerOfMassFunction )
+            const std::function< Eigen::Vector3d( ) > centerOfMassFunction,
+            const std::function< Eigen::Quaterniond( ) > targetRotationFromLocalToGlobalFrameFunction ):
+        radiationPressureAcceleration_( radiationPressureAcceleration ), centerOfMassFunction_( centerOfMassFunction ),
+        targetRotationFromLocalToGlobalFrameFunction_( targetRotationFromLocalToGlobalFrameFunction )
     {
         radiationPressureAcceleration_->getTargetModel( )->enableTorqueComputation( centerOfMassFunction );
     }
@@ -50,12 +52,24 @@ public:
     void updateMembers( double currentTime ) override
     {
         radiationPressureAcceleration_->updateMembers( currentTime );
-        currentTorque_ = radiationPressureAcceleration_->getTargetModel( )->getCurrentRadiationPressureTorque( );
-        if( !radiationPressureAcceleration_->getTargetModel( )->forceFunctionRequiresLocalFrameInputs( ) )
+        const std::shared_ptr< RadiationPressureTargetModel > targetModel = radiationPressureAcceleration_->getTargetModel( );
+        const std::string sourceName = radiationPressureAcceleration_->getSourceName( );
+        if( targetModel->forceFunctionRequiresLocalFrameInputs( ) )
         {
-            currentTorque_ =
-                    radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction( )( ).inverse( ) * currentTorque_;
+            // Target computes its torque in the body-fixed frame
+            currentTorque_ = targetModel->getCurrentRadiationPressureTorque( sourceName );
         }
+        else
+        {
+            // Target computes its force in the global frame, acting at the body-fixed origin
+            currentTorque_ = -centerOfMassFunction_( ).cross( targetRotationFromLocalToGlobalFrameFunction_( ).inverse( ) *
+                                                              targetModel->getCurrentRadiationPressureForce( sourceName ) );
+        }
+    }
+
+    std::shared_ptr< IsotropicPointSourceRadiationPressureAcceleration > getRadiationPressureAcceleration( ) const
+    {
+        return radiationPressureAcceleration_;
     }
 
     void resetAccelerationModel( const std::shared_ptr< IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration )
@@ -78,6 +92,8 @@ protected:
     std::shared_ptr< IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration_;
 
     const std::function< Eigen::Vector3d( ) > centerOfMassFunction_;
+
+    const std::function< Eigen::Quaterniond( ) > targetRotationFromLocalToGlobalFrameFunction_;
 
     Eigen::Vector3d currentTorque_;
 };

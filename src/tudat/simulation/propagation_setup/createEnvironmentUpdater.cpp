@@ -16,6 +16,7 @@
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/electromagnetism/radiationPressureTorque.h"
 #include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
@@ -303,6 +304,89 @@ void addEphemerisOriginsOfUpdatedStates(
     }
 }
 
+//! Add the environment updates needed to compute a radiation pressure acceleration (also used for the radiation pressure torque).
+void addRadiationPressureEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& updateNeeds,
+        const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
+        const std::string& sourceName,
+        const std::string& targetName )
+{
+    updateNeeds[ body_mass_update ].push_back( targetName );
+    updateNeeds[ radiation_source_model_update ].push_back( sourceName );
+
+    // Update original source in case of paneled source
+    auto paneledRadiationSourceModel =
+            std::dynamic_pointer_cast< electromagnetism::PaneledRadiationSourceModel >( radiationPressureAcceleration->getSourceModel( ) );
+    if( paneledRadiationSourceModel != nullptr )
+    {
+        // Only paneled source, not point source needs rotational state and has original source
+        updateNeeds[ body_rotational_state_update ].push_back( sourceName );
+
+        for( const auto& originalSourceName :
+             paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater( )->getOriginalSourceBodyNames( ) )
+        {
+            updateNeeds[ radiation_source_model_update ].push_back( originalSourceName );
+            updateNeeds[ body_translational_state_update ].push_back( originalSourceName );
+            // No original source rotational state update necessary because only isotropic point sources
+            // are supported, which are rotation-invariant
+        }
+
+        for( const auto& bodyName :
+             paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater( )->getOriginalSourceToSourceOccultingBodyNames( ) )
+        {
+            updateNeeds[ body_translational_state_update ].push_back( bodyName );
+        }
+    }
+
+    // Update target rotation in case of paneled target
+    auto paneledRadiationPressureTargetModel = std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+            radiationPressureAcceleration->getTargetModel( ) );
+    if( paneledRadiationPressureTargetModel != nullptr )
+    {
+        updateNeeds[ panelled_radiation_pressure_target_model_update ].push_back( targetName );
+
+        // Only paneled target, not cannonball target needs rotational state
+        updateNeeds[ body_rotational_state_update ].push_back( targetName );
+
+        // Positions of bodies tracked by panel normal need to be updated
+        for( unsigned int j = 0; j < paneledRadiationPressureTargetModel->getBodyFixedPanels( ).size( ); j++ )
+        {
+            std::string bodyTrackedByPanel = paneledRadiationPressureTargetModel->getBodyFixedPanels( ).at( j )->getTrackedBody( );
+            if( bodyTrackedByPanel != bodyTrackedByPanel )
+            {
+                updateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
+            }
+        }
+
+        if( paneledRadiationPressureTargetModel->getTotalNumberOfPanels( ) > 0 )
+        {
+            updateNeeds[ body_segment_orientation_update ].push_back( targetName );
+        }
+        for( auto it : paneledRadiationPressureTargetModel->getSegmentFixedPanels( ) )
+        {
+            for( unsigned int j = 0; j < it.second.size( ); j++ )
+            {
+                std::string bodyTrackedByPanel = it.second.at( j )->getTrackedBody( );
+                if( bodyTrackedByPanel != bodyTrackedByPanel )
+                {
+                    updateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
+                }
+            }
+        }
+    }
+    else
+    {
+        updateNeeds[ cannonball_radiation_pressure_target_model_update ].push_back( targetName );
+    }
+
+    // Update occulting body positions
+    auto sourceToTargetOccultingBodyNames = radiationPressureAcceleration->getSourceToTargetOccultationModel( )->getOccultingBodyNames( );
+    for( auto bodyName : sourceToTargetOccultingBodyNames )
+    {
+        updateNeeds[ body_translational_state_update ].push_back( bodyName );
+    }
+}
+
 //! Get list of required environment model update settings from torque models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
         const basic_astrodynamics::TorqueModelMap& torqueModels,
@@ -365,9 +449,20 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                         singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( torqueModelIterator->first );
                         singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( acceleratedBodyIterator->first );
                         break;
-                    case radiation_pressure_torque:
-                        throw std::runtime_error( "Error, environment updates for radiation pressure torque not yet implemented" );
+                    case radiation_pressure_torque: {
+                        const auto radiationPressureTorque =
+                                std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureTorque >(
+                                        torqueModelIterator->second.at( i ) );
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( acceleratedBodyIterator->first );
+                        addRadiationPressureEnvironmentUpdates( singleTorqueUpdateNeeds,
+                                                                radiationPressureTorque->getRadiationPressureAcceleration( ),
+                                                                torqueModelIterator->first,
+                                                                acceleratedBodyIterator->first );
                         break;
+                    }
                     case aerodynamic_torque:
                         singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( torqueModelIterator->first );
                         singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
@@ -657,90 +752,12 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         break;
                     }
                     case radiation_pressure: {
-                        const auto sourceName = accelerationModelIterator->first;
-                        const auto targetName = acceleratedBodyIterator->first;
-
-                        singleAccelerationUpdateNeeds[ body_mass_update ].push_back( targetName );
-                        singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back( sourceName );
-
-                        auto radiationPressureAcceleration = std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >(
-                                accelerationModelIterator->second.at( i ) );
-
-                        // Update original source in case of paneled source
-                        auto paneledRadiationSourceModel = std::dynamic_pointer_cast< electromagnetism::PaneledRadiationSourceModel >(
-                                radiationPressureAcceleration->getSourceModel( ) );
-                        if( paneledRadiationSourceModel != nullptr )
-                        {
-                            // Only paneled source, not point source needs rotational state and has original source
-                            singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( sourceName );
-
-                            for( const auto& originalSourceName :
-                                 paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater( )->getOriginalSourceBodyNames( ) )
-                            {
-                                singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back( originalSourceName );
-                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( originalSourceName );
-                                // No original source rotational state update necessary because only isotropic point sources
-                                // are supported, which are rotation-invariant
-                            }
-
-                            for( const auto& bodyName : paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater( )
-                                                                ->getOriginalSourceToSourceOccultingBodyNames( ) )
-                            {
-                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
-                            }
-                        }
-
-                        // Update target rotation in case of paneled target
-                        auto paneledRadiationPressureTargetModel =
-                                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                                        radiationPressureAcceleration->getTargetModel( ) );
-                        if( paneledRadiationPressureTargetModel != nullptr )
-                        {
-                            singleAccelerationUpdateNeeds[ panelled_radiation_pressure_target_model_update ].push_back( targetName );
-
-                            // Only paneled target, not cannonball target needs rotational state
-                            singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( targetName );
-
-                            // Positions of bodies tracked by panel normal need to be updated
-                            for( unsigned int j = 0; j < paneledRadiationPressureTargetModel->getBodyFixedPanels( ).size( ); j++ )
-                            {
-                                std::string bodyTrackedByPanel =
-                                        paneledRadiationPressureTargetModel->getBodyFixedPanels( ).at( j )->getTrackedBody( );
-                                if( bodyTrackedByPanel != bodyTrackedByPanel )
-                                {
-                                    singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
-                                }
-                            }
-
-                            if( paneledRadiationPressureTargetModel->getTotalNumberOfPanels( ) > 0 )
-                            {
-                                singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( targetName );
-                            }
-                            for( auto it : paneledRadiationPressureTargetModel->getSegmentFixedPanels( ) )
-                            {
-                                for( unsigned int j = 0; j < it.second.size( ); j++ )
-                                {
-                                    std::string bodyTrackedByPanel = it.second.at( j )->getTrackedBody( );
-                                    if( bodyTrackedByPanel != bodyTrackedByPanel )
-                                    {
-                                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            singleAccelerationUpdateNeeds[ cannonball_radiation_pressure_target_model_update ].push_back( targetName );
-                        }
-
-                        // Update occulting body positions
-                        auto sourceToTargetOccultingBodyNames =
-                                radiationPressureAcceleration->getSourceToTargetOccultationModel( )->getOccultingBodyNames( );
-                        for( auto bodyName : sourceToTargetOccultingBodyNames )
-                        {
-                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
-                        }
-
+                        addRadiationPressureEnvironmentUpdates(
+                                singleAccelerationUpdateNeeds,
+                                std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >(
+                                        accelerationModelIterator->second.at( i ) ),
+                                accelerationModelIterator->first,
+                                acceleratedBodyIterator->first );
                         break;
                     }
                     case spherical_harmonic_gravity:

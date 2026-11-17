@@ -418,7 +418,7 @@ inline std::shared_ptr< RadiationPressureTargetModelSettings > paneledRadiationP
         const std::vector< std::string >& sourceToTargetOccultingBodies = {} )
 {
     const std::map< std::string, std::vector< std::string > > occultingBodiesMap{ { "", sourceToTargetOccultingBodies } };
-    return std::make_shared< RadiationPressureTargetModelSettings >( paneled_target, occultingBodiesMap );
+    return std::make_shared< PaneledRadiationPressureTargetModelSettings >( occultingBodiesMap );
 }
 
 RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel );
