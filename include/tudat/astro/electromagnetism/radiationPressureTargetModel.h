@@ -358,6 +358,12 @@ public:
         return allPanels_;
     }
 
+    //! Function to retrieve the panel centroids w.r.t. the center of mass, in the body-fixed frame, as used in the last torque computation
+    const std::vector< Eigen::Vector3d >& getPanelCentroidMomentArms( ) const
+    {
+        return panelCentroidMomentArms_;
+    }
+
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override;
 
     std::vector< double > getIlluminatedPanelFractions( const std::string& sourceName )

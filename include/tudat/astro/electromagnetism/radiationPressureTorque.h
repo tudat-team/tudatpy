@@ -54,16 +54,38 @@ public:
         radiationPressureAcceleration_->updateMembers( currentTime );
         const std::shared_ptr< RadiationPressureTargetModel > targetModel = radiationPressureAcceleration_->getTargetModel( );
         const std::string sourceName = radiationPressureAcceleration_->getSourceName( );
-        if( targetModel->forceFunctionRequiresLocalFrameInputs( ) )
+
+        // Scaling of the force components along and perpendicular to the source-target direction, as for the acceleration
+        const double sourceDirectionScaling = radiationPressureAcceleration_->getSourceDirectionScaling( );
+        const double perpendicularScaling = radiationPressureAcceleration_->getPerpendicularSourceDirectionScaling( );
+        const Eigen::Quaterniond rotationToGlobalFrame = targetRotationFromLocalToGlobalFrameFunction_( );
+        const Eigen::Vector3d sourceToTargetDirection =
+                radiationPressureAcceleration_->getTargetCenterPositionInSourceFrame( ).normalized( );
+
+        std::shared_ptr< PaneledRadiationPressureTargetModel > paneledTargetModel =
+                std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( targetModel );
+        if( paneledTargetModel != nullptr )
         {
-            // Target computes its torque in the body-fixed frame
-            currentTorque_ = targetModel->getCurrentRadiationPressureTorque( sourceName );
+            // Target computes its torque in the body-fixed frame, per panel: each panel force is scaled at its own centroid
+            const Eigen::Vector3d localSourceToTargetDirection = rotationToGlobalFrame.inverse( ) * sourceToTargetDirection;
+            const std::vector< Eigen::Vector3d >& panelForces = paneledTargetModel->getPanelForces( sourceName );
+            const std::vector< Eigen::Vector3d >& momentArms = paneledTargetModel->getPanelCentroidMomentArms( );
+            Eigen::Vector3d sourceDirectionForceMoment = Eigen::Vector3d::Zero( );
+            for( unsigned int i = 0; i < panelForces.size( ); i++ )
+            {
+                sourceDirectionForceMoment += panelForces.at( i ).dot( localSourceToTargetDirection ) * momentArms.at( i );
+            }
+            currentTorque_ = perpendicularScaling * targetModel->getCurrentRadiationPressureTorque( sourceName ) +
+                    ( sourceDirectionScaling - perpendicularScaling ) * sourceDirectionForceMoment.cross( localSourceToTargetDirection );
         }
         else
         {
             // Target computes its force in the global frame, acting at the body-fixed origin
-            currentTorque_ = -centerOfMassFunction_( ).cross( targetRotationFromLocalToGlobalFrameFunction_( ).inverse( ) *
-                                                              targetModel->getCurrentRadiationPressureForce( sourceName ) );
+            const Eigen::Vector3d force = targetModel->getCurrentRadiationPressureForce( sourceName );
+            const Eigen::Vector3d sourceDirectionForce = force.dot( sourceToTargetDirection ) * sourceToTargetDirection;
+            const Eigen::Vector3d scaledForce =
+                    perpendicularScaling * ( force - sourceDirectionForce ) + sourceDirectionScaling * sourceDirectionForce;
+            currentTorque_ = -centerOfMassFunction_( ).cross( rotationToGlobalFrame.inverse( ) * scaledForce );
         }
     }
 

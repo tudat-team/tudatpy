@@ -2866,6 +2866,34 @@ basic_astrodynamics::AccelerationMap getAccelerationMapFromPropagatorSettings(
     return accelerationMap;
 }
 
+//! Function to retrieve the torque models from single-arc (rotational or multi-type) propagator settings
+template< typename StateScalarType = double, typename TimeType = double >
+basic_astrodynamics::TorqueModelMap getTorqueMapFromPropagatorSettings(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings )
+{
+    basic_astrodynamics::TorqueModelMap torqueMap;
+    if( auto rotationalPropagatorSettings =
+                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( singleArcPropagatorSettings ) )
+    {
+        torqueMap = rotationalPropagatorSettings->getTorqueModelsMap( );
+    }
+    else if( auto multiTypePropagatorSettings =
+                     std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( singleArcPropagatorSettings ) )
+    {
+        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
+        {
+            for( const auto& rotationalSettings : multiTypePropagatorSettings->propagatorSettingsMap_.at( rotational_state ) )
+            {
+                for( const auto& [ bodyName, torquesOnBody ] : getTorqueMapFromPropagatorSettings( rotationalSettings ) )
+                {
+                    torqueMap[ bodyName ].insert( torquesOnBody.begin( ), torquesOnBody.end( ) );
+                }
+            }
+        }
+    }
+    return torqueMap;
+}
+
 //! Function to retrieve the list of integrated state types and reference ids
 /*!
  * Function to retrieve the list of integrated state types and reference ids. For translational and rotational dynamics,

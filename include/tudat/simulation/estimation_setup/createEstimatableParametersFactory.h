@@ -33,6 +33,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/astro/electromagnetism/radiationPressureTorque.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/threeCoefficientRadiationPressureCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
@@ -636,6 +637,50 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     utilities::removeDuplicates( accelerationModelList );
 
     return accelerationModelList;
+}
+
+//! Function to retrieve the radiation pressure accelerations used by the radiation pressure torques on a target due to a source
+template< typename StateScalarType, typename TimeType >
+std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > > getRadiationPressureTorqueAccelerations(
+        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::string& targetName,
+        const std::string& sourceName )
+{
+    std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > > > singleArcSettingsList;
+    if( auto singleArcSettings =
+                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) )
+    {
+        singleArcSettingsList.push_back( singleArcSettings );
+    }
+    else if( auto multiArcSettings = std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >(
+                     propagatorSettings ) )
+    {
+        singleArcSettingsList = multiArcSettings->getSingleArcSettings( );
+    }
+    else if( auto hybridArcSettings = std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >(
+                     propagatorSettings ) )
+    {
+        singleArcSettingsList = hybridArcSettings->getMultiArcPropagatorSettings( )->getSingleArcSettings( );
+        singleArcSettingsList.push_back( hybridArcSettings->getSingleArcPropagatorSettings( ) );
+    }
+
+    std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > > radiationPressureAccelerations;
+    for( const auto& singleArcSettings : singleArcSettingsList )
+    {
+        basic_astrodynamics::TorqueModelMap torqueModels = propagators::getTorqueMapFromPropagatorSettings( singleArcSettings );
+        if( torqueModels.count( targetName ) > 0 && torqueModels.at( targetName ).count( sourceName ) > 0 )
+        {
+            for( const auto& torqueModel : torqueModels.at( targetName ).at( sourceName ) )
+            {
+                if( auto radiationPressureTorque =
+                            std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureTorque >( torqueModel ) )
+                {
+                    radiationPressureAccelerations.push_back( radiationPressureTorque->getRadiationPressureAcceleration( ) );
+                }
+            }
+        }
+    }
+    return radiationPressureAccelerations;
 }
 
 template< typename InitialStateParameterType = double, typename TimeType = double >
@@ -1874,6 +1919,15 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 {
                     throw std::runtime_error(
                             "Error, no RadiationPressureAcceleration objects found when making radiation pressure scaling parameter" );
+                }
+
+                // Scale the radiation pressure torques due to the same source consistently
+                for( const auto& torqueAcceleration : getRadiationPressureTorqueAccelerations< InitialStateParameterType, TimeType >(
+                             propagatorSettings,
+                             doubleParameterName->parameterType_.second.first,
+                             doubleParameterName->parameterType_.second.second ) )
+                {
+                    associatedRadiationPressureAccelerationModels.push_back( torqueAcceleration );
                 }
 
                 doubleParameterToEstimate =

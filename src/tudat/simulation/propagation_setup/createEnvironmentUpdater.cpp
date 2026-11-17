@@ -352,7 +352,7 @@ void addRadiationPressureEnvironmentUpdates(
         for( unsigned int j = 0; j < paneledRadiationPressureTargetModel->getBodyFixedPanels( ).size( ); j++ )
         {
             std::string bodyTrackedByPanel = paneledRadiationPressureTargetModel->getBodyFixedPanels( ).at( j )->getTrackedBody( );
-            if( bodyTrackedByPanel != bodyTrackedByPanel )
+            if( bodyTrackedByPanel != "" )
             {
                 updateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
             }
@@ -367,7 +367,7 @@ void addRadiationPressureEnvironmentUpdates(
             for( unsigned int j = 0; j < it.second.size( ); j++ )
             {
                 std::string bodyTrackedByPanel = it.second.at( j )->getTrackedBody( );
-                if( bodyTrackedByPanel != bodyTrackedByPanel )
+                if( bodyTrackedByPanel != "" )
                 {
                     updateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
                 }
