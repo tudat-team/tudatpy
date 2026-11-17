@@ -706,8 +706,8 @@ BOOST_AUTO_TEST_CASE( test_RejectionThreshold )
     }
 }
 
-//! Check that in each iteration no more than 20% of the observations in the fit are newly rejected, and that the worst
-//! outliers are the ones that are rejected.
+//! Check that in each iteration no more than 20% of the observations in the fit (but at least one) are newly rejected, and
+//! that the worst outliers are the ones that are rejected.
 BOOST_AUTO_TEST_CASE( test_MaximumRejectionsPerIteration )
 {
     const unsigned int numberOfObservations = 10;
@@ -757,12 +757,12 @@ BOOST_AUTO_TEST_CASE( test_MaximumRejectionsPerIteration )
     }
 
     {
-        // Only four observations are in the fit, so no observation may be newly rejected. The observations that were
-        // already rejected are left alone.
+        // Only four observations are in the fit. 20% of four rounds down to zero, but at least one observation may always be
+        // newly rejected: the worst of the two that meet the criterion. The observations that were already rejected are left alone.
         outlierRejection.setRejectionStatus( { false, false, false, false, true, true, true, true, true, true } );
         std::vector< bool > newRejectionStatus = { true, true, false, false, true, true, true, true, true, true };
         outlierRejection.applyMaximumRejectionsPerIteration( newRejectionStatus, chiSquaredPerObservation );
-        checkRejectedObservationIds( newRejectionStatus, { 4, 5, 6, 7, 8, 9 } );
+        checkRejectedObservationIds( newRejectionStatus, { 1, 4, 5, 6, 7, 8, 9 } );
     }
 
     {
@@ -776,8 +776,8 @@ BOOST_AUTO_TEST_CASE( test_MaximumRejectionsPerIteration )
     }
 }
 
-//! Check that the adaptive rejection threshold and the limit on new rejections are computed per threshold group, and that
-//! observations that match no condition are left alone.
+//! Check that the adaptive rejection threshold and the limit on new rejections are computed per threshold group (except for
+//! the fudge term, which uses all observations in the fit), and that observations that match no condition are left alone.
 BOOST_AUTO_TEST_CASE( test_CarpinoThresholdGroups )
 {
     // Observations 0 to 9 are from station A, 10 to 14 from station B, and 15 and 16 from station C. Only stations A and
@@ -801,8 +801,9 @@ BOOST_AUTO_TEST_CASE( test_CarpinoThresholdGroups )
                                    expectedGroupIndices.end( ) );
 
     {
-        // The large chi-squared of observation 3 raises the threshold of group A only. Observation 11 is out of the fit, so
-        // group B has four observations left, which sets its fudge term. The chi-squared of station C does not count.
+        // The large chi-squared of observation 3 raises the threshold of group A only. The chi-squared of station C does not
+        // count. Observation 11 is out of the fit, so 16 observations are left in the fit in total (including those of station C),
+        // which sets the fudge term of both groups.
         outlierRejection.setRejectionStatus(
                 { false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false } );
         std::vector< double > chiSquaredPerObservation( 17, 1.0 );
@@ -813,7 +814,7 @@ BOOST_AUTO_TEST_CASE( test_CarpinoThresholdGroups )
         const std::vector< double > rejectionThresholds = outlierRejection.getRejectionThresholdPerGroup( chiSquaredPerObservation );
         BOOST_REQUIRE_EQUAL( rejectionThresholds.size( ), 2 );
         BOOST_CHECK_CLOSE_FRACTION( rejectionThresholds.at( 0 ), 0.25 * 1000.0, 1.0E-12 );
-        BOOST_CHECK_CLOSE_FRACTION( rejectionThresholds.at( 1 ), rejectionThresholdB + carpinoFudgeTerm( 4 ), 1.0E-12 );
+        BOOST_CHECK_CLOSE_FRACTION( rejectionThresholds.at( 1 ), rejectionThresholdB + carpinoFudgeTerm( 16 ), 1.0E-12 );
     }
 
     {

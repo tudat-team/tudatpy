@@ -98,10 +98,11 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  for instance, the thresholds for range observations can be based on a :math:`\chi^2` distribution with one degree of
  freedom , and those for angular position observations on one with two degrees of freedom.
 
- Each condition defines a group of observations. The adaptive rejection threshold (using :math:`N` and
- :math:`\chi^2_{\max}`) and the limit of 20% new rejections per iteration are applied per group, using only the
- observations of that group. Note that a group with fewer than 5 observations in the fit can therefore not have any
- observations rejected.
+ Each condition defines a group of observations. The term with :math:`\chi^2_{\max}` in the adaptive rejection threshold
+ and the limit of 20% new rejections per iteration are applied per group, using only the observations of that group.
+ Since at least one observation may always be rejected per iteration, small groups can also have outliers rejected. The term
+ with :math:`N`, which accounts for how well the solution is determined, uses the number of all observations in the fit,
+ including those of other groups and those that match no condition.
 
  The conditions are evaluated once for each observation, when the estimation starts:
 
@@ -166,8 +167,8 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  least-squares inversion or not.
 
  When the :math:`\chi^2` value of an observation exceeds the rejection threshold, the observation is marked as an outlier
- and excluded from the next iteration. Only 20% of the available observations may be rejected per iteration for stability: when the newly
- rejected fraction is larger, only the worst 20% is rejected. The rejection threshold used by the algorithm is increased when the largest
+ and excluded from the next iteration. Only 20% of the available observations (rounded down, but at least one) may be rejected per iteration
+ for stability: when more observations exceed the threshold, only the worst ones are rejected. The rejection threshold used by the algorithm is increased when the largest
  :math:`\chi^2` value of the observations that are not rejected is large, or when few of these observations remain:
  it is :math:`\max(\chi^2_{\text{rej}} + 400\cdot 1.2^{-N}, \chi^2_{\max}/4)`, with :math:`\chi^2_{\text{rej}}` the
  rejection threshold from the settings, :math:`N` the number of observations that are not rejected, and

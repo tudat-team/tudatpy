@@ -433,13 +433,16 @@ protected:
         this->isRejected_ = newRejectionStatus;
     }
 
-    //! No more than 20% of the number of available observations (within a group) may be rejected per iteration
+    //! No more than 20% of the number of available observations (within a group) may be rejected per iteration, although at least
+    //! one observation per group may always be rejected
     static constexpr double maximumRejectedFractionPerIteration = 0.2;
 
     //! Limit the number of observations that are newly rejected in this iteration, per threshold group.
     /*!
      * At most maximumRejectedFractionPerIteration of the observations of a threshold group that are in the fit at the start of this
-     * iteration may be newly rejected. If more observations of that group meet the rejection criterion, only those with the largest
+     * iteration may be newly rejected, rounded down, but with a minimum of one, so that an outlier can also be rejected from a group
+     * with fewer than 1 / maximumRejectedFractionPerIteration observations. If more observations of that group meet the rejection
+     * criterion, only those with the largest
      * chi-squared values are rejected, and the others stay in the fit. Observations that were already rejected, observations that are
      * recovered, and observations that are not managed by the algorithm, are not touched and do not count towards the limit.
      *
@@ -471,8 +474,10 @@ protected:
         for( unsigned int groupIndex = 0; groupIndex < this->numberOfThresholdGroups_; groupIndex++ )
         {
             std::vector< unsigned int >& newlyRejectedInGroup = newlyRejectedObservationIndices.at( groupIndex );
-            const std::size_t allowedNumberOfNewRejections = static_cast< std::size_t >( std::floor(
-                    maximumRejectedFractionPerIteration * static_cast< double >( numberOfAcceptedObservations.at( groupIndex ) ) ) );
+            const std::size_t allowedNumberOfNewRejections = std::max(
+                    static_cast< std::size_t >( 1 ),
+                    static_cast< std::size_t >( std::floor( maximumRejectedFractionPerIteration *
+                                                            static_cast< double >( numberOfAcceptedObservations.at( groupIndex ) ) ) ) );
 
             if( newlyRejectedInGroup.size( ) <= allowedNumberOfNewRejections )
             {
@@ -506,29 +511,36 @@ protected:
     /*!
      * Carpino et al. (2003), Section 2.4: the threshold of a group is the maximum of a quarter of the largest chi-squared value of the
      * accepted observations in that group, and the rejection threshold from the settings plus a fudge term that increases when few
-     * accepted observations are left in that group.
+     * observations are left in the fit. The fudge term reflects how well the solution is determined, so it uses the number of all
+     * observations in the fit, including those of other groups and those that match no condition.
      */
     std::vector< double > getRejectionThresholdPerGroup( const std::vector< double >& chiSquaredPerObservation ) const
     {
-        // Maximum chi-squared and number of accepted observations, per group
+        // Maximum chi-squared of the accepted observations per group, and number of observations in the fit (in all groups, and
+        // including observations that match no condition)
         std::vector< double > chiSquaredMax( this->numberOfThresholdGroups_, 0.0 );
-        std::vector< int > numberOfAcceptedObservations( this->numberOfThresholdGroups_, 0 );
+        int numberOfObservationsInFit = 0;
         for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
-            if( !this->isManaged( observationIndex ) || this->isRejected_.at( observationIndex ) )
+            if( this->isRejected_.at( observationIndex ) )
             {
                 continue;
             }
-            const int groupIndex = this->thresholdGroupIndex_.at( observationIndex );
-            chiSquaredMax.at( groupIndex ) = std::max( chiSquaredMax.at( groupIndex ), chiSquaredPerObservation.at( observationIndex ) );
-            numberOfAcceptedObservations.at( groupIndex )++;
+            numberOfObservationsInFit++;
+            if( this->isManaged( observationIndex ) )
+            {
+                const int groupIndex = this->thresholdGroupIndex_.at( observationIndex );
+                chiSquaredMax.at( groupIndex ) =
+                        std::max( chiSquaredMax.at( groupIndex ), chiSquaredPerObservation.at( observationIndex ) );
+            }
         }
+
+        // Increases rejection threshold when small number of observations are left in the fit
+        const double fudgeTerm = 400 * std::pow( 1.2, -numberOfObservationsInFit );
 
         std::vector< double > rejectionThresholdPerGroup( this->numberOfThresholdGroups_ );
         for( unsigned int groupIndex = 0; groupIndex < this->numberOfThresholdGroups_; groupIndex++ )
         {
-            // Increases rejection threshold when small number of observations are left
-            const double fudgeTerm = 400 * std::pow( 1.2, -numberOfAcceptedObservations.at( groupIndex ) );
             rejectionThresholdPerGroup.at( groupIndex ) =
                     std::max( 0.25 * chiSquaredMax.at( groupIndex ),
                               this->outlierRejectionSettings_->getThresholds( groupIndex ).second + fudgeTerm );
