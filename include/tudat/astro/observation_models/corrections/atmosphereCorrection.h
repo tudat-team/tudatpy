@@ -41,6 +41,7 @@
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/basic_astro/ionosphereModel.h"
+#include "tudat/interface/sofa/sofaTimeConversions.h"
 
 namespace tudat
 {
@@ -736,13 +737,17 @@ public:
         // Override default values for dry and wet zenith corrections
         // TRK-2-23 (2008), section 3.2.2
         // Capture only this to stay C++17-compatible
+        // The tabulated corrections are referenced to UTC: input TDB time is converted, approximating TDB as TT (as for
+        // the tabulated ionospheric correction)
         dryZenithRangeCorrectionFunction_ = [ this ]( double time ) {
-            return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
-                    dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
+            const double utcTime = sofa_interface::convertTTtoUTC( time );
+            return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( utcTime ) +
+                    dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( utcTime );
         };
         wetZenithRangeCorrectionFunction_ = [ this ]( double time ) {
-            return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( time ) +
-                    wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
+            const double utcTime = sofa_interface::convertTTtoUTC( time );
+            return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( utcTime ) +
+                    wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( utcTime );
         };
     }
 

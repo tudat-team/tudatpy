@@ -1100,17 +1100,18 @@ BOOST_AUTO_TEST_CASE( testSeasonalPlusAdjustmentTroposphericCorrections )
     auto tabulatedCorrection = std::dynamic_pointer_cast< MappedTroposphericCorrection >( correctionBase );
     BOOST_REQUIRE( tabulatedCorrection != nullptr );
 
-    // Within adjustment window: correction object must equal seasonal + adjustment computed directly
+    // Within adjustment window: correction object (input in TDB) must equal seasonal + adjustment computed directly (input in UTC)
     double tInWindow = 544795200.0;
+    double tInWindowUtc = sofa_interface::convertTTtoUTC( tInWindow );
     BOOST_CHECK_CLOSE_FRACTION(
             tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( tInWindow ),
-            seasonalManager->computeMediaCorrection( tInWindow ) + adjustmentManager->computeMediaCorrection( tInWindow ),
+            seasonalManager->computeMediaCorrection( tInWindowUtc ) + adjustmentManager->computeMediaCorrection( tInWindowUtc ),
             1e-15 );
 
     // Outside adjustment window: adjustment contributes 0, only seasonal active
     double tOutside = 0.0;
     BOOST_CHECK_CLOSE_FRACTION( tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( tOutside ),
-                                seasonalManager->computeMediaCorrection( tOutside ),
+                                seasonalManager->computeMediaCorrection( sofa_interface::convertTTtoUTC( tOutside ) ),
                                 1e-15 );
 }
 
