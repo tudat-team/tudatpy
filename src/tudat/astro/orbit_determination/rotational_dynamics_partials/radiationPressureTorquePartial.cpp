@@ -23,16 +23,23 @@ RadiationPressureTorquePartial::RadiationPressureTorquePartial(
         const std::string& acceleratingBody ):
     TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::radiation_pressure_torque ), torqueModel_( torqueModel ),
     targetModel_( torqueModel->getRadiationPressureAcceleration( )->getTargetModel( ) ),
-    paneledTargetModel_( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( targetModel_ ) )
+    paneledTargetModel_( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( targetModel_ ) ),
+    cannonballTargetModel_( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel_ ) )
 {
     if( paneledTargetModel_ != nullptr )
     {
+        const std::string sourceName = torqueModel->getRadiationPressureAcceleration( )->getSourceName( );
+        const auto selfShadowingPerSource = paneledTargetModel_->getSelfShadowingPerSources( );
+        useIlluminatedFractions_ =
+                selfShadowingPerSource.count( sourceName ) > 0 && selfShadowingPerSource.at( sourceName )->getMaximumNumberOfPixels( ) > 0;
         for( const auto& panel : paneledTargetModel_->getAllPanels( ) )
         {
-            if( panel->getTrackedBody( ) != "" )
+            if( panel->getTrackedBody( ) != "" && panel->getTrackedBody( ) != sourceName )
             {
-                throw std::runtime_error( "Error, radiation pressure torque partial not supported for panels tracking a body, found on " +
-                                          acceleratedBody );
+                throw std::runtime_error(
+                        "Error, radiation pressure torque partial not supported for panels tracking a body other than the source, found "
+                        "on " +
+                        acceleratedBody );
             }
         }
     }
@@ -53,6 +60,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureTor
             case source_direction_radiation_pressure_scaling_factor:
                 if( parameter->getParameterName( ).second.second == bodyExertingTorque_ )
                 {
+                    computeSourceDirectionTorque_ = true;
                     partialFunction = std::make_pair(
                             std::bind( &RadiationPressureTorquePartial::wrtSourceDirectionScaling, this, std::placeholders::_1 ), 1 );
                 }
@@ -60,6 +68,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureTor
             case source_perpendicular_direction_radiation_pressure_scaling_factor:
                 if( parameter->getParameterName( ).second.second == bodyExertingTorque_ )
                 {
+                    computeSourceDirectionTorque_ = true;
                     partialFunction = std::make_pair(
                             std::bind(
                                     &RadiationPressureTorquePartial::wrtPerpendicularSourceDirectionScaling, this, std::placeholders::_1 ),
@@ -67,7 +76,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureTor
                 }
                 break;
             case radiation_pressure_coefficient:
-                if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel_ ) != nullptr )
+                if( cannonballTargetModel_ != nullptr )
                 {
                     partialFunction = std::make_pair(
                             std::bind( &RadiationPressureTorquePartial::wrtRadiationPressureCoefficient, this, std::placeholders::_1 ), 1 );
@@ -77,7 +86,12 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureTor
             case diffuse_reflectivity:
                 if( paneledTargetModel_ != nullptr )
                 {
-                    throw std::runtime_error( "Error, partial of radiation pressure torque w.r.t. panel reflectivity not yet supported" );
+                    partialFunction = std::make_pair( std::bind( &RadiationPressureTorquePartial::wrtReflectivity,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 parameter->getParameterName( ).second.second,
+                                                                 parameter->getParameterName( ).first == specular_reflectivity ),
+                                                      1 );
                 }
                 break;
             default:
@@ -91,8 +105,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureTor
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     if( parameter->getParameterName( ).first == estimatable_parameters::arc_wise_radiation_pressure_coefficient &&
-        parameter->getParameterName( ).second.first == bodyUndergoingTorque_ &&
-        std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel_ ) != nullptr )
+        parameter->getParameterName( ).second.first == bodyUndergoingTorque_ && cannonballTargetModel_ != nullptr )
     {
         throw std::runtime_error(
                 "Error, partial of radiation pressure torque w.r.t. arc-wise radiation pressure coefficient not yet supported" );
@@ -137,6 +150,7 @@ void RadiationPressureTorquePartial::update( const double currentTime )
         const double distance = relativePosition.norm( );
         const Eigen::Vector3d direction = relativePosition / distance;
         const Eigen::Vector3d localDirection = rotationToGlobalFrameMatrix.transpose( ) * direction;
+        currentLocalDirection_ = localDirection;
 
         // Forces, moment arms and partials of the forces w.r.t. the body-fixed source-target direction, per panel (one for a cannonball)
         std::vector< Eigen::Vector3d > forces;
@@ -155,8 +169,7 @@ void RadiationPressureTorquePartial::update( const double currentTime )
 
             // Illuminated fractions differ from one only with self-shadowing
             std::vector< double > illuminatedFractions( forces.size( ), 1.0 );
-            const auto selfShadowingPerSource = paneledTargetModel_->getSelfShadowingPerSources( );
-            if( selfShadowingPerSource.count( sourceName ) > 0 && selfShadowingPerSource.at( sourceName )->getMaximumNumberOfPixels( ) > 0 )
+            if( useIlluminatedFractions_ )
             {
                 illuminatedFractions = paneledTargetModel_->getIlluminatedPanelFractions( sourceName );
             }
@@ -164,7 +177,12 @@ void RadiationPressureTorquePartial::update( const double currentTime )
             for( unsigned int i = 0; i < forces.size( ); i++ )
             {
                 const double forceScaling = radiationPressure * panels.at( i )->getPanelArea( ) * illuminatedFractions.at( i );
-                if( cosines.at( i ) > 0.0 && forceScaling > 0.0 )
+                if( panels.at( i )->getTrackedBody( ) == sourceName )
+                {
+                    // Panel normal along the source-target direction: the force rotates with the direction, at constant magnitude
+                    forcePartials.at( i ) = forces.at( i ).dot( localDirection ) * Eigen::Matrix3d::Identity( );
+                }
+                else if( cosines.at( i ) > 0.0 && forceScaling > 0.0 )
                 {
                     // Derivative w.r.t. the incoming direction: the unit vector to the source is its negative
                     forcePartials.at( i ) = forceScaling *
@@ -177,6 +195,7 @@ void RadiationPressureTorquePartial::update( const double currentTime )
                                     -normals.at( i ).transpose( ) );
                 }
             }
+            currentIlluminatedFractions_ = illuminatedFractions;
         }
         else
         {
@@ -188,26 +207,36 @@ void RadiationPressureTorquePartial::update( const double currentTime )
             forcePartials = { force.dot( localDirection ) * Eigen::Matrix3d::Identity( ) };
         }
 
-        // Partial of the scaled torque w.r.t. the body-fixed source-target direction, and w.r.t. the scaling factors
-        Eigen::Matrix3d directionPartial = Eigen::Matrix3d::Zero( );
-        Eigen::Vector3d unscaledTorque = Eigen::Vector3d::Zero( );
+        // Unscaled torque, and its partial w.r.t. the body-fixed source-target direction
+        Eigen::Vector3d torque = Eigen::Vector3d::Zero( );
+        Eigen::Matrix3d torqueDirectionPartial = Eigen::Matrix3d::Zero( );
+
+        // Torque of the force components along the source-target direction, and its partial (only needed for scaling)
+        const bool computeSourceDirectionTorque = computeSourceDirectionTorque_ || sourceDirectionScaling != perpendicularScaling;
         Eigen::Vector3d sourceDirectionTorque = Eigen::Vector3d::Zero( );
+        Eigen::Matrix3d sourceDirectionTorqueDirectionPartial = Eigen::Matrix3d::Zero( );
         for( unsigned int i = 0; i < forces.size( ); i++ )
         {
             const Eigen::Matrix3d momentArmCrossProductMatrix = linear_algebra::getCrossProductMatrix( momentArms.at( i ) );
-            const Eigen::Vector3d momentArmCrossDirection = momentArms.at( i ).cross( localDirection );
-            const double sourceDirectionForce = forces.at( i ).dot( localDirection );
+            torque += momentArms.at( i ).cross( forces.at( i ) );
+            torqueDirectionPartial += momentArmCrossProductMatrix * forcePartials.at( i );
 
-            unscaledTorque += momentArms.at( i ).cross( forces.at( i ) );
-            sourceDirectionTorque += sourceDirectionForce * momentArmCrossDirection;
-            directionPartial += perpendicularScaling * momentArmCrossProductMatrix * forcePartials.at( i ) +
-                    ( sourceDirectionScaling - perpendicularScaling ) *
-                            ( momentArmCrossDirection *
-                                      ( localDirection.transpose( ) * forcePartials.at( i ) + forces.at( i ).transpose( ) ) +
-                              sourceDirectionForce * momentArmCrossProductMatrix );
+            if( computeSourceDirectionTorque )
+            {
+                const Eigen::Vector3d momentArmCrossDirection = momentArms.at( i ).cross( localDirection );
+                const double sourceDirectionForce = forces.at( i ).dot( localDirection );
+                sourceDirectionTorque += sourceDirectionForce * momentArmCrossDirection;
+                sourceDirectionTorqueDirectionPartial +=
+                        momentArmCrossDirection * ( localDirection.transpose( ) * forcePartials.at( i ) + forces.at( i ).transpose( ) ) +
+                        sourceDirectionForce * momentArmCrossProductMatrix;
+            }
         }
+
+        // Scaled torque: perpendicularScaling * torque + ( sourceDirectionScaling - perpendicularScaling ) * sourceDirectionTorque
+        const Eigen::Matrix3d directionPartial = perpendicularScaling * torqueDirectionPartial +
+                ( sourceDirectionScaling - perpendicularScaling ) * sourceDirectionTorqueDirectionPartial;
         currentPartialWrtSourceDirectionScaling_ = sourceDirectionTorque;
-        currentPartialWrtPerpendicularScaling_ = unscaledTorque - sourceDirectionTorque;
+        currentPartialWrtPerpendicularScaling_ = torque - sourceDirectionTorque;
 
         // The direction is a unit vector: only its change perpendicular to itself contributes
         const Eigen::Matrix3d unitDirectionPartial =
@@ -230,11 +259,46 @@ void RadiationPressureTorquePartial::update( const double currentTime )
     }
 }
 
+void RadiationPressureTorquePartial::wrtReflectivity( Eigen::MatrixXd& partial, const std::string& panelTypeId, const bool isSpecular )
+{
+    const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > acceleration =
+            torqueModel_->getRadiationPressureAcceleration( );
+    const std::string sourceName = acceleration->getSourceName( );
+    const double radiationPressure = acceleration->getCurrentRadiationPressure( );
+    const double sourceDirectionScaling = acceleration->getSourceDirectionScaling( );
+    const double perpendicularScaling = acceleration->getPerpendicularSourceDirectionScaling( );
+
+    const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& panels = paneledTargetModel_->getAllPanels( );
+    const std::vector< double >& cosines = paneledTargetModel_->getSurfacePanelCosines( sourceName );
+    const std::vector< Eigen::Vector3d >& normals = paneledTargetModel_->getSurfaceNormals( );
+    const std::vector< Eigen::Vector3d >& momentArms = paneledTargetModel_->getPanelCentroidMomentArms( );
+
+    // Unscaled torque of the partials of the forces of the panels of this type w.r.t. the reflectivity, and of their components
+    // along the source-target direction
+    Eigen::Vector3d torquePartial = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d sourceDirectionTorquePartial = Eigen::Vector3d::Zero( );
+    for( unsigned int i = 0; i < panels.size( ); i++ )
+    {
+        if( panels.at( i )->getPanelTypeId( ) == panelTypeId && cosines.at( i ) > 0.0 )
+        {
+            const Eigen::Vector3d reactionVectorPartial = isSpecular
+                    ? panels.at( i )->getReflectionLaw( )->evaluateReactionVectorPartialWrtSpecularReflectivity( normals.at( i ),
+                                                                                                                 currentLocalDirection_ )
+                    : panels.at( i )->getReflectionLaw( )->evaluateReactionVectorPartialWrtDiffuseReflectivity( normals.at( i ),
+                                                                                                                currentLocalDirection_ );
+            const Eigen::Vector3d forcePartial = radiationPressure * panels.at( i )->getPanelArea( ) *
+                    currentIlluminatedFractions_.at( i ) * cosines.at( i ) * reactionVectorPartial;
+            torquePartial += momentArms.at( i ).cross( forcePartial );
+            sourceDirectionTorquePartial += forcePartial.dot( currentLocalDirection_ ) * momentArms.at( i ).cross( currentLocalDirection_ );
+        }
+    }
+    partial = perpendicularScaling * torquePartial + ( sourceDirectionScaling - perpendicularScaling ) * sourceDirectionTorquePartial;
+}
+
 void RadiationPressureTorquePartial::wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial )
 {
     // The cannonball torque is proportional to the radiation pressure coefficient
-    partial = torqueModel_->getTorque( ) /
-            std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel_ )->getCoefficient( );
+    partial = torqueModel_->getTorque( ) / cannonballTargetModel_->getCoefficient( );
 }
 
 }  // namespace acceleration_partials

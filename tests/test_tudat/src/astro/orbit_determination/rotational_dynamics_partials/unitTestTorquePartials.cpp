@@ -1049,13 +1049,19 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTorquePartials )
                 100.0, Eigen::Vector3d( 0.1, 0.05, 0.5 ), Eigen::Vector3d( 10.0, 20.0, 30.0 ).asDiagonal( ) );
         if( usePanelledTarget )
         {
-            // Two illuminated panels with specular and diffuse reflection
+            // Two illuminated fixed panels and one panel tracking the Sun, with specular and diffuse reflection
             bodySettings.at( "Satellite" )->bodyExteriorPanelSettings_ = fullPanelledBodySettings(
                     { bodyPanelSettings( frameFixedPanelGeometry( -Eigen::Vector3d::UnitX( ), Eigen::Vector3d( 0.3, 0.2, -0.1 ), 2.0 ),
-                                         specularDiffuseBodyPanelReflectionLawSettings( 0.3, 0.2 ) ),
+                                         specularDiffuseBodyPanelReflectionLawSettings( 0.3, 0.2 ),
+                                         "Bus" ),
                       bodyPanelSettings( frameFixedPanelGeometry(
                                                  Eigen::Vector3d( -1.0, 1.0, 0.0 ).normalized( ), Eigen::Vector3d( -0.2, 0.4, 0.3 ), 1.0 ),
-                                         specularDiffuseBodyPanelReflectionLawSettings( 0.1, 0.5 ) ) } );
+                                         specularDiffuseBodyPanelReflectionLawSettings( 0.1, 0.5 ),
+                                         "Antenna" ),
+                      bodyPanelSettings( bodyTrackingPanelGeometry(
+                                                 "Sun", true, []( ) { return Eigen::Vector3d( 0.1, -0.3, 0.2 ); }, 1.5 ),
+                                         specularDiffuseBodyPanelReflectionLawSettings( 0.3, 0.2 ),
+                                         "Bus" ) } );
             bodySettings.at( "Satellite" )->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettings( );
         }
         else
@@ -1103,7 +1109,17 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTorquePartials )
                                                                     "Sun" ) );
         parameters.at( 0 )->setParameterValue( 1.3 );
         parameters.at( 1 )->setParameterValue( 0.7 );
-        if( !usePanelledTarget )
+        if( usePanelledTarget )
+        {
+            for( const std::string panelTypeId : { "Bus", "Antenna" } )
+            {
+                parameters.push_back(
+                        createDoubleParameterToEstimate< double, double >( specularReflectivity( "Satellite", panelTypeId ), bodies ) );
+                parameters.push_back(
+                        createDoubleParameterToEstimate< double, double >( diffuseReflectivity( "Satellite", panelTypeId ), bodies ) );
+            }
+        }
+        else
         {
             parameters.push_back( std::make_shared< RadiationPressureCoefficient >(
                     std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(

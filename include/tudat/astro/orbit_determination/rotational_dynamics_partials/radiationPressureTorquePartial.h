@@ -25,7 +25,8 @@ namespace acceleration_partials
  *  Class to compute the partial derivatives of the radiation pressure torque of an isotropic point source, for a cannonball or
  *  panelled target. The torque depends on the orientation and position of the target only through the radiation pressure and the
  *  source-target direction in the body-fixed frame. The partials are analytical, using the derivatives of the panel reflection laws.
- *  The dependency of self-shadowing illumination fractions and of occultation on the states is not included.
+ *  Panels may track the source, but not other bodies. The dependency of self-shadowing illumination fractions and of occultation on
+ *  the states is not included.
  */
 class RadiationPressureTorquePartial : public TorquePartial
 {
@@ -76,11 +77,21 @@ private:
 
     void wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial );
 
+    void wrtReflectivity( Eigen::MatrixXd& partial, const std::string& panelTypeId, const bool isSpecular );
+
     std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque > torqueModel_;
 
     std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel_;
 
     std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > paneledTargetModel_;
+
+    std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > cannonballTargetModel_;
+
+    // Whether the illuminated panel fractions of self-shadowing are used for the source
+    bool useIlluminatedFractions_ = false;
+
+    // Whether the torque of the force components along the source-target direction is needed for scaling factor partials
+    bool computeSourceDirectionTorque_ = false;
 
     std::vector< Eigen::Matrix3d > currentRotationMatrixDerivativesWrtQuaternion_;
 
@@ -91,6 +102,10 @@ private:
     Eigen::Vector3d currentPartialWrtSourceDirectionScaling_;
 
     Eigen::Vector3d currentPartialWrtPerpendicularScaling_;
+
+    Eigen::Vector3d currentLocalDirection_;
+
+    std::vector< double > currentIlluminatedFractions_;
 };
 
 }  // namespace acceleration_partials

@@ -37,7 +37,9 @@ public:
             const std::function< Eigen::Vector3d( ) > centerOfMassFunction,
             const std::function< Eigen::Quaterniond( ) > targetRotationFromLocalToGlobalFrameFunction ):
         radiationPressureAcceleration_( radiationPressureAcceleration ), centerOfMassFunction_( centerOfMassFunction ),
-        targetRotationFromLocalToGlobalFrameFunction_( targetRotationFromLocalToGlobalFrameFunction )
+        targetRotationFromLocalToGlobalFrameFunction_( targetRotationFromLocalToGlobalFrameFunction ),
+        paneledTargetModel_(
+                std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( radiationPressureAcceleration->getTargetModel( ) ) )
     {
         radiationPressureAcceleration_->getTargetModel( )->enableTorqueComputation( centerOfMassFunction );
     }
@@ -62,21 +64,23 @@ public:
         const Eigen::Vector3d sourceToTargetDirection =
                 radiationPressureAcceleration_->getTargetCenterPositionInSourceFrame( ).normalized( );
 
-        std::shared_ptr< PaneledRadiationPressureTargetModel > paneledTargetModel =
-                std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( targetModel );
-        if( paneledTargetModel != nullptr )
+        if( paneledTargetModel_ != nullptr )
         {
             // Target computes its torque in the body-fixed frame, per panel: each panel force is scaled at its own centroid
-            const Eigen::Vector3d localSourceToTargetDirection = rotationToGlobalFrame.inverse( ) * sourceToTargetDirection;
-            const std::vector< Eigen::Vector3d >& panelForces = paneledTargetModel->getPanelForces( sourceName );
-            const std::vector< Eigen::Vector3d >& momentArms = paneledTargetModel->getPanelCentroidMomentArms( );
-            Eigen::Vector3d sourceDirectionForceMoment = Eigen::Vector3d::Zero( );
-            for( unsigned int i = 0; i < panelForces.size( ); i++ )
+            currentTorque_ = perpendicularScaling * targetModel->getCurrentRadiationPressureTorque( sourceName );
+            if( sourceDirectionScaling != perpendicularScaling )
             {
-                sourceDirectionForceMoment += panelForces.at( i ).dot( localSourceToTargetDirection ) * momentArms.at( i );
+                const Eigen::Vector3d localSourceToTargetDirection = rotationToGlobalFrame.inverse( ) * sourceToTargetDirection;
+                const std::vector< Eigen::Vector3d >& panelForces = paneledTargetModel_->getPanelForces( sourceName );
+                const std::vector< Eigen::Vector3d >& momentArms = paneledTargetModel_->getPanelCentroidMomentArms( );
+                Eigen::Vector3d sourceDirectionForceMoment = Eigen::Vector3d::Zero( );
+                for( unsigned int i = 0; i < panelForces.size( ); i++ )
+                {
+                    sourceDirectionForceMoment += panelForces.at( i ).dot( localSourceToTargetDirection ) * momentArms.at( i );
+                }
+                currentTorque_ += ( sourceDirectionScaling - perpendicularScaling ) *
+                        sourceDirectionForceMoment.cross( localSourceToTargetDirection );
             }
-            currentTorque_ = perpendicularScaling * targetModel->getCurrentRadiationPressureTorque( sourceName ) +
-                    ( sourceDirectionScaling - perpendicularScaling ) * sourceDirectionForceMoment.cross( localSourceToTargetDirection );
         }
         else
         {
@@ -107,6 +111,8 @@ public:
     void resetAccelerationModel( const std::shared_ptr< IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration )
     {
         radiationPressureAcceleration_ = radiationPressureAcceleration;
+        paneledTargetModel_ =
+                std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( radiationPressureAcceleration_->getTargetModel( ) );
     }
 
     Eigen::Vector3d getTorque( ) override
@@ -126,6 +132,9 @@ protected:
     const std::function< Eigen::Vector3d( ) > centerOfMassFunction_;
 
     const std::function< Eigen::Quaterniond( ) > targetRotationFromLocalToGlobalFrameFunction_;
+
+    // Paneled target model of the acceleration (nullptr for other targets)
+    std::shared_ptr< PaneledRadiationPressureTargetModel > paneledTargetModel_;
 
     Eigen::Vector3d currentTorque_;
 };

@@ -102,6 +102,7 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
                 std::dynamic_pointer_cast< FrameVariableBodyPanelGeometrySettings >( panelSettings->panelGeometry_ );
         panelArea = variableBodyPanelGeometrySettings->area_;
         panelTemperature = variableBodyPanelGeometrySettings->panelTemperature_;
+        localFramePositionVector = variableBodyPanelGeometrySettings->positionVectorFunction_;
         if( variableBodyPanelGeometrySettings->surfaceNormalFunction_ != nullptr )
         {
             if( variableBodyPanelGeometrySettings->bodyToTrack_.first != "" )
@@ -109,7 +110,6 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
                 throw std::runtime_error( "Error, explicit panel orientation, and tracking target are defined" );
             }
             localFrameSurfaceNormal = variableBodyPanelGeometrySettings->surfaceNormalFunction_;
-            localFramePositionVector = variableBodyPanelGeometrySettings->positionVectorFunction_;
         }
         else if( variableBodyPanelGeometrySettings->bodyToTrack_.first != "" )
         {
