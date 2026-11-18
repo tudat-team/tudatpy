@@ -142,6 +142,9 @@ void loadSpiceKernelInTudat( const std::string& fileName );
 //! @get_docstring(get_total_count_of_kernels_loaded)
 int getTotalCountOfKernelsLoaded( );
 
+//! @get_docstring(get_loaded_kernels)
+std::vector< std::string > getLoadedSpiceKernels( );
+
 //! @get_docstring(clear_kernels)
 void clearSpiceKernels( );
 

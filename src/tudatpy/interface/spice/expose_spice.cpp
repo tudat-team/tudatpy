@@ -711,6 +711,26 @@ void expose_spice( py::module& m )
 
      )doc" );
 
+    m.def( "get_loaded_kernels",
+           &tudat::spice_interface::getLoadedSpiceKernels,
+           R"doc(
+
+ Get the file names of the Spice kernels currently loaded.
+
+ This function returns the file names of the Spice kernels that are loaded
+ into the kernel pool. Kernels loaded
+ through a meta-kernel are included, as is the meta-kernel itself.
+ Wrapper for the `kdata_c`_ function.
+
+ .. _`kdata_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/kdata_c.html
+
+ Returns
+ -------
+ list[str]
+     File names of the Spice kernels currently loaded.
+
+     )doc" );
+
     m.def( "check_body_property_in_kernel_pool",
            &tudat::spice_interface::checkBodyPropertyInKernelPool,
            py::arg( "body_name" ),
