@@ -26,6 +26,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <algorithm>
 #include <functional>
 #include <memory>
 
@@ -461,6 +462,12 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
     // Loaded kernels should be 4.
     BOOST_CHECK_EQUAL( spiceKernelsLoaded, 13 );
 
+    // Check that the names of the loaded kernels are retrieved
+    std::vector< std::string > loadedKernels = getLoadedSpiceKernels( );
+    BOOST_CHECK_EQUAL( loadedKernels.size( ), 13u );
+    BOOST_CHECK( std::find( loadedKernels.begin( ), loadedKernels.end( ), paths::getSpiceKernelPath( ) + "/naif0012.tls" ) !=
+                 loadedKernels.end( ) );
+
     // Clear all Spice kernels.
     clearSpiceKernels( );
 
@@ -469,6 +476,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
 
     // Loaded kernels should be 0.
     BOOST_CHECK_EQUAL( spiceKernelsLoaded, 0 );
+    BOOST_CHECK( getLoadedSpiceKernels( ).empty( ) );
 }
 
 // Test 8: Cartesian state from TLE at epoch
