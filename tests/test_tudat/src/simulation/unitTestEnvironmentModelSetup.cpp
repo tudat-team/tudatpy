@@ -2103,6 +2103,9 @@ BOOST_AUTO_TEST_CASE( test_DefaultSettingsDifferentBody )
     BOOST_CHECK_EQUAL( bodies.at( "SaturnCopy" )->getGravityFieldModel( )->getGravitationalParameter( ),
                        bodies.at( "Saturn" )->getGravityFieldModel( )->getGravitationalParameter( ) );
 
+    // The Sun has a default radiation source, also when its settings are created under another name
+    BOOST_CHECK( getDefaultSingleAlternateNameBodySettings( "SunCopy", "Sun", "ECLIPJ2000" )->radiationSourceModelSettings != nullptr );
+
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Earth" );
     BOOST_CHECK_EQUAL( bodies.at( "Mars" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Mars" );
 }

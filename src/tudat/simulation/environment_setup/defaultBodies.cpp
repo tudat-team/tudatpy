@@ -430,7 +430,7 @@ std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings( const
 
     // Get default settings for each of the environment models in the body.
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings( originatingName, initialTime, finalTime );
-    singleBodySettings->radiationSourceModelSettings = getDefaultRadiationSourceModelSettings( bodyName, initialTime, finalTime );
+    singleBodySettings->radiationSourceModelSettings = getDefaultRadiationSourceModelSettings( originatingName, initialTime, finalTime );
     singleBodySettings->rotationModelSettings =
             getDefaultRotationModelSettings( bodyName, initialTime, finalTime, baseFrameOrientation, originatingName );
 
