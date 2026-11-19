@@ -1104,13 +1104,13 @@ BOOST_AUTO_TEST_CASE( testSeasonalPlusAdjustmentTroposphericCorrections )
     double tInWindow = 544795200.0;
     double tInWindowUtc = sofa_interface::convertTTtoUTC( tInWindow );
     BOOST_CHECK_CLOSE_FRACTION(
-            tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( tInWindow ),
+            tabulatedCorrection->getDryZenithRangeCorrectionTdbFunction( )( tInWindow ),
             seasonalManager->computeMediaCorrection( tInWindowUtc ) + adjustmentManager->computeMediaCorrection( tInWindowUtc ),
             1e-15 );
 
     // Outside adjustment window: adjustment contributes 0, only seasonal active
     double tOutside = 0.0;
-    BOOST_CHECK_CLOSE_FRACTION( tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( tOutside ),
+    BOOST_CHECK_CLOSE_FRACTION( tabulatedCorrection->getDryZenithRangeCorrectionTdbFunction( )( tOutside ),
                                 seasonalManager->computeMediaCorrection( sofa_interface::convertTTtoUTC( tOutside ) ),
                                 1e-15 );
 }
@@ -1189,8 +1189,10 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
     bodySettings.addSettings( "Probe" );
     auto bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
-    // Create fallback settings: tabulated tropospheric correction with constant dry (2.0 m) and wet (0.4 m) zenith delays for
-    // DSS-25 and DSS-26, using the Chao mapping
+    // Create fallback settings: tabulated tropospheric correction (referenced to UTC) for DSS-25 and DSS-26, using the Chao mapping,
+    // with constant dry zenith delay (2.0 m), and wet zenith delay varying linearly with UTC (0.4 m at a given UTC epoch, with a rate
+    // of 0.2 mm/s), such that an error in the conversion between the time scales of the measured and fallback correction is visible
+    const double utc = 548445540.0;
     const auto constantManager = []( double value ) {
         return std::make_shared< TabulatedMediaReferenceCorrectionManager >(
                 std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > >{
@@ -1201,14 +1203,15 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
     {
         const auto key = std::make_pair( station, std::string( "" ) );
         dry[ key ][ one_way_doppler ] = constantManager( 2.0 );
-        wet[ key ][ one_way_doppler ] = constantManager( 0.4 );
+        wet[ key ][ one_way_doppler ] = std::make_shared< TabulatedMediaReferenceCorrectionManager >(
+                std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > >{ std::make_shared< PowerSeriesReferenceCorrection >(
+                        utc - 1000.0, utc + 1000.0, std::vector< double >{ 0.4, 0.2 } ) } );
         zero[ key ][ one_way_doppler ] = constantManager( 0.0 );
     }
     const auto fallbackSettings = std::make_shared< TabulatedTroposphericCorrectionSettings >(
             zero, zero, "Earth", TroposphericMappingModel::simplified_chao, dry, wet );
 
     // Create settings for measured correction, with measurements for DSS-25 only, 15 s before and after a given UTC epoch
-    const double utc = 548445540.0;
     const std::map< std::string, std::map< double, Eigen::Vector2d > > samples = {
         { "DSS-25", { { utc - 15.0, Eigen::Vector2d( 2.1, 0.04 ) }, { utc + 15.0, Eigen::Vector2d( 2.2, 0.10 ) } } }
     };
@@ -1244,14 +1247,34 @@ BOOST_AUTO_TEST_CASE( testMeasuredTroposphericFactoryUtcAndStationSelection )
                                 expectedPath,
                                 1.0e-8 );
 
-    // Check that for a downlink to DSS-26 (without measurements), the fallback correction is created, with its own wet delay
+    // Check that 100 s after the measurements (in UTC), the light-time correction uses the fallback wet delay at the UTC epoch
+    // (0.42 m), although the measured correction is evaluated in TDB (without conversion, the wet delay would be about 0.434 m).
+    // Tolerance accounts for TDB being approximated as TT in the conversion to UTC (< 2 ms, so < 1 micrometer in the wet delay)
+    const double tdbAfterMeasurements =
+            earth_orientation::createDefaultTimeConverter( )->getCurrentTime( utc_scale, tdb_scale, utc + 100.0, stationPosition );
+    const double expectedFallbackPath = 2.0 *
+                    niellMapping->computeDryTroposphericMapping(
+                            spacecraftState, stationState, tdbAfterMeasurements - 100.0, tdbAfterMeasurements ) +
+            0.42 *
+                    niellMapping->computeWetTroposphericMapping(
+                            spacecraftState, stationState, tdbAfterMeasurements - 100.0, tdbAfterMeasurements );
+    BOOST_CHECK_CLOSE_FRACTION(
+            measured->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                    { spacecraftState, stationState }, { tdbAfterMeasurements - 100.0, tdbAfterMeasurements }, 0, nullptr ) *
+                    SPEED_OF_LIGHT,
+            expectedFallbackPath,
+            1.0e-6 );
+
+    // Check that for a downlink to DSS-26 (without measurements), the fallback correction is created, with its own wet delay, which
+    // takes UTC as input, while the TDB function converts its input to UTC
     linkEnds[ receiver ] = LinkEndId( "Earth", "DSS-26" );
     const auto otherStation = createLightTimeCorrections( settings, bodies, linkEnds, transmitter, receiver, one_way_doppler );
     BOOST_REQUIRE( otherStation != nullptr );
     BOOST_CHECK( std::dynamic_pointer_cast< MeasuredTroposphericCorrection >( otherStation ) == nullptr );
     const auto mapped = std::dynamic_pointer_cast< MappedTroposphericCorrection >( otherStation );
     BOOST_REQUIRE( mapped != nullptr );
-    BOOST_CHECK_EQUAL( mapped->getWetZenithRangeCorrectionFunction( )( tdb ), 0.4 );
+    BOOST_CHECK_CLOSE_FRACTION( mapped->getWetZenithRangeCorrectionFunction( )( utc ), 0.4, 1.0e-14 );
+    BOOST_CHECK_SMALL( mapped->getWetZenithRangeCorrectionTdbFunction( )( tdb ) - 0.4, 1.0e-6 );
 }
 
 // Test reading of DSN AMC files with (Juno-era) and without (Cassini-era) wind columns, the user-selectable screening of the

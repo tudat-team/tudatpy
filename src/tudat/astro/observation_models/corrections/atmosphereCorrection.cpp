@@ -46,8 +46,9 @@ MeasuredTroposphericCorrection::MeasuredTroposphericCorrection(
         throw std::runtime_error( "Error when creating measured tropospheric correction, at least two measurements are required" );
     }
     interpolator_ = interpolators::createOneDimensionalInterpolator( zenithDelays_, interpolatorSettings );
-    dryZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 0 ); };
-    wetZenithRangeCorrectionFunction_ = [ this ]( double time ) { return computeZenithCorrection( time, 1 ); };
+    setZenithRangeCorrectionFunctions( [ this ]( double time ) { return computeZenithCorrection( time, 0 ); },
+                                       [ this ]( double time ) { return computeZenithCorrection( time, 1 ); },
+                                       false );
 }
 
 bool MeasuredTroposphericCorrection::isMeasurementAvailable( const double time ) const
@@ -74,8 +75,8 @@ double MeasuredTroposphericCorrection::computeZenithCorrection( const double sta
     {
         return interpolator_->interpolate( stationTime )( component );
     }
-    return component == 0 ? fallbackCorrection_->getDryZenithRangeCorrectionFunction( )( stationTime )
-                          : fallbackCorrection_->getWetZenithRangeCorrectionFunction( )( stationTime );
+    return component == 0 ? fallbackCorrection_->getDryZenithRangeCorrectionTdbFunction( )( stationTime )
+                          : fallbackCorrection_->getWetZenithRangeCorrectionTdbFunction( )( stationTime );
 }
 
 bool TabulatedMediaReferenceCorrection::isTimeValid( const double time )
@@ -460,7 +461,9 @@ MappedTroposphericCorrection::MappedTroposphericCorrection( const LightTimeCorre
                                                             std::function< double( double time ) > dryZenithRangeCorrectionFunction,
                                                             std::function< double( double time ) > wetZenithRangeCorrectionFunction ):
     LightTimeCorrection( lightTimeCorrectionType ), dryZenithRangeCorrectionFunction_( dryZenithRangeCorrectionFunction ),
-    wetZenithRangeCorrectionFunction_( wetZenithRangeCorrectionFunction ), elevationMapping_( elevationMapping ),
+    wetZenithRangeCorrectionFunction_( wetZenithRangeCorrectionFunction ),
+    dryZenithRangeCorrectionTdbFunction_( dryZenithRangeCorrectionFunction ),
+    wetZenithRangeCorrectionTdbFunction_( wetZenithRangeCorrectionFunction ), elevationMapping_( elevationMapping ),
     isUplinkCorrection_( isUplinkCorrection )
 {}
 
@@ -493,9 +496,9 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
 
     // Moyer (2000), eq. 10-1
     double delay =
-            ( dryZenithRangeCorrectionFunction_( stationTime ) *
+            ( dryZenithRangeCorrectionTdbFunction_( stationTime ) *
                       elevationMapping_->computeDryTroposphericMapping( transmitterState, receiverState, transmissionTime, receptionTime ) +
-              wetZenithRangeCorrectionFunction_( stationTime ) *
+              wetZenithRangeCorrectionTdbFunction_( stationTime ) *
                       elevationMapping_->computeWetTroposphericMapping(
                               transmitterState, receiverState, transmissionTime, receptionTime ) ) /
             physical_constants::getSpeedOfLight< double >( );
@@ -590,6 +593,12 @@ VMF3TroposphericCorrection::VMF3TroposphericCorrection( const std::shared_ptr< T
     {
         loadWavelengthCorrectionParameters( );
     }
+
+    // Set dry and wet zenith corrections (used directly when this correction is the fallback of a measured correction).
+    // VMF3 data are referenced to UTC
+    setZenithRangeCorrectionFunctions( [ this ]( double time ) { return computeDryZenithRangeCorrection( time ); },
+                                       [ this ]( double time ) { return computeWetZenithRangeCorrection( time ); },
+                                       true );
 }
 
 void VMF3TroposphericCorrection::loadWavelengthCorrectionParameters( )
@@ -655,8 +664,11 @@ double VMF3TroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkE
     // Get station time (uplink or downlink)
     double stationTime = ( isUplinkCorrection_ ? transmissionTime : receptionTime );
 
+    // Time at which the (UTC-referenced) VMF3 data are evaluated
+    const double stationTimeUtc = getZenithCorrectionTime( stationTime );
+
     // Extract mapping coefficients from station data
-    Eigen::Vector2d mappingCoefficients = troposphereData_->getMappingFunction( stationTime );
+    Eigen::Vector2d mappingCoefficients = troposphereData_->getMappingFunction( stationTimeUtc );
 
     // Apply wavelength scaling for optical VMF3o if requested (reference is 532 nm).
     // By definition, this scaling applies to the a-coefficients only.
@@ -680,8 +692,8 @@ double VMF3TroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkE
     double wetMapping = vmf3Mapping->computeWetTroposphericMapping( transmitterState, receiverState, transmissionTime, receptionTime );
 
     // Get zenith delays
-    double dryZenith = computeDryZenithRangeCorrection( stationTime );
-    double wetZenith = computeWetZenithRangeCorrection( stationTime );
+    double dryZenith = computeDryZenithRangeCorrection( stationTimeUtc );
+    double wetZenith = computeWetZenithRangeCorrection( stationTimeUtc );
 
     // Base correction
     double correction = dryZenith * dryMapping + wetZenith * wetMapping;
@@ -691,7 +703,7 @@ double VMF3TroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkE
     {
         try
         {
-            Eigen::Vector4d gradients = troposphereData_->getGradient( stationTime );
+            Eigen::Vector4d gradients = troposphereData_->getGradient( stationTimeUtc );
             double gradientContribution =
                     std::dynamic_pointer_cast< VMF3MappingModel >( elevationMapping_ )
                             ->computeGradientContribution( transmitterState, receiverState, transmissionTime, receptionTime, gradients );
@@ -945,6 +957,35 @@ double SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection( cons
     // Estefan and Sovers (1994), eq. 18
     // 1e-2 factor is conversion of pressure from Pa to mBar
     return 0.002277 * waterVaporPartialPressureFunction_( stationTime ) * 1e-2 * ( 1255.0 / temperatureFunction_( stationTime ) + 0.05 );
+}
+
+std::pair< double, double > TabulatedTroposphericCorrection::getLinkEndTimePerturbations(
+        const double transmissionTime,
+        const double receptionTime,
+        const LinkEndType linkEndAtWhichPartialIsEvaluated )
+{
+    // Zenith corrections only depend on the time at the station
+    const bool isStationTimePerturbed =
+            isUplinkCorrection_ ? ( linkEndAtWhichPartialIsEvaluated == transmitter ) : ( linkEndAtWhichPartialIsEvaluated == receiver );
+    if( !isStationTimePerturbed )
+    {
+        return LightTimeCorrection::getLinkEndTimePerturbations( transmissionTime, receptionTime, linkEndAtWhichPartialIsEvaluated );
+    }
+
+    // Validity boundaries are in UTC, at the level of the step sizes the time scale difference is irrelevant
+    const double stationTimeUtc = getZenithCorrectionTime( isUplinkCorrection_ ? transmissionTime : receptionTime );
+    std::pair< double, double > timePerturbations = std::make_pair( timePerturbation_, timePerturbation_ );
+    for( const auto& correctionCalculator : { seasonalModelDryZenithCorrectionCalculator_,
+                                              seasonalModelWetZenithCorrectionCalculator_,
+                                              dryZenithCorrectionAdjustmentCalculator_,
+                                              wetZenithCorrectionAdjustmentCalculator_ } )
+    {
+        const std::pair< double, double > calculatorTimePerturbations =
+                correctionCalculator->getTimeStepsWithinValidity( stationTimeUtc, timePerturbation_ );
+        timePerturbations.first = std::min( timePerturbations.first, calculatorTimePerturbations.first );
+        timePerturbations.second = std::min( timePerturbations.second, calculatorTimePerturbations.second );
+    }
+    return timePerturbations;
 }
 
 TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
