@@ -66,12 +66,12 @@ public:
     MarsdenAcceleration( const double A1,
                          const double A2,
                          const double A3,
+                         const std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeStateToSunFunction,
                          const double alpha = 0.1112620426,
                          const double r0 = 2.808,
                          const double m = 2.15,
                          const double n = 5.093,
                          const double k = 4.6142,
-                         const std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeStateToSunFunction,
                          const double tau = 0.0 ):
         A1_( A1 ), A2_( A2 ), A3_( A3 ), alpha_( alpha ), r0_( r0 ), m_( m ), n_( n ), k_( k ),
         relativeStateToSunFunction_( relativeStateToSunFunction ), tau_( tau )
@@ -91,7 +91,9 @@ public:
         if( !( this->currentTime_ == currentTime ) )
         {
             // Distance (even when tau is different from 0) at which the rotation matrix gets evaluated
-            currentRelativeState_ = relativeStateToSunFunction_( );  // Function defined in createAccelerationModels.cpp
+            currentRelativeState_ =
+                    relativeStateToSunFunction_( );  // Function defined in createAccelerationModels.cpp (state of the body = body
+                                                     // undergoing the acceleration- state of the sun = body exerting the acceleration)
 
             // Heliocentric position shifted when the tau parameter is != 0.
             // It evaluates the heliocentric position at t - tau, from a linear motion law: r(t - tau) = r(t) - v(t) * tau

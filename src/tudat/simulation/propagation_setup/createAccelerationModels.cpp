@@ -16,6 +16,7 @@
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/basic_astro/customAccelerationModel.h"
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
+#include "tudat/astro/basic_astro/marsdenAcceleration.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
@@ -1580,25 +1581,29 @@ std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > createMarsdenAcceler
     std::shared_ptr< simulation_setup::MarsdenAccelerationSettings > marsdenAccelerationSettings =
             std::dynamic_pointer_cast< simulation_setup::MarsdenAccelerationSettings >( accelerationSettings );
 
-    if( MarsdenAccelerationSettings == nullptr )
+    if( marsdenAccelerationSettings == nullptr )
     {
         throw std::runtime_error( "Error, expected Marsden acceleration settings when making acceleration model on " +
                                   nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
     }
     else
     {
-        accelerationModel =
-                std::make_shared< basic_astrodynamics::MarsdenAcceleration >( marsdenAccelerationSettings->A1_,
-                                                                              marsdenAccelerationSettings->A2_,
-                                                                              marsdenAccelerationSettings->A3_,
-                                                                              marsdenAccelerationSettings->alpha_,
-                                                                              marsdenAccelerationSettings->r0_,
-                                                                              marsdenAccelerationSettings->m_,
-                                                                              marsdenAccelerationSettings->n_,
-                                                                              marsdenAccelerationSettings->k_,
-                                                                              marsdenAccelerationSettings->tau_,
-                                                                              std::bind( &Body::getState, bodyUndergoingAcceleration ),
-                                                                              std::bind( &Body::getState, bodyExertingAcceleration ) );
+        // function to define the relative state between the body and the Sun
+        auto relativeStateToSunFunction = [ bodyUndergoingAcceleration, bodyExertingAcceleration ]( ) {
+            return bodyUndergoingAcceleration->getState( ) - bodyExertingAcceleration->getState( );
+        };
+        accelerationModel = std::make_shared< basic_astrodynamics::MarsdenAcceleration >( marsdenAccelerationSettings->A1_,
+                                                                                          marsdenAccelerationSettings->A2_,
+                                                                                          marsdenAccelerationSettings->A3_,
+                                                                                          relativeStateToSunFunction,
+                                                                                          marsdenAccelerationSettings->alpha_,
+                                                                                          marsdenAccelerationSettings->r0_,
+                                                                                          marsdenAccelerationSettings->m_,
+                                                                                          marsdenAccelerationSettings->n_,
+                                                                                          marsdenAccelerationSettings->k_,
+                                                                                          marsdenAccelerationSettings->tau_ );
+        // std::bind( &Body::getState, bodyUndergoingAcceleration ),
+        //  std::bind( &Body::getState, bodyExertingAcceleration ) );
     }
 
     return accelerationModel;

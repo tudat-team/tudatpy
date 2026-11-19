@@ -14,6 +14,7 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/customAccelerationModel.h"
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
+#include "tudat/astro/basic_astro/marsdenAcceleration.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
@@ -126,10 +127,8 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
             accelerationName = "custom acceleration";
             break;
         case marsden_acceleration:
-            accelerationName = "Marsden acceleration" default
-                : std::string errorMessage =
-                          "Error, acceleration type " + std::to_string( accelerationType ) + "not found when retrieving acceleration name ";
-            throw std::runtime_error( errorMessage );
+            accelerationName = "Marsden acceleration";
+            break;
     }
     return accelerationName;
 }
@@ -256,7 +255,7 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = rtg_acceleration;
     }
-    else if( std::dynamic_pointer_cast< basic_astrodynamics::MarsdenAccelerationModel >( accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< basic_astrodynamics::MarsdenAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = marsden_acceleration;
     }
