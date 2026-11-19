@@ -41,6 +41,7 @@
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/basic_astro/ionosphereModel.h"
+#include "tudat/interface/sofa/sofaTimeConversions.h"
 
 namespace tudat
 {
@@ -627,24 +628,73 @@ public:
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
-    // Returns the function that computes the dry zenith correction as a function of time.
+    // Returns the function that computes the dry zenith correction as a function of time, in the time scale of the correction data
     std::function< double( double time ) > getDryZenithRangeCorrectionFunction( )
     {
         return dryZenithRangeCorrectionFunction_;
     }
 
-    // Returns the function that computes the wet zenith correction as a function of time.
+    // Returns the function that computes the wet zenith correction as a function of time, in the time scale of the correction data
     std::function< double( double time ) > getWetZenithRangeCorrectionFunction( )
     {
         return wetZenithRangeCorrectionFunction_;
     }
 
+    // Returns the function that computes the dry zenith correction as a function of time (TDB).
+    std::function< double( double time ) > getDryZenithRangeCorrectionTdbFunction( )
+    {
+        return dryZenithRangeCorrectionTdbFunction_;
+    }
+
+    // Returns the function that computes the wet zenith correction as a function of time (TDB).
+    std::function< double( double time ) > getWetZenithRangeCorrectionTdbFunction( )
+    {
+        return wetZenithRangeCorrectionTdbFunction_;
+    }
+
 protected:
-    // Dry atmosphere zenith range correction (in meters)
+    /*!
+     * Function to set the dry and wet zenith corrections, to be called by derived classes. If the input functions take UTC as input,
+     * the TDB input time of the stored functions is converted to UTC, approximating TDB as TT.
+     * @param dryFunction Dry atmosphere zenith range correction (in meters) as a function of time
+     * @param wetFunction Wet atmosphere zenith range correction (in meters) as a function of time
+     * @param isZenithCorrectionInUtc Boolean indicating whether the input functions take UTC (true) or TDB (false) as input
+     */
+    void setZenithRangeCorrectionFunctions( const std::function< double( double time ) >& dryFunction,
+                                            const std::function< double( double time ) >& wetFunction,
+                                            const bool isZenithCorrectionInUtc )
+    {
+        isZenithCorrectionInUtc_ = isZenithCorrectionInUtc;
+        dryZenithRangeCorrectionFunction_ = dryFunction;
+        wetZenithRangeCorrectionFunction_ = wetFunction;
+        dryZenithRangeCorrectionTdbFunction_ = [ this ]( double time ) {
+            return dryZenithRangeCorrectionFunction_( getZenithCorrectionTime( time ) );
+        };
+        wetZenithRangeCorrectionTdbFunction_ = [ this ]( double time ) {
+            return wetZenithRangeCorrectionFunction_( getZenithCorrectionTime( time ) );
+        };
+    }
+
+    // Converts a link end time (TDB) to the time scale of the zenith correction data, approximating TDB as TT for UTC
+    double getZenithCorrectionTime( const double time ) const
+    {
+        return isZenithCorrectionInUtc_ ? sofa_interface::convertTTtoUTC( time ) : time;
+    }
+
+    // Dry atmosphere zenith range correction (in meters), as a function of time in the time scale of the correction data
     std::function< double( double time ) > dryZenithRangeCorrectionFunction_;
 
-    // Wet atmosphere zenith range correction (in meters)
+    // Wet atmosphere zenith range correction (in meters), as a function of time in the time scale of the correction data
     std::function< double( double time ) > wetZenithRangeCorrectionFunction_;
+
+    // Dry atmosphere zenith range correction (in meters), as a function of time (TDB)
+    std::function< double( double time ) > dryZenithRangeCorrectionTdbFunction_;
+
+    // Wet atmosphere zenith range correction (in meters), as a function of time (TDB)
+    std::function< double( double time ) > wetZenithRangeCorrectionTdbFunction_;
+
+    // Boolean indicating whether the zenith correction data are referenced to UTC (true) or TDB (false)
+    bool isZenithCorrectionInUtc_ = false;
 
     // Object that maps the zenith tropospheric correction to the desired elevation.
     std::shared_ptr< TroposhericElevationMapping > elevationMapping_;
@@ -736,15 +786,25 @@ public:
         // Override default values for dry and wet zenith corrections
         // TRK-2-23 (2008), section 3.2.2
         // Capture only this to stay C++17-compatible
-        dryZenithRangeCorrectionFunction_ = [ this ]( double time ) {
-            return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
-                    dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
-        };
-        wetZenithRangeCorrectionFunction_ = [ this ]( double time ) {
-            return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( time ) +
-                    wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
-        };
+        // The tabulated corrections are referenced to UTC
+        setZenithRangeCorrectionFunctions(
+                [ this ]( double time ) {
+                    return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
+                            dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
+                },
+                [ this ]( double time ) {
+                    return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( time ) +
+                            wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
+                },
+                true );
     }
+
+protected:
+    // Limits the time perturbations such that the station time does not cross a validity boundary of the tabulated data,
+    // outside of which the correction is discontinuous
+    std::pair< double, double > getLinkEndTimePerturbations( const double transmissionTime,
+                                                             const double receptionTime,
+                                                             const LinkEndType linkEndAtWhichPartialIsEvaluated ) override;
 
 private:
     // Dry atmosphere zenith range correction (in meters): based on seasonal model
@@ -770,10 +830,10 @@ class SaastamoinenTroposphericCorrection : public MappedTroposphericCorrection
 public:
     /*!
      * Constructor
-     * @param groundStationGeodeticPositionFunction  Geodetic position of the ground station as a function of time
-     * @param pressureFunction Pressure at the ground station as a function of time
-     * @param temperatureFunction Temperature at the ground station as a function of time
-     * @param waterVaporPartialPressureFunction Water vapor partial pressure at the ground station as a function of time
+     * @param groundStationGeodeticPositionFunction  Geodetic position of the ground station as a function of time (UTC)
+     * @param pressureFunction Pressure at the ground station as a function of time (UTC)
+     * @param temperatureFunction Temperature at the ground station as a function of time (UTC)
+     * @param waterVaporPartialPressureFunction Water vapor partial pressure at the ground station as a function of time (UTC)
      * @param elevationMapping Mapping function of range corrections from zenith to other elevations
      * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
@@ -789,10 +849,11 @@ public:
         temperatureFunction_( temperatureFunction ), waterVaporPartialPressureFunction_( waterVaporPartialPressureFunction )
     {
         // Override default values for dry and wet zenith corrections
-        dryZenithRangeCorrectionFunction_ =
-                std::bind( &SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection, this, std::placeholders::_1 );
-        wetZenithRangeCorrectionFunction_ =
-                std::bind( &SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection, this, std::placeholders::_1 );
+        // Weather data are referenced to UTC
+        setZenithRangeCorrectionFunctions(
+                std::bind( &SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection, this, std::placeholders::_1 ),
+                std::bind( &SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection, this, std::placeholders::_1 ),
+                true );
     }
 
 private:
