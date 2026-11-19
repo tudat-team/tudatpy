@@ -103,6 +103,10 @@ BOOST_AUTO_TEST_CASE( test_EstimationDragScaling )
         else if( i == 1 )
         {
             additionalParameterNames.push_back( estimatable_parameters::dragComponentScaling( "MGS" ) );
+
+            // Side scaling is not estimated here (no side force); check its parameter type
+            BOOST_CHECK( estimatable_parameters::sideComponentScaling( "MGS" )->parameterType_.first ==
+                         estimatable_parameters::side_component_scaling_factor );
         }
         else if( i == 2 )
         {

@@ -219,8 +219,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings( const st
     }
     else
     {
-        // Create settings for a point mass gravity with data from Spice
-        return centralGravityFromSpiceSettings( );
+        // Create settings for a point mass gravity with data from Spice, also when the body is created with another name
+        return centralGravityFromSpiceSettings( bodyName );
     }
 }
 
@@ -430,7 +430,7 @@ std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings( const
 
     // Get default settings for each of the environment models in the body.
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings( originatingName, initialTime, finalTime );
-    singleBodySettings->radiationSourceModelSettings = getDefaultRadiationSourceModelSettings( bodyName, initialTime, finalTime );
+    singleBodySettings->radiationSourceModelSettings = getDefaultRadiationSourceModelSettings( originatingName, initialTime, finalTime );
     singleBodySettings->rotationModelSettings =
             getDefaultRotationModelSettings( bodyName, initialTime, finalTime, baseFrameOrientation, originatingName );
 
