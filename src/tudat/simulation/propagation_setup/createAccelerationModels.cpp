@@ -1565,6 +1565,45 @@ std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAccele
     return accelerationModel;
 }
 
+//! Function to create the Marsden acceleration model, based on the model of http://adsabs.harvard.edu/cgi-bin/bib_query?1973AJ.....78..211M.
+std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > createMarsdenAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+    // Declare pointer to return object
+    std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > accelerationModel;
+
+    // Dynamic cast acceleration settings to required type and check consistency.
+    std::shared_ptr< simulation_setup::MarsdenAccelerationSettings > marsdenAccelerationSettings =
+            std::dynamic_pointer_cast< simulation_setup::MarsdenAccelerationSettings >( accelerationSettings );
+
+    if( MarsdenAccelerationSettings == nullptr )
+    {
+        throw std::runtime_error( "Error, expected Marsden acceleration settings when making acceleration model on " +
+                                  nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
+    }
+    else
+    {
+        accelerationModel =
+                std::make_shared< basic_astrodynamics::MarsdenAcceleration >( marsdenAccelerationSettings->A1_,
+                                                                              marsdenAccelerationSettings->A2_,
+                                                                              marsdenAccelerationSettings->A3_,
+                                                                              marsdenAccelerationSettings->alpha_,
+                                                                              marsdenAccelerationSettings->r0_,
+                                                                              marsdenAccelerationSettings->m_,
+                                                                              marsdenAccelerationSettings->n_,
+                                                                              marsdenAccelerationSettings->k_,
+                                                                              marsdenAccelerationSettings->tau_,
+                                                                              std::bind( &Body::getState, bodyUndergoingAcceleration ),
+                                                                              std::bind( &Body::getState, bodyExertingAcceleration ) );
+    }
+
+    return accelerationModel;
+}
+
 std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > createCustomAccelerationModel(
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const std::string& nameOfBodyUndergoingAcceleration )
@@ -2216,6 +2255,13 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                                                                     nameOfBodyUndergoingAcceleration,
                                                                     nameOfBodyExertingAcceleration,
                                                                     accelerationSettings );
+            break;
+        case marsden_acceleration:
+            accelerationModelPointer = createMarsdenAcceleration( bodyUndergoingAcceleration,
+                                                                  bodyExertingAcceleration,
+                                                                  nameOfBodyUndergoingAcceleration,
+                                                                  nameOfBodyExertingAcceleration,
+                                                                  accelerationSettings );
             break;
         case rtg_acceleration:
             accelerationModelPointer = createRTGAccelerationModel( bodyUndergoingAcceleration,
