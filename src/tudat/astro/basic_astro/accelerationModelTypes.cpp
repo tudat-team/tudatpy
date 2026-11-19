@@ -125,9 +125,10 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         case custom_acceleration:
             accelerationName = "custom acceleration";
             break;
-        default:
-            std::string errorMessage =
-                    "Error, acceleration type " + std::to_string( accelerationType ) + "not found when retrieving acceleration name ";
+        case marsden_acceleration:
+            accelerationName = "Marsden acceleration" default
+                : std::string errorMessage =
+                          "Error, acceleration type " + std::to_string( accelerationType ) + "not found when retrieving acceleration name ";
             throw std::runtime_error( errorMessage );
     }
     return accelerationName;
@@ -254,6 +255,10 @@ AvailableAcceleration getAccelerationModelType(
     else if( std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = rtg_acceleration;
+    }
+    else if( std::dynamic_pointer_cast< basic_astrodynamics::MarsdenAccelerationModel >( accelerationModel ) != nullptr )
+    {
+        accelerationType = marsden_acceleration;
     }
 
     else

@@ -28,6 +28,7 @@ namespace basic_astrodynamics
 {
 class CustomAccelerationModel;
 class EmpiricalAcceleration;
+class MarsdenAcceleration;
 }  // namespace basic_astrodynamics
 
 namespace aerodynamics
@@ -597,6 +598,23 @@ std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > createEmpiricalAcc
  *  \return Pointer to object for calculating Yarkovsky acceleration.
  */
 std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
+
+//! Function to create the Marsden acceleration model.
+/*!
+ *  Function to create the Marsden acceleration model
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body wrt which orbit of body undergoing the acceleration is calculated.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body wrt which orbit of body undergoing the acceleration is calculated.
+ *  \param accelerationSettings Object containing additional settings for acceleration model, must be of type MarsdenAccelerationSettings
+ *  \return Pointer to object for calculating Marsde  acceleration.
+ */
+std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > createMarsdenAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,

@@ -1465,6 +1465,115 @@ inline std::shared_ptr< AccelerationSettings > momentumWheelDesaturationAccelera
             thrustMidTimes, deltaVValues, totalManeuverTime, maneuverRiseTime );
 }
 
+// Class to define settings for Marsden (non-gravitational) accelerations
+// @get_docstring(MarsdenAccelerationSettings.__docstring__)
+class MarsdenAccelerationSettings : public AccelerationSettings
+{
+    // Constructor
+    /*
+     * Constructor
+     * \param A1 Radial acceleration coefficient [m s^{-2}]
+     * \param A2 Transverse acceleration coefficient [m s^{-2}]
+     * \param A3 Normal acceleration coefficient [m s^{-2}]
+     * \param alpha Normalization constant of g(r) (default: standard Marsden value)
+     * \param r0 Scale distance of g(r) [au] (default: standard Marsden value)
+     * \param m Exponent m of g(r) (default: standard Marsden value)
+     * \param n Exponent n of g(r) (default: standard Marsden value)
+     * \param k Exponent k of g(r) (default: standard Marsden value)
+     * \param tau Time offset between perihelion and peak activity [s] (default: 0)
+     */
+public:
+    MarsdenAccelerationSettings( const double A1 = 0.0,
+                                 const double A2 = 0.0,
+                                 const double A3 = 0.0,
+                                 const double alpha = 0.1112620426,
+                                 const double r0 = 2.808,
+                                 const double m = 2.15,
+                                 const double n = 5.093,
+                                 const double k = 4.6142,
+                                 const double tau = 0.0 ):
+        AccelerationSettings( basic_astrodynamics::marsden_acceleration ), A1_( A1 ), A2_( A2 ), A3_( A3 ), alpha_( alpha ), r0_( r0 ),
+        m_( m ), n_( n ), k_( k ), tau_( tau )
+    {}
+
+    // declaration of the type of the stored parameters
+    double A1_;
+    double A2_;
+    double A3_;
+    double alpha_;
+    double r0_;  // [au]
+    double m_;
+    double n_;
+    double k_;
+    double tau_;
+
+protected:
+    // protected = members accessible from inside this class 9and derived classess) but not from the outside
+    // Default constructor for serialization
+    MarsdenAccelerationSettings( int ):
+        A1_( 0.0 ), A2_( 0.0 ), A3_( 0.0 ), alpha_( 0.1112620426 ), r0_( 2.808 ), m_( 2.15 ), n_( 5.093 ), k_( 4.6142 ), tau_( 0.0 )
+    {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const MarsdenAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && A1_ == rhs->A1_ && A2_ == rhs->A2_ && A3_ == rhs->A3_ && alpha_ == rhs->alpha_ &&
+                r0_ == rhs->r0_ && m_ == rhs->m_ && n_ == rhs->n_ && k_ == rhs->k_ && tau_ == rhs->tau_;
+    }
+
+private:
+    friend class cereal::access;  // serialization library
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( A1_ ) );
+        ar( CEREAL_NVP( A2_ ) );
+        ar( CEREAL_NVP( A3_ ) );
+        ar( CEREAL_NVP( alpha_ ) );
+        ar( CEREAL_NVP( r0_ ) );
+        ar( CEREAL_NVP( m_ ) );
+        ar( CEREAL_NVP( n_ ) );
+        ar( CEREAL_NVP( k_ ) );
+        ar( CEREAL_NVP( tau_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( A1_ ) );
+        ar( CEREAL_NVP( A2_ ) );
+        ar( CEREAL_NVP( A3_ ) );
+        ar( CEREAL_NVP( alpha_ ) );
+        ar( CEREAL_NVP( r0_ ) );
+        ar( CEREAL_NVP( m_ ) );
+        ar( CEREAL_NVP( n_ ) );
+        ar( CEREAL_NVP( k_ ) );
+        ar( CEREAL_NVP( tau_ ) );
+    }
+};
+
+//! @get_docstring(marsdenAcceleration)
+inline std::shared_ptr< AccelerationSettings > marsdenAcceleration( const double A1,
+                                                                    const double A2,
+                                                                    const double A3,
+                                                                    const double alpha = 0.1112620426,
+                                                                    const double r0 = 2.808,
+                                                                    const double m = 2.15,
+                                                                    const double n = 5.093,
+                                                                    const double k = 4.6142,
+                                                                    const double tau = 0.0 )
+{
+    return std::make_shared< MarsdenAccelerationSettings >( A1, A2, A3, alpha, r0, m, n, k, tau );
+}
+
 // Typedef defining a list of acceleration settings, set up in the same manner as the
 // AccelerationMap typedef.
 typedef std::map< std::string, std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > > SelectedAccelerationMap;
