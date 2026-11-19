@@ -340,7 +340,7 @@ public:
      *  Get value of arcwise empirical acceleration components
      *  \return Value of arcwise empirical acceleration components
      */
-    Eigen::VectorXd getParameterValue( )
+    Eigen::VectorXd getParameterValue( ) override
     {
         Eigen::VectorXd parameter = Eigen::VectorXd::Zero( getParameterSize( ) );
         int currentIndex = 0;
@@ -378,7 +378,7 @@ public:
      *  Reset value of arcwise empirical acceleration components
      *  \param parameterValue New value of empirical acceleration components
      */
-    void setParameterValue( Eigen::VectorXd parameterValue )
+    void setParameterValue( Eigen::VectorXd parameterValue ) override
     {
         for( unsigned int i = 0; i < empiricalAcceleration_.size( ); i++ )
         {
@@ -420,7 +420,7 @@ public:
      *  Function to retrieve the size of the parameter
      *  \return Size of parameter value.
      */
-    int getParameterSize( )
+    int getParameterSize( ) override
     {
         return singleArcParameterSize_ * ( arcStartTimeList_.size( ) - 1 );
     }

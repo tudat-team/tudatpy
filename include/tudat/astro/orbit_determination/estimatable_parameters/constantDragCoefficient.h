@@ -149,7 +149,7 @@ public:
      * Function to get the current value of the arc-wise drag coefficient that is to be estimated.
      * \return Current value of the arc-wise drag coefficients that is to be estimated.
      */
-    Eigen::VectorXd getParameterValue( )
+    Eigen::VectorXd getParameterValue( ) override
     {
         return utilities::convertStlVectorToEigenVector( dragCoefficients_ );
     }
@@ -159,7 +159,7 @@ public:
      * Function to reset the value of the arc-wise drag coefficient that is to be estimated.
      * \param parameterValue New value of the arc-wise drag coefficient that is to be estimated.
      */
-    void setParameterValue( Eigen::VectorXd parameterValue )
+    void setParameterValue( Eigen::VectorXd parameterValue ) override
     {
         if( static_cast< int >( dragCoefficients_.size( ) ) != static_cast< int >( parameterValue.rows( ) ) )
         {
@@ -181,7 +181,7 @@ public:
      *  Function to retrieve the size of the parameter
      *  \return Size of parameter value
      */
-    int getParameterSize( )
+    int getParameterSize( ) override
     {
         return dragCoefficients_.size( );
     }
