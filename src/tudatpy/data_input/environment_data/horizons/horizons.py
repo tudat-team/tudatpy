@@ -646,6 +646,7 @@ class HorizonsQuery:
         self,
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",
+        vector_table: str | None = None,
     ) -> astropy.table.Table:
         """Retrieve Horizons Vectors api data in raw astropy format.
         For general purposes, use the `.cartesian()` method instead.
@@ -666,6 +667,15 @@ class HorizonsQuery:
             See the Horizons System Manual for more info:
 
             https://ssd.jpl.nasa.gov/horizons/manual.html#output
+        vector_table : str | None, optional
+            Horizons `VEC_TABLE` parameter, selecting the quantities to be retrieved
+            (e.g. '2x' for the state and its 1-sigma uncertainties). If None, the
+            Horizons default is used, by default None.
+            Values other than None require astroquery version 0.4.12 or higher.
+
+            See the Horizons API documentation for more info:
+
+            https://ssd-api.jpl.nasa.gov/doc/horizons.html#vec_table
 
         Returns
         -------
@@ -697,11 +707,15 @@ class HorizonsQuery:
         else:
             frame_orientation = frame_orientation
 
+        # only pass vector_table if set, to support astroquery versions without it
+        optional_arguments = {} if vector_table is None else {"vector_table": vector_table}
+
         res_list = []
         for query in self.queries:
             res = query.vectors(
                 refplane=frame_orientation,
                 aberrations=aberations,
+                **optional_arguments,
             )
 
             res_list.append(res)
@@ -762,6 +776,67 @@ class HorizonsQuery:
         )
 
         return tab.to_numpy()
+
+    def cartesian_uncertainties(
+        self,
+        frame_orientation: str = "ECLIPJ2000",
+        aberations: str = "geometric",
+        uncertainty_frame: str = "xyz",
+    ) -> np.ndarray:
+        """Retrieve the formal 1-sigma uncertainties of the cartesian state using the
+        Horizons Vector API (`VEC_TABLE` parameter).
+
+        Horizons provides these uncertainties for numerically integrated small bodies
+        (asteroids and comets) only. For other bodies, the uncertainties are NaN.
+        Requires astroquery version 0.4.12 or higher.
+
+        See the Horizons API documentation for more info:
+
+        https://ssd-api.jpl.nasa.gov/doc/horizons.html#vec_table
+
+        Parameters
+        ----------
+        frame_orientation : str, optional
+            Reference Frame Orientation, see the `.cartesian()` method,
+            by default "ECLIPJ2000".
+        aberations : str, optional
+            Aberations to be accounted for, see the `.cartesian()` method,
+            by default "geometric".
+        uncertainty_frame : str, optional
+            Frame in which the uncertainties are given. Options are 'xyz' (axes of
+            `frame_orientation`), 'acn' (along-track, cross-track, normal) and
+            'rtn' (radial, transverse, normal), by default "xyz".
+
+        Returns
+        -------
+        np.ndarray
+            returns an n by 7 array with the time in seconds since J2000 TDB,
+            and the 1-sigma uncertainties of the three position components (in m)
+            and the three velocity components (in m/s).
+        """
+        columns = {
+            "xyz": ("x", ["x_s", "y_s", "z_s", "vx_s", "vy_s", "vz_s"]),
+            "acn": ("a", ["a_s", "c_s", "n_s", "va_s", "vc_s", "vn_s"]),
+            "rtn": ("r", ["r_s", "t_s", "n_s", "vr_s", "vt_s", "vn_s"]),
+        }
+        if uncertainty_frame not in columns:
+            raise ValueError("uncertainty_frame must be one of: 'xyz', 'acn', 'rtn'")
+        vector_table_code, uncertainty_columns = columns[uncertainty_frame]
+
+        raw = self.vectors(
+            frame_orientation=frame_orientation,
+            aberations=aberations,
+            vector_table="2" + vector_table_code,
+        )
+
+        df = self._add_time_columns(raw, input_scale="TDB").to_pandas()
+
+        # Horizons outputs 'n.a.' for bodies without covariance, these become NaN
+        uncertainties = df[uncertainty_columns].to_numpy(dtype=float, na_value=np.nan)
+        uncertainties[:, :3] *= constants.ASTRONOMICAL_UNIT
+        uncertainties[:, 3:] *= constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
+
+        return np.column_stack((df["epoch_seconds_TDB"].to_numpy(), uncertainties))
 
     def _add_time_columns(
         self, table: astropy.table.Table, input_scale: str = "UTC"

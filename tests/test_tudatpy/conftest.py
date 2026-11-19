@@ -1,15 +1,27 @@
 import os
 import socket
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 
 import pytest
 import requests
 
-# Since JPL Horizons version 5.00 (2026-11-09), CSV vector tables do not contain the state columns.
-# Set to False once JPL has fixed this, to run the tests marked with horizons_vectors again.
-SKIP_HORIZONS_VECTOR_TESTS = True
+_TESTS_DIR = Path(__file__).resolve().parent
 
-_REMOTE_SERVICE_UNAVAILABLE_STATUSES = (502, 503, 504)
+
+@pytest.fixture(scope="session")
+def data_dir() -> Path:
+    """Return the tudatpy test data directory, ``tests/test_tudatpy/data``."""
+    return _TESTS_DIR / "data"
+
+
+@pytest.fixture(scope="session")
+def tudat_data_dir() -> Path:
+    """Return the shared Tudat (C++) test data directory, ``tests/test_tudat/data``."""
+    return _TESTS_DIR.parent / "test_tudat" / "data"
+
+
+_REMOTE_SERVICE_UNAVAILABLE_STATUSES = (500, 502, 503, 504)
 _JPL_HORIZONS_OUTAGE_SIGNATURES = (
     "wldini(): missing required file LTKERNL",
     "ERROR in VLRDC: Var not declared: IP_ADDR",
@@ -18,7 +30,7 @@ _JPL_HORIZONS_OUTAGE_SIGNATURES = (
 
 def _is_connectivity_failure(exception):
     """Return whether an exception represents an unavailable remote service."""
-    # Gateways can respond even when the upstream service is unavailable.
+    # Servers and gateways respond with these statuses when the service is failing or unavailable.
     if isinstance(exception, requests.exceptions.HTTPError):
         return (
             exception.response is not None
@@ -77,10 +89,6 @@ def pytest_configure(config):
         "remote_data(required_env=(), service='remote-data'): mark a test as requiring "
         "internet access and, optionally, environment variables containing credentials",
     )
-    config.addinivalue_line(
-        "markers",
-        "horizons_vectors: mark a test as retrieving state vectors from JPL Horizons",
-    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -88,12 +96,6 @@ def pytest_collection_modifyitems(config, items):
     missing_credentials_by_service = {}
 
     for item in items:
-        if SKIP_HORIZONS_VECTOR_TESTS and item.get_closest_marker("horizons_vectors") is not None:
-            item.add_marker(
-                pytest.mark.skip(reason="JPL Horizons CSV vector tables lack state columns")
-            )
-            continue
-
         remote_data_marker = item.get_closest_marker("remote_data")
         if remote_data_marker is None:
             continue

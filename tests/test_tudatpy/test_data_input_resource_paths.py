@@ -15,7 +15,6 @@ PATH_FUNCTIONS = (
     resource_paths.get_space_weather_path,
     resource_paths.get_spice_kernel_path,
     resource_paths.get_station_location_path,
-    resource_paths.get_test_data_path,
     resource_paths.get_tudat_data_path,
     resource_paths.get_tudat_path,
 )
@@ -37,6 +36,5 @@ def test_core_data_input_resource_paths_exist():
         resource_paths.get_gravity_models_path,
         resource_paths.get_space_weather_path,
         resource_paths.get_station_location_path,
-        resource_paths.get_test_data_path,
     ):
         assert Path(path_function()).exists()

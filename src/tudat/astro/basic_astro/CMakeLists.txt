@@ -66,6 +66,7 @@ set(basic_astrodynamics_HEADERS
         "sphericalBodyShapeModel.h"
         "polyhedronBodyShapeModel.h"
         "hybridBodyShapeModel.h"
+        "triAxialEllipsoidBodyShapeModel.h"
         "massRateModel.h"
         "sphericalStateConversions.h"
         "unifiedStateModelQuaternionElementConversions.h"

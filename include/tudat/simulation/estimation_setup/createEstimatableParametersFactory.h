@@ -22,6 +22,8 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
+#include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
@@ -2041,7 +2043,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                                                                    std::function< Eigen::VectorXd( ) >( ),
                                                                                    std::function< void( const Eigen::VectorXd& ) >( ),
                                                                                    biasSettings->linkEnds_.linkEnds_,
-                                                                                   biasSettings->observableType_ );
+                                                                                   biasSettings->observableType_,
+                                                                                   biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2059,7 +2062,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                                                                    std::function< Eigen::VectorXd( ) >( ),
                                                                                    std::function< void( const Eigen::VectorXd& ) >( ),
                                                                                    biasSettings->linkEnds_.linkEnds_,
-                                                                                   biasSettings->observableType_ );
+                                                                                   biasSettings->observableType_,
+                                                                                   biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2081,7 +2085,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
                                     .at( 0 ),
                             biasSettings->linkEnds_.linkEnds_,
-                            biasSettings->observableType_ );
+                            biasSettings->observableType_,
+                            biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2103,7 +2108,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
                                     .at( 0 ),
                             biasSettings->linkEnds_.linkEnds_,
-                            biasSettings->observableType_ );
+                            biasSettings->observableType_,
+                            biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2125,7 +2131,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     .at( 0 ),
                             biasSettings->linkEnds_,
                             biasSettings->observableType_,
-                            biasSettings->referenceEpoch_ );
+                            biasSettings->referenceEpoch_,
+                            biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2149,7 +2156,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     .at( 0 ),
                             timeBiasSettings->linkEnds_,
                             timeBiasSettings->observableType_,
-                            timeBiasSettings->referenceEpochs_ );
+                            timeBiasSettings->referenceEpochs_,
+                            timeBiasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2168,7 +2176,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                                                             std::function< void( const Eigen::VectorXd& ) >( ),
                                                                             biasSettings->linkEndForTime_,
                                                                             biasSettings->linkEnds_,
-                                                                            biasSettings->observableType_ );
+                                                                            biasSettings->observableType_,
+                                                                            biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2188,7 +2197,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                             timeBiasSettings->linkEndForTime_,
                             timeBiasSettings->linkEnds_,
-                            timeBiasSettings->observableType_ );
+                            timeBiasSettings->observableType_,
+                            timeBiasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2376,6 +2386,32 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 vectorParameterToEstimate = std::make_shared< GroundStationLinearVelocity >(
                         linearModels.at( 0 ), vectorParameterName->parameterType_.second.first, stationName );
+                break;
+            }
+            case displacement_love_number:
+            case displacement_shida_number: {
+                std::shared_ptr< DisplacementLoveNumberEstimatableParameterSettings > loveNumberSettings =
+                        std::dynamic_pointer_cast< DisplacementLoveNumberEstimatableParameterSettings >( vectorParameterName );
+                if( loveNumberSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error, expected displacement Love or Shida number parameter settings" );
+                }
+                std::vector< std::shared_ptr< basic_astrodynamics::BasicTidalBodyDeformation > > deformationModels;
+                for( const auto& deformationModel : currentBody->getBodyDeformationModels( ) )
+                {
+                    // The IERS 2010 model, which is derived from the basic tidal deformation model, is not supported
+                    if( std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( deformationModel ) != nullptr &&
+                        std::dynamic_pointer_cast< basic_astrodynamics::Iers2010EarthDeformation >( deformationModel ) == nullptr )
+                    {
+                        deformationModels.push_back(
+                                std::dynamic_pointer_cast< basic_astrodynamics::BasicTidalBodyDeformation >( deformationModel ) );
+                    }
+                }
+                vectorParameterToEstimate =
+                        std::make_shared< DisplacementLoveNumber >( deformationModels,
+                                                                    loveNumberSettings->degrees_,
+                                                                    vectorParameterName->parameterType_.first == displacement_shida_number,
+                                                                    vectorParameterName->parameterType_.second.first );
                 break;
             }
             case reference_point_position: {

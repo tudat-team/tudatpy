@@ -1040,6 +1040,37 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     BOOST_CHECK( ( splitObsSets.at( 1 )->getObservationTimes( ).at( 0 ) - splitObsSets.at( 0 )->getObservationTimes( ).back( ) ) > 1500.0 );
 }
 
+// Check that setting a reference point for a subset of the observation sets keeps the other sets (issue #1169)
+BOOST_AUTO_TEST_CASE( test_SetReferencePointWithParser )
+{
+    std::vector< LinkEnds > stationReceiverLinkEnds;
+    std::vector< LinkEnds > stationTransmitterLinkEnds;
+    std::map< ObservableType, double > obsStartTimes;
+    std::map< ObservableType, std::vector< double > > baseTimeList;
+    SystemOfBodies bodies;
+    std::shared_ptr< ObservationCollection< double, double > > observations = setUpObservationCollectionToTest(
+            1.0E7, 3, 300, 20.0, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList, bodies );
+
+    const unsigned int numberOfSets = observations->getSingleObservationSets( ).size( );
+    const int numberOfObservables = observations->getTotalObservableSize( );
+
+    // Set different antennas for two subsets of the observations
+    observations->setReferencePoint(
+            bodies, Eigen::Vector3d::UnitX( ), "HGA", "Vehicle", receiver, observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+    observations->setReferencePoint(
+            bodies, Eigen::Vector3d::UnitY( ), "LGA", "Vehicle", transmitter, observationParser( stationReceiverLinkEnds[ 1 ] ) );
+
+    BOOST_CHECK_EQUAL( observations->getSingleObservationSets( ).size( ), numberOfSets );
+    BOOST_CHECK_EQUAL( observations->getTotalObservableSize( ), numberOfObservables );
+
+    LinkEnds hgaLinkEnds = stationTransmitterLinkEnds[ 0 ];
+    hgaLinkEnds[ receiver ] = LinkEndId( "Vehicle", "HGA" );
+    LinkEnds lgaLinkEnds = stationReceiverLinkEnds[ 1 ];
+    lgaLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "LGA" );
+    BOOST_CHECK_EQUAL( observations->getSingleObservationSets( observationParser( hgaLinkEnds ) ).size( ), 1u );
+    BOOST_CHECK_EQUAL( observations->getSingleObservationSets( observationParser( lgaLinkEnds ) ).size( ), 2u );
+}
+
 BOOST_AUTO_TEST_CASE( testSingleObservationSetConstructorOrdersObservationsAndMetadata )
 {
     typedef double ObservationScalarType;

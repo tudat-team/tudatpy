@@ -240,93 +240,19 @@ public:
      */
     DependentVariableType interpolate( const IndependentVariableType targetIndependentVariableValue )
     {
-        // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
-        DependentVariableType interpolatedValue = zeroEntry_;
-        bool useValue = false;
-        this->checkBoundaryCase( interpolatedValue, useValue, targetIndependentVariableValue );
-        if( useValue )
-        {
-            return interpolatedValue;
-        }
+        return interpolateValueOrDerivative( targetIndependentVariableValue, false );
+    }
 
-        // Determine the lower entry in the table corresponding to the target independent variable
-        // value.
-        int lowerEntry = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
-
-        // Check if requested interval is inside region in which centered lagrange interpolation
-        // can be used.
-        int lowerReliableIntervalIndex = offsetEntries_;
-        int upperReliableIntervalIndex = numberOfIndependentValues_ - offsetEntries_ - 1;
-
-        if( lagrangeBoundaryHandling_ == lagrange_shifted_interval_boundary_interpolation )
-        {
-            // Use the polynomial of the nearest interval for which the centred polynomial is defined
-            lowerEntry = std::min( std::max( lowerEntry, lowerReliableIntervalIndex ), upperReliableIntervalIndex - 1 );
-        }
-
-        if( lowerEntry < lowerReliableIntervalIndex )
-        {
-            interpolatedValue = performLagrangeBoundaryInterpolation(
-                    beginInterpolator_, targetIndependentVariableValue, lowerReliableIntervalIndex, upperReliableIntervalIndex );
-        }
-        else if( lowerEntry >= upperReliableIntervalIndex )
-        {
-            interpolatedValue = performLagrangeBoundaryInterpolation(
-                    endInterpolator_, targetIndependentVariableValue, lowerReliableIntervalIndex, upperReliableIntervalIndex );
-        }
-        else
-        {
-            // Barycentric Lagrange interpolation for improved numerical stability.
-            // The formula L(x) = Σ[w_j*y_j/(x-x_j)] / Σ[w_j/(x-x_j)]
-            // avoids the numerically unstable repeated product in the standard formula.
-            // This is particularly important on platforms where long double has reduced
-            // precision (e.g., Mac Silicon where long double = double).
-            DependentVariableType numeratorSum = zeroEntry_;
-            ScalarType denominatorSum = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
-
-            for( int i = 0; i < numberOfStages_; i++ )
-            {
-                int j = i + lowerEntry - offsetEntries_;
-                ScalarType diff = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
-
-                // Check for exact match to avoid division by zero in barycentric formula.
-                // Using 10 ULP tolerance to catch:
-                // - Bitwise identical values
-                // - Values differing due to float/double/long double conversions
-                // - Values with small differences due to cross-platform rounding (Mac Silicon vs x86)
-                ScalarType gridValue = static_cast< ScalarType >( independentValues_[ j ] );
-                ScalarType targetValue = static_cast< ScalarType >( targetIndependentVariableValue );
-
-                // Compute relative tolerance based on the larger magnitude (symmetric comparison)
-                ScalarType largest = std::max( std::abs( gridValue ), std::abs( targetValue ) );
-                ScalarType relativeTolerance = largest * std::numeric_limits< ScalarType >::epsilon( ) *
-                        mathematical_constants::getFloatingInteger< ScalarType >( 10 );
-
-                // Provide minimum absolute tolerance for near-zero grid points
-                // This handles cases where both gridValue and targetValue are close to zero
-                ScalarType absoluteTolerance =
-                        std::numeric_limits< ScalarType >::epsilon( ) * mathematical_constants::getFloatingInteger< ScalarType >( 10 );
-
-                ScalarType tolerance = std::max( relativeTolerance, absoluteTolerance );
-
-                if( std::abs( diff ) <= tolerance )
-                {
-                    // Target coincides with grid point within tolerance: return exact tabulated value
-                    // This avoids division by zero and potential numerical issues in barycentric formula
-                    return dependentValues_[ j ];
-                }
-
-                // Compute barycentric term: w_j / (x - x_j)
-                // where w_j = 1 / denominators[lowerEntry][i] (pre-computed in initializeDenominators)
-                ScalarType term =
-                        mathematical_constants::getFloatingInteger< ScalarType >( 1 ) / ( diff * denominators[ lowerEntry ][ i ] );
-                numeratorSum = numeratorSum + dependentValues_[ j ] * term;
-                denominatorSum += term;
-            }
-            interpolatedValue = numeratorSum / denominatorSum;
-        }
-
-        return interpolatedValue;
+    //! Function to compute the derivative of the interpolated value w.r.t. the independent variable.
+    /*!
+     *  Function to compute the derivative of the interpolated value w.r.t. the independent variable, by differentiating the
+     *  polynomial used by interpolate (or the boundary interpolator, near the edges of the domain).
+     *  \param targetIndependentVariableValue Value of independent variable at which the derivative is to be determined.
+     *  \return Derivative of the interpolated value w.r.t. the independent variable.
+     */
+    DependentVariableType interpolateDerivative( const IndependentVariableType targetIndependentVariableValue )
+    {
+        return interpolateValueOrDerivative( targetIndependentVariableValue, true );
     }
 
     //! Function to retrieve the number of stages of interpolator
@@ -380,11 +306,180 @@ public:
 
 protected:
 private:
+    //! Function to compute the interpolated value, or its derivative w.r.t. the independent variable.
+    /*!
+     *  Function to compute the interpolated value (see interpolate), or its derivative w.r.t. the independent variable. For the
+     *  barycentric form L = N / D, with a_j = w_j / ( x - x_j ), the derivative uses a_j' = -a_j / ( x - x_j ), so that
+     *  L' = ( N' - L D' ) / D. To prevent cancellation between N' and L D' close to a node, the derivative is computed with all y_j
+     *  taken relative to the y_j at the node closest to x, which leaves L' unchanged. At a node x_k,
+     *  L'(x_k) = sum_{j != k} ( w_j / w_k ) ( y_j - y_k ) / ( x_k - x_j ).
+     *  \param targetIndependentVariableValue Value of independent variable at which interpolation is to take place.
+     *  \param computeDerivative Boolean denoting whether the derivative (true) or the value (false) is to be computed.
+     *  \return Interpolated value of dependent variable, or its derivative w.r.t. the independent variable.
+     */
+    DependentVariableType interpolateValueOrDerivative( const IndependentVariableType targetIndependentVariableValue,
+                                                        const bool computeDerivative )
+    {
+        // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
+        DependentVariableType interpolatedValue = zeroEntry_;
+        bool useValue = false;
+        if( computeDerivative )
+        {
+            this->checkDerivativeBoundaryCase( interpolatedValue, useValue, targetIndependentVariableValue );
+        }
+        else
+        {
+            this->checkBoundaryCase( interpolatedValue, useValue, targetIndependentVariableValue );
+        }
+        if( useValue )
+        {
+            return interpolatedValue;
+        }
+
+        // Determine the lower entry in the table corresponding to the target independent variable
+        // value.
+        int lowerEntry = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+
+        // Check if requested interval is inside region in which centered lagrange interpolation
+        // can be used.
+        int lowerReliableIntervalIndex = offsetEntries_;
+        int upperReliableIntervalIndex = numberOfIndependentValues_ - offsetEntries_ - 1;
+
+        if( lagrangeBoundaryHandling_ == lagrange_shifted_interval_boundary_interpolation )
+        {
+            // Use the polynomial of the nearest interval for which the centred polynomial is defined
+            lowerEntry = std::min( std::max( lowerEntry, lowerReliableIntervalIndex ), upperReliableIntervalIndex - 1 );
+        }
+
+        if( lowerEntry < lowerReliableIntervalIndex )
+        {
+            interpolatedValue = performLagrangeBoundaryInterpolation( beginInterpolator_,
+                                                                      targetIndependentVariableValue,
+                                                                      lowerReliableIntervalIndex,
+                                                                      upperReliableIntervalIndex,
+                                                                      computeDerivative );
+        }
+        else if( lowerEntry >= upperReliableIntervalIndex )
+        {
+            interpolatedValue = performLagrangeBoundaryInterpolation( endInterpolator_,
+                                                                      targetIndependentVariableValue,
+                                                                      lowerReliableIntervalIndex,
+                                                                      upperReliableIntervalIndex,
+                                                                      computeDerivative );
+        }
+        else
+        {
+            // Barycentric Lagrange interpolation for improved numerical stability.
+            // The formula L(x) = Σ[w_j*y_j/(x-x_j)] / Σ[w_j/(x-x_j)]
+            // avoids the numerically unstable repeated product in the standard formula.
+            // This is particularly important on platforms where long double has reduced
+            // precision (e.g., Mac Silicon where long double = double).
+            DependentVariableType numeratorSum = zeroEntry_;
+            ScalarType denominatorSum = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+
+            // For the derivative, the dependent variables are taken relative to their value at the node closest to the target
+            DependentVariableType numeratorSumDerivative;
+            ScalarType denominatorSumDerivative = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+            int referenceEntry = lowerEntry - offsetEntries_;
+            if( computeDerivative )
+            {
+                numeratorSumDerivative = zeroEntry_;
+                for( int j = referenceEntry + 1; j < lowerEntry - offsetEntries_ + numberOfStages_; j++ )
+                {
+                    if( std::abs( static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] ) ) <
+                        std::abs( static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ referenceEntry ] ) ) )
+                    {
+                        referenceEntry = j;
+                    }
+                }
+            }
+
+            for( int i = 0; i < numberOfStages_; i++ )
+            {
+                int j = i + lowerEntry - offsetEntries_;
+                ScalarType diff = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
+
+                // Check for exact match to avoid division by zero in barycentric formula.
+                // Using 10 ULP tolerance to catch:
+                // - Bitwise identical values
+                // - Values differing due to float/double/long double conversions
+                // - Values with small differences due to cross-platform rounding (Mac Silicon vs x86)
+                ScalarType gridValue = static_cast< ScalarType >( independentValues_[ j ] );
+                ScalarType targetValue = static_cast< ScalarType >( targetIndependentVariableValue );
+
+                // Compute relative tolerance based on the larger magnitude (symmetric comparison)
+                ScalarType largest = std::max( std::abs( gridValue ), std::abs( targetValue ) );
+                ScalarType relativeTolerance = largest * std::numeric_limits< ScalarType >::epsilon( ) *
+                        mathematical_constants::getFloatingInteger< ScalarType >( 10 );
+
+                // Provide minimum absolute tolerance for near-zero grid points
+                // This handles cases where both gridValue and targetValue are close to zero
+                ScalarType absoluteTolerance =
+                        std::numeric_limits< ScalarType >::epsilon( ) * mathematical_constants::getFloatingInteger< ScalarType >( 10 );
+
+                ScalarType tolerance = std::max( relativeTolerance, absoluteTolerance );
+
+                if( std::abs( diff ) <= tolerance )
+                {
+                    // Target coincides with grid point within tolerance: return exact tabulated value
+                    // This avoids division by zero and potential numerical issues in barycentric formula
+                    if( !computeDerivative )
+                    {
+                        return dependentValues_[ j ];
+                    }
+
+                    // Derivative at node x_j: sum over the other nodes x_k of ( w_k / w_j ) ( y_k - y_j ) / ( x_j - x_k )
+                    DependentVariableType nodeDerivative = zeroEntry_;
+                    for( int k = 0; k < numberOfStages_; k++ )
+                    {
+                        if( k != i )
+                        {
+                            int otherEntry = k + lowerEntry - offsetEntries_;
+                            nodeDerivative = nodeDerivative +
+                                    ( dependentValues_[ otherEntry ] - dependentValues_[ j ] ) *
+                                            ( denominators[ lowerEntry ][ i ] /
+                                              ( denominators[ lowerEntry ][ k ] *
+                                                static_cast< ScalarType >( independentValues_[ j ] - independentValues_[ otherEntry ] ) ) );
+                        }
+                    }
+                    return nodeDerivative;
+                }
+
+                // Compute barycentric term: w_j / (x - x_j)
+                // where w_j = 1 / denominators[lowerEntry][i] (pre-computed in initializeDenominators)
+                ScalarType term =
+                        mathematical_constants::getFloatingInteger< ScalarType >( 1 ) / ( diff * denominators[ lowerEntry ][ i ] );
+                denominatorSum += term;
+                if( !computeDerivative )
+                {
+                    numeratorSum = numeratorSum + dependentValues_[ j ] * term;
+                }
+                else
+                {
+                    // Terms of N and N' relative to reference value, with derivative of barycentric term: -w_j / (x - x_j)^2
+                    numeratorSum = numeratorSum + ( dependentValues_[ j ] - dependentValues_[ referenceEntry ] ) * term;
+                    numeratorSumDerivative =
+                            numeratorSumDerivative - ( dependentValues_[ j ] - dependentValues_[ referenceEntry ] ) * ( term / diff );
+                    denominatorSumDerivative -= term / diff;
+                }
+            }
+            interpolatedValue = numeratorSum / denominatorSum;
+            if( computeDerivative )
+            {
+                // L' = ( N' - L D' ) / D, which is unchanged when using L relative to the reference value
+                interpolatedValue = ( numeratorSumDerivative - interpolatedValue * denominatorSumDerivative ) / denominatorSum;
+            }
+        }
+
+        return interpolatedValue;
+    }
+
     DependentVariableType performLagrangeBoundaryInterpolation(
             const std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > boundaryInterpolator,
             const IndependentVariableType& targetIndependentVariableValue,
             const int lowerReliableIntervalIndex,
-            const int upperReliableIntervalIndex )
+            const int upperReliableIntervalIndex,
+            const bool computeDerivative )
     {
         DependentVariableType interpolatedValue;
 
@@ -393,14 +488,16 @@ private:
 
         switch( lagrangeBoundaryHandling_ )
         {
-            case lagrange_cubic_spline_boundary_interpolation_with_warning:
-                std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
-                          << " ), using cubic-spline interpolation. Reliable interval lower boundary: " << lowerBoundReliableInterval
-                          << "; upper boundary: " << upperBoundReliableInterval << std::endl;
-                interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
-                break;
             case lagrange_cubic_spline_boundary_interpolation:
-                interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
+            case lagrange_cubic_spline_boundary_interpolation_with_warning:
+                if( lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation_with_warning )
+                {
+                    std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
+                              << " ), using cubic-spline interpolation. Reliable interval lower boundary: " << lowerBoundReliableInterval
+                              << "; upper boundary: " << upperBoundReliableInterval << std::endl;
+                }
+                interpolatedValue = computeDerivative ? boundaryInterpolator->interpolateDerivative( targetIndependentVariableValue )
+                                                      : boundaryInterpolator->interpolate( targetIndependentVariableValue );
                 break;
             case lagrange_boundary_nan_interpolation_with_warning:
                 std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue

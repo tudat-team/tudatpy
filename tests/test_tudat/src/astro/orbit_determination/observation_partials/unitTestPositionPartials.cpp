@@ -271,6 +271,88 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
             partialOfVelocityWrtStationLinearVelocity, numericalPartialWrtStationLinearVelocity.block( 3, 0, 3, 3 ), 1.0E-6 );
 }
 
+//! Test partial derivatives of the position and velocity of a ground station w.r.t. the displacement Love and Shida number of the
+//! basic tidal deformation of its body
+BOOST_AUTO_TEST_CASE( testDisplacementLoveNumberPartials )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    double initialEphemerisTime = 1.0E7;
+
+    // Create bodies, with a basic tidal deformation of the Earth due to the Moon and the Sun
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon", "Sun" }, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings = simpleRotationModelSettings(
+            "ECLIPJ2000",
+            "IAU_Earth",
+            spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+            initialEphemerisTime,
+            2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY );
+    std::map< int, std::pair< double, double > > loveAndShidaNumberPerDegree;
+    loveAndShidaNumberPerDegree[ 2 ] = std::make_pair( 0.6, 0.08 );
+    loveAndShidaNumberPerDegree[ 3 ] = std::make_pair( 0.29, 0.015 );
+    bodySettings.at( "Earth" )->bodyDeformationSettings.push_back(
+            basicTidalBodyShapeDeformation( { "Moon", "Sun" }, loveAndShidaNumberPerDegree, 6378137.0 ) );
+
+    // Create ground station, of which the position includes the tidal displacement
+    bodySettings.at( "Earth" )->groundStationSettings.push_back( std::make_shared< GroundStationSettings >(
+            "Graz",
+            ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( ),
+            coordinate_conversions::cartesian_position,
+            std::vector< std::shared_ptr< GroundStationMotionSettings > >( { bodyDeformationStationMotionSettings( ) } ) ) );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    LinkDefinition linkEnds;
+    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Earth", "Graz" );
+
+    // Station state relative to the Earth, since rounding errors of the barycentric Earth position (about 1.0E-5 m) exceed the
+    // tolerance of the numerical partials
+    std::function< Eigen::VectorXd( const double ) > observationFunctionAtReception =
+            std::bind( &Ephemeris::getCartesianState,
+                       createReferencePointCompositeEphemeris< double, double >(
+                               std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ), "Earth", "ECLIPJ2000" ),
+                               bodies.at( "Earth" )->getRotationalEphemeris( ),
+                               std::bind( &GroundStation::getStateInPlanetFixedFrame< double, double >,
+                                          bodies.at( "Earth" )->getGroundStation( "Graz" ),
+                                          std::placeholders::_1,
+                                          "Earth" ) ),
+                       std::placeholders::_1 );
+
+    double receptionTime = 1.1E7;
+    Eigen::Vector6d currentState = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( receptionTime );
+
+    // Compare analytical and numerical partials w.r.t. the Love number h_n and the Shida number l_n, of degrees 2 and 3
+    for( const bool useShidaNumber : { false, true } )
+    {
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > loveNumberParameter = createVectorParameterToEstimate< double, double >(
+                useShidaNumber ? displacementShidaNumber( "Earth", { 2, 3 } ) : displacementLoveNumber( "Earth", { 2, 3 } ), bodies );
+        BOOST_CHECK_EQUAL( loveNumberParameter->getParameterSize( ), 2 );
+
+        std::map< LinkEndType, std::shared_ptr< CartesianStatePartial > > partialMap =
+                createCartesianStatePartialsWrtParameter( linkEnds.linkEnds_, bodies, loveNumberParameter );
+        BOOST_REQUIRE_EQUAL( partialMap.size( ), 1 );
+        std::shared_ptr< CartesianStatePartial > partialObject = partialMap.begin( )->second;
+        Eigen::MatrixXd partialOfPosition = partialObject->calculatePartialOfPosition( currentState, receptionTime );
+        Eigen::MatrixXd partialOfVelocity = partialObject->calculatePartialOfVelocity( currentState, receptionTime );
+
+        // The displacement is linear in the Love and Shida number, so that a large perturbation can be used
+        Eigen::VectorXd perturbation = Eigen::VectorXd::Constant( 2, 1.0 );
+        Eigen::MatrixXd numericalPartial = calculateNumericalObservationParameterPartial(
+                loveNumberParameter, perturbation, observationFunctionAtReception, receptionTime );
+
+        // Compare per degree, relative to the size of the partial (millimeters to decimeters per unit Love or Shida number)
+        for( int i = 0; i < 2; i++ )
+        {
+            BOOST_CHECK( partialOfPosition.col( i ).norm( ) > 1.0E-3 );
+            BOOST_CHECK_SMALL(
+                    ( partialOfPosition.col( i ) - numericalPartial.block( 0, i, 3, 1 ) ).norm( ) / partialOfPosition.col( i ).norm( ),
+                    1.0E-6 );
+            BOOST_CHECK_SMALL(
+                    ( partialOfVelocity.col( i ) - numericalPartial.block( 3, i, 3, 1 ) ).norm( ) / partialOfVelocity.col( i ).norm( ),
+                    1.0E-6 );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

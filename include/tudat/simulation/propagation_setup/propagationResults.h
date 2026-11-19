@@ -59,6 +59,12 @@ public:
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const = 0;
 
+    //! Function to create a copy of these results without any state transition and sensitivity matrices.
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const
+    {
+        return clone( );
+    }
+
     virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
 
     // Used for serialization testing
@@ -231,15 +237,16 @@ public:
         solutionIsCleared_ = true;
     }
 
-    //! Get initial and final propagation time from raw results
+    //! Get initial and final propagation time from raw results, or from processed results if only those are set
     std::pair< TimeType, TimeType > getArcInitialAndFinalTime( )
     {
-        if( equationsOfMotionNumericalSolutionRaw_.size( ) == 0 )
+        const auto& solution = equationsOfMotionNumericalSolutionRaw_.empty( ) ? equationsOfMotionNumericalSolution_
+                                                                               : equationsOfMotionNumericalSolutionRaw_;
+        if( solution.size( ) == 0 )
         {
             throw std::runtime_error( "Error when getting single-arc dynamics initial and final times; no results set" );
         }
-        return std::make_pair( equationsOfMotionNumericalSolutionRaw_.begin( )->first,
-                               equationsOfMotionNumericalSolutionRaw_.rbegin( )->first );
+        return std::make_pair( solution.begin( )->first, solution.rbegin( )->first );
     }
 
     //! Function to signal that propagation is finished, and add number of function evaluations
@@ -695,6 +702,12 @@ public:
         return cloneDerived( );
     }
 
+    //! Copy that retains the propagated dynamics only, discarding the state transition and sensitivity matrices.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        return singleArcDynamicsResults_->cloneDerived( );
+    }
+
     void reset( )
     {
         clearSolutionMaps( );
@@ -971,13 +984,42 @@ public:
         {
             clonedSingleArcResults.push_back( singleArcResults_.at( i )->cloneDerived( ) );
         }
-        return std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >( clonedSingleArcResults,
-                                                                                                             dependentVariableInterface_ );
+        auto clonedResults = std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
+                clonedSingleArcResults, dependentVariableInterface_ );
+        clonedResults->propagationIsPerformed_ = propagationIsPerformed_;
+        clonedResults->solutionIsCleared_ = solutionIsCleared_;
+        clonedResults->arcStartTimes_ = arcStartTimes_;
+        clonedResults->arcEndTimes_ = arcEndTimes_;
+        return clonedResults;
     }
 
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
+    }
+
+    //! Copy that retains the propagated dynamics of each arc only, discarding any variational results.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        std::vector< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > > clonedDynamicsResults;
+        bool allArcsHaveSolution = true;
+        for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+        {
+            clonedDynamicsResults.push_back(
+                    SingleArcResultsRetriever< SingleArcResults< StateScalarType, TimeType >, StateScalarType, TimeType >::
+                            getSingleArcSimulationResults( singleArcResults_.at( i ) )
+                                    ->cloneDerived( ) );
+            allArcsHaveSolution = allArcsHaveSolution && clonedDynamicsResults.back( )->getPropagationIsPerformed( ) &&
+                    !clonedDynamicsResults.back( )->getSolutionIsCleared( ) &&
+                    !clonedDynamicsResults.back( )->getEquationsOfMotionNumericalSolution( ).empty( );
+        }
+        auto dynamicsOnlyResults = std::make_shared< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                clonedDynamicsResults, dependentVariableInterface_ );
+        if( allArcsHaveSolution )
+        {
+            dynamicsOnlyResults->setPropagationIsPerformed( );
+        }
+        return dynamicsOnlyResults;
     }
 
     bool getPropagationIsPerformed( )
@@ -1011,11 +1053,13 @@ public:
         }
     }
 
-    //            void setPropagationIsPerformed( const std::vector< double >& arcStartTimes )
-    //            {
-    //                propagationIsPerformed_ = true;
-    //                arcStartTimes_ = arcStartTimes;
-    //            }
+    //! Function to signal that propagation is finished, with arc times provided directly (e.g. if arcs have no state transition history)
+    void setPropagationIsPerformed( const std::vector< double >& arcStartTimes, const std::vector< double >& arcEndTimes )
+    {
+        propagationIsPerformed_ = true;
+        arcStartTimes_ = arcStartTimes;
+        arcEndTimes_ = arcEndTimes;
+    }
 
     void manuallySetPropagationResults(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > numericalMultiArcSolution )
@@ -1313,6 +1357,17 @@ public:
     {
         return std::make_shared< HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
                 singleArcResults_->cloneDerived( ), multiArcResults_->cloneDerived( ) );
+    }
+
+    //! Copy that retains the propagated dynamics of the single- and multi-arc parts only, discarding any variational results.
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > cloneDynamicsOnly( ) const override
+    {
+        return std::make_shared< HybridArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                SingleArcResultsRetriever< SingleArcResults< StateScalarType, TimeType >, StateScalarType, TimeType >::
+                        getSingleArcSimulationResults( singleArcResults_ )
+                                ->cloneDerived( ),
+                std::dynamic_pointer_cast< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                        multiArcResults_->cloneDynamicsOnly( ) ) );
     }
 
     std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > getSingleArcResults( )

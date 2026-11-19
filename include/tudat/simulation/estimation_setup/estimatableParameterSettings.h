@@ -16,6 +16,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/observation_models/observationBias.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
 
 namespace tudat
 {
@@ -233,7 +234,9 @@ public:
             const observation_models::LinkEndId& linkEndId,
             const std::vector< double >& arcStartTimes = {},
             observation_models::LinkEndType timeLinkEnd = observation_models::unidentified_link_end ):
-        EstimatableParameterSettings( linkEndId.bodyName_, shared_observation_bias, linkEndId.getReferencePointName( ) ),
+        EstimatableParameterSettings( linkEndId.bodyName_,
+                                      shared_observation_bias,
+                                      createSharedObsBiasSecondaryIdentifier( biasType, observableType, linkEndType, linkEndId ) ),
         biasType_( biasType ), observableType_( observableType ), linkEndType_( linkEndType ), linkEndId_( linkEndId ),
         arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd )
     {
@@ -286,7 +289,7 @@ public:
                                                          const bool isBiasAdditive ):
         EstimatableParameterSettings( linkEnds.linkEnds_.begin( )->second.bodyName_,
                                       isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                      linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
+                                      createObsBiasSecondaryIdentifier( observableType, linkEnds.linkEnds_ ) ),
         linkEnds_( linkEnds ), observableType_( observableType )
     {}
 
@@ -321,7 +324,7 @@ public:
         EstimatableParameterSettings(
                 linkEnds.linkEnds_.begin( )->second.bodyName_,
                 isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
+                createObsBiasSecondaryIdentifier( observableType, linkEnds.linkEnds_ ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -359,7 +362,7 @@ public:
                                                        const double referenceEpoch ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.getReferencePointName( ) ),
+                                      createObsBiasSecondaryIdentifier( observableType, linkEnds ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch )
     {}
 
@@ -399,7 +402,7 @@ public:
                                                       const std::vector< double > referenceEpochs ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.getReferencePointName( ) ),
+                                      createObsBiasSecondaryIdentifier( observableType, linkEnds ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ),
         referenceEpochs_( referenceEpochs )
     {}
@@ -439,7 +442,7 @@ public:
                                                   const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_observation_bias,
-                                      linkEnds.begin( )->second.getReferencePointName( ) ),
+                                      createObsBiasSecondaryIdentifier( observableType, linkEnds ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -475,7 +478,7 @@ public:
                                                  const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_observation_bias,
-                                      linkEnds.begin( )->second.getReferencePointName( ) ),
+                                      createObsBiasSecondaryIdentifier( observableType, linkEnds ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -1616,6 +1619,33 @@ inline std::shared_ptr< EstimatableParameterSettings > groundStationLinearVeloci
                                                                                     const std::string& groundStationName )
 {
     return std::make_shared< EstimatableParameterSettings >( body, ground_station_linear_velocity, groundStationName );
+}
+
+//! Class for settings of the displacement Love number h_n or Shida number l_n of the basic tidal deformation of a body
+class DisplacementLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    DisplacementLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                        const std::vector< int >& degrees,
+                                                        const bool useShidaNumber ):
+        EstimatableParameterSettings( associatedBody, useShidaNumber ? displacement_shida_number : displacement_love_number ),
+        degrees_( degrees )
+    {}
+
+    //! Degree of each estimated number
+    std::vector< int > degrees_;
+};
+
+//! Function to create settings for the displacement Love number h_n of each of the given degrees of a body
+inline std::shared_ptr< EstimatableParameterSettings > displacementLoveNumber( const std::string& body, const std::vector< int >& degrees )
+{
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, false );
+}
+
+//! Function to create settings for the displacement Shida number l_n of each of the given degrees of a body
+inline std::shared_ptr< EstimatableParameterSettings > displacementShidaNumber( const std::string& body, const std::vector< int >& degrees )
+{
+    return std::make_shared< DisplacementLoveNumberEstimatableParameterSettings >( body, degrees, true );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > cameraPointingCorrection( const std::string& body, const std::string& cameraName )

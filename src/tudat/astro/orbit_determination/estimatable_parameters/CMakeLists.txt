@@ -38,6 +38,7 @@ set(estimatable_parameters_HEADERS
   "ppnParameters.h"
   "groundStationPosition.h"
   "groundStationLinearVelocity.h"
+  "displacementLoveNumber.h"
   "referencePointPosition.h"
   "cameraPointingCorrection.h"
   "equivalencePrincipleViolationParameter.h"
