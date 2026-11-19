@@ -1398,7 +1398,8 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
 
 BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
 {
-    const double tolerance = std::numeric_limits< double >::epsilon( );
+    // The model reconstructs the flow direction from the aerodynamic angles, giving differences of a few ulp
+    const double tolerance = 1.0E-14;
 
     SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
     std::vector< std::string > centralBodies = { "TreasurePlanet" };
@@ -1437,9 +1438,9 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
             ->setRotationalEphemeris( createRotationModel(
                     std::make_shared< SynchronousRotationModelSettings >( "TreasurePlanet", "ECLIPJ2000", "" ), "Legacy", bodies ) );
 
-    // add panel (always perpendicular to relative velocity vector)
+    // add panel facing the flow (the synchronous rotation aligns the body-fixed -y axis with the along-track direction)
     std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = [ = ]( ) {
-        Eigen::Vector3d normal( 0.0, 1.0, 0.0 );
+        Eigen::Vector3d normal( 0.0, -1.0, 0.0 );
         return normal;
     };
     std::function< Eigen::Vector3d( ) > localFramePositionVector = [ = ]( ) {
@@ -1507,9 +1508,11 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
         dependentVariables.push_back(
                 std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_airspeed_based_velocity_variable, "Legacy" ) );
         dependentVariables.push_back(
-                std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_coefficients, "Legacy", "TreasurePlanet" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_force_coefficients_dependent_variable, "Legacy" ) );
         dependentVariables.push_back(
                 std::make_shared< SingleAccelerationDependentVariableSaveSettings >( aerodynamic, "Legacy", "TreasurePlanet" ) );
+        dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >( inertial_to_body_fixed_rotation_matrix_variable, "Legacy" ) );
 
         // create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap =
@@ -1540,14 +1543,16 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
                 dynamicsSimulator.getDependentVariableHistory( );
 
         // check dependent variables (aerodynamic coefficients and acceleration)
-        Eigen::Vector3d incomingDirection, bodyFixedAirspeed, aerodynamicCoefficients, actualAerodynamicCoefficients, panelNormal;
+        Eigen::Vector3d incomingDirection, vehicleFrameAirspeed, aerodynamicCoefficients, actualAerodynamicCoefficients, panelNormal;
         double cosineDelta, Cp;
         for( auto it : dependentVariableOutput )
         {
-            bodyFixedAirspeed = it.second.segment( 0, 3 );
+            // Airspeed-based velocity in the TreasurePlanet-fixed frame (aligned with the inertial frame), rotated to the vehicle frame
+            vehicleFrameAirspeed = getMatrixFromVectorRotationRepresentation( it.second.segment( 9, 9 ) ) * it.second.segment( 0, 3 );
             aerodynamicCoefficients = it.second.segment( 3, 3 );
 
-            incomingDirection = bodyFixedAirspeed.normalized( );
+            // Free-stream flow direction in the vehicle frame
+            incomingDirection = -vehicleFrameAirspeed.normalized( );
             panelNormal = localFrameSurfaceNormal( );
             cosineDelta = panelNormal.dot( -incomingDirection );
             cosineDelta = cosineDelta > 0 ? cosineDelta : 0.0;
@@ -1566,9 +1571,8 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
             }
             else
             {
-                // Drag with the projected panel area (0.5 m^2) as reference area, also when the coefficients are scaled
-                double expectedAcceleration =
-                        0.5 * density * bodyFixedAirspeed.squaredNorm( ) * 0.5 * cosineDelta * constantDragCoefficient / 1000.0;
+                // Drag with the area of the panel facing the flow (0.5 m^2) as reference area, also when the coefficients are scaled
+                double expectedAcceleration = 0.5 * density * vehicleFrameAirspeed.squaredNorm( ) * 0.5 * constantDragCoefficient / 1000.0;
                 BOOST_CHECK_CLOSE_FRACTION( it.second.segment( 6, 3 ).norm( ), expectedAcceleration, 1.0E-14 );
             }
         }
