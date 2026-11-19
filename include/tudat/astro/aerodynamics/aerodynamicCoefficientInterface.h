@@ -658,6 +658,9 @@ public:
         currentForceCoefficients_ = baseCoefficientInterface_->getCurrentForceCoefficients( );
         currentMomentCoefficients_ = baseCoefficientInterface_->getCurrentMomentCoefficients( );
 
+        // Reference area may vary with the coefficients (e.g. panelled coefficients with variable cross section)
+        referenceArea_ = baseCoefficientInterface_->getReferenceArea( );
+
         if( isScalingRelative_ )
         {
             currentForceCoefficients_.array( ) *= forceCoefficientScalingFunction_( currentTime ).array( );
