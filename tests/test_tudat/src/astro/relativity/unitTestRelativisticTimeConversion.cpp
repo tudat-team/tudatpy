@@ -47,7 +47,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
-#include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/math/basic/leastSquaresPolynomialFit.h"
 
 namespace tudat
 {

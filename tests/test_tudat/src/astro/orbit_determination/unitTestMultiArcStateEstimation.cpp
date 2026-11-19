@@ -61,7 +61,7 @@ using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 
 template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = double >
-Eigen::VectorXd executeParameterEstimation( const int linkArcs )
+Eigen::VectorXd executeParameterEstimation( const int linkArcs, const bool useSparseDesignMatrix = false )
 {
     // Load spice kernels.f
     std::string kernelsPath = paths::getSpiceKernelPath( );
@@ -258,6 +258,8 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >( observationsAndTimes );
     std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< ObservationScalarType, TimeType > >( observationsAndTimes );
+    estimationInput->setUseSparseDesignMatrix( useSparseDesignMatrix );
+    covarianceInput->setUseSparseDesignMatrix( useSparseDesignMatrix );
 
     // Retain the propagation results of each iteration, without the variational results.
     estimationInput->defineEstimationSettings( true, true, true, true, true, true, 1.0E8, true, false );
@@ -295,11 +297,14 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
 
 BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
 {
-    // Execute test for linked arcs and separate arcs.
-    for( unsigned int testCase = 0; testCase < 2; testCase++ )
+    // Execute test for separate arcs and linked arcs, and for separate arcs with a sparse design matrix
+    for( unsigned int testCase = 0; testCase < 3; testCase++ )
     {
+        const int linkArcs = ( testCase == 1 );
+        const bool useSparseDesignMatrix = ( testCase == 2 );
 #if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-        Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( testCase );
+        Eigen::VectorXd parameterError =
+                executeParameterEstimation< long double, tudat::Time, long double >( linkArcs, useSparseDesignMatrix );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
         std::cout << "Estimation error: " << parameterError.transpose( ) << std::endl;
@@ -318,7 +323,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), errorScaling * 1.0E-12 );
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), errorScaling * 1.0E-12 );
 #else
-        Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >( testCase );
+        Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >( linkArcs, useSparseDesignMatrix );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
         std::cout << parameterError.transpose( ) << std::endl;
