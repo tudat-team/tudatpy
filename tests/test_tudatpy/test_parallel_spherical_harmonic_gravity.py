@@ -53,11 +53,10 @@ def test_settings_are_local_and_readonly():
         parallel.number_of_threads = 2
 
 
+@pytest.mark.requires_serialization
 def test_pickle_restores_sequential_policy():
     threads = 4 if acceleration.is_openmp_available() else 1
     settings = acceleration.spherical_harmonic_gravity(20, 20, number_of_threads=threads)
-    if not hasattr(settings, "save_to_binary"):
-        pytest.skip("Python serialization is disabled in this build")
     restored = pickle.loads(pickle.dumps(settings))
     assert type(restored) is type(settings)
     assert restored.number_of_threads == 1

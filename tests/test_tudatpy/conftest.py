@@ -70,16 +70,42 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     config.addinivalue_line(
         "markers",
+        "requires_serialization: requires a kernel built with TUDAT_BUILD_WITH_SERIALIZATION=ON",
+    )
+    config.addinivalue_line(
+        "markers",
         "remote_data(required_env=(), service='remote-data'): mark a test as requiring "
         "internet access and, optionally, environment variables containing credentials",
     )
 
 
+def _serialization_enabled(kernel):
+    """Use the compiled option; an unknown/old binary must fail, not skip."""
+    value = getattr(kernel, "_build_with_serialization", None)
+    if type(value) is not bool:
+        raise pytest.UsageError(
+            "The loaded tudatpy.kernel does not expose a boolean "
+            "_build_with_serialization flag. Rebuild the kernel and check its "
+            "import path; serialization availability must not be inferred "
+            "from missing methods."
+        )
+    return value
+
+
 def pytest_collection_modifyitems(config, items):
+    serialization_enabled = None
+    if any(item.get_closest_marker("requires_serialization") for item in items):
+        from tudatpy import kernel
+
+        serialization_enabled = _serialization_enabled(kernel)
     run_remote_tests = config.getoption("remote_data")
     missing_credentials_by_service = {}
 
     for item in items:
+        if item.get_closest_marker("requires_serialization") and not serialization_enabled:
+            item.add_marker(
+                pytest.mark.skip(reason="kernel built with TUDAT_BUILD_WITH_SERIALIZATION=OFF")
+            )
         remote_data_marker = item.get_closest_marker("remote_data")
         if remote_data_marker is None:
             continue

@@ -1,15 +1,15 @@
 # Parallel spherical-harmonic gravity: implementation contract
 
-Status: native and Python implementation with focused validation, 15 November
-2026. Model-local thread configuration, reusable storage and the optional OpenMP
+Status: native and Python implementation; validation updated 20 November 2026. Model-local thread configuration, reusable storage and the optional OpenMP
 backend are available through the ordinary Python factory. Separate complete
 native-library/kernel builds with OpenMP ON and OFF have been exercised.
 The [Python benchmark](../benchmarks/PYTHON_SPHERICAL_HARMONICS.md) measures
 2.41x dynamics-only and 1.55x variational integration speedup at four requested
 threads on its degree/order-100 Mars workloads. The earlier 2.17x number belongs
 to the feasibility executable and is not the native acceptance measurement.
-The broad offline suite remains blocked by missing resources; this is not a
-claim that all acceptance gates below have passed.
+The historical resource blocker has been resolved. Broad-suite results and
+optional-serialization test selection are recorded below; this is not a claim
+that every acceptance gate or build-option combination has been tested.
 
 ## Current native entry points
 
@@ -229,8 +229,8 @@ These are focused native gates, not a full solver/binding acceptance report.
 Factory-to-solver state/STM/sensitivity integration, Python exposure, complete
 native-library/kernel builds and remeasurement are now covered by the Python
 validation described below. Installed-consumer execution is now covered as
-described below; a fully green broad suite remains outstanding. The previously missing Earth-orientation resource is
-not hidden or worked around by these tests.
+described below. The earlier missing Earth-orientation resource was restored
+through the official Conda package on 20 November; see the broad-suite update.
 
 ## Python validation and measurements
 
@@ -256,8 +256,9 @@ absolute differences are zero. The older complete Python kernel was also run
 as a sequential control, with no observed result differences or evidence of a
 sequential slowdown. See the benchmark report for absolute times and limits.
 
-The normal unfiltered `--no-remote-data` suite stops at collection because
-`earth_orientation/eopc01_polar_motion_1846-1961.txt` is still absent. A diagnostic
+Historical status on 15 November: the normal unfiltered `--no-remote-data`
+suite stopped at collection because
+`earth_orientation/eopc01_polar_motion_1846-1961.txt` was absent. A diagnostic
 run using `--continue-on-collection-errors`, after `copy_test_data`, gives
 824 passed, 45 failed, 96 skipped, one xpassed and seven errors. Its failures
 include the missing resource and two GRAIL/MRO fixture downloads blocked in the
@@ -288,3 +289,47 @@ to avoid requiring unbuilt test-support artifacts from kernel-only builds.
 See `tests/installed_gravity_consumer/README.md` for reproduction and scope.
 This validates configured install prefixes, not relocating an installed package.
 Logs are local under `local-profiles/20261115/installed-consumer/`.
+
+## Serialization-aware test collection (20 November 2026)
+
+The kernel reports its actual compiled `TUDAT_BUILD_WITH_SERIALIZATION` option
+as the boolean `_build_with_serialization` attribute. The pytest collection hook
+uses that flag for `requires_serialization` tests. Only an explicit false value
+skips those tests; a missing or non-boolean flag raises a usage error requiring
+a rebuilt kernel and an import-path check. A nearby CMake cache, an environment
+variable or a missing binding method is not evidence that serialization is off.
+
+The file-I/O suite and Cereal-dependent pickle classes carry the marker. Time's
+independent tuple-pickle tests remain active. The new gravity-settings pickle
+test uses the same marker instead of treating a missing method as a reason to
+skip. With serialization ON, a broken/missing binding therefore remains a test
+failure. Regression cases cover both booleans, unknown flags, selective
+collection and agreement between the loaded flag and the basic bindings.
+
+This reuses the policy already present on `parallellization_inquiry`, without
+merging its arc code or unrelated serialization-test refactoring. No Cereal
+payload, equality implementation, gravity algorithm or comparison tolerance is
+changed. Both kernels were rebuilt successfully and their import paths and
+boolean flags checked before running the full offline suite:
+
+| OpenMP | Cereal serialization | Full offline Python suite |
+|---|---|---|
+| ON | OFF | 672 passed, 329 skipped (24.29 s) |
+| OFF | ON | 885 passed, 115 skipped, 1 xpassed (24.04 s) |
+
+Neither run has failures or errors. Both execute all 11 policy regression cases
+and the three independent Time pickle tests. With Cereal OFF, 224 tests skip
+for the explicit build option, 103 for disabled remote-data tests and two for
+missing FFTW. With Cereal ON there are no build-option skips; existing skips
+remain for remote data (103), FFTW (2), observation types under refactoring (2)
+and legacy simulation fixtures importing the unavailable `spice` module (8).
+The existing non-strict mode-coupled Love-number xfail passes in the ON build;
+its annotation is unchanged. Thus the serialization-ON result does not claim
+coverage of those eight skipped simulation fixtures.
+
+Reproduction: set `PYTHONPATH` to the chosen build's `src`, set
+`TUDAT_EXPECT_OPENMP=1` or `0`, and run `python -m pytest tests/test_tudatpy
+--no-remote-data -q --tb=short -ra`. No manual testcase exclusions were used.
+These results cover the two combinations listed above, not an additional
+OpenMP ON / Cereal ON build. Logs, JUnit, source/kernel hashes and exact skip
+reasons are local under `local-profiles/20261120/serialization-policy-fix/`.

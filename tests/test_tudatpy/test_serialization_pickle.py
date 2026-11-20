@@ -71,6 +71,7 @@ def assert_roundtrip_fails(obj):
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestAccelerationSettingsPickle:
     """Pickle roundtrip tests for AccelerationSettings and all derived types."""
 
@@ -132,6 +133,7 @@ class TestAccelerationSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestTorqueSettingsPickle:
     """Pickle roundtrip tests for TorqueSettings and derived types."""
 
@@ -158,6 +160,7 @@ class TestTorqueSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestPropagationTerminationSettingsPickle:
     """Pickle roundtrip tests for PropagationTerminationSettings and derived types."""
 
@@ -204,6 +207,7 @@ class TestPropagationTerminationSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestDependentVariableSettingsPickle:
     """Pickle roundtrip tests for VariableSettings and all derived save-settings types."""
 
@@ -298,6 +302,7 @@ class TestDependentVariableSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestObservationDependentVariableSettingsPickle:
     """Pickle roundtrip tests for ObservationDependentVariableSettings and derived types."""
 
@@ -322,6 +327,7 @@ class TestObservationDependentVariableSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestObservationAncillarySimulationSettingsPickle:
     """Pickle roundtrip tests for ObservationAncillarySimulationSettings."""
 
@@ -334,6 +340,7 @@ class TestObservationAncillarySimulationSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestLinkTypesPickle:
     """Pickle roundtrip tests for LinkEndId and LinkDefinition."""
 
@@ -397,6 +404,7 @@ class TestLinkTypesPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestRootFinderSettingsPickle:
     """Pickle roundtrip tests for RootFinderSettings."""
 
@@ -419,7 +427,7 @@ class TestRootFinderSettingsPickle:
 
 
 class TestTimePickle:
-    """Pickle roundtrip tests for Time."""
+    """Time tuple pickle remains available with Cereal disabled."""
 
     def test_time_zero(self):
         assert_roundtrip(Time(0, 0.0))
@@ -436,6 +444,7 @@ class TestTimePickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestGravityFieldVariationSettingsPickle:
     """Pickle roundtrip tests for GravityFieldVariationSettings."""
 
@@ -494,6 +503,7 @@ class TestGravityFieldVariationSettingsPickle:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestPolymorphicDispatch:
     """
     Verify that cereal correctly identifies and reconstructs the concrete
@@ -693,6 +703,7 @@ class TestPolymorphicDispatch:
 # ===========================================================================
 
 
+@pytest.mark.requires_serialization
 class TestSimulationBasedPickle:
     """
     Pickle roundtrip tests that require running a real propagation.
