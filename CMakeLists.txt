@@ -105,6 +105,11 @@ option(
     "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time of tests."
     ON
 )
+option(TUDAT_BUILD_WITH_OPENMP "Enable opt-in parallel spherical-harmonic gravity." OFF)
+if(TUDAT_BUILD_WITH_OPENMP)
+    find_package(OpenMP REQUIRED COMPONENTS CXX)
+endif()
+
 option(
     TUDAT_BUILD_WITH_SERIALIZATION
     "Build Tudat binary/JSON serialization, polymorphic registrations, and Python pickle/file-I/O bindings."
@@ -630,6 +635,7 @@ configure_file(
 
 file(
         COPY "${BASE_DIRECTORY}/cmake/tudat/TudatFindBoost.cmake"
+        "${BASE_DIRECTORY}/cmake/tudat/FindCSpice.cmake"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
@@ -637,6 +643,7 @@ install(
         FILES
         "${CMAKE_CURRENT_BINARY_DIR}/tudat-config.cmake"
         "${BASE_DIRECTORY}/cmake/tudat/TudatFindBoost.cmake"
+        "${BASE_DIRECTORY}/cmake/tudat/FindCSpice.cmake"
         DESTINATION "${INSTALL_CMAKE_DIR}"
 )
 

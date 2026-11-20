@@ -70,150 +70,232 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
     // Check if cache needs update
     if( !( polynomialParameter == currentPolynomialParameter_ ) )
     {
-        currentPolynomialParameter_ = polynomialParameter;
-        // Set complement of argument (assuming it to be sine of latitude) cosine of latitude is always positive.
-        currentPolynomialParameterComplement_ = std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
-        currentOneOverPolynomialParameterComplement_ = 1.0 / currentPolynomialParameterComplement_;
-
-        LegendreCache& thisReference = *this;
-
-        int jMax = -1;
-        for( int i = 0; i <= maximumDegree_; i++ )
+        try
         {
-            jMax = std::min( i, maximumOrder_ );
-            for( int j = 0; j <= jMax; j++ )
-            {
-                // Compute legendre polynomial
-                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = checkConsistency
-                        ? legendrePolynomialFunction_( i, j, thisReference )
-                        : legendrePolynomialFunctionWithoutCheck_( i, j, thisReference );
-            }
-        }
+            currentPolynomialParameter_ = polynomialParameter;
+            // Set complement of argument (assuming it to be sine of latitude) cosine of latitude is always positive.
+            currentPolynomialParameterComplement_ = std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
+            currentOneOverPolynomialParameterComplement_ = 1.0 / currentPolynomialParameterComplement_;
 
-        // Compute first derivatives of Legendre polynomials if needed
-        if( computeFirstDerivatives_ )
-        {
-            for( int i = 0; i <= maximumDegree_; i++ )
+            LegendreCache& thisReference = *this;
+
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+            ++experimentLegendreUpdates;
+#endif
+            int jMax = -1;
+            if( utilities::useParallelTeam( numberOfThreads_ ) )
             {
-                jMax = std::min( i, maximumOrder_ );
-                for( int j = 0; j <= jMax; j++ )
+                for( int order = 0; order <= std::min( maximumDegree_, maximumOrder_ ); ++order )
                 {
-                    if( j != 0 )
+                    legendreValues_[ order * ( maximumOrder_ + 1 ) + order ] = checkConsistency
+                            ? legendrePolynomialFunction_( order, order, thisReference )
+                            : legendrePolynomialFunctionWithoutCheck_( order, order, thisReference );
+                }
+                utilities::parallelFor( std::min( maximumDegree_, maximumOrder_ ) + 1, numberOfThreads_, 8, [ & ]( int order ) {
+                    for( int degree = order + 1; degree <= maximumDegree_; ++degree )
                     {
-                        // Compute legendre polynomial derivative
+                        legendreValues_[ degree * ( maximumOrder_ + 1 ) + order ] = checkConsistency
+                                ? legendrePolynomialFunction_( degree, order, thisReference )
+                                : legendrePolynomialFunctionWithoutCheck_( degree, order, thisReference );
+                    }
+                } );
+            }
+            else
+
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+                    if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
+            {
+                // Sectoral terms depend on the previous diagonal; seed these serially.
+                for( int order = 0; order <= std::min( maximumDegree_, maximumOrder_ ); ++order )
+                {
+                    legendreValues_[ order * ( maximumOrder_ + 1 ) + order ] = checkConsistency
+                            ? legendrePolynomialFunction_( order, order, thisReference )
+                            : legendrePolynomialFunctionWithoutCheck_( order, order, thisReference );
+                }
+                // Each vertical recurrence subsequently reads only its own column
+                // and the completed diagonal. Upper-triangle entries remain zero.
+#pragma omp parallel for schedule( static, 8 )
+                for( int order = 0; order <= std::min( maximumDegree_, maximumOrder_ ); ++order )
+                {
+                    if( order == 0 ) experimentLegendreThreads = omp_get_num_threads( );
+                    for( int degree = order + 1; degree <= maximumDegree_; ++degree )
+                    {
+                        legendreValues_[ degree * ( maximumOrder_ + 1 ) + order ] = checkConsistency
+                                ? legendrePolynomialFunction_( degree, order, thisReference )
+                                : legendrePolynomialFunctionWithoutCheck_( degree, order, thisReference );
+                    }
+                }
+            }
+            else
+#endif
+            {
+                for( int i = 0; i <= maximumDegree_; i++ )
+                {
+                    jMax = std::min( i, maximumOrder_ );
+                    for( int j = 0; j <= jMax; j++ )
+                    {
+                        // Compute legendre polynomial
+                        legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = checkConsistency
+                                ? legendrePolynomialFunction_( i, j, thisReference )
+                                : legendrePolynomialFunctionWithoutCheck_( i, j, thisReference );
+                    }
+                }
+            }
+
+            // Compute first derivatives of Legendre polynomials if needed
+            if( computeFirstDerivatives_ )
+            {
+                const auto computeRow = [ & ]( const int i ) {
+                    const int jMax = std::min( i, maximumOrder_ );
+                    for( int j = 0; j <= jMax; j++ )
+                    {
+                        if( j != 0 )
+                        {
+                            // Compute legendre polynomial derivative
+                            if( useGeodesyNormalization_ )
+                            {
+                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] = computeGeodesyLegendrePolynomialDerivative(
+                                        j - 1,
+                                        currentPolynomialParameter_,
+                                        currentOneOverPolynomialParameterComplement_,
+                                        legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                        legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
+                                        derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                        throwExceptionForSingularDerivative_ );
+                            }
+                            else
+                            {
+                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                        computeLegendrePolynomialDerivative( j - 1,
+                                                                             currentPolynomialParameter_,
+                                                                             legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                                                             legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] );
+                            }
+                        }
+                    }
+
+                    // Compute legendre polynomial derivative for i = j  (if needed)
+                    if( jMax == i )
+                    {
                         if( useGeodesyNormalization_ )
                         {
-                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] = computeGeodesyLegendrePolynomialDerivative(
-                                    j - 1,
+                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] = computeGeodesyLegendrePolynomialDerivative(
+                                    jMax,
                                     currentPolynomialParameter_,
                                     currentOneOverPolynomialParameterComplement_,
-                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
-                                    derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ],
+                                    0.0,
+                                    derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ],
                                     throwExceptionForSingularDerivative_ );
                         }
                         else
                         {
-                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
-                                    computeLegendrePolynomialDerivative( j - 1,
-                                                                         currentPolynomialParameter_,
-                                                                         legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                                                         legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] );
+                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] = computeLegendrePolynomialDerivative(
+                                    jMax, currentPolynomialParameter_, legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0 );
                         }
                     }
-                }
-
-                // Compute legendre polynomial derivative for i = j  (if needed)
-                if( jMax == i )
+                };
+                if( utilities::useParallelTeam( numberOfThreads_ ) )
                 {
-                    if( useGeodesyNormalization_ )
-                    {
-                        legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] =
-                                computeGeodesyLegendrePolynomialDerivative( jMax,
-                                                                            currentPolynomialParameter_,
-                                                                            currentOneOverPolynomialParameterComplement_,
-                                                                            legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ],
-                                                                            0.0,
-                                                                            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ],
-                                                                            throwExceptionForSingularDerivative_ );
-                    }
-                    else
-                    {
-                        legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] = computeLegendrePolynomialDerivative(
-                                jMax, currentPolynomialParameter_, legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0 );
-                    }
+                    utilities::parallelFor(
+                            maximumDegree_ + 1, numberOfThreads_, std::max( 1, maximumDegree_ / numberOfThreads_ + 1 ), computeRow );
+                }
+                else
+                {
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+#pragma omp parallel for schedule( static ) private( jMax ) if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
+#endif
+                    for( int i = 0; i <= maximumDegree_; ++i ) computeRow( i );
                 }
             }
-        }
 
-        // Compute second derivatives of Legendre polynomials if needed
-        if( computeSecondDerivatives_ )
-        {
-            for( int i = 0; i <= maximumDegree_; i++ )
+            // Compute second derivatives of Legendre polynomials if needed
+            if( computeSecondDerivatives_ )
             {
-                jMax = std::min( i, maximumOrder_ );
-                for( int j = 0; j <= jMax; j++ )
-                {
-                    if( j != 0 )
+                const auto computeRow = [ & ]( const int i ) {
+                    const int jMax = std::min( i, maximumOrder_ );
+                    for( int j = 0; j <= jMax; j++ )
                     {
-                        // Compute legendre polynomial second derivatives
+                        if( j != 0 )
+                        {
+                            // Compute legendre polynomial second derivatives
+                            if( useGeodesyNormalization_ )
+                            {
+                                legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                        computeGeodesyLegendrePolynomialSecondDerivative(
+                                                j - 1,
+                                                currentPolynomialParameter_,
+                                                currentOneOverPolynomialParameterComplement_,
+                                                legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
+                                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ],
+                                                derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] );
+                            }
+                            else
+                            {
+                                legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                        computeGeodesyLegendrePolynomialSecondDerivative(
+                                                j - 1,
+                                                currentPolynomialParameter_,
+                                                currentOneOverPolynomialParameterComplement_,
+                                                legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
+                                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ],
+                                                1.0 );
+                            }
+                        }
+                    }
+                    // Compute legendre polynomial second derivative for i = j  (if needed)
+                    if( jMax == i )
+                    {
                         if( useGeodesyNormalization_ )
                         {
-                            legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                            legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] =
                                     computeGeodesyLegendrePolynomialSecondDerivative(
-                                            j - 1,
+                                            jMax,
                                             currentPolynomialParameter_,
                                             currentOneOverPolynomialParameterComplement_,
-                                            legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
-                                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ],
-                                            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] );
+                                            legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ],
+                                            0.0,
+                                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ],
+                                            0.0,
+                                            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
                         }
                         else
                         {
-                            legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                            legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] =
                                     computeGeodesyLegendrePolynomialSecondDerivative(
-                                            j - 1,
+                                            jMax,
                                             currentPolynomialParameter_,
                                             currentOneOverPolynomialParameterComplement_,
-                                            legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
-                                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ],
+                                            legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ],
+                                            0.0,
+                                            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ],
+                                            0.0,
                                             1.0 );
                         }
                     }
-                }
-                // Compute legendre polynomial second derivative for i = j  (if needed)
-                if( jMax == i )
+                };
+                if( utilities::useParallelTeam( numberOfThreads_ ) )
                 {
-                    if( useGeodesyNormalization_ )
-                    {
-                        legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] = computeGeodesyLegendrePolynomialSecondDerivative(
-                                jMax,
-                                currentPolynomialParameter_,
-                                currentOneOverPolynomialParameterComplement_,
-                                legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ],
-                                0.0,
-                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ],
-                                0.0,
-                                derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
-                    }
-                    else
-                    {
-                        legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] =
-                                computeGeodesyLegendrePolynomialSecondDerivative( jMax,
-                                                                                  currentPolynomialParameter_,
-                                                                                  currentOneOverPolynomialParameterComplement_,
-                                                                                  legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ],
-                                                                                  0.0,
-                                                                                  legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ],
-                                                                                  0.0,
-                                                                                  1.0 );
-                    }
+                    utilities::parallelFor(
+                            maximumDegree_ + 1, numberOfThreads_, std::max( 1, maximumDegree_ / numberOfThreads_ + 1 ), computeRow );
+                }
+                else
+                {
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+#pragma omp parallel for schedule( static ) private( jMax ) if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
+#endif
+                    for( int i = 0; i <= maximumDegree_; ++i ) computeRow( i );
                 }
             }
+        }
+        catch( ... )
+        {
+            invalidate( );
+            throw;
         }
     }
 }

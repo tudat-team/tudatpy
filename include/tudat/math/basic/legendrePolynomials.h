@@ -39,6 +39,12 @@
 #include <vector>
 
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/basics/parallelFor.h"
+
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+#include <omp.h>
+#include <cstdint>
+#endif
 
 namespace tudat
 {
@@ -46,6 +52,13 @@ namespace basic_mathematics
 {
 
 //! Class for creating and accessing a back-end cache of Legendre polynomials.
+#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
+// Standalone experiment: switches are set only between single-arc runs.
+inline bool experimentParallelLegendre = false;
+inline std::uint64_t experimentLegendreUpdates = 0;
+inline int experimentLegendreThreads = 1;
+#endif
+
 class LegendreCache
 {
 public:
@@ -194,6 +207,21 @@ public:
         currentPolynomialParameter_ = TUDAT_NAN;
     }
 
+    //! Local execution policy; independent copies own independent cache storage.
+    void setNumberOfThreads( const int numberOfThreads )
+    {
+        utilities::validateNumberOfThreads( numberOfThreads );
+        numberOfThreads_ = numberOfThreads;
+    }
+    int getNumberOfThreads( ) const
+    {
+        return numberOfThreads_;
+    }
+    void invalidate( )
+    {
+        currentPolynomialParameter_ = TUDAT_NAN;
+    }
+
     double getVerticalLegendreValuesComputationMultipliersOne( const int degree, const int order );
 
     double getVerticalLegendreValuesComputationMultipliersTwo( const int degree, const int order );
@@ -204,6 +232,7 @@ public:
     }
 
 private:
+    int numberOfThreads_ = 1;
     //! Maximum degree of cache.
     int maximumDegree_;
 

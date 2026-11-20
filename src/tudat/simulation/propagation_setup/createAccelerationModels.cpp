@@ -491,6 +491,7 @@ std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
                     std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                     std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                     useMutualAttraction );
+            accelerationModel->setNumberOfThreads( sphericalHarmonicsSettings->numberOfThreads_ );
         }
     }
     return accelerationModel;
