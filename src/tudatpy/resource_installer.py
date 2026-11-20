@@ -841,7 +841,7 @@ def main() -> None:
 
     if args.mode == "missing":
         installed = install_files(
-            RESOURCE_CATALOG, dest_path, cache_dir, force=False, hashes=hash_map
+            RESOURCE_CATALOG, dest_path, cache_dir, force=args.force, hashes=hash_map
         )
         print(f"Installed {installed} missing resources to {dest_path}")
         return
@@ -850,7 +850,7 @@ def main() -> None:
         if not args.files:
             raise ValueError("Update mode requires --files.")
         files = resolve_catalog_keys(args.files)
-        installed = install_files(files, dest_path, cache_dir, force=True, hashes=hash_map)
+        installed = install_files(files, dest_path, cache_dir, force=args.force, hashes=hash_map)
         print(f"Updated {installed} selected resources to {dest_path}")
         return
 
