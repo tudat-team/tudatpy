@@ -543,14 +543,17 @@ public:
                 }
                 isolated.push_back( simulator );
             }
-            executeIsolatedArcs( isolated.size( ), independentArcWorkers_, [ & ]( std::size_t i ) {
-                isolated.at( i )->template integrateIndependentArc< typename MultiArcSimulationResults::single_arc_type >(
-                        arcInitialStateList.at( i ), propagationResults->getSingleArcResults( ).at( i ) );
-                if( !propagationResults_->getSingleArcResults( ).at( i )->integrationCompletedSuccessfully( ) )
-                {
-                    throw std::runtime_error( "integration did not reach its termination condition" );
-                }
-            } );
+            executeIsolatedArcs(
+                    isolated.size( ),
+                    independentArcWorkers_,
+                    [ this, &isolated, &arcInitialStateList, &propagationResults ]( std::size_t i ) {
+                        isolated.at( i )->template integrateIndependentArc< typename MultiArcSimulationResults::single_arc_type >(
+                                arcInitialStateList.at( i ), propagationResults->getSingleArcResults( ).at( i ) );
+                        if( !propagationResults_->getSingleArcResults( ).at( i )->integrationCompletedSuccessfully( ) )
+                        {
+                            throw std::runtime_error( "integration did not reach its termination condition" );
+                        }
+                    } );
             lastIntegrationUsedIndependentArcs_ = true;
         }
         else
