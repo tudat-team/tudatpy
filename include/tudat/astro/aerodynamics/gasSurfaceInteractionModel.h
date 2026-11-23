@@ -40,6 +40,12 @@ enum PanelMaterialPropertyType {
     normal_velocity_ratio_property
 };
 
+//! Base class for models that compute aerodynamic coefficients by summing the pressure and shear force on each panel.
+/*!
+ * The panel force and the Storch, Sentman and Cook coefficients are based on ADBSat: Sinpetru et al., "ADBSat: Methodology
+ * of a novel panel method tool for aerodynamic analysis of satellites", Computer Physics Communications 275 (2022) 108326,
+ * and its code at https://github.com/nhcrisp/ADBSat (toolbox/calc/calc_coeff.m and toolbox/fmf_eq/).
+ */
 class GasSurfaceInteractionModel
 {
 public:
