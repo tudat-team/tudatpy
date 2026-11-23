@@ -236,11 +236,6 @@ public:
         return siteId_;
     }
 
-    std::shared_ptr< StationMotionModel > getStationMotionModel( )
-    {
-        return stationMotionModel_;
-    }
-
 protected:
     //! Function to reset the rotation from the body-fixed to local topocentric frame, and associated unit vectors
     void setTransformationAndUnitVectors( );
@@ -488,11 +483,6 @@ protected:
 struct CombinedStationMotionModel : public StationMotionModel {
 public:
     CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList ): modelList_( modelList ) {}
-
-    const std::vector< std::shared_ptr< StationMotionModel > >& getModelList( ) const
-    {
-        return modelList_;
-    }
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
