@@ -244,12 +244,12 @@ public:
      *  Get values of atmosphere parameter
      *  \return Arc-wise values of atmosphere parameter
      */
-    Eigen::VectorXd getParameterValue( )
+    Eigen::VectorXd getParameterValue( ) override
     {
         return utilities::convertStlVectorToEigenVector( parameterValues_ );
     }
 
-    int getParameterSize( )
+    int getParameterSize( ) override
     {
         return parameterValues_.size( );
     }
@@ -282,7 +282,7 @@ public:
         }
     }
 
-    void setParameterValue( Eigen::VectorXd newParameterValues )
+    void setParameterValue( Eigen::VectorXd newParameterValues ) override
     {
         if( static_cast< int >( parameterValues_.size( ) ) != static_cast< int >( newParameterValues.rows( ) ) )
         {
@@ -297,7 +297,7 @@ public:
         parameterInterpolator_->resetDependentValues( fullParameterValues_ );
     }
 
-    std::string getParameterDescription( )
+    std::string getParameterDescription( ) override
     {
         std::string parameterDescription;
         switch( parameterName_.first )

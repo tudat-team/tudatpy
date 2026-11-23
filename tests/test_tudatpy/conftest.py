@@ -1,9 +1,25 @@
 import os
 import socket
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 
 import pytest
 import requests
+
+_TESTS_DIR = Path(__file__).resolve().parent
+
+
+@pytest.fixture(scope="session")
+def data_dir() -> Path:
+    """Return the tudatpy test data directory, ``tests/test_tudatpy/data``."""
+    return _TESTS_DIR / "data"
+
+
+@pytest.fixture(scope="session")
+def tudat_data_dir() -> Path:
+    """Return the shared Tudat (C++) test data directory, ``tests/test_tudat/data``."""
+    return _TESTS_DIR.parent / "test_tudat" / "data"
+
 
 _REMOTE_SERVICE_UNAVAILABLE_STATUSES = (500, 502, 503, 504)
 _JPL_HORIZONS_OUTAGE_SIGNATURES = (

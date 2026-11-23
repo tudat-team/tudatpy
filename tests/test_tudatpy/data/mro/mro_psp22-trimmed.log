@@ -1,0 +1,17 @@
+; mro_psp22-trimmed.bsp LOG FILE
+ 
+; Created 2026-11-11/13:40:38.00.
+;
+; BEGIN SPKMERGE COMMANDS
+ 
+LEAPSECONDS_KERNEL = /Users/lhinuber/.tudat/resource/spice_kernels/naif0012.tls
+ 
+SPK_KERNEL           = mro_psp22-trimmed.bsp
+  LOG_FILE           = mro_psp22-trimmed.log
+  SOURCE_SPK_KERNEL  = mro_psp22.bsp
+    INCLUDE_COMMENTS = YES
+    BODIES           = -74
+    BEGIN_TIME       = 2012 MAR 17 10:00:00.000
+    END_TIME         = 2012 MAR 17 14:00:00.000
+ 
+; END SPKMERGE COMMANDS
