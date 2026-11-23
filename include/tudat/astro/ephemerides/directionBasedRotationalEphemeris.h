@@ -169,11 +169,7 @@ public:
     //! Function to apply the closure of this model: (re)set the function computing the state w.r.t. the central body, and
     //! the rotation from the frame of the direction to the propagation frame
     void applyEnvironmentModelClosure( const std::function< void( Eigen::Vector6d& ) > relativeStateFunction,
-                                       const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr )
-    {
-        relativeStateFunction_ = relativeStateFunction;
-        InertialBodyFixedDirectionCalculator::applyEnvironmentModelClosure( rotationMatrixToPropagationFrame );
-    }
+                                       const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr );
 
     virtual void update( const double time )
     {

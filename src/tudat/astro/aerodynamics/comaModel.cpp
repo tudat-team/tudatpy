@@ -788,6 +788,16 @@ double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, dou
  * Pre-computes multilinear interpolators for all spherical harmonic coefficient
  * pairs to significantly improve performance during density evaluations.
  */
+void ComaModel::applyEnvironmentModelClosure( const std::function< Eigen::Vector6d( ) > sunStateFunction,
+                                              const std::function< Eigen::Vector6d( ) > cometStateFunction,
+                                              const std::function< Eigen::Matrix3d( ) > cometRotationFunction )
+{
+    sunStateFunction_ = sunStateFunction;
+    cometStateFunction_ = cometStateFunction;
+    cometRotationFunction_ = cometRotationFunction;
+    cacheFlags_ = CacheFlags( );
+}
+
 void ComaModel::initializeStokesInterpolators( )
 {
     // This function is only called from the Stokes coefficients constructor,

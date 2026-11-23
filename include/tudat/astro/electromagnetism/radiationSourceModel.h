@@ -385,11 +385,7 @@ public:
     //! Function to set the original sources of the radiation, and the bodies occulting them as seen from this source, used to
     //! create the object that updates the panels (by the closure of this model)
     void setOriginalSources( const std::vector< std::string >& originalSourceBodyNames,
-                             const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodies )
-    {
-        originalSourceBodyNames_ = originalSourceBodyNames;
-        originalSourceToSourceOccultingBodies_ = originalSourceToSourceOccultingBodies;
-    }
+                             const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodies );
 
     const std::vector< std::string >& getOriginalSourceBodyNames( ) const
     {
@@ -408,13 +404,7 @@ public:
 
 protected:
     //! Function to check whether the closure of this model has been applied (throws if not)
-    void checkEnvironmentModelClosure( ) const
-    {
-        if( sourcePanelRadiosityModelUpdater_ == nullptr )
-        {
-            throw std::runtime_error( "Error in paneled radiation source model, model is not closed (no panel updater)" );
-        }
-    }
+    void checkEnvironmentModelClosure( ) const;
 
     std::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceBodyShapeModel_;
     std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater_;

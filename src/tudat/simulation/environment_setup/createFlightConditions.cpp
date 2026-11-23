@@ -239,7 +239,7 @@ void addFlightConditions( const SystemOfBodies& bodies, const std::string bodyNa
     {
         // Create flight conditions without closure, and apply their closure and that of the models of the body that require them
         bodies.at( bodyName )->setFlightConditions( createFlightConditionsWithoutClosure( bodies, bodyName, centralBodyName ) );
-        closeEnvironmentModels( bodyName, bodies, { rotation_model_closure, flight_conditions_closure, aerodynamic_coefficients_closure } );
+        closeFlightConditionsAndDependentModels( bodyName, bodies );
         if( bodies.at( bodyName )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
         {
             throw std::runtime_error( "Error when creating flight conditions for body " + bodyName + " w.r.t. " + centralBodyName +

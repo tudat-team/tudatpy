@@ -264,14 +264,7 @@ public:
                                        const std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction,
                                        const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyStateFunctions,
                                        const std::function< double( ) > deformedBodyMass,
-                                       const std::vector< std::function< double( ) > >& deformingBodyMasses )
-    {
-        deformedBodyStateFunction_ = deformedBodyStateFunction;
-        deformedBodyOrientationFunction_ = deformedBodyOrientationFunction;
-        deformingBodyStateFunctions_ = deformingBodyStateFunctions;
-        deformedBodyMass_ = deformedBodyMass;
-        deformingBodyMasses_ = deformingBodyMasses;
-    }
+                                       const std::vector< std::function< double( ) > >& deformingBodyMasses );
 
     //! Get a string with the concatenation of all the bodies causing the deformation.
     /*!

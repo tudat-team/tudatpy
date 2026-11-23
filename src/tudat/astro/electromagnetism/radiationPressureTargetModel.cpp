@@ -49,6 +49,62 @@ void CannonballRadiationPressureTargetModel::updateRadiationPressureForcing( dou
     }
 }
 
+PaneledRadiationPressureTargetModel::PaneledRadiationPressureTargetModel(
+        const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies,
+        const std::map< std::string, int > maximumNumberOfPixelsPerSource ):
+    RadiationPressureTargetModel( sourceToTargetOccultingBodies ), totalNumberOfPanels_( 0 ),
+    maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource ), panelGeometryDefined_( false )
+{}
+
+void PaneledRadiationPressureTargetModel::applyEnvironmentModelClosure(
+        const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& bodyFixedPanels,
+        const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels,
+        const std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >& segmentFixedPanels,
+        const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations,
+        const bool panelGeometryDefined )
+{
+    bodyFixedPanels_ = bodyFixedPanels;
+    allPanels_ = allPanels;
+    segmentFixedPanels_ = segmentFixedPanels;
+    segmentFixedToBodyFixedRotations_ = segmentFixedToBodyFixedRotations;
+    panelGeometryDefined_ = panelGeometryDefined;
+
+    totalNumberOfPanels_ = allPanels_.size( );
+    panelForces_.resize( totalNumberOfPanels_ );
+    surfacePanelCosines_.resize( totalNumberOfPanels_ );
+    surfaceNormals_.resize( totalNumberOfPanels_ );
+    illuminatedPanelFractions_.resize( totalNumberOfPanels_ );
+
+    // create panelTypeIdList for dependent variable save
+    panelTypeIdList_ = std::vector< std::string >( totalNumberOfPanels_ );
+    for( int i = 0; i < totalNumberOfPanels_; i++ )
+    {
+        panelTypeIdList_[ i ] = allPanels_[ i ]->getPanelTypeId( );
+    }
+    // create map of self-shadowing objects per source
+    selfShadowingPerSource_.clear( );
+    for( auto it : maximumNumberOfPixelsPerSource_ )
+    {
+        if( it.second < 0 || it.second == 1 )
+        {
+            throw std::runtime_error( "Error, invalid maximum number of pixels for source " + it.first + ", value should be > 2." );
+        }
+        if( it.second > 1 && !panelGeometryDefined_ )
+        {
+            throw std::runtime_error( "Error, maximum number of pixels given for source " + it.first +
+                                      ", however, no panel geometry is defined." );
+        }
+        if( it.second == 0 )
+        {
+            continue;
+        }
+        selfShadowingPerSource_[ it.first ] =
+                std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allPanels_, it.second ) );
+    }
+
+    unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0 );
+}
+
 void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double sourceIrradiance,
                                                                           const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
                                                                           const bool resetForces,

@@ -54,7 +54,8 @@ void AerodynamicCoefficientInterface::updateFullCurrentCoefficients(
         if( momentContributionInterface_ == nullptr )
         {
             throw std::runtime_error(
-                    "Error in aerodynamic coefficient interface, model is not closed (no moment contribution interface)" );
+                    "Error in aerodynamic coefficient interface, model is not closed (no moment contribution interface, this "
+                    "requires closed flight conditions of the body)" );
         }
         currentMomentCoefficients_ += momentContributionInterface_->getMomentCoefficientsCorrection(
                 momentReferencePoint_, currentForceCoefficients_, referenceLength_ );

@@ -126,6 +126,28 @@ void MeeCostatesBangBangThrustMagnitudeWrapper::update( const double time )
     }
 }
 
+void ParameterizedThrustMagnitudeWrapper::setGuidanceInputFunctions(
+        const std::vector< std::function< double( ) > >& thrustGuidanceInputFunctions,
+        const std::vector< std::function< double( ) > >& specificImpulseGuidanceInputFunctions )
+{
+    thrustGuidanceInputFunctions_ = thrustGuidanceInputFunctions;
+    specificImpulseGuidanceInputFunctions_ = specificImpulseGuidanceInputFunctions;
+}
+
+void ParameterizedThrustMagnitudeWrapper::applyEnvironmentModelClosure(
+        const std::vector< std::function< double( ) > >& thrustInputVariableFunctions,
+        const std::vector< std::function< double( ) > >& specificImpulseInputVariableFunctions )
+{
+    if( thrustInputVariableFunctions.size( ) != thrustIndependentVariables_.size( ) ||
+        specificImpulseInputVariableFunctions.size( ) != specificImpulseDependentVariables_.size( ) )
+    {
+        throw std::runtime_error(
+                "Error when applying closure of parameterized thrust magnitude, number of input functions is inconsistent" );
+    }
+    thrustInputVariableFunctions_ = thrustInputVariableFunctions;
+    specificImpulseInputVariableFunctions_ = specificImpulseInputVariableFunctions;
+}
+
 void ParameterizedThrustMagnitudeWrapper::update( const double time )
 {
     if( !( currentTime_ == time ) )

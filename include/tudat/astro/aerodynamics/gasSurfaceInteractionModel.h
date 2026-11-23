@@ -55,21 +55,7 @@ public:
     }
 
     //! Function to apply the closure of this model: (re)set the panels of the vehicle
-    void applyEnvironmentModelClosure( const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels )
-    {
-        allPanels_ = allPanels;
-        totalNumberOfPanels_ = allPanels_.size( );
-        surfacePanelCosines_.resize( totalNumberOfPanels_ );
-        if( maximumNumberOfPixels_ > 2 && totalNumberOfPanels_ > 0 )
-        {
-            aerodynamicSelfShadowing_ = std::make_shared< tudat::system_models::SelfShadowing >( allPanels_, maximumNumberOfPixels_ );
-        }
-        else
-        {
-            aerodynamicSelfShadowing_ = nullptr;
-        }
-        unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0 );
-    }
+    void applyEnvironmentModelClosure( const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels );
 
     int getTotalNumberOfPanels( ) const
     {

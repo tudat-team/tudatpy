@@ -193,6 +193,19 @@ void SolidBodyTideGravityFieldVariations::setBodyGeometryParameters( const int b
     iLongitude = mathematical_constants::COMPLEX_I * relativeDeformingBodySphericalPosition.z( );
     sineOfLatitude = std::sin( mathematical_constants::PI / 2.0 - relativeDeformingBodySphericalPosition.y( ) );
 }
+void SolidBodyTideGravityFieldVariations::applyEnvironmentModelClosure(
+        const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
+        const std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction,
+        const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyStateFunctions,
+        const std::function< double( ) > deformedBodyMass,
+        const std::vector< std::function< double( ) > >& deformingBodyMasses )
+{
+    deformedBodyStateFunction_ = deformedBodyStateFunction;
+    deformedBodyOrientationFunction_ = deformedBodyOrientationFunction;
+    deformingBodyStateFunctions_ = deformingBodyStateFunctions;
+    deformedBodyMass_ = deformedBodyMass;
+    deformingBodyMasses_ = deformingBodyMasses;
+}
 
 //! Function for calculating spherical harmonic coefficient corrections.
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariations::calculateBasicSphericalHarmonicsCorrections(

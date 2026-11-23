@@ -1126,14 +1126,19 @@ inline std::shared_ptr< GravityFieldVariationSettings > modeCoupledSolidBodyGrav
  * \param body Body for which gravity field variations are createad
  * \param bodies List of body objects in simulations.
  * \param gravityFieldVariationSettings List of settings for gravity field variations
- * \param applyClosure Boolean denoting whether the closure of the variations (links to other bodies) is applied
  * \return Interface class containing list of GravityFieldVariations.
  */
 std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
         const std::string& body,
         const SystemOfBodies& bodies,
-        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings,
-        const bool applyClosure = true );
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
+
+//! Function to create a set of gravity field variations without closure (links to other bodies). The closure is applied by
+//! applyEnvironmentModelClosure (for instance through closeSystemOfBodies).
+std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSetWithoutClosure(
+        const std::string& body,
+        const SystemOfBodies& bodies,
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
 
 //! Function to create a single gravity field variation object.
 /*!
@@ -1144,13 +1149,13 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
  * or they are directly calculated from the current state during numerical propagation.
  * \param body Body for which gravity field variations are createad
  * \param bodies List of body objects in simulations.
- * \return Single gravity field variation object.
+ * \return Single gravity field variation object, without closure (applied to the set of variations by
+ * createGravityFieldModelVariationsSet).
  */
 std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const std::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
-        const SystemOfBodies& bodies,
-        const bool applyClosure = true );
+        const SystemOfBodies& bodies );
 
 //! Function to apply the closure of a set of gravity field variations (tidal variations are linked to the bodies involved)
 bool applyEnvironmentModelClosure( const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet,

@@ -110,8 +110,18 @@ bool applyEnvironmentModelClosure( const std::shared_ptr< gravitation::GravityFi
 std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
         const std::string& body,
         const SystemOfBodies& bodies,
-        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings,
-        const bool applyClosure )
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
+{
+    std::shared_ptr< gravitation::GravityFieldVariationsSet > fieldVariationsSet =
+            createGravityFieldModelVariationsSetWithoutClosure( body, bodies, gravityFieldVariationSettings );
+    applyEnvironmentModelClosure( fieldVariationsSet, body, bodies );
+    return fieldVariationsSet;
+}
+
+std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSetWithoutClosure(
+        const std::string& body,
+        const SystemOfBodies& bodies,
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
 {
     using namespace tudat::gravitation;
 
@@ -135,8 +145,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
         variationTypes.push_back( gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) );
 
         // Set current variation object in list.
-        variationObjects.push_back(
-                createGravityFieldVariationsModel( gravityFieldVariationSettings.at( i ), body, bodies, applyClosure ) );
+        variationObjects.push_back( createGravityFieldVariationsModel( gravityFieldVariationSettings.at( i ), body, bodies ) );
 
         if( gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) == basic_solid_body )
         {
@@ -184,8 +193,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
 std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const std::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
-        const SystemOfBodies& bodies,
-        const bool applyClosure )
+        const SystemOfBodies& bodies )
 {
     using namespace tudat::gravitation;
 
@@ -291,14 +299,6 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         deformingBodies );
             }
 
-            if( applyClosure )
-            {
-                applyTidalGravityFieldVariationClosure(
-                        std::dynamic_pointer_cast< SolidBodyTideGravityFieldVariations >( gravityFieldVariationModel ),
-                        body,
-                        bodies,
-                        gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr );
-            }
             break;
         }
         case tabulated_variation: {

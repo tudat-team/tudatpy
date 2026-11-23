@@ -29,17 +29,13 @@ public:
         aerodynamicAngleFunction_( aerodynamicAngleFunction ), currentTime_( TUDAT_NAN ), isBodyInPropagation_( false )
     {
         aerodynamicAngleCalculator->setAerodynamicAngleClosureIsIncomplete( );
-        centralBodyName_ = aerodynamicAngleCalculator->getCentralBodyName( );
     }
 
     //! Constructor for model without aerodynamic angle calculator (which is set by the closure of the model)
     AerodynamicAngleRotationalEphemeris( const std::string& centralBodyName,
                                          const std::string& baseFrameOrientation,
                                          const std::string& targetFrameOrientation,
-                                         const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr ):
-        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), centralBodyName_( centralBodyName ),
-        aerodynamicAngleFunction_( aerodynamicAngleFunction ), currentTime_( TUDAT_NAN ), isBodyInPropagation_( false )
-    {}
+                                         const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr );
 
     //! Virtual destructor.
     /*!
@@ -86,14 +82,7 @@ public:
     }
 
     //! Function to apply the closure of this model: (re)set the aerodynamic angle calculator
-    void applyEnvironmentModelClosure( const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
-    {
-        aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
-        if( aerodynamicAngleCalculator_ != nullptr )
-        {
-            aerodynamicAngleCalculator_->setAerodynamicAngleClosureIsIncomplete( );
-        }
-    }
+    void applyEnvironmentModelClosure( const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
     std::string getCentralBodyName( )
     {
@@ -102,11 +91,7 @@ public:
 
     //! Function to set that the angle of attack is to be computed from trim conditions (applied by the closure of this model)
     void setIsPitchTrimmed( const bool isPitchTrimmed,
-                            const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction = nullptr )
-    {
-        isPitchTrimmed_ = isPitchTrimmed;
-        trimSideslipAndBankAngleFunction_ = sideslipAndBankAngleFunction;
-    }
+                            const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction = nullptr );
 
     bool getIsPitchTrimmed( )
     {
@@ -121,6 +106,11 @@ public:
     void setAerodynamicAngleFunction( const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction )
     {
         aerodynamicAngleFunction_ = aerodynamicAngleFunction;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getAerodynamicAngleFunction( )
+    {
+        return aerodynamicAngleFunction_;
     }
 
     void addSideslipBankAngleFunctions( std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction )

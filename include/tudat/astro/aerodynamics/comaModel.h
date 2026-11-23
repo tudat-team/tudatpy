@@ -166,6 +166,11 @@ public:
     ComaModel( const ComaModel& ) = delete;
     ComaModel& operator=( const ComaModel& ) = delete;
 
+    //! Function to apply the closure of this model: (re)set the state functions of Sun and comet, and the comet rotation
+    void applyEnvironmentModelClosure( const std::function< Eigen::Vector6d( ) > sunStateFunction,
+                                       const std::function< Eigen::Vector6d( ) > cometStateFunction,
+                                       const std::function< Eigen::Matrix3d( ) > cometRotationFunction );
+
 private:
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
 

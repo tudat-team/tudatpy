@@ -92,6 +92,21 @@ BasicTidalBodyDeformation::BasicTidalBodyDeformation(
     gravitationalParameterRatios_.resize( numberOfBodies_ );
 }
 
+void BasicTidalBodyDeformation::applyEnvironmentModelClosure(
+        const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
+        const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyStateFunctions,
+        const std::function< Eigen::Quaterniond( const double ) > deformedBodyRotationFunction,
+        const std::function< double( ) > gravitionalParameterOfDeformedBody,
+        const std::vector< std::function< double( ) > >& gravitionalParametersOfDeformingBodies )
+{
+    deformedBodyStateFunction_ = deformedBodyStateFunction;
+    deformingBodyStateFunctions_ = deformingBodyStateFunctions;
+    deformedBodyRotationFunction_ = deformedBodyRotationFunction;
+    gravitionalParameterOfDeformedBody_ = gravitionalParameterOfDeformedBody;
+    gravitionalParametersOfDeformingBodies_ = gravitionalParametersOfDeformingBodies;
+    currentTime_ = TUDAT_NAN;
+}
+
 Eigen::Vector3d BasicTidalBodyDeformation::calculateBasicTicalDisplacement(
         const Eigen::Vector3d& bodyFixedPosition,
         const std::map< int, std::pair< double, double > >& loveNumbers )
@@ -142,6 +157,10 @@ void BasicTidalBodyDeformation::updateBodyProperties( const double time )
 {
     if( !( currentTime_ == time ) )
     {
+        if( deformedBodyStateFunction_ == nullptr || deformedBodyRotationFunction_ == nullptr )
+        {
+            throw std::runtime_error( "Error in tidal body deformation model, model is not closed (no body functions)" );
+        }
         Eigen::Vector3d deformedBodyPosition = deformedBodyStateFunction_( time ).segment( 0, 3 );
         Eigen::Quaterniond currentDeformedBodyRotation = deformedBodyRotationFunction_( time );
         double currentDeformedBodyGravitationalParameter = gravitionalParameterOfDeformedBody_( );

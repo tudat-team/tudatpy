@@ -212,14 +212,7 @@ public:
 
 private:
     //! Function to compute the state of the body w.r.t. the central body (throws if the model is not closed)
-    Eigen::Vector6d computeRelativeState( const double time )
-    {
-        if( relativeStateFunction_ == nullptr )
-        {
-            throw std::runtime_error( "Error in synchronous rotation model, model is not closed (no relative state function)" );
-        }
-        return relativeStateFunction_( time, isBodyInPropagation_ );
-    }
+    Eigen::Vector6d computeRelativeState( const double time );
 
     //! Function returning the current state of the body relative to the central body, in the base frame
     std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction_;

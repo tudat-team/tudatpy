@@ -80,6 +80,15 @@ Eigen::Matrix3d SynchronousRotationalEphemeris::getDerivativeOfRotationToBaseFra
     return Eigen::Matrix3d::Zero( );
 }
 
+Eigen::Vector6d SynchronousRotationalEphemeris::computeRelativeState( const double time )
+{
+    if( relativeStateFunction_ == nullptr )
+    {
+        throw std::runtime_error( "Error in synchronous rotation model, model is not closed (no relative state function)" );
+    }
+    return relativeStateFunction_( time, isBodyInPropagation_ );
+}
+
 }  // namespace ephemerides
 
 }  // namespace tudat

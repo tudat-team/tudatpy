@@ -385,20 +385,15 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngl
     std::shared_ptr< Body > trimmedBody = bodies.at( body );
     trimmedBody->setRotationalEphemeris( rotationModel );
 
-    // Close aerodynamic angle calculator, then flight conditions (using this calculator), then trim conditions
-    applyEnvironmentModelClosure( rotationModel, body, bodies );
+    // Add flight conditions (which applies the closure of the rotation model, including the trim conditions), or apply the closure
+    // using the existing flight conditions
     if( trimmedBody->getFlightConditions( ) == nullptr )
     {
         addFlightConditions( bodies, body, centralBody );
     }
-    else if( trimmedBody->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
+    else if( !applyEnvironmentModelClosure( rotationModel, body, bodies ) )
     {
-        applyEnvironmentModelClosure( trimmedBody->getFlightConditions( ), body, bodies );
-    }
-
-    if( !applyEnvironmentModelClosure( rotationModel, body, bodies ) )
-    {
-        throw std::runtime_error( "Error, body does not have FlightConditions when setting trim conditions." );
+        throw std::runtime_error( "Error when setting trim conditions of body " + body + ", flight conditions are not closed" );
     }
     return rotationModel;
 }
@@ -450,14 +445,20 @@ bool applyEnvironmentModelClosure( const std::shared_ptr< ephemerides::Rotationa
         // Trimmed angle of attack requires atmospheric flight conditions to be closed
         if( aerodynamicAngleRotationModel->getIsPitchTrimmed( ) )
         {
-            std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
-                    std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( bodies.at( body )->getFlightConditions( ) );
+            std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodies.at( body )->getFlightConditions( );
             if( flightConditions == nullptr || flightConditions->getAerodynamicAngleCalculator( ) == nullptr )
             {
                 return false;
             }
+            std::shared_ptr< aerodynamics::AtmosphericFlightConditions > atmosphericFlightConditions =
+                    std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( flightConditions );
+            if( atmosphericFlightConditions == nullptr )
+            {
+                throw std::runtime_error( "Error when setting trim conditions of body " + body + ", flight conditions w.r.t. " +
+                                          flightConditions->getCentralBody( ) + " are not atmospheric (central body has no atmosphere)" );
+            }
             linkTrimmedConditions( createTrimCalculator( bodies.at( body ) ),
-                                   flightConditions,
+                                   atmosphericFlightConditions,
                                    aerodynamicAngleRotationModel,
                                    aerodynamicAngleRotationModel->getTrimSideslipAndBankAngleFunction( ) );
         }
@@ -726,6 +727,10 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModelWithoutCl
             {
                 throw std::runtime_error( "Error, expected aerdynamic angle based rotation model settings for " + body );
             }
+            else if( bodies.count( body ) == 0 )
+            {
+                throw std::runtime_error( "Error when creating aerodynamic angle based rotation model, body " + body + " not found" );
+            }
             else
             {
                 rotationalEphemeris = std::make_shared< AerodynamicAngleRotationalEphemeris >(
@@ -752,13 +757,6 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModelWithoutCl
                                                                                  trimRotationSettings->getTargetFrame( ) );
                 trimmedRotationalEphemeris->setIsPitchTrimmed( true, trimRotationSettings->sideslipAndBankAngleFunction_ );
                 rotationalEphemeris = trimmedRotationalEphemeris;
-
-                // Trimmed conditions require flight conditions (closed together with the rotation model)
-                if( bodies.count( body ) > 0 && bodies.at( body )->getFlightConditions( ) == nullptr )
-                {
-                    bodies.at( body )->setFlightConditions(
-                            createFlightConditionsWithoutClosure( bodies, body, trimRotationSettings->centralBody_ ) );
-                }
             }
             break;
         }

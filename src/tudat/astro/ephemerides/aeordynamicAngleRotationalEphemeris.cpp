@@ -55,6 +55,33 @@ void FromAeroEphemerisAerodynamicAngleInterface::resetCurrentTime( )
 namespace ephemerides
 {
 
+AerodynamicAngleRotationalEphemeris::AerodynamicAngleRotationalEphemeris(
+        const std::string& centralBodyName,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction ):
+    RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), centralBodyName_( centralBodyName ),
+    aerodynamicAngleFunction_( aerodynamicAngleFunction ), currentTime_( TUDAT_NAN ), isBodyInPropagation_( false )
+{}
+
+void AerodynamicAngleRotationalEphemeris::applyEnvironmentModelClosure(
+        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
+{
+    aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
+    if( aerodynamicAngleCalculator_ != nullptr )
+    {
+        aerodynamicAngleCalculator_->setAerodynamicAngleClosureIsIncomplete( );
+    }
+}
+
+void AerodynamicAngleRotationalEphemeris::setIsPitchTrimmed(
+        const bool isPitchTrimmed,
+        const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction )
+{
+    isPitchTrimmed_ = isPitchTrimmed;
+    trimSideslipAndBankAngleFunction_ = sideslipAndBankAngleFunction;
+}
+
 void AerodynamicAngleRotationalEphemeris::updateBodyAngles( )
 {
     if( aerodynamicAngleFunction_ != nullptr )
@@ -83,6 +110,12 @@ void AerodynamicAngleRotationalEphemeris::update( const double currentTime )
                 {
                     throw std::runtime_error(
                             "Error in aerodynamic angle based rotation model, model is not closed (no aerodynamic angle calculator)" );
+                }
+                if( isPitchTrimmed_ && aerodynamicAngleFunction_ == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error in trimmed aerodynamic angle based rotation model, model is not closed (trim conditions not set, these "
+                            "require closed atmospheric flight conditions of the body)" );
                 }
                 currentTime_ = currentTime;
                 aerodynamicAngleCalculator_->update( currentTime, false );

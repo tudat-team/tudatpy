@@ -1972,6 +1972,11 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& body,
                                                                         const SystemOfBodies& bodies = SystemOfBodies( ) );
+
+//! Function to apply the closure of an atmosphere model (links of coma and coma wind models to the states of the Sun and the body)
+bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies );
 }  // namespace simulation_setup
 }  // namespace tudat
 

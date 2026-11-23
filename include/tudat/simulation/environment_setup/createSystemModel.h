@@ -499,10 +499,16 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
 
 void addBodyExteriorPanelledShape( const std::shared_ptr< FullPanelledBodySettings > panelSettings,
                                    const std::string& bodyName,
-                                   const simulation_setup::SystemOfBodies& bodies,
-                                   const bool applyClosure = true );
+                                   const simulation_setup::SystemOfBodies& bodies );
 
-//! Function to apply the closure of the vehicle systems of a body (surface normals of panels tracking a body)
+//! Function to add the exterior panels to a body without closure (surface normals of panels tracking a body). The closure is
+//! applied by applyEnvironmentModelClosure (for instance through closeSystemOfBodies).
+void addBodyExteriorPanelledShapeWithoutClosure( const std::shared_ptr< FullPanelledBodySettings > panelSettings,
+                                                 const std::string& bodyName,
+                                                 const simulation_setup::SystemOfBodies& bodies );
+
+//! Function to apply the closure of the vehicle systems of a body (surface normals of panels tracking a body, input of
+//! parameterized thrust)
 bool applyEnvironmentModelClosure( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems,
                                    const std::string& bodyName,
                                    const SystemOfBodies& bodies );

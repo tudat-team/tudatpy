@@ -115,6 +115,22 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
     return irradiances;
 }
 
+void PaneledRadiationSourceModel::setOriginalSources(
+        const std::vector< std::string >& originalSourceBodyNames,
+        const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodies )
+{
+    originalSourceBodyNames_ = originalSourceBodyNames;
+    originalSourceToSourceOccultingBodies_ = originalSourceToSourceOccultingBodies;
+}
+
+void PaneledRadiationSourceModel::checkEnvironmentModelClosure( ) const
+{
+    if( sourcePanelRadiosityModelUpdater_ == nullptr )
+    {
+        throw std::runtime_error( "Error in paneled radiation source model, model is not closed (no panel updater)" );
+    }
+}
+
 PaneledRadiationSourceModel::~PaneledRadiationSourceModel( ) = default;
 
 void StaticallyPaneledRadiationSourceModel::updateMembers_( double currentTime )

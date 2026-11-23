@@ -992,6 +992,19 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
  * \return Solar longitude angle from X-axis in XY plane [rad]
  * \throws std::runtime_error If state functions are not initialized
  */
+void ComaWindModel::applyEnvironmentModelClosure( const std::shared_ptr< ComaModel > comaModel,
+                                                  const std::function< Eigen::Vector6d( ) > sunStateFunction,
+                                                  const std::function< Eigen::Vector6d( ) > cometStateFunction,
+                                                  const std::function< Eigen::Matrix3d( ) > cometRotationFunction )
+{
+    comaModel_ = comaModel;
+    sunStateFunction_ = sunStateFunction;
+    cometStateFunction_ = cometStateFunction;
+    cometRotationFunction_ = cometRotationFunction;
+    sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator( );
+    cacheFlags_ = CacheFlags( );
+}
+
 double ComaWindModel::calculateSolarLongitude( const double time )
 {
     constexpr double timeTolerance = 1e-10;

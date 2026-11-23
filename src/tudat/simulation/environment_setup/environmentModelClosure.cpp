@@ -11,7 +11,17 @@
 #include <algorithm>
 
 #include "tudat/simulation/environment_setup/environmentModelClosure.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/aerodynamics/comaWindModel.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "tudat/astro/aerodynamics/customConstantTemperatureAtmosphere.h"
+#include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
+#include "tudat/astro/aerodynamics/standardAtmosphere.h"
+#include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
+#include "tudat/astro/aerodynamics/windModel.h"
+#include "tudat/astro/ground_stations/basicTidalBodyDeformation.h"
+#include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
+#include "tudat/astro/ground_stations/poleTideDeformation.h"
 #include "tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
@@ -30,16 +40,27 @@
 #include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
 #include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
+#include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
+#include "tudat/astro/system_models/engineModel.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#if TUDAT_BUILD_WITH_NRLMSISE
+#include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
+#endif
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+#include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
+#endif
 
 namespace tudat
 {
@@ -168,6 +189,22 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< system_models::V
             return true;
         }
     }
+    for( auto engineModel : vehicleSystems->getEngineModels( ) )
+    {
+        std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = engineModel.second->getThrustMagnitudeWrapper( );
+        if( isModelOfType< propulsion::ParameterizedThrustMagnitudeWrapper >( thrustMagnitude ) )
+        {
+            return true;
+        }
+        else if( !isModelOfType< propulsion::ConstantThrustMagnitudeWrapper >( thrustMagnitude ) &&
+                 !isModelOfType< propulsion::CustomThrustMagnitudeWrapper >( thrustMagnitude ) &&
+                 !isModelOfType< propulsion::CustomThrustAccelerationMagnitudeWrapper >( thrustMagnitude ) &&
+                 !isModelOfType< propulsion::MeeCostatesBangBangThrustMagnitudeWrapper >( thrustMagnitude ) &&
+                 !isModelOfType< propulsion::CustomThrustVectorWrapper >( thrustMagnitude ) )
+        {
+            throwUnknownModelTypeError( "thrust magnitude model" );
+        }
+    }
     return false;
 }
 
@@ -205,6 +242,85 @@ bool doesEnvironmentModelRequireClosure( const std::shared_ptr< electromagnetism
     return false;
 }
 
+//! Function to determine whether an atmosphere model (including its wind model) requires closure (does not check whether it has
+//! been applied)
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
+{
+    using namespace aerodynamics;
+
+    if( atmosphereModel == nullptr )
+    {
+        return false;
+    }
+
+    std::shared_ptr< WindModel > windModel = atmosphereModel->getWindModel( );
+    if( isModelOfType< ComaWindModel >( windModel ) )
+    {
+        return true;
+    }
+    else if( windModel != nullptr && !isModelOfType< ConstantWindModel >( windModel ) && !isModelOfType< CustomWindModel >( windModel ) &&
+             !isModelOfType< EmptyWindModel >( windModel ) )
+    {
+        throwUnknownModelTypeError( "wind model" );
+    }
+
+    if( isModelOfType< ComaModel >( atmosphereModel ) )
+    {
+        return true;
+    }
+    else if( isModelOfType< ScaledAtmosphereModel >( atmosphereModel ) )
+    {
+        return doesEnvironmentModelRequireClosure(
+                std::dynamic_pointer_cast< ScaledAtmosphereModel >( atmosphereModel )->getBaseAtmosphere( ) );
+    }
+    else if( isModelOfType< StandardAtmosphere >( atmosphereModel ) || isModelOfType< TabulatedAtmosphere >( atmosphereModel ) ||
+             isModelOfType< CustomConstantTemperatureAtmosphere >( atmosphereModel ) ||
+             isModelOfType< CustomNumberDensityAtmosphere >( atmosphereModel ) ||
+             isModelOfType< MarsDtmAtmosphereModel >( atmosphereModel ) )
+    {
+        return false;
+    }
+#if TUDAT_BUILD_WITH_NRLMSISE
+    else if( isModelOfType< NRLMSISE00Atmosphere >( atmosphereModel ) )
+    {
+        return false;
+    }
+#endif
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+    else if( isModelOfType< McdAtmosphereModel >( atmosphereModel ) )
+    {
+        return false;
+    }
+#endif
+    throwUnknownModelTypeError( "atmosphere model" );
+    return false;
+}
+
+//! Function to determine whether a ground station requires closure (does not check whether it has been applied)
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< ground_stations::GroundStation > groundStation )
+{
+    // Pointing angles calculator is linked to the rotation model of the body
+    return groundStation != nullptr;
+}
+
+//! Function to determine whether a body deformation model requires closure (does not check whether it has been applied)
+bool doesEnvironmentModelRequireClosure( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel )
+{
+    using namespace basic_astrodynamics;
+
+    if( deformationModel == nullptr || isModelOfType< PoleTideDeformation >( deformationModel ) ||
+        isModelOfType< OceanTideEarthDeformation >( deformationModel ) )
+    {
+        return false;
+    }
+    else if( isModelOfType< BasicTidalBodyDeformation >( deformationModel ) )
+    {
+        return true;
+    }
+    throwUnknownModelTypeError( "body deformation model" );
+    return false;
+}
+
 //! Function to apply the closure of a single type of environment model of a body. Returns false if the closure cannot yet be
 //! applied (environment models it depends on are not yet closed, or do not yet exist).
 bool applyEnvironmentModelClosure( const EnvironmentModelClosureType closureType,
@@ -234,50 +350,140 @@ bool applyEnvironmentModelClosure( const EnvironmentModelClosureType closureType
             }
             return isClosureApplied;
         }
+        case atmosphere_closure: {
+            std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel = body->getAtmosphereModel( );
+            std::shared_ptr< aerodynamics::ScaledAtmosphereModel > scaledAtmosphere =
+                    std::dynamic_pointer_cast< aerodynamics::ScaledAtmosphereModel >( atmosphereModel );
+            if( scaledAtmosphere != nullptr )
+            {
+                atmosphereModel = scaledAtmosphere->getBaseAtmosphere( );
+            }
+            return applyEnvironmentModelClosure( atmosphereModel, bodyName, bodies );
+        }
+        case ground_stations_closure: {
+            for( auto groundStation : body->getGroundStationMap( ) )
+            {
+                applyEnvironmentModelClosure( groundStation.second, body, bodies );
+            }
+            return true;
+        }
+        case body_deformation_closure: {
+            for( auto deformationModel : body->getBodyDeformationModels( ) )
+            {
+                applyEnvironmentModelClosure( deformationModel, bodyName, bodies );
+            }
+            return true;
+        }
         default:
             throw std::runtime_error( "Error when applying closure of environment model of body " + bodyName + ", closure type " +
                                       std::to_string( closureType ) + " not recognized" );
     }
 }
 
-//! Function to determine which environment models (types) of a body require closure
-std::vector< EnvironmentModelClosureType > getEnvironmentModelClosureTypes( const std::shared_ptr< Body > body )
+//! Function to determine whether a type of closure is requested (all types are requested if the list is empty)
+bool isClosureTypeRequested( const EnvironmentModelClosureType closureType,
+                             const std::vector< EnvironmentModelClosureType >& requestedTypes )
+{
+    return requestedTypes.size( ) == 0 || std::find( requestedTypes.begin( ), requestedTypes.end( ), closureType ) != requestedTypes.end( );
+}
+
+//! Function to determine which environment models (of the requested types, or of all types if none are given) of a body require
+//! closure
+std::vector< EnvironmentModelClosureType > getEnvironmentModelClosureTypes(
+        const std::shared_ptr< Body > body,
+        const std::vector< EnvironmentModelClosureType >& requestedTypes )
 {
     std::vector< EnvironmentModelClosureType > closureTypes;
-    if( doesEnvironmentModelRequireClosure( body->getRotationalEphemeris( ) ) )
+    if( isClosureTypeRequested( rotation_model_closure, requestedTypes ) &&
+        doesEnvironmentModelRequireClosure( body->getRotationalEphemeris( ) ) )
     {
         closureTypes.push_back( rotation_model_closure );
     }
-    if( doesEnvironmentModelRequireClosure( body->getGravityFieldVariationSet( ) ) )
+    if( isClosureTypeRequested( gravity_field_variations_closure, requestedTypes ) &&
+        doesEnvironmentModelRequireClosure( body->getGravityFieldVariationSet( ) ) )
     {
         closureTypes.push_back( gravity_field_variations_closure );
     }
-    if( doesEnvironmentModelRequireClosure( body->getFlightConditions( ) ) )
+    if( isClosureTypeRequested( flight_conditions_closure, requestedTypes ) &&
+        doesEnvironmentModelRequireClosure( body->getFlightConditions( ) ) )
     {
         closureTypes.push_back( flight_conditions_closure );
     }
-    if( doesEnvironmentModelRequireClosure( body->getAerodynamicCoefficientInterface( ) ) )
+    if( isClosureTypeRequested( aerodynamic_coefficients_closure, requestedTypes ) &&
+        doesEnvironmentModelRequireClosure( body->getAerodynamicCoefficientInterface( ) ) )
     {
         closureTypes.push_back( aerodynamic_coefficients_closure );
     }
-    if( doesEnvironmentModelRequireClosure( body->getVehicleSystems( ) ) )
+    if( isClosureTypeRequested( vehicle_systems_closure, requestedTypes ) &&
+        doesEnvironmentModelRequireClosure( body->getExistingVehicleSystems( ) ) )
     {
         closureTypes.push_back( vehicle_systems_closure );
     }
-    if( doesEnvironmentModelRequireClosure( body->getRadiationSourceModel( ) ) )
+    if( isClosureTypeRequested( radiation_source_closure, requestedTypes ) &&
+        doesEnvironmentModelRequireClosure( body->getRadiationSourceModel( ) ) )
     {
         closureTypes.push_back( radiation_source_closure );
     }
+    // Closure types of models of which a body may have several are added once
     for( auto targetModel : body->getRadiationPressureTargetModels( ) )
     {
-        if( doesEnvironmentModelRequireClosure( targetModel ) )
+        if( isClosureTypeRequested( radiation_pressure_target_closure, requestedTypes ) &&
+            doesEnvironmentModelRequireClosure( targetModel ) )
         {
             closureTypes.push_back( radiation_pressure_target_closure );
+            break;
         }
     }
-    // Closure types of models of which a body may have several are added once
-    closureTypes.erase( std::unique( closureTypes.begin( ), closureTypes.end( ) ), closureTypes.end( ) );
+    if( isClosureTypeRequested( atmosphere_closure, requestedTypes ) && doesEnvironmentModelRequireClosure( body->getAtmosphereModel( ) ) )
+    {
+        closureTypes.push_back( atmosphere_closure );
+    }
+    for( auto groundStation : body->getGroundStationMap( ) )
+    {
+        if( isClosureTypeRequested( ground_stations_closure, requestedTypes ) &&
+            doesEnvironmentModelRequireClosure( groundStation.second ) )
+        {
+            closureTypes.push_back( ground_stations_closure );
+            break;
+        }
+    }
+    for( auto deformationModel : body->getBodyDeformationModels( ) )
+    {
+        if( isClosureTypeRequested( body_deformation_closure, requestedTypes ) && doesEnvironmentModelRequireClosure( deformationModel ) )
+        {
+            closureTypes.push_back( body_deformation_closure );
+            break;
+        }
+    }
     return closureTypes;
+}
+
+//! Function to determine whether the moment contribution of an aerodynamic coefficient interface (which requires flight conditions)
+//! is requested, but its closure has not yet been applied
+bool isMomentContributionClosurePending( const std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface )
+{
+    if( coefficientInterface == nullptr )
+    {
+        return false;
+    }
+
+    std::shared_ptr< aerodynamics::ScaledAerodynamicCoefficientInterface > scaledInterface =
+            std::dynamic_pointer_cast< aerodynamics::ScaledAerodynamicCoefficientInterface >( coefficientInterface );
+    return ( coefficientInterface->getAddForceContributionToMoments( ) &&
+             coefficientInterface->getMomentContributionInterface( ) == nullptr ) ||
+            ( scaledInterface != nullptr && isMomentContributionClosurePending( scaledInterface->getBaseCoefficientInterface( ) ) );
+}
+
+//! Function to determine whether the closure of an aerodynamic angle based rotation model (aerodynamic angle calculator, or trim
+//! conditions which require flight conditions) has not yet been applied
+bool isAerodynamicAngleRotationClosurePending( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel )
+{
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > aerodynamicAngleRotationModel =
+            std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >( rotationModel );
+    return aerodynamicAngleRotationModel != nullptr &&
+            ( aerodynamicAngleRotationModel->getAerodynamicAngleCalculator( ) == nullptr ||
+              ( aerodynamicAngleRotationModel->getIsPitchTrimmed( ) &&
+                aerodynamicAngleRotationModel->getAerodynamicAngleFunction( ) == nullptr ) );
 }
 
 }  // namespace
@@ -286,14 +492,7 @@ void closeEnvironmentModels( const std::string& bodyName,
                              const SystemOfBodies& bodies,
                              const std::vector< EnvironmentModelClosureType >& closureTypes )
 {
-    std::vector< EnvironmentModelClosureType > closuresToApply;
-    for( EnvironmentModelClosureType closureType : getEnvironmentModelClosureTypes( bodies.at( bodyName ) ) )
-    {
-        if( closureTypes.size( ) == 0 || std::find( closureTypes.begin( ), closureTypes.end( ), closureType ) != closureTypes.end( ) )
-        {
-            closuresToApply.push_back( closureType );
-        }
-    }
+    std::vector< EnvironmentModelClosureType > closuresToApply = getEnvironmentModelClosureTypes( bodies.at( bodyName ), closureTypes );
 
     // Closures are applied repeatedly, since some closures require other closures (of the same body) to be applied first
     bool isAnyClosureApplied = true;
@@ -313,6 +512,20 @@ void closeEnvironmentModels( const std::string& bodyName,
             }
         }
     }
+}
+
+void closeFlightConditionsAndDependentModels( const std::string& bodyName, const SystemOfBodies& bodies )
+{
+    std::vector< EnvironmentModelClosureType > closureTypes = { flight_conditions_closure };
+    if( isAerodynamicAngleRotationClosurePending( bodies.at( bodyName )->getRotationalEphemeris( ) ) )
+    {
+        closureTypes.push_back( rotation_model_closure );
+    }
+    if( isMomentContributionClosurePending( bodies.at( bodyName )->getAerodynamicCoefficientInterface( ) ) )
+    {
+        closureTypes.push_back( aerodynamic_coefficients_closure );
+    }
+    closeEnvironmentModels( bodyName, bodies, closureTypes );
 }
 
 void closeSystemOfBodies( const SystemOfBodies& bodies )

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -219,13 +220,43 @@ bool applyEnvironmentModelClosure( const std::shared_ptr< system_models::Vehicle
                     bodies.at( bodyName ), bodies.at( panel->getTrackedBody( ) ), panel->getIsPointingTowardsTrackedBody( ) ) );
         }
     }
+
+    // Input variables of parameterized thrust magnitude (which may require closed flight conditions)
+    for( auto engineModel : vehicleSystems->getEngineModels( ) )
+    {
+        std::shared_ptr< propulsion::ParameterizedThrustMagnitudeWrapper > parameterizedThrustMagnitude =
+                std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >(
+                        engineModel.second->getThrustMagnitudeWrapper( ) );
+        if( parameterizedThrustMagnitude != nullptr )
+        {
+            std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodies.at( bodyName )->getFlightConditions( );
+            if( flightConditions != nullptr && flightConditions->getAerodynamicAngleCalculator( ) == nullptr )
+            {
+                return false;
+            }
+            parameterizedThrustMagnitude->applyEnvironmentModelClosure(
+                    getPropulsionInputVariables( bodies.at( bodyName ),
+                                                 parameterizedThrustMagnitude->getThrustIndependentVariables( ),
+                                                 parameterizedThrustMagnitude->getThrustGuidanceInputFunctions( ) ),
+                    getPropulsionInputVariables( bodies.at( bodyName ),
+                                                 parameterizedThrustMagnitude->getSpecificImpulseDependentVariables( ),
+                                                 parameterizedThrustMagnitude->getSpecificImpulseGuidanceInputFunctions( ) ) );
+        }
+    }
     return true;
 }
 
 void addBodyExteriorPanelledShape( const std::shared_ptr< FullPanelledBodySettings > panelSettings,
                                    const std::string& bodyName,
-                                   const simulation_setup::SystemOfBodies& bodies,
-                                   const bool applyClosure )
+                                   const simulation_setup::SystemOfBodies& bodies )
+{
+    addBodyExteriorPanelledShapeWithoutClosure( panelSettings, bodyName, bodies );
+    applyEnvironmentModelClosure( bodies.at( bodyName )->getVehicleSystems( ), bodyName, bodies );
+}
+
+void addBodyExteriorPanelledShapeWithoutClosure( const std::shared_ptr< FullPanelledBodySettings > panelSettings,
+                                                 const std::string& bodyName,
+                                                 const simulation_setup::SystemOfBodies& bodies )
 {
     if( bodies.count( bodyName ) == 0 )
     {
@@ -263,10 +294,6 @@ void addBodyExteriorPanelledShape( const std::shared_ptr< FullPanelledBodySettin
     }
     bodies.at( bodyName )->getVehicleSystems( )->setVehicleExteriorPanels( vehicleExteriorPanels );
     bodies.at( bodyName )->getVehicleSystems( )->setVehiclePartOrientation( vehiclePartOrientation );
-    if( applyClosure )
-    {
-        applyEnvironmentModelClosure( bodies.at( bodyName )->getVehicleSystems( ), bodyName, bodies );
-    }
 }
 
 }  // namespace simulation_setup

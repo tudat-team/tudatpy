@@ -236,6 +236,11 @@ public:
         return siteId_;
     }
 
+    std::shared_ptr< StationMotionModel > getStationMotionModel( )
+    {
+        return stationMotionModel_;
+    }
+
 protected:
     //! Function to reset the rotation from the body-fixed to local topocentric frame, and associated unit vectors
     void setTransformationAndUnitVectors( );
@@ -410,6 +415,28 @@ public:
 
     ~BodyCentricToBarycentricRelativisticStationMotion( ) {}
 
+    //! Function to apply the closure of this model: (re)set the functions for the states and rotation of the bodies involved
+    void applyEnvironmentModelClosure( const std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction,
+                                       const std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction,
+                                       const std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction,
+                                       const std::function< double( ) > centralBodyGravitationalParameterFunction );
+
+    //! Function to set the name of the central body of the general relativistic correction (used by closure of this model)
+    void setCentralBodyName( const std::string& centralBodyName )
+    {
+        centralBodyName_ = centralBodyName;
+    }
+
+    std::string getCentralBodyName( ) const
+    {
+        return centralBodyName_;
+    }
+
+    bool getUseGeneralRelativisticCorrection( ) const
+    {
+        return useGeneralRelativisticCorrection_;
+    }
+
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
                                                const std::string& targetFrameOrigin );
@@ -435,6 +462,8 @@ protected:
 
     // Boolean denoting whether TT-compatible station coordinates are scaled to TDB-compatible coordinates (L_C term)
     bool scaleToTdbCompatibleCoordinates_;
+
+    std::string centralBodyName_;
 };
 
 struct CustomStationMotionModel : public StationMotionModel {
@@ -459,6 +488,11 @@ protected:
 struct CombinedStationMotionModel : public StationMotionModel {
 public:
     CombinedStationMotionModel( const std::vector< std::shared_ptr< StationMotionModel > >& modelList ): modelList_( modelList ) {}
+
+    const std::vector< std::shared_ptr< StationMotionModel > >& getModelList( ) const
+    {
+        return modelList_;
+    }
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,

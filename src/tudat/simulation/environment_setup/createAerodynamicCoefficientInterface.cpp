@@ -581,6 +581,10 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
     // Moment contribution interface is created by closure of the coefficient interface
     if( coefficientSettings->getAddForceContributionToMoments( ) )
     {
+        if( bodies.count( body ) == 0 )
+        {
+            throw std::runtime_error( "Error when making aerodynamic moment correction interface, no body " + body + " was found." );
+        }
         coefficientInterface->setAddForceContributionToMoments( true );
     }
 

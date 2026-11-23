@@ -178,8 +178,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
     {
         if( orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_ != nullptr )
         {
-            addBodyExteriorPanelledShape(
-                    orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_, orderedBodySettings.at( i ).first, bodyList, false );
+            addBodyExteriorPanelledShapeWithoutClosure(
+                    orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_, orderedBodySettings.at( i ).first, bodyList );
         }
     }
     std::vector< std::shared_ptr< BodyPanelSettings > > bodyExteriorPanelSettings_;
@@ -202,11 +202,10 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         if( orderedBodySettings.at( i ).second->gravityFieldVariationSettings.size( ) > 0 )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setGravityFieldVariationSet(
-                            createGravityFieldModelVariationsSet( orderedBodySettings.at( i ).first,
-                                                                  bodyList,
-                                                                  orderedBodySettings.at( i ).second->gravityFieldVariationSettings,
-                                                                  false ) );
+                    ->setGravityFieldVariationSet( createGravityFieldModelVariationsSetWithoutClosure(
+                            orderedBodySettings.at( i ).first,
+                            bodyList,
+                            orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
         }
     }
 

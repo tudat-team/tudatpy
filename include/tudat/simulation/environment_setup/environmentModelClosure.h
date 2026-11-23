@@ -47,7 +47,10 @@ enum EnvironmentModelClosureType {
     aerodynamic_coefficients_closure,
     vehicle_systems_closure,
     radiation_source_closure,
-    radiation_pressure_target_closure
+    radiation_pressure_target_closure,
+    atmosphere_closure,
+    ground_stations_closure,
+    body_deformation_closure
 };
 
 //! Function to apply the closure of the environment models of a body (of the given types, or of all types if none are given) that
@@ -60,6 +63,11 @@ void closeEnvironmentModels(
 
 //! Function to apply the closure of the environment models of all bodies (see closeEnvironmentModels)
 void closeSystemOfBodies( const SystemOfBodies& bodies );
+
+//! Function to apply the closure of (newly added) flight conditions of a body, and of the models of the body that require these
+//! flight conditions and of which the closure has not yet been applied. Models of which the closure has been applied are not
+//! modified.
+void closeFlightConditionsAndDependentModels( const std::string& bodyName, const SystemOfBodies& bodies );
 
 }  // namespace simulation_setup
 
