@@ -7,6 +7,9 @@
 #include <cereal/archives/binary.hpp>
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#if defined( TUDAT_BUILD_WITH_OPENMP ) && TUDAT_BUILD_WITH_OPENMP
+#include <omp.h>
+#endif
 
 using namespace tudat;
 using namespace basic_mathematics;

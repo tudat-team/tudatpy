@@ -720,8 +720,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      see :func:`tudatpy.is_openmp_available`. Existing scripts remain sequential by default.
      Runtime limits can reduce the actual team size. Inner execution is sequential inside
      an active OpenMP region. When combining with independent arc workers, budget both
-     levels explicitly. Saved-per-term output and near-pole force branches retain their
-     serial evaluation. Execution policy is not serialized; loaded settings use one thread.
+     levels explicitly. Execution policy is not serialized; loaded settings use one thread.
 
      Buffers belong to each native model. The calling thread updates the environment
      before native workers read it; inner workers do not invoke Python callbacks.

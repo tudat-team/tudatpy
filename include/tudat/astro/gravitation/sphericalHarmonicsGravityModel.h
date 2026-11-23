@@ -106,7 +106,6 @@ public:
                 std::max< int >( maximumDegree_, sphericalHarmonicsCache_.getMaximumDegree( ) ) + 1,
                 std::max< int >( maximumOrder_, sphericalHarmonicsCache_.getMaximumOrder( ) ) + 1 );
         sphericalHarmonicsCache_.getLegendreCache( ).setthrowExceptionForSingularDerivative( false );
-        sphericalHarmonicsCache_.getLegendreCache( ).setNumberOfThreads( 1 );
     }
 
     //! Constructor taking functions for position of bodies, and parameters of spherical harmonics
@@ -164,7 +163,6 @@ public:
                 std::max< int >( maximumDegree_ + 1, sphericalHarmonicsCache_.getMaximumDegree( ) ),
                 std::max< int >( maximumOrder_ + 1, sphericalHarmonicsCache_.getMaximumOrder( ) ) + 1 );
         sphericalHarmonicsCache_.getLegendreCache( ).setthrowExceptionForSingularDerivative( false );
-        sphericalHarmonicsCache_.getLegendreCache( ).setNumberOfThreads( 1 );
     }
 
     //! Model-local execution policy. A model must not be evaluated by concurrent callers.

@@ -78,44 +78,29 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
             currentOneOverPolynomialParameterComplement_ = 1.0 / currentPolynomialParameterComplement_;
 
             LegendreCache& thisReference = *this;
+            const LegendrePolynomialFunction& legendrePolynomialFunction =
+                    checkConsistency ? legendrePolynomialFunction_ : legendrePolynomialFunctionWithoutCheck_;
 
-            int jMax = -1;
-            if( utilities::useParallelTeam( numberOfThreads_ ) )
+            // Compute sectoral Legendre polynomials, which are needed to start the recursion for each order
+            const int maximumComputedOrder = std::min( maximumDegree_, maximumOrder_ );
+            for( int order = 0; order <= maximumComputedOrder; order++ )
             {
-                for( int order = 0; order <= std::min( maximumDegree_, maximumOrder_ ); ++order )
-                {
-                    legendreValues_[ order * ( maximumOrder_ + 1 ) + order ] = checkConsistency
-                            ? legendrePolynomialFunction_( order, order, thisReference )
-                            : legendrePolynomialFunctionWithoutCheck_( order, order, thisReference );
-                }
-                utilities::parallelFor( std::min( maximumDegree_, maximumOrder_ ) + 1, numberOfThreads_, 8, [ & ]( int order ) {
-                    for( int degree = order + 1; degree <= maximumDegree_; ++degree )
-                    {
-                        legendreValues_[ degree * ( maximumOrder_ + 1 ) + order ] = checkConsistency
-                                ? legendrePolynomialFunction_( degree, order, thisReference )
-                                : legendrePolynomialFunctionWithoutCheck_( degree, order, thisReference );
-                    }
-                } );
+                legendreValues_[ order * ( maximumOrder_ + 1 ) + order ] = legendrePolynomialFunction( order, order, thisReference );
             }
-            else
-            {
-                for( int i = 0; i <= maximumDegree_; i++ )
+
+            // Compute remaining Legendre polynomials, using recursion over degree for each order (orders computed in parallel, if
+            // requested)
+            utilities::parallelFor( maximumComputedOrder + 1, numberOfThreads_, 8, [ & ]( const int order ) {
+                for( int degree = order + 1; degree <= maximumDegree_; degree++ )
                 {
-                    jMax = std::min( i, maximumOrder_ );
-                    for( int j = 0; j <= jMax; j++ )
-                    {
-                        // Compute legendre polynomial
-                        legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = checkConsistency
-                                ? legendrePolynomialFunction_( i, j, thisReference )
-                                : legendrePolynomialFunctionWithoutCheck_( i, j, thisReference );
-                    }
+                    legendreValues_[ degree * ( maximumOrder_ + 1 ) + order ] = legendrePolynomialFunction( degree, order, thisReference );
                 }
-            }
+            } );
 
             // Compute first derivatives of Legendre polynomials if needed
             if( computeFirstDerivatives_ )
             {
-                const auto computeRow = [ & ]( const int i ) {
+                utilities::parallelFor( maximumDegree_ + 1, numberOfThreads_, 1, [ & ]( const int i ) {
                     const int jMax = std::min( i, maximumOrder_ );
                     for( int j = 0; j <= jMax; j++ )
                     {
@@ -164,22 +149,13 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
                                     jMax, currentPolynomialParameter_, legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0 );
                         }
                     }
-                };
-                if( utilities::useParallelTeam( numberOfThreads_ ) )
-                {
-                    utilities::parallelFor(
-                            maximumDegree_ + 1, numberOfThreads_, std::max( 1, maximumDegree_ / numberOfThreads_ + 1 ), computeRow );
-                }
-                else
-                {
-                    for( int i = 0; i <= maximumDegree_; ++i ) computeRow( i );
-                }
+                } );
             }
 
             // Compute second derivatives of Legendre polynomials if needed
             if( computeSecondDerivatives_ )
             {
-                const auto computeRow = [ & ]( const int i ) {
+                utilities::parallelFor( maximumDegree_ + 1, numberOfThreads_, 1, [ & ]( const int i ) {
                     const int jMax = std::min( i, maximumOrder_ );
                     for( int j = 0; j <= jMax; j++ )
                     {
@@ -244,16 +220,7 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
                                             1.0 );
                         }
                     }
-                };
-                if( utilities::useParallelTeam( numberOfThreads_ ) )
-                {
-                    utilities::parallelFor(
-                            maximumDegree_ + 1, numberOfThreads_, std::max( 1, maximumDegree_ / numberOfThreads_ + 1 ), computeRow );
-                }
-                else
-                {
-                    for( int i = 0; i <= maximumDegree_; ++i ) computeRow( i );
-                }
+                } );
             }
         }
         catch( ... )

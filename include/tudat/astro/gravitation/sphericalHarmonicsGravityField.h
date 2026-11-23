@@ -102,6 +102,21 @@ private:
     const int columns_;
 };
 
+//! Compute the potential gradient (in spherical coordinates) of a single geodesy-normalized spherical harmonic term.
+/*!
+ *  Uses the formulation of Bosch when the position is close to the pole, and the regular formulation otherwise. Only reads
+ *  from the spherical harmonics cache, so that different terms may be computed concurrently.
+ */
+Eigen::Vector3d computeGeodesyNormalizedPotentialGradientTerm( const Eigen::Vector3d& sphericalPosition,
+                                                               const double preMultiplier,
+                                                               const int degree,
+                                                               const int order,
+                                                               const double cosineHarmonicCoefficient,
+                                                               const double sineHarmonicCoefficient,
+                                                               const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
+                                                               const bool checkSphericalHarmonicsConsistency,
+                                                               const bool isCloseToPole );
+
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
 //! geodesy-normalization.
 /*!
@@ -185,8 +200,6 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
                                     equatorialRadius,
                                     checkSphericalHarmonicsConsistency );
 
-    const basic_mathematics::LegendreCache& legendreCacheReference = sphericalHarmonicsCache.getLegendreCache( );
-
     // Compute gradient premultiplier.
     const double preMultiplier = gravitationalParameter / equatorialRadius;
 
@@ -196,129 +209,61 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     Eigen::Matrix3d transformationToCartesianCoordinates =
             coordinate_conversions::getSphericalToCartesianGradientMatrix( positionOfBodySubjectToAcceleration );
 
-    const bool nearPole = std::fabs( mathematical_constants::PI / 2.0 -
-                                     sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) <
+    // Compute the potential gradients of the separate terms in parallel, if requested
+    const bool isCloseToPole = std::fabs( mathematical_constants::PI / 2.0 -
+                                          sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) <
             colatitudeCutoffForBoschFormulation;
-    if( utilities::useParallelTeam( numberOfThreads ) && !saveSeparateTerms && !nearPole )
+    const bool computeTermsInParallel = utilities::useParallelTeam( numberOfThreads );
+    std::vector< Eigen::Vector3d > temporaryTerms;
+    std::vector< Eigen::Vector3d >& parallelTerms = ( modelTerms != nullptr ) ? *modelTerms : temporaryTerms;
+    if( computeTermsInParallel )
     {
-        std::vector< Eigen::Vector3d > temporaryTerms;
-        auto& terms = modelTerms ? *modelTerms : temporaryTerms;
-        terms.resize( static_cast< std::size_t >( highestDegree ) * highestOrder );
+        parallelTerms.resize( static_cast< std::size_t >( highestDegree ) * highestOrder );
         utilities::parallelFor( highestDegree, numberOfThreads, 1, [ & ]( const int degree ) {
-            for( int order = 0; order <= degree && order < highestOrder; ++order )
+            for( int order = 0; ( order <= degree ) && ( order < highestOrder ); order++ )
             {
-                const double value = checkSphericalHarmonicsConsistency
-                        ? legendreCacheReference.getLegendrePolynomial( degree, order )
-                        : legendreCacheReference.getLegendrePolynomialWithoutCheck( degree, order );
-                const double derivative = checkSphericalHarmonicsConsistency
-                        ? legendreCacheReference.getLegendrePolynomialDerivative( degree, order )
-                        : legendreCacheReference.getLegendrePolynomialDerivativeWithoutCheck( degree, order );
-                terms[ degree * highestOrder + order ] =
-                        basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
-                                                                     preMultiplier,
-                                                                     degree,
-                                                                     order,
-                                                                     cosineHarmonicCoefficients( degree, order ),
-                                                                     sineHarmonicCoefficients( degree, order ),
-                                                                     value,
-                                                                     derivative,
-                                                                     sphericalHarmonicsCache );
+                parallelTerms[ degree * highestOrder + order ] =
+                        computeGeodesyNormalizedPotentialGradientTerm( sphericalpositionOfBodySubjectToAcceleration,
+                                                                       preMultiplier,
+                                                                       degree,
+                                                                       order,
+                                                                       cosineHarmonicCoefficients( degree, order ),
+                                                                       sineHarmonicCoefficients( degree, order ),
+                                                                       sphericalHarmonicsCache,
+                                                                       checkSphericalHarmonicsConsistency,
+                                                                       isCloseToPole );
             }
         } );
-        // Preserve the original floating-point accumulation order.
-        for( int degree = 0; degree < highestDegree; ++degree )
-        {
-            for( int order = 0; order <= degree && order < highestOrder; ++order )
-            {
-                sphericalGradient += terms[ degree * highestOrder + order ];
-            }
-        }
-        return accelerationRotation * ( transformationToCartesianCoordinates * sphericalGradient );
     }
 
-    // Loop through all degrees.
-    double legendrePolynomial = TUDAT_NAN, legendrePolynomialDerivative = TUDAT_NAN;
+    // Sum the terms in a fixed order, so that the result does not depend on the number of threads
+    Eigen::Vector3d currentTerm;
     for( int degree = 0; degree < highestDegree; degree++ )
     {
-        // Loop through all orders.
         for( int order = 0; ( order <= degree ) && ( order < highestOrder ); order++ )
         {
-            if( checkSphericalHarmonicsConsistency )
+            if( computeTermsInParallel )
             {
-                // Compute geodesy-normalized Legendre polynomials.
-                legendrePolynomial = legendreCacheReference.getLegendrePolynomial( degree, order );
-
-                // Compute geodesy-normalized Legendre polynomial derivative.
-                legendrePolynomialDerivative = legendreCacheReference.getLegendrePolynomialDerivative( degree, order );
+                currentTerm = parallelTerms[ degree * highestOrder + order ];
             }
             else
             {
-                // Compute geodesy-normalized Legendre polynomials.
-                legendrePolynomial = legendreCacheReference.getLegendrePolynomialWithoutCheck( degree, order );
-
-                // Compute geodesy-normalized Legendre polynomial derivative.
-                legendrePolynomialDerivative = legendreCacheReference.getLegendrePolynomialDerivativeWithoutCheck( degree, order );
+                currentTerm = computeGeodesyNormalizedPotentialGradientTerm( sphericalpositionOfBodySubjectToAcceleration,
+                                                                             preMultiplier,
+                                                                             degree,
+                                                                             order,
+                                                                             cosineHarmonicCoefficients( degree, order ),
+                                                                             sineHarmonicCoefficients( degree, order ),
+                                                                             sphericalHarmonicsCache,
+                                                                             checkSphericalHarmonicsConsistency,
+                                                                             isCloseToPole );
             }
+            sphericalGradient += currentTerm;
 
-            // Compute the potential gradient of a single spherical harmonic term.
-            bool isCloseToPole = std::fabs( mathematical_constants::PI / 2.0 -
-                                            sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) <
-                    colatitudeCutoffForBoschFormulation;
             if( saveSeparateTerms )
             {
-                if( !isCloseToPole )
-                {
-                    accelerationPerTerm[ std::make_pair( degree, order ) ] =
-                            basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
-                                                                         preMultiplier,
-                                                                         degree,
-                                                                         order,
-                                                                         cosineHarmonicCoefficients( degree, order ),
-                                                                         sineHarmonicCoefficients( degree, order ),
-                                                                         legendrePolynomial,
-                                                                         legendrePolynomialDerivative,
-                                                                         sphericalHarmonicsCache );
-                }
-                else
-                {
-                    accelerationPerTerm[ std::make_pair( degree, order ) ] =
-                            basic_mathematics::computePotentialGradientNearPole( sphericalpositionOfBodySubjectToAcceleration,
-                                                                                 preMultiplier,
-                                                                                 degree,
-                                                                                 order,
-                                                                                 cosineHarmonicCoefficients( degree, order ),
-                                                                                 sineHarmonicCoefficients( degree, order ),
-                                                                                 sphericalHarmonicsCache );
-                }
-                sphericalGradient += accelerationPerTerm[ std::make_pair( degree, order ) ];
-                accelerationPerTerm[ std::make_pair( degree, order ) ] = accelerationRotation *
-                        ( transformationToCartesianCoordinates * accelerationPerTerm[ std::make_pair( degree, order ) ] );
-            }
-            else
-            {
-                // Compute the potential gradient of a single spherical harmonic term.
-                if( !isCloseToPole )
-                {
-                    sphericalGradient += basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
-                                                                                      preMultiplier,
-                                                                                      degree,
-                                                                                      order,
-                                                                                      cosineHarmonicCoefficients( degree, order ),
-                                                                                      sineHarmonicCoefficients( degree, order ),
-                                                                                      legendrePolynomial,
-                                                                                      legendrePolynomialDerivative,
-                                                                                      sphericalHarmonicsCache );
-                }
-                else
-                {
-                    sphericalGradient += basic_mathematics::computePotentialGradientNearPole( sphericalpositionOfBodySubjectToAcceleration,
-                                                                                              preMultiplier,
-                                                                                              degree,
-                                                                                              order,
-                                                                                              cosineHarmonicCoefficients( degree, order ),
-                                                                                              sineHarmonicCoefficients( degree, order ),
-                                                                                              sphericalHarmonicsCache );
-                }
+                accelerationPerTerm[ std::make_pair( degree, order ) ] =
+                        accelerationRotation * ( transformationToCartesianCoordinates * currentTerm );
             }
         }
     }

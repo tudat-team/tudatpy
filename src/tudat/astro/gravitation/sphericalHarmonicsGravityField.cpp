@@ -38,6 +38,51 @@ Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor( )
     }
 }
 
+//! Compute the potential gradient (in spherical coordinates) of a single geodesy-normalized spherical harmonic term.
+Eigen::Vector3d computeGeodesyNormalizedPotentialGradientTerm( const Eigen::Vector3d& sphericalPosition,
+                                                               const double preMultiplier,
+                                                               const int degree,
+                                                               const int order,
+                                                               const double cosineHarmonicCoefficient,
+                                                               const double sineHarmonicCoefficient,
+                                                               const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
+                                                               const bool checkSphericalHarmonicsConsistency,
+                                                               const bool isCloseToPole )
+{
+    if( isCloseToPole )
+    {
+        return basic_mathematics::computePotentialGradientNearPole( sphericalPosition,
+                                                                    preMultiplier,
+                                                                    degree,
+                                                                    order,
+                                                                    cosineHarmonicCoefficient,
+                                                                    sineHarmonicCoefficient,
+                                                                    sphericalHarmonicsCache );
+    }
+
+    const basic_mathematics::LegendreCache& legendreCache = sphericalHarmonicsCache.getLegendreCacheConst( );
+    double legendrePolynomial = TUDAT_NAN, legendrePolynomialDerivative = TUDAT_NAN;
+    if( checkSphericalHarmonicsConsistency )
+    {
+        legendrePolynomial = legendreCache.getLegendrePolynomial( degree, order );
+        legendrePolynomialDerivative = legendreCache.getLegendrePolynomialDerivative( degree, order );
+    }
+    else
+    {
+        legendrePolynomial = legendreCache.getLegendrePolynomialWithoutCheck( degree, order );
+        legendrePolynomialDerivative = legendreCache.getLegendrePolynomialDerivativeWithoutCheck( degree, order );
+    }
+    return basic_mathematics::computePotentialGradient( sphericalPosition,
+                                                        preMultiplier,
+                                                        degree,
+                                                        order,
+                                                        cosineHarmonicCoefficient,
+                                                        sineHarmonicCoefficient,
+                                                        legendrePolynomial,
+                                                        legendrePolynomialDerivative,
+                                                        sphericalHarmonicsCache );
+}
+
 //! Compute gravitational acceleration due to single spherical harmonics term.
 Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
