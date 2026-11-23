@@ -1301,7 +1301,6 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
         double Cp, Ct, cosineDelta, sineDelta, erf, exp;
         double speedRatio = airSpeed / std::sqrt( 2 * specificGasConstant * freeStreamTemperature );
         double sqrtPi = std::sqrt( mathematical_constants::PI );
-        double incidentTemperature = 2.0 / 3.0 * speedRatio * speedRatio * freeStreamTemperature;
         for( unsigned int i = 0; i < angleOfAttack.size( ); i++ )
         {
             for( unsigned int j = 0; j < angleOfSideslip.size( ); j++ )
@@ -1319,12 +1318,15 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
                 erf = std::erf( speedRatio * cosineDelta );
                 exp = std::exp( -speedRatio * speedRatio * cosineDelta * cosineDelta );
                 sineDelta = std::sqrt( std::max( 0.0, 1 - cosineDelta * cosineDelta ) );
-                // Cp
+                // Cp, written as in ADBSat toolbox/fmf_eq/coeff_sentman.m
                 Cp = ( cosineDelta * cosineDelta + 1.0 / ( 2 * speedRatio * speedRatio ) ) * ( 1 + erf ) +
-                        cosineDelta / ( speedRatio * sqrtPi ) * exp +
+                        cosineDelta / ( sqrtPi * speedRatio ) * exp +
                         0.5 *
-                                std::sqrt( 2.0 / 3.0 *
-                                           ( 1 + energyAccomodationCoefficient * ( panelTemperature / incidentTemperature - 1 ) ) ) *
+                                std::sqrt(
+                                        0.5 *
+                                        ( 1 +
+                                          energyAccomodationCoefficient *
+                                                  ( 2 * panelTemperature / ( freeStreamTemperature * speedRatio * speedRatio ) - 1 ) ) ) *
                                 ( sqrtPi * cosineDelta * ( 1 + erf ) + 1.0 / speedRatio * exp );
                 // Ct
                 Ct = sineDelta * cosineDelta * ( 1 + erf ) + sineDelta / ( speedRatio * sqrtPi ) * exp;
