@@ -327,6 +327,8 @@ Eigen::Vector3d CookGasSurfaceInteractionModel::computeAerodynamicCoefficients( 
     double cosineDelta, sineDelta;
     double Cd, Cl, Cp, Ct, panelArea;
     double sqrt;
+    // Kinetic temperature of the incoming flow, Ti = V^2 / ( 3 R ), as in ADBSat toolbox/fmf_eq/coeff_cook.m
+    incidentTemperature_ = airSpeed_ * airSpeed_ / ( 3 * specificGasConstant_ );
     Eigen::Vector3d currentForceCoefficientsBodyFrame = Eigen::Vector3d::Zero( );
     Eigen::Vector3d panelNormal;
 
@@ -350,7 +352,7 @@ Eigen::Vector3d CookGasSurfaceInteractionModel::computeAerodynamicCoefficients( 
         // Energy accommodation term alpha ( Tw / Ti - 1 ), as in ADBSat toolbox/fmf_eq/coeff_cook.m
         sqrt = std::sqrt( 1 +
                           allPanels_[ i ]->getEnergyAccomodationCoefficient( ) *
-                                  ( allPanels_[ i ]->getPanelTemperature( ) / freeStreamTemperature_ - 1 ) );
+                                  ( allPanels_[ i ]->getPanelTemperature( ) / incidentTemperature_ - 1 ) );
         // Cd
         Cd = 2 * cosineDelta * ( 1 + 2.0 / 3.0 * cosineDelta * sqrt );
         // Cl
@@ -381,6 +383,7 @@ Eigen::Vector3d CookGasSurfaceInteractionModel::computeAerodynamicCoefficientsPa
         return Eigen::Vector3d::Zero( );
     }
 
+    incidentTemperature_ = airSpeed_ * airSpeed_ / ( 3 * specificGasConstant_ );
     double cosineDelta, sineDelta;
     double dCd, dCl, dCp, dCt, panelArea;
     Eigen::Vector3d coefficientPartialBodyFrame = Eigen::Vector3d::Zero( );
@@ -405,7 +408,7 @@ Eigen::Vector3d CookGasSurfaceInteractionModel::computeAerodynamicCoefficientsPa
         sineDelta = std::sqrt( std::max( 0.0, 1 - cosineDelta * cosineDelta ) );
         panelArea = allPanels_[ i ]->getPanelArea( ) * illuminatedPanelFractions_[ i ];
         // sqrtTerm = sqrt( 1 + alpha_e ( Tp / Ti - 1 ) ); d sqrtTerm/d alpha_e = ( Tp / Ti - 1 ) / ( 2 sqrtTerm ).
-        double wallTemperatureTerm = allPanels_[ i ]->getPanelTemperature( ) / freeStreamTemperature_ - 1;
+        double wallTemperatureTerm = allPanels_[ i ]->getPanelTemperature( ) / incidentTemperature_ - 1;
         double sqrtTerm = std::sqrt( 1 + allPanels_[ i ]->getEnergyAccomodationCoefficient( ) * wallTemperatureTerm );
         double sqrtTermDerivative = wallTemperatureTerm / ( 2.0 * sqrtTerm );
         // Cd = 2 cosD ( 1 + 2/3 cosD sqrtTerm ), Cl = 4/3 sinD cosD sqrtTerm.

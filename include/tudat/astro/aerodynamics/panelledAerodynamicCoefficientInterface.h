@@ -37,13 +37,14 @@ public:
                 Eigen::Vector3d( -std::cos( independentVariables[ 0 ] ) * std::cos( independentVariables[ 1 ] ),
                                  -std::sin( independentVariables[ 1 ] ),
                                  -std::sin( independentVariables[ 0 ] ) * std::cos( independentVariables[ 1 ] ) ) );
-        if( gasSurfaceInteractionModelType_ == sentman || gasSurfaceInteractionModelType_ == cook )
-        {
-            gasSurfaceInteractionModel_->setFreeStreamTemperature( independentVariables[ 2 ] );
-        }
         if( gasSurfaceInteractionModelType_ == sentman )
         {
+            gasSurfaceInteractionModel_->setFreeStreamTemperature( independentVariables[ 2 ] );
             gasSurfaceInteractionModel_->setAirSpeed( independentVariables[ 3 ] );
+        }
+        else if( gasSurfaceInteractionModelType_ == cook )
+        {
+            gasSurfaceInteractionModel_->setAirSpeed( independentVariables[ 2 ] );
         }
         currentForceCoefficients_ = gasSurfaceInteractionModel_->computeAerodynamicCoefficients( );
 

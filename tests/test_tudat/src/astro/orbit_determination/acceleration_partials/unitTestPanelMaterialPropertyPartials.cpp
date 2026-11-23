@@ -182,11 +182,11 @@ BOOST_AUTO_TEST_CASE( testGasSurfaceInteractionCoefficientPartials )
         {
             std::shared_ptr< GasSurfaceInteractionModel > model =
                     createGasSurfaceInteractionModel( modelEntry.first, panels, referenceArea, 0, false );
-            if( modelEntry.first == sentman || modelEntry.first == cook )
+            if( modelEntry.first == sentman )
             {
                 model->setFreeStreamTemperature( freeStreamTemperature );
             }
-            if( modelEntry.first == sentman )
+            if( modelEntry.first == sentman || modelEntry.first == cook )
             {
                 model->setAirSpeed( airSpeed );
                 model->setSpecifiGasConstant( specificGasConstant );
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testGasSurfaceInteractionPartialGroupSelectionAndModelOpti
     const std::string busGroupId = "Bus";
     const std::string solarArrayGroupId = "SolarArray";
     const double referenceArea = 4.0;
-    const double freeStreamTemperature = 500.0;
+    const double airSpeed = 3.5E3;
     const Eigen::Vector3d incomingDirection = Eigen::Vector3d( -1.0, -0.5, 0.2 ).normalized( );
 
     std::shared_ptr< VehicleExteriorPanel > busPanel =
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE( testGasSurfaceInteractionPartialGroupSelectionAndModelOpti
     std::vector< std::shared_ptr< VehicleExteriorPanel > > solarArrayPanels = { solarArrayPanel };
 
     std::shared_ptr< GasSurfaceInteractionModel > cookModel = createGasSurfaceInteractionModel( cook, allPanels, referenceArea, 0, false );
-    cookModel->setFreeStreamTemperature( freeStreamTemperature );
+    cookModel->setAirSpeed( airSpeed );
     evaluateCoefficientsForPropertyValue( cookModel, busPanels, energy_accommodation_property, 0.35, incomingDirection );
 
     const Eigen::Vector3d busAnalyticalPartial =
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( testGasSurfaceInteractionPartialGroupSelectionAndModelOpti
     // Exercise the projection applied when a gas-surface interaction model is configured to return drag only.
     std::shared_ptr< GasSurfaceInteractionModel > dragOnlyCookModel =
             createGasSurfaceInteractionModel( cook, allPanels, referenceArea, 0, true );
-    dragOnlyCookModel->setFreeStreamTemperature( freeStreamTemperature );
+    dragOnlyCookModel->setAirSpeed( airSpeed );
     evaluateCoefficientsForPropertyValue( dragOnlyCookModel, busPanels, energy_accommodation_property, 0.35, incomingDirection );
     const Eigen::Vector3d dragOnlyAnalyticalPartial =
             dragOnlyCookModel->computeAerodynamicCoefficientsPartial( energy_accommodation_property, busGroupId );

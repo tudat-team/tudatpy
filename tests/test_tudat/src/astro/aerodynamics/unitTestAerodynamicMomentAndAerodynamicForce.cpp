@@ -1341,7 +1341,10 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
     // TEST 4: Cook
     {
         CookGasSurfaceInteractionModel cookModel( allPanels, referenceArea, 0, false );
-        cookModel.setFreeStreamTemperature( freeStreamTemperature );
+        cookModel.setAirSpeed( airSpeed );
+        cookModel.setSpecifiGasConstant( specificGasConstant );
+        // Kinetic temperature of the incoming flow, as in ADBSat toolbox/fmf_eq/coeff_cook.m
+        double kineticTemperature = airSpeed * airSpeed / ( 3 * specificGasConstant );
         Eigen::Vector3d forceCoefficients, actualForceCoefficients, panelNormal, incomingDirection;
         double Cp, Ct, cosineDelta, sineDelta, sqrt, Cd, Cl;
         for( unsigned int i = 0; i < angleOfAttack.size( ); i++ )
@@ -1358,7 +1361,7 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
                 panelNormal = localFrameSurfaceNormal( );
                 cosineDelta = panelNormal.dot( -incomingDirection );
                 cosineDelta = cosineDelta > 0 ? cosineDelta : 0.0;
-                sqrt = std::sqrt( 1 + energyAccomodationCoefficient * ( panelTemperature / freeStreamTemperature - 1 ) );
+                sqrt = std::sqrt( 1 + energyAccomodationCoefficient * ( panelTemperature / kineticTemperature - 1 ) );
                 sineDelta = std::sqrt( std::max( 0.0, 1 - cosineDelta * cosineDelta ) );
                 Cd = 2 * cosineDelta * ( 1 + 2.0 / 3.0 * cosineDelta * sqrt );
                 // Cl
