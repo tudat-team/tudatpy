@@ -1126,12 +1126,14 @@ inline std::shared_ptr< GravityFieldVariationSettings > modeCoupledSolidBodyGrav
  * \param body Body for which gravity field variations are createad
  * \param bodies List of body objects in simulations.
  * \param gravityFieldVariationSettings List of settings for gravity field variations
+ * \param applyClosure Boolean denoting whether the closure of the variations (links to other bodies) is applied
  * \return Interface class containing list of GravityFieldVariations.
  */
 std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
         const std::string& body,
         const SystemOfBodies& bodies,
-        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings,
+        const bool applyClosure = true );
 
 //! Function to create a single gravity field variation object.
 /*!
@@ -1147,7 +1149,13 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
 std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const std::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
-        const SystemOfBodies& bodies );
+        const SystemOfBodies& bodies,
+        const bool applyClosure = true );
+
+//! Function to apply the closure of a set of gravity field variations (tidal variations are linked to the bodies involved)
+bool applyEnvironmentModelClosure( const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies );
 
 }  // namespace simulation_setup
 }  // namespace tudat

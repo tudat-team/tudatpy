@@ -29,11 +29,28 @@ namespace simulation_setup
 class Body;
 class SystemOfBodies;
 
+//! Function to create an aerodynamic angle calculator from the current states and rotation of the body and central body
+std::shared_ptr< reference_frames::AerodynamicAngleCalculator > createAerodynamicAngleCalculatorFromBodyStates(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyExertingAcceleration );
+
 std::shared_ptr< reference_frames::AerodynamicAngleCalculator > createAerodynamicAngleCalculator(
         const std::shared_ptr< Body > bodyWithFlightConditions,
         const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
+
+//! Function to apply the closure of flight conditions: set the environment models from which they are computed. Returns false if
+//! the closure cannot yet be applied (aerodynamic angle based rotation model of the body not closed).
+bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+                                   const std::string& bodyName,
+                                   const SystemOfBodies& bodies );
+
+//! Function to create flight conditions without closure (atmospheric if the central body has an atmosphere)
+std::shared_ptr< aerodynamics::FlightConditions > createFlightConditionsWithoutClosure( const SystemOfBodies& bodies,
+                                                                                        const std::string& bodyName,
+                                                                                        const std::string& centralBodyName );
 
 //! Function to create an atmospheric flight conditions object
 /*!
@@ -54,21 +71,6 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
         const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
-
-//! Function to create a flight conditions object
-/*!
- * Function to create a flight conditions object, which is responsible for calculating various
- * dependent variables (altitude, latitude, etc ) for non-atmospheric flight
- * \param bodyWithFlightConditions Body for which flight conditions are to be created.
- * \param centralBody Body in  the atmosphere of which bodyWithFlightConditions is flying
- * \param nameOfBodyUndergoingAcceleration Name of body undergoing acceleration.
- * \param nameOfBodyExertingAcceleration Name of body with the atmosphere causing acceleration.
- * \return Flight conditions object for given bodies and settings.
- */
-std::shared_ptr< aerodynamics::FlightConditions > createFlightConditions( const std::shared_ptr< Body > bodyWithFlightConditions,
-                                                                          const std::shared_ptr< Body > centralBody,
-                                                                          const std::string& nameOfBodyUndergoingAcceleration,
-                                                                          const std::string& nameOfBodyExertingAcceleration );
 
 void addFlightConditions( const SystemOfBodies& bodies, const std::string bodyName, const std::string centralBodyName );
 

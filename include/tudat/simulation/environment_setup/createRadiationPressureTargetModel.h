@@ -436,6 +436,17 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
         const std::string& body,
         const SystemOfBodies& bodies );
 
+//! Function to create radiation pressure target models without closure (panels of paneled target from vehicle systems)
+std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > createRadiationPressureTargetModelWithoutClosure(
+        const std::shared_ptr< RadiationPressureTargetModelSettings >& modelSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies );
+
+//! Function to apply the closure of a radiation pressure target model (panels of paneled target from vehicle systems)
+bool applyEnvironmentModelClosure( const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies );
+
 }  // namespace simulation_setup
 }  // namespace tudat
 

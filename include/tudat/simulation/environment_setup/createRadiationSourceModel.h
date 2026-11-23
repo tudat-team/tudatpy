@@ -638,16 +638,16 @@ std::unique_ptr< electromagnetism::SourcePanelRadiosityModel > createPanelRadios
         const std::string& sourceBodyName );
 
 /*!
- * Create panel radiosity model updater from a list of panel radiosity model settings.
+ * Create panel radiosity model updater from the names of the original sources.
  *
- * @param modelSettings Settings of the panel radiosity models
+ * @param originalSourceBodyNames Names of the original sources
  * @param originalSourceToSourceOccultingBodiesMap Occultation map
  * @param sourceBodyName Body to which the panel radiosity models belong
  * @param bodies System of bodies
  * @return Shared pointer to panel radiosity model updater
  */
 std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSourcePanelRadiosityModelUpdater(
-        const std::vector< std::shared_ptr< PanelRadiosityModelSettings > >& modelSettings,
+        const std::vector< std::string >& originalSourceBodyNames,
         const std::map< std::string, std::vector< std::string > >& originalSourceToSourceOccultingBodiesMap,
         const std::string& sourceBodyName,
         const SystemOfBodies& bodies );
@@ -664,6 +664,17 @@ std::shared_ptr< electromagnetism::RadiationSourceModel > createRadiationSourceM
         const std::shared_ptr< RadiationSourceModelSettings >& modelSettings,
         const std::string& sourceBodyName,
         const SystemOfBodies& bodies );
+
+//! Function to create a radiation source model without closure (link of paneled source to its original sources)
+std::shared_ptr< electromagnetism::RadiationSourceModel > createRadiationSourceModelWithoutClosure(
+        const std::shared_ptr< RadiationSourceModelSettings >& modelSettings,
+        const std::string& sourceBodyName,
+        const SystemOfBodies& bodies );
+
+//! Function to apply the closure of a radiation source model (link of paneled source to its original sources)
+bool applyEnvironmentModelClosure( const std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel,
+                                   const std::string& sourceBodyName,
+                                   const SystemOfBodies& bodies );
 
 }  // namespace simulation_setup
 }  // namespace tudat

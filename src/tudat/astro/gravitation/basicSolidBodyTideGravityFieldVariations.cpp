@@ -202,6 +202,11 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
     Eigen::MatrixXd cTermCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sTermCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
 
+    if( deformedBodyStateFunction_ == nullptr || deformingBodyStateFunctions_.size( ) != deformingBodies_.size( ) )
+    {
+        throw std::runtime_error( "Error in solid body tide gravity field variation, model is not closed (no body state functions)" );
+    }
+
     // Iterate over all bodies causing deformation and calculate and add associated corrections
     for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
     {
