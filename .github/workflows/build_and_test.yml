@@ -252,17 +252,13 @@ jobs:
       if: runner.os != 'Windows'
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
+      # The output is also written to build.log, which is checked for compiler warnings at the
+      # end of the job.
       run: |
-        if [ "${{ runner.os }}" = "macOS" ]; then
-          cmake --build "${{ github.workspace }}/build" \
-            --config "${{ matrix.build_type }}" \
-            -j${{ matrix.platform.build_jobs }} \
-            2> >(sed '/^ld: warning: could not create compact unwind for /d' >&2)
-        else
-          cmake --build "${{ github.workspace }}/build" \
-            --config "${{ matrix.build_type }}" \
-            -j${{ matrix.platform.build_jobs }}
-        fi
+        set -o pipefail
+        cmake --build "${{ github.workspace }}/build" \
+          --config "${{ matrix.build_type }}" \
+          -j${{ matrix.platform.build_jobs }} 2>&1 | tee build.log
 
     - name: Build C++ kernel
       id: build_kernel_windows
@@ -302,3 +298,16 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       shell: bash -l {0}
       run: ctest --build-config ${{ matrix.build_type }} --output-on-failure -j4
+
+    - name: Check for compiler warnings
+      # Warnings do not stop the build (no -Werror), so all of them are reported in a single
+      # run while the build and test steps above still run. This step then fails the job if
+      # any compiler warning was emitted.
+      if: always() && steps.build_kernel_non_windows.outcome != 'skipped'
+      shell: bash
+      run: |
+        if grep -q 'warning:' build.log; then
+          echo "::error::Compiler warnings found:"
+          grep 'warning:' build.log | sort -u
+          exit 1
+        fi
