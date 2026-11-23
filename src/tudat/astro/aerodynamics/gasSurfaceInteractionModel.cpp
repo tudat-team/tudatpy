@@ -241,8 +241,9 @@ Eigen::Vector3d SentmanGasSurfaceInteractionModel::computeAerodynamicCoefficient
         exp = std::exp( -speedRatio_ * speedRatio_ * cosineDelta * cosineDelta );
         sineDelta = std::sqrt( std::max( 0.0, 1 - cosineDelta * cosineDelta ) );
         panelArea = allPanels_[ i ]->getPanelArea( ) * illuminatedPanelFractions_[ i ];
-        // Cp, with the energy accommodation term alpha ( Tw / Ti - 1 ) as in ADBSat toolbox/fmf_eq/coeff_sentman.m
-        Cp = ( cosineDelta * cosineDelta ) * ( 1 + erf ) + cosineDelta / ( speedRatio_ * sqrtPi ) * exp +
+        // Cp, as in the ADBSat paper (eq. 6) and toolbox/fmf_eq/coeff_sentman.m
+        Cp = ( cosineDelta * cosineDelta + 1.0 / ( 2 * speedRatio_ * speedRatio_ ) ) * ( 1 + erf ) +
+                cosineDelta / ( speedRatio_ * sqrtPi ) * exp +
                 0.5 *
                         std::sqrt( 2.0 / 3.0 *
                                    ( 1 +

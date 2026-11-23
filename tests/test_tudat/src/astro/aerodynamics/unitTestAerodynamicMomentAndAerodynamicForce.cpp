@@ -1320,7 +1320,8 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
                 exp = std::exp( -speedRatio * speedRatio * cosineDelta * cosineDelta );
                 sineDelta = std::sqrt( std::max( 0.0, 1 - cosineDelta * cosineDelta ) );
                 // Cp
-                Cp = ( cosineDelta * cosineDelta ) * ( 1 + erf ) + cosineDelta / ( speedRatio * sqrtPi ) * exp +
+                Cp = ( cosineDelta * cosineDelta + 1.0 / ( 2 * speedRatio * speedRatio ) ) * ( 1 + erf ) +
+                        cosineDelta / ( speedRatio * sqrtPi ) * exp +
                         0.5 *
                                 std::sqrt( 2.0 / 3.0 *
                                            ( 1 + energyAccomodationCoefficient * ( panelTemperature / incidentTemperature - 1 ) ) ) *
