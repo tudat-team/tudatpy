@@ -21,6 +21,9 @@ On this page, we provide a comprehensive overview of the functionality available
 * :ref:`constants`: This submodule contains various numerical constants used inside Tudat
 
 
+.. autofunction:: tudatpy.is_openmp_available
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Modules
@@ -43,7 +46,6 @@ Package Updates
    :maxdepth: 1
    :caption: Package Updates
 
-   Optional gravity threads <installation_openmp>
    Release Notes <release_notes>
    Migration Guides <migration_guide>
 

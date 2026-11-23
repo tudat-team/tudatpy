@@ -18,6 +18,7 @@ For complete example applications see our [examples page](https://docs.tudat.spa
 - [Compile `tudatpy` from Source](#compile-tudatpy-from-source)
   - [Prerequisites](#prerequisites)
   - [Compilation Steps](#compilation-steps)
+  - [Optional OpenMP support](#optional-openmp-support)
   - [Verify your Build](#verify-your-build)
   - [Optional: Mars Climate Database Interface](#optional-mars-climate-database-interface)
 - [Contributing](#contributing)
@@ -127,6 +128,30 @@ This script will remove tudatpy from your conda environment, but it will not del
 ```
 python uninstall.py -h                # Show help and available flags
 python uninstall.py                   # Uninstall Tudatpy
+```
+
+### Optional OpenMP support
+
+To enable OpenMP, configure and build in a separate directory after activating
+the build environment:
+
+```bash
+cmake -S . -B build-openmp -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" -DCMAKE_BUILD_TYPE=Release \
+  -DBoost_NO_BOOST_CMAKE=ON -DTUDAT_BUILD_WITH_OPENMP=ON
+cmake --build build-openmp --parallel 1
+python install.py --build-dir build-openmp
+```
+
+OpenMP defaults to `OFF`. CMake requires an OpenMP-capable C++ compiler and
+runtime when this option is enabled.
+
+To check whether the installed Python package was built with OpenMP:
+
+```python
+import tudatpy
+
+print(tudatpy.is_openmp_available())
 ```
 
 ### Verify your Build

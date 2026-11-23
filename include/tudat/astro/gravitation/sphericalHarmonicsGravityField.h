@@ -19,6 +19,7 @@
 
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -31,12 +32,6 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
 
-#ifdef TUDAT_EXPERIMENT_PARALLEL_ACCELERATION
-#include <omp.h>
-#include <cstdint>
-#include <vector>
-#endif
-
 #include "tudat/basics/parallelFor.h"
 
 namespace tudat
@@ -44,14 +39,6 @@ namespace tudat
 
 namespace gravitation
 {
-
-#ifdef TUDAT_EXPERIMENT_PARALLEL_ACCELERATION
-inline bool experimentParallelAcceleration = false;
-inline std::uint64_t experimentAccelerationCalls = 0;
-inline int experimentAccelerationThreads = 1;
-inline std::uint64_t experimentTermBufferResizes = 0;
-inline std::uint64_t experimentTemporaryTermBuffers = 0;
-#endif
 
 class SphericalHarmonicsBlock
 {
@@ -176,12 +163,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const bool saveSeparateTerms = 0,
         const Eigen::Matrix3d& accelerationRotation = Eigen::Matrix3d::Identity( ),
         const bool checkSphericalHarmonicsConsistency = true,
-        const double colatitudeCutoffForBoschFormulation = 1.0E-6
-#ifdef TUDAT_EXPERIMENT_PARALLEL_ACCELERATION
-        ,
-        std::vector< Eigen::Vector3d >* reusableTerms = nullptr
-#endif
-        ,
+        const double colatitudeCutoffForBoschFormulation = 1.0E-6,
         const int numberOfThreads = 1,
         std::vector< Eigen::Vector3d >* modelTerms = nullptr )
 {
@@ -253,60 +235,6 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         }
         return accelerationRotation * ( transformationToCartesianCoordinates * sphericalGradient );
     }
-
-#ifdef TUDAT_EXPERIMENT_PARALLEL_ACCELERATION
-    ++experimentAccelerationCalls;
-    const bool experimentNearPole = std::fabs( mathematical_constants::PI / 2.0 -
-                                               sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) <
-            colatitudeCutoffForBoschFormulation;
-    if( experimentParallelAcceleration && omp_get_max_threads( ) > 1 && !saveSeparateTerms && !experimentNearPole )
-    {
-        const std::size_t requiredSize = static_cast< std::size_t >( highestDegree ) * highestOrder;
-        // Retain the original size-constructor path for the non-reuse control.
-        std::vector< Eigen::Vector3d > temporaryTerms( reusableTerms == nullptr ? requiredSize : 0 );
-        auto& terms = reusableTerms ? *reusableTerms : temporaryTerms;
-        if( reusableTerms == nullptr )
-            ++experimentTemporaryTermBuffers;
-        else if( terms.size( ) != requiredSize )
-        {
-            terms.resize( requiredSize );
-            ++experimentTermBufferResizes;
-        }
-#pragma omp parallel for schedule( static, 1 )
-        for( int degree = 0; degree < highestDegree; ++degree )
-        {
-            if( degree == 0 ) experimentAccelerationThreads = omp_get_num_threads( );
-            for( int order = 0; order <= degree && order < highestOrder; ++order )
-            {
-                const double value = checkSphericalHarmonicsConsistency
-                        ? legendreCacheReference.getLegendrePolynomial( degree, order )
-                        : legendreCacheReference.getLegendrePolynomialWithoutCheck( degree, order );
-                const double derivative = checkSphericalHarmonicsConsistency
-                        ? legendreCacheReference.getLegendrePolynomialDerivative( degree, order )
-                        : legendreCacheReference.getLegendrePolynomialDerivativeWithoutCheck( degree, order );
-                terms[ degree * highestOrder + order ] =
-                        basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
-                                                                     preMultiplier,
-                                                                     degree,
-                                                                     order,
-                                                                     cosineHarmonicCoefficients( degree, order ),
-                                                                     sineHarmonicCoefficients( degree, order ),
-                                                                     value,
-                                                                     derivative,
-                                                                     sphericalHarmonicsCache );
-            }
-        }
-        // Preserve the original floating-point accumulation order.
-        for( int degree = 0; degree < highestDegree; ++degree )
-        {
-            for( int order = 0; order <= degree && order < highestOrder; ++order )
-            {
-                sphericalGradient += terms[ degree * highestOrder + order ];
-            }
-        }
-        return accelerationRotation * ( transformationToCartesianCoordinates * sphericalGradient );
-    }
-#endif
 
     // Loop through all degrees.
     double legendrePolynomial = TUDAT_NAN, legendrePolynomialDerivative = TUDAT_NAN;

@@ -79,9 +79,6 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
 
             LegendreCache& thisReference = *this;
 
-#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
-            ++experimentLegendreUpdates;
-#endif
             int jMax = -1;
             if( utilities::useParallelTeam( numberOfThreads_ ) )
             {
@@ -101,33 +98,6 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
                 } );
             }
             else
-
-#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
-                    if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
-            {
-                // Sectoral terms depend on the previous diagonal; seed these serially.
-                for( int order = 0; order <= std::min( maximumDegree_, maximumOrder_ ); ++order )
-                {
-                    legendreValues_[ order * ( maximumOrder_ + 1 ) + order ] = checkConsistency
-                            ? legendrePolynomialFunction_( order, order, thisReference )
-                            : legendrePolynomialFunctionWithoutCheck_( order, order, thisReference );
-                }
-                // Each vertical recurrence subsequently reads only its own column
-                // and the completed diagonal. Upper-triangle entries remain zero.
-#pragma omp parallel for schedule( static, 8 )
-                for( int order = 0; order <= std::min( maximumDegree_, maximumOrder_ ); ++order )
-                {
-                    if( order == 0 ) experimentLegendreThreads = omp_get_num_threads( );
-                    for( int degree = order + 1; degree <= maximumDegree_; ++degree )
-                    {
-                        legendreValues_[ degree * ( maximumOrder_ + 1 ) + order ] = checkConsistency
-                                ? legendrePolynomialFunction_( degree, order, thisReference )
-                                : legendrePolynomialFunctionWithoutCheck_( degree, order, thisReference );
-                    }
-                }
-            }
-            else
-#endif
             {
                 for( int i = 0; i <= maximumDegree_; i++ )
                 {
@@ -202,9 +172,6 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
                 }
                 else
                 {
-#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
-#pragma omp parallel for schedule( static ) private( jMax ) if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
-#endif
                     for( int i = 0; i <= maximumDegree_; ++i ) computeRow( i );
                 }
             }
@@ -285,9 +252,6 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
                 }
                 else
                 {
-#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
-#pragma omp parallel for schedule( static ) private( jMax ) if( experimentParallelLegendre && omp_get_max_threads( ) > 1 )
-#endif
                     for( int i = 0; i <= maximumDegree_; ++i ) computeRow( i );
                 }
             }

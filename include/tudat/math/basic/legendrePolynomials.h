@@ -41,24 +41,12 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/basics/parallelFor.h"
 
-#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
-#include <omp.h>
-#include <cstdint>
-#endif
-
 namespace tudat
 {
 namespace basic_mathematics
 {
 
 //! Class for creating and accessing a back-end cache of Legendre polynomials.
-#ifdef TUDAT_EXPERIMENT_PARALLEL_LEGENDRE
-// Standalone experiment: switches are set only between single-arc runs.
-inline bool experimentParallelLegendre = false;
-inline std::uint64_t experimentLegendreUpdates = 0;
-inline int experimentLegendreThreads = 1;
-#endif
-
 class LegendreCache
 {
 public:

@@ -28,7 +28,6 @@ Functions
 
    spherical_harmonic_gravity
 
-   is_openmp_available
 
    mutual_spherical_harmonic_gravity
 
@@ -76,8 +75,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.point_mass_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity
-
-.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.is_openmp_available
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.mutual_spherical_harmonic_gravity
 
@@ -197,12 +194,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.MomentumWheelDesaturationAccelerationSettings
    :members:
-
-Parallel spherical-harmonic gravity
-----------------------------------
-
-The spherical-harmonic factory accepts ``number_of_threads=1`` as an optional,
-keyword-only setting. It remains sequential unless explicitly configured
-otherwise, even in an OpenMP build. See :doc:`../../installation_openmp` for
-build requirements, availability checks, callback and ownership rules,
-serialization defaults and combining inner threads with independent arcs.

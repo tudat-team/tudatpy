@@ -29,6 +29,17 @@ PYBIND11_MODULE( kernel, m )
     // cache. Tests must not infer disabled features from missing methods.
     m.attr( "_build_with_serialization" ) = py::bool_( TUDAT_BUILD_WITH_SERIALIZATION != 0 );
 
+    m.def(
+            "is_openmp_available",
+            []( ) {
+#if defined( TUDAT_BUILD_WITH_OPENMP ) && TUDAT_BUILD_WITH_OPENMP
+                return true;
+#else
+                return false;
+#endif
+            },
+            R"doc(Return whether this Tudat build supports OpenMP.)doc" );
+
     auto math = m.def_submodule( "math" );
     auto astro = m.def_submodule( "astro" );
     auto trajectory_design = m.def_submodule( "trajectory_design" );

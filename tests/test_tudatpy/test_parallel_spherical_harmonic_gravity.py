@@ -8,6 +8,7 @@ import pickle
 import numpy as np
 import pytest
 
+import tudatpy
 from tudatpy.dynamics import propagation_setup
 from tudatpy.interface import spice
 
@@ -15,7 +16,7 @@ acceleration = propagation_setup.acceleration
 
 
 def test_backend_information():
-    available = acceleration.is_openmp_available()
+    available = tudatpy.is_openmp_available()
     assert type(available) is bool
     expected = os.environ.get("TUDAT_EXPECT_OPENMP")
     if expected is not None:
@@ -41,7 +42,7 @@ def test_reject_invalid_counts(threads):
 
 
 def test_settings_are_local_and_readonly():
-    if not acceleration.is_openmp_available():
+    if not tudatpy.is_openmp_available():
         with pytest.raises(RuntimeError, match="TUDAT_BUILD_WITH_OPENMP"):
             acceleration.spherical_harmonic_gravity(20, 20, number_of_threads=2)
         return
@@ -55,7 +56,7 @@ def test_settings_are_local_and_readonly():
 
 @pytest.mark.requires_serialization
 def test_pickle_restores_sequential_policy():
-    threads = 4 if acceleration.is_openmp_available() else 1
+    threads = 4 if tudatpy.is_openmp_available() else 1
     settings = acceleration.spherical_harmonic_gravity(20, 20, number_of_threads=threads)
     restored = pickle.loads(pickle.dumps(settings))
     assert type(restored) is type(settings)
@@ -77,7 +78,7 @@ def benchmark():
 
 @pytest.mark.parametrize("mode", ["dynamics", "variational"])
 def test_full_solver_history_parity(benchmark, mode):
-    threads = 4 if acceleration.is_openmp_available() else 1
+    threads = 4 if tudatpy.is_openmp_available() else 1
     reference_case = benchmark.make_case(1, 20, 300.0, mode)
     reference = benchmark.collect(benchmark.execute(reference_case, mode), mode)
     actual_case = benchmark.make_case(threads, 20, 300.0, mode)
@@ -94,7 +95,7 @@ def test_python_rotation_callback_stays_on_caller_and_remains_alive(benchmark):
     import weakref
     from tudatpy.dynamics import environment_setup
 
-    threads = 4 if acceleration.is_openmp_available() else 1
+    threads = 4 if tudatpy.is_openmp_available() else 1
     case = benchmark.make_case(threads, 20, 300.0, "dynamics")
     caller = threading.get_ident()
     calls = []

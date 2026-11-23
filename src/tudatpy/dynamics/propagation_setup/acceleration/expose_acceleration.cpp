@@ -76,17 +76,6 @@ namespace acceleration
 
 void expose_acceleration_setup( py::module& m )
 {
-    m.def(
-            "is_openmp_available",
-            []( ) {
-#if defined( TUDAT_BUILD_WITH_OPENMP ) && TUDAT_BUILD_WITH_OPENMP
-                return true;
-#else
-                return false;
-#endif
-            },
-            R"doc(Return whether this Tudat build supports parallel spherical-harmonic gravity.)doc" );
-
     /*
      * This contains the addition of IntegratorSettings and
      * AvailableIntegrators and AvailableAccelerations which
@@ -728,7 +717,7 @@ ThreeCoefficientRadiationPressureAccelerationSettings
  number_of_threads : int, default=1
      Positive upper bound on native threads for this acceleration model and its Legendre cache.
      More than one requires a build configured with ``TUDAT_BUILD_WITH_OPENMP=ON``;
-     see :func:`is_openmp_available`. Existing scripts remain sequential by default.
+     see :func:`tudatpy.is_openmp_available`. Existing scripts remain sequential by default.
      Runtime limits can reduce the actual team size. Inner execution is sequential inside
      an active OpenMP region. When combining with independent arc workers, budget both
      levels explicitly. Saved-per-term output and near-pole force branches retain their
@@ -753,6 +742,13 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
 
 
+
+ Notes
+ -----
+ Parallel evaluation fills the Legendre cache by order after computing its
+ diagonal sequentially, then computes the first derivatives by degree. The
+ acceleration model evaluates potential-gradient terms by degree and sums them
+ in the original order before transforming the result.
 
  Examples
  --------
@@ -829,6 +825,13 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
 
 
+
+ Notes
+ -----
+ Parallel evaluation fills the Legendre cache by order after computing its
+ diagonal sequentially, then computes the first derivatives by degree. The
+ acceleration model evaluates potential-gradient terms by degree and sums them
+ in the original order before transforming the result.
 
  Examples
  --------
