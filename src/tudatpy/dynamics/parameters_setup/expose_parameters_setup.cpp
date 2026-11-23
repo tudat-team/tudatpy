@@ -361,6 +361,10 @@ Type and associated body of the parameter.
 
 The identifier contains the type of the parameter, defined by the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes` enumeration, the body and (if applicable) the reference point to which the parameter is associated.
 The identifier is represented by a tuple of the form ``(parameter_type, (body_name, reference_point_name))``.
+For observation bias parameters, the second string identifies the observation link instead of a single reference point:
+``"<transmitter> --> <receiver> , <observable>"`` (with ``None`` for a missing link end), or, for shared observation biases,
+``"<reference_point>:<link_end_type>:<observable>:<bias_type>"``. This identifier is identical to the
+:attr:`~tudatpy.dynamics.parameters.EstimatableParameter.parameter_identifier` of the parameter created from these settings.
 
 :type: tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
 
