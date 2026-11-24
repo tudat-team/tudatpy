@@ -299,6 +299,54 @@ void expose_frame_conversion( py::module& m )
 
      )doc" );
 
+    m.def( "calculate_rotation_angles_from_matrix",
+           &trf::calculateInertialToPlanetFixedRotationAnglesFromMatrix,
+           py::arg( "inertial_to_body_fixed_rotation_matrix" ),
+           R"doc(
+
+ Computes pole right ascension, pole declination and prime meridian longitude from a rotation matrix.
+
+
+ Function to compute the pole right ascension (:math:`\alpha`),
+ pole declination (:math:`\delta`), and prime meridian longitude
+ (:math:`W`) angles from the rotation matrix from inertial to body-fixed
+ frame. This is the inverse of
+ :func:`~tudatpy.astro.frame_conversion.inertial_to_body_fixed_rotation_matrix`.
+
+
+ Parameters
+ ----------
+ inertial_to_body_fixed_rotation_matrix : numpy.ndarray
+     Rotation matrix from inertial to body-fixed frame.
+
+ Returns
+ -------
+ numpy.ndarray
+     Vector with pole right ascension (:math:`\alpha`, in :math:`[0, 2\pi)`),
+     pole declination (:math:`\delta`), and prime meridian longitude
+     (:math:`W`), in that order [rad].
+
+
+ Notes
+ -----
+ The order of the returned angles (:math:`\alpha`, :math:`\delta`, :math:`W`) differs from
+ the argument order of :func:`~tudatpy.astro.frame_conversion.inertial_to_body_fixed_rotation_matrix`
+ (:math:`\delta`, :math:`\alpha`, :math:`W`).
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+     from tudatpy.interface import spice
+     from tudatpy.astro import frame_conversion
+
+     rotation_matrix = spice.compute_rotation_matrix_between_frames("J2000", "IAU_Jupiter", ephemeris_time=0.0)
+     ra, dec, W = frame_conversion.calculate_rotation_angles_from_matrix(rotation_matrix)
+
+
+     )doc" );
+
     m.def( "rotate_state_to_frame",
            py::overload_cast< const Eigen::Vector6d&, const Eigen::Matrix3d&, const Eigen::Matrix3d& >(
                    &te::transformStateToFrameFromRotations< double > ),
