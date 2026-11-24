@@ -302,12 +302,16 @@ jobs:
     - name: Check for compiler warnings
       # Warnings do not stop the build (no -Werror), so all of them are reported in a single
       # run while the build and test steps above still run. This step then fails the job if
-      # any compiler warning was emitted.
+      # any compiler warning was emitted. Apple ld "could not create compact unwind" warnings are
+      # ignored: they come from gfortran-compiled MCD code and libgcc, not from Tudat sources.
+      # Lines holding only "ld: warning:" prefixes (interleaved output of parallel links) are
+      # ignored too.
       if: always() && steps.build_kernel_non_windows.outcome != 'skipped'
       shell: bash
       run: |
-        if grep -q 'warning:' build.log; then
+        warnings=$(grep 'warning:' build.log | grep -vE 'could not create compact unwind|^(ld: warning: *)+$' || true)
+        if [ -n "$warnings" ]; then
           echo "::error::Compiler warnings found:"
-          grep 'warning:' build.log | sort -u
+          echo "$warnings" | sort -u
           exit 1
         fi
