@@ -1112,6 +1112,31 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
                                        estimationOutput->getUnnormalizedInverseCovarianceMatrix( ),
                                        1.0E-12 );
 
+    // With a sparse design matrix, the covariance analysis and the estimation must give the same results with the full weight matrix
+    covarianceInput->setUseSparseDesignMatrix( true );
+    std::shared_ptr< CovarianceAnalysisOutput< double, double > > sparseCovarianceOutput =
+            orbitDeterminationManager.computeCovariance( covarianceInput );
+    BOOST_CHECK( std::holds_alternative< Eigen::SparseMatrix< double > >( sparseCovarianceOutput->normalizedDesignMatrix_ ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseCovarianceOutput->getUnnormalizedInverseCovarianceMatrix( ),
+                                       covarianceOutput->getUnnormalizedInverseCovarianceMatrix( ),
+                                       1.0E-12 );
+
+    parametersToEstimate->resetParameterValues( perturbedState );
+    std::shared_ptr< EstimationInput< double, double > > sparseEstimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+    sparseEstimationInput->defineEstimationSettings( true, true, true, false, true, false );
+    sparseEstimationInput->setConvergenceChecker( estimationInput->getConvergenceChecker( ) );
+    sparseEstimationInput->setUseSparseDesignMatrix( true );
+    std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( sparseEstimationInput );
+    const Eigen::VectorXd sparseEstimationDifference = sparseEstimationOutput->parameterEstimate_ - estimationOutput->parameterEstimate_;
+    BOOST_CHECK_SMALL( sparseEstimationDifference.segment( 0, 3 ).norm( ), 1.0E-3 );
+    BOOST_CHECK_SMALL( sparseEstimationDifference.segment( 3, 3 ).norm( ), 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->getUnnormalizedInverseCovarianceMatrix( ),
+                                       estimationOutput->getUnnormalizedInverseCovarianceMatrix( ),
+                                       1.0E-10 );
+    parametersToEstimate->template resetParameterValues< double >( estimationOutput->parameterEstimate_ );
+
     const unsigned int rejectedObservationId = simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 0 ) ).at( 1 );
     const unsigned int rejectedObservationSize = simulatedObservations->getObservationRow( rejectedObservationId ).scalarSize_;
     const ObservationSelectionCondition< double, double > rejectedObservationSelectionCondition(

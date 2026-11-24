@@ -1276,8 +1276,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_copies_own_mutable_metadata_and_support_self_
  * Verifies the sparse-weight least-squares overload.
  *
  * Test outline: solves a small weighted least-squares problem with off-diagonal
- * sparse weights and compares the returned parameter update and normal matrix
- * against an independently assembled dense reference calculation.
+ * sparse weights, with a dense and with a sparse design matrix, and compares the returned parameter update and normal
+ * matrix, and the covariance contribution of a consider parameter, against an independently assembled dense reference.
  */
 //! Verify least-squares adjustment uses a sparse full observation weight matrix.
 BOOST_AUTO_TEST_CASE( test_sparse_weighted_least_squares )
@@ -1309,6 +1309,33 @@ BOOST_AUTO_TEST_CASE( test_sparse_weighted_least_squares )
     // Sparse-weight least squares must produce the same normal matrix and parameter update as the dense reference.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseLeastSquaresOutput.second, expectedNormalMatrix, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseLeastSquaresOutput.first, expectedParameterUpdate, 1.0E-15 );
+
+    // The same with a sparse design matrix (solved with sparse QR instead of SVD)
+    const Eigen::SparseMatrix< double > sparseDesignMatrix = designMatrix.sparseView( );
+    const std::pair< Eigen::VectorXd, Eigen::SparseMatrix< double > > sparseDesignMatrixOutput =
+            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix< Eigen::SparseMatrix< double > >(
+                    sparseDesignMatrix, residuals, sparseWeights, Eigen::SparseMatrix< double >( 2, 2 ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::MatrixXd( sparseDesignMatrixOutput.second ), expectedNormalMatrix, 1.0E-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseDesignMatrixOutput.first, expectedParameterUpdate, 1.0E-12 );
+
+    // Contribution of a consider parameter to the covariance, (P H^T W H_c) C (P H^T W H_c)^T, for dense and sparse design matrices
+    Eigen::MatrixXd considerDesignMatrix( 3, 1 );
+    considerDesignMatrix << 0.4, -1.5, 2.0;
+    const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Constant( 1, 1, 0.09 );
+    const Eigen::MatrixXd normalizedCovariance = expectedNormalMatrix.inverse( );
+    const Eigen::MatrixXd covarianceTimesConsiderNormalMatrix =
+            normalizedCovariance * designMatrix.transpose( ) * denseWeights * considerDesignMatrix;
+    const Eigen::MatrixXd expectedConsiderContribution =
+            covarianceTimesConsiderNormalMatrix * considerCovariance * covarianceTimesConsiderNormalMatrix.transpose( );
+
+    const Eigen::MatrixXd considerContribution = linear_algebra::calculateConsiderParametersCovarianceContribution(
+            normalizedCovariance, designMatrix, sparseWeights, considerDesignMatrix, considerCovariance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( considerContribution, expectedConsiderContribution, 1.0E-14 );
+
+    const Eigen::SparseMatrix< double > sparseConsiderDesignMatrix = considerDesignMatrix.sparseView( );
+    const Eigen::MatrixXd sparseConsiderContribution = linear_algebra::calculateConsiderParametersCovarianceContribution(
+            normalizedCovariance, sparseDesignMatrix, sparseWeights, sparseConsiderDesignMatrix, considerCovariance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseConsiderContribution, expectedConsiderContribution, 1.0E-14 );
 }
 
 //! Verify removing rows does not renumber surviving observation identities.
