@@ -274,7 +274,7 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
             else if( perBlockMatrixSettings != nullptr )
             {
                 stepSizeController = std::make_shared< PerBlockIntegratorStepSizeController< TimeStepType, StateType > >(
-                        perBlockSettings->blocksToCheckFunction_,
+                        perBlockMatrixSettings->blocksToCheckFunction_,
                         perBlockMatrixSettings->relativeErrorTolerance_.template cast< typename StateType::Scalar >( ),
                         perBlockMatrixSettings->absoluteErrorTolerance_.template cast< typename StateType::Scalar >( ),
                         perBlockMatrixSettings->safetyFactorForNextStepSize_,

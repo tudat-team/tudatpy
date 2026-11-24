@@ -760,7 +760,11 @@ bool isScalarDependentVariable( const std::shared_ptr< SingleDependentVariableSa
     int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings, bodies );
     if( dependentVariableSize > 1 ||
         dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable ||
-        dependentVariableSettings->dependentVariableType_ == custom_dependent_variable )
+        dependentVariableSettings->dependentVariableType_ == custom_dependent_variable ||
+        dependentVariableSettings->dependentVariableType_ == illuminated_panel_fraction ||
+        dependentVariableSettings->dependentVariableType_ == total_spherical_harmonic_cosine_coefficient_variation ||
+        dependentVariableSettings->dependentVariableType_ == total_spherical_harmonic_sine_coefficient_variation ||
+        dependentVariableSettings->dependentVariableType_ == paneled_radiation_source_per_panel_irradiance )
     {
         return false;
     }

@@ -223,12 +223,9 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         }
         else if( test == 3 )
         {
-            parameterNames.push_back(
-                    std::make_shared< tudat::estimatable_parameters::InverseTidalQualityFactorEstimatableParameterSettings >( "Jupiter",
-                                                                                                                              "Io" ) );
-            parameterNames.push_back(
-                    std::make_shared< tudat::estimatable_parameters::InverseTidalQualityFactorEstimatableParameterSettings >( "Jupiter",
-                                                                                                                              "Europa" ) );
+            parameterNames.push_back( tudat::estimatable_parameters::inverseTidalQualityFactor( "Jupiter", "Io" ) );
+            parameterNames.push_back( tudat::estimatable_parameters::inverseTidalQualityFactor( "Jupiter", "Europa" ) );
+            BOOST_CHECK( parameterNames.back( )->parameterType_.first == tudat::estimatable_parameters::inverse_tidal_quality_factor );
         }
         std::shared_ptr< tudat::estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
                 createParametersToEstimate< double, double >( parameterNames, bodies, propagatorSettings );

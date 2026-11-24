@@ -191,6 +191,22 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         bodies.at( "Legacy" )
                 ->setAerodynamicCoefficientInterface(
                         createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Legacy", bodies ) );
+
+        // Check scaled coefficients: a relative scaling multiplies the coefficients, an absolute scaling is added to them
+        const Eigen::Vector3d coefficientScaling( 2.0, 3.0, 4.0 );
+        for( const bool isScalingAbsolute : { false, true } )
+        {
+            std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > scaledCoefficients = createAerodynamicCoefficientInterface(
+                    scaledAerodynamicCoefficientSettings(
+                            aerodynamicCoefficientSettings, coefficientScaling, Eigen::Vector3d::Ones( ), isScalingAbsolute ),
+                    "Legacy",
+                    bodies );
+            scaledCoefficients->updateCurrentCoefficients( std::vector< double >( ) );
+            const Eigen::Vector3d expectedCoefficients = isScalingAbsolute
+                    ? Eigen::Vector3d( forceCoefficients + coefficientScaling )
+                    : Eigen::Vector3d( forceCoefficients.cwiseProduct( coefficientScaling ) );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scaledCoefficients->getCurrentForceCoefficients( ), expectedCoefficients, 1.0E-15 );
+        }
         bodies.at( "Legacy" )
                 ->setRotationalEphemeris( createRotationModel(
                         constantRotationModelSettings( "ECLIPJ2000", "LegacyFixed", Eigen::Matrix3d::Identity( ) ), "Legacy", bodies ) );
@@ -924,12 +940,13 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
 
                 addRigidBodyProperties( bodies, "Apollo", rigidBodyProperties );
 
-                addFlightConditions( bodies, "Apollo", "Earth" );
+                // Moment contribution is created before the flight conditions, as when created from body settings
                 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > momentCoefficientInterface =
                         createMomentContributionInterface( aerodynamicCoefficients->getForceCoefficientsFrame( ),
                                                            aerodynamicCoefficients->getMomentCoefficientsFrame( ),
                                                            bodies.at( "Apollo" ) );
                 bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( )->setMomentContributionInterface( momentCoefficientInterface );
+                addFlightConditions( bodies, "Apollo", "Earth" );
             }
 
             bodies.at( "Apollo" )
@@ -1381,7 +1398,8 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
 
 BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
 {
-    const double tolerance = std::numeric_limits< double >::epsilon( );
+    // The model reconstructs the flow direction from the aerodynamic angles, giving differences of a few ulp
+    const double tolerance = 1.0E-14;
 
     SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
     std::vector< std::string > centralBodies = { "TreasurePlanet" };
@@ -1420,9 +1438,9 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
             ->setRotationalEphemeris( createRotationModel(
                     std::make_shared< SynchronousRotationModelSettings >( "TreasurePlanet", "ECLIPJ2000", "" ), "Legacy", bodies ) );
 
-    // add panel (always perpendicular to relative velocity vector)
+    // add panel facing the flow (the synchronous rotation aligns the body-fixed -y axis with the along-track direction)
     std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = [ = ]( ) {
-        Eigen::Vector3d normal( 0.0, 1.0, 0.0 );
+        Eigen::Vector3d normal( 0.0, -1.0, 0.0 );
         return normal;
     };
     std::function< Eigen::Vector3d( ) > localFramePositionVector = [ = ]( ) {
@@ -1452,76 +1470,111 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
     vehicleSystem->setVehicleExteriorPanels( vehicleExteriorPanelsMap );
     bodies.at( "Legacy" )->setVehicleSystems( vehicleSystem );
 
-    // create aerodynamic coefficient interface
-    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-            std::make_shared< PanelledAerodynamicCoefficientSettings >(
-                    aerodynamics::newton, referenceArea, 0, false, body_fixed_frame_coefficients );
-    bodies.at( "Legacy" )
-            ->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Legacy", bodies ) );
-
-    // acceleration map
-    SelectedAccelerationMap accelerationMap;
-
-    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfLegacy;
-    accelerationsOfLegacy[ "TreasurePlanet" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-    accelerationsOfLegacy[ "TreasurePlanet" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-    accelerationMap[ "Legacy" ] = accelerationsOfLegacy;
-
-    // dependent variables
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back(
-            std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_airspeed_based_velocity_variable, "Legacy" ) );
-    dependentVariables.push_back(
-            std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_coefficients, "Legacy", "TreasurePlanet" ) );
-
-    // create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap =
-            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-    // integrator settings
-    const double simulationStartEpoch = 0.0;
-    const double fixedStepSize = 10.0;
-    const double simulationEndEpoch = 100.0;
-
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
-
-    auto terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch );
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                accelerationModelMap,
-                                                                                bodiesToPropagate,
-                                                                                systemInitialState,
-                                                                                simulationStartEpoch,
-                                                                                integratorSettings,
-                                                                                terminationSettings,
-                                                                                cowell,
-                                                                                dependentVariables );
-    // create simulation object and propagate dynamics
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
-
-    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-            dynamicsSimulator.getDependentVariableHistory( );
-
-    // check dependent variables (aerodynamic coefficients)
-    Eigen::Vector3d incomingDirection, bodyFixedAirspeed, aerodynamicCoefficients, actualAerodynamicCoefficients, panelNormal;
-    double cosineDelta, Cp;
-    for( auto it : dependentVariableOutput )
+    // Newton coefficients (test 0), constant coefficients with the projected panel area as reference area (test 1), and the
+    // constant coefficients wrapped in unit scaled coefficients (test 2)
+    const double constantDragCoefficient = 1.5;
+    for( unsigned int test = 0; test < 3; test++ )
     {
-        bodyFixedAirspeed = it.second.segment( 0, 3 );
-        aerodynamicCoefficients = it.second.segment( 3, 3 );
-
-        // newton
-        incomingDirection = bodyFixedAirspeed.normalized( );
-        panelNormal = localFrameSurfaceNormal( );
-        cosineDelta = panelNormal.dot( -incomingDirection );
-        cosineDelta = cosineDelta > 0 ? cosineDelta : 0.0;
-        Cp = 2 * cosineDelta * cosineDelta;
-        actualAerodynamicCoefficients = -Cp * panelNormal * 0.5 / referenceArea;
-
-        for( int k = 0; k < 3; k++ )
+        // create aerodynamic coefficient interface
+        std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
+        if( test == 0 )
         {
-            BOOST_CHECK_SMALL( std::fabs( aerodynamicCoefficients( k ) - actualAerodynamicCoefficients( k ) ), tolerance );
+            aerodynamicCoefficientSettings = std::make_shared< PanelledAerodynamicCoefficientSettings >(
+                    aerodynamics::newton, referenceArea, 0, false, body_fixed_frame_coefficients );
+        }
+        else
+        {
+            aerodynamicCoefficientSettings =
+                    panelledConstantAerodynamicCoefficientSettings( Eigen::Vector3d( constantDragCoefficient, 0.0, 0.0 ) );
+            if( test == 2 )
+            {
+                aerodynamicCoefficientSettings = scaledAerodynamicCoefficientSettings( aerodynamicCoefficientSettings, 1.0, 1.0, false );
+            }
+        }
+        bodies.at( "Legacy" )
+                ->setAerodynamicCoefficientInterface(
+                        createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Legacy", bodies ) );
+
+        // acceleration map
+        SelectedAccelerationMap accelerationMap;
+
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfLegacy;
+        accelerationsOfLegacy[ "TreasurePlanet" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfLegacy[ "TreasurePlanet" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+        accelerationMap[ "Legacy" ] = accelerationsOfLegacy;
+
+        // dependent variables
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_airspeed_based_velocity_variable, "Legacy" ) );
+        dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_force_coefficients_dependent_variable, "Legacy" ) );
+        dependentVariables.push_back(
+                std::make_shared< SingleAccelerationDependentVariableSaveSettings >( aerodynamic, "Legacy", "TreasurePlanet" ) );
+        dependentVariables.push_back(
+                std::make_shared< SingleDependentVariableSaveSettings >( inertial_to_body_fixed_rotation_matrix_variable, "Legacy" ) );
+
+        // create acceleration models and propagation settings.
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+        // integrator settings
+        const double simulationStartEpoch = 0.0;
+        const double fixedStepSize = 10.0;
+        const double simulationEndEpoch = 100.0;
+
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+
+        auto terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                    accelerationModelMap,
+                                                                                    bodiesToPropagate,
+                                                                                    systemInitialState,
+                                                                                    simulationStartEpoch,
+                                                                                    integratorSettings,
+                                                                                    terminationSettings,
+                                                                                    cowell,
+                                                                                    dependentVariables );
+        // create simulation object and propagate dynamics
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
+
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
+                dynamicsSimulator.getDependentVariableHistory( );
+
+        // check dependent variables (aerodynamic coefficients and acceleration)
+        Eigen::Vector3d incomingDirection, vehicleFrameAirspeed, aerodynamicCoefficients, actualAerodynamicCoefficients, panelNormal;
+        double cosineDelta, Cp;
+        for( auto it : dependentVariableOutput )
+        {
+            // Airspeed-based velocity in the TreasurePlanet-fixed frame (aligned with the inertial frame), rotated to the vehicle frame
+            vehicleFrameAirspeed = getMatrixFromVectorRotationRepresentation( it.second.segment( 9, 9 ) ) * it.second.segment( 0, 3 );
+            aerodynamicCoefficients = it.second.segment( 3, 3 );
+
+            // Free-stream flow direction in the vehicle frame
+            incomingDirection = -vehicleFrameAirspeed.normalized( );
+            panelNormal = localFrameSurfaceNormal( );
+            cosineDelta = panelNormal.dot( -incomingDirection );
+            cosineDelta = cosineDelta > 0 ? cosineDelta : 0.0;
+            BOOST_CHECK( cosineDelta > 0.0 );
+
+            if( test == 0 )
+            {
+                // newton
+                Cp = 2 * cosineDelta * cosineDelta;
+                actualAerodynamicCoefficients = -Cp * panelNormal * 0.5 / referenceArea;
+
+                for( int k = 0; k < 3; k++ )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( aerodynamicCoefficients( k ) - actualAerodynamicCoefficients( k ) ), tolerance );
+                }
+            }
+            else
+            {
+                // Drag with the area of the panel facing the flow (0.5 m^2) as reference area, also when the coefficients are scaled
+                double expectedAcceleration = 0.5 * density * vehicleFrameAirspeed.squaredNorm( ) * 0.5 * constantDragCoefficient / 1000.0;
+                BOOST_CHECK_CLOSE_FRACTION( it.second.segment( 6, 3 ).norm( ), expectedAcceleration, 1.0E-14 );
+            }
         }
     }
 }
