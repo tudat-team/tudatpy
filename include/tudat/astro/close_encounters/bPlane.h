@@ -10,8 +10,8 @@
  *    References
  *      Kizner, W. A method of describing miss distances for lunar and interplanetary trajectories.
  *          Planetary and Space Science, 7, 125-131, 1961.
- *      Valsecchi, G.B., Milani, A., Gronchi, G.F., Chesley, S.R. Resonant returns to close approaches:
- *          Analytical theory. Astronomy & Astrophysics, 408, 1179-1196, 2003.
+ *      Farnocchia, D. Planetary encounter analysis on the B-plane: a comprehensive formulation.
+ *          Celestial Mechanics and Dynamical Astronomy, 131, 36, 2019.
  *
  *    Notes
  *      All functions describe the encounter with the osculating two-body hyperbola that matches the
