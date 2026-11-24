@@ -39,6 +39,15 @@ std::string createObsBiasSecondaryIdentifier( const observation_models::Observab
     return transmitterStr + " --> " + receiverStr + " , " + observation_models::getObservableName( observableType );
 }
 
+std::string createSharedObsBiasSecondaryIdentifier( const observation_models::ObservationBiasTypes biasType,
+                                                    const observation_models::ObservableType observableType,
+                                                    const observation_models::LinkEndType linkEndType,
+                                                    const observation_models::LinkEndId& linkEndId )
+{
+    return linkEndId.getReferencePointName( ) + ":" + observation_models::getLinkEndTypeString( linkEndType ) + ":" +
+            observation_models::getObservableName( observableType ) + ":" + observation_models::getObservationBiasTypeString( biasType );
+}
+
 SingleArcObservationBiasParameter::SingleArcObservationBiasParameter(
         const EstimatebleParametersEnum parameterName,
         const std::function< Eigen::VectorXd( ) > getCurrentBias,
@@ -244,10 +253,7 @@ SharedObservationBiasParameter::SharedObservationBiasParameter( const observatio
                                                                 const observation_models::LinkEndType timeLinkEnd ):
     EstimatableParameter< Eigen::VectorXd >( shared_observation_bias,
                                              linkEndId.bodyName_,
-                                             linkEndId.getReferencePointName( ) + ":" +
-                                                     observation_models::getLinkEndTypeString( linkEndType ) + ":" +
-                                                     observation_models::getObservableName( observableType ) + ":" +
-                                                     observation_models::getObservationBiasTypeString( biasType ) ),
+                                             createSharedObsBiasSecondaryIdentifier( biasType, observableType, linkEndType, linkEndId ) ),
     biasType_( biasType ), observableType_( observableType ), linkEndType_( linkEndType ), linkEndId_( linkEndId ),
     arcStartTimes_( arcStartTimes ), timeLinkEnd_( timeLinkEnd == observation_models::unidentified_link_end ? linkEndType : timeLinkEnd )
 {

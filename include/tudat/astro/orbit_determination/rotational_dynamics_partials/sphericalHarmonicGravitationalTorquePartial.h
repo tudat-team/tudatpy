@@ -67,7 +67,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter ) override;
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -77,7 +77,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter ) override;
 
     //! Function for calculating the partial of the torque w.r.t. the orientation of the accelerated body.
     /*!
@@ -89,10 +89,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtOrientationOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                                  const bool addContribution = 1,
-                                                  const int startRow = 0,
-                                                  const int startColumn = 0 )
+    void wrtOrientationOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                          const bool addContribution = 1,
+                                          const int startRow = 0,
+                                          const int startColumn = 0 ) override
     {
         if( addContribution )
         {
@@ -124,7 +124,7 @@ public:
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
     bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
-                                                                     const propagators::IntegratedStateType integratedStateType )
+                                                                     const propagators::IntegratedStateType integratedStateType ) override
     {
         bool isStateDerivativeDependent = 0;
         if( ( ( stateReferencePoint.first == bodyUndergoingTorque_ || ( stateReferencePoint.first == bodyExertingTorque_ ) ) &&
@@ -150,14 +150,14 @@ public:
      */
     void wrtNonRotationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                                 const std::pair< std::string, std::string >& stateReferencePoint,
-                                                const propagators::IntegratedStateType integratedStateType );
+                                                const propagators::IntegratedStateType integratedStateType ) override;
 
     //! Update partial model to current time
     /*!
      * Update partial model to current time, retrieving information from consituent functions
      * \param currentTime Time to which partial is to be updated
      */
-    void update( const double currentTime = TUDAT_NAN );
+    void update( const double currentTime = TUDAT_NAN ) override;
 
 protected:
     //! Function to compute torque partial from constituent spherical harmonic acceleration partial

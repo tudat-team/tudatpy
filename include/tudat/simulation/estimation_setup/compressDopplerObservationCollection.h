@@ -223,6 +223,22 @@ createCompressedDopplerDatasetFromRatioFunction(
         const double maxArcGap,
         std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions )
 {
+    bool containsDopplerData = false;
+    for( unsigned int setId = 0; setId < originalDopplerData->getNumberOfObservationSets( ); ++setId )
+    {
+        if( originalDopplerData->getObservationSetMetadata( setId ).observableType_ ==
+            observation_models::ObservableType::dsn_n_way_averaged_doppler )
+        {
+            containsDopplerData = true;
+        }
+    }
+    if( !containsDopplerData )
+    {
+        throw std::runtime_error(
+                "Error in Doppler data compression, only dsn_n_way_averaged_doppler observations can be compressed, "
+                "but the observation dataset contains none." );
+    }
+
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressedData =
             std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
 

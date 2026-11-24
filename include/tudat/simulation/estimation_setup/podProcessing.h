@@ -462,6 +462,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
  *  \param podOutputData Data structure containing all output of the orbit determination process.
  *  \param outputTimes Times at which the covariance is to be computed for the output map.
  *  \return Covariance (map values) as a function of time (map keys) for the given estimation input settings and output times.
+ *  An exception is thrown if the design matrix in podOutputData is stored as a sparse matrix.
  */
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -472,11 +473,17 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< EstimationOutput< ParameterScalarType > >& podOutputData,
         const std::vector< double >& outputTimes )
 {
+    if( std::holds_alternative< Eigen::SparseMatrix< double > >( podOutputData->normalizedDesignMatrix_ ) )
+    {
+        throw std::runtime_error(
+                "Error when calculating covariance as function of time, this is not supported for a sparse design matrix" );
+    }
+
     if( podOutputData->hasFullWeightMatrix( ) )
     {
         return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
                 podInputData->getObservationDataset( ),
-                podOutputData->normalizedDesignMatrix_,
+                podOutputData->template getNormalizedDesignMatrixGeneric< Dense >( ),
                 podOutputData->designMatrixTransformationDiagonal_,
                 outputTimes,
                 podOutputData->weightsMatrix_,
@@ -484,7 +491,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
     }
     return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
             podInputData->getObservationDataset( ),
-            podOutputData->normalizedDesignMatrix_,
+            podOutputData->template getNormalizedDesignMatrixGeneric< Dense >( ),
             podOutputData->designMatrixTransformationDiagonal_,
             outputTimes,
             podOutputData->weightsMatrixDiagonal_,
@@ -500,11 +507,17 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< EstimationOutput< ParameterScalarType > >& podOutputData,
         const double outputTimeStep )
 {
+    if( std::holds_alternative< Eigen::SparseMatrix< double > >( podOutputData->normalizedDesignMatrix_ ) )
+    {
+        throw std::runtime_error(
+                "Error when calculating covariance as function of time, this is not supported for a sparse design matrix" );
+    }
+
     if( podOutputData->hasFullWeightMatrix( ) )
     {
         return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
                 podInputData->getObservationDataset( ),
-                podOutputData->normalizedDesignMatrix_,
+                podOutputData->template getNormalizedDesignMatrixGeneric< Dense >( ),
                 podOutputData->designMatrixTransformationDiagonal_,
                 outputTimeStep,
                 podOutputData->weightsMatrix_,
@@ -512,7 +525,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
     }
     return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
             podInputData->getObservationDataset( ),
-            podOutputData->normalizedDesignMatrix_,
+            podOutputData->template getNormalizedDesignMatrixGeneric< Dense >( ),
             podOutputData->designMatrixTransformationDiagonal_,
             outputTimeStep,
             podOutputData->weightsMatrixDiagonal_,

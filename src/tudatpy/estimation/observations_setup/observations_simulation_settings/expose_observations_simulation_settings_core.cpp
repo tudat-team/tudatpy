@@ -319,16 +319,18 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
      Maximum time at which an observation is to be simulated (and checked for viability).
  interval_between_observations : float
      Cadence (in seconds) of subsequent observations in an arc
- arc_limiting_constraints : List[ :class:`ObservationViabilitySettings` ], default = [ ]
-     List of settings for the creation of the viability criteria calculators, which are used to check if an observation is viable, and define
+ arc_limiting_constraints : :class:`ObservationViabilitySettings`
+     Settings for the creation of the viability criterion calculator, which is used to check if an observation is viable, and defines
      whether an arc should be terminated.
 
  minimum_arc_duration : float
      Minimum permissible time for a tracking arc
  maximum_arc_duration : float
      Maximum permissible time for a tracking arc
- minimum_time_between_arc : float, default = NaN
+ minimum_time_between_arcs : float
      Minimum time between two tracking arcs. If NaN, this is effectively set to the ``interval_between_observations``
+ reference_link_end_type : :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, default = :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType.receiver`
+     Defines the link end (via the :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`) which is used as a reference for observation times.
  additional_viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
      Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
      These settings are *not* used to determine whether an arc is to be terminated, but are instead applied after the arcs have been computed.
@@ -379,16 +381,18 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
      Maximum time at which an observation is to be simulated (and checked for viability).
  interval_between_observations : float
      Cadence (in seconds) of subsequent observations in an arc
- arc_limiting_constraints : List[ :class:`ObservationViabilitySettings` ], default = [ ]
-     List of settings for the creation of the viability criteria calculators, which are used to check if an observation is viable, and define
+ arc_limiting_constraints : :class:`ObservationViabilitySettings`
+     Settings for the creation of the viability criterion calculator, which is used to check if an observation is viable, and defines
      whether an arc should be terminated.
 
  minimum_arc_duration : float
      Minimum permissible time for a tracking arc
  maximum_arc_duration : float
      Maximum permissible time for a tracking arc
- minimum_time_between_arc : float, default = NaN
+ minimum_time_between_arcs : float
      Minimum time between two tracking arcs. If NaN, this is effectively set to the ``interval_between_observations``
+ reference_link_end_type : :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, default = :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType.receiver`
+     Defines the link end (via the :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`) which is used as a reference for observation times.
  additional_viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
      Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
      These settings are *not* used to determine whether an arc is to be terminated, but are instead applied after the arcs have been computed.

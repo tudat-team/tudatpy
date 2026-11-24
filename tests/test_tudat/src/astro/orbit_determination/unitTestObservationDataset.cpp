@@ -185,8 +185,10 @@ BOOST_AUTO_TEST_CASE( test_weighted_design_matrix_output_uses_sparse_weights )
 
     BOOST_CHECK( covarianceOutput.hasFullWeightMatrix( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput.getWeightsMatrix( ).toDense( ), denseWeights, 1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput.getNormalizedWeightedDesignMatrix( ), expectedWeightedDesignMatrix, 1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput.getUnnormalizedWeightedDesignMatrix( ), expectedWeightedDesignMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            std::get< Eigen::MatrixXd >( covarianceOutput.getNormalizedWeightedDesignMatrix( ) ), expectedWeightedDesignMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            std::get< Eigen::MatrixXd >( covarianceOutput.getUnnormalizedWeightedDesignMatrix( ) ), expectedWeightedDesignMatrix, 1.0E-15 );
 }
 
 /*!

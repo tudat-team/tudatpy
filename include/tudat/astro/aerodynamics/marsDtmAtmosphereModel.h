@@ -93,6 +93,9 @@ std::tuple< double, double > computeSolarLongitude( const double longitude,
                                                     const int hours,
                                                     const int minutes );
 
+// Function to compute the solar longitude of Mars (in degrees) at a time, at the resolution used by the Mars DTM model
+double computeSolarLongitudeFromTime( const double time );
+
 class MarsDtmAtmosphereModel : public AtmosphereModel
 {
 public:
@@ -245,7 +248,6 @@ public:
     }
     double getSolarLongitude( ) const
     {
-        std::cout << "Solar Longitude: " << Ls_ << std::endl;
         return Ls_;
     }
 

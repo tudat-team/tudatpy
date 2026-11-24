@@ -86,7 +86,8 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtPanelMaterialP
     {
         throw std::runtime_error(
                 "Error when computing partial of aerodynamic acceleration w.r.t. a panel material property: the aerodynamic "
-                "coefficient interface is not panelled, so material-property estimation is not defined." );
+                "coefficient interface is not panelled (or is panelled but scaled, which is not supported), so material-property "
+                "estimation is not defined." );
     }
 
     // Map the estimatable parameter type to the local gas-surface interaction material property identifier.

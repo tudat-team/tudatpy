@@ -2043,7 +2043,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                                                                    std::function< Eigen::VectorXd( ) >( ),
                                                                                    std::function< void( const Eigen::VectorXd& ) >( ),
                                                                                    biasSettings->linkEnds_.linkEnds_,
-                                                                                   biasSettings->observableType_ );
+                                                                                   biasSettings->observableType_,
+                                                                                   biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2061,7 +2062,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                                                                    std::function< Eigen::VectorXd( ) >( ),
                                                                                    std::function< void( const Eigen::VectorXd& ) >( ),
                                                                                    biasSettings->linkEnds_.linkEnds_,
-                                                                                   biasSettings->observableType_ );
+                                                                                   biasSettings->observableType_,
+                                                                                   biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2083,7 +2085,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
                                     .at( 0 ),
                             biasSettings->linkEnds_.linkEnds_,
-                            biasSettings->observableType_ );
+                            biasSettings->observableType_,
+                            biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2105,7 +2108,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
                                     .at( 0 ),
                             biasSettings->linkEnds_.linkEnds_,
-                            biasSettings->observableType_ );
+                            biasSettings->observableType_,
+                            biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2127,7 +2131,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     .at( 0 ),
                             biasSettings->linkEnds_,
                             biasSettings->observableType_,
-                            biasSettings->referenceEpoch_ );
+                            biasSettings->referenceEpoch_,
+                            biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2151,7 +2156,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     .at( 0 ),
                             timeBiasSettings->linkEnds_,
                             timeBiasSettings->observableType_,
-                            timeBiasSettings->referenceEpochs_ );
+                            timeBiasSettings->referenceEpochs_,
+                            timeBiasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2170,7 +2176,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                                                             std::function< void( const Eigen::VectorXd& ) >( ),
                                                                             biasSettings->linkEndForTime_,
                                                                             biasSettings->linkEnds_,
-                                                                            biasSettings->observableType_ );
+                                                                            biasSettings->observableType_,
+                                                                            biasSettings->parameterType_.second.second );
                 }
                 break;
             }
@@ -2190,7 +2197,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
                             timeBiasSettings->linkEndForTime_,
                             timeBiasSettings->linkEnds_,
-                            timeBiasSettings->observableType_ );
+                            timeBiasSettings->observableType_,
+                            timeBiasSettings->parameterType_.second.second );
                 }
                 break;
             }

@@ -18,6 +18,10 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <vector>
+
+#include <Eigen/Sparse>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/observationManager.h"
@@ -250,7 +254,7 @@ void retrieveObservationWeights(
  *
  * \param computationData Flattened data of all observations, defining the row order of computedRows
  * \param estimationData Flattened data of the observations used in the estimation, defining the row order of the output
- * \param computedRows Matrix (or vector) with one row per scalar entry of computationData
+ * \param computedRows Matrix (dense or sparse) or vector with one row per scalar entry of computationData
  * \return Matrix (or vector) with one row per scalar entry of estimationData
  */
 template< typename ObservationScalarType, typename TimeType, typename EigenType >
@@ -259,8 +263,14 @@ EigenType extractEstimationObservationRows(
         const observation_models::ObservationVectorData< ObservationScalarType, TimeType >& estimationData,
         const EigenType& computedRows )
 {
+    constexpr bool sparseRows = std::is_same_v< EigenType, Eigen::SparseMatrix< double > >;
     const int numberOfEstimationRows = static_cast< int >( estimationData.getObservationVector( ).size( ) );
-    EigenType estimationRows = EigenType::Zero( numberOfEstimationRows, computedRows.cols( ) );
+    EigenType estimationRows;
+    std::vector< Eigen::Triplet< double > > selectionMatrixTriplets;
+    if constexpr( !sparseRows )
+    {
+        estimationRows = EigenType::Zero( numberOfEstimationRows, computedRows.cols( ) );
+    }
 
     // Each observation occupies one row per component of its observable, so the loop advances by the number of rows
     // of the observation that was just copied.
@@ -277,10 +287,28 @@ EigenType extractEstimationObservationRows(
                                       std::to_string( observationId ) + " is not present in the computed data." );
         }
 
-        estimationRows.block( estimationRow, 0, numberOfRows, computedRows.cols( ) ) =
-                computedRows.block( computationRow, 0, numberOfRows, computedRows.cols( ) );
+        if constexpr( sparseRows )
+        {
+            // Rows of a sparse matrix cannot be assigned as a block, so they are selected with a selection matrix below
+            for( unsigned int i = 0; i < numberOfRows; i++ )
+            {
+                selectionMatrixTriplets.emplace_back( estimationRow + i, computationRow + i, 1.0 );
+            }
+        }
+        else
+        {
+            estimationRows.block( estimationRow, 0, numberOfRows, computedRows.cols( ) ) =
+                    computedRows.block( computationRow, 0, numberOfRows, computedRows.cols( ) );
+        }
 
         estimationRow += static_cast< int >( numberOfRows );
+    }
+
+    if constexpr( sparseRows )
+    {
+        Eigen::SparseMatrix< double > selectionMatrix( numberOfEstimationRows, computedRows.rows( ) );
+        selectionMatrix.setFromTriplets( selectionMatrixTriplets.begin( ), selectionMatrixTriplets.end( ) );
+        estimationRows = selectionMatrix * computedRows;
     }
 
     return estimationRows;
@@ -296,9 +324,11 @@ EigenType extractEstimationObservationRows(
  *  \param totalObservationSize Total number of observations in observationsAndTimes map.
  *  \param residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
  *  observables w.r.t. parameter vector (return by reference).
+ *  \tparam DesignMatrixType Type of the design matrix, Eigen::MatrixXd or Eigen::SparseMatrix< double >
  */
 template< typename ObservationScalarType = double,
           typename TimeType = double,
+          typename DesignMatrixType = Eigen::MatrixXd,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateDesignMatrixAndResiduals(
         std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
@@ -307,12 +337,14 @@ void calculateDesignMatrixAndResiduals(
                         std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
                 observationManagers,
         const int totalNumberParameters,
-        Eigen::MatrixXd& designMatrix,
+        DesignMatrixType& designMatrix,
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
         const bool calculateResiduals = true,
         const bool calculatePartials = true )
 {
     observationDataset->validateObservationVectorData( observationVectorData );
+    constexpr bool sparseDesignMatrix = std::is_same_v< DesignMatrixType, Eigen::SparseMatrix< double > >;
+
     if( calculatePartials && totalNumberParameters <= 0 )
     {
         throw std::runtime_error( "Error when computing observation partials; number of parameters is 0 or smaller: " +
@@ -320,10 +352,18 @@ void calculateDesignMatrixAndResiduals(
     }
 
     const int totalObservationSize = static_cast< int >( observationVectorData.getObservationVector( ).size( ) );
-    // Initialize return data.
+    // Initialize return data. A sparse design matrix is assembled from triplets once all partials are computed.
+    std::vector< Eigen::Triplet< double > > designMatrixTriplets;
     if( calculatePartials )
     {
-        designMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalNumberParameters );
+        if constexpr( sparseDesignMatrix )
+        {
+            designMatrix.resize( totalObservationSize, totalNumberParameters );
+        }
+        else
+        {
+            designMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalNumberParameters );
+        }
     }
 
     if( calculateResiduals )
@@ -370,7 +410,7 @@ void calculateDesignMatrixAndResiduals(
 
         // Compute estimated ranges and range partials from current parameter estimate.
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > sortedObservationsVector;
-        Eigen::MatrixXd sortedPartialsMatrix;
+        DesignMatrixType sortedPartialsMatrix;
         observationManagers.at( currentObservableType )
                 ->computeObservationsWithPartials( sortedTimes,
                                                    currentLinkEnds,
@@ -381,7 +421,6 @@ void calculateDesignMatrixAndResiduals(
                                                    calculateResiduals,
                                                    calculatePartials );
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector = sortedObservationsVector;
-        Eigen::MatrixXd partialsMatrix = sortedPartialsMatrix;
         const int observableSize = static_cast< int >( metadata.observableSize_ );
         if( ( calculatePartials && sortedPartialsMatrix.rows( ) != static_cast< Eigen::Index >( times.size( ) * observableSize ) ) ||
             ( calculateResiduals && sortedObservationsVector.rows( ) != static_cast< Eigen::Index >( times.size( ) * observableSize ) ) )
@@ -389,24 +428,39 @@ void calculateDesignMatrixAndResiduals(
             throw std::runtime_error( "Error when computing observations and partials of observation set " + std::to_string( setId ) +
                                       ", the number of computed values is inconsistent with the number of observations." );
         }
-        for( std::size_t i = 0; i < timeOrder.size( ); ++i )
+        if( calculateResiduals )
         {
-            if( calculateResiduals )
+            for( std::size_t i = 0; i < timeOrder.size( ); ++i )
             {
                 observationsVector.segment( timeOrder.at( i ) * observableSize, observableSize ) =
                         sortedObservationsVector.segment( i * observableSize, observableSize );
-            }
-            if( calculatePartials )
-            {
-                partialsMatrix.block( timeOrder.at( i ) * observableSize, 0, observableSize, partialsMatrix.cols( ) ) =
-                        sortedPartialsMatrix.block( i * observableSize, 0, observableSize, partialsMatrix.cols( ) );
             }
         }
 
         if( calculatePartials )
         {
-            // Set current observation partials in matrix of all partials
-            designMatrix.block( observationIndices.first, 0, observationIndices.second, totalNumberParameters ) = partialsMatrix;
+            // Set current observation partials in matrix of all partials, with the rows put back in the order of the set
+            if constexpr( sparseDesignMatrix )
+            {
+                for( int k = 0; k < sortedPartialsMatrix.outerSize( ); k++ )
+                {
+                    for( Eigen::SparseMatrix< double >::InnerIterator it( sortedPartialsMatrix, k ); it; ++it )
+                    {
+                        const int setRow = static_cast< int >( timeOrder.at( it.row( ) / observableSize ) ) * observableSize +
+                                it.row( ) % observableSize;
+                        designMatrixTriplets.emplace_back( observationIndices.first + setRow, it.col( ), it.value( ) );
+                    }
+                }
+            }
+            else
+            {
+                for( std::size_t i = 0; i < timeOrder.size( ); ++i )
+                {
+                    designMatrix.block(
+                            observationIndices.first + timeOrder.at( i ) * observableSize, 0, observableSize, totalNumberParameters ) =
+                            sortedPartialsMatrix.block( i * observableSize, 0, observableSize, totalNumberParameters );
+                }
+            }
         }
 
         // Compute residuals for current link ends and observable type.
@@ -426,6 +480,14 @@ void calculateDesignMatrixAndResiduals(
                                                                            ->getObservationSimulator( )
                                                                            ->getResidualWrappingSettings( currentLinkEnds ) );
             }
+        }
+    }
+
+    if constexpr( sparseDesignMatrix )
+    {
+        if( calculatePartials )
+        {
+            designMatrix.setFromTriplets( designMatrixTriplets.begin( ), designMatrixTriplets.end( ) );
         }
     }
 }

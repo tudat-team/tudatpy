@@ -28,6 +28,12 @@ namespace estimatable_parameters
 std::string createObsBiasSecondaryIdentifier( const observation_models::ObservableType observableType,
                                               const observation_models::LinkEnds& linkEnds );
 
+//! Utility function to create secondary identification string of shared observation bias parameters.
+std::string createSharedObsBiasSecondaryIdentifier( const observation_models::ObservationBiasTypes biasType,
+                                                    const observation_models::ObservableType observableType,
+                                                    const observation_models::LinkEndType linkEndType,
+                                                    const observation_models::LinkEndId& linkEndId );
+
 //! Common bias-function plumbing for all observation-bias estimatable parameters.
 /*!
  * The wrapper owns the get/set callback pair while derived classes define

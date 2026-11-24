@@ -97,6 +97,9 @@ Examples
                     tom::ObservableType::doppler_measured_frequency,
                     R"doc(Doppler measured frequency observable.)doc" )
             .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range, R"doc(Dsn n way range observable.)doc" )
+            .value( "one_way_doppler_measured_frequency_type",
+                    tom::ObservableType::one_way_doppler_measured_frequency,
+                    R"doc(One way Doppler measured frequency observable.)doc" )
             .value( "differenced_time_of_arrival_type",
                     tom::ObservableType::differenced_time_of_arrival,
                     R"doc(Differenced time of arrival observable.)doc" )

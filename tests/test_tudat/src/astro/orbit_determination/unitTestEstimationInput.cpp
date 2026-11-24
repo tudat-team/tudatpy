@@ -162,6 +162,12 @@ BOOST_AUTO_TEST_CASE( test_ConstraintWithStronglyWeightedNormalEquations )
         }
         BOOST_CHECK_SMALL( constraint.dot( solution ), 1.0E-12 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( solution, solutionWithUnitWeight, 1.0E-10 );
+
+        // Check that the sparse solver gives the same solution
+        const Eigen::SparseMatrix< double > sparseNormalMatrix = normalMatrix.sparseView( );
+        const Eigen::Vector3d sparseSolution =
+                linear_algebra::solveSystemOfEquations( sparseNormalMatrix, rightHandSide, TUDAT_NAN ).segment( 0, 3 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseSolution, solution, 1.0E-10 );
     }
 }
 
@@ -361,6 +367,14 @@ void checkAPrioriParameterDeviation( const bool correlated )
         BOOST_CHECK_LT( correctionNorms.at( iteration ), correctionNorms.at( iteration - 1 ) );
     }
     BOOST_CHECK_LT( correctionNorms.back( ), 1.0E-6 * correctionNorms.front( ) );
+
+    // Repeat the estimation with a sparse design matrix, and compare with the dense results
+    orbitDeterminationManager.resetParameterEstimate( aprioriParameters, true );
+    estimationInput->setUseSparseDesignMatrix( true );
+    const std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+    BOOST_CHECK_EQUAL( sparseEstimationOutput->bestIteration_, estimationOutput->bestIteration_ );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->getParameterHistoryMatrix( ), parameterHistory, 1.0E-10 );
 
     // Repeat from the same perturbed parameters without a prior to provide a numerical reference for its effect.
     orbitDeterminationManager.resetParameterEstimate( aprioriParameters, true );
@@ -654,6 +668,13 @@ BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
             unconstrainedStateHistory.col( unconstrainedStateHistory.cols( ) - 1 ) - trueInitialState;
     BOOST_CHECK_SMALL( unconstrainedStateError.segment( 0, 3 ).norm( ), 0.1 );
     BOOST_CHECK_SMALL( unconstrainedStateError.segment( 3, 3 ).norm( ), 1.0E-4 );
+
+    // Repeat the constrained estimation with a sparse design matrix, and compare with the dense results
+    orbitDeterminationManager.resetParameterEstimate( perturbedInitialState, true );
+    estimationInput->setUseSparseDesignMatrix( true );
+    const std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->getParameterHistoryMatrix( ), initialStateHistory, 1.0E-10 );
 }
 
 //! This test checks whether the input/output of the estimation (weights, a priori covariance, unscaled covariance) are
@@ -1041,7 +1062,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     // A one-iteration run must expose the initial and updated parameters plus the residuals used for the step.
     BOOST_REQUIRE_EQUAL( singleStepEstimationOutput->parameterHistory_.size( ), 2 );
     BOOST_REQUIRE_EQUAL( singleStepEstimationOutput->residualHistory_.size( ), 1 );
-    const Eigen::MatrixXd singleStepDesignMatrix = singleStepEstimationOutput->getNormalizedDesignMatrix( );
+    const Eigen::MatrixXd singleStepDesignMatrix = std::get< Eigen::MatrixXd >( singleStepEstimationOutput->getNormalizedDesignMatrix( ) );
     const Eigen::VectorXd singleStepResiduals = singleStepEstimationOutput->residualHistory_.at( 0 );
     const Eigen::VectorXd expectedSingleStepParameterUpdate = solveDenseWeightedReference(
             singleStepDesignMatrix, expectedFullWeightsMatrix, singleStepResiduals, singleStepEstimationOutput->getNormalizationTerms( ) );
@@ -1065,7 +1086,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     BOOST_CHECK_SMALL( estimationError.segment( 0, 3 ).norm( ), 2.5 );
     BOOST_CHECK_SMALL( estimationError.segment( 3, 3 ).norm( ), 5.0E-3 );
 
-    const Eigen::MatrixXd designMatrixFromEstimation = estimationOutput->getUnnormalizedDesignMatrix( );
+    const Eigen::MatrixXd designMatrixFromEstimation = std::get< Eigen::MatrixXd >( estimationOutput->getUnnormalizedDesignMatrix( ) );
     const Eigen::MatrixXd expectedInverseCovarianceFromEstimation =
             designMatrixFromEstimation.transpose( ) * expectedFullWeightsMatrix * designMatrixFromEstimation;
 
@@ -1080,7 +1101,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     std::shared_ptr< CovarianceAnalysisOutput< double, double > > covarianceOutput =
             orbitDeterminationManager.computeCovariance( covarianceInput );
-    const Eigen::MatrixXd designMatrixFromCovariance = covarianceOutput->getUnnormalizedDesignMatrix( );
+    const Eigen::MatrixXd designMatrixFromCovariance = std::get< Eigen::MatrixXd >( covarianceOutput->getUnnormalizedDesignMatrix( ) );
     const Eigen::MatrixXd expectedInverseCovarianceFromCovariance =
             designMatrixFromCovariance.transpose( ) * expectedFullWeightsMatrix * designMatrixFromCovariance;
 
@@ -1118,7 +1139,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     BOOST_REQUIRE_EQUAL( rejectedEstimationOutput->residualHistory_.size( ), 1 );
     BOOST_CHECK_EQUAL( rejectedEstimationOutput->residualHistory_.at( 0 ).size( ), weightData.getObservationVector( ).size( ) );
     BOOST_CHECK_EQUAL( rejectedEstimationOutput->residuals_.size( ), activeData.getObservationVector( ).size( ) );
-    BOOST_CHECK_EQUAL( rejectedEstimationOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
+    BOOST_CHECK_EQUAL( std::get< Eigen::MatrixXd >( rejectedEstimationOutput->getUnnormalizedDesignMatrix( ) ).rows( ),
+                       activeData.getObservationVector( ).size( ) );
 
     const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags = rejectedEstimationOutput->getActiveFlagsPerIterationMatrix( );
     BOOST_REQUIRE_EQUAL( activeFlags.rows( ), rejectedEstimationOutput->residualHistory_.at( 0 ).rows( ) );
@@ -1141,7 +1163,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     BOOST_CHECK( !simulatedObservations->getObservationRow( rejectedObservationId ).isActive_ );
     BOOST_CHECK_GT( std::fabs( simulatedObservations->getResidualValue( rejectedObservationId )( 0 ) + 12345.0 ), 1.0 );
 
-    const Eigen::MatrixXd rejectedSingleStepDesignMatrix = rejectedEstimationOutput->getNormalizedDesignMatrix( );
+    const Eigen::MatrixXd rejectedSingleStepDesignMatrix =
+            std::get< Eigen::MatrixXd >( rejectedEstimationOutput->getNormalizedDesignMatrix( ) );
     const Eigen::VectorXd rejectedSingleStepResiduals = rejectedEstimationOutput->residuals_;
     // Independently remove the rejected event's scalar range from the hand-built matrix.
     const int rejectedStart = getOrderedObservationVectorIndex( rejectedObservationId, 0 );
@@ -1181,9 +1204,11 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
             orbitDeterminationManager.computeCovariance( rejectedCovarianceInput );
 
     // Covariance analysis must use the same active-only observation vector data as differential correction.
-    BOOST_CHECK_EQUAL( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
-    const Eigen::MatrixXd expectedRejectedInverseCovariance = rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).transpose( ) *
-            expectedActiveWeights * rejectedCovarianceOutput->getUnnormalizedDesignMatrix( );
+    BOOST_CHECK_EQUAL( std::get< Eigen::MatrixXd >( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ) ).rows( ),
+                       activeData.getObservationVector( ).size( ) );
+    const Eigen::MatrixXd expectedRejectedInverseCovariance =
+            std::get< Eigen::MatrixXd >( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ) ).transpose( ) * expectedActiveWeights *
+            std::get< Eigen::MatrixXd >( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             rejectedCovarianceOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedRejectedInverseCovariance, 1.0E-13 );
 

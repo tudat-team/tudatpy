@@ -208,7 +208,7 @@ public:
      * radiation pressure coefficient that is to be estimated.
      */
 
-    void setParameterValue( Eigen::VectorXd parameterValue )
+    void setParameterValue( Eigen::VectorXd parameterValue ) override
     {
         if( static_cast< int >( componentScalingCoefficients_.size( ) ) != static_cast< int >( parameterValue.rows( ) ) )
         {
@@ -231,12 +231,12 @@ public:
      * \return Current value of the arcwise component scaling coefficient that is to be estimated.
      */
 
-    Eigen::VectorXd getParameterValue( )
+    Eigen::VectorXd getParameterValue( ) override
     {
         return utilities::convertStlVectorToEigenVector( componentScalingCoefficients_ );
     }
 
-    int getParameterSize( )
+    int getParameterSize( ) override
     {
         return componentScalingCoefficients_.size( );
     }

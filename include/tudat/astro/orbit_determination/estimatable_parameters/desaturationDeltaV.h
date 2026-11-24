@@ -51,7 +51,7 @@ public:
      *  Get deltaV values for each momentum wheel desaturation maneuver.
      *  \return Vector containing the deltaV values.
      */
-    Eigen::VectorXd getParameterValue( )
+    Eigen::VectorXd getParameterValue( ) override
     {
         std::vector< Eigen::Vector3d > deltaVList = accelerationModel_->getDeltaVValues( );
         Eigen::VectorXd deltaVVector = Eigen::VectorXd( 3 * numberOfDeltaVBlocks_ );
@@ -68,7 +68,7 @@ public:
      *  Reset deltaV values for all the momentum wheel desaturation maneuvers.
      *  \param parameterValue New deltaV values for the desaturation maneuvers.
      */
-    void setParameterValue( Eigen::VectorXd parameterValue )
+    void setParameterValue( Eigen::VectorXd parameterValue ) override
     {
         std::vector< Eigen::Vector3d > deltaVList;
         for( int i = 0; i < numberOfDeltaVBlocks_; i++ )
@@ -85,7 +85,7 @@ public:
      *  \return Size of parameter value (number of desaturation maneuvers times three components
      *  for this parameter)
      */
-    int getParameterSize( )
+    int getParameterSize( ) override
     {
         return 3 * numberOfDeltaVBlocks_;
     }
