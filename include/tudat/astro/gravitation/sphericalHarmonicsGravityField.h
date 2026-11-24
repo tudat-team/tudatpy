@@ -117,6 +117,45 @@ Eigen::Vector3d computeGeodesyNormalizedPotentialGradientTerm( const Eigen::Vect
                                                                const bool checkSphericalHarmonicsConsistency,
                                                                const bool isCloseToPole );
 
+//! Compute the potential gradient (in spherical coordinates) of all terms of a single degree, summed over order.
+/*!
+ *  Terms are added in order of increasing order. If termsOfDegree is not a nullptr, the separate terms are stored at
+ *  termsOfDegree[ order ]. Only reads from the spherical harmonics cache, so that different degrees may be computed
+ *  concurrently.
+ */
+template< typename CoefficientBlock >
+Eigen::Vector3d computeGeodesyNormalizedPotentialGradientOfDegree(
+        const Eigen::Vector3d& sphericalPosition,
+        const double preMultiplier,
+        const int degree,
+        const CoefficientBlock& cosineHarmonicCoefficients,
+        const CoefficientBlock& sineHarmonicCoefficients,
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
+        const bool checkSphericalHarmonicsConsistency,
+        const bool isCloseToPole,
+        Eigen::Vector3d* termsOfDegree )
+{
+    Eigen::Vector3d degreeGradient = Eigen::Vector3d::Zero( );
+    for( int order = 0; ( order <= degree ) && ( order < cosineHarmonicCoefficients.cols( ) ); order++ )
+    {
+        const Eigen::Vector3d term = computeGeodesyNormalizedPotentialGradientTerm( sphericalPosition,
+                                                                                    preMultiplier,
+                                                                                    degree,
+                                                                                    order,
+                                                                                    cosineHarmonicCoefficients( degree, order ),
+                                                                                    sineHarmonicCoefficients( degree, order ),
+                                                                                    sphericalHarmonicsCache,
+                                                                                    checkSphericalHarmonicsConsistency,
+                                                                                    isCloseToPole );
+        degreeGradient += term;
+        if( termsOfDegree != nullptr )
+        {
+            termsOfDegree[ order ] = term;
+        }
+    }
+    return degreeGradient;
+}
+
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
 //! geodesy-normalization.
 /*!
@@ -209,61 +248,59 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     Eigen::Matrix3d transformationToCartesianCoordinates =
             coordinate_conversions::getSphericalToCartesianGradientMatrix( positionOfBodySubjectToAcceleration );
 
-    // Compute the potential gradients of the separate terms in parallel, if requested
+    // Compute the potential gradient per degree (summed over order), in parallel over degrees if requested. Buffer layout:
+    // separate terms at degree * highestOrder + order (only if saved), followed by the sum per degree (only in parallel).
     const bool isCloseToPole = std::fabs( mathematical_constants::PI / 2.0 -
                                           sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) <
             colatitudeCutoffForBoschFormulation;
-    const bool computeTermsInParallel = utilities::useParallelTeam( numberOfThreads );
-    std::vector< Eigen::Vector3d > temporaryTerms;
-    std::vector< Eigen::Vector3d >& parallelTerms = ( modelTerms != nullptr ) ? *modelTerms : temporaryTerms;
-    if( computeTermsInParallel )
+    const bool computeDegreesInParallel = utilities::useParallelTeam( numberOfThreads );
+    std::vector< Eigen::Vector3d > temporaryBuffer;
+    std::vector< Eigen::Vector3d >& buffer = ( modelTerms != nullptr ) ? *modelTerms : temporaryBuffer;
+    const int numberOfSavedTerms = saveSeparateTerms ? highestDegree * highestOrder : 0;
+    buffer.resize( numberOfSavedTerms + ( computeDegreesInParallel ? highestDegree : 0 ) );
+    if( computeDegreesInParallel )
     {
-        parallelTerms.resize( static_cast< std::size_t >( highestDegree ) * highestOrder );
         utilities::parallelFor( highestDegree, numberOfThreads, 1, [ & ]( const int degree ) {
-            for( int order = 0; ( order <= degree ) && ( order < highestOrder ); order++ )
-            {
-                parallelTerms[ degree * highestOrder + order ] =
-                        computeGeodesyNormalizedPotentialGradientTerm( sphericalpositionOfBodySubjectToAcceleration,
+            buffer[ numberOfSavedTerms + degree ] =
+                    computeGeodesyNormalizedPotentialGradientOfDegree( sphericalpositionOfBodySubjectToAcceleration,
                                                                        preMultiplier,
                                                                        degree,
-                                                                       order,
-                                                                       cosineHarmonicCoefficients( degree, order ),
-                                                                       sineHarmonicCoefficients( degree, order ),
+                                                                       cosineHarmonicCoefficients,
+                                                                       sineHarmonicCoefficients,
                                                                        sphericalHarmonicsCache,
                                                                        checkSphericalHarmonicsConsistency,
-                                                                       isCloseToPole );
-            }
+                                                                       isCloseToPole,
+                                                                       saveSeparateTerms ? &buffer[ degree * highestOrder ] : nullptr );
         } );
     }
 
-    // Sum the terms in a fixed order, so that the result does not depend on the number of threads
-    Eigen::Vector3d currentTerm;
+    // Sum over degrees in a fixed order, so that the result does not depend on the number of threads
     for( int degree = 0; degree < highestDegree; degree++ )
     {
-        for( int order = 0; ( order <= degree ) && ( order < highestOrder ); order++ )
+        if( computeDegreesInParallel )
         {
-            if( computeTermsInParallel )
-            {
-                currentTerm = parallelTerms[ degree * highestOrder + order ];
-            }
-            else
-            {
-                currentTerm = computeGeodesyNormalizedPotentialGradientTerm( sphericalpositionOfBodySubjectToAcceleration,
-                                                                             preMultiplier,
-                                                                             degree,
-                                                                             order,
-                                                                             cosineHarmonicCoefficients( degree, order ),
-                                                                             sineHarmonicCoefficients( degree, order ),
-                                                                             sphericalHarmonicsCache,
-                                                                             checkSphericalHarmonicsConsistency,
-                                                                             isCloseToPole );
-            }
-            sphericalGradient += currentTerm;
+            sphericalGradient += buffer[ numberOfSavedTerms + degree ];
+        }
+        else
+        {
+            sphericalGradient +=
+                    computeGeodesyNormalizedPotentialGradientOfDegree( sphericalpositionOfBodySubjectToAcceleration,
+                                                                       preMultiplier,
+                                                                       degree,
+                                                                       cosineHarmonicCoefficients,
+                                                                       sineHarmonicCoefficients,
+                                                                       sphericalHarmonicsCache,
+                                                                       checkSphericalHarmonicsConsistency,
+                                                                       isCloseToPole,
+                                                                       saveSeparateTerms ? &buffer[ degree * highestOrder ] : nullptr );
+        }
 
-            if( saveSeparateTerms )
+        if( saveSeparateTerms )
+        {
+            for( int order = 0; ( order <= degree ) && ( order < highestOrder ); order++ )
             {
                 accelerationPerTerm[ std::make_pair( degree, order ) ] =
-                        accelerationRotation * ( transformationToCartesianCoordinates * currentTerm );
+                        accelerationRotation * ( transformationToCartesianCoordinates * buffer[ degree * highestOrder + order ] );
             }
         }
     }
