@@ -1,15 +1,14 @@
 """Exercise the ordinary Python factory and native solver, without Earth resources."""
 
-import importlib.util
 import os
-from pathlib import Path
 import pickle
 
 import numpy as np
 import pytest
 
 import tudatpy
-from tudatpy.dynamics import propagation_setup
+from tudatpy.astro import element_conversion
+from tudatpy.dynamics import environment_setup, parameters_setup, propagation_setup, simulator
 from tudatpy.interface import spice
 
 acceleration = propagation_setup.acceleration
@@ -64,39 +63,112 @@ def test_pickle_restores_sequential_policy():
     assert restored == settings
 
 
-@pytest.fixture(scope="module")
-def benchmark():
-    path = (
-        Path(__file__).resolve().parents[2] / "benchmarks/benchmark_python_spherical_harmonics.py"
+START = 778118400.0
+DURATION = 300.0
+
+
+def make_case(threads, mode):
+    """Mars orbiter with degree/order 20 JGMRO120D gravity, using the given number of gravity threads."""
+    settings = environment_setup.get_default_body_settings(["Mars"], "Mars", "J2000")
+    settings.get("Mars").gravity_field_settings = (
+        environment_setup.gravity_field.predefined_spherical_harmonic(
+            environment_setup.gravity_field.jgmro120d, 20
+        )
     )
-    spec = importlib.util.spec_from_file_location("gravity_benchmark", path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    bodies = environment_setup.create_system_of_bodies(settings)
+    bodies.create_empty_body("Satellite")
+    mars = bodies.get("Mars")
+    state = element_conversion.keplerian_to_cartesian(
+        np.array(
+            [
+                mars.gravity_field_model.reference_radius + 300000.0,
+                0.001,
+                np.deg2rad(93.0),
+                0.2,
+                0.3,
+                0.4,
+            ]
+        ),
+        mars.gravitational_parameter,
+    )
+    accelerations = propagation_setup.create_acceleration_models(
+        bodies,
+        {
+            "Satellite": {
+                "Mars": [acceleration.spherical_harmonic_gravity(20, 20, number_of_threads=threads)]
+            }
+        },
+        ["Satellite"],
+        ["Mars"],
+    )
+    propagator = propagation_setup.propagator.translational(
+        ["Mars"],
+        accelerations,
+        ["Satellite"],
+        state,
+        START,
+        propagation_setup.integrator.runge_kutta_fixed_step(
+            30.0, propagation_setup.integrator.CoefficientSets.rkdp_87
+        ),
+        propagation_setup.propagator.time_termination(START + DURATION, True),
+    )
+    if mode == "variational":
+        parameter_settings = parameters_setup.initial_states(propagator, bodies)
+        parameter_settings.append(parameters_setup.gravitational_parameter("Mars"))
+        parameters = parameters_setup.create_parameter_set(parameter_settings, bodies)
+        solver = simulator.SingleArcVariationalSimulator(
+            bodies, propagator, parameters, integrate_on_creation=False
+        )
+    else:
+        solver = simulator.create_dynamics_simulator(
+            bodies, propagator, simulate_dynamics_on_creation=False
+        )
+    return bodies, solver, state
+
+
+def execute(case, mode):
+    """Propagate the case; return the state (and for variational propagation STM and sensitivity) histories."""
+    _, solver, state = case
+    if mode == "variational":
+        solver.integrate_full_equations(state)
+        results = solver.variational_propagation_results
+        histories = [
+            results.dynamics_results.state_history,
+            results.state_transition_matrix_history,
+            results.sensitivity_matrix_history,
+        ]
+    else:
+        solver.integrate_equations_of_motion(state)
+        results = solver.propagation_results
+        histories = [results.state_history]
+    assert (
+        results.dynamics_results if mode == "variational" else results
+    ).integration_completed_successfully
+    return [np.stack([np.asarray(history[t]) for t in sorted(history)]) for history in histories]
+
+
+@pytest.fixture(scope="module")
+def kernels():
     spice.load_standard_kernels()
-    return module
 
 
 @pytest.mark.parametrize("mode", ["dynamics", "variational"])
-def test_full_solver_history_parity(benchmark, mode):
+def test_full_solver_history_parity(kernels, mode):
+    # Propagation results must be identical (bitwise) for 1 and multiple gravity threads
     threads = 4 if tudatpy.is_openmp_available() else 1
-    reference_case = benchmark.make_case(1, 20, 300.0, mode)
-    reference = benchmark.collect(benchmark.execute(reference_case, mode), mode)
-    actual_case = benchmark.make_case(threads, 20, 300.0, mode)
-    actual = benchmark.collect(benchmark.execute(actual_case, mode), mode)
-    maximum = benchmark.compare(reference, actual, 300.0)
-    assert np.isfinite(maximum)
-    # The native model/cache operation order is preserved in this build.
-    assert maximum == 0.0
+    reference = execute(make_case(1, mode), mode)
+    actual = execute(make_case(threads, mode), mode)
+    for reference_history, actual_history in zip(reference, actual):
+        np.testing.assert_array_equal(actual_history, reference_history)
 
 
-def test_python_rotation_callback_stays_on_caller_and_remains_alive(benchmark):
+def test_python_rotation_callback_stays_on_caller_and_remains_alive(kernels):
     import gc
     import threading
     import weakref
-    from tudatpy.dynamics import environment_setup
 
     threads = 4 if tudatpy.is_openmp_available() else 1
-    case = benchmark.make_case(threads, 20, 300.0, "dynamics")
+    case = make_case(threads, "dynamics")
     caller = threading.get_ident()
     calls = []
 
@@ -114,7 +186,6 @@ def test_python_rotation_callback_stays_on_caller_and_remains_alive(benchmark):
     del callback, rotation
     gc.collect()
     assert reference() is not None
-    results = benchmark.collect(benchmark.execute(case, "dynamics"), "dynamics")
-    benchmark.compare(results, results, 300.0)
+    execute(case, "dynamics")
     assert calls
     assert set(calls) == {caller}
