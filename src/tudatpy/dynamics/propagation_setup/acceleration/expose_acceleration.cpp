@@ -722,6 +722,10 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      an active OpenMP region. When combining with independent arc workers, budget both
      levels explicitly. Execution policy is not serialized; loaded settings use one thread.
 
+     The runtime gains of using this feature are limited by the overhead of the parallelization itself. We recommend
+     not parallelizing for maximum degree < 20 and to use at most :math:`\approx l_{\max}/12` parallel threads for
+     higher maximum degrees.
+
      Buffers belong to each native model. The calling thread updates the environment
      before native workers read it; inner workers do not invoke Python callbacks.
      This option adds no GIL release or change to callback lifetime rules of the caller.
