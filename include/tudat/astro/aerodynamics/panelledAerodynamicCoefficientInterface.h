@@ -41,10 +41,12 @@ public:
         {
             gasSurfaceInteractionModel_->setFreeStreamTemperature( independentVariables[ 2 ] );
             gasSurfaceInteractionModel_->setAirSpeed( independentVariables[ 3 ] );
+            gasSurfaceInteractionModel_->setSpecifiGasConstant( independentVariables[ 4 ] );
         }
         else if( gasSurfaceInteractionModelType_ == cook )
         {
             gasSurfaceInteractionModel_->setAirSpeed( independentVariables[ 2 ] );
+            gasSurfaceInteractionModel_->setSpecifiGasConstant( independentVariables[ 3 ] );
         }
         currentForceCoefficients_ = gasSurfaceInteractionModel_->computeAerodynamicCoefficients( );
 

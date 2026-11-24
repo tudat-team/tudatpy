@@ -267,10 +267,14 @@ inline std::vector< AerodynamicCoefficientsIndependentVariables > createIndepend
             return { angle_of_attack_dependent, angle_of_sideslip_dependent };
         }
         case sentman: {
-            return { angle_of_attack_dependent, angle_of_sideslip_dependent, temperature_dependent, velocity_dependent };
+            return { angle_of_attack_dependent,
+                     angle_of_sideslip_dependent,
+                     temperature_dependent,
+                     velocity_dependent,
+                     specific_gas_constant_dependent };
         }
         case cook: {
-            return { angle_of_attack_dependent, angle_of_sideslip_dependent, velocity_dependent };
+            return { angle_of_attack_dependent, angle_of_sideslip_dependent, velocity_dependent, specific_gas_constant_dependent };
         }
         default:
             throw std::runtime_error( "Error, unknown gas surface interaction model " );

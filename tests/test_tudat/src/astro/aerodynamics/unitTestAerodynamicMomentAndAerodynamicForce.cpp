@@ -1194,7 +1194,7 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
     double panelArea = 0.5;
     double referenceArea = 1.0;
     double panelTemperature = 300.0;
-    double energyAccomodationCoefficient = 1.0;
+    double energyAccomodationCoefficient = 0.93;
     double normalAccomodationCoefficient = 1.0;
     double tangentialAccomodationCoefficient = 1.0;
     double normalVelocityAtWallRatio = 1.0;
