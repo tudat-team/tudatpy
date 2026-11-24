@@ -424,6 +424,24 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
                                        covarianceOutput->unnormalizedCovarianceWithConsiderParameters_,
                                        1.0e-10 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->parameterHistory_.at( 1 ), updatedParameters, 1.0e-10 );
+
+    // Compare the unnormalized and weighted design matrices of the sparse output with the dense ones
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            Eigen::MatrixXd( std::get< Eigen::SparseMatrix< double > >( sparseEstimationOutput->getUnnormalizedDesignMatrix( ) ) ),
+            estimatedPartials,
+            1.0e-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::MatrixXd( std::get< Eigen::SparseMatrix< double > >(
+                                               sparseEstimationOutput->getUnnormalizedDesignMatrixConsiderParameters( ) ) ),
+                                       considerPartials,
+                                       1.0e-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            Eigen::MatrixXd( std::get< Eigen::SparseMatrix< double > >( sparseEstimationOutput->getNormalizedWeightedDesignMatrix( ) ) ),
+            std::get< Eigen::MatrixXd >( estimationOutput->getNormalizedWeightedDesignMatrix( ) ),
+            1.0e-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            Eigen::MatrixXd( std::get< Eigen::SparseMatrix< double > >( sparseEstimationOutput->getUnnormalizedWeightedDesignMatrix( ) ) ),
+            std::get< Eigen::MatrixXd >( estimationOutput->getUnnormalizedWeightedDesignMatrix( ) ),
+            1.0e-12 );
 }
 
 BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )

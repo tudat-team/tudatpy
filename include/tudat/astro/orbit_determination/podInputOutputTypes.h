@@ -19,7 +19,6 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <type_traits>
 #include <variant>
 
 #include <Eigen/Core>
@@ -538,18 +537,18 @@ using DenseOrSparseMatrix = std::variant< Eigen::MatrixXd, Eigen::SparseMatrix< 
 //! Function to get the number of columns of an optionally saved (dense or sparse) matrix; zero if it is absent
 inline int getNumberOfColumns( const DenseOrSparseOrNoMatrix& matrix )
 {
-    return std::visit(
-            []( const auto& m ) -> int {
-                if constexpr( std::is_same_v< std::decay_t< decltype( m ) >, std::monostate > )
-                {
-                    return 0;
-                }
-                else
-                {
-                    return static_cast< int >( m.cols( ) );
-                }
-            },
-            matrix );
+    if( std::holds_alternative< Eigen::MatrixXd >( matrix ) )
+    {
+        return static_cast< int >( std::get< Eigen::MatrixXd >( matrix ).cols( ) );
+    }
+    else if( std::holds_alternative< Eigen::SparseMatrix< double > >( matrix ) )
+    {
+        return static_cast< int >( std::get< Eigen::SparseMatrix< double > >( matrix ).cols( ) );
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 //! Function to compare two optionally saved (dense or sparse) matrices for exact equality of storage type and values
