@@ -356,13 +356,13 @@ public:
     void enableSavePanellingGeometry( )
     {
         savePanellingGeometry_ = true;
-        savedPanelIrradiances_.resize( sourceModel_->getNumberOfPanels( ) );
+        savedPanelGeometries_.resize( sourceModel_->getNumberOfPanels( ) );
     }
 
     void enableSavePanellingIrradiance( )
     {
         savePanellingIrradiance_ = true;
-        savedPanelGeometries_.resize( sourceModel_->getNumberOfPanels( ) );
+        savedPanelIrradiances_.resize( sourceModel_->getNumberOfPanels( ) );
     }
 
     std::vector< double >& getSavedPanelIrradiances( )

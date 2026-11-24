@@ -440,7 +440,8 @@ BOOST_AUTO_TEST_CASE( testEstimationWithReducedSensitivityMatrixColumns )
                     estimateParameters( arcType, getEmpiricalAccelerationArcStarts( testCase ), false );
 
             // Check that observation partials, covariance and estimate are equal to those without column reduction
-            checkMatrixColumnsClose( reducedOutput->getUnnormalizedDesignMatrix( ), fullOutput->getUnnormalizedDesignMatrix( ) );
+            checkMatrixColumnsClose( std::get< Eigen::MatrixXd >( reducedOutput->getUnnormalizedDesignMatrix( ) ),
+                                     std::get< Eigen::MatrixXd >( fullOutput->getUnnormalizedDesignMatrix( ) ) );
             checkMatrixColumnsClose(
                     reducedOutput->getUnnormalizedCovarianceMatrix( ), fullOutput->getUnnormalizedCovarianceMatrix( ), 1.0E-8 );
             Eigen::VectorXd estimateDifference = ( reducedOutput->parameterEstimate_ - fullOutput->parameterEstimate_ )

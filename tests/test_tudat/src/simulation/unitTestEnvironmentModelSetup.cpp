@@ -2075,6 +2075,9 @@ BOOST_AUTO_TEST_CASE( test_DefaultSettingsDifferentBody )
     BodyListSettings bodySettings;
     bodySettings.addSettings( getDefaultSingleBodySettings( "Mars", "ECLIPJ2000" ), "Mars" );
     bodySettings.addSettings( getDefaultSingleAlternateNameBodySettings( "Earth", "Mars", "ECLIPJ2000" ), "Earth" );
+    // Saturn has a point-mass gravity field from Spice by default
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Saturn", "ECLIPJ2000" ), "Saturn" );
+    bodySettings.addSettings( getDefaultSingleAlternateNameBodySettings( "SaturnCopy", "Saturn", "ECLIPJ2000" ), "SaturnCopy" );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
@@ -2097,6 +2100,11 @@ BOOST_AUTO_TEST_CASE( test_DefaultSettingsDifferentBody )
     double earthPotential = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalPotential( testPosition );
     double marsPotential = bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalPotential( testPosition );
     BOOST_CHECK_CLOSE_FRACTION( earthPotential, marsPotential, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_EQUAL( bodies.at( "SaturnCopy" )->getGravityFieldModel( )->getGravitationalParameter( ),
+                       bodies.at( "Saturn" )->getGravityFieldModel( )->getGravitationalParameter( ) );
+
+    // The Sun has a default radiation source, also when its settings are created under another name
+    BOOST_CHECK( getDefaultSingleAlternateNameBodySettings( "SunCopy", "Sun", "ECLIPJ2000" )->radiationSourceModelSettings != nullptr );
 
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Earth" );
     BOOST_CHECK_EQUAL( bodies.at( "Mars" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Mars" );

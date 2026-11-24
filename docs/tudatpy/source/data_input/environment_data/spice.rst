@@ -91,12 +91,14 @@ Kernel Management
    load_kernel
    clear_kernels
    get_total_count_of_kernels_loaded
+   get_loaded_kernels
 
 .. autofunction:: load_standard_kernels
 .. autofunction:: load_standard_deprecated_kernels
 .. autofunction:: load_kernel
 .. autofunction:: clear_kernels
 .. autofunction:: get_total_count_of_kernels_loaded
+.. autofunction:: get_loaded_kernels
 
 Error Management
 ----------------

@@ -442,6 +442,17 @@ void expose_estimation_analysis( py::module& m )
          List of currently attached soft inter-arc continuity-prior settings.
 
          :type: list[InterArcStateContinuityConstraintSettings]
+      )doc" )
+            .def_property( "use_sparse_design_matrix",
+                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getUseSparseDesignMatrix,
+                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setUseSparseDesignMatrix,
+                           R"doc(
+
+         Boolean defining whether the design matrix is computed and stored as a sparse matrix, and the least-squares
+         solution is computed with sparse linear algebra. Recommended for problems in which most partials are zero, such
+         as multi-arc estimation. Default is False.
+
+         :type: bool
       )doc" );
 
     py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -742,7 +753,7 @@ void expose_estimation_analysis( py::module& m )
 
          Matrix of partial derivatives :math:`\mathbf{H}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}}`.
 
-         :type: numpy.ndarray[numpy.float64[m, n]]
+         :type: numpy.ndarray[numpy.float64[m, n]] or scipy.sparse.csc_matrix (if the design matrix is stored sparse)
       )doc" )
             .def_property_readonly( "normalized_design_matrix",
                                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getNormalizedDesignMatrix,
@@ -752,7 +763,7 @@ void expose_estimation_analysis( py::module& m )
 
          Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.design_matrix`
 
-         :type: numpy.ndarray[numpy.float64[m, n]]
+         :type: numpy.ndarray[numpy.float64[m, n]] or scipy.sparse.csc_matrix (if the design matrix is stored sparse)
       )doc" )
             .def_property_readonly( "weighted_design_matrix",
                                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedWeightedDesignMatrix,
@@ -762,7 +773,7 @@ void expose_estimation_analysis( py::module& m )
 
          Matrix of weighted partial derivatives, equal to :math:`\mathbf{W}^{1/2}{\mathbf{H}}`
 
-         :type: numpy.ndarray[numpy.float64[m, n]]
+         :type: numpy.ndarray[numpy.float64[m, n]] or scipy.sparse.csc_matrix (if the design matrix is stored sparse)
       )doc" )
             .def_property_readonly( "weighted_normalized_design_matrix",
                                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getNormalizedWeightedDesignMatrix,
@@ -772,7 +783,7 @@ void expose_estimation_analysis( py::module& m )
 
          Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.weighted_design_matrix`
 
-         :type: numpy.ndarray[numpy.float64[m, n]]
+         :type: numpy.ndarray[numpy.float64[m, n]] or scipy.sparse.csc_matrix (if the design matrix is stored sparse)
       )doc" )
             .def_property_readonly( "consider_covariance_contribution",
                                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getConsiderCovarianceContribution,
@@ -816,7 +827,7 @@ void expose_estimation_analysis( py::module& m )
 
          Matrix of partial derivatives of observations w.r.t. consider parameters :math:`\mathbf{H}_c=\frac{\partial\mathbf{h}}{\partial\mathbf{c}}`.
 
-         :type: numpy.ndarray[numpy.float64[m, n]]
+         :type: numpy.ndarray[numpy.float64[m, n]] or scipy.sparse.csc_matrix (if the design matrix is stored sparse)
       )doc" )
             .def_property_readonly(
                     "normalized_design_matrix_consider_parameters",
@@ -827,7 +838,7 @@ void expose_estimation_analysis( py::module& m )
 
          Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.design_matrix_consider_parameters`
 
-         :type: numpy.ndarray[numpy.float64[m, n]]
+         :type: numpy.ndarray[numpy.float64[m, n]] or scipy.sparse.csc_matrix (if the design matrix is stored sparse)
       )doc" )
 
             .def_readonly( "normalization_terms",

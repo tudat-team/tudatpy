@@ -3162,8 +3162,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
                             bodies.at( illuminatedBody )->getAerodynamicCoefficientInterface( );
                     auto panelledAerodynamicCoefficientInterface =
-                            std::dynamic_pointer_cast< tudat::aerodynamics::PanelledAerodynamicCoefficientInterface >(
-                                    aerodynamicCoefficients );
+                            tudat::aerodynamics::getPanelledCoefficientInterface( aerodynamicCoefficients );
 
                     if( panelledAerodynamicCoefficientInterface == nullptr )
                     {
@@ -3277,8 +3276,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
                             bodies.at( illuminatedBody )->getAerodynamicCoefficientInterface( );
                     auto panelledAerodynamicCoefficientInterface =
-                            std::dynamic_pointer_cast< tudat::aerodynamics::PanelledAerodynamicCoefficientInterface >(
-                                    aerodynamicCoefficients );
+                            tudat::aerodynamics::getPanelledCoefficientInterface( aerodynamicCoefficients );
 
                     if( panelledAerodynamicCoefficientInterface == nullptr )
                     {
@@ -3373,7 +3371,11 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                             bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
                     if( marsDtmModel != nullptr )
                     {
-                        variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude, marsDtmModel );
+                        // Computed from the current time, as the model only updates its solar longitude with its density
+                        const std::shared_ptr< simulation_setup::Body > body = bodies.at( bodyWithProperty );
+                        variableFunction = [ = ]( ) {
+                            return aerodynamics::computeSolarLongitudeFromTime( body->getDoubleTimeOfCurrentState( ) );
+                        };
                     }
                     else
                     {

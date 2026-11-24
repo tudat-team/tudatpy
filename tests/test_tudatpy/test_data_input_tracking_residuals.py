@@ -2,12 +2,11 @@ import datetime
 import json
 from pathlib import Path
 from bisect import bisect_left, bisect_right
-from urllib.request import urlretrieve
 
 import numpy as np
 import pytest
 
-from tudatpy.data_input import resource_paths as data_paths
+from tudatpy.data_input import resource_paths
 from tudatpy.data_input.environment_data.horizons import HorizonsQuery
 from tudatpy.data_input.tracking_data import (
     TrackingData,
@@ -38,43 +37,35 @@ from tudatpy.estimation.observations import (
     simulate_observations,
     set_tracking_supplementary_data_in_bodies,
 )
-from tudatpy.kernel import constants
-from tudatpy.kernel.dynamics import environment, environment_setup
-from tudatpy.kernel.dynamics.environment_setup import (
+from tudatpy import constants
+from tudatpy.dynamics import environment, environment_setup
+from tudatpy.dynamics.environment_setup import (
     ephemeris,
     rotation_model,
     shape,
     shape_deformation,
 )
 from tudatpy.dynamics.environment_setup import ground_station
-from tudatpy.kernel.estimation.observable_models_setup import (
+from tudatpy.estimation.observable_models_setup import (
     biases,
     light_time_corrections,
     links,
     model_settings,
 )
-from tudatpy.kernel.estimation.observations_setup import (
+from tudatpy.estimation.observations_setup import (
     ancillary_settings,
     observations_simulation_settings,
 )
 from tudatpy.data_input.environment_data import spice
 
-APOPHIS_FIGURE2_RADAR_FIXTURE_PATH = (
-    Path(__file__).resolve().parent / "data" / "mpc_radar_apophis_figure2_horizons_fixtures.json"
-)
 APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL = 6.0
 
 
-def _test_data_path() -> Path:
-    return Path(data_paths.get_test_data_path())
-
-
-def _download_file(url: str, directory: Path) -> Path:
-    directory.mkdir(parents=True, exist_ok=True)
-    file_path = directory / url.rsplit("/", 1)[1]
-    if not file_path.exists() or file_path.stat().st_size == 0:
-        urlretrieve(url, file_path)
-    return file_path
+@pytest.fixture
+def apophis_figure2_radar_fixture_cases(data_dir):
+    """Return the frozen Apophis Figure 2 radar cases with their Horizons states."""
+    with (data_dir / "mpc_radar_apophis_figure2_horizons_fixtures.json").open() as fixture_file:
+        return json.load(fixture_file)["cases"]
 
 
 def _create_mex_bodies(test_data_path: Path):
@@ -109,11 +100,11 @@ def _create_mex_bodies(test_data_path: Path):
 def _create_mro_bodies(mro_kernel_path: Path, initial_time: float, final_time: float):
     spice.load_standard_kernels()
     for kernel_file in (
-        "mro_sc_psp_120313_120319.bc",
-        "mro_hga_psp_120313_120319.bc",
+        "mro_sc_psp_120313_120319-trimmed.bc",
+        "mro_hga_psp_120313_120319-trimmed.bc",
         "mro_sclkscet_00112_65536.tsc",
         "mro_v16.tf",
-        "mro_psp22.bsp",
+        "mro_psp22-trimmed.bsp",
         "mro_struct_v10.bsp",
     ):
         spice.load_kernel(str(mro_kernel_path / kernel_file))
@@ -145,34 +136,6 @@ def _create_mro_bodies(mro_kernel_path: Path, initial_time: float, final_time: f
     mro_systems.set_default_transponder_turnaround_ratio_function()
     bodies.get_body("MRO").system_models = mro_systems
     return bodies
-
-
-def _download_grail_residual_files(test_data_path: Path):
-    grail_data_path = test_data_path / "grail_residuals_download"
-    kernel_path = grail_data_path / "kernel_download"
-    antenna_path = grail_data_path / "antenna_download"
-
-    for url in (
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/"
-        "grlsp_1000/data/sclk/gra_sclkscet_00014.tsc",
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/"
-        "grlsp_1000/data/ck/gra_rec_120409_120415.bc",
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/"
-        "grlsp_1000/data/spk/grail_120301_120529_sci_v02.bsp",
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/"
-        "grlsp_1000/data/fk/grail_v07.tf",
-        "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de440_200625.bpc",
-        "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_de440_250416.tf",
-    ):
-        _download_file(url, kernel_path)
-
-    antenna_file = _download_file(
-        "https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-3-cdr-v1/"
-        "grail_0101/level_1b/2012_04_10/vgs1b_2012_04_10_a_04.asc",
-        antenna_path,
-    )
-
-    return kernel_path, [antenna_file]
 
 
 def _read_grail_antenna_switch_history(antenna_files, start_time: float, end_time: float):
@@ -214,18 +177,19 @@ def _read_grail_antenna_switch_history(antenna_files, start_time: float, end_tim
     return antenna_switch_history
 
 
-def _create_grail_bodies(test_data_path: Path, initial_time: float, final_time: float):
-    kernel_path, _ = _download_grail_residual_files(test_data_path)
+def _create_grail_bodies(grail_data_path: Path, initial_time: float, final_time: float):
     spice.load_standard_kernels()
+    # The CK and SPK are trimmed to the test interval; see grail/trimming.md.
     for kernel_file in (
-        "moon_de440_250416.tf",
-        "moon_pa_de440_200625.bpc",
         "grail_v07.tf",
-        "gra_rec_120409_120415.bc",
+        "gra_rec_120409_120415-trimmed.bc",
         "gra_sclkscet_00014.tsc",
-        "grail_120301_120529_sci_v02.bsp",
+        "grail_120301_120529_sci_v02-trimmed.bsp",
     ):
-        spice.load_kernel(str(kernel_path / kernel_file))
+        spice.load_kernel(str(grail_data_path / kernel_file))
+
+    for kernel_file in ("moon_pa_de440_200625.bpc", "moon_de440_200625.tf"):
+        spice.load_kernel(resource_paths.get_spice_kernel_path() + f"/{kernel_file}")
 
     body_settings = environment_setup.get_default_body_settings_time_limited(
         ["Earth", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Moon"],
@@ -574,11 +538,6 @@ def _create_apophis_radar_bodies_from_fixture(case):
     return environment_setup.create_system_of_bodies(body_settings)
 
 
-def _load_apophis_figure2_radar_fixture_cases():
-    with APOPHIS_FIGURE2_RADAR_FIXTURE_PATH.open() as fixture_file:
-        return json.load(fixture_file)["cases"]
-
-
 def _compute_apophis_fixture_radar_residual(case):
     parsed_table = parse_80cols_data(case["mpc_80col_records"])
     radar_table = radar_data_from_table(parsed_table)
@@ -711,8 +670,8 @@ def _simulate_pixel_coordinates(observation_collection, bodies):
     return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
 
 
-def test_ifms_mex_residuals_are_millihertz_level():
-    test_data_path = _test_data_path()
+def test_ifms_mex_residuals_are_millihertz_level(tudat_data_dir):
+    test_data_path = tudat_data_dir
     bodies = _create_mex_bodies(test_data_path)
 
     tracking_data, supplementary_data = read_ifms_data(
@@ -752,29 +711,21 @@ def test_ifms_mex_residuals_are_millihertz_level():
     assert abs(np.mean(residuals)) < 1.0e-3
 
 
-def test_odf_grail_short_arc_residuals_are_millihertz_level():
-    test_data_path = _test_data_path()
-    grail_data_path = test_data_path / "grail_residuals_download"
-    _, antenna_files = _download_grail_residual_files(test_data_path)
-    odf_file = _download_file(
-        "https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/"
-        "grail_0201/odf/gralugf2012_101_0235smmmv1.odf",
-        grail_data_path,
-    )
-    troposphere_file = _download_file(
-        "https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/"
-        "grail_0201/ancillary/tro/grxlugf2012_092_2012_122.tro",
-        grail_data_path,
-    )
-    ionosphere_file = _download_file(
-        "https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/"
-        "grail_0201/ancillary/ion/gralugf2012_092_2012_122.ion",
-        grail_data_path,
-    )
+def test_odf_grail_short_arc_residuals_are_millihertz_level(data_dir):
+    # Public PDS source files (the kernels are trimmed, see grail/trimming.md):
+    # https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/grail_0201/odf/gralugf2012_101_0235smmmv1.odf
+    # https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/grail_0201/ancillary/tro/grxlugf2012_092_2012_122.tro
+    # https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/grail_0201/ancillary/ion/gralugf2012_092_2012_122.ion
+    # https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-3-cdr-v1/grail_0101/level_1b/2012_04_10/vgs1b_2012_04_10_a_04.asc
+    grail_data_path = data_dir / "grail"
+    odf_file = grail_data_path / "gralugf2012_101_0235smmmv1.odf"
+    troposphere_file = grail_data_path / "grxlugf2012_092_2012_122.tro"
+    ionosphere_file = grail_data_path / "gralugf2012_092_2012_122.ion"
+    antenna_files = [grail_data_path / "vgs1b_2012_04_10_a_04.asc"]
 
     interval_start = 387314833.0
     interval_end = 387318433.0
-    bodies = _create_grail_bodies(test_data_path, interval_start - 3600.0, interval_end + 3600.0)
+    bodies = _create_grail_bodies(grail_data_path, interval_start - 3600.0, interval_end + 3600.0)
     tracking_data, supplementary_data = read_odf_data([str(odf_file)], "GRAIL-A", "Earth", False)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     doppler_tracking_data = [
@@ -817,34 +768,18 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
 
 
-def test_tnf_mro_short_arc_residuals_are_low_after_compression():
+def test_tnf_mro_short_arc_residuals_are_low_after_compression(data_dir, tudat_data_dir):
     """Read one hour of MRO radio data and verify the calculated frequencies match closely."""
-    test_data_path = _test_data_path()
-    mro_data_path = test_data_path / "mro_dsn_observation_model"
-    mro_kernel_path = mro_data_path / "kernel_download"
+    tudat_test_data_path = tudat_data_dir
+    mro_test_data_path = data_dir / "mro"
     # This smaller test file contains complete records from the following public source,
     # including all earlier transmitter-frequency changes needed for this one-hour interval:
     # https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/tnf/mromagr2012_076_0840xmmmv1.tnf
-    tnf_file = Path(__file__).parent / "fixtures" / "mro_short_arc_2012_077.tnf"
-    for url in (
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
-        "mrosp_1000/data/ck/mro_sc_psp_120313_120319.bc",
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
-        "mrosp_1000/data/ck/mro_hga_psp_120313_120319.bc",
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
-        "mrosp_1000/data/sclk/mro_sclkscet_00112_65536.tsc",
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
-        "mrosp_1000/data/fk/mro_v16.tf",
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
-        "mrosp_1000/data/spk/mro_psp22.bsp",
-        "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
-        "mrosp_1000/data/spk/mro_struct_v10.bsp",
-    ):
-        _download_file(url, mro_kernel_path)
+    tnf_file = mro_test_data_path / "mro_short_arc_2012_077.tnf"
 
     interval_start = 385256700.0
     interval_end = 385260300.0
-    bodies = _create_mro_bodies(mro_kernel_path, interval_start - 3600.0, interval_end + 3600.0)
+    bodies = _create_mro_bodies(mro_test_data_path, interval_start - 3600.0, interval_end + 3600.0)
     tracking_data, supplementary_data = read_tnf_data([str(tnf_file)], ["doppler"], "MRO")
     tracking_data = _keep_observations_in_time_window(tracking_data, interval_start, interval_end)
     # Change only MRO's 1.4149-microsecond response delay and remember both station delays.
@@ -906,10 +841,23 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
             ["Sun"]
         ),
         light_time_corrections.dsn_tabulated_tropospheric_light_time_correction(
-            [str(mro_data_path / "mromagr2012_061_2012_092.tro")]
+            [
+                (
+                    tudat_test_data_path
+                    / "mro_dsn_observation_model"
+                    / "mromagr2012_061_2012_092.tro"
+                ).as_posix()
+            ]
         ),
         light_time_corrections.dsn_tabulated_ionospheric_light_time_correction(
-            [str(mro_data_path / "mromagr2012_061_2012_092.ion")], {74: "MRO"}
+            [
+                (
+                    tudat_test_data_path
+                    / "mro_dsn_observation_model"
+                    / "mromagr2012_061_2012_092.ion"
+                ).as_posix()
+            ],
+            {74: "MRO"},
         ),
     ]
     computed_observations = _simulate_dsn_n_way_averaged_doppler_with_corrections(
@@ -925,9 +873,9 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
 
 
-def test_sum_lmk_ingestion_and_pixel_residuals():
+def test_sum_lmk_ingestion_and_pixel_residuals(tudat_data_dir):
     """Load SUM/LMK files and process their cameras, landmarks, epochs and pixels."""
-    data_directory = _test_data_path() / "sum_lmk"
+    data_directory = tudat_data_dir / "sum_lmk"
     tracking_data, supplementary_data = read_sum_lmk_data(
         {"Camera": [str(data_directory / "sample.sum")]},
         [str(data_directory / "LMK0001.lmk"), str(data_directory / "LMK0002.lmk")],
@@ -984,8 +932,8 @@ def test_sum_lmk_ingestion_and_pixel_residuals():
     )
 
 
-def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
-    test_data_path = _test_data_path()
+def test_psf_voyager_triton_pixel_line_residuals_are_subpixel(tudat_data_dir):
+    test_data_path = tudat_data_dir
     psf_file = test_data_path / "psf" / "psf_vgr2_neptune.txt"
     spice.load_standard_kernels([])
     spice.load_kernel(str(test_data_path / "spice" / "vgr2_nep097.bsp"))
@@ -1042,8 +990,8 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
     assert np.max(np.linalg.norm(residuals, axis=1)) < 1.0
 
 
-def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
-    test_data_path = _test_data_path()
+def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level(tudat_data_dir):
+    test_data_path = tudat_data_dir
     bodies = _create_juice_bodies(test_data_path)
 
     tracking_data, supplementary_data = read_fdets_data(
@@ -1138,11 +1086,13 @@ def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
     assert np.max(normalized_residuals) < 3.5
 
 
-def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
+def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states(
+    apophis_figure2_radar_fixture_cases,
+):
     """Check Apophis Figure 2 radar residuals against frozen Horizons states."""
     # Check MPC radar parsing and observation modelling against a reproducible
     # set of frozen target states spanning the published Apophis data arc.
-    fixture_cases = _load_apophis_figure2_radar_fixture_cases()
+    fixture_cases = apophis_figure2_radar_fixture_cases
 
     # The fixture must retain the complete 50-observation regression data set.
     assert len(fixture_cases) == 50

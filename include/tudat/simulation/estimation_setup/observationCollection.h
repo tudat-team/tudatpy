@@ -1894,7 +1894,8 @@ public:
             set->setLinkEnds( newLinkDefinition );
         }
 
-        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
+        // Re-sort all observation sets (including those not selected by the parser) by their updated link ends
+        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( getSingleObservationSets( ) );
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
     }
@@ -1969,7 +1970,8 @@ public:
             }
         }
 
-        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
+        // Re-sort all observation sets (including those not selected by the parser) by their updated link ends
+        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( getSingleObservationSets( ) );
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
     }
@@ -2008,7 +2010,8 @@ public:
             set->setLinkEnds( newLinkDefinition );
         }
 
-        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
+        // Re-sort all observation sets (including those not selected by the parser) by their updated link ends
+        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( getSingleObservationSets( ) );
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
     }

@@ -282,6 +282,57 @@ void expose_parameters_setup_types( py::module& m )
             .value( "normal_velocity_at_wall_ratio_type",
                     tep::EstimatebleParametersEnum::normal_velocity_at_wall_ratio,
                     R"doc(Estimatable parameter for normal velocity at wall ratio.)doc" )
+            .value( "initial_mass_state_type",
+                    tep::EstimatebleParametersEnum::initial_mass_state,
+                    R"doc(Estimatable parameter for initial mass state.)doc" )
+            .value( "scaled_longitude_libration_amplitude_type",
+                    tep::EstimatebleParametersEnum::scaled_longitude_libration_amplitude,
+                    R"doc(Estimatable parameter for scaled longitude libration amplitude.)doc" )
+            .value( "constant_thrust_magnitude_parameter_type",
+                    tep::EstimatebleParametersEnum::constant_thrust_magnitude_parameter,
+                    R"doc(Estimatable parameter for constant thrust magnitude.)doc" )
+            .value( "constant_specific_impulse_type",
+                    tep::EstimatebleParametersEnum::constant_specific_impulse,
+                    R"doc(Estimatable parameter for constant specific impulse.)doc" )
+            .value( "constant_time_observation_bias_type",
+                    tep::EstimatebleParametersEnum::constant_time_observation_bias,
+                    R"doc(Estimatable parameter for constant time observation bias.)doc" )
+            .value( "arc_wise_time_observation_bias_type",
+                    tep::EstimatebleParametersEnum::arc_wise_time_observation_bias,
+                    R"doc(Estimatable parameter for arc-wise time observation bias.)doc" )
+            .value( "yarkovsky_parameter_type",
+                    tep::EstimatebleParametersEnum::yarkovsky_parameter,
+                    R"doc(Estimatable parameter for Yarkovsky acceleration parameter.)doc" )
+            .value( "custom_estimated_parameter_type",
+                    tep::EstimatebleParametersEnum::custom_estimated_parameter,
+                    R"doc(Estimatable parameter for custom parameter.)doc" )
+            .value( "reference_point_position_type",
+                    tep::EstimatebleParametersEnum::reference_point_position,
+                    R"doc(Estimatable parameter for reference point position.)doc" )
+            .value( "polynomial_gravity_field_variation_amplitudes_type",
+                    tep::EstimatebleParametersEnum::polynomial_gravity_field_variation_amplitudes,
+                    R"doc(Estimatable parameter for polynomial gravity field variation amplitudes.)doc" )
+            .value( "periodic_gravity_field_variation_amplitudes_type",
+                    tep::EstimatebleParametersEnum::periodic_gravity_field_variation_amplitudes,
+                    R"doc(Estimatable parameter for periodic gravity field variation amplitudes.)doc" )
+            .value( "mode_coupled_tidal_love_numbers_type",
+                    tep::EstimatebleParametersEnum::mode_coupled_tidal_love_numbers,
+                    R"doc(Estimatable parameter for mode-coupled tidal Love numbers.)doc" )
+            .value( "nominal_rotation_pole_position_type",
+                    tep::EstimatebleParametersEnum::nominal_rotation_pole_position,
+                    R"doc(Estimatable parameter for nominal rotation pole position.)doc" )
+            .value( "rotation_pole_position_rate_type",
+                    tep::EstimatebleParametersEnum::rotation_pole_position_rate,
+                    R"doc(Estimatable parameter for rotation pole position rate.)doc" )
+            .value( "rotation_longitudinal_libration_terms_type",
+                    tep::EstimatebleParametersEnum::rotation_longitudinal_libration_terms,
+                    R"doc(Estimatable parameter for rotation longitudinal libration terms.)doc" )
+            .value( "rotation_pole_libration_terms_type",
+                    tep::EstimatebleParametersEnum::rotation_pole_libration_terms,
+                    R"doc(Estimatable parameter for rotation pole libration terms.)doc" )
+            .value( "full_acceleration_scaling_factor_type",
+                    tep::EstimatebleParametersEnum::full_acceleration_scaling_factor,
+                    R"doc(Estimatable parameter for full acceleration scaling factor.)doc" )
 
             .export_values( );
 
@@ -361,6 +412,10 @@ Type and associated body of the parameter.
 
 The identifier contains the type of the parameter, defined by the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes` enumeration, the body and (if applicable) the reference point to which the parameter is associated.
 The identifier is represented by a tuple of the form ``(parameter_type, (body_name, reference_point_name))``.
+For observation bias parameters, the second string identifies the observation link instead of a single reference point:
+``"<transmitter> --> <receiver> , <observable>"`` (with ``None`` for a missing link end), or, for shared observation biases,
+``"<reference_point>:<link_end_type>:<observable>:<bias_type>"``. This identifier is identical to the
+:attr:`~tudatpy.dynamics.parameters.EstimatableParameter.parameter_identifier` of the parameter created from these settings.
 
 :type: tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
 
