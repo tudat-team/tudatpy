@@ -468,7 +468,7 @@ BOOST_AUTO_TEST_CASE( testPointingRecovery )
     BOOST_CHECK_SMALL( residualRms( estimationOutput->residuals_ ), 1.0E-6 );
     BOOST_CHECK_SMALL( ( estimationOutput->parameterEstimate_ - truthParameters ).norm( ), 1.0E-9 );
 
-    const Eigen::MatrixXd designMatrix = estimationOutput->getUnnormalizedDesignMatrix( );
+    const Eigen::MatrixXd designMatrix = std::get< Eigen::MatrixXd >( estimationOutput->getUnnormalizedDesignMatrix( ) );
     const Eigen::MatrixXd normalMatrix = designMatrix.transpose( ) * designMatrix;
     for( unsigned int row = 0; row < imageIds.size( ); ++row )
     {
