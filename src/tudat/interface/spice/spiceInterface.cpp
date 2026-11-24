@@ -659,6 +659,34 @@ int getTotalCountOfKernelsLoaded( )
     return count;
 }
 
+//! Get the file names of all loaded Spice kernels.
+std::vector< std::string > getLoadedSpiceKernels( )
+{
+    ensureSpiceErrorHandling( );
+
+    SpiceChar kernelName[ 256 ];
+    SpiceChar kernelType[ 33 ];
+    SpiceChar kernelSource[ 256 ];
+    SpiceInt kernelHandle = 0;
+    SpiceBoolean isKernelFound = SPICEFALSE;
+
+    std::vector< std::string > kernelNames;
+    const int numberOfKernels = getTotalCountOfKernelsLoaded( );
+    for( int i = 0; i < numberOfKernels; i++ )
+    {
+        kdata_c( i, "ALL", 256, 33, 256, kernelName, kernelType, kernelSource, &kernelHandle, &isKernelFound );
+
+        if( failed_c( ) )
+        {
+            handleSpiceException( );
+        }
+
+        kernelNames.push_back( std::string( kernelName ) );
+    }
+
+    return kernelNames;
+}
+
 //! Clear all Spice kernels.
 void clearSpiceKernels( )
 {

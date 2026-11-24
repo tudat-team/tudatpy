@@ -999,6 +999,9 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
             "Vehicle", "Earth", componentIndices, gravitation::basic_solid_body, "Moon" ) );
     dependentVariables.push_back( std::make_shared< TotalGravityFieldVariationSettings >( "Earth", 1, 3, 0, 3, true ) );
     dependentVariables.push_back( std::make_shared< TotalGravityFieldVariationSettings >( "Earth", 1, 3, 1, 3, false ) );
+    // Single component, so that the variable has size 1
+    dependentVariables.push_back(
+            std::make_shared< TotalGravityFieldVariationSettings >( "Earth", std::vector< std::pair< int, int > >( { { 2, 0 } } ), true ) );
 
     std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
             300.0, CoefficientSets::rungeKuttaFehlberg78, 300.0, 300.0, 1.0, 1.0 );
@@ -1055,6 +1058,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
                 dependentVariableSolution.at( variableIterator->first ).segment( 54, 9 );
         Eigen::VectorXd sphericalHarmonicSineCoefficientCorrection =
                 dependentVariableSolution.at( variableIterator->first ).segment( 63, 6 );
+        double singleCosineCoefficientCorrection = dependentVariableSolution.at( variableIterator->first )( 69 );
 
         Eigen::Vector3d reconstructedTotalMoonTidalCorrection = Eigen::Vector3d::Zero( );
         for( int j = 0; j < 10; j++ )
@@ -1092,6 +1096,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
         BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 1, 0 ) - sphericalHarmonicCosineCoefficientCorrection( 0 ) ), 1.0E-25 );
         BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 1, 1 ) - sphericalHarmonicCosineCoefficientCorrection( 1 ) ), 1.0E-25 );
         BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 2, 0 ) - sphericalHarmonicCosineCoefficientCorrection( 2 ) ), 1.0E-25 );
+        BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 2, 0 ) - singleCosineCoefficientCorrection ), 1.0E-25 );
         BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 2, 1 ) - sphericalHarmonicCosineCoefficientCorrection( 3 ) ), 1.0E-25 );
         BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 2, 2 ) - sphericalHarmonicCosineCoefficientCorrection( 4 ) ), 1.0E-25 );
         BOOST_CHECK_SMALL( std::fabs( computedCosineCorrection( 3, 0 ) - sphericalHarmonicCosineCoefficientCorrection( 5 ) ), 1.0E-25 );

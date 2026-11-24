@@ -13,6 +13,8 @@ from contextlib import nullcontext as does_not_raise
 import numpy as np
 import pytest
 import datetime
+import inspect
+from astroquery.jplhorizons import Horizons
 
 spice.load_standard_kernels()
 
@@ -327,3 +329,38 @@ def test_horizons_batch(
     )
 
     batch.names
+
+
+@pytest.mark.skipif(
+    "vector_table" not in inspect.signature(Horizons.vectors_async).parameters,
+    reason="Requires astroquery >= 0.4.12",
+)
+def test_cartesian_uncertainties():
+    """Checks that the trace of the position and velocity covariance is the same in
+    all uncertainty frames, and that bodies without covariance give NaN"""
+    query = HorizonsQuery(
+        query_id="1;",
+        location="500@10",
+        epoch_start=datetime.datetime(2020, 1, 1),
+        epoch_end=datetime.datetime(2020, 1, 10),
+        epoch_step="1d",
+    )
+    sigmas = {
+        frame: query.cartesian_uncertainties(uncertainty_frame=frame)
+        for frame in ["xyz", "acn", "rtn"]
+    }
+    assert np.all(sigmas["xyz"][:, 1:] > 0)
+
+    position_trace = np.sum(sigmas["xyz"][:, 1:4] ** 2, axis=1)
+    velocity_trace = np.sum(sigmas["xyz"][:, 4:7] ** 2, axis=1)
+    for frame in ["acn", "rtn"]:
+        np.testing.assert_array_equal(sigmas[frame][:, 0], sigmas["xyz"][:, 0])
+        np.testing.assert_allclose(
+            np.sum(sigmas[frame][:, 1:4] ** 2, axis=1), position_trace, rtol=1e-6
+        )
+        np.testing.assert_allclose(
+            np.sum(sigmas[frame][:, 4:7] ** 2, axis=1), velocity_trace, rtol=1e-6
+        )
+
+    query = HorizonsQuery(query_id="499", location="500@10", epoch_list=[0.0])
+    assert np.all(np.isnan(query.cartesian_uncertainties()[:, 1:]))

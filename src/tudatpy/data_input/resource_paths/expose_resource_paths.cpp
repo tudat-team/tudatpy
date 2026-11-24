@@ -65,17 +65,6 @@ void expose_resource_paths( py::module& m )
              Default Tudat output directory.
       )doc" );
 
-    m.def( "get_test_data_path",
-           &tudat::paths::getTudatTestDataPath,
-           R"doc(
-         Return the Tudat test-data directory.
-
-         Returns
-         -------
-         str
-             Tudat test-data directory.
-      )doc" );
-
     m.def( "get_ephemeris_path",
            &tudat::paths::getEphemerisDataFilesPath,
            R"doc(
