@@ -1225,7 +1225,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  .. math::
     {\mathbf{C}} = K \bar{\mathbf{C}}
 
- and (if ``is_scaling_absolute`` is false):
+ and (if ``is_scaling_absolute`` is true):
 
  .. math::
     {\mathbf{C}} = \bar{\mathbf{C}} + K\mathbf{1}_{3\times 1}
@@ -1307,7 +1307,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  .. math::
     {\mathbf{C}} = \mathbf{K}\odot\bar{\mathbf{C}}
 
- with :math:`\odot` denoting the component-wise multiplication (Hadamard product).And (if ``is_scaling_absolute`` is false):
+ with :math:`\odot` denoting the component-wise multiplication (Hadamard product), and (if ``is_scaling_absolute`` is true):
 
  .. math::
     {\mathbf{C}} = \bar{\mathbf{C}} + \mathbf{K}

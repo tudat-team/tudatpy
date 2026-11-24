@@ -175,6 +175,13 @@ std::tuple< double, double > computeSolarLongitude( const double longitude,
     return std::make_tuple( Ls, EoC );
 }
 
+double computeSolarLongitudeFromTime( const double time )
+{
+    basic_astrodynamics::DateTime dateTime = basic_astrodynamics::DateTime::fromTime( time );
+    return std::get< 0 >( computeSolarLongitude(
+            0.0, dateTime.getDay( ), dateTime.getMonth( ), dateTime.getYear( ), dateTime.getHour( ), dateTime.getMinute( ) ) );
+}
+
 MarsDtmAtmosphereModel::MarsDtmAtmosphereModel( const std::function< double( const double ) > f107Function ):
     polarRadius_( 3378.0e3 ),                                                                      // polar radius of Mars
     filename_( paths::getAtmosphereTablesPath( ) + "/dtm_mars.dat" ),                              // file name of the coefficients

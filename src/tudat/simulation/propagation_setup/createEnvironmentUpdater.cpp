@@ -607,8 +607,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                                 std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
                                         accelerationModelIterator->second.at( i ) );
                         auto panelledAerodynamicCoefficientInterface =
-                                std::dynamic_pointer_cast< aerodynamics::PanelledAerodynamicCoefficientInterface >(
-                                        aerodynamicAcceleration->getCoefficientInterface( ) );
+                                aerodynamics::getPanelledCoefficientInterface( aerodynamicAcceleration->getCoefficientInterface( ) );
                         if( panelledAerodynamicCoefficientInterface != nullptr )
                         {
                             singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );
@@ -706,7 +705,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             {
                                 std::string bodyTrackedByPanel =
                                         paneledRadiationPressureTargetModel->getBodyFixedPanels( ).at( j )->getTrackedBody( );
-                                if( bodyTrackedByPanel != bodyTrackedByPanel )
+                                if( bodyTrackedByPanel != "" )
                                 {
                                     singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
                                 }
@@ -721,7 +720,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                                 for( unsigned int j = 0; j < it.second.size( ); j++ )
                                 {
                                     std::string bodyTrackedByPanel = it.second.at( j )->getTrackedBody( );
-                                    if( bodyTrackedByPanel != bodyTrackedByPanel )
+                                    if( bodyTrackedByPanel != "" )
                                     {
                                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
                                     }

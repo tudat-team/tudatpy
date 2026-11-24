@@ -1027,17 +1027,17 @@ public:
                                                      addForceContributionToMoments,
                                                      interpolatorSettings )
     {
-        if( forceCoefficients.size( ) != independentVariables.size( ) )
+        if( forceCoefficients.size( ) != independentVariables.at( 0 ).size( ) )
         {
             throw std::runtime_error( "Error, force coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
         }
 
-        if( momentCoefficients.size( ) != independentVariables.size( ) )
+        if( momentCoefficients.size( ) != independentVariables.at( 0 ).size( ) )
         {
             throw std::runtime_error( "Error, moment coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
         }
 
-        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
+        for( unsigned int i = 0; i < independentVariables.at( 0 ).size( ); i++ )
         {
             forceCoefficients_[ independentVariables.at( 0 ).at( i ) ] = forceCoefficients[ i ];
             momentCoefficients_[ independentVariables.at( 0 ).at( i ) ] = momentCoefficients[ i ];
@@ -1134,12 +1134,12 @@ public:
                                                      false,
                                                      interpolatorSettings )
     {
-        if( forceCoefficients.shape( )[ 0 ] != independentVariables.size( ) )
+        if( forceCoefficients.shape( )[ 0 ] != independentVariables.at( 0 ).size( ) )
         {
             throw std::runtime_error( "Error, force coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
         }
 
-        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
+        for( unsigned int i = 0; i < independentVariables.at( 0 ).size( ); i++ )
         {
             forceCoefficients_[ independentVariables.at( 0 ).at( i ) ] = forceCoefficients[ i ];
             momentCoefficients_[ independentVariables.at( 0 ).at( i ) ] = Eigen::Vector3d::Zero( );

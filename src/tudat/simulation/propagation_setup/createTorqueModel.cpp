@@ -276,7 +276,7 @@ std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque >
     std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration =
             std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >(
                     createRadiationPressureAccelerationModel(
-                            bodyExertingTorque, bodyUndergoingTorque, nameOfBodyExertingTorque, nameOfBodyUndergoingTorque, bodies ) );
+                            bodyUndergoingTorque, bodyExertingTorque, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque, bodies ) );
 
     if( radiationPressureAcceleration == nullptr )
     {

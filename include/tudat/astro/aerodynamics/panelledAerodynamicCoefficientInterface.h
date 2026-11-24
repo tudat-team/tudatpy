@@ -70,6 +70,16 @@ private:
     std::shared_ptr< GasSurfaceInteractionModel > gasSurfaceInteractionModel_;
 };
 
+//! Function to retrieve the panelled coefficient interface, also when it is wrapped in scaled coefficients
+//! (nullptr if the coefficients are not panelled).
+inline std::shared_ptr< PanelledAerodynamicCoefficientInterface > getPanelledCoefficientInterface(
+        const std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface )
+{
+    auto scaledCoefficientInterface = std::dynamic_pointer_cast< ScaledAerodynamicCoefficientInterface >( coefficientInterface );
+    return std::dynamic_pointer_cast< PanelledAerodynamicCoefficientInterface >(
+            scaledCoefficientInterface != nullptr ? scaledCoefficientInterface->getBaseCoefficientInterface( ) : coefficientInterface );
+}
+
 }  // namespace aerodynamics
 
 }  // namespace tudat
