@@ -853,7 +853,7 @@ EstimatableParameterSettings
 
  Function for creating parameter settings for scaling the radiation pressure acceleration component in the direction from the body
  undergoing the acceleration to the source model. When using this parameter, the radiation pressure :math:`\mathbf{a}` is decomposed into
- a component :math:`\mathbf{a}_{\parallel}` and :math:`\mathbf{a}_{\perp}, such that :math:`\mathbf{a}=\mathbf{a}_{\parallel}+\mathbf{a}_{\perp}`,
+ a component :math:`\mathbf{a}_{\parallel}` and :math:`\mathbf{a}_{\perp}`, such that :math:`\mathbf{a}=\mathbf{a}_{\parallel}+\mathbf{a}_{\perp}`,
  where the parallel direction is computed as the component parallel with the vector from the center of mass of the source direction to the center of mass of the target direction.
  The radiation pressure model has parameters :math:`c_{\parallel}` and :math:`c_{\perp}` (nominally set to unity) that modify the acceleration as:
 
@@ -1330,11 +1330,18 @@ EstimatableParameterSettings
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.SphericalHarmonicEstimatableParameterSettings` class
      for the applicable spherical harmonics c-coefficients of the specified body's gravitational model.
 
+ Examples
+ --------
 
+ In the following example, all cosine coefficients of the Jupiter gravity field from degree/order 2/0 to 4/4 are set up as parameter:
 
+ .. code-block:: python
 
+        from tudatpy.dynamics import parameters_setup
 
-
+        sh_parameter = parameters_setup.spherical_harmonics_c_coefficients(
+            "Jupiter", minimum_degree=2, minimum_order=0, maximum_degree=4, maximum_order=4
+        )
 
      )doc" );
 
@@ -1364,11 +1371,18 @@ EstimatableParameterSettings
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.SphericalHarmonicEstimatableParameterSettings` class
      for the applicable spherical harmonics c-coefficients of the specified body's gravitational model.
 
+ Examples
+ --------
 
+ In the following example, the cosine coefficients of degree/order 2/0, 2/1, 2/2, 3/0, and 4/0 of the Jupiter gravity field are set up as parameter:
 
+ .. code-block:: python
 
+        from tudatpy.dynamics import parameters_setup
 
-
+        sh_parameter = parameters_setup.spherical_harmonics_c_coefficients_block(
+            "Jupiter", [(2, 0), (2, 1), (2, 2), (3, 0), (4, 0)]
+        )
 
      )doc" );
 

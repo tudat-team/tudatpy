@@ -516,14 +516,26 @@ void expose_rotation_model_setup( py::module& m )
     UT1_{t < 1962} = TT - \Delta T, \qquad \left(UT1 - UTC\right)_{t < 1962} = 0
 
  Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
- The target frame (e.g. body-fixed frame) name is ITRS.
+
+ By default, all of the above quantities are computed directly at each epoch. To reduce computation time, the three most expensive
+ contributions can instead be pre-computed using the `*_interpolation_settings` arguments.
 
  Parameters
  ----------
- precession_nutation_theory : IAUConventions, default=tba::iau_2006
+ precession_nutation_theory : IAUConventions, default=iau_2006
      Setting theory for modelling Earth nutation.
  base_frame : str, default='GCRS'
      Base frame of rotation model
+ cio_interpolation_settings : InterpolatorGenerationSettings, default = None
+     Settings to interpolate the nominal celestial pole position :math:`X_{\text{IAU}}`, :math:`Y_{\text{IAU}}` and CIO locator :math:`s`. If ``None``, these are computed directly at each epoch.
+ tdb_to_tt_interpolation_settings : InterpolatorGenerationSettings, default = None
+     Settings to interpolate the difference TDB - TT. If ``None``,
+     this is computed directly at each epoch.
+ short_term_eop_interpolation_settings : InterpolatorGenerationSettings, default = None
+     Settings to interpolate the short-period corrections :math:`\left(\Delta x_{p}, \Delta y_{p}\right)_{\text{IERS}}` and
+     :math:`\Delta\left(UT1 - UTC\right)_{\text{IERS}}`. The same settings are used for both. If ``None``, these are computed
+     directly at each epoch.
+
  Returns
  -------
  GcrsToItrsRotationModelSettings
@@ -1109,7 +1121,7 @@ void expose_rotation_model_setup( py::module& m )
  Function for creating a body rotation model using the typical formulation used by the IAU
 
  Function for creating a body rotation model using the typical formulation used by the International
- Astronomical Union (IAU), such as those in ::cite:p:`Archinal2018`. It uses the following formulation
+ Astronomical Union (IAU), such as those in :cite:p:`Archinal2018`. It uses the following formulation
  :math:`\mathbf{R}^{(B/I)}(t)` for the body-fixed to inertial rotation, defined by the rotation
  pole right ascension and declination (:math:`\alpha` and :math:`\delta`), and the prime meridian angle :math:`W`:
 
@@ -1142,9 +1154,9 @@ void expose_rotation_model_setup( py::module& m )
  pole_precession : numpy.ndarray[numpy.float64[2, 1]]
      Values of :math:`[\dot{\alpha},\dot{\delta}]`
  merdian_periodic_terms : dict[float, tuple[float, float]]
-     Libration terms in :math:`W` that are to be used. Dictionary key is value of :math:`\omega_{W_i}`. Value is a pair consisting of [:math:`W_{i}`,:math:`\phi_{W_{i}}`]
+     Libration terms in :math:`W` that are to be used. Dictionary key is value of :math:`\omega_{W_i}`. Value is a pair consisting of [:math:`W_{i}`, :math:`\phi_{W_{i}}`]
  pole_periodic_terms : dict[float, tuple[numpy.ndarray[numpy.float64[2, 1]], float]]
-     Nutation terms for :math:`\alpha,\delta` that are to be used. Dictionary key is value of :math:`\omega_{N_{i}}`. Value is a pair consisting of [[:math:`\alpha_{i},\delta_{i}`],:math:`\phi_{N_{i}}`]
+     Nutation terms for :math:`\alpha,\delta` that are to be used. Dictionary key is value of :math:`\omega_{N_{i}}`. Value is a pair consisting of [[:math:`\alpha_{i},\delta_{i}`], :math:`\phi_{N_{i}}`]
  angle_base_frame : str
      Optional argument to be used when the angles :math:`W,\alpha,\delta` do not define the rotation between ``target_frame`` and ``base_frame``, but between ``target_frame`` and ``angle_base_frame`` (this input).
      The additional required rotation between ``angle_base_frame`` and ``base_frame`` is then added to the computation of the rotation matrix (presently only J2000 and ECLIPJ2000 are supported for this input).
@@ -1153,6 +1165,58 @@ void expose_rotation_model_setup( py::module& m )
  -------
  RotationModelSettings
      Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` class
+
+ Examples
+ --------
+
+ In this example, we create (simplified) IAU rotation model settings for Jupiter, using the first-order terms from the default IAU model.
+ Note that, if you intend to use the rotation model simply for transforming between the inertial and body-fixed frame, it is usually sufficient to use the :func:`~spice` rotation model.
+ However, in the following example we set up the rotation model to be used for estimating the pole position (and optionally the pole rate), which is conveniently done using the IAU rotation model.
+ Since we base our simulation on the ECLIPJ2000 frame, while literature typically reports values w.r.t. the J2000 frame, we also set the ``angle_base_frame`` to "J2000", which automatically adds the required rotation between J2000 and ECLIPJ2000 to the rotation model, while we supply the parameters in the J2000 frame.
+ Note that, if the pole position is estimated later-on, the estimated parameters are defined w.r.t. the J2000 frame.
+
+ .. code-block:: python
+
+    import numpy as np
+    from tudatpy.astro import frame_conversion, time_representation
+    from tudatpy.data_input.environment_data import spice
+    from tudatpy.dynamics import environment_setup
+
+    spice.load_standard_kernels()
+    global_frame_orientation = "ECLIPJ2000"
+
+    ...
+
+    rotation_base_frame = "J2000"
+    frame_reference_epoch = time_representation.DateTime(2017, 1, 1, 12, 0, 0).to_epoch()
+
+    # these angles are defined w.r.t. the J2000 frame
+    ra, dec, W = frame_conversion.calculate_rotation_angles_from_matrix(
+        spice.compute_rotation_matrix_between_frames(
+            rotation_base_frame,
+            "IAU_Jupiter",
+            frame_reference_epoch,
+        )
+    )
+
+    pm = spice.get_body_properties("JUPITER", "PM", 3)
+    W_dot = np.deg2rad(pm[1]) / 86400.0
+
+    # neglecting precession and nutation
+    jupiter_rotation_model_settings = environment_setup.rotation_model.iau_rotation_model(
+        base_frame=global_frame_orientation,
+        target_frame="Jupiter_BF",
+        nominal_meridian=W,
+        nominal_pole=[ra, dec],
+        rotation_rate=W_dot,
+        pole_precession=[0, 0],
+        merdian_periodic_terms={},
+        pole_periodic_terms={},
+        reference_epoch_j2000=frame_reference_epoch,
+        angle_base_frame=rotation_base_frame,
+    )
+
+
 
      )doc" );
 }

@@ -14,8 +14,7 @@ attribute  (of type :class:`~tudatpy.dynamics.environment_setup.rotation_model.R
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.rotation_model` attribute.
 
-The following code block gives an overview of the steps to define, create, and extract a rotation model, for the specific example of a simple rotation model
-  (constant rotation rate and pole orientation), extracted from the Earth's pole and rotation rate according to the SPICE ``IAU_Earth`` frame at the given reference epoch. The resulting rotation model has ``J2000`` as inertial frame, and the identifier ``IAU_Earth_simplified`` as Earth-fixed frame.
+The following code block gives an overview of the steps to define, create, and extract a rotation model, for the specific example of a simple rotation model (constant rotation rate and pole orientation), extracted from the Earth's pole and rotation rate according to the SPICE ``IAU_Earth`` frame at the given reference epoch. The resulting rotation model has ``J2000`` as inertial frame, and the identifier ``IAU_Earth_simplified`` as Earth-fixed frame.
 
 .. code-block:: python
 

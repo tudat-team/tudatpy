@@ -35,20 +35,55 @@ Classes
 
    EstimatableParameter
 
+   SphericalHarmonicsCosineCoefficientsParameter
+
+   SphericalHarmonicsSineCoefficientsParameter
+
+   TidalLoveNumberParameter
+
+   FullDegreeTidalLoveNumberParameter
+
+   SingleDegreeVariableTidalLoveNumberParameter
+
+   InitialTranslationalStateParameter
+
+   ArcWiseInitialTranslationalStateParameter
+
+   SingleArcObservationBiasParameter
+
+   MultiArcObservationBiasParameter
+
    EstimatableParameterSet
 
 .. autoclass:: tudatpy.dynamics.parameters.EstimatableParameter
    :members:
 
-.. autosummary::
+.. autoclass:: tudatpy.dynamics.parameters.SphericalHarmonicsCosineCoefficientsParameter
+   :members:
 
-   EstimatableParameter.get_parameter_value
-   EstimatableParameter.set_parameter_value
+.. autoclass:: tudatpy.dynamics.parameters.SphericalHarmonicsSineCoefficientsParameter
+   :members:
+
+.. autoclass:: tudatpy.dynamics.parameters.TidalLoveNumberParameter
+   :members:
+
+.. autoclass:: tudatpy.dynamics.parameters.FullDegreeTidalLoveNumberParameter
+   :members:
+
+.. autoclass:: tudatpy.dynamics.parameters.SingleDegreeVariableTidalLoveNumberParameter
+   :members:
+
+.. autoclass:: tudatpy.dynamics.parameters.InitialTranslationalStateParameter
+   :members:
+
+.. autoclass:: tudatpy.dynamics.parameters.ArcWiseInitialTranslationalStateParameter
+   :members:
+
+.. autoclass:: tudatpy.dynamics.parameters.SingleArcObservationBiasParameter
+   :members:
+
+.. autoclass:: tudatpy.dynamics.parameters.MultiArcObservationBiasParameter
+   :members:
 
 .. autoclass:: tudatpy.dynamics.parameters.EstimatableParameterSet
    :members:
-
-.. autosummary::
-
-   EstimatableParameterSet.indices_for_parameter_type
-   EstimatableParameterSet.parameters_for_parameter_type

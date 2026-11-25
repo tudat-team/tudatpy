@@ -196,8 +196,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
     py::class_< ti::InterpolatorGenerationSettings< tudat::Time >, std::shared_ptr< ti::InterpolatorGenerationSettings< tudat::Time > > >(
             m, "InterpolatorGenerationSettingsTimeObject", R"doc(
 
-         Model created from settings returned by
-         :func:`~tudatpy.math.interpolators.interpolator_generation_settings_time_object`.
+         Settings returned by :func:`~tudatpy.math.interpolators.interpolator_generation_settings_time_object`.
 
       )doc" );
 

@@ -29,7 +29,13 @@ Functions
 
    hermite_spline_interpolation
 
+   hermite_interpolation
+
    lagrange_interpolation
+
+   interpolator_generation_settings
+
+   interpolator_generation_settings_time_object
 
    create_one_dimensional_scalar_interpolator
 
@@ -53,7 +59,13 @@ Functions
 
 .. autofunction:: tudatpy.math.interpolators.hermite_spline_interpolation
 
+.. autofunction:: tudatpy.math.interpolators.hermite_interpolation
+
 .. autofunction:: tudatpy.math.interpolators.lagrange_interpolation
+
+.. autofunction:: tudatpy.math.interpolators.interpolator_generation_settings
+
+.. autofunction:: tudatpy.math.interpolators.interpolator_generation_settings_time_object
 
 .. autofunction:: tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator
 
@@ -103,6 +115,10 @@ Classes
 
    LagrangeInterpolatorSettings
 
+   InterpolatorGenerationSettings
+
+   InterpolatorGenerationSettingsTimeObject
+
    OneDimensionalInterpolatorScalar
 
    OneDimensionalInterpolatorScalarTimeObject
@@ -120,6 +136,12 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.math.interpolators.LagrangeInterpolatorSettings
+   :members:
+
+.. autoclass:: tudatpy.math.interpolators.InterpolatorGenerationSettings
+   :members:
+
+.. autoclass:: tudatpy.math.interpolators.InterpolatorGenerationSettingsTimeObject
    :members:
 
 .. autoclass:: tudatpy.math.interpolators.OneDimensionalInterpolatorScalar
