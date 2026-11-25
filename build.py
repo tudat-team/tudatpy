@@ -60,6 +60,12 @@ class BuildParser(argparse.ArgumentParser):
             help="Don't build the libraries [Default: False]",
         )
         basic_group.add_argument(
+            "--skip-kernel",
+            dest="skip_kernel",
+            action="store_true",
+            help="Don't build the tudatpy kernel, stubs and API documentation [Default: False]",
+        )
+        basic_group.add_argument(
             "--skip-stubs",
             dest="skip_stubs",
             action="store_true",
@@ -110,6 +116,12 @@ class BuildParser(argparse.ArgumentParser):
             dest="build_with_mcd",
             action="store_true",
             help="Build with Mars Climate Database support [Default: False]",
+        )
+        cmake_group.add_argument(
+            "--no-serialization",
+            dest="build_with_serialization",
+            action="store_false",
+            help="Build without serialization support [Default: False]",
         )
         cmake_group.add_argument(
             "--profiling",
@@ -1354,6 +1366,8 @@ class Builder:
                     "-DBoost_NO_BOOST_CMAKE=ON",
                     f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                     f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                    f"-DTUDAT_BUILD_KERNEL={'OFF' if self.args.skip_kernel else 'ON'}",
+                    f"-DTUDAT_BUILD_WITH_SERIALIZATION={'ON' if self.args.build_with_serialization else 'OFF'}",
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
@@ -1463,6 +1477,10 @@ if __name__ == "__main__":
     # Build libraries
     if not args.skip_build:
         builder.build_libraries()
+
+    # Stubs and API documentation require the kernel
+    if args.skip_kernel:
+        exit(0)
 
     with builder.mock_environment() as mock_env:
 

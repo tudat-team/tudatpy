@@ -1,5 +1,6 @@
 message(STATUS "******************** BUILD CONFIGURATION ********************")
 message(STATUS "TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
+message(STATUS "TUDAT_BUILD_KERNEL                                    ${TUDAT_BUILD_KERNEL}")
 message(STATUS "TUDAT_BUILD_EXPLICIT_INSTANTIATIONS                   ${TUDAT_BUILD_EXPLICIT_INSTANTIATIONS}")
 message(STATUS "TUDAT_BUILD_WITH_SERIALIZATION                        ${TUDAT_BUILD_WITH_SERIALIZATION}")
 message(STATUS "TUDAT_BUILD_WITH_PCH                                  ${TUDAT_BUILD_WITH_PCH}")

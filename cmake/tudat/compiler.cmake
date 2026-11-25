@@ -344,6 +344,9 @@
      set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare -Wno-maybe-uninitialized -Wno-stringop-overflow")
+    # GCC collects garbage after 30% heap growth instead of 100%: peak RSS of the largest kernel
+    # unity TU 8.76 -> 7.21 GB for 6.6% more compile time. Generated code is unchanged.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --param ggc-min-expand=30")
 
      # MinGW fixes
      if (MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
