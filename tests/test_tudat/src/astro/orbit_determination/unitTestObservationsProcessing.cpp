@@ -277,6 +277,63 @@ std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& 
  * residuals, requests time sorting and then confirms the sorted rows retain
  * their original observation, weight and residual values in observation vector data order.
  */
+//! Verify vector data aligns observations, weights, residuals, and ordering.
+BOOST_AUTO_TEST_CASE( test_dataset_observation_vector_data_weights_residuals_and_ordering )
+{
+    LinkEnds linkEnds;
+    linkEnds[ receiver ] = LinkEndId( "A" );
+    linkEnds[ transmitter ] = LinkEndId( "A" );
+
+    std::vector< double > observationTimes = { 90.0, 10.0, 70.0, 30.0, 50.0, 20.0, 80.0, 40.0, 60.0, 100.0 };
+    std::vector< Eigen::VectorXd > observations;
+    std::vector< Eigen::VectorXd > weights;
+    std::vector< Eigen::VectorXd > residuals;
+    for( std::size_t i = 0; i < observationTimes.size( ); ++i )
+    {
+        observations.push_back( ( Eigen::VectorXd( 1 ) << static_cast< double >( i ) ).finished( ) );
+        weights.push_back( ( Eigen::VectorXd( 1 ) << 100.0 + static_cast< double >( i ) ).finished( ) );
+        residuals.push_back( ( Eigen::VectorXd( 1 ) << -static_cast< double >( i ) ).finished( ) );
+    }
+
+    ObservationDataset< double, double > dataset;
+    const unsigned int setId = dataset.addObservationSet( one_way_range,
+                                                          LinkDefinition( linkEnds ),
+                                                          observations,
+                                                          observationTimes,
+                                                          receiver,
+                                                          {},
+                                                          nullptr,
+                                                          nullptr,
+                                                          weights,
+                                                          residuals,
+                                                          true );
+
+    const std::vector< unsigned int >& observationIds = dataset.getObservationIdsForSet( setId );
+
+    // Sorting on insertion must make row times strictly increasing.
+    for( std::size_t i = 1; i < observationIds.size( ); ++i )
+    {
+        BOOST_CHECK( dataset.getObservationTime( observationIds.at( i ) ) > dataset.getObservationTime( observationIds.at( i - 1 ) ) );
+    }
+
+    // Sorted rows must retain the weight and residual values associated with their original observation value.
+    for( const unsigned int observationId : observationIds )
+    {
+        const double originalIndex = dataset.getObservationValue( observationId )( 0 );
+        BOOST_CHECK_EQUAL( dataset.getWeightValue( observationId )( 0 ), 100.0 + originalIndex );
+        BOOST_CHECK_EQUAL( dataset.getResidualValue( observationId )( 0 ), -originalIndex );
+    }
+
+    const ObservationVectorData< double, double > observationVectorData = dataset.createObservationVectorData( );
+
+    // Observation, weight and residual vectors must all cover the same sorted scalar rows.
+    BOOST_CHECK_EQUAL( observationVectorData.getObservationVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
+    BOOST_CHECK_EQUAL( observationVectorData.getWeightVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
+    BOOST_CHECK_EQUAL( observationVectorData.getResidualVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
+}
+
+// Tests of the deprecated ObservationCollection and SingleObservationSet classes
+
 std::shared_ptr< ObservationCollection< double, double > > setUpObservationCollectionToTest(
         const double startTime,
         const int numberOfDaysOfData,

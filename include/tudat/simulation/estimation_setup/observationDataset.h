@@ -39,6 +39,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/io/serialization/base.h"
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/simulation/estimation_setup/observationVectorData.h"
 #include "tudat/simulation/estimation_setup/observationDatasetRows.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationWeights.h"
@@ -456,6 +457,38 @@ public:
     //////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////
+    /////////////////    OBSERVATION VECTOR DATA    //////////
+    //////////////////////////////////////////////////////////
+
+    //! Create the concatenated observation data, in the order used in the estimation.
+    ObservationVectorData< ObservationScalarType, TimeType > createObservationVectorData( const bool includeRejected = false ) const;
+
+    //! Return set ids in the ordered observable-type/link-ends/index ordering.
+    std::vector< unsigned int > getSetIdsInObservationVectorOrder( ) const;
+
+    //! Check that observation vector data was created from this dataset, and that the dataset has not changed since.
+    void validateObservationVectorData( const ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData ) const
+    {
+        if( observationVectorData.source_.lock( ) != lifetimeToken_ || observationVectorData.structuralVersion_ != structuralVersion_ ||
+            observationVectorData.vectorDataVersion_ != vectorDataVersion_ )
+        {
+            throw std::runtime_error( "Observation vector data belong to another dataset or have been invalidated." );
+        }
+        // Ancillary settings are accessible through mutable pointers. Check their values because
+        // changes through such pointers cannot increment the dataset revision.
+        for( const auto& entry : observationVectorData.ancillaryBySet_ )
+        {
+            const auto& current = getAncillarySettingsForSet( entry.first );
+            if( static_cast< bool >( current ) != static_cast< bool >( entry.second ) || ( current && !( *current == *entry.second ) ) )
+            {
+                throw std::runtime_error( "Observation vector data ancillary settings have changed." );
+            }
+        }
+    }
+
+    //! Set residuals for scalar rows described by observation vector data.
+    void setResidualVector( const ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
+                            const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
 
     //! Replace dependent-variable bookkeeping associated with one set (the stored values must be consistent with it).
     void resetDependentVariableBookkeepingForSet(
@@ -479,6 +512,8 @@ private:
     //! Return all observation ids in dataset row order.
     std::vector< unsigned int > getAllObservationIds( ) const;
 
+    //! Return observation ids in observation-vector set order and row order within each set.
+    std::vector< unsigned int > getObservationIdsInObservationVectorOrder( ) const;
 
     //! Record the correlations introduced by a nonzero entry between firstScalar and secondScalar in observationWeights_.
     //! Update both affected sets without reducing either set's existing within-set block size.
@@ -630,6 +665,21 @@ private:
     //! User-defined numerical metadata, with the name and observation id as keys.
     std::map< std::string, std::map< unsigned int, double > > numericalObservationMetadata_;
 
+    //! Copy of the complete weights used by ObservationVectorData; recreated when the weights or observations change.
+    mutable std::shared_ptr< const typename ObservationVectorData< ObservationScalarType, TimeType >::CompleteWeightData >
+            completeWeightData_;
+
+    //! Version number for the dataset structure recorded in ObservationVectorData.
+    //! It increases when observation rows or set metadata change; residuals cannot be written back from ObservationVectorData with a different number.
+    std::size_t structuralVersion_ = 0;
+
+    //! Version number for the observed values and each row's active or inactive state.
+    //! It increases when either changes; ObservationVectorData created before that change cannot be written back.
+    std::size_t vectorDataVersion_ = 0;
+
+    //! Identifier for this specific ObservationDataset object; copies receive a new one and moves transfer it.
+    //! ObservationVectorData retain it weakly to detect data from another or already-destroyed dataset.
+    std::shared_ptr< const int > lifetimeToken_ = std::make_shared< const int >( 0 );
 };
 }  // namespace observation_models
 
@@ -639,6 +689,7 @@ private:
 #include "tudat/simulation/estimation_setup/observationDatasetMutationImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetWeightsImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetAccessorsImplementation.h"
+#include "tudat/simulation/estimation_setup/observationDatasetVectorDataImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetPrivateImplementation.h"
 
 #endif  // TUDAT_OBSERVATION_DATASET_H

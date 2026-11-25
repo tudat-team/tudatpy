@@ -125,6 +125,25 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObserva
     ++structuralVersion_;
 }
 
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setResidualVector(
+        const ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
+        const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector )
+{
+    validateObservationVectorData( observationVectorData );
+    if( residualVector.size( ) != observationVectorData.getObservationVector( ).size( ) )
+    {
+        throw std::runtime_error(
+                "Error when setting dataset residual vector, input size is inconsistent with the observation vector data size." );
+    }
+
+    for( int i = 0; i < residualVector.size( ); ++i )
+    {
+        residualValues_.at( observationVectorData.getScalarComponentIds( ).at( i ) ) = residualVector( i );
+    }
+}
 
 template< typename ObservationScalarType,
           typename TimeType,

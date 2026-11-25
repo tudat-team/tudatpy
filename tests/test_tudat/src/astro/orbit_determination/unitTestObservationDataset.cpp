@@ -914,6 +914,26 @@ BOOST_AUTO_TEST_CASE( test_removal_preserves_observation_identity )
     checkIds( std::vector< unsigned int >( updatedIds.begin( ) + 1, updatedIds.end( ) ), { originalIds.at( 1 ), originalIds.at( 2 ) } );
 }
 
+//! Verify residual writeback rejects vector data created before the dataset was changed.
+BOOST_AUTO_TEST_CASE( test_observation_vector_data_writeback_requires_unchanged_dataset )
+{
+    ObservationDataset<> dataset;
+    const unsigned int setId = dataset.addObservationSet( one_way_range,
+                                                          createOneWayLinkDefinition( "Station1" ),
+                                                          { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                          { 1.0, 2.0 },
+                                                          receiver );
+    const auto vectorData = dataset.createObservationVectorData( );
+    const Eigen::Vector2d residuals( 3.0, 4.0 );
+
+    // A metadata change can alter design-matrix ordering without changing vector dimensions.
+    dataset.setLinkEndReferencePoint( "Earth", "Station2", transmitter );
+    BOOST_CHECK_THROW( dataset.setResidualVector( vectorData, residuals ), std::runtime_error );
+
+    const auto currentVectorData = dataset.createObservationVectorData( );
+    dataset.setResidualVector( currentVectorData, residuals );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getResidualVectorForSet( setId ), residuals, 1.0E-15 );
+}
 
 //! Preserve the supplied block structure even when the numerical matrices happen to be diagonal.
 BOOST_AUTO_TEST_CASE( test_weight_structure_from_settings )
@@ -1064,6 +1084,37 @@ BOOST_AUTO_TEST_CASE( test_weight_getters_return_the_effective_matrix )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
 }
 
+//! Verify vector data are value snapshots and that residuals can be written back repeatedly within one iteration.
+BOOST_AUTO_TEST_CASE( test_observation_vector_data_snapshots_and_repeated_residual_writeback )
+{
+    ObservationDataset<> dataset;
+    auto ancillary = std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillary->setAncillaryDoubleData( doppler_integration_time, 10.0 );
+    const auto setId = dataset.addObservationSet( one_way_range,
+                                                  createOneWayLinkDefinition( "Station1" ),
+                                                  { Eigen::Vector1d::Constant( 10.0 ) },
+                                                  { 1.0 },
+                                                  receiver,
+                                                  {},
+                                                  nullptr,
+                                                  ancillary );
+    const auto snapshot = dataset.getRows( );
+    const auto beforeValues = dataset.createObservationVectorData( );
+    dataset.setObservationsForSet( setId, { Eigen::Vector1d::Constant( 20.0 ) } );
+    BOOST_CHECK_EQUAL( snapshot.size( ), 1 );
+    BOOST_CHECK_EQUAL( beforeValues.getObservationVector( )( 0 ), 10.0 );
+
+    const auto beforeAncillary = dataset.createObservationVectorData( );
+    dataset.getAncillarySettingsForSet( setId )->setAncillaryDoubleData( doppler_integration_time, 20.0 );
+    BOOST_CHECK_EQUAL( beforeAncillary.getAncillarySettingsForSet( setId )->getAncillaryDoubleData( doppler_integration_time ), 10.0 );
+
+    // Residual updates and no-op removals do not invalidate an iteration's mapping.
+    const auto current = dataset.createObservationVectorData( );
+    dataset.removeObservations( !ObservationSelectionCondition<>::all( ) );
+    dataset.setResidualVector( current, Eigen::Vector1d::Constant( 2.0 ) );
+    dataset.setResidualVector( current, Eigen::Vector1d::Constant( 3.0 ) );
+    BOOST_CHECK_EQUAL( dataset.getResidualValue( 0 )( 0 ), 3.0 );
+}
 
 
 

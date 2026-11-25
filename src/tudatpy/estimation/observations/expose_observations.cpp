@@ -385,6 +385,193 @@ angular position observation).
 )doc" );
 
     {
+        py::class_< tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                  "ObservationVectorData",
+                                                                                  R"doc(
+Class holding the concatenated observations, residuals and weights of an observation dataset, as used in the estimation.
+
+Objects of this class are created with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.observation_vector_data`. Each entry of the vectors in this
+object is a single component of an observation, with the observations in the ``"estimation"`` order (see
+:class:`~tudatpy.estimation.observations.ObservationDataset`). For each entry, the attributes :attr:`observation_ids`, :attr:`set_ids` and :attr:`times` give
+the observation, observation set and time to which it belongs. The data in this object is a copy, which is not updated
+when the dataset is modified.
+)doc" )
+                .def_property_readonly( "observation_vector",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationVector,
+                                        R"doc(
+**read-only**
+
+Concatenated vector of all observation components.
+
+:type: numpy.ndarray[numpy.float64[m, 1]]
+)doc" )
+                .def_property_readonly( "residual_vector",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualVector,
+                                        R"doc(
+**read-only**
+
+Concatenated vector of the residuals, in the same order as :attr:`observation_vector`.
+
+:type: numpy.ndarray[numpy.float64[m, 1]]
+)doc" )
+                .def_property_readonly( "weight_vector",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightVector,
+                                        R"doc(
+**read-only**
+
+Diagonal of the weight matrix, in the same order as :attr:`observation_vector`.
+
+:type: numpy.ndarray[numpy.float64[m, 1]]
+)doc" )
+                .def_property_readonly( "sparse_weight_matrix",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSparseWeightMatrix,
+                                        R"doc(
+**read-only**
+
+Full weight matrix, with rows and columns in the same order as :attr:`observation_vector`. If
+:attr:`has_off_diagonal_weights` is ``False``, this matrix is diagonal, and contains the same information as
+:attr:`weight_vector`.
+
+:type: scipy.sparse.csc_matrix
+)doc" )
+                .def( "inverse_weight_matrix_for_observation",
+                      &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getInverseWeightMatrixForObservation,
+                      py::arg( "observation_id" ),
+                      py::return_value_policy::copy,
+                      R"doc(
+Function to retrieve the covariance matrix (inverse of the weight matrix) of a single observation.
+
+If the observation is correlated with other observations in its set, this is the block of the inverse of the weight
+matrix of the complete set (including rejected observations) that corresponds to the observation. All weights must
+be positive. Correlations between observations in different sets are not supported.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation, which may be any observation in the dataset at the time this object was created
+    (including rejected observations).
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, m]]
+    Covariance matrix of the observation, with one row and column per observation component.
+)doc" )
+                .def_property_readonly( "has_off_diagonal_weights",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::hasOffDiagonalWeights,
+                                        R"doc(
+**read-only**
+
+Whether the weight matrix contains off-diagonal entries (correlations between observation components).
+
+:type: bool
+)doc" )
+                .def_property_readonly(
+                        "times",
+                        []( const tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >& observationVectorData ) {
+                            const std::vector< TIME_TYPE > rawTimes = observationVectorData.getTimes( );
+                            std::vector< double > convertedTimes;
+                            convertedTimes.reserve( rawTimes.size( ) );
+                            for( const TIME_TYPE& time : rawTimes )
+                            {
+                                convertedTimes.push_back( static_cast< double >( time ) );
+                            }
+                            return convertedTimes;
+                        },
+                        R"doc(
+**read-only**
+
+Observation time of each entry of :attr:`observation_vector`, in seconds since J2000 (TDB).
+
+:type: list[float]
+)doc" )
+                .def_property_readonly( "observation_ids",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIds,
+                                        R"doc(
+**read-only**
+
+Id of the observation to which each entry of :attr:`observation_vector` belongs.
+
+:type: list[int]
+)doc" )
+                .def_property_readonly( "set_ids",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIds,
+                                        R"doc(
+**read-only**
+
+Id of the observation set to which each entry of :attr:`observation_vector` belongs.
+
+:type: list[int]
+)doc" )
+                .def_property_readonly( "link_definition_ids",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkDefinitionIds,
+                                        R"doc(
+**read-only**
+
+Id of the link definition (see :meth:`~tudatpy.estimation.observations.ObservationDataset.link_definition`) of each
+entry of :attr:`observation_vector`.
+
+:type: list[int]
+)doc" )
+                .def_property_readonly( "scalar_component_ids",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentIds,
+                                        R"doc(
+**read-only**
+
+Index of each entry of :attr:`observation_vector` in the storage of all observation components in the dataset. The
+corresponding observation id and component index are given by
+:meth:`~tudatpy.estimation.observations.ObservationDataset.scalar_component_row`.
+
+:type: list[int]
+)doc" )
+                .def_property_readonly( "set_ids_in_row_order",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIdsInRowOrder,
+                                        R"doc(
+**read-only**
+
+Ids of the observation sets in this object, in the order in which they first appear in :attr:`observation_vector`.
+
+:type: list[int]
+)doc" )
+                .def( "unique_observation_ids_for_set",
+                      &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getUniqueObservationIdsForSetInRowOrder,
+                      py::arg( "set_id" ),
+                      R"doc(
+Function to retrieve the ids of the observations of one observation set, in the order in which they appear in
+:attr:`observation_vector`.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[int]
+    Ids of the observations of the set.
+)doc" )
+                .def( "vector_row",
+                      &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getVectorRow,
+                      py::arg( "observation_id" ),
+                      py::arg( "component_index" ),
+                      R"doc(
+Function to retrieve the index in :attr:`observation_vector` of a single component of an observation.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+component_index : int
+    Index of the component within the observation.
+
+Returns
+-------
+int
+    Index of the entry in :attr:`observation_vector`.
+)doc" );
+    }
+
+    {
         py::class_< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
                     std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
                                                                                                   "ObservationDataset",
