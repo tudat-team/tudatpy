@@ -15,16 +15,14 @@ set(serialization_PRIVATE_LINKS
         tudat_propagation_setup
         )
 
-if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
-    list(APPEND serialization_SOURCES
-            registrationsEstimation.cpp
-            )
-    list(APPEND serialization_PRIVATE_LINKS
-            tudat_observation_models
-            tudat_estimation_setup
-            tudat_orbit_determination
-            )
-endif ()
+list(APPEND serialization_SOURCES
+        registrationsEstimation.cpp
+        )
+list(APPEND serialization_PRIVATE_LINKS
+        tudat_observation_models
+        tudat_estimation_setup
+        tudat_orbit_determination
+        )
 
 TUDAT_ADD_LIBRARY("serialization"
         "${serialization_SOURCES}"

@@ -303,7 +303,7 @@ protected:
     bool considerParametersIncluded_;
 };
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 extern template class OrbitDeterminationManager< double, double >;
 #endif
 

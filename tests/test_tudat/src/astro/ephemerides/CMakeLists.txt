@@ -138,11 +138,7 @@ TUDAT_ADD_TEST_CASE(MultiArcEphemeris
         ${Tudat_PROPAGATION_LIBRARIES}
 )
 
-if(TUDAT_BUILD_WITH_SOFA_INTERFACE)
-
-    TUDAT_ADD_TEST_CASE(ItrsToGcrsRotationModel
-            PRIVATE_LINKS
-            ${Tudat_PROPAGATION_LIBRARIES}
-            )
-
-endif( )
+TUDAT_ADD_TEST_CASE(ItrsToGcrsRotationModel
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )

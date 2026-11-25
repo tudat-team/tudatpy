@@ -23,7 +23,7 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
     # TARGET-CONFIGURATION.
     #==========================================================================
     # NOTE: make sure the include directories from the current build
-    # are included first, so that if there is already a pagmo installation
+    # are included first, so that if there is already a Tudat installation
     # in the prefix path we don't risk including the headers from that
     # one instead.
     target_include_directories("${target_name}" PUBLIC
@@ -127,7 +127,7 @@ function(TUDAT_ADD_TEST_LIBRARY arg1 arg2 arg3)
     # TARGET-CONFIGURATION.
     #==========================================================================
     # NOTE: make sure the include directories from the current build
-    # are included first, so that if there is already a pagmo installation
+    # are included first, so that if there is already a Tudat installation
     # in the prefix path we don't risk including the headers from that
     # one instead.
     target_include_directories("${target_name}" PUBLIC

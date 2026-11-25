@@ -75,7 +75,6 @@ list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudatpy")
 if (NOT MSVC)
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 endif ()
-enable_testing()
 if (MINGW)
     # https://github.com/tudat-team/tudatpy-feedstock/issues/3
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_hypot=hypot")
@@ -100,10 +99,13 @@ option(
     "Build C++ tests for tudat."
     ON
 )
-option(
-    TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+include(CMakeDependentOption)
+cmake_dependent_option(
+    TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
     "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time of tests."
     ON
+    "TUDAT_BUILD_TESTS"
+    OFF
 )
 option(
     TUDAT_BUILD_WITH_SERIALIZATION
@@ -136,16 +138,6 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_WITH_PROPAGATION_TESTS
-    "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)"
-    OFF
-)
-option(
-    TUDAT_BUILD_WITH_ESTIMATION_TOOLS
-    "Build tudat with estimation tools."
-    ON
-)
-option(
     TUDAT_BUILD_TUDAT_TUTORIALS
     "Build C++ tutorials."
     OFF
@@ -156,23 +148,8 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_WITH_FILTERS
-    "Build Tudat with preliminary Kalman Filter functionality."
-    OFF
-)
-option(
-    TUDAT_BUILD_WITH_SOFA_INTERFACE
-    "Build Tudat with sofa interface."
-    ON
-)
-option(
     TUDAT_BUILD_WITH_FFTW3
     "Build Tudat with FFTW3."
-    OFF
-)
-option(
-    TUDAT_BUILD_WITH_PAGMO
-    "Build Tudat with pagmo."
     OFF
 )
 # MCD dependency - add option and enable Fortran if needed
@@ -231,14 +208,6 @@ endif()
 set(Tudat_DEFINITIONS "")
 set(
     Tudat_DEFINITIONS
-    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}"
-)
-set(
-    Tudat_DEFINITIONS
-    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}"
-)
-set(
-    Tudat_DEFINITIONS
     "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FFTW3=${TUDAT_BUILD_WITH_FFTW3}"
 )
 set(
@@ -255,20 +224,15 @@ if (NOT TUDAT_BUILD_WITH_SERIALIZATION)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_SERIALIZATION=1)
 endif ()
-if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
-    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
-endif ()
 if (NOT TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
-if (NOT TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
-    add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=0)
+if (NOT TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
+    add_definitions(-DTUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=0)
 else ()
-    add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=1)
+    add_definitions(-DTUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=1)
 endif ()
 # Long double state scalar type in the tudatpy kernel (CMAKE_CXX_FLAGS is overwritten in cmake/tudat/compiler.cmake)
 if (TUDATPY_LONG_DOUBLE_STATE)
@@ -391,23 +355,12 @@ endif ()
 find_package(cereal REQUIRED)
 message(STATUS "cereal found: ${cereal_DIR}")
 
-# PAGMO dependency
-if (TUDAT_BUILD_WITH_PAGMO)
-    add_definitions(-DTUDAT_BUILD_WITH_PAGMO=1)
-    find_package(Pagmo REQUIRED)
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_PAGMO=0)
-endif ()
-
 # CSPICE dependency
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
 find_package(CSpice REQUIRED 1.0.0)
 
 # SOFA dependency
-if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
-    find_package(Sofa REQUIRED 1.0.0)
-    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-endif ()
+find_package(Sofa REQUIRED 1.0.0)
 
 # NRLMSISE-00 dependency
 find_package(nrlmsise00 REQUIRED 0.1)
@@ -572,6 +525,7 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
 endif ()
 
 if (TUDAT_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(tests/test_tudat)
 endif ()
 

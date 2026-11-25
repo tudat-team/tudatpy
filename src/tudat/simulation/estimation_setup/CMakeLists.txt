@@ -105,7 +105,7 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
     list(APPEND estimation_SOURCES observationOutputSerialization.cpp)
 endif ()
 
-if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
     list(APPEND estimation_SOURCES
             variationalEquationsSolverDoubleDoubleInstantiation.cpp
             singleArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp

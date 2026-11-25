@@ -61,7 +61,7 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
     list(APPEND propagation_SOURCES propagationSettingsSerialization.cpp)
 endif ()
 
-if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
     list(APPEND propagation_SOURCES
             dynamicsSimulatorDoubleDoubleInstantiation.cpp
             singleArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
