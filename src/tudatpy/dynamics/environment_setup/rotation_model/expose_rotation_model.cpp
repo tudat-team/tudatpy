@@ -516,14 +516,26 @@ void expose_rotation_model_setup( py::module& m )
     UT1_{t < 1962} = TT - \Delta T, \qquad \left(UT1 - UTC\right)_{t < 1962} = 0
 
  Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
- The target frame (e.g. body-fixed frame) name is ITRS.
+
+ By default, all of the above quantities are computed directly at each epoch. To reduce computation time, the three most expensive
+ contributions can instead be pre-computed using the `*_interpolation_settings` arguments.
 
  Parameters
  ----------
- precession_nutation_theory : IAUConventions, default=tba::iau_2006
+ precession_nutation_theory : IAUConventions, default=iau_2006
      Setting theory for modelling Earth nutation.
  base_frame : str, default='GCRS'
      Base frame of rotation model
+ cio_interpolation_settings : InterpolatorGenerationSettings, default = None
+     Settings to interpolate the nominal celestial pole position :math:`X_{\text{IAU}}`, :math:`Y_{\text{IAU}}` and CIO locator :math:`s`. If ``None``, these are computed directly at each epoch.
+ tdb_to_tt_interpolation_settings : InterpolatorGenerationSettings, default = None
+     Settings to interpolate the difference TDB - TT. If ``None``,
+     this is computed directly at each epoch.
+ short_term_eop_interpolation_settings : InterpolatorGenerationSettings, default = None
+     Settings to interpolate the short-period corrections :math:`\left(\Delta x_{p}, \Delta y_{p}\right)_{\text{IERS}}` and
+     :math:`\Delta\left(UT1 - UTC\right)_{\text{IERS}}`. The same settings are used for both. If ``None``, these are computed
+     directly at each epoch.
+
  Returns
  -------
  GcrsToItrsRotationModelSettings
