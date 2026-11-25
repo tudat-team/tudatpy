@@ -122,7 +122,36 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentV
     }
 }
 
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationIdsMatchingCondition(
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
+{
+    std::vector< unsigned int > observationIds;
+    for( const auto& row : observationRows_ )
+    {
+        const unsigned int observationId = row.observationId_;
+        if( condition( *this, observationId ) )
+        {
+            observationIds.push_back( observationId );
+        }
+    }
+    return observationIds;
+}
 
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndKeep(
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
+{
+    const auto selected = getObservationIdsMatchingCondition( condition );
+    auto result = std::make_shared< ObservationDataset >( *this );
+    result->retainObservationRows( selected );
+    return result;
+}
 
 }  // namespace observation_models
 

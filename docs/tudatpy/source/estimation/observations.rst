@@ -95,6 +95,24 @@ Classes
    :members:
 
 
+.. _observation_query:
+
+Observation query
+-----------------
+
+Observations in an :class:`~tudatpy.estimation.observations.ObservationDataset` are selected with conditions, created by comparing an attribute of ``observation_query`` to a value. For instance, the following retrieves the residuals of the observations received at the DSS-14 ground station that are not rejected:
+
+.. code-block:: python
+
+    from tudatpy.estimation.observable_models_setup import links
+    from tudatpy.estimation.observations import observation_query
+
+    station = links.body_reference_point_link_end_id("Earth", "DSS-14")
+    condition = (observation_query.receiver == station) & observation_query.active
+    residuals = observation_dataset.get_residuals(condition, ordering="estimation")
+
+.. autodata:: tudatpy.estimation.observations.observation_query
+   :annotation:
 
 
    create_single_observation_set

@@ -42,6 +42,7 @@
 #include "tudat/simulation/estimation_setup/observationVectorData.h"
 #include "tudat/simulation/estimation_setup/observationDatasetRows.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
+#include "tudat/simulation/estimation_setup/observationCondition.h"
 #include "tudat/simulation/estimation_setup/observationWeights.h"
 #include "tudat/basics/tudatTypeTraits.h"
 
@@ -241,6 +242,91 @@ public:
     /////////////////       DATA ACCESSORS          //////////
     //////////////////////////////////////////////////////////
 
+    //! Metadata per set id: set metadata, link definition, ancillary settings and dependent-variable layout.
+    //! The layout maps the (start index, size) of each dependent variable to a copy of its settings.
+    using InspectionMetadata = std::map<
+            unsigned int,
+            std::tuple< ObservationSetMetadata< ObservationScalarType, TimeType >,
+                        LinkDefinition,
+                        std::shared_ptr< ObservationAncillarySimulationSettings >,
+                        std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > > >;
+
+    //! The following functions return copies of the data of the observations selected by a condition (by default all
+    //! observations, including rejected ones), in internal or estimation order. The order does not affect the selection.
+    //! Function to retrieve the time of each selected observation.
+    std::vector< TimeType > getTimes( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                              ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                      const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Function to retrieve the value of each selected observation.
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Function to retrieve the residual of each selected observation (zero if not computed).
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResiduals(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Function to retrieve the id of each selected observation.
+    std::vector< unsigned int > getObservationIds( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                                           ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                                   const ObservationOrdering ordering = ObservationOrdering::internal ) const
+    {
+        return resolveObservationIds( condition, ordering );
+    }
+
+    //! Function to retrieve the set id of each selected observation.
+    std::vector< unsigned int > getSetIds( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                                   ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                           const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Function to retrieve the row (including dependent variables and rejection status) of each selected observation.
+    std::vector< ObservationDatasetRow< TimeType > > getRows(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Function to retrieve the dependent variables of each selected observation (empty if none are stored). If
+    //! dependent-variable settings are provided, only the dependent variable with these settings is retrieved.
+    std::vector< Eigen::VectorXd > getDependentVariableValues(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal,
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings = nullptr,
+            const bool returnFirstCompatibleSettings = false ) const;
+
+    //! Function to retrieve the (observation id, component index) of each component of the selected observations.
+    std::vector< std::pair< unsigned int, unsigned int > > getScalarComponents(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Function to retrieve the diagonal of the weight matrix of the selected observations, ordered as getScalarComponents.
+    Eigen::VectorXd getWeightDiagonal( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                               ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                       const ObservationOrdering ordering = ObservationOrdering::internal ) const
+    {
+        return observationWeights_.getDiagonal(
+                getScalarComponentIdsForObservationSelection( resolveObservationIds( condition, ordering ), {} ) );
+    }
+
+    //! Function to retrieve the weight matrix of the selected observations, with rows and columns ordered as getScalarComponents.
+    Eigen::SparseMatrix< double > getWeightMatrix( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                                           ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                                   const ObservationOrdering ordering = ObservationOrdering::internal ) const
+    {
+        return observationWeights_
+                .restricted( getScalarComponentIdsForObservationSelection( resolveObservationIds( condition, ordering ), {} ) )
+                .sparseMatrix( );
+    }
+
+    //! Function to retrieve the metadata of the sets containing the selected observations, with the set id as key.
+    InspectionMetadata getMetadata( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                            ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                    const ObservationOrdering ordering = ObservationOrdering::internal ) const;
 
     //! Return the number of logical observation sets.
     std::size_t getNumberOfObservationSets( ) const
@@ -455,6 +541,36 @@ public:
     }
 
     //////////////////////////////////////////////////////////
+    /////////////////       SELECTION AND STATUS    //////////
+    //////////////////////////////////////////////////////////
+
+    //! Return the ids of the observations that satisfy a condition.
+    std::vector< unsigned int > getObservationIdsMatchingCondition(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const;
+
+    //! Create a new dataset containing only observations satisfying a condition.
+    std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createNewAndKeep(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const;
+
+    //! Create a new dataset containing all observations except those satisfying a condition.
+    std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createNewAndDrop(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
+    {
+        return createNewAndKeep( !condition );
+    }
+
+    //! Mark matching observation rows as rejected without physically deleting data.
+    void rejectObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                             const std::string& reason = "" );
+
+    //! Reject active selected rows if any residual exceeds sigmaLimit times its measurement uncertainty.
+    //! Covariance includes the complete correlated set; residuals and weights remain unchanged.
+    void rejectObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                             const double sigmaLimit,
+                             const std::string& reason = "" );
+
+    //! Restore matching observation rows to active status and clear their rejection reason.
+    void restoreObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition );
 
     //////////////////////////////////////////////////////////
     /////////////////    OBSERVATION VECTOR DATA    //////////
@@ -523,6 +639,10 @@ private:
     //! Preserve known within-set block sizes; clear cross-set flags only where no connecting entries remain.
     void refreshWeightStructures( );
 
+    //! Return the ids of the observations selected by a condition, in the requested order.
+    std::vector< unsigned int > resolveObservationIds( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                                                       const ObservationOrdering ordering,
+                                                       const bool includeRejected = true ) const;
 
     //! Remove all observations that are not in retainedIds, keeping the ids of the remaining observations and sets.
     void retainObservationRows( const std::vector< unsigned int >& retainedIds );
@@ -685,10 +805,12 @@ private:
 
 }  // namespace tudat
 
+#include "tudat/simulation/estimation_setup/observationDatasetInspectionImplementation.h"
 
 #include "tudat/simulation/estimation_setup/observationDatasetMutationImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetWeightsImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetAccessorsImplementation.h"
+#include "tudat/simulation/estimation_setup/observationDatasetSelectionImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetVectorDataImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetPrivateImplementation.h"
 

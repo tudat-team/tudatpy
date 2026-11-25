@@ -68,12 +68,15 @@ set(estimation_HEADERS
         interArcContinuityConstraint.h
         compressDopplerObservationCollection.h
         observationVectorData.h
+        observationCondition.h
         observationDataset.h
         observationDatasetAccessorsImplementation.h
         observationDatasetVectorDataImplementation.h
         observationDatasetMutationImplementation.h
         observationDatasetPrivateImplementation.h
         observationDatasetRows.h
+        observationDatasetSelectionImplementation.h
+        observationDatasetInspectionImplementation.h
         observationDatasetWeightsImplementation.h
         observationWeights.h
         )

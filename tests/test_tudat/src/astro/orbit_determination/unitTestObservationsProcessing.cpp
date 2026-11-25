@@ -261,6 +261,99 @@ std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& 
  * dataset. It checks the registered observable/link metadata, selection by
  * observable type and link end, snapshot creation and scalar observation vector data size.
  */
+//! Verify dataset metadata registration and row selection.
+BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
+{
+    const double startTime = 1.0E7;
+    const int numberOfDaysOfData = 3;
+    const int numberOfObservations = 300;
+    const double obsInterval = 20.0;
+
+    std::vector< LinkEnds > stationReceiverLinkEnds;
+    std::vector< LinkEnds > stationTransmitterLinkEnds;
+    std::map< ObservableType, double > obsStartTimes;
+    std::map< ObservableType, std::vector< double > > baseTimeList;
+    SystemOfBodies bodies;
+    std::shared_ptr< ObservationDataset< double, double > > dataset = setUpObservationDatasetToTest( startTime,
+                                                                                                     numberOfDaysOfData,
+                                                                                                     numberOfObservations,
+                                                                                                     obsInterval,
+                                                                                                     stationReceiverLinkEnds,
+                                                                                                     stationTransmitterLinkEnds,
+                                                                                                     obsStartTimes,
+                                                                                                     baseTimeList,
+                                                                                                     bodies );
+
+    // The setup must produce the expected number of observable/link combinations and rows.
+    BOOST_CHECK_EQUAL( dataset->getNumberOfObservationSets( ), 7 );
+    BOOST_CHECK_EQUAL( dataset->getNumberOfObservations( ), 7 * numberOfObservations );
+
+    std::set< ObservableType > observableTypes;
+    std::set< LinkEnds > linkEndsList;
+    std::set< std::string > bodyNames;
+    std::set< std::string > referencePointNames;
+    for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
+    {
+        const ObservationSetMetadata< double, double >& metadata = dataset->getObservationSetMetadata( setId );
+        observableTypes.insert( metadata.observableType_ );
+        const LinkEnds& linkEnds = dataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
+        linkEndsList.insert( linkEnds );
+        for( const auto& linkEndIterator : linkEnds )
+        {
+            bodyNames.insert( linkEndIterator.second.bodyName_ );
+            if( !linkEndIterator.second.stationName_.empty( ) )
+            {
+                referencePointNames.insert( linkEndIterator.second.stationName_ );
+            }
+        }
+    }
+
+    // Metadata stored in the dataset must recover all observable types, station link definitions and link-end names.
+    BOOST_CHECK( observableTypes == std::set< ObservableType >( { one_way_range, one_way_doppler, angular_position } ) );
+    BOOST_CHECK_EQUAL( linkEndsList.count( stationReceiverLinkEnds.at( 0 ) ), 1 );
+    BOOST_CHECK_EQUAL( linkEndsList.count( stationTransmitterLinkEnds.at( 0 ) ), 1 );
+    BOOST_CHECK_EQUAL( linkEndsList.count( stationReceiverLinkEnds.at( 1 ) ), 1 );
+    BOOST_CHECK_EQUAL( linkEndsList.count( stationTransmitterLinkEnds.at( 1 ) ), 1 );
+    BOOST_CHECK_EQUAL( linkEndsList.count( stationReceiverLinkEnds.at( 2 ) ), 1 );
+    BOOST_CHECK_EQUAL( linkEndsList.count( stationTransmitterLinkEnds.at( 2 ) ), 1 );
+    BOOST_CHECK( bodyNames == std::set< std::string >( { "Earth", "Vehicle" } ) );
+    BOOST_CHECK( referencePointNames == std::set< std::string >( { "Station1", "Station2", "Station3" } ) );
+
+    const std::vector< unsigned int > rangeSetIds = getSetIdsForObservable( *dataset, one_way_range );
+    const std::vector< unsigned int > station1SetIds = getSetIdsForLinkEnd( *dataset, LinkEndId( "Earth", "Station1" ) );
+
+    // Dataset metadata helpers must select range sets and Station1 sets across observable types.
+    BOOST_CHECK_EQUAL( rangeSetIds.size( ), 3 );
+    BOOST_CHECK_EQUAL( station1SetIds.size( ), 2 );
+
+    const std::vector< unsigned int > firstDayRangeIds = dataset->getObservationIdsMatchingCondition(
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::timeBounds( startTime, startTime + 86400.0 ) );
+
+    // Combining observable and time conditions must select one day of range observations for all stations.
+    BOOST_CHECK_EQUAL( firstDayRangeIds.size( ), 3 * numberOfObservations );
+
+    const ObservationSelectionCondition< double, double > station2RangeCondition =
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::linkEnd( receiver, LinkEndId( "Earth", "Station2" ) );
+    const std::vector< unsigned int > station2RangeIds = dataset->getObservationIdsMatchingCondition( station2RangeCondition );
+
+    // Combining observable and link-end conditions must isolate one station's range set.
+    BOOST_CHECK_EQUAL( station2RangeIds.size( ), numberOfObservations );
+
+    const auto station2RangeValues = dataset->getObservations( station2RangeCondition );
+
+    // A snapshot created from the same condition must expose the selected rows and scalar observation vector data only.
+    BOOST_CHECK_EQUAL( station2RangeValues.size( ), numberOfObservations );
+    BOOST_CHECK_EQUAL( dataset->getScalarComponents( station2RangeCondition ).size( ), numberOfObservations );
+
+    const std::size_t expectedScalarSize = getScalarSizeForSetIds( *dataset, getSetIdsForObservable( *dataset, one_way_range ) ) +
+            getScalarSizeForSetIds( *dataset, getSetIdsForObservable( *dataset, one_way_doppler ) ) +
+            getScalarSizeForSetIds( *dataset, getSetIdsForObservable( *dataset, angular_position ) );
+
+    // The full observation vector data size must equal the sum of scalar sizes over all observable types.
+    BOOST_CHECK_EQUAL( dataset->createObservationVectorData( ).getObservationVector( ).size( ), expectedScalarSize );
+}
 
 /*!
  * Verifies rejection, restoration and reduced dataset creation on simulated data.
@@ -269,6 +362,94 @@ std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& 
  * rejected observation vector data/snapshots have the expected sizes, restores the data and
  * then creates a reduced dataset for a time-window selection.
  */
+//! Verify rejecting, restoring, and reducing dataset rows preserves expected membership.
+BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
+{
+    const double startTime = 1.0E7;
+    const int numberOfDaysOfData = 3;
+    const int numberOfObservations = 300;
+    const double obsInterval = 20.0;
+
+    std::vector< LinkEnds > stationReceiverLinkEnds;
+    std::vector< LinkEnds > stationTransmitterLinkEnds;
+    std::map< ObservableType, double > obsStartTimes;
+    std::map< ObservableType, std::vector< double > > baseTimeList;
+    SystemOfBodies bodies;
+    std::shared_ptr< ObservationDataset< double, double > > dataset = setUpObservationDatasetToTest( startTime,
+                                                                                                     numberOfDaysOfData,
+                                                                                                     numberOfObservations,
+                                                                                                     obsInterval,
+                                                                                                     stationReceiverLinkEnds,
+                                                                                                     stationTransmitterLinkEnds,
+                                                                                                     obsStartTimes,
+                                                                                                     baseTimeList,
+                                                                                                     bodies );
+
+    const std::vector< unsigned int > rangeSetIds = getSetIdsForObservable( *dataset, one_way_range );
+    double cutOffValueMean = 0.0;
+    for( const unsigned int observationId : dataset->getObservationIdsForSet( rangeSetIds.at( 0 ) ) )
+    {
+        cutOffValueMean += dataset->getObservationValue( observationId )( 0 );
+    }
+    cutOffValueMean /= static_cast< double >( dataset->getNumberOfObservationsForSet( rangeSetIds.at( 0 ) ) );
+
+    const Eigen::VectorXd rangeLimit = ( Eigen::VectorXd( 1 ) << cutOffValueMean ).finished( );
+    const ObservationSelectionCondition< double, double > highRangeValues =
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::observationAbsoluteValueGreaterThan( rangeLimit );
+
+    const std::vector< unsigned int > rejectedRangeIds = dataset->getObservationIdsMatchingCondition( highRangeValues );
+
+    // The value threshold must identify a non-empty subset before mutating row status.
+    BOOST_CHECK( !rejectedRangeIds.empty( ) );
+
+    const int originalScalarSize = dataset->createObservationVectorData( ).getObservationVector( ).size( );
+    dataset->rejectObservations( highRangeValues, "range value threshold" );
+
+    // Rejection must affect rejected-row queries, rejected snapshots and active-only observation vector data consistently.
+    BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::rejected( ) ).size( ),
+                       rejectedRangeIds.size( ) );
+    BOOST_CHECK_EQUAL( dataset->getObservationIds( ObservationSelectionCondition< double, double >::rejected( ) ).size( ),
+                       rejectedRangeIds.size( ) );
+    BOOST_CHECK_EQUAL( dataset->createObservationVectorData( true ).getObservationVector( ).size( ), originalScalarSize );
+    BOOST_CHECK_EQUAL( dataset->createObservationVectorData( ).getObservationVector( ).size( ),
+                       originalScalarSize - static_cast< int >( rejectedRangeIds.size( ) ) );
+
+    const std::shared_ptr< ObservationDataset< double, double > > activeDataset =
+            dataset->createNewAndKeep( ObservationSelectionCondition< double, double >::active( ) );
+
+    // A reduced active dataset must contain exactly the observations not rejected above.
+    BOOST_CHECK_EQUAL( activeDataset->getNumberOfObservations( ), dataset->getNumberOfObservations( ) - rejectedRangeIds.size( ) );
+
+    dataset->restoreObservations( ObservationSelectionCondition< double, double >::rejected( ) );
+
+    // Restoration must make all observations active again and recover the original observation vector data size.
+    BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::active( ) ).size( ),
+                       dataset->getNumberOfObservations( ) );
+    BOOST_CHECK_EQUAL( dataset->createObservationVectorData( ).getObservationVector( ).size( ), originalScalarSize );
+
+    const std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
+    const std::pair< double, double > middleRangeWindow =
+            std::make_pair( rangeObsTimes.at( numberOfObservations / 3 ), rangeObsTimes.at( 2 * numberOfObservations / 3 ) );
+    const ObservationSelectionCondition< double, double > middleRangeValues =
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::timeBounds( middleRangeWindow.first, middleRangeWindow.second );
+    const std::shared_ptr< ObservationDataset< double, double > > middleRangeDataset = dataset->createNewAndKeep( middleRangeValues );
+
+    // Filtering preserves metadata identities, including groups with no surviving rows.
+    BOOST_CHECK_EQUAL( middleRangeDataset->getNumberOfObservationSets( ), 7 );
+    unsigned int nonemptySets = 0;
+    for( unsigned int setId = 0; setId < 7; ++setId )
+    {
+        if( !middleRangeDataset->getObservationIdsForSet( setId ).empty( ) )
+        {
+            ++nonemptySets;
+        }
+    }
+    BOOST_CHECK_EQUAL( nonemptySets, 3 );
+    BOOST_CHECK_EQUAL( middleRangeDataset->getNumberOfObservations( ),
+                       3 * ( 2 * ( numberOfObservations / 3 ) - numberOfObservations / 3 + 1 ) );
+}
 
 /*!
  * Verifies sorted dataset observation vector data preserves row-associated data.
