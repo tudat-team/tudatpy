@@ -1,4 +1,4 @@
-"""Exercise the ordinary Python factory and native solver, without Earth resources."""
+"""Check the spherical harmonic gravity API and compare Mars propagation across thread counts."""
 
 import os
 
@@ -14,6 +14,7 @@ acceleration = propagation_setup.acceleration
 
 
 def test_backend_information():
+    """Check that the Python API reports the expected compiled backend."""
     available = tudatpy.is_openmp_available()
     assert type(available) is bool
     expected = os.environ.get("TUDAT_EXPECT_OPENMP")
@@ -23,6 +24,7 @@ def test_backend_information():
 
 
 def test_sequential_default_and_existing_positional_arguments():
+    """Verify the one-thread default and existing positional factory arguments."""
     assert acceleration.spherical_harmonic_gravity(20, 20).number_of_threads == 1
     assert acceleration.spherical_harmonic_gravity(20, 20, True).number_of_threads == 1
     assert (
@@ -35,11 +37,13 @@ def test_sequential_default_and_existing_positional_arguments():
 
 @pytest.mark.parametrize("threads", [0, -1, -20])
 def test_reject_invalid_counts(threads):
+    """Reject nonpositive thread counts before creating settings."""
     with pytest.raises(ValueError, match="positive"):
         acceleration.spherical_harmonic_gravity(20, 20, number_of_threads=threads)
 
 
 def test_settings_are_local_and_readonly():
+    """Check backend rejection or independent, read-only settings for each model."""
     if not tudatpy.is_openmp_available():
         with pytest.raises(RuntimeError, match="TUDAT_BUILD_WITH_OPENMP"):
             acceleration.spherical_harmonic_gravity(20, 20, number_of_threads=2)
@@ -143,6 +147,7 @@ def kernels():
 
 @pytest.mark.parametrize("mode", ["dynamics", "variational"])
 def test_full_solver_history_parity(kernels, mode):
+    """Compare state, STM and sensitivity histories across thread counts."""
     # Propagation results must be identical (bitwise) for 1 and multiple gravity threads
     threads = 4 if tudatpy.is_openmp_available() else 1
     reference = execute(make_case(1, mode), mode)
@@ -152,6 +157,7 @@ def test_full_solver_history_parity(kernels, mode):
 
 
 def test_python_rotation_callback_stays_on_caller_and_remains_alive(kernels):
+    """Check that the model retains the callback and invokes it on the caller thread."""
     import gc
     import threading
     import weakref

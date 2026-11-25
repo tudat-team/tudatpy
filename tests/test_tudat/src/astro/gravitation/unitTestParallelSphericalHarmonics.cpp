@@ -22,6 +22,7 @@ constexpr int workers = 1;
 
 BOOST_AUTO_TEST_CASE( policyValidation )
 {
+    // Validate thread counts and backend availability before starting any work.
     LegendreCache cache( 20, 20 );
     BOOST_CHECK_EQUAL( cache.getNumberOfThreads( ), 1 );
     BOOST_CHECK_THROW( cache.setNumberOfThreads( 0 ), std::invalid_argument );
@@ -79,11 +80,13 @@ void compareCaches( const int count )
 
 BOOST_AUTO_TEST_CASE( cacheParityAndCopies )
 {
+    // Compare copied caches with serial caches across thread counts.
     compareCaches( workers );
 }
 
 BOOST_AUTO_TEST_CASE( joinedExceptionAndRetry )
 {
+    // Join workers before reporting an exception and allow the cache to be retried.
     std::atomic< int > completed{ 0 };
     BOOST_CHECK_THROW( utilities::parallelFor( 20,
                                                workers,
@@ -112,8 +115,9 @@ BOOST_AUTO_TEST_CASE( joinedExceptionAndRetry )
     BOOST_CHECK_EQUAL( cache.getLegendrePolynomialDerivative( 15, 5 ), reference.getLegendrePolynomialDerivative( 15, 5 ) );
 }
 
-BOOST_AUTO_TEST_CASE( modelBuffersAndFallbacks )
+BOOST_AUTO_TEST_CASE( modelParityNearPolesAndWithSavedTerms )
 {
+    // Compare polar and ordinary positions while keeping the position callback on the caller thread.
     Eigen::MatrixXd c = Eigen::MatrixXd::Zero( 21, 21 ), s = c;
     c( 0, 0 ) = 1.;
     c( 2, 0 ) = -.001;
@@ -136,11 +140,21 @@ BOOST_AUTO_TEST_CASE( modelBuffersAndFallbacks )
         BOOST_CHECK( serial.getAcceleration( ).allFinite( ) );
         BOOST_CHECK_EQUAL( ( serial.getAcceleration( ) - parallel.getAcceleration( ) ).norm( ), 0. );
     }
+    // Compare the saved vectors themselves as well as the total acceleration.
+    serial.setSaveSphericalHarmonicTermsSeparately( true );
     parallel.setSaveSphericalHarmonicTermsSeparately( true );
-    position = Eigen::Vector3d( 7.e6, 2.e6, 1.e6 );
-    serial.updateMembers( );
-    parallel.updateMembers( );
-    BOOST_CHECK_EQUAL( ( serial.getAcceleration( ) - parallel.getAcceleration( ) ).norm( ), 0. );
+    const std::vector< std::pair< int, int > > terms{ { 0, 0 }, { 2, 0 }, { 20, 5 } };
+    for( const auto& p : { Eigen::Vector3d( 7.e6, 2.e6, 1.e6 ), Eigen::Vector3d( 1., 0., 7.e6 ) } )
+    {
+        position = p;
+        serial.updateMembers( );
+        parallel.updateMembers( );
+        BOOST_CHECK_EQUAL( ( serial.getAcceleration( ) - parallel.getAcceleration( ) ).norm( ), 0. );
+        const auto serialTerms = serial.getConcatenatedAccelerationComponents( terms );
+        const auto parallelTerms = parallel.getConcatenatedAccelerationComponents( terms );
+        BOOST_CHECK( parallelTerms.allFinite( ) );
+        BOOST_CHECK_EQUAL( ( serialTerms - parallelTerms ).norm( ), 0. );
+    }
 }
 
 BOOST_AUTO_TEST_CASE( independentConcurrentCachesAndNestedTeam )
@@ -170,6 +184,7 @@ BOOST_AUTO_TEST_CASE( independentConcurrentCachesAndNestedTeam )
 
 BOOST_AUTO_TEST_CASE( executionPolicyExcludedFromArchive )
 {
+    // Check that archive bytes are independent of thread count and loading restores one thread.
     simulation_setup::SphericalHarmonicAccelerationSettings source( 100, 50, true, workers );
     std::stringstream bytes;
     {
@@ -196,6 +211,7 @@ BOOST_AUTO_TEST_CASE( executionPolicyExcludedFromArchive )
 
 BOOST_AUTO_TEST_CASE( reusableTermStorageResizesAndOverwrites )
 {
+    // Reuse degree-sum storage across growing and shrinking expansions, with stale entries poisoned.
     std::vector< Eigen::Vector3d > terms;
     for( int degree : { 3, 20, 3 } )
     {
@@ -225,13 +241,14 @@ BOOST_AUTO_TEST_CASE( reusableTermStorageResizesAndOverwrites )
                                                                                                    &terms );
             BOOST_CHECK( actual.allFinite( ) );
             BOOST_CHECK_EQUAL( ( reference - actual ).norm( ), 0. );
-            if( workers > 1 ) BOOST_CHECK_EQUAL( terms.size( ), ( degree + 1 ) * ( degree + 1 ) );
+            BOOST_CHECK_EQUAL( terms.size( ), workers > 1 ? degree + 1 : 0 );
         }
     }
 }
 
 BOOST_AUTO_TEST_CASE( nativePropagationParity )
 {
+    // Compare complete fixed-step trajectories for serial and threaded gravity.
     const auto propagate = []( const int count ) {
         Eigen::MatrixXd c = Eigen::MatrixXd::Zero( 21, 21 ), s = c;
         c( 0, 0 ) = 1.;

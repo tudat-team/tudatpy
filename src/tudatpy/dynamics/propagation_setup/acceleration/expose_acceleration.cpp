@@ -749,9 +749,10 @@ ThreeCoefficientRadiationPressureAccelerationSettings
  Notes
  -----
  Parallel evaluation fills the Legendre cache by order after computing its
- diagonal sequentially, then computes the first derivatives by degree. The
- acceleration model evaluates potential-gradient terms by degree and sums them
- in the original order before transforming the result.
+ diagonal sequentially, then computes the first derivatives by degree. Each
+ degree's potential-gradient terms are summed in order, and the degree sums
+ are added sequentially before transforming the result. Both thread policies
+ use this grouping, including near the poles and when saving individual terms.
 
  Examples
  --------
@@ -828,13 +829,6 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
 
 
-
- Notes
- -----
- Parallel evaluation fills the Legendre cache by order after computing its
- diagonal sequentially, then computes the first derivatives by degree. The
- acceleration model evaluates potential-gradient terms by degree and sums them
- in the original order before transforming the result.
 
  Examples
  --------

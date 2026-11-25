@@ -28,7 +28,6 @@ Functions
 
    spherical_harmonic_gravity
 
-
    mutual_spherical_harmonic_gravity
 
    full_two_body_spherical_harmonic_gravity
