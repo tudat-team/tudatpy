@@ -252,13 +252,16 @@ jobs:
       if: runner.os != 'Windows'
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
-      # The output is also written to build.log, which is checked for compiler warnings at the
-      # end of the job.
+      # The unfiltered output is written to build.log, which is checked for compiler warnings at
+      # the end of the job. Apple ld "could not create compact unwind" warnings (from
+      # MCD code and libgcc) are removed from the displayed log.
       run: |
         set -o pipefail
         cmake --build "${{ github.workspace }}/build" \
           --config "${{ matrix.build_type }}" \
-          -j${{ matrix.platform.build_jobs }} 2>&1 | tee build.log
+          -j${{ matrix.platform.build_jobs }} 2>&1 \
+          | tee build.log \
+          | sed -u '/could not create compact unwind for /d'
 
     - name: Build C++ kernel
       id: build_kernel_windows
