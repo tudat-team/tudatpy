@@ -130,6 +130,16 @@ class BuildParser(argparse.ArgumentParser):
             ),
         )
         cmake_group.add_argument(
+            "--no-unity-groups",
+            dest="build_with_unity_groups",
+            action="store_false",
+            help=(
+                "Compile every source separately instead of merging the heaviest ones; "
+                "faster incremental rebuilds, more RAM and time for full builds; "
+                "requires --force-setup for an existing build directory [Default: False]"
+            ),
+        )
+        cmake_group.add_argument(
             "--profiling",
             dest="build_with_profiling_symbols",
             action="store_true",
@@ -1374,6 +1384,7 @@ class Builder:
                     f"-DTUDAT_BUILD_TESTS={self.build_tests}",
                     f"-DTUDAT_BUILD_KERNEL={'OFF' if self.args.skip_kernel else 'ON'}",
                     f"-DTUDAT_BUILD_WITH_SERIALIZATION={'ON' if self.args.build_with_serialization else 'OFF'}",
+                    f"-DTUDAT_BUILD_WITH_UNITY_GROUPS={'ON' if self.args.build_with_unity_groups else 'OFF'}",
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",

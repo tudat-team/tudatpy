@@ -88,6 +88,6 @@ TUDAT_ADD_LIBRARY("propagation_setup"
         )
 
 # Not with a global unity build (CMAKE_UNITY_BUILD), which already batches all sources of the library
-if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS AND NOT CMAKE_UNITY_BUILD)
+if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS AND TUDAT_BUILD_WITH_UNITY_GROUPS AND NOT CMAKE_UNITY_BUILD)
     set_target_properties(tudat_propagation_setup PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
 endif ()

@@ -138,13 +138,15 @@ set(kernel_shared_propagation_sources
     ${TUDATPY_SOURCE_DIR}/estimation/observations/expose_observations_simulation.cpp
     ${TUDATPY_SOURCE_DIR}/estimation/observations_setup/observations_simulation_settings/expose_observations_simulation_settings_factory.cpp
 )
-set_target_properties(kernel PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
-set_source_files_properties(${kernel_shared_propagation_sources}
-    PROPERTIES UNITY_GROUP shared_propagation)
-foreach (group ${kernel_instantiation_groups})
-    set_source_files_properties(${kernel_instantiation_${group}}
-        PROPERTIES UNITY_GROUP instantiation_${group})
-endforeach ()
+if (TUDAT_BUILD_WITH_UNITY_GROUPS)
+    set_target_properties(kernel PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
+    set_source_files_properties(${kernel_shared_propagation_sources}
+        PROPERTIES UNITY_GROUP shared_propagation)
+    foreach (group ${kernel_instantiation_groups})
+        set_source_files_properties(${kernel_instantiation_${group}}
+            PROPERTIES UNITY_GROUP instantiation_${group})
+    endforeach ()
+endif ()
 
 # Include headers
 target_include_directories(kernel PUBLIC

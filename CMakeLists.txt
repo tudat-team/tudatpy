@@ -121,6 +121,11 @@ option(
     ON
 )
 option(
+    TUDAT_BUILD_WITH_UNITY_GROUPS
+    "Compile the heaviest template-instantiation and binding sources as merged (unity) groups: less RAM and time for full builds, but editing one source recompiles its whole group."
+    ON
+)
+option(
     TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS
     "Enable PYBIND11_DETAILED_ERROR_MESSAGES for TudatPy bindings."
     OFF
@@ -130,9 +135,15 @@ option(
     "Add debug symbols and frame pointers without changing the optimization level (for profiling)."
     OFF
 )
+# Renamed option: stop when the old name is switched on, drop it from existing caches otherwise
+if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
+    message(FATAL_ERROR "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME was renamed to TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION; "
+            "reconfigure with -UTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME -DTUDAT_BUILD_WITH_REDUCED_OPTIMIZATION=ON")
+endif ()
+unset(TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME CACHE)
 option(
-    TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME
-    "Force optimization independently of CMAKE_BUILD_TYPE: ON uses -O1 (/O1); OFF uses -O3 (/O2) with -Og (/Od) for Debug."
+    TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION
+    "Use -O1 (/O1) for every build type instead of -O3 (/O2) for Release and -Og (/Od) for Debug; faster compilation, slower code."
     OFF
 )
 option(
