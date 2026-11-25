@@ -63,7 +63,10 @@ class BuildParser(argparse.ArgumentParser):
             "--skip-kernel",
             dest="skip_kernel",
             action="store_true",
-            help="Don't build the tudatpy kernel, stubs and API documentation [Default: False]",
+            help=(
+                "Don't build the tudatpy kernel, stubs and API documentation; "
+                "requires --force-setup for an existing build directory [Default: False]"
+            ),
         )
         basic_group.add_argument(
             "--skip-stubs",
@@ -121,7 +124,10 @@ class BuildParser(argparse.ArgumentParser):
             "--no-serialization",
             dest="build_with_serialization",
             action="store_false",
-            help="Build without serialization support [Default: False]",
+            help=(
+                "Build without serialization support; "
+                "requires --force-setup for an existing build directory [Default: False]"
+            ),
         )
         cmake_group.add_argument(
             "--profiling",
