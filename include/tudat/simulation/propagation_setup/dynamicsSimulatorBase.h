@@ -514,10 +514,7 @@ public:
         bodies_ = bodies;
     }
 
-    bool getSetIntegratedResult( )
-    {
-        return propagatorSettingsBase_->getOutputSettingsBase( )->getSetIntegratedResult( );
-    }
+    bool getSetIntegratedResult( );
 
     //! This function updates the environment with the numerical solution of the propagation.
     /*!
@@ -529,10 +526,7 @@ public:
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( ) = 0;
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
-    {
-        return getPropagationResults( )->getDependentVariablesInterface( );
-    }
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( );
 
 protected:
     //!  Map of bodies (with names) of all bodies in integration.
@@ -568,5 +562,7 @@ extern template class DynamicsSimulator< double, double >;
 }  // namespace propagators
 
 }  // namespace tudat
+
+#include "tudat/simulation/propagation_setup/dynamicsSimulatorBaseImplementation.h"
 
 #endif  // TUDAT_DYNAMICSSIMULATOR_BASE_H

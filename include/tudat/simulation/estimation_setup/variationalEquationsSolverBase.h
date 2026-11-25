@@ -141,26 +141,7 @@ protected:
      *  order determined by order of bodiesToIntegrate_.
      *  \return Initial matrix of numerical soluation to variation + state equations.
      */
-    MatrixType createInitialConditions( const VectorType initialStateEstimate )
-    {
-        if( stateTransitionMatrixSize_ != initialStateEstimate.rows( ) )
-        {
-            throw std::runtime_error( "Error when getting initial condition for variational equations, sizes are incompatible: " +
-                                      std::to_string( stateTransitionMatrixSize_ ) + ", " +
-                                      std::to_string( initialStateEstimate.rows( ) ) );
-        }
-
-        // Initialize initial conditions to zeros.
-        MatrixType varSystemInitialState = MatrixType( stateTransitionMatrixSize_, propagatedParameterVectorSize_ + 1 ).setZero( );
-
-        // Set initial state transition matrix to identity
-        varSystemInitialState.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).setIdentity( );
-
-        // Set initial body states to current estimate of initial body states.
-        varSystemInitialState.block( 0, propagatedParameterVectorSize_, stateTransitionMatrixSize_, 1 ) = initialStateEstimate;
-
-        return varSystemInitialState;
-    }
+    MatrixType createInitialConditions( const VectorType initialStateEstimate );
 
     //! Create initial matrix of numerical soluation to variational equations
     /*!
@@ -168,16 +149,7 @@ protected:
      *  transition matrix Phi is identity matrix. Initial sensitivity matrix S is all zeros.
      *  \return Initial matrix solution to variational equations.
      */
-    Eigen::MatrixXd createInitialVariationalEquationsSolution( )
-    {
-        // Initialize initial conditions to zeros.
-        Eigen::MatrixXd varSystemInitialState = Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, propagatedParameterVectorSize_ );
-
-        // Set initial state transition matrix to identity
-        varSystemInitialState.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).setIdentity( );
-
-        return varSystemInitialState;
-    }
+    Eigen::MatrixXd createInitialVariationalEquationsSolution( );
 
     //! Object containing all parameters that are to be estimated and their current  settings and values.
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
@@ -736,5 +708,7 @@ extern template class VariationalEquationsSolver< double, double >;
 }  // namespace propagators
 
 }  // namespace tudat
+
+#include "tudat/simulation/estimation_setup/variationalEquationsSolverBaseImplementation.h"
 
 #endif  // TUDAT_VARIATIONALEQUATIONSSOLVER_BASE_H

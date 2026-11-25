@@ -159,7 +159,19 @@ void setRelativisticTimeConverters(
         const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< StateScalarType, TimeType > > >&
                 converterSettings );
 
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+extern template void setRelativisticTimeConverter< double, double >(
+        const std::shared_ptr< DirectRelativisticTimeConverterSettings< double, double > >& conversionSettings,
+        const SystemOfBodies& bodies );
+
+extern template void setRelativisticTimeConverters< double, double >(
+        const SystemOfBodies& bodies,
+        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< double, double > > >& converterSettings );
+#endif
+
 }  // namespace simulation_setup
 }  // namespace tudat
+
+#include "tudat/simulation/environment_setup/createRelativisticTimeConverterImplementation.h"
 
 #endif  // TUDAT_CREATE_RELATIVISTIC_TIME_CONVERTER_H

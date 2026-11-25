@@ -43,9 +43,13 @@ set(estimation_HEADERS
         determinePostFitParameterInfluence.h
         variationalEquationsSolver.h
         variationalEquationsSolverBase.h
+        variationalEquationsSolverBaseImplementation.h
         singleArcVariationalEquationsSolver.h
+        singleArcVariationalEquationsSolverImplementation.h
         multiArcVariationalEquationsSolver.h
+        multiArcVariationalEquationsSolverImplementation.h
         hybridArcVariationalEquationsSolver.h
+        hybridArcVariationalEquationsSolverImplementation.h
         createNumericalSimulator.h
         createEulerAngleObservationPartials.h
         createInverseAprioriCovariance.h
@@ -106,13 +110,16 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
 endif ()
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
-    list(APPEND estimation_SOURCES
+    set(estimation_INSTANTIATION_SOURCES
             variationalEquationsSolverDoubleDoubleInstantiation.cpp
             singleArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
             multiArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
             hybridArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
             createObservationManagersBaseDoubleDoubleInstantiation.cpp
             )
+    list(APPEND estimation_SOURCES ${estimation_INSTANTIATION_SOURCES})
+    # The instantiations largely overlap, so compile them as one translation unit
+    set_source_files_properties(${estimation_INSTANTIATION_SOURCES} PROPERTIES UNITY_GROUP double_double_instantiations)
 endif ()
 
 # Add library.
@@ -123,3 +130,8 @@ TUDAT_ADD_LIBRARY("estimation_setup"
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
+
+# Not with a global unity build (CMAKE_UNITY_BUILD), which already batches all sources of the library
+if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS AND NOT CMAKE_UNITY_BUILD)
+    set_target_properties(tudat_estimation_setup PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
+endif ()

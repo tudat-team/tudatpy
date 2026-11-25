@@ -45,40 +45,7 @@ public:
     HybridArcDynamicsSimulator( const simulation_setup::SystemOfBodies& bodies,
                                 const std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridPropagatorSettings,
                                 const bool areEquationsOfMotionToBeIntegrated = true,
-                                const bool addSingleArcBodiesToMultiArcDynamics = false ):
-        DynamicsSimulator< StateScalarType, TimeType >( bodies, hybridPropagatorSettings ),
-        hybridPropagatorSettings_( hybridPropagatorSettings )
-    {
-        if( hybridPropagatorSettings_ == nullptr )
-        {
-            throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, propagator settings are incompatible" );
-        }
-
-        singleArcDynamicsSize_ = hybridPropagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( );
-        multiArcDynamicsSize_ = hybridPropagatorSettings_->getMultiArcPropagatorSettings( )->getPropagatedStateSize( );
-
-        if( !addSingleArcBodiesToMultiArcDynamics )
-        {
-            singleArcDynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies,
-                    hybridPropagatorSettings_->getSingleArcPropagatorSettings( ),
-                    false,
-                    PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
-            multiArcDynamicsSimulator_ = std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies, hybridPropagatorSettings_->getMultiArcPropagatorSettings( ), false );
-            propagationResults_ = std::make_shared< HybridArcResults >( singleArcDynamicsSimulator_->getSingleArcPropagationResults( ),
-                                                                        multiArcDynamicsSimulator_->getMultiArcPropagationResults( ) );
-        }
-        else
-        {
-            throw std::runtime_error( "Cannot yet add single-arc bodies to multi-arc propagation" );
-        }
-
-        if( areEquationsOfMotionToBeIntegrated )
-        {
-            integrateEquationsOfMotion( hybridPropagatorSettings_->getInitialStates( ) );
-        }
-    }
+                                const bool addSingleArcBodiesToMultiArcDynamics = false );
 
     //! Destructor
     ~HybridArcDynamicsSimulator( ) {}
@@ -92,19 +59,9 @@ public:
      *  specific form (i.e Encke, Gauss, etc. for translational dynamics). The states for all arcs must be concatenated in
      *  order into a single Eigen Vector, starting with the single-arc states, followed by the mulit-arc states
      */
-    void integrateEquationsOfMotion( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates )
-    {
-        printPrePropagationMessages( );
-        singleArcDynamicsSimulator_->integrateEquationsOfMotion( initialGlobalStates.block( 0, 0, singleArcDynamicsSize_, 1 ) );
-        multiArcDynamicsSimulator_->integrateEquationsOfMotion(
-                initialGlobalStates.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
-        printPostPropagationMessages( );
-    }
+    void integrateEquationsOfMotion( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates );
 
-    void integrate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& concatenatedInitialStates )
-    {
-        integrateEquationsOfMotion( concatenatedInitialStates );
-    }
+    void integrate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& concatenatedInitialStates );
 
     //! This function updates the environment with the numerical solution of the propagation
     /*!
@@ -112,15 +69,7 @@ public:
      *  (no additional functionality in hybrid arc). Function may be used to process manually updtaed propagation results in
      *  single and/or multi-arc model
      */
-    void processNumericalEquationsOfMotionSolution( )
-    {
-        singleArcDynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
-        multiArcDynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
-        if( hybridPropagatorSettings_->getOutputSettings( )->getUpdateDependentVariableInterpolator( ) )
-        {
-            propagationResults_->updateDependentVariableInterface( );
-        }
-    }
+    void processNumericalEquationsOfMotionSolution( );
 
     //! Function to retrieve the single-arc dynamics simulator
     /*!
@@ -147,10 +96,7 @@ public:
      * Get whether the integration was completed successfully.
      * \return Whether the integration was completed successfully by reaching the termination condition.
      */
-    virtual bool integrationCompletedSuccessfully( ) const
-    {
-        return propagationResults_->integrationCompletedSuccessfully( );
-    }
+    virtual bool integrationCompletedSuccessfully( ) const;
 
     //! Function to return the numerical solution to the equations of motion (base class interface).
     /*!
@@ -159,10 +105,7 @@ public:
      *  values are full propagated state vectors.
      *  \return List of maps of history of numerically integrated states.
      */
-    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionBase( )
-    {
-        return propagationResults_->getConcatenatedEquationsOfMotionResults( );
-    }
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionBase( );
 
     //! Function to return the numerical solution to the dependent variables (base class interface).
     /*!
@@ -171,10 +114,7 @@ public:
      *  values are dependent variables vectors
      *  \return List of maps of dependent variable history
      */
-    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
-    {
-        return propagationResults_->getConcatenatedDependentVariableResults( );
-    }
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( );
 
     //! Function to return the map of cumulative computation time history that was saved during numerical propagation.
     /*!
@@ -183,26 +123,11 @@ public:
      *  values are computation times.
      *  \return Vector is size 1, with entry: map of cumulative computation time history that was saved during numerical propagation.
      */
-    std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistoryBase( )
-    {
-        return propagationResults_->getConcatenatedCumulativeComputationTimeHistory( );
-    }
+    std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistoryBase( );
 
-    void printPrePropagationMessages( )
-    {
-        if( hybridPropagatorSettings_->getOutputSettings( )->printAnyOutput( ) )
-        {
-            std::cout << hybridPropagatorSettings_->getOutputSettings( )->getPropagationStartHeader( ) << std::endl << std::endl;
-        }
-    }
+    void printPrePropagationMessages( );
 
-    void printPostPropagationMessages( )
-    {
-        if( hybridPropagatorSettings_->getOutputSettings( )->printAnyOutput( ) )
-        {
-            std::cout << hybridPropagatorSettings_->getOutputSettings( )->getPropagationEndHeader( ) << std::endl << std::endl;
-        }
-    }
+    void printPostPropagationMessages( );
 
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getPropagationResults( )
     {
@@ -239,5 +164,7 @@ extern template class HybridArcDynamicsSimulator< double, double >;
 }  // namespace propagators
 
 }  // namespace tudat
+
+#include "tudat/simulation/propagation_setup/hybridArcDynamicsSimulatorImplementation.h"
 
 #endif  // TUDAT_HYBRIDARCDYNAMICSSIMULATOR_H

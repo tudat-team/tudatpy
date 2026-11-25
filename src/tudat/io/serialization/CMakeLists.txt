@@ -7,6 +7,8 @@ set(serialization_SOURCES
         registrationsEnvironment.cpp
         registrationsMath.cpp
         registrationsPropagation.cpp
+        registrationsPropagationOutputSettings.cpp
+        registrationsPropagationTermination.cpp
         )
 
 set(serialization_PRIVATE_LINKS

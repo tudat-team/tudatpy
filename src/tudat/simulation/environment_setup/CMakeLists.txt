@@ -40,6 +40,7 @@ set(environment_HEADERS
         createClimateModel.h
         createCameras.h
         createRelativisticTimeConverter.h
+        createRelativisticTimeConverterImplementation.h
         createMetric.h
         )
 

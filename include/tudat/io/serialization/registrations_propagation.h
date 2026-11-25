@@ -13,6 +13,8 @@
 #if TUDAT_BUILD_WITH_SERIALIZATION
 #include <cereal/types/polymorphic.hpp>
 CEREAL_FORCE_DYNAMIC_INIT( tudat_serialization_propagation )
+CEREAL_FORCE_DYNAMIC_INIT( tudat_serialization_propagation_output_settings )
+CEREAL_FORCE_DYNAMIC_INIT( tudat_serialization_propagation_termination )
 #endif
 
 #endif  // TUDAT_SERIALIZATION_REGISTRATIONS_PROPAGATION_H
