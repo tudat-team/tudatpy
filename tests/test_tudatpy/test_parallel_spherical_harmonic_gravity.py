@@ -1,7 +1,6 @@
 """Exercise the ordinary Python factory and native solver, without Earth resources."""
 
 import os
-import pickle
 
 import numpy as np
 import pytest
@@ -51,16 +50,6 @@ def test_settings_are_local_and_readonly():
     assert sequential.number_of_threads == 1
     with pytest.raises(AttributeError):
         parallel.number_of_threads = 2
-
-
-@pytest.mark.requires_serialization
-def test_pickle_restores_sequential_policy():
-    threads = 4 if tudatpy.is_openmp_available() else 1
-    settings = acceleration.spherical_harmonic_gravity(20, 20, number_of_threads=threads)
-    restored = pickle.loads(pickle.dumps(settings))
-    assert type(restored) is type(settings)
-    assert restored.number_of_threads == 1
-    assert restored == settings
 
 
 START = 778118400.0

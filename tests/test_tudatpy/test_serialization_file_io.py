@@ -47,8 +47,6 @@ from tudatpy.dynamics.propagation import (
     SingleArcVariationalSimulationResults,
 )
 
-pytestmark = pytest.mark.requires_serialization
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
