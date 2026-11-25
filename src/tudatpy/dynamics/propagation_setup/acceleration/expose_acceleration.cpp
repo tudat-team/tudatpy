@@ -238,6 +238,10 @@ void expose_acceleration_setup( py::module& m )
                     tba::AvailableAcceleration::yarkovsky_acceleration,
                     R"doc(
       )doc" )
+            .value( "marsden_acceleration_type",
+                    tba::AvailableAcceleration::marsden_acceleration,
+                    R"doc(
+      )doc" )
             .value( "relativistic_acceleration_from_metric_type",
                     tba::AvailableAcceleration::relativistic_acceleration_from_metric,
                     R"doc(
@@ -410,12 +414,18 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
          Schwarzschild, Lense-Thirring and de Sitter terms (see 'General relativity and Space Geodesy' by L. Combrinck,
          2012).
 
-
-
-
-
       )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RelativisticAccelerationCorrectionSettings )
             TUDATPY_DEF_EQ_NE( tss::RelativisticAccelerationCorrectionSettings );
+
+    py::class_< tss::MarsdenAccelerationSettings, std::shared_ptr< tss::MarsdenAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "MarsdenAccelerationSettings",
+            R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the Marsden acceleration.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MarsdenAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MarsdenAccelerationSettings );
 
     py::class_< tss::CustomAccelerationSettings, std::shared_ptr< tss::CustomAccelerationSettings >, tss::AccelerationSettings >(
             m,
