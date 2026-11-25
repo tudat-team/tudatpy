@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testEstimationWithOutlierRejection )
         const double crossWeight =
                 0.1 * std::sqrt( dataset->getWeightValue( rangeIds.at( 0 ) )( 0 ) * dataset->getWeightValue( rangeIds.at( 1 ) )( 0 ) );
         dataset->setWeightBlock( { rangeIds.at( 0 ) }, { rangeIds.at( 1 ) }, Eigen::MatrixXd::Constant( 1, 1, crossWeight ) );
-        input->setOutlierRejectionSettings( simulation_setup::simpleOutlierRejectionSettings( 1.0E5, 0, false ) );
+        input->setOutlierRejectionSettings( simulation_setup::simpleOutlierRejectionSettings( std::make_pair( 0.0, 1.0E5 ), 0 ) );
     };
 
     executeEarthOrbiterParameterEstimation< double, double >( podData, 1.0E7, 1, 2, false, false, nullptr, configureEstimation );

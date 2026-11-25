@@ -515,10 +515,13 @@ BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
                 angularObservations.at( 1 ).array( ) += 1.0;
                 dataset->setObservationsForSet( angularSetId, angularObservations );
 
-                const std::map< ObservableType, double > thresholds = { { one_way_range, 1.0E12 },
-                                                                        { one_way_doppler, 1.0E12 },
-                                                                        { angular_position, 0.5 } };
-                input->setOutlierRejectionSettings( simpleOutlierRejectionSettings( thresholds, 0, false ) );
+                using Condition = ObservationSelectionCondition< double, double >;
+                const SimpleOutlierRejectionSettings< double, double >::ThresholdsPerCondition thresholds = {
+                    { Condition::observableType( one_way_range ), { 0.0, 1.0E12 } },
+                    { Condition::observableType( one_way_doppler ), { 0.0, 1.0E12 } },
+                    { Condition::observableType( angular_position ), { 0.0, 0.5 } }
+                };
+                input->setOutlierRejectionSettings( simpleOutlierRejectionSettings( thresholds, 0 ) );
             } );
 
     const ObservationVectorData< double, double > rejectedFullData =

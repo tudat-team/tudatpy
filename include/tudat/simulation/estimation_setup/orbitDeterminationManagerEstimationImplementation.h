@@ -72,8 +72,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
             createOutlierRejection< ObservationScalarType, TimeType >( estimationInput->getOutlierRejectionSettings( ),
                                                                        observationDataset );
     const bool applyOutlierRejection = ( outlierRejection != nullptr );
-    const auto carpinoSettings =
-            std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings >( estimationInput->getOutlierRejectionSettings( ) );
+    // The Carpino algorithm needs the parameter covariance in every iteration in which observations may be rejected
+    const bool outlierRejectionNeedsCovariance = applyOutlierRejection &&
+            estimationInput->getOutlierRejectionSettings( )->getOutlierRejectionType( ) == OutlierRejectionType::carpino_outlier_rejection;
 
     // Get number of observations
     observation_models::ObservationVectorData< ObservationScalarType, TimeType > estimationData =
@@ -203,7 +204,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
     while( true )
     {
         oldParameterEstimate = newParameterEstimate;
-        const bool needsParameterCovariance = carpinoSettings && numberOfIterations >= carpinoSettings->getFirstIterationWithRejection( );
+        const bool needsParameterCovariance =
+                outlierRejectionNeedsCovariance && numberOfIterations >= outlierRejection->getFirstIterationWithRejection( );
 
         // Update the data of the observations that are used in the estimation: observations may have been rejected or
         // recovered at the end of the previous iteration.

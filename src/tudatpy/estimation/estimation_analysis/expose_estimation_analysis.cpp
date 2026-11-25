@@ -591,7 +591,7 @@ void expose_estimation_analysis( py::module& m )
                             const bool,
                             const bool,
                             const bool,
-                            const std::shared_ptr< tss::OutlierRejectionSettings > >( ),
+                            const std::shared_ptr< tss::OutlierRejectionSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >( ),
                   py::arg( "observation_dataset" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg_v( "convergence_checker",
