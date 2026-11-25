@@ -281,6 +281,12 @@ BOOST_AUTO_TEST_CASE( testDopplerCompressionRatioFromCountTime )
     BOOST_REQUIRE_EQUAL( compressedCollection->getSingleObservationSets( ).size( ), 1 );
     checkScalarObservations( compressedCollection->getSingleObservationSets( ).at( 0 ), { 10.0, 70.0, 100.0 } );
     checkUtcOffsets( compressedCollection->getSingleObservationSets( ).at( 0 ), { 10.0, 70.0, 100.0 } );
+
+    // Only DSN n-way averaged Doppler data can be compressed
+    std::shared_ptr< ObservationCollection< double, double > > emptyCollection =
+            std::make_shared< ObservationCollection< double, double > >(
+                    std::vector< std::shared_ptr< SingleObservationSet< double, double > > >( ) );
+    BOOST_CHECK_THROW( createCompressedDopplerCollection( emptyCollection, 3 ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

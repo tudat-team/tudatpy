@@ -314,9 +314,10 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
             orbitDeterminationManagerNonSequential.estimateParameters( estimationInputNonSequential );
 
     // Retrieve partials from each estimation.
-    Eigen::MatrixXd partialsForwardEstimation = estimationOutputForward->getUnnormalizedDesignMatrix( );
-    Eigen::MatrixXd partialsBackwardEstimation = estimationOutputBackward->getUnnormalizedDesignMatrix( );
-    Eigen::MatrixXd partialsNonSequentialEstimation = estimationOutputNonSequential->getUnnormalizedDesignMatrix( );
+    Eigen::MatrixXd partialsForwardEstimation = std::get< Eigen::MatrixXd >( estimationOutputForward->getUnnormalizedDesignMatrix( ) );
+    Eigen::MatrixXd partialsBackwardEstimation = std::get< Eigen::MatrixXd >( estimationOutputBackward->getUnnormalizedDesignMatrix( ) );
+    Eigen::MatrixXd partialsNonSequentialEstimation =
+            std::get< Eigen::MatrixXd >( estimationOutputNonSequential->getUnnormalizedDesignMatrix( ) );
 
     Eigen::MatrixXd combinedPartials = Eigen::MatrixXd::Zero( partialsForwardEstimation.rows( ) + partialsBackwardEstimation.rows( ),
                                                               partialsForwardEstimation.cols( ) );
@@ -667,9 +668,10 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcStateEstimation )
             orbitDeterminationNonSequential.estimateParameters( estimationInputNonSequential );
 
     // Retrieve partials from each estimation.
-    Eigen::MatrixXd partialsForwardEstimation = estimationOutputForward->getUnnormalizedDesignMatrix( );
-    Eigen::MatrixXd partialsBackwardEstimation = estimationOutputBackward->getUnnormalizedDesignMatrix( );
-    Eigen::MatrixXd partialsNonSequentialEstimation = estimationOutputNonSequential->getUnnormalizedDesignMatrix( );
+    Eigen::MatrixXd partialsForwardEstimation = std::get< Eigen::MatrixXd >( estimationOutputForward->getUnnormalizedDesignMatrix( ) );
+    Eigen::MatrixXd partialsBackwardEstimation = std::get< Eigen::MatrixXd >( estimationOutputBackward->getUnnormalizedDesignMatrix( ) );
+    Eigen::MatrixXd partialsNonSequentialEstimation =
+            std::get< Eigen::MatrixXd >( estimationOutputNonSequential->getUnnormalizedDesignMatrix( ) );
 
     Eigen::MatrixXd combinedPartials = Eigen::MatrixXd::Zero( partialsForwardEstimation.rows( ) + partialsBackwardEstimation.rows( ),
                                                               partialsForwardEstimation.cols( ) );
@@ -1046,9 +1048,10 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcStateEstimation )
             orbitDeterminationNonSequential.estimateParameters( estimationInputNonSequential );
 
     // Retrieve partials from each estimation.
-    Eigen::MatrixXd partialsForwardEstimation = estimationOutputForward->getUnnormalizedDesignMatrix( );
-    Eigen::MatrixXd partialsBackwardEstimation = estimationOutputBackward->getUnnormalizedDesignMatrix( );
-    Eigen::MatrixXd partialsNonSequentialBatchEstimation = estimationOutputNonSequential->getUnnormalizedDesignMatrix( );
+    Eigen::MatrixXd partialsForwardEstimation = std::get< Eigen::MatrixXd >( estimationOutputForward->getUnnormalizedDesignMatrix( ) );
+    Eigen::MatrixXd partialsBackwardEstimation = std::get< Eigen::MatrixXd >( estimationOutputBackward->getUnnormalizedDesignMatrix( ) );
+    Eigen::MatrixXd partialsNonSequentialBatchEstimation =
+            std::get< Eigen::MatrixXd >( estimationOutputNonSequential->getUnnormalizedDesignMatrix( ) );
 
     Eigen::MatrixXd combinedPartials = Eigen::MatrixXd::Zero( partialsForwardEstimation.rows( ) + partialsBackwardEstimation.rows( ),
                                                               partialsForwardEstimation.cols( ) );

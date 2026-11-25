@@ -209,10 +209,10 @@ BOOST_AUTO_TEST_CASE( test_DesignMatrixSaving )
         std::vector< Eigen::MatrixXd > designMatrices;
         std::pair< std::shared_ptr< EstimationOutput< double > >, std::shared_ptr< EstimationInput< double, double > > > podData;
         executeEarthOrbiterParameterEstimation< double, double >( podData, 1.0E7, 1, 0, false, static_cast< bool >( i ) );
-        designMatrices.push_back( podData.first->getNormalizedDesignMatrix( ) );
-        designMatrices.push_back( podData.first->getUnnormalizedDesignMatrix( ) );
-        designMatrices.push_back( podData.first->getNormalizedWeightedDesignMatrix( ) );
-        designMatrices.push_back( podData.first->getUnnormalizedWeightedDesignMatrix( ) );
+        designMatrices.push_back( std::get< Eigen::MatrixXd >( podData.first->getNormalizedDesignMatrix( ) ) );
+        designMatrices.push_back( std::get< Eigen::MatrixXd >( podData.first->getUnnormalizedDesignMatrix( ) ) );
+        designMatrices.push_back( std::get< Eigen::MatrixXd >( podData.first->getNormalizedWeightedDesignMatrix( ) ) );
+        designMatrices.push_back( std::get< Eigen::MatrixXd >( podData.first->getUnnormalizedWeightedDesignMatrix( ) ) );
 
         if( i == 1 )
         {

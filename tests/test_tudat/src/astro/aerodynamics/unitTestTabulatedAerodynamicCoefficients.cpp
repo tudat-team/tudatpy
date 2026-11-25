@@ -194,6 +194,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
     dependentVariablesToSave.push_back( std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "Vehicle" ) );
     dependentVariablesToSave.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_force_coefficients_dependent_variable, "Vehicle" ) );
+    dependentVariablesToSave.push_back(
             std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_moment_coefficients_dependent_variable, "Vehicle" ) );
 
     std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
@@ -241,6 +243,32 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
         BOOST_CHECK_CLOSE_FRACTION( computedDragCoefficient, currentCoefficients( 0 ), 4.0 * std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL( std::fabs( currentCoefficients( 1 ) ), std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL( std::fabs( currentCoefficients( 2 ) ), std::numeric_limits< double >::epsilon( ) );
+
+        // No moment coefficients are tabulated
+        BOOST_CHECK_EQUAL( outputIterator->second.segment( 4, 3 ).norm( ), 0.0 );
+    }
+
+    // Settings from multi-arrays (as read from files): the single independent variable has one value per coefficient
+    boost::multi_array< Eigen::Vector3d, 1 > forceCoefficientArray( boost::extents[ aerodynamicCoefficients.size( ) ] );
+    boost::multi_array< Eigen::Vector3d, 1 > momentCoefficientArray( boost::extents[ aerodynamicCoefficients.size( ) ] );
+    for( unsigned int i = 0; i < aerodynamicCoefficients.size( ); i++ )
+    {
+        forceCoefficientArray[ i ] = aerodynamicCoefficients.at( i );
+        momentCoefficientArray[ i ] = 0.1 * aerodynamicCoefficients.at( i );
+    }
+    TabulatedAerodynamicCoefficientSettings< 1 > multiArrayCoefficientSettings( { altitudes },
+                                                                                forceCoefficientArray,
+                                                                                momentCoefficientArray,
+                                                                                1.0,
+                                                                                referenceArea,
+                                                                                Eigen::Vector3d::Zero( ),
+                                                                                { aerodynamics::altitude_dependent } );
+    BOOST_CHECK_EQUAL( multiArrayCoefficientSettings.getForceCoefficients( ).size( ), altitudes.size( ) );
+    for( unsigned int i = 0; i < altitudes.size( ); i++ )
+    {
+        BOOST_CHECK_EQUAL( multiArrayCoefficientSettings.getForceCoefficients( ).at( altitudes.at( i ) ), aerodynamicCoefficients.at( i ) );
+        BOOST_CHECK_EQUAL( multiArrayCoefficientSettings.getMomentCoefficients( ).at( altitudes.at( i ) ),
+                           0.1 * aerodynamicCoefficients.at( i ) );
     }
 }
 

@@ -1,4 +1,5 @@
 from . import (
+    close_encounters,
     element_conversion,
     ephemerides,
     frame_conversion,

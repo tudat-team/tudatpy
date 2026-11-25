@@ -166,6 +166,13 @@ createCompressedDopplerCollectionFromRatioFunction(
         const double maxArcGap,
         std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions )
 {
+    if( originalDopplerData->getObservationsSets( ).count( observation_models::ObservableType::dsn_n_way_averaged_doppler ) == 0 )
+    {
+        throw std::runtime_error(
+                "Error in Doppler data compression, only dsn_n_way_averaged_doppler observations can be compressed, "
+                "but the observation collection contains none." );
+    }
+
     // Split Doppler observation sets into arcs
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
             splitObservationSets( originalDopplerData,

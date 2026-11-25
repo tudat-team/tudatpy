@@ -1281,7 +1281,7 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseDragComponentScali
 
 inline std::shared_ptr< EstimatableParameterSettings > sideComponentScaling( const std::string bodyName )
 {
-    return std::make_shared< EstimatableParameterSettings >( bodyName, arc_wise_side_component_scaling_factor );
+    return std::make_shared< EstimatableParameterSettings >( bodyName, side_component_scaling_factor );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseSideComponentScaling( const std::string bodyName,
@@ -1674,7 +1674,7 @@ inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor
 inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor( const std::string& body,
                                                                                   const std::string& deformingBody )
 {
-    return directTidalDissipationLagTime( body, std::vector< std::string >( { deformingBody } ) );
+    return inverseTidalQualityFactor( body, std::vector< std::string >( { deformingBody } ) );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > meanMomentOfInertia( const std::string& body )

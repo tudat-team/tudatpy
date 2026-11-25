@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
 
     std::function< Eigen::VectorXd( const double, const Eigen::VectorXd& ) > stateDerivativeFunction =
             std::bind( &circleStateDerivative, std::placeholders::_1, std::placeholders::_2, radius, angularRate );
-    for( unsigned int test = 0; test < 2; test++ )
+    for( unsigned int test = 0; test < 3; test++ )
     {
         std::shared_ptr< IntegratorSettings<> > integratorSettings;
         if( test == 0 )
@@ -94,11 +94,25 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
             blocks.push_back( std::make_tuple( 0, 0, 2, 1 ) );
             blocks.push_back( std::make_tuple( 2, 0, 2, 1 ) );
 
+            // Same tolerance for both blocks, as scalars (test 1) or as one entry per block (test 2)
+            std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings;
+            if( test == 1 )
+            {
+                stepSizeControlSettings = std::make_shared< PerBlockIntegratorStepSizeControlSettings< double > >(
+                        [ = ]( const int, const int ) { return blocks; }, tolerances, 0.0 );
+            }
+            else
+            {
+                stepSizeControlSettings = std::make_shared< PerBlockIntegratorStepSizeControlSettings< Eigen::MatrixXd > >(
+                        [ = ]( const int, const int ) { return blocks; },
+                        Eigen::MatrixXd::Constant( 2, 1, tolerances ),
+                        Eigen::MatrixXd::Zero( 2, 1 ) );
+            }
+
             integratorSettings = std::make_shared< MultiStageVariableStepSizeSettings<> >(
                     initiaStep,
                     rungeKuttaFehlberg45,
-                    std::make_shared< PerBlockIntegratorStepSizeControlSettings< double > >(
-                            [ = ]( const int, const int ) { return blocks; }, tolerances, 0.0 ),
+                    stepSizeControlSettings,
                     std::make_shared< IntegratorStepSizeValidationSettings >(
                             std::numeric_limits< double >::min( ), std::numeric_limits< double >::max( ), set_to_minimum_step_silently ) );
         }
@@ -143,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
                 circleState( integrator->getCurrentIndependentVariable( ), radius, angularRate ) - integrator->getCurrentState( );
 
         double timeStepRatio = maximumStep / minimumStep;
-        if( test == 1 )
+        if( test > 0 )
         {
             BOOST_CHECK( ( timeStepRatio - 1.0 ) < 0.2 );
         }

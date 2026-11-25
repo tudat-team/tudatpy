@@ -117,6 +117,12 @@ BOOST_AUTO_TEST_CASE( test_ConstraintWithStronglyWeightedNormalEquations )
         }
         BOOST_CHECK_SMALL( constraint.dot( solution ), 1.0E-12 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( solution, solutionWithUnitWeight, 1.0E-10 );
+
+        // Check that the sparse solver gives the same solution
+        const Eigen::SparseMatrix< double > sparseNormalMatrix = normalMatrix.sparseView( );
+        const Eigen::Vector3d sparseSolution =
+                linear_algebra::solveSystemOfEquations( sparseNormalMatrix, rightHandSide, TUDAT_NAN ).segment( 0, 3 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseSolution, solution, 1.0E-10 );
     }
 }
 
@@ -288,6 +294,14 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
         BOOST_CHECK_LT( correctionNorms.at( iteration ), correctionNorms.at( iteration - 1 ) );
     }
     BOOST_CHECK_LT( correctionNorms.back( ), 1.0E-6 * correctionNorms.front( ) );
+
+    // Repeat the estimation with a sparse design matrix, and compare with the dense results
+    orbitDeterminationManager.resetParameterEstimate( aprioriParameters, true );
+    estimationInput->setUseSparseDesignMatrix( true );
+    const std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+    BOOST_CHECK_EQUAL( sparseEstimationOutput->bestIteration_, estimationOutput->bestIteration_ );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->getParameterHistoryMatrix( ), parameterHistory, 1.0E-10 );
 
     // Repeat from the same perturbed parameters without a prior to provide a numerical reference for its effect.
     orbitDeterminationManager.resetParameterEstimate( aprioriParameters, true );
@@ -476,6 +490,13 @@ BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
             unconstrainedStateHistory.col( unconstrainedStateHistory.cols( ) - 1 ) - trueInitialState;
     BOOST_CHECK_SMALL( unconstrainedStateError.segment( 0, 3 ).norm( ), 0.1 );
     BOOST_CHECK_SMALL( unconstrainedStateError.segment( 3, 3 ).norm( ), 1.0E-4 );
+
+    // Repeat the constrained estimation with a sparse design matrix, and compare with the dense results
+    orbitDeterminationManager.resetParameterEstimate( perturbedInitialState, true );
+    estimationInput->setUseSparseDesignMatrix( true );
+    const std::shared_ptr< EstimationOutput< double, double > > sparseEstimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseEstimationOutput->getParameterHistoryMatrix( ), initialStateHistory, 1.0E-10 );
 }
 
 //! This test checks whether the input/output of the estimation (weights, a priori covariance, unscaled covariance) are
