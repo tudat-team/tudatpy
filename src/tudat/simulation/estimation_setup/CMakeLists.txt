@@ -72,6 +72,8 @@ set(estimation_HEADERS
         observationDatasetMutationImplementation.h
         observationDatasetPrivateImplementation.h
         observationDatasetRows.h
+        observationDatasetWeightsImplementation.h
+        observationWeights.h
         )
 
 # Add header files.

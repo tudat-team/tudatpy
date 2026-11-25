@@ -41,6 +41,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/simulation/estimation_setup/observationDatasetRows.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
+#include "tudat/simulation/estimation_setup/observationWeights.h"
 #include "tudat/basics/tudatTypeTraits.h"
 
 namespace tudat
@@ -111,6 +112,20 @@ public:
     int addObservationSetFromDataset( const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
                                       const unsigned int sourceSetId );
 
+    //! Add an observation set, with weights defined by weight settings.
+    int addObservationSetWithWeights(
+            const ObservableType observableType,
+            const LinkDefinition& linkDefinition,
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::vector< TimeType >& times,
+            const LinkEndType referenceLinkEnd,
+            const std::shared_ptr< ObservationWeightSettings >& weightSettings,
+            const std::vector< Eigen::VectorXd >& dependentVariables = std::vector< Eigen::VectorXd >( ),
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping = nullptr,
+            const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals =
+                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+            const bool sortObservations = false );
 
     //////////////////////////////////////////////////////////
     /////////////////       VALUE MUTATION          //////////
@@ -125,6 +140,67 @@ public:
                              const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals );
 
     //////////////////////////////////////////////////////////
+    /////////////////       WEIGHTS FUNCTIONALITY   //////////
+    //////////////////////////////////////////////////////////
+
+    //! Set a scalar constant weight on all observations matching a row-level condition.
+    void setConstantSingleObservationScalarWeight( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                                                   const double weight );
+
+    //! Set a vector-valued constant weight on all observations matching a row-level condition.
+    void setConstantSingleObservationDiagonalWeight( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                                                     const Eigen::VectorXd& weight );
+
+    //! Set an observable-size N x N weight block on all observations matching a row-level condition.
+    void setConstantSingleObservationMatrixWeight( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                                                   const Eigen::MatrixXd& weight );
+
+    //! Store one full M x M weight block for an observation set.
+    void setWeightMatrixForSet( const unsigned int setId, const Eigen::MatrixXd& weightMatrix );
+
+    //! Replace the concatenated diagonal weight vector for one set.
+    void setWeightVectorForSet( const unsigned int setId, const Eigen::VectorXd& weightVector );
+
+    //! Return whether the effective set principal block contains off-diagonal weights.
+    bool hasWeightMatrixForSet( const unsigned int setId ) const
+    {
+        return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) )
+                .hasOffDiagonalWeights( );
+    }
+
+    //! Store one observable-size N x N weight block for an observation event.
+    void setWeightMatrixForObservation( const unsigned int observationId, const Eigen::MatrixXd& weightMatrix );
+
+    //! Return whether the effective observation block contains off-diagonal weights.
+    bool hasWeightMatrixForObservation( const unsigned int observationId ) const
+    {
+        return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( { observationId }, {} ) )
+                .hasOffDiagonalWeights( );
+    }
+
+    //! Store a dense weight block selected by observation ids.
+    /*!
+     * This is the public interface for correlations between unrelated
+     * observations. Empty component lists select all scalar components of each
+     * observation. Non-empty component lists are applied to every observation in
+     * the corresponding row or column selection. Observation ids are converted
+     * to scalar-component ids immediately, so the block remains valid under
+     * later observation vector data as long as the dataset structure is unchanged.
+     * The public interface always preserves a symmetric total weight matrix:
+     * a transposed block is added for different row and column selections, and
+     * identical selections must already define a symmetric block.
+     */
+    void setWeightBlock( const std::vector< unsigned int >& rowObservationIds,
+                         const std::vector< unsigned int >& columnObservationIds,
+                         const Eigen::MatrixXd& weightBlock,
+                         const std::vector< unsigned int >& rowComponents = std::vector< unsigned int >( ),
+                         const std::vector< unsigned int >& columnComponents = std::vector< unsigned int >( ) );
+
+    //! Return whether the weights of the dataset contain off-diagonal entries.
+    bool hasExtraWeightBlocks( ) const
+    {
+        return observationWeights_.hasOffDiagonalWeights( );
+    }
 
     //////////////////////////////////////////////////////////
     /////////////////       SET MUTATION            //////////
@@ -264,6 +340,31 @@ public:
         return getObservationRow( observationId ).time_;
     }
 
+    //! Return one vector of scalar-component weights per observation event.
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeightsForSet( const unsigned int setId ) const;
+
+    //! Reconstruct the scalar-component weight vector for one observation event.
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > getWeightValue( const unsigned int observationId ) const
+    {
+        return observationWeights_.getDiagonal( getScalarComponentIdsForObservationSelection( { observationId }, {} ) );
+    }
+
+    //! Reconstruct the weight matrix for one observation event.
+    Eigen::MatrixXd getWeightMatrixForObservation( const unsigned int observationId ) const
+    {
+        return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( { observationId }, {} ) )
+                .sparseMatrix( )
+                .toDense( );
+    }
+
+    //! Return the weight matrix of one set, including correlations.
+    Eigen::MatrixXd getWeightMatrixForSet( const unsigned int setId ) const
+    {
+        return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) )
+                .sparseMatrix( )
+                .toDense( );
+    }
+
     //! Return one vector-valued residual per observation event in a set.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResidualsForSet( const unsigned int setId ) const;
 
@@ -379,6 +480,13 @@ private:
     std::vector< unsigned int > getAllObservationIds( ) const;
 
 
+    //! Record the correlations introduced by a nonzero entry between firstScalar and secondScalar in observationWeights_.
+    //! Update both affected sets without reducing either set's existing within-set block size.
+    void promoteWeightStructureForEntry( const unsigned int firstScalar, const unsigned int secondScalar );
+
+    //! Recheck correlations after changing set membership, removing observations, or replacing cross-set weights.
+    //! Preserve known within-set block sizes; clear cross-set flags only where no connecting entries remain.
+    void refreshWeightStructures( );
 
 
     //! Remove all observations that are not in retainedIds, keeping the ids of the remaining observations and sets.
@@ -422,6 +530,8 @@ private:
     //! Overwrite all residual scalar components belonging to one observation event.
     void setResidualValue( const unsigned int observationId, const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residual );
 
+    //! Overwrite all weight scalar components belonging to one observation event.
+    void setWeightValue( const unsigned int observationId, const Eigen::VectorXd& weight );
 
     //! Expand observation ids and optional component indices to scalar-component ids.
     std::vector< unsigned int > getScalarComponentIdsForObservationSelection( const std::vector< unsigned int >& observationIds,
@@ -514,6 +624,8 @@ private:
     //! Scalar residual values aligned one-to-one with observedValues_.
     std::vector< ObservationScalarType > residualValues_;
 
+    //! Weights of all observation components, including off-diagonal entries.
+    ObservationWeights observationWeights_;
 
     //! User-defined numerical metadata, with the name and observation id as keys.
     std::map< std::string, std::map< unsigned int, double > > numericalObservationMetadata_;
@@ -525,6 +637,7 @@ private:
 
 
 #include "tudat/simulation/estimation_setup/observationDatasetMutationImplementation.h"
+#include "tudat/simulation/estimation_setup/observationDatasetWeightsImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetAccessorsImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetPrivateImplementation.h"
 

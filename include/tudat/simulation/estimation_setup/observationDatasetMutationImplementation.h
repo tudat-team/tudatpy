@@ -251,6 +251,67 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
     return newSetId;
 }
 
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservationSetWithWeights(
+        const ObservableType observableType,
+        const LinkDefinition& linkDefinition,
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+        const std::vector< TimeType >& times,
+        const LinkEndType referenceLinkEnd,
+        const std::shared_ptr< ObservationWeightSettings >& weightSettings,
+        const std::vector< Eigen::VectorXd >& dependentVariables,
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping,
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings,
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
+        const bool sortObservations )
+{
+    const unsigned int singleObservationSize = getObservableSize( observableType );
+    ObservationWeights weights = createObservationWeightsForSet( observations.size( ), singleObservationSize, weightSettings );
+
+    // Apply the same time ordering to the weight rows and columns that
+    // addObservationSet applies to the observations themselves.
+    if( sortObservations && times.size( ) > 1 )
+    {
+        const std::vector< std::size_t > observationPermutation = getTimeSortingPermutation( times );
+        std::vector< unsigned int > scalarPermutation;
+        scalarPermutation.reserve( observations.size( ) * singleObservationSize );
+        for( const std::size_t observationIndex : observationPermutation )
+        {
+            for( unsigned int componentIndex = 0; componentIndex < singleObservationSize; ++componentIndex )
+            {
+                scalarPermutation.push_back( observationIndex * singleObservationSize + componentIndex );
+            }
+        }
+        weights = weights.restricted( scalarPermutation );
+    }
+
+    const unsigned int setId = addObservationSet( observableType,
+                                                  linkDefinition,
+                                                  observations,
+                                                  times,
+                                                  referenceLinkEnd,
+                                                  dependentVariables,
+                                                  dependentVariableBookkeeping,
+                                                  ancillarySettings,
+                                                  {},
+                                                  residuals,
+                                                  sortObservations );
+    observationWeights_.copyBlock( weights, getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) );
+    // Set the weight structure of the new set from the type of weight settings, which never correlate different sets.
+    if( std::dynamic_pointer_cast< SetBlockWeightSettings >( weightSettings ) != nullptr )
+    {
+        setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_set;
+    }
+    else if( std::dynamic_pointer_cast< ConstantBlockWeightSettings >( weightSettings ) != nullptr ||
+             std::dynamic_pointer_cast< BlockPerObservationWeightSettings >( weightSettings ) != nullptr )
+    {
+        setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_observation;
+    }
+    // All other settings supply diagonal weights; the metadata already have this default.
+    return setId;
+}
 
 // Replace every vector-valued observation in one set without changing row metadata.
 template< typename ObservationScalarType,
@@ -454,6 +515,19 @@ std::vector< TimeType > ObservationDataset< ObservationScalarType, TimeType, Dum
     return times;
 }
 
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getWeightsForSet(
+        const unsigned int setId ) const
+{
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights;
+    for( const unsigned int observationId : observationIdsBySet_.at( setId ) )
+    {
+        weights.push_back( getWeightValue( observationId ) );
+    }
+    return weights;
+}
 
 template< typename ObservationScalarType,
           typename TimeType,

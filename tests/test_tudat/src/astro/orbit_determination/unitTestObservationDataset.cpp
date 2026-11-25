@@ -286,6 +286,224 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_removal_and_selection )
  * checks both compact weight vectors and materialized sparse observation vector data
  * matrices.
  */
+//! Verify compact weight policies and full matrix weights produce the expected coefficients.
+BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+
+    ObservationDataset< double, double > scalarWeightDataset;
+    const int scalarSetId = scalarWeightDataset.addObservationSetWithWeights(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
+            { 1.0, 2.0 },
+            receiver,
+            constantScalarWeights( 5.0 ) );
+
+    // Scalar-weight construction must remain diagonal-only and expose no per-observation matrix blocks.
+    BOOST_CHECK_EQUAL( scalarSetId, 0 );
+    Eigen::VectorXd expectedScalarWeights( 4 );
+    expectedScalarWeights << 5.0, 5.0, 5.0, 5.0;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            scalarWeightDataset.getWeightDiagonal( ObservationSelectionCondition< double, double >::setId( scalarSetId ) ),
+            expectedScalarWeights,
+            1.0E-15 );
+    const Eigen::MatrixXd expectedScalarWeightMatrix = 5.0 * Eigen::MatrixXd::Identity( 4, 4 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            scalarWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expectedScalarWeightMatrix, 1.0E-15 );
+    BOOST_CHECK_EQUAL( scalarWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).nonZeros( ), 4 );
+    BOOST_CHECK( !scalarWeightDataset.createObservationVectorData( ).hasOffDiagonalWeights( ) );
+    BOOST_CHECK( !scalarWeightDataset.hasWeightMatrixForObservation( scalarWeightDataset.getObservationIdsForSet( scalarSetId ).at( 0 ) ) );
+
+    Eigen::Matrix2d observationWeightBlock;
+    observationWeightBlock << 2.0, 0.5, 0.5, 3.0;
+    ObservationDataset< double, double > blockWeightDataset;
+    const int blockSetId = blockWeightDataset.addObservationSetWithWeights(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
+            { 1.0, 2.0 },
+            receiver,
+            constantBlockWeights( observationWeightBlock ) );
+    Eigen::MatrixXd expectedObservationBlockMatrix = Eigen::MatrixXd::Zero( 4, 4 );
+    expectedObservationBlockMatrix.block( 0, 0, 2, 2 ) = observationWeightBlock;
+    expectedObservationBlockMatrix.block( 2, 2, 2, 2 ) = observationWeightBlock;
+
+    // Per-observation weight blocks must be repeated for each vector-valued observation and force sparse weighting.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( blockWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
+                                       expectedObservationBlockMatrix,
+                                       1.0E-15 );
+    BOOST_CHECK_EQUAL( blockWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).nonZeros( ), 8 );
+    BOOST_CHECK( blockWeightDataset.createObservationVectorData( ).hasOffDiagonalWeights( ) );
+    BOOST_CHECK( blockWeightDataset.hasWeightMatrixForObservation( blockWeightDataset.getObservationIdsForSet( blockSetId ).at( 0 ) ) );
+    Eigen::VectorXd expectedBlockWeightDiagonal( 4 );
+    expectedBlockWeightDiagonal << 2.0, 3.0, 2.0, 3.0;
+
+    // Compact weight-vector access must return the diagonal of repeated per-observation blocks.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            blockWeightDataset.getWeightDiagonal( ObservationSelectionCondition< double, double >::setId( blockSetId ) ),
+            expectedBlockWeightDiagonal,
+            1.0E-15 );
+
+    ObservationDataset< double, double > setConstantMatrixDataset;
+    const int constantMatrixSetId = setConstantMatrixDataset.addObservationSet(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
+            { 1.0, 2.0 },
+            receiver );
+    setConstantMatrixDataset.setConstantSingleObservationMatrixWeight(
+            ObservationSelectionCondition< double, double >::setId( constantMatrixSetId ), observationWeightBlock );
+    BOOST_CHECK( setConstantMatrixDataset.getObservationSetMetadata( constantMatrixSetId ).weightStructure_ ==
+                 ObservationWeightStructure::per_observation );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setConstantMatrixDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
+                                       expectedObservationBlockMatrix,
+                                       1.0E-15 );
+
+    ObservationDataset< double, double > conditionWeightDataset;
+    const int conditionRangeSetId =
+            conditionWeightDataset.addObservationSet( one_way_range,
+                                                      linkDefinition,
+                                                      { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                      { 1.0, 2.0 },
+                                                      receiver );
+    const int conditionAngularSetId = conditionWeightDataset.addObservationSet(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ), ( Eigen::Vector2d( ) << 40.0, 41.0 ).finished( ) },
+            { 3.0, 4.0 },
+            receiver );
+    conditionWeightDataset.setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ), 7.0 );
+    conditionWeightDataset.setConstantSingleObservationDiagonalWeight(
+            ObservationSelectionCondition< double, double >::timeBounds( 3.5, 4.5 ), ( Eigen::Vector2d( ) << 8.0, 9.0 ).finished( ) );
+    conditionWeightDataset.setConstantSingleObservationMatrixWeight(
+            ObservationSelectionCondition< double, double >::timeBounds( 2.5, 3.5 ), observationWeightBlock );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            conditionWeightDataset.getWeightDiagonal( ObservationSelectionCondition< double, double >::setId( conditionRangeSetId ) ),
+            ( 7.0 * Eigen::Vector2d::Ones( ) ),
+            1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( conditionWeightDataset.getWeightMatrixForObservation(
+                                               conditionWeightDataset.getObservationIdsForSet( conditionAngularSetId ).at( 0 ) ),
+                                       observationWeightBlock,
+                                       1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            conditionWeightDataset.getWeightValue( conditionWeightDataset.getObservationIdsForSet( conditionAngularSetId ).at( 1 ) ),
+            ( Eigen::Vector2d( ) << 8.0, 9.0 ).finished( ),
+            1.0E-15 );
+
+    Eigen::MatrixXd setWeightBlock = Eigen::MatrixXd::Zero( 4, 4 );
+    setWeightBlock << 1.0, 0.1, 0.2, 0.3, 0.1, 2.0, 0.4, 0.5, 0.2, 0.4, 3.0, 0.6, 0.3, 0.5, 0.6, 4.0;
+    ObservationDataset< double, double > setBlockWeightDataset;
+    const int setBlockSetId = setBlockWeightDataset.addObservationSetWithWeights(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
+            { 1.0, 2.0 },
+            receiver,
+            setBlockWeights( setWeightBlock ) );
+
+    // A set-level weight block must be stored as one matrix spanning the full scalar range of the set.
+    BOOST_CHECK( setBlockWeightDataset.hasWeightMatrixForSet( setBlockSetId ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setBlockWeightDataset.getWeightMatrixForSet( setBlockSetId ), setWeightBlock, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            setBlockWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            setBlockWeightDataset.createObservationVectorData( ).getWeightVector( ), setWeightBlock.diagonal( ), 1.0E-15 );
+
+    ObservationDataset< double, double > extraBlockDataset;
+    extraBlockDataset.addObservationSetWithWeights(
+            one_way_range,
+            linkDefinition,
+            { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
+            { 1.0, 2.0, 3.0 },
+            receiver,
+            constantScalarWeights( 1.0 ) );
+    const std::vector< unsigned int > extraBlockObservationIds = extraBlockDataset.getObservationIdsForSet( 0 );
+    const Eigen::Matrix2d extraWeightBlock = ( Eigen::Matrix2d( ) << 4.0, 0.25, 0.25, 5.0 ).finished( );
+    extraBlockDataset.setWeightBlock( { extraBlockObservationIds.at( 0 ), extraBlockObservationIds.at( 2 ) },
+                                      { extraBlockObservationIds.at( 0 ), extraBlockObservationIds.at( 2 ) },
+                                      extraWeightBlock,
+                                      {},
+                                      {} );
+
+    // Arbitrary observation-id blocks update the same effective symmetric matrix.
+    BOOST_CHECK( extraBlockDataset.hasExtraWeightBlocks( ) );
+    Eigen::MatrixXd expectedExtraBlockWeightMatrix = Eigen::MatrixXd::Identity( 3, 3 );
+    expectedExtraBlockWeightMatrix( 0, 0 ) = 4.0;
+    expectedExtraBlockWeightMatrix( 2, 2 ) = 5.0;
+    expectedExtraBlockWeightMatrix( 0, 2 ) = 0.25;
+    expectedExtraBlockWeightMatrix( 2, 0 ) = 0.25;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            extraBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expectedExtraBlockWeightMatrix, 1.0E-15 );
+
+    ObservationDataset< double, double > symmetricComponentBlockDataset;
+    symmetricComponentBlockDataset.addObservationSetWithWeights( angular_position,
+                                                                 linkDefinition,
+                                                                 { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
+                                                                   ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
+                                                                   ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
+                                                                 { 1.0, 2.0, 3.0 },
+                                                                 receiver,
+                                                                 constantScalarWeights( 1.0 ) );
+    const std::vector< unsigned int > symmetricObservationIds = symmetricComponentBlockDataset.getObservationIdsForSet( 0 );
+    const Eigen::MatrixXd crossComponentBlock = ( Eigen::Matrix< double, 2, 1 >( ) << 0.7, 0.8 ).finished( );
+    symmetricComponentBlockDataset.setWeightBlock( { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
+                                                   { symmetricObservationIds.at( 2 ) },
+                                                   crossComponentBlock,
+                                                   { 0 },
+                                                   { 1 } );
+
+    // Component-selected blocks must populate both symmetric matrix entries.
+    Eigen::MatrixXd expectedSymmetricComponentWeightMatrix = Eigen::MatrixXd::Identity( 6, 6 );
+    expectedSymmetricComponentWeightMatrix( 0, 5 ) = 0.7;
+    expectedSymmetricComponentWeightMatrix( 2, 5 ) = 0.8;
+    expectedSymmetricComponentWeightMatrix( 5, 0 ) = 0.7;
+    expectedSymmetricComponentWeightMatrix( 5, 2 ) = 0.8;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( symmetricComponentBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
+                                       expectedSymmetricComponentWeightMatrix,
+                                       1.0E-15 );
+
+    ObservationDataset< double, double > rejectedSetBlockDataset;
+    Eigen::MatrixXd fullSetWeightBlock = Eigen::MatrixXd::Zero( 6, 6 );
+    for( int row = 0; row < fullSetWeightBlock.rows( ); ++row )
+    {
+        for( int column = 0; column < fullSetWeightBlock.cols( ); ++column )
+        {
+            fullSetWeightBlock( row, column ) = row == column
+                    ? static_cast< double >( row + 1 )
+                    : 0.01 * static_cast< double >( 10 * ( std::min( row, column ) + 1 ) + std::max( row, column ) + 1 );
+        }
+    }
+    rejectedSetBlockDataset.addObservationSetWithWeights( angular_position,
+                                                          linkDefinition,
+                                                          { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
+                                                            ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
+                                                            ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
+                                                          { 1.0, 2.0, 3.0 },
+                                                          receiver,
+                                                          setBlockWeights( fullSetWeightBlock ) );
+    rejectedSetBlockDataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ) );
+    Eigen::MatrixXd expectedRejectedWeightBlock = Eigen::MatrixXd::Zero( 4, 4 );
+    const std::vector< int > keptScalarIndices = { 0, 1, 4, 5 };
+    for( unsigned int row = 0; row < keptScalarIndices.size( ); ++row )
+    {
+        for( unsigned int column = 0; column < keptScalarIndices.size( ); ++column )
+        {
+            expectedRejectedWeightBlock( row, column ) = fullSetWeightBlock( keptScalarIndices.at( row ), keptScalarIndices.at( column ) );
+        }
+    }
+
+    // Projecting after rejection must keep only the active rows and columns of a full set weight block.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rejectedSetBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
+                                       expectedRejectedWeightBlock,
+                                       1.0E-15 );
+    rejectedSetBlockDataset.restoreObservations( ObservationSelectionCondition< double, double >::rejected( ) );
+
+    // Restoring rejected rows must restore the full original weight block in the observation vector data.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            rejectedSetBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), fullSetWeightBlock, 1.0E-15 );
+}
 
 /*!
  * Verifies the precedence between set-level, per-observation and extra block weights.
@@ -296,6 +514,54 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_removal_and_selection )
  * checks the resulting dense sparse matrix and confirms that conflicts report
  * the affected observation-vector and scalar-component indices.
  */
+//! Verify weight assignments replace only the addressed matrix entries.
+BOOST_AUTO_TEST_CASE( test_dataset_weight_assignments_replace_addressed_entries )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+
+    ObservationDataset< double, double > dataset;
+    const unsigned int setId = dataset.addObservationSet(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
+            { 1.0, 2.0 },
+            receiver );
+    const std::vector< unsigned int > observationIds = dataset.getObservationIdsForSet( setId );
+
+    Eigen::MatrixXd setWeightBlock( 4, 4 );
+    setWeightBlock << 1.0, 0.1, 0.2, 0.3, 0.1, 2.0, 0.4, 0.5, 0.2, 0.4, 3.0, 0.6, 0.3, 0.5, 0.6, 4.0;
+    dataset.setWeightMatrixForSet( setId, setWeightBlock );
+
+    Eigen::Matrix2d perObservationWeightBlock;
+    perObservationWeightBlock << 10.0, 0.7, 0.7, 11.0;
+    dataset.setWeightMatrixForObservation( observationIds.at( 0 ), perObservationWeightBlock );
+    const Eigen::Vector2d perObservationDiagonalWeights = ( Eigen::Vector2d( ) << 12.0, 13.0 ).finished( );
+    dataset.setConstantSingleObservationDiagonalWeight( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ),
+                                                        perObservationDiagonalWeights );
+    BOOST_CHECK( dataset.getObservationSetMetadata( setId ).weightStructure_ == ObservationWeightStructure::per_set );
+
+    Eigen::Matrix2d extraWeightBlock;
+    extraWeightBlock << 20.0, 21.0, 22.0, 23.0;
+    dataset.setWeightBlock( { observationIds.at( 0 ) }, { observationIds.at( 1 ) }, extraWeightBlock );
+
+    const auto observationVectorData = dataset.createObservationVectorData( );
+
+    Eigen::MatrixXd expectedWeightMatrix = setWeightBlock;
+    expectedWeightMatrix.block( 0, 0, 2, 2 ) = perObservationWeightBlock;
+    expectedWeightMatrix.block( 2, 2, 2, 2 ) = perObservationDiagonalWeights.asDiagonal( );
+    expectedWeightMatrix.block( 0, 2, 2, 2 ) = extraWeightBlock;
+    expectedWeightMatrix.block( 2, 0, 2, 2 ) = extraWeightBlock.transpose( );
+
+    // Set-level blocks provide the baseline, explicit matrix/vector observation weights overwrite that baseline,
+    // and extra scalar-component blocks overwrite both lower-priority layers while preserving matrix symmetry.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationVectorData.getSparseWeightMatrix( ).toDense( ), expectedWeightMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationVectorData.getWeightVector( ), expectedWeightMatrix.diagonal( ), 1.0E-15 );
+
+    // A later set-wide assignment replaces previous row and cross-row coefficients as well.
+    dataset.setWeightMatrixForSet( setId, setWeightBlock );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
+}
 
 /*!
  * Verifies that later assignments consistently replace appended weights.
@@ -304,6 +570,43 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_removal_and_selection )
  * first dataset omits append weights, and the second supplies them explicitly.
  * A later set-level assignment must replace the addressed matrix in both cases.
  */
+//! Verify appended default weights do not overwrite a subsequently assigned set block.
+BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_block )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+
+    ObservationDataset< double, double > implicitAppendDataset;
+    const unsigned int implicitSetId =
+            implicitAppendDataset.addObservationSet( one_way_range,
+                                                     linkDefinition,
+                                                     { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                     { 1.0, 2.0 },
+                                                     receiver );
+    implicitAppendDataset.addObservationsToSet( implicitSetId, { Eigen::Vector1d::Constant( 30.0 ) }, { 3.0 }, {}, {}, {}, true );
+
+    Eigen::Matrix3d setWeightBlock;
+    setWeightBlock << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+    implicitAppendDataset.setWeightMatrixForSet( implicitSetId, setWeightBlock );
+
+    // The later set assignment replaces appended defaults.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            implicitAppendDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
+
+    ObservationDataset< double, double > explicitAppendDataset;
+    const unsigned int explicitSetId =
+            explicitAppendDataset.addObservationSet( one_way_range,
+                                                     linkDefinition,
+                                                     { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                     { 1.0, 2.0 },
+                                                     receiver );
+    explicitAppendDataset.addObservationsToSet(
+            explicitSetId, { Eigen::Vector1d::Constant( 30.0 ) }, { 3.0 }, {}, { Eigen::Vector1d::Constant( 9.0 ) }, {}, true );
+    explicitAppendDataset.setWeightMatrixForSet( explicitSetId, setWeightBlock );
+
+    // The later full-set assignment also replaces explicitly supplied append weights.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            explicitAppendDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
+}
 
 /*!
  * Verifies that row status and advanced weights survive dataset rebuilds.
@@ -612,9 +915,154 @@ BOOST_AUTO_TEST_CASE( test_removal_preserves_observation_identity )
 }
 
 
+//! Preserve the supplied block structure even when the numerical matrices happen to be diagonal.
+BOOST_AUTO_TEST_CASE( test_weight_structure_from_settings )
+{
+    using Structure = ObservationWeightStructure;
+    const std::vector< std::pair< std::shared_ptr< ObservationWeightSettings >, Structure > > settings = {
+        { constantScalarWeights( 2.0 ), Structure::diagonal },
+        { scalarPerObservationWeights( { 2.0, 3.0 } ), Structure::diagonal },
+        { diagonalPerObservationWeights( { Eigen::Vector2d::Ones( ), Eigen::Vector2d::Ones( ) } ), Structure::diagonal },
+        { constantBlockWeights( Eigen::Matrix2d::Identity( ) ), Structure::per_observation },
+        { blockPerObservationWeights( { Eigen::Matrix2d::Identity( ), Eigen::Matrix2d::Identity( ) } ), Structure::per_observation },
+        { setBlockWeights( Eigen::Matrix4d::Identity( ) ), Structure::per_set }
+    };
+    for( const auto& entry : settings )
+    {
+        ObservationDataset<> dataset;
+        const unsigned int setId = dataset.addObservationSetWithWeights( angular_position,
+                                                                         createOneWayLinkDefinition( "Station1" ),
+                                                                         { Eigen::Vector2d::Ones( ), Eigen::Vector2d::Ones( ) },
+                                                                         { 1.0, 2.0 },
+                                                                         receiver,
+                                                                         entry.first );
+        BOOST_CHECK( dataset.getObservationSetMetadata( setId ).weightStructure_ == entry.second );
+        BOOST_CHECK( dataset.createObservationVectorData( ).getSetMetadata( setId ).weightStructure_ == entry.second );
+        const ObservationDataset<> copied( dataset );
+        BOOST_CHECK( copied.getObservationSetMetadata( setId ).weightStructure_ == entry.second );
+        ObservationDataset<> imported;
+        const unsigned int importedSet = imported.addObservationSetFromDataset( dataset, setId );
+        BOOST_CHECK( imported.getObservationSetMetadata( importedSet ).weightStructure_ == entry.second );
+    }
+}
 
+//! Update both sets for cross-set entries without confusing zero entries or diagonal replacements with correlations.
+BOOST_AUTO_TEST_CASE( test_weight_structure_after_weight_changes )
+{
+    using Structure = ObservationWeightStructure;
+    ObservationDataset<> dataset;
+    const auto link = createOneWayLinkDefinition( "Station1" );
+    const unsigned int firstSet = dataset.addObservationSet(
+            angular_position, link, { Eigen::Vector2d::Ones( ), Eigen::Vector2d::Ones( ) }, { 1.0, 2.0 }, receiver );
+    const unsigned int secondSet = dataset.addObservationSet( angular_position, link, { Eigen::Vector2d::Ones( ) }, { 3.0 }, receiver );
+    const auto firstIds = dataset.getObservationIdsForSet( firstSet );
+    const auto secondIds = dataset.getObservationIdsForSet( secondSet );
+    const Eigen::MatrixXd zero = Eigen::MatrixXd::Zero( 1, 1 );
+    const Eigen::MatrixXd correlation = Eigen::MatrixXd::Constant( 1, 1, 0.1 );
+    dataset.setWeightBlock( { firstIds.front( ) }, secondIds, zero, { 1 }, { 0 } );
+    BOOST_CHECK( dataset.getObservationSetMetadata( firstSet ).weightStructure_ == Structure::diagonal );
+    BOOST_CHECK( dataset.getObservationSetMetadata( secondSet ).weightStructure_ == Structure::diagonal );
+    dataset.setWeightBlock( { firstIds.front( ) }, { firstIds.front( ) }, correlation, { 1 }, { 0 } );
+    BOOST_CHECK( dataset.getObservationSetMetadata( firstSet ).weightStructure_ == Structure::per_observation );
+    dataset.setWeightBlock( { firstIds.front( ) }, { firstIds.back( ) }, correlation, { 0 }, { 1 } );
+    BOOST_CHECK( dataset.getObservationSetMetadata( firstSet ).weightStructure_ == Structure::per_set );
 
+    dataset.setWeightBlock( { firstIds.front( ) }, secondIds, correlation, { 1 }, { 0 } );
+    const auto vectorData = dataset.createObservationVectorData( );
+    BOOST_CHECK( vectorData.getSetMetadata( firstSet ).weightStructure_ == Structure::inter_set_weights );
+    BOOST_CHECK( vectorData.getSetMetadata( secondSet ).weightStructure_ == Structure::inter_set_weights );
+    // These assignments do not touch the connection between the two sets.
+    dataset.setWeightVectorForSet( firstSet, Eigen::Vector4d::Ones( ) );
+    dataset.setWeightMatrixForObservation( secondIds.front( ), Eigen::Matrix2d::Identity( ) );
+    BOOST_CHECK( dataset.getObservationSetMetadata( firstSet ).weightStructure_ == Structure::inter_set_weights );
+    BOOST_CHECK( dataset.getObservationSetMetadata( secondSet ).weightStructure_ == Structure::inter_set_weights );
+    const ObservationDataset<> copied( dataset );
+    BOOST_CHECK( copied.getObservationSetMetadata( firstSet ).weightStructure_ == Structure::inter_set_weights );
+    ObservationDataset<> imported;
+    const unsigned int importedSet = imported.addObservationSetFromDataset( dataset, firstSet );
+    BOOST_CHECK( imported.getObservationSetMetadata( importedSet ).weightStructure_ == Structure::per_set );
 
+    dataset.setWeightBlock( { firstIds.front( ) }, secondIds, zero, { 1 }, { 0 } );
+    BOOST_CHECK( dataset.getObservationSetMetadata( firstSet ).weightStructure_ == Structure::per_set );
+    BOOST_CHECK( dataset.getObservationSetMetadata( secondSet ).weightStructure_ == Structure::per_set );
+    // Existing snapshots retain their own metadata.
+    BOOST_CHECK( vectorData.getSetMetadata( firstSet ).weightStructure_ == Structure::inter_set_weights );
+}
+
+//! Measurement covariance uses complete weights even when the vectors omit rejected observations.
+BOOST_AUTO_TEST_CASE( test_complete_observation_covariances )
+{
+    Eigen::Matrix4d setWeights;
+    setWeights << 4.0, 0.0, 1.0, 0.0, 0.0, 9.0, 0.0, 3.0, 1.0, 0.0, 2.0, 0.0, 0.0, 3.0, 0.0, 6.0;
+    const Eigen::Matrix2d observationWeights = ( Eigen::Matrix2d( ) << 4.0, 1.0, 1.0, 2.0 ).finished( );
+    const Eigen::Matrix2d observationCovariance = ( Eigen::Matrix2d( ) << 2.0, -1.0, -1.0, 4.0 ).finished( ) / 7.0;
+    const std::vector< std::shared_ptr< ObservationWeightSettings > > settings = {
+        diagonalPerObservationWeights( { Eigen::Vector2d( 4.0, 9.0 ), Eigen::Vector2d( 2.0, 6.0 ) } ),
+        constantBlockWeights( observationWeights ),
+        setBlockWeights( setWeights )
+    };
+    const std::vector< Eigen::Matrix2d > firstCovariances = { Eigen::Vector2d( 1.0 / 4.0, 1.0 / 9.0 ).asDiagonal( ),
+                                                              observationCovariance,
+                                                              Eigen::Vector2d( 2.0 / 7.0, 2.0 / 15.0 ).asDiagonal( ) };
+    const std::vector< Eigen::Matrix2d > secondCovariances = { Eigen::Vector2d( 1.0 / 2.0, 1.0 / 6.0 ).asDiagonal( ),
+                                                               observationCovariance,
+                                                               Eigen::Vector2d( 4.0 / 7.0, 1.0 / 5.0 ).asDiagonal( ) };
+    for( std::size_t i = 0; i < settings.size( ); ++i )
+    {
+        ObservationDataset<> dataset;
+        const unsigned int setId = dataset.addObservationSetWithWeights( angular_position,
+                                                                         createOneWayLinkDefinition( "Station1" ),
+                                                                         { Eigen::Vector2d::Ones( ), Eigen::Vector2d::Ones( ) },
+                                                                         { 1.0, 2.0 },
+                                                                         receiver,
+                                                                         settings.at( i ) );
+        const auto ids = dataset.getObservationIdsForSet( setId );
+        dataset.rejectObservations( ObservationSelectionCondition<>::timeBounds( 2.0, 2.0 ) );
+        const auto selected = dataset.createObservationVectorData( );
+        BOOST_CHECK_EQUAL( selected.getObservationVector( ).size( ), 2 );
+        dataset.rejectObservations( ObservationSelectionCondition<>::all( ) );
+        const auto allRejected = dataset.createObservationVectorData( );
+        BOOST_CHECK_EQUAL( allRejected.getObservationVector( ).size( ), 0 );
+        // Change the dataset before either snapshot has computed any covariance.
+        dataset.setWeightVectorForSet( setId, Eigen::Vector4d::Constant( 8.0 ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                selected.getInverseWeightMatrixForObservation( ids.front( ) ), firstCovariances.at( i ), 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                selected.getInverseWeightMatrixForObservation( ids.back( ) ), secondCovariances.at( i ), 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                allRejected.getInverseWeightMatrixForObservation( ids.back( ) ), secondCovariances.at( i ), 1.0E-14 );
+        // The ordinary estimation weights still contain only the retained observation's weight block.
+        const Eigen::Matrix2d selectedWeights = i == 1 ? observationWeights : Eigen::Vector2d( 4.0, 9.0 ).asDiagonal( ).toDenseMatrix( );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( selected.getSparseWeightMatrix( ).toDense( ), selectedWeights, 1.0E-15 );
+    }
+}
+
+//! Verify all weight getters expose the same effective matrix coefficients.
+BOOST_AUTO_TEST_CASE( test_weight_getters_return_the_effective_matrix )
+{
+    ObservationDataset<> dataset;
+    const unsigned int setId = dataset.addObservationSet( angular_position,
+                                                          createOneWayLinkDefinition( "Station1" ),
+                                                          { Eigen::Vector2d( 1.0, 2.0 ), Eigen::Vector2d( 3.0, 4.0 ) },
+                                                          { 1.0, 2.0 },
+                                                          receiver );
+    const auto ids = dataset.getObservationIdsForSet( setId );
+    const Eigen::Matrix4d setMatrix =
+            ( Eigen::Matrix4d( ) << 4.0, 0.1, 0.2, 0.3, 0.1, 5.0, 0.4, 0.5, 0.2, 0.4, 6.0, 0.6, 0.3, 0.5, 0.6, 7.0 ).finished( );
+    dataset.setWeightMatrixForSet( setId, setMatrix );
+    const Eigen::Matrix2d observationBlock = ( Eigen::Matrix2d( ) << 8.0, 0.7, 0.7, 9.0 ).finished( );
+    dataset.setWeightMatrixForObservation( ids.front( ), observationBlock );
+    dataset.setWeightBlock( { ids.back( ) }, { ids.back( ) }, Eigen::MatrixXd::Constant( 1, 1, 10.0 ), { 1 }, { 1 } );
+
+    Eigen::Matrix4d expected = setMatrix;
+    expected.topLeftCorner< 2, 2 >( ) = observationBlock;
+    expected( 3, 3 ) = 10.0;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.getWeightDiagonal( ObservationSelectionCondition<>::setId( setId ) ), expected.diagonal( ), 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getWeightValue( ids.back( ) ), expected.diagonal( ).tail( 2 ), 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getWeightMatrixForSet( setId ), expected, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
+}
 
 
 

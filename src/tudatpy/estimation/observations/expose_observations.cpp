@@ -545,6 +545,79 @@ int
     Id of the new observation set in this dataset.
 )doc" )
                 .def(
+                        "add_observation_set_with_weights",
+                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                            const tom::ObservableType observableType,
+                            const tom::LinkDefinition& linkDefinition,
+                            py::object observations,
+                            py::object times,
+                            const tom::LinkEndType referenceLinkEnd,
+                            const std::shared_ptr< tom::ObservationWeightSettings >& weightSettings,
+                            py::object dependentVariables,
+                            std::shared_ptr< tss::ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
+                            std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings,
+                            py::object residuals ) {
+                            const std::vector< TIME_TYPE > convertedTimes = castObservationTimeList< TIME_TYPE >( times, "times" );
+                            const int observationCount = static_cast< int >( convertedTimes.size( ) );
+                            return self.addObservationSetWithWeights(
+                                    observableType,
+                                    linkDefinition,
+                                    castObservationVectorList< STATE_SCALAR_TYPE >( observations, "observations", observationCount ),
+                                    convertedTimes,
+                                    referenceLinkEnd,
+                                    weightSettings,
+                                    castObservationVectorList< double >( dependentVariables, "dependent_variables", observationCount ),
+                                    dependentVariableBookkeeping,
+                                    ancillarySettings,
+                                    castObservationVectorList< STATE_SCALAR_TYPE >( residuals, "residuals", observationCount ) );
+                        },
+                        py::arg( "observable_type" ),
+                        py::arg( "link_definition" ),
+                        py::arg( "observations" ),
+                        py::arg( "times" ),
+                        py::arg( "reference_link_end" ),
+                        py::arg( "weight_settings" ),
+                        py::arg( "dependent_variables" ) = py::list( ),
+                        py::arg( "dependent_variable_bookkeeping" ) = nullptr,
+                        py::arg( "ancillary_settings" ) = nullptr,
+                        py::arg( "residuals" ) = py::list( ),
+                        R"doc(
+Function to add an observation set to the dataset, with weights defined by weight settings.
+
+Same as :meth:`add_observation_set`, but with the weights (which may include correlations between the components of an
+observation, or between the observations in the set) defined by an
+:class:`~tudatpy.data_input.tracking_data.ObservationWeightSettings` object (created e.g. with
+:func:`~tudatpy.data_input.tracking_data.set_block_weights`).
+
+Parameters
+----------
+observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+    Observable type of the observations.
+link_definition : tudatpy.estimation.observable_models_setup.links.LinkDefinition
+    Link ends of the observations.
+observations : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
+    Values of the observations (see :meth:`add_observation_set`).
+times : list[tudatpy.astro.time_representation.Time] or numpy.ndarray[numpy.float64[n]]
+    Times of the observations, in seconds since J2000 (TDB).
+reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
+    Link end at which the observation times are defined.
+weight_settings : tudatpy.data_input.tracking_data.ObservationWeightSettings
+    Settings defining the weights of the observations.
+dependent_variables : list[numpy.ndarray[numpy.float64[k, 1]]], default = []
+    Dependent variables, with one vector per observation (empty if none are provided).
+dependent_variable_bookkeeping : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableBookkeeping, default = None
+    Object defining which dependent variables are stored in ``dependent_variables``.
+ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, default = None
+    Ancillary settings of the observations.
+residuals : list[numpy.ndarray[numpy.float64[m, 1]]], default = []
+    Residuals, with one vector per observation. If empty, all residuals are set to 0.
+
+Returns
+-------
+int
+    Id of the new observation set.
+)doc" )
+                .def(
                         "set_observations_for_set",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
                             const unsigned int setId,
@@ -586,6 +659,178 @@ set_id : int
     Id of the observation set.
 residuals : list[numpy.ndarray[numpy.float64[m, 1]]] or numpy.ndarray[numpy.float64[n, m]]
     New residuals of the observations, in their order within the set.
+)doc" )
+                .def( "set_constant_single_observation_scalar_weight",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationScalarWeight,
+                      py::arg( "condition" ),
+                      py::arg( "weight" ),
+                      R"doc(
+Function to set the same weight for all components of the selected observations.
+
+Correlations between the components of a selected observation are removed; correlations between different
+observations are retained.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations.
+weight : float
+    Weight of each observation component.
+)doc" )
+                .def( "set_constant_single_observation_diagonal_weight",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationDiagonalWeight,
+                      py::arg( "condition" ),
+                      py::arg( "weight" ),
+                      R"doc(
+Function to set the same diagonal weights for all selected observations.
+
+Correlations between the components of a selected observation are removed; correlations between different
+observations are retained.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations.
+weight : numpy.ndarray[numpy.float64[m, 1]]
+    Weight of each observation component; its size must be equal to the number of components of the selected
+    observations.
+)doc" )
+                .def( "set_constant_single_observation_matrix_weight",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationMatrixWeight,
+                      py::arg( "condition" ),
+                      py::arg( "weight" ),
+                      R"doc(
+Function to set the same weight matrix for all selected observations.
+
+The weight matrix defines the weights of, and the correlations between, the components of each selected
+observation. Correlations between different observations are retained.
+
+Parameters
+----------
+condition : tudatpy.estimation.observations.ObservationSelectionCondition
+    Condition selecting the observations.
+weight : numpy.ndarray[numpy.float64[m, m]]
+    Symmetric weight matrix, with one row and column per observation component.
+)doc" )
+                .def( "set_weight_vector_for_set",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightVectorForSet,
+                      py::arg( "set_id" ),
+                      py::arg( "weight_vector" ),
+                      R"doc(
+Function to set diagonal weights for all observations in an observation set.
+
+Correlations between the observations in the set are removed; correlations with observations in other sets are
+retained.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+weight_vector : numpy.ndarray[numpy.float64[m, 1]]
+    Weight of each component of each observation in the set, concatenated in the order of the observations within
+    the set.
+)doc" )
+                .def( "set_weight_matrix_for_set",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightMatrixForSet,
+                      py::arg( "set_id" ),
+                      py::arg( "weight_matrix" ),
+                      R"doc(
+Function to set the weight matrix of an observation set, including the correlations between its observations.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+weight_matrix : numpy.ndarray[numpy.float64[m, m]]
+    Symmetric weight matrix, with one row and column per component of each observation in the set (in the order of
+    the observations within the set).
+)doc" )
+                .def( "has_weight_matrix_for_set",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasWeightMatrixForSet,
+                      py::arg( "set_id" ),
+                      R"doc(
+Function to check whether the weight matrix of an observation set contains correlations (off-diagonal entries).
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+bool
+    Whether the weight matrix of the set contains off-diagonal entries.
+)doc" )
+                .def( "set_weight_matrix_for_observation",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightMatrixForObservation,
+                      py::arg( "observation_id" ),
+                      py::arg( "weight_matrix" ),
+                      R"doc(
+Function to set the weight matrix of a single observation, including the correlations between its components.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+weight_matrix : numpy.ndarray[numpy.float64[m, m]]
+    Symmetric weight matrix, with one row and column per observation component.
+)doc" )
+                .def( "has_weight_matrix_for_observation",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasWeightMatrixForObservation,
+                      py::arg( "observation_id" ),
+                      R"doc(
+Function to check whether the weight matrix of a single observation contains correlations (off-diagonal entries).
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+bool
+    Whether the weight matrix of the observation contains off-diagonal entries.
+)doc" )
+                .def( "set_weight_block",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightBlock,
+                      py::arg( "row_observation_ids" ),
+                      py::arg( "column_observation_ids" ),
+                      py::arg( "weight_block" ),
+                      py::arg( "row_components" ) = std::vector< unsigned int >( ),
+                      py::arg( "column_components" ) = std::vector< unsigned int >( ),
+                      R"doc(
+Function to set a block of the weight matrix, for instance to define correlations between observations in
+different sets.
+
+The block defines the weights between the components of the observations in ``row_observation_ids`` (rows) and
+those of the observations in ``column_observation_ids`` (columns). The transposed block is set as well, so that the
+weight matrix remains symmetric; where the rows and columns overlap, the block must be consistent with this (to a
+relative accuracy of :math:`10^{-12}` of its largest entry). Each observation id may be given only once in each list.
+Weights that correlate observations in different sets cannot be used with the Carpino outlier rejection or the
+rejection of observations based on a sigma limit, which require the covariance of single observations.
+
+Parameters
+----------
+row_observation_ids : list[int]
+    Ids of the observations corresponding to the rows of the block.
+column_observation_ids : list[int]
+    Ids of the observations corresponding to the columns of the block.
+weight_block : numpy.ndarray[numpy.float64[m, n]]
+    Block of the weight matrix, with one row (column) per selected component of each row (column) observation.
+row_components : list[int], default = []
+    Indices of the components of each row observation that are included in the block. If empty, all components
+    are included.
+column_components : list[int], default = []
+    Same as ``row_components``, for the column observations.
+)doc" )
+                .def_property_readonly( "has_extra_weight_blocks",
+                                        &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasExtraWeightBlocks,
+                                        R"doc(
+**read-only**
+
+Whether the weight matrix of the dataset contains any off-diagonal entries (correlations).
+
+:type: bool
 )doc" )
                 .def(
                         "add_observations_to_set",
@@ -920,6 +1165,70 @@ Returns
 -------
 tudatpy.astro.time_representation.Time
     Time of the observation, in seconds since J2000 (TDB).
+)doc" )
+                .def( "weights_for_set",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsForSet,
+                      py::arg( "set_id" ),
+                      R"doc(
+Function to retrieve the diagonal weights of all observations in an observation set.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+list[numpy.ndarray[numpy.float64[m, 1]]]
+    Diagonal of the weight matrix of each observation, in their order within the set.
+)doc" )
+                .def( "weight_matrix_for_set",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrixForSet,
+                      py::arg( "set_id" ),
+                      R"doc(
+Function to retrieve the weight matrix of an observation set, including the correlations between its observations.
+
+Parameters
+----------
+set_id : int
+    Id of the observation set.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, m]]
+    Weight matrix, with one row and column per component of each observation in the set.
+)doc" )
+                .def( "weight_value",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightValue,
+                      py::arg( "observation_id" ),
+                      R"doc(
+Function to retrieve the diagonal weights of a single observation.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, 1]]
+    Diagonal of the weight matrix of the observation.
+)doc" )
+                .def( "weight_matrix_for_observation",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrixForObservation,
+                      py::arg( "observation_id" ),
+                      R"doc(
+Function to retrieve the weight matrix of a single observation, including the correlations between its components.
+
+Parameters
+----------
+observation_id : int
+    Id of the observation.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[m, m]]
+    Weight matrix, with one row and column per observation component.
 )doc" )
                 .def( "residuals_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsForSet,

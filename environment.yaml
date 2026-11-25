@@ -24,6 +24,7 @@ dependencies:
   - pybind11-stubgen
   # Python dependencies
   - numpy
+  - scipy
   - pytest
   - mypy
   - pandas

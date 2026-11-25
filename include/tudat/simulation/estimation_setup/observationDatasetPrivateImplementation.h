@@ -292,6 +292,20 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setResidualVa
     }
 }
 
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightValue( const unsigned int observationId,
+                                                                                   const Eigen::VectorXd& weight )
+{
+    const auto& row = getObservationRow( observationId );
+    if( weight.size( ) != static_cast< Eigen::Index >( row.scalarSize_ ) )
+    {
+        throw std::runtime_error( "Observation weight component size is inconsistent." );
+    }
+    completeWeightData_.reset( );
+    observationWeights_.setObservationDiagonal( row.firstScalarComponent_, weight );
+}
 
 template< typename ObservationScalarType,
           typename TimeType,
