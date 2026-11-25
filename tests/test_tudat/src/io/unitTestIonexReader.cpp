@@ -10,7 +10,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include "tudat/paths.hpp"
 #include "tudat/io/basicInputOutput.h"
 
 #include <boost/test/included/unit_test.hpp>

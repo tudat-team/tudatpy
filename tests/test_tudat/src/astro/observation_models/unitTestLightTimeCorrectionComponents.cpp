@@ -16,7 +16,24 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
+#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationOutput.h"
+#include "tudat/simulation/estimation_setup/observationOutputSettings.h"
+#include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/singleObservationSet.h"
 
 namespace tudat
 {

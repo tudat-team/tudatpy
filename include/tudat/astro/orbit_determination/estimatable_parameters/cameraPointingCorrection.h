@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/system_models/camera.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 

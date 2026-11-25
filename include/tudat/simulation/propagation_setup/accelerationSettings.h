@@ -16,15 +16,23 @@
 #include <iostream>
 #include <memory>
 
+#include <map>
+#include <string>
 #include <tuple>
-#include "tudat/astro/gravitation/centralGravityModel.h"
-#include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
-#include "tudat/astro/gravitation/thirdBodyPerturbation.h"
-#include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
+#include <vector>
+
+#include <Eigen/Core>
+
+#include "tudat/basics/basicTypedefs.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
-#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
-#include "tudat/io/serialization/core.h"
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/tuple.hpp>
+#include <cereal/types/vector.hpp>
 #include "tudat/io/serialization/file_io_declarations.h"
 
 // #include "tudat/math/interpolators/createInterpolator.h"

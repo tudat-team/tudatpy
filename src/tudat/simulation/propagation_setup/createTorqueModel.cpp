@@ -8,6 +8,14 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/astro/aerodynamics/aerodynamicTorque.h"
+#include "tudat/astro/aerodynamics/flightConditions.h"
+#include "tudat/astro/basic_astro/customTorque.h"
+#include "tudat/astro/electromagnetism/radiationPressureTorque.h"
+#include "tudat/astro/gravitation/fourthDegreeFullTwoBodyGravitationalTorque.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
+#include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
+#include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"

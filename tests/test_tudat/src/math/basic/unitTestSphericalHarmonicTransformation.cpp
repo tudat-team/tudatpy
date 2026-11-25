@@ -26,9 +26,23 @@
 
 #include "tudat/io/basicInputOutput.h"
 
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/sphericalHarmonicTransformations.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 
 namespace tudat
 {

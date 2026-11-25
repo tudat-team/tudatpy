@@ -20,10 +20,14 @@
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
-#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {
+
+namespace system_models
+{
+class VehicleSystems;
+}
 
 namespace ground_stations
 {
@@ -182,14 +186,7 @@ public:
      * Function to retrieve container object with hardware systems present on/in body.
      * \return Container object with hardware systems present on/in body.
      */
-    std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
-    {
-        if( vehicleSystems_ == nullptr )
-        {
-            vehicleSystems_ = std::make_shared< system_models::VehicleSystems >( );
-        }
-        return vehicleSystems_;
-    }
+    std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( );
 
     //! Function to set container object with hardware systems present on/in body
     /*!

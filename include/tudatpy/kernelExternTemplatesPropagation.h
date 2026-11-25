@@ -16,8 +16,11 @@
 
 #include "tudatpy/scalarTypes.h"
 #include "tudat/astro/propagators/getZeroProperModeRotationalInitialState.h"
-#include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudatpy/kernelExternTemplatesRelativisticTimeConverter.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/hybridArcDynamicsSimulator.h"
 
 namespace tudat
 {
@@ -70,16 +73,6 @@ getZeroProperModeRotationalStateWithStruct< TIME_TYPE, STATE_SCALAR_TYPE >(
         const bool propagateNominal );
 
 }  // namespace propagators
-
-namespace simulation_setup
-{
-
-extern template void setRelativisticTimeConverters< STATE_SCALAR_TYPE, TIME_TYPE >(
-        const SystemOfBodies& bodies,
-        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >&
-                converterSettings );
-
-}  // namespace simulation_setup
 
 }  // namespace tudat
 

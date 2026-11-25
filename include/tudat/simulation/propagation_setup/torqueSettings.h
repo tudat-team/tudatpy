@@ -11,7 +11,10 @@
 #ifndef TUDAT_TORQUESETTINGS_H
 #define TUDAT_TORQUESETTINGS_H
 
-#include "tudat/io/serialization/core.h"
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/memory.hpp>
 #include "tudat/io/serialization/file_io_declarations.h"
 
 #include "tudat/astro/basic_astro/torqueModelTypes.h"

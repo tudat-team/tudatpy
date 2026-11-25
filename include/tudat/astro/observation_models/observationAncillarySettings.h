@@ -23,12 +23,14 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/basic_astro/frequencyBands.h"
-#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/io/serialization/core.h"
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/vector.hpp>
 #include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat

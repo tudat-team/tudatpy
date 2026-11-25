@@ -11,13 +11,15 @@
 #ifndef TUDAT_CREATEMASSRATEMODELS_H
 #define TUDAT_CREATEMASSRATEMODELS_H
 
-#include <vector>
+#include <functional>
+#include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
-#include "tudat/astro/propulsion/massRateFromThrust.h"
 
 namespace tudat
 {

@@ -1,4 +1,7 @@
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#include "tudat/simulation/propagation_setup/propagationResults.h"
+#endif
 
 namespace tudat
 {

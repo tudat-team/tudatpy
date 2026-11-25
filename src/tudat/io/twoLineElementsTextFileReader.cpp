@@ -44,7 +44,6 @@
 
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/paths.hpp"
 #include "tudat/io/twoLineElementsTextFileReader.h"
 
 namespace tudat

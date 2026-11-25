@@ -6,7 +6,7 @@
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
-#include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#include "tudat/io/comaModelInputOutput.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 
 #include <deque>

@@ -8,9 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/ephemerides/frameManager.h"
+#include "tudat/astro/gravitation/thirdBodyPerturbation.h"
+#include "tudat/astro/propulsion/thrustAccelerationModel.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"

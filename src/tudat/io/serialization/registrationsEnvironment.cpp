@@ -10,7 +10,10 @@
 
 #include <cereal/types/polymorphic.hpp>
 
-#include "tudat/io/serialization/archives.h"
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
+
+#include "tudat/io/serialization/eigen.h"
 
 /**
  * @file registrationsEnvironment.cpp

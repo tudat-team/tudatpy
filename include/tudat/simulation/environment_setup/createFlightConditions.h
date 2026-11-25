@@ -16,12 +16,19 @@
 #include <string>
 #include <vector>
 
-#include "tudat/math/interpolators/multiLinearInterpolator.h"
-#include "tudat/astro/aerodynamics/flightConditions.h"
-#include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
-
 namespace tudat
 {
+
+namespace aerodynamics
+{
+class FlightConditions;
+class AtmosphericFlightConditions;
+}  // namespace aerodynamics
+
+namespace reference_frames
+{
+class AerodynamicAngleCalculator;
+}  // namespace reference_frames
 
 namespace simulation_setup
 {

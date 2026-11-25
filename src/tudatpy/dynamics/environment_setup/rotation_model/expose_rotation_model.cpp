@@ -15,7 +15,6 @@
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/createRotationModel.h>
-#include <tudat/simulation/environment_setup/defaultBodies.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>

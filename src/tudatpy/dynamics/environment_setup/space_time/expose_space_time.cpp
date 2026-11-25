@@ -14,7 +14,7 @@
 
 #include <pybind11/stl.h>
 #include <tudat/astro/relativity/metric.h>
-#include <tudat/simulation/environment_setup/createBodiesSettings.h>
+#include <tudat/simulation/environment_setup/spaceTimePropertiesSettings.h>
 #include <tudat/simulation/environment_setup/createMetric.h>
 
 namespace py = pybind11;

@@ -41,6 +41,8 @@ set(environment_HEADERS
         createCameras.h
         createRelativisticTimeConverter.h
         createRelativisticTimeConverterImplementation.h
+        relativisticTimeConverterSettings.h
+        spaceTimePropertiesSettings.h
         createMetric.h
         )
 

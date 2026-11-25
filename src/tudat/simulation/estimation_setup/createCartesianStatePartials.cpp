@@ -14,6 +14,8 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/groundStationLinearVelocity.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/displacementLoveNumber.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
+#include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {

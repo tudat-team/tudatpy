@@ -10,7 +10,8 @@
 
 #include <cereal/types/polymorphic.hpp>
 
-#include "tudat/io/serialization/archives.h"
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
 
 /**
  * @file registrationsEstimation.cpp
@@ -25,6 +26,7 @@
 
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#include "tudat/simulation/propagation_setup/propagationResults.h"
 
 // =====================================================================
 // ObservationDependentVariableSettings hierarchy  (observationOutputSettings.h)

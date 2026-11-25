@@ -21,18 +21,19 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/system_models/engineModel.h"
-#include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/basic_astro/frequencyBands.h"
 #include "tudat/astro/system_models/transponderTurnaroundRatios.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
-#include "tudat/astro/system_models/camera.h"
 
 namespace tudat
 {
 
 namespace system_models
 {
+
+class TimingSystem;
+class Camera;
 
 //! Wrapper class that contains the relevant hardware systems of a vehicle.
 /*!

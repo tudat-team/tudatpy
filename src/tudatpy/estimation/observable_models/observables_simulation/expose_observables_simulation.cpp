@@ -15,7 +15,6 @@
 #include <pybind11/functional.h>
 #include "scalarTypes.h"
 #include "tudat/astro/observation_models/observationManager.h"
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tom = tudat::observation_models;
 

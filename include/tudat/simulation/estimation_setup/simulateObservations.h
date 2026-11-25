@@ -684,12 +684,6 @@ removeLinkIdFromSimulatedObservations(
     return observationsWithoutLinkEndId;
 }
 
-std::map< double, Eigen::VectorXd > getTargetAnglesAndRange( const simulation_setup::SystemOfBodies& bodies,
-                                                             const std::pair< std::string, std::string > groundStationId,
-                                                             const std::string& targetBody,
-                                                             const std::vector< double > times,
-                                                             const bool transmittingToTarget );
-
 /*!
  * Creates observation simulation settings to be used when simulating observations consistent with an observed observation
  * collection.

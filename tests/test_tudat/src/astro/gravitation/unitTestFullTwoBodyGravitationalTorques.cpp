@@ -33,6 +33,8 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
+#include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
+#include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"

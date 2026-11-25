@@ -18,7 +18,7 @@
 #include <tudat/astro/aerodynamics/mcdAtmosphereModel.h>
 #include <tudat/simulation/environment_setup/createAtmosphereModel.h>
 #include <tudat/simulation/environment_setup/createClimateModel.h>
-#include <tudat/paths.hpp>
+#include <tudat/io/basicInputOutput.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>

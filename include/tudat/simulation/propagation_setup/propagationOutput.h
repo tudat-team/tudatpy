@@ -33,10 +33,12 @@
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #endif
 
 namespace tudat
@@ -109,16 +111,6 @@ OutputType evaluateTrivariateFunction(
 Eigen::VectorXd getNormsOfAccelerationDifferencesFromLists( const std::function< Eigen::VectorXd( ) > firstAccelerationFunction,
                                                             const std::function< Eigen::VectorXd( ) > secondAccelerationFunction );
 
-//! Funtion to get the size of a dependent variable save settings
-/*!
- * Funtion to get the size of a dependent variable save settings.
- * \param singleDependentVariableSaveSettings Save settings for a dependent variable.
- * \return Size of requested dependent variable to save (equal to the size of the associated dependent variable,
- * or equal to 1 if the property `component_` is set).
- */
-int getDependentVariableSaveSize( const std::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings,
-                                  const simulation_setup::SystemOfBodies& bodies );
-
 //! Funtion to get the size of a dependent variable
 /*!
  * Funtion to get the size (i.e. number of values in variable: one for altitude, three for position, etc.)
@@ -128,9 +120,6 @@ int getDependentVariableSaveSize( const std::shared_ptr< SingleDependentVariable
  */
 int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
                               const simulation_setup::SystemOfBodies& bodies );
-
-std::pair< int, int > getDependentVariableShape( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-                                                 const simulation_setup::SystemOfBodies& bodies );
 
 bool isScalarDependentVariable( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
                                 const simulation_setup::SystemOfBodies& bodies );

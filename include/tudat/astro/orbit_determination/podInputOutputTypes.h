@@ -38,10 +38,15 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
-#include "tudat/simulation/propagation_setup/propagationResults.h"
 
 namespace tudat
 {
+
+namespace propagators
+{
+template< typename StateScalarType, typename TimeType >
+class SimulationResults;
+}
 
 namespace simulation_setup
 {

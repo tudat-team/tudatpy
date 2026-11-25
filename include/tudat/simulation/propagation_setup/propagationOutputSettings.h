@@ -17,16 +17,28 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/io/serialization/core.h"
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/vector.hpp>
 #include "tudat/io/serialization/file_io_declarations.h"
-
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-#include "tudat/astro/orbit_determination/stateDerivativePartial.h"
-#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
-#endif
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+class SystemOfBodies;
+}  // namespace simulation_setup
+
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+namespace estimatable_parameters
+{
+class EstimatableParameterSettings;
+}  // namespace estimatable_parameters
+#endif
 
 namespace propagators
 {
@@ -1526,6 +1538,19 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
  *  \return String with dependent variable id.
  */
 std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+
+//! Funtion to get the size of a dependent variable save settings
+/*!
+ * Funtion to get the size of a dependent variable save settings.
+ * \param singleDependentVariableSaveSettings Save settings for a dependent variable.
+ * \return Size of requested dependent variable to save (equal to the size of the associated dependent variable,
+ * or equal to 1 if the property `component_` is set).
+ */
+int getDependentVariableSaveSize( const std::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings,
+                                  const simulation_setup::SystemOfBodies& bodies );
+
+std::pair< int, int > getDependentVariableShape( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+                                                 const simulation_setup::SystemOfBodies& bodies );
 
 //! @get_docstring(machNumberDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > machNumberDependentVariable( const std::string& associatedBody,

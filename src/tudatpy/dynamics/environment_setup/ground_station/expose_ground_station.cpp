@@ -19,13 +19,10 @@
 #include <pybind11/stl.h>
 // #include <pybind11/native_enum.h>
 #include <tudat/simulation/environment_setup/createGroundStations.h>
-#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
-#include <tudat/simulation/environment_setup/defaultBodies.h>
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tcc = tudat::coordinate_conversions;
-namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy
 {

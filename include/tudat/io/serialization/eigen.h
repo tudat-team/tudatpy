@@ -21,7 +21,7 @@
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
-#include "tudat/io/serialization/core.h"
+#include <cereal/cereal.hpp>
 
 namespace cereal
 {

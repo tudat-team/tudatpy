@@ -41,7 +41,7 @@
 #include "rigid_body/expose_rigid_body.h"
 #include "rotation_model/expose_rotation_model.h"
 #include "scalarTypes.h"
-#include "tudatpy/kernelExternTemplatesPropagation.h"
+#include "tudatpy/kernelExternTemplatesRelativisticTimeConverter.h"
 #include "shape/expose_shape.h"
 #include "shape_deformation/expose_shape_deformation.h"
 #include "space_time/expose_space_time.h"

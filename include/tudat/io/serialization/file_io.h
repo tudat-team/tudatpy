@@ -16,7 +16,10 @@
  * @brief Binary/JSON archive helpers, provenance-aware file I/O, and definition macros.
  */
 
-#include "tudat/io/serialization/archives.h"
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
+
+#include "tudat/io/serialization/eigen.h"
 #include "tudat/io/serialization/file_io_declarations.h"
 
 #include <tudat/config.hpp>

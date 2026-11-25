@@ -21,7 +21,6 @@
 #include "tudat/astro/basic_astro/missionGeometry.h"
 
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
-#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 

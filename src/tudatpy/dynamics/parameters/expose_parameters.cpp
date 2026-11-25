@@ -20,7 +20,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 
 namespace py = pybind11;
 namespace tep = tudat::estimatable_parameters;

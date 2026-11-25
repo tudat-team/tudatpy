@@ -25,7 +25,6 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/interface/sofa/earthOrientation.h"
-#include "tudat/paths.hpp"
 
 namespace tudat
 {
