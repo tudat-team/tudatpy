@@ -27,6 +27,14 @@ FIELDS = (
 )
 
 
+def get_data(dataset, *args, **kwargs):
+    """Retrieve all FIELDS with ObservationDataset.get_data, with the field names as keys."""
+    data = dataset.get_data(
+        *args, fields=[getattr(obs.ObservationDataField, field) for field in FIELDS], **kwargs
+    )
+    return {field.name: value for field, value in data.items()}
+
+
 def link(station):
     return links.LinkDefinition(
         {
@@ -85,8 +93,8 @@ def test_ordering_membership_alignment_and_weight_axes(ordering, selection_kind)
         condition = (query.time != 1) & ~(
             query.observation.abs_greater_than(19) & ~query.observation.abs_greater_than(22)
         )
-    original = dataset.get_data(fields=FIELDS)
-    data = dataset.get_data(condition, fields=FIELDS, ordering=ordering)
+    original = get_data(dataset)
+    data = get_data(dataset, condition, ordering=ordering)
     ids = data["observation_ids"]
     expected_sequence = [0, 1, 2, 3, 4, 5] if ordering == "internal" else [4, 2, 3, 5, 0, 1]
     selected_ids = dataset.get_observation_ids(condition)
@@ -147,7 +155,7 @@ def test_snapshots_survive_all_mutations_and_dataset_destruction(ordering, multi
     """Verify detached inspection results survive source mutation and destruction."""
     dataset, _ = dataset_with_mixed_rows()
     if multi:
-        saved = dataset.get_data(fields=FIELDS, ordering=ordering)
+        saved = get_data(dataset, ordering=ordering)
     else:
         saved = {field: getattr(dataset, "get_" + field)(ordering=ordering) for field in FIELDS}
     ids = saved["observation_ids"].copy()
@@ -273,7 +281,7 @@ def test_add_dependent_variable_to_selected_sets():
 def test_precise_times_and_empty_missing_fields(ordering):
     """Verify empty fields and high-precision epochs survive detached inspection."""
     dataset = obs.ObservationDataset()
-    data = dataset.get_data(fields=FIELDS, ordering=ordering)
+    data = get_data(dataset, ordering=ordering)
     assert all(
         data[field] == []
         for field in FIELDS
@@ -288,7 +296,7 @@ def test_precise_times_and_empty_missing_fields(ordering):
     dataset.add_observation_set(
         model_settings.one_way_range_type, link("A"), [[1], [2]], [t1, t0], links.receiver
     )
-    saved = dataset.get_data(fields=FIELDS, ordering=ordering)
+    saved = get_data(dataset, ordering=ordering)
     assert saved["times"] == [t1, t0]
     assert all(isinstance(t, Time) for t in saved["times"])
     assert saved["rows"][0]["time"] == t1

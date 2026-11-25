@@ -368,10 +368,8 @@ def test_corrections_are_deferred_and_preserve_source_data(gaia_astrometry, bodi
 
     for number in TEST_ASTEROID_MPC:
         condition = observations.observation_query.transmitter == links.LinkEndId(str(number), "")
-        raw_angles = np.asarray(raw.get_data(condition, fields=("observations",))["observations"])
-        corrected_angles = np.asarray(
-            corrected.get_data(condition, fields=("observations",))["observations"]
-        )
+        raw_angles = np.asarray(raw.get_observations(condition))
+        corrected_angles = np.asarray(corrected.get_observations(condition))
         expected = raw_angles + 3.0e-9
         expected[:, 0] = (expected[:, 0] + np.pi) % (2 * np.pi) - np.pi
         np.testing.assert_array_equal(corrected_angles, expected)
@@ -444,9 +442,10 @@ def test_converter_matches_existing_correction_formulas(gaia_astrometry, bodies)
     )
     for number in TEST_ASTEROID_MPC:
         condition = observations.observation_query.transmitter == links.LinkEndId(str(number), "")
-        source = raw.get_data(condition, fields=("times", "observations"))
-        angles = np.asarray(source["observations"])
-        inputs = np.column_stack(([float(epoch) for epoch in source["times"]], angles))
+        field = observations.ObservationDataField
+        source = raw.get_data(condition, fields=[field.times, field.observations])
+        angles = np.asarray(source[field.observations])
+        inputs = np.column_stack(([float(epoch) for epoch in source[field.times]], angles))
         expected = (
             angles
             + photocenter_correction_angular_observations(inputs, bodies, str(number), "Gaia")
@@ -455,7 +454,7 @@ def test_converter_matches_existing_correction_formulas(gaia_astrometry, bodies)
             )
         )
         expected[:, 0] = (expected[:, 0] + np.pi) % (2 * np.pi) - np.pi
-        actual = corrected.get_data(condition, fields=("observations",))["observations"]
+        actual = corrected.get_observations(condition)
         np.testing.assert_allclose(actual, expected, rtol=0.0, atol=1.0e-15)
     np.testing.assert_array_equal(
         raw.get_weight_matrix().toarray(), corrected.get_weight_matrix().toarray()

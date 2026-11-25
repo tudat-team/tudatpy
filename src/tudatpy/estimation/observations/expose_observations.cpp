@@ -179,75 +179,77 @@ py::dict inspectionMetadata( const InspectionDataset::InspectionMetadata& metada
     return result;
 }
 
+//! Types of data of the selected observations that are retrieved by ObservationDataset.get_data
+enum class ObservationDataField {
+    times,
+    observations,
+    residuals,
+    observation_ids,
+    set_ids,
+    rows,
+    dependent_variables,
+    scalar_components,
+    weight_diagonal,
+    weight_matrix,
+    metadata
+};
+
 py::dict inspectionData( const InspectionDataset& dataset,
                          const InspectionCondition& condition,
-                         const std::vector< std::string >& fields,
+                         const std::vector< ObservationDataField >& fields,
                          const std::string& ordering )
 {
     const auto order = inspectionOrdering( ordering );
     // Check the requested fields before retrieving any data.
-    const std::set< std::string > supported = { "times",   "observations",        "residuals",         "observation_ids", "set_ids",
-                                                "rows",    "dependent_variables", "scalar_components", "weight_diagonal", "weight_matrix",
-                                                "metadata" };
-    std::set< std::string > requested;
-    for( const auto& field : fields )
+    std::set< ObservationDataField > requested;
+    for( const auto field : fields )
     {
-        if( supported.count( field ) == 0 )
-        {
-            throw py::value_error( "Unknown observation field: " + field );
-        }
         if( !requested.insert( field ).second )
         {
-            throw py::value_error( "Duplicate observation field: " + field );
+            throw py::value_error( "Error when retrieving observation data, each field may be requested only once." );
         }
     }
     py::dict result;
-    for( const auto& field : fields )
+    for( const auto field : fields )
     {
-        if( field == "times" )
+        py::object value;
+        switch( field )
         {
-            result[ py::str( field ) ] = py::cast( dataset.getTimes( condition, order ) );
+            case ObservationDataField::times:
+                value = py::cast( dataset.getTimes( condition, order ) );
+                break;
+            case ObservationDataField::observations:
+                value = py::cast( dataset.getObservations( condition, order ) );
+                break;
+            case ObservationDataField::residuals:
+                value = py::cast( dataset.getResiduals( condition, order ) );
+                break;
+            case ObservationDataField::observation_ids:
+                value = py::cast( dataset.getObservationIds( condition, order ) );
+                break;
+            case ObservationDataField::set_ids:
+                value = py::cast( dataset.getSetIds( condition, order ) );
+                break;
+            case ObservationDataField::rows:
+                value = inspectionRows( dataset.getRows( condition, order ) );
+                break;
+            case ObservationDataField::dependent_variables:
+                value = py::cast( dataset.getDependentVariableValues( condition, order ) );
+                break;
+            case ObservationDataField::scalar_components:
+                value = py::cast( dataset.getScalarComponents( condition, order ) );
+                break;
+            case ObservationDataField::weight_diagonal:
+                value = py::cast( dataset.getWeightDiagonal( condition, order ) );
+                break;
+            case ObservationDataField::weight_matrix:
+                value = py::cast( dataset.getWeightMatrix( condition, order ) );
+                break;
+            case ObservationDataField::metadata:
+                value = inspectionMetadata( dataset.getMetadata( condition, order ) );
+                break;
         }
-        else if( field == "observations" )
-        {
-            result[ py::str( field ) ] = py::cast( dataset.getObservations( condition, order ) );
-        }
-        else if( field == "residuals" )
-        {
-            result[ py::str( field ) ] = py::cast( dataset.getResiduals( condition, order ) );
-        }
-        else if( field == "observation_ids" )
-        {
-            result[ py::str( field ) ] = py::cast( dataset.getObservationIds( condition, order ) );
-        }
-        else if( field == "set_ids" )
-        {
-            result[ py::str( field ) ] = py::cast( dataset.getSetIds( condition, order ) );
-        }
-        else if( field == "rows" )
-        {
-            result[ py::str( field ) ] = inspectionRows( dataset.getRows( condition, order ) );
-        }
-        else if( field == "dependent_variables" )
-        {
-            result[ py::str( field ) ] = py::cast( dataset.getDependentVariableValues( condition, order ) );
-        }
-        else if( field == "scalar_components" )
-        {
-            result[ py::str( field ) ] = py::cast( dataset.getScalarComponents( condition, order ) );
-        }
-        else if( field == "weight_diagonal" )
-        {
-            result[ py::str( field ) ] = py::cast( dataset.getWeightDiagonal( condition, order ) );
-        }
-        else if( field == "weight_matrix" )
-        {
-            result[ py::str( field ) ] = py::cast( dataset.getWeightMatrix( condition, order ) );
-        }
-        else if( field == "metadata" )
-        {
-            result[ py::str( field ) ] = inspectionMetadata( dataset.getMetadata( condition, order ) );
-        }
+        result[ py::cast( field ) ] = value;
     }
     return result;
 }
@@ -1304,6 +1306,37 @@ contains several (not used by other kinds of conditions).
                     },
                     R"doc(Raises an error, since conditions cannot be converted to a boolean: combine them with ``&``, ``|`` and ``~`` instead of ``and``, ``or`` and ``not``.)doc" );
 
+    py::enum_< ObservationDataField >( m,
+                                       "ObservationDataField",
+                                       R"doc(
+Enumeration of the types of data of the observations in an :class:`~tudatpy.estimation.observations.ObservationDataset`
+that are retrieved together with :meth:`~tudatpy.estimation.observations.ObservationDataset.get_data`. Each value
+corresponds to the ``get_...`` function of the dataset with the same name (e.g. ``times`` to ``get_times``).
+)doc" )
+            .value( "times", ObservationDataField::times, "Observation times (see ``ObservationDataset.get_times``)." )
+            .value( "observations",
+                    ObservationDataField::observations,
+                    "Observation values (see ``ObservationDataset.get_observations``)." )
+            .value( "residuals", ObservationDataField::residuals, "Observation residuals (see ``ObservationDataset.get_residuals``)." )
+            .value( "observation_ids",
+                    ObservationDataField::observation_ids,
+                    "Observation ids (see ``ObservationDataset.get_observation_ids``)." )
+            .value( "set_ids", ObservationDataField::set_ids, "Observation set ids (see ``ObservationDataset.get_set_ids``)." )
+            .value( "rows", ObservationDataField::rows, "Observation rows (see ``ObservationDataset.get_rows``)." )
+            .value( "dependent_variables",
+                    ObservationDataField::dependent_variables,
+                    "Dependent variables (see ``ObservationDataset.get_dependent_variables``)." )
+            .value( "scalar_components",
+                    ObservationDataField::scalar_components,
+                    "Observation id and component index of each scalar component (see ``ObservationDataset.get_scalar_components``)." )
+            .value( "weight_diagonal",
+                    ObservationDataField::weight_diagonal,
+                    "Diagonal of the weight matrix (see ``ObservationDataset.get_weight_diagonal``)." )
+            .value( "weight_matrix", ObservationDataField::weight_matrix, "Weight matrix (see ``ObservationDataset.get_weight_matrix``)." )
+            .value( "metadata",
+                    ObservationDataField::metadata,
+                    "Metadata of the observation sets (see ``ObservationDataset.get_metadata``)." );
+
     {
         py::class_< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
                     std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
@@ -1627,7 +1660,9 @@ dict[int, dict]
                 .def( "get_data",
                       &inspectionData,
                       py::arg_v( "condition", InspectionCondition::all( ), "observation_query.all" ),
-                      py::arg( "fields" ) = std::vector< std::string >{ "times", "observations" },
+                      py::arg_v( "fields",
+                                 std::vector< ObservationDataField >{ ObservationDataField::times, ObservationDataField::observations },
+                                 "[ObservationDataField.times, ObservationDataField.observations]" ),
                       py::arg( "ordering" ) = "internal",
                       R"doc(
 Function to retrieve several types of data of the selected observations at once.
@@ -1637,18 +1672,29 @@ Parameters
 condition : tudatpy.estimation.observations.ObservationSelectionCondition, default = observation_query.all
     Condition selecting the observations (see :data:`~tudatpy.estimation.observations.observation_query`). By default,
     all observations are selected, including rejected observations.
-fields : list[str], default = ["times", "observations"]
-    Data to retrieve, each given by the name of a ``get_...`` function of this class without the ``get_`` prefix:
-    ``"times"``, ``"observations"``, ``"residuals"``, ``"observation_ids"``, ``"set_ids"``, ``"rows"``,
-    ``"dependent_variables"``, ``"scalar_components"``, ``"weight_diagonal"``, ``"weight_matrix"`` or ``"metadata"``.
-    Each field may be given only once.
+fields : list[ObservationDataField], default = [ObservationDataField.times, ObservationDataField.observations]
+    Data to retrieve (see :class:`~tudatpy.estimation.observations.ObservationDataField`). Each field corresponds to the
+    ``get_...`` function of this class with the same name, and may be given only once.
 ordering : str, default = "internal"
     Order of the returned data, either ``"internal"`` or ``"estimation"`` (see :class:`ObservationDataset`).
 
 Returns
 -------
-dict[str, object]
+dict[ObservationDataField, object]
     Dictionary with the requested fields as keys, and the output of the corresponding ``get_...`` function as values.
+
+Examples
+--------
+.. code-block:: python
+
+    from tudatpy.estimation.observations import ObservationDataField, observation_query
+
+    data = observation_dataset.get_data(
+        observation_query.active,
+        fields=[ObservationDataField.times, ObservationDataField.residuals],
+        ordering="estimation",
+    )
+    residuals = data[ObservationDataField.residuals]
 )doc" )
                 .def(
                         "add_observation_set",
