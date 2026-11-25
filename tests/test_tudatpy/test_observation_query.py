@@ -149,17 +149,24 @@ def test_query_conditions_drive_snapshot_getters(sample_dataset):
     """Verify query conditions select aligned fields in detached snapshots."""
     query = observations.observation_query
     selection = (query.set_id == 1) | (query.time < 2.0)
+    field = observations.ObservationDataField
     data = sample_dataset.get_data(
         selection,
-        fields=("observations", "observation_ids", "set_ids", "rows", "scalar_components"),
+        fields=[
+            field.observations,
+            field.observation_ids,
+            field.set_ids,
+            field.rows,
+            field.scalar_components,
+        ],
         ordering="estimation",
     )
-    assert data["observation_ids"] == [0, 3, 4]
-    assert data["set_ids"] == [0, 1, 1]
-    assert data["rows"][1]["set_id"] == 1
-    np.testing.assert_array_equal(data["observations"][1], [1.0, 2.0])
-    np.testing.assert_array_equal(np.concatenate(data["observations"]), [10, 1, 2, 3, 4])
-    assert data["scalar_components"] == [(0, 0), (3, 0), (3, 1), (4, 0), (4, 1)]
+    assert data[field.observation_ids] == [0, 3, 4]
+    assert data[field.set_ids] == [0, 1, 1]
+    assert data[field.rows][1]["set_id"] == 1
+    np.testing.assert_array_equal(data[field.observations][1], [1.0, 2.0])
+    np.testing.assert_array_equal(np.concatenate(data[field.observations]), [10, 1, 2, 3, 4])
+    assert data[field.scalar_components] == [(0, 0), (3, 0), (3, 1), (4, 0), (4, 1)]
 
 
 def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sample_dataset):
@@ -458,7 +465,8 @@ def test_dataset_pickle_and_binary_file_round_trip(sample_dataset, tmp_path):
         assert restored.get_observation_ids(observation_query.rejected) == [1]
         assert restored.observation_row(1).rejection_reason == "test rejection"
         assert restored.get_numerical_observation_metadata("snr", [0, 2]) == [10.0, 20.0]
-        for name in ("times", "observations", "residuals"):
+        field = observations.ObservationDataField
+        for name in (field.times, field.observations, field.residuals):
             values = [restored.get_data(fields=[name])[name], dataset.get_data(fields=[name])[name]]
             restored_values, original_values = (
                 np.concatenate([np.atleast_1d(np.asarray(value, dtype=float)) for value in data])

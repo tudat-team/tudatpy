@@ -29,13 +29,14 @@ def test_sigma_rejection_selects_whole_event_and_leaves_other_sets_unchanged():
     dataset.set_residuals_for_set(0, [[2.5, 0], [0, -2.6], [1, 1]])
     query = observations.observation_query
     selected = query.receiver == links.LinkEndId("Earth", "")
-    before = dataset.get_data(fields=("residuals", "weight_matrix"))
+    field = observations.ObservationDataField
+    before = dataset.get_data(fields=[field.residuals, field.weight_matrix])
     dataset.reject_observations(selected, sigma_limit=5.0, reason="five sigma")
     assert dataset.get_observation_ids(query.rejected) == [1]
     assert dataset.observation_row(1).rejection_reason == "five sigma"
-    np.testing.assert_array_equal(dataset.get_residuals(), before["residuals"])
+    np.testing.assert_array_equal(dataset.get_residuals(), before[field.residuals])
     np.testing.assert_array_equal(
-        dataset.get_weight_matrix().toarray(), before["weight_matrix"].toarray()
+        dataset.get_weight_matrix().toarray(), before[field.weight_matrix].toarray()
     )
 
 
