@@ -53,10 +53,8 @@ def _dataset_repr(dataset):
         )
     if not observations_per_type:
         return "ObservationDataset (empty)"
-    times = [float(time) for time in dataset.get_data(fields=["times"])["times"]]
-    rejected = len(
-        dataset.get_data(ObservationSelectionCondition.rejected(), fields=["times"])["times"]
-    )
+    times = [float(time) for time in dataset.get_times()]
+    rejected = len(dataset.get_times(ObservationSelectionCondition.rejected()))
     lines = [
         f"ObservationDataset with {len(times)} observations ({rejected} rejected) in {len(metadata)} sets, "
         + (
