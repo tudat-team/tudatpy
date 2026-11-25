@@ -115,6 +115,27 @@ Observations in an :class:`~tudatpy.estimation.observations.ObservationDataset` 
    :annotation:
 
 
+.. _observation_collection_deprecated:
+
+Observation collections (deprecated)
+------------------------------------
+
+The :class:`~tudatpy.estimation.observations.ObservationCollection` (composed of a list of :class:`~tudatpy.estimation.observations.SingleObservationSet` objects, each of which stores observations of a common type, link ends, etc.) is deprecated, and replaced by the :class:`~tudatpy.estimation.observations.ObservationDataset`. The classes and functions below remain available for existing code. Observation collections are converted to and from an observation dataset with :func:`~tudatpy.estimation.observations.create_observation_dataset_from_collection` and :func:`~tudatpy.estimation.observations.create_observation_collection_from_dataset`. The observation sets in a collection are selected, filtered and split with the functionality in :ref:`observations_processing`.
+
+Functions
+^^^^^^^^^
+.. currentmodule:: tudatpy.estimation.observations
+
+.. autosummary::
+
+   create_observation_dataset_from_collection
+
+   create_observation_dataset_from_single_observation_set
+
+   create_observation_collection_from_dataset
+
+   create_single_observation_set_from_dataset
+
    create_single_observation_set
 
    create_filtered_observation_set
@@ -145,10 +166,14 @@ Observations in an :class:`~tudatpy.estimation.observations.ObservationDataset` 
    create_compressed_doppler_collection
 
 
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_collection
 
 .. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_single_observation_set
 
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_dataset
 
+.. autofunction:: tudatpy.estimation.observations.create_single_observation_set_from_dataset
 
 .. autofunction:: tudatpy.estimation.observations.create_single_observation_set
 

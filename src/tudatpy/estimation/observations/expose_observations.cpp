@@ -29,6 +29,7 @@
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"
 #include "expose_observations_bindings.h"
@@ -4529,12 +4530,127 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
     tudatpy::estimation::observations::expose_observations_io_bindings( m );
     tudatpy::estimation::observations::expose_observations_simulation_bindings( m );
 
-    m.def( "create_observation_collection_from_tracking_data",
-           &tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "tracking_data" ),
-           py::arg( "bodies" ),
-           py::arg( "apply_corrections" ) = false,
-           R"doc(
+    m.def(
+            "create_observation_dataset_from_single_observation_set",
+            []( const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >& observationSet ) {
+                return tom::createObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >( observationSet );
+            },
+            py::arg( "observation_set" ),
+            R"doc(
+Function to create an observation dataset from a (deprecated) single observation set.
+
+The :class:`~tudatpy.estimation.observations.SingleObservationSet` and
+:class:`~tudatpy.estimation.observations.ObservationCollection` classes are deprecated, and replaced by
+:class:`~tudatpy.estimation.observations.ObservationDataset`. This function copies the observations, times, weights, residuals, dependent variables and
+ancillary settings of the observation set into a new dataset. Observations that were filtered out of the set are not
+included.
+
+Parameters
+----------
+observation_set : tudatpy.estimation.observations.SingleObservationSet
+    Observation set to convert.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing a single observation set.
+)doc" );
+
+    m.def(
+            "create_observation_dataset_from_collection",
+            []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >& observationCollection ) {
+                return tom::createObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >( observationCollection );
+            },
+            py::arg( "observation_collection" ),
+            R"doc(
+Function to create an observation dataset from a (deprecated) observation collection.
+
+The :class:`~tudatpy.estimation.observations.SingleObservationSet` and
+:class:`~tudatpy.estimation.observations.ObservationCollection` classes are deprecated, and replaced by
+:class:`~tudatpy.estimation.observations.ObservationDataset`. This function copies the observations, times, weights, residuals, dependent variables and
+ancillary settings of each single observation set in the collection (in the order of
+:meth:`~tudatpy.estimation.observations.ObservationCollection.get_single_observation_sets`) into an observation set
+of a new dataset. Observations that were filtered out of the collection are not included.
+
+Parameters
+----------
+observation_collection : tudatpy.estimation.observations.ObservationCollection
+    Observation collection to convert.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing one observation set per single observation set of the collection.
+)doc" );
+
+    m.def(
+            "create_single_observation_set_from_dataset",
+            []( const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >& observationDataset,
+                const unsigned int setId ) {
+                return tom::createSingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >( observationDataset, setId );
+            },
+            py::arg( "observation_dataset" ),
+            py::arg( "set_id" ) = 0,
+            R"doc(
+Function to create a (deprecated) single observation set from an observation set in an observation dataset.
+
+The :class:`~tudatpy.estimation.observations.SingleObservationSet` and
+:class:`~tudatpy.estimation.observations.ObservationCollection` classes are deprecated, and replaced by
+:class:`~tudatpy.estimation.observations.ObservationDataset`. Only the diagonal of the weight matrix is transferred, so that any correlations are lost.
+The conversion is not possible if the observation set contains rejected observations; these can be removed with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.delete_rejected_observations`.
+
+Parameters
+----------
+observation_dataset : tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the observation set.
+set_id : int, default = 0
+    Id of the observation set to convert.
+
+Returns
+-------
+tudatpy.estimation.observations.SingleObservationSet
+    Single observation set containing a copy of the observations.
+)doc" );
+
+    m.def(
+            "create_observation_collection_from_dataset",
+            []( const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >& observationDataset ) {
+                return tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( observationDataset );
+            },
+            py::arg( "observation_dataset" ),
+            R"doc(
+Function to create a (deprecated) observation collection from an observation dataset.
+
+The :class:`~tudatpy.estimation.observations.SingleObservationSet` and
+:class:`~tudatpy.estimation.observations.ObservationCollection` classes are deprecated, and replaced by
+:class:`~tudatpy.estimation.observations.ObservationDataset`. Only the diagonal of the weight matrix is transferred, so that any correlations are lost.
+The conversion is not possible if the dataset contains rejected observations; these can be removed with
+:meth:`~tudatpy.estimation.observations.ObservationDataset.delete_rejected_observations`.
+
+Parameters
+----------
+observation_dataset : tudatpy.estimation.observations.ObservationDataset
+    Dataset to convert.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationCollection
+    Observation collection containing one single observation set per observation set of the dataset.
+)doc" );
+
+    m.def(
+            "create_observation_collection_from_tracking_data",
+            []( const std::vector< std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >& trackingData,
+                tss::SystemOfBodies& bodies,
+                const bool applyCorrections ) {
+                return tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        createObservationDatasetFromTrackingData( trackingData, bodies, applyCorrections ) );
+            },
+            py::arg( "tracking_data" ),
+            py::arg( "bodies" ),
+            py::arg( "apply_corrections" ) = false,
+            R"doc(
 
         Factory function to create an `ObservationCollection` from a list of `TrackingData` objects.
 

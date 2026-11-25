@@ -37,7 +37,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationCollectionConversion.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
 
 namespace tudat
@@ -81,6 +81,14 @@ public:
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > getObservationCollection( )
     {
         return observationCollection_;
+    }
+
+    void synchronizeLegacyResiduals( const observation_models::ObservationDataset< ObservationScalarType, TimeType >& observationDataset )
+    {
+        if( observationCollection_ != nullptr )
+        {
+            observation_models::writeObservationDatasetToCollection( observationDataset, observationCollection_ );
+        }
     }
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
