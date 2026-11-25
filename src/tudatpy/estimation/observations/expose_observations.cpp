@@ -46,6 +46,84 @@ namespace
 using InspectionDataset = tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >;
 using InspectionCondition = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >;
 
+std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > evaluateTrackingDataAngularCorrections(
+        const std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > >& trackingData,
+        const tss::SystemOfBodies& bodies,
+        const std::vector< TIME_TYPE >& epochsTdb )
+{
+    if( bodies.getFrameOrientation( ) != "J2000" )
+    {
+        throw std::runtime_error( "Angular observation corrections require a J2000 global frame orientation." );
+    }
+    if( bodies.getFrameOrigin( ) != "SSB" )
+    {
+        throw std::runtime_error( "Angular observation corrections require an SSB global frame origin." );
+    }
+    const auto& settings = *trackingData->getCorrectionSettings( )->getObservationCorrectionSettings( );
+    const auto linkEnds = tom::getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
+    const auto& target = linkEnds.at( tom::transmitter );
+    const auto& observer = linkEnds.at( tom::receiver );
+    if( !target.stationName_.empty( ) )
+    {
+        throw std::runtime_error( "Angular observation corrections require a body-centre transmitter." );
+    }
+    py::object observerReferenceName = py::none( );
+    if( !observer.stationName_.empty( ) )
+    {
+        observerReferenceName = py::str( observer.stationName_ );
+    }
+
+    const auto& sourceObservations = trackingData->getObservations( );
+    py::array_t< double > observations( { static_cast< py::ssize_t >( sourceObservations.size( ) ), py::ssize_t( 3 ) } );
+    auto values = observations.mutable_unchecked< 2 >( );
+    for( unsigned int i = 0; i < sourceObservations.size( ); ++i )
+    {
+        values( i, 0 ) = static_cast< double >( epochsTdb.at( i ) );
+        values( i, 1 ) = sourceObservations.at( i )( 0 );
+        values( i, 2 ) = sourceObservations.at( i )( 1 );
+    }
+
+    const auto module = py::module_::import( "tudatpy.estimation.observations.observation_corrections" );
+    Eigen::MatrixXd corrections = Eigen::MatrixXd::Zero( sourceObservations.size( ), 2 );
+    if( settings.photocenterCorrection_ )
+    {
+        corrections += module.attr( "photocenter_correction_angular_observations" )(
+                                     py::arg( "observations" ) = observations,
+                                     py::arg( "bodies" ) = py::cast( &bodies, py::return_value_policy::reference ),
+                                     py::arg( "body_name" ) = target.bodyName_,
+                                     py::arg( "observer_body_name" ) = observer.bodyName_,
+                                     py::arg( "observer_reference_name" ) = observerReferenceName )
+                               .cast< Eigen::MatrixXd >( );
+    }
+    if( !settings.lightDeflectionBodies_.empty( ) )
+    {
+        corrections += module.attr( "light_deflection_correction_angular_observations" )(
+                                     py::arg( "observations" ) = observations,
+                                     py::arg( "bodies" ) = py::cast( &bodies, py::return_value_policy::reference ),
+                                     py::arg( "body_name" ) = target.bodyName_,
+                                     py::arg( "observer_body_name" ) = observer.bodyName_,
+                                     py::arg( "observer_reference_name" ) = observerReferenceName,
+                                     py::arg( "perturbing_bodies_list" ) = settings.lightDeflectionBodies_ )
+                               .cast< Eigen::MatrixXd >( );
+    }
+    std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > result;
+    result.reserve( sourceObservations.size( ) );
+    for( Eigen::Index i = 0; i < corrections.rows( ); ++i )
+    {
+        result.push_back( corrections.row( i ).transpose( ).cast< STATE_SCALAR_TYPE >( ) );
+    }
+    return result;
+}
+
+std::shared_ptr< InspectionDataset > createObservationDatasetFromTrackingData(
+        const std::vector< std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >& trackingData,
+        tss::SystemOfBodies& bodies,
+        const bool applyCorrections )
+{
+    return tom::createObservationDatasetFromTrackingData< STATE_SCALAR_TYPE, TIME_TYPE >(
+            trackingData, bodies, applyCorrections, evaluateTrackingDataAngularCorrections );
+}
+
 tom::ObservationOrdering inspectionOrdering( const std::string& ordering )
 {
     if( ordering == "internal" )
@@ -2784,6 +2862,40 @@ tudatpy.estimation.observations.ObservationVectorData
 )doc" ) TUDATPY_DEF_PICKLE( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > )
                         TUDATPY_DEF_BINARY_IO( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > );
     }
+
+    m.def( "create_observation_dataset_from_tracking_data",
+           &createObservationDatasetFromTrackingData,
+           py::arg( "tracking_data" ),
+           py::arg( "bodies" ),
+           py::arg( "apply_corrections" ) = false,
+           R"doc(
+Function to create an observation dataset from a list of tracking data objects.
+
+Each entry of ``tracking_data`` (as produced e.g. by :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data`,
+:func:`~tudatpy.data_input.tracking_data.fdets.read_fdets_data`, or a custom reader) is converted into an observation
+set, with the observations sorted by time. The observation times are converted to TDB, using the position of the
+ground station in ``bodies`` (if available) for the time scale conversion. The weights and numerical metadata stored
+in the tracking data are transferred to the dataset.
+
+Parameters
+----------
+tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
+    List of tracking data objects to convert.
+bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+    System of bodies, used to retrieve the ground station positions for the time scale conversions, and to compute the
+    angular corrections (see ``apply_corrections``).
+apply_corrections : bool, default = False
+    Whether to apply the corrections stored in the tracking data to the observation values. If ``True``, the
+    corrections requested with
+    :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_observation_correction_settings` (light deflection and
+    photocenter offset) are also computed and applied, using the environment in ``bodies``. The tracking data objects
+    are not modified.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing one observation set per tracking data object.
+)doc" );
 
     // SINGLE OBSERVATION SET
 

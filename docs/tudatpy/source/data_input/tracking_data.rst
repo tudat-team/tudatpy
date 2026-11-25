@@ -11,8 +11,8 @@ objects, optionally with
 containing auxiliary information such as station frequency ramps or camera
 settings, as well as identifiers for passive radar reflectors. The tracking
 data can then be converted to an
-:class:`~tudatpy.estimation.observations.ObservationCollection` with
-:func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data`.
+:class:`~tudatpy.estimation.observations.ObservationDataset` with
+:func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
 Supplementary data that updates bodies, ground stations, or related environment
 objects is applied with
 :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
@@ -41,6 +41,77 @@ For more information on the tracking data architecture, see the `user guide <htt
 .. automodule:: tudatpy.data_input.tracking_data
    :members:
 
+User-defined numerical metadata
+-------------------------------
+
+:meth:`~tudatpy.data_input.tracking_data.TrackingData.add_numerical_observation_metadata`
+stores a user-defined numerical value for each observation, under a given name.
+These values are not used by the observation models, and are transferred to the
+:class:`~tudatpy.estimation.observations.ObservationDataset` by
+:func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.
+For instance, the Gaia reader stores the scan angle (in rad) of each observation
+under ``"along_scan_angle"``. The scan angles of the observations selected by a
+``condition`` are retrieved with::
+
+    observation_ids = dataset.get_observation_ids(condition, ordering="estimation")
+    scan_angles = dataset.get_numerical_observation_metadata("along_scan_angle", observation_ids)
+
+An error is raised if no value is stored for one of the selected observations, so
+the condition should select only Gaia observations.
+
+Tracking epoch bounds
+---------------------
+
+.. autofunction:: tudatpy.data_input.tracking_data.get_tracking_data_epoch_bounds
+
+Enumerations
+------------
+.. currentmodule:: tudatpy.data_input.tracking_data
+
+.. autosummary::
+
+   NamedWeightingMethod
+   ObservationBlockDefinition
+   BlockDeweightingRule
+
+.. autoclass:: tudatpy.data_input.tracking_data.NamedWeightingMethod
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ObservationBlockDefinition
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.BlockDeweightingRule
+   :members:
+
+Observation weight settings
+---------------------------
+.. currentmodule:: tudatpy.data_input.tracking_data
+
+These functions create :class:`ObservationWeightSettings` objects, which define the weights of the observations in a
+:class:`TrackingData` object (see :meth:`TrackingDataWeightSettings.set_observation_weight_settings`) or in an observation set
+of an :class:`~tudatpy.estimation.observations.ObservationDataset`.
+
+.. autosummary::
+
+   constant_scalar_weights
+   scalar_per_observation_weights
+   diagonal_per_observation_weights
+   constant_block_weights
+   block_per_observation_weights
+   set_block_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.constant_scalar_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.scalar_per_observation_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.diagonal_per_observation_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.constant_block_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.block_per_observation_weights
+
+.. autofunction:: tudatpy.data_input.tracking_data.set_block_weights
+
 Tracking data containers
 ------------------------
 .. currentmodule:: tudatpy.data_input.tracking_data
@@ -53,9 +124,25 @@ the same source that must be applied to the simulation environment.
 .. autosummary::
 
    TrackingData
+   TrackingDataWeightSettings
+   TrackingDataCorrectionSettings
+   ObservationWeightSettings
+   AngularObservationCorrectionSettings
    TrackingSupplementaryData
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingData
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.TrackingDataWeightSettings
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.TrackingDataCorrectionSettings
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ObservationWeightSettings
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.AngularObservationCorrectionSettings
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingSupplementaryData
