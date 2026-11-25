@@ -1379,6 +1379,53 @@ AccelerationSettings
 
      )doc" );
 
+    m.def( "marsden",
+           &tss::marsdenAcceleration,
+           py::arg( "A1" ),
+           py::arg( "A2" ),
+           py::arg( "A3" ),
+           py::arg( "alpha" ) = 0.1112620426,
+           py::arg( "r0" ) = 2.808,
+           py::arg( "m" ) = 2.15,
+           py::arg( "n" ) = 5.093,
+           py::arg( "k" ) = 4.6142,
+           py::arg( "tau" ) = 0.0,
+           R"doc(
+Create settings for the Marsden non-gravitational acceleration.
+
+The acceleration is defined in the RSW frame of the body w.r.t. the central body (Sun) as
+:math:`\mathbf{a}_{RSW} = [A_1, A_2, A_3]\, g(r)`, with
+:math:`g(r) = \alpha (r/r_0)^{-m} (1 + (r/r_0)^n)^{-k}` and :math:`r` the heliocentric distance in au,
+evaluated at :math:`t-\tau` using a linear motion approximation.
+
+Parameters
+----------
+A1 : float
+    Radial acceleration coefficient [m/s^2].
+A2 : float
+    Transverse acceleration coefficient [m/s^2].
+A3 : float
+    Normal acceleration coefficient [m/s^2].
+alpha : float, default=0.1112620426
+    Normalization constant of g(r).
+r0 : float, default=2.808
+    Scale distance of g(r) [au].
+m : float, default=2.15
+    Exponent m of g(r).
+n : float, default=5.093
+    Exponent n of g(r).
+k : float, default=4.6142
+    Exponent k of g(r).
+tau : float, default=0.0
+    Time offset between perihelion and peak activity [s].
+
+Returns
+-------
+MarsdenAccelerationSettings
+    Settings object for the Marsden acceleration.
+
+    )doc" );
+
     m.def( "yarkovsky",
            &tss::yarkovskyAcceleration,
            py::arg( "yarkovsky_parameter" ),

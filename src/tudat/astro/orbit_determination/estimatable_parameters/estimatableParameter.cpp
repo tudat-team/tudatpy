@@ -243,6 +243,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case arc_wise_exponential_atmosphere_scale_height:
             parameterDescription = "arc-wise scale height of exponential atmosphere model ";
             break;
+        case A1_parameter_marsden_acceleration:
+            parameterDescription = "A1 parameter of the Marsden acceleration model";
+            break;
+        case A2_parameter_marsden_acceleration:
+            parameterDescription = "A2 parameter of the Marsden acceleration model";
+            break;
+        case A3_parameter_marsden_acceleration:
+            parameterDescription = "A3 parameter of the Marsden acceleration model";
+            break;
+        case tau_parameter_marsden_acceleration:
+            parameterDescription = "tau parameter of the Marsden acceleration model";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -486,6 +498,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             break;
         case arc_wise_exponential_atmosphere_scale_height:
             isDoubleParameter = false;
+            break;
+        case A1_parameter_marsden_acceleration:
+            isDoubleParameter = true;
+            break;
+        case A2_parameter_marsden_acceleration:
+            isDoubleParameter = true;
+            break;
+        case A3_parameter_marsden_acceleration:
+            isDoubleParameter = true;
+            break;
+        case tau_parameter_marsden_acceleration:
+            isDoubleParameter = true;
             break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +

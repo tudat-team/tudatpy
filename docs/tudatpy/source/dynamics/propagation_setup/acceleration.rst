@@ -67,8 +67,6 @@ Functions
    yarkovsky
 
 
-
-
    rtg
 
    thrust_and_isp_from_custom_function
@@ -113,6 +111,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.thrust_from_all_engines
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.yarkovsky
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.marsden
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.rtg
 
@@ -167,6 +167,7 @@ Classes
 
 
 
+
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.AccelerationSettings
    :members:
 
@@ -199,3 +200,4 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.MomentumWheelDesaturationAccelerationSettings
    :members:
+
