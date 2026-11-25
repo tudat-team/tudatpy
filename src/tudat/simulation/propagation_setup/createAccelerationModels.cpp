@@ -52,6 +52,7 @@
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createOccultationModel.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/astro/basic_astro/marsdenAcceleration.h"
 
 namespace tudat
 {
@@ -1602,8 +1603,6 @@ std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > createMarsdenAcceler
                                                                                           marsdenAccelerationSettings->n_,
                                                                                           marsdenAccelerationSettings->k_,
                                                                                           marsdenAccelerationSettings->tau_ );
-        // std::bind( &Body::getState, bodyUndergoingAcceleration ),
-        //  std::bind( &Body::getState, bodyExertingAcceleration ) );
     }
 
     return accelerationModel;

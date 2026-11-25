@@ -33,6 +33,7 @@
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 #include "tudat/astro/system_models/rtgAccelerationModel.h"
+#include "tudat/astro/basic_astro/marsdenAcceleration.h"
 
 #include <stdexcept>
 
