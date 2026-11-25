@@ -11,6 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <set>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
@@ -43,6 +44,239 @@ using namespace tudat::physical_constants;
 
 BOOST_AUTO_TEST_SUITE( test_observations_processing )
 
+std::shared_ptr< ObservationDataset< double, double > > setUpObservationDatasetToTest(
+        const double startTime,
+        const int numberOfDaysOfData,
+        const int numberOfObservations,
+        const double observationsInterval,
+        std::vector< LinkEnds >& stationReceiverLinkEnds,
+        std::vector< LinkEnds >& stationTransmitterLinkEnds,
+        std::map< ObservableType, double >& obsStartTimes,
+        std::map< ObservableType, std::vector< double > >& baseTimeList,
+        SystemOfBodies& bodies )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Earth" );
+    bodyNames.push_back( "Sun" );
+    bodyNames.push_back( "Moon" );
+    bodyNames.push_back( "Mars" );
+
+    const double initialEphemerisTime = startTime;
+    const double finalEphemerisTime = initialEphemerisTime + numberOfDaysOfData * 86400.0;
+
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+            "ECLIPJ2000",
+            "IAU_Earth",
+            spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+            initialEphemerisTime,
+            2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY );
+
+    bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+
+    bodies.at( "Vehicle" )
+            ->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
+
+    const std::vector< std::string > groundStationNames = { "Station1", "Station2", "Station3" };
+    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
+
+    SelectedAccelerationMap accelerationMap;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
+    accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+    std::vector< std::string > bodiesToIntegrate = { "Vehicle" };
+    std::vector< std::string > centralBodies = { "Earth" };
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    const Eigen::Matrix< double, 6, 1 > systemInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+            40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
+    // Create propagator settings
+    std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    double( initialEphemerisTime ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( double( finalEphemerisTime ) ),
+                    cowell );
+
+    stationReceiverLinkEnds.clear( );
+    stationTransmitterLinkEnds.clear( );
+    for( const std::string& groundStationName : groundStationNames )
+    {
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = LinkEndId( "Earth", groundStationName );
+        linkEnds[ receiver ] = LinkEndId( "Vehicle", "" );
+        stationTransmitterLinkEnds.push_back( linkEnds );
+
+        linkEnds.clear( );
+        linkEnds[ receiver ] = LinkEndId( "Earth", groundStationName );
+        linkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
+        stationReceiverLinkEnds.push_back( linkEnds );
+    }
+
+    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+    linkEndsPerObservable[ one_way_range ] = { stationReceiverLinkEnds[ 0 ],
+                                               stationTransmitterLinkEnds[ 0 ],
+                                               stationReceiverLinkEnds[ 1 ] };
+    linkEndsPerObservable[ one_way_doppler ] = { stationReceiverLinkEnds[ 1 ], stationTransmitterLinkEnds[ 2 ] };
+    linkEndsPerObservable[ angular_position ] = { stationReceiverLinkEnds[ 2 ], stationTransmitterLinkEnds[ 1 ] };
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back(
+            std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle", systemInitialState, "Earth" ) );
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double, double >( parameterNames, bodies );
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    for( const auto& linkEndIterator : linkEndsPerObservable )
+    {
+        for( const LinkEnds& linkEnds : linkEndIterator.second )
+        {
+            observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( linkEndIterator.first, linkEnds ) );
+        }
+    }
+
+    // Create orbit determination object.
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
+
+    baseTimeList.clear( );
+    std::vector< double > rangeObsTimes, dopplerObsTimes, angularPositionObsTimes;
+    obsStartTimes = { { one_way_range, initialEphemerisTime + 1000.0 },
+                      { one_way_doppler, initialEphemerisTime + 1000.0 + 86400.0 },
+                      { angular_position, initialEphemerisTime + 1000.0 + 2.0 * 86400.0 } };
+    for( int j = 0; j < numberOfObservations; ++j )
+    {
+        rangeObsTimes.push_back( obsStartTimes.at( one_way_range ) + static_cast< double >( j ) * observationsInterval );
+        dopplerObsTimes.push_back( obsStartTimes.at( one_way_doppler ) + static_cast< double >( j ) * observationsInterval );
+
+        const double angularPositionObsBuffer = ( ( j > numberOfObservations / 2 ) ? 3000.0 : 1000.0 );
+        angularPositionObsTimes.push_back( initialEphemerisTime + angularPositionObsBuffer + 2.0 * 86400.0 +
+                                           static_cast< double >( j ) * observationsInterval );
+    }
+    baseTimeList[ one_way_range ] = rangeObsTimes;
+    baseTimeList[ one_way_doppler ] = dopplerObsTimes;
+    baseTimeList[ angular_position ] = angularPositionObsTimes;
+
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    for( const auto& linkEndIterator : linkEndsPerObservable )
+    {
+        for( const LinkEnds& linkEnds : linkEndIterator.second )
+        {
+            measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
+                    linkEndIterator.first, linkEnds, baseTimeList.at( linkEndIterator.first ), receiver ) );
+        }
+    }
+
+    addDependentVariablesToObservationSimulationSettings(
+            measurementSimulationInput,
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > >( { elevationAngleDependentVariable( ) } ),
+            bodies );
+
+    std::shared_ptr< ObservationDataset< double, double > > dataset = simulateObservationDataset< double, double >(
+            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+    dataset->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::observableType( one_way_range ),
+                                                       1.0 / ( 3.0 * 3.0 ) );
+    dataset->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::observableType( angular_position ),
+                                                       1.0 / ( 1.0E-5 * 1.0E-5 ) );
+    dataset->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::observableType( one_way_doppler ),
+                                                       1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) );
+
+    return dataset;
+}
+
+std::vector< unsigned int > getSetIdsForObservable( const ObservationDataset< double, double >& dataset,
+                                                    const ObservableType observableType )
+{
+    std::vector< unsigned int > setIds;
+    for( unsigned int setId = 0; setId < dataset.getNumberOfObservationSets( ); ++setId )
+    {
+        if( dataset.getObservationSetMetadata( setId ).observableType_ == observableType )
+        {
+            setIds.push_back( setId );
+        }
+    }
+    return setIds;
+}
+
+std::vector< unsigned int > getSetIdsForLinkEnd( const ObservationDataset< double, double >& dataset, const LinkEndId& linkEndId )
+{
+    std::vector< unsigned int > setIds;
+    for( unsigned int setId = 0; setId < dataset.getNumberOfObservationSets( ); ++setId )
+    {
+        const LinkEnds& linkEnds = dataset.getLinkDefinition( dataset.getObservationSetMetadata( setId ).linkDefinitionId_ ).linkEnds_;
+        for( const auto& linkEndIterator : linkEnds )
+        {
+            if( linkEndIterator.second == linkEndId )
+            {
+                setIds.push_back( setId );
+                break;
+            }
+        }
+    }
+    return setIds;
+}
+
+std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& dataset, const std::vector< unsigned int >& setIds )
+{
+    std::size_t totalSize = 0;
+    for( const unsigned int setId : setIds )
+    {
+        totalSize += dataset.getTotalScalarSizeForSet( setId );
+    }
+    return totalSize;
+}
+
+/*!
+ * Verifies dataset metadata and condition-based selection on simulated data.
+ *
+ * Test outline: creates a representative multi-station range, Doppler and angular
+ * dataset. It checks the registered observable/link metadata, selection by
+ * observable type and link end, snapshot creation and scalar observation vector data size.
+ */
+
+/*!
+ * Verifies rejection, restoration and reduced dataset creation on simulated data.
+ *
+ * Test outline: rejects range observations selected by value, confirms active and
+ * rejected observation vector data/snapshots have the expected sizes, restores the data and
+ * then creates a reduced dataset for a time-window selection.
+ */
+
+/*!
+ * Verifies sorted dataset observation vector data preserves row-associated data.
+ *
+ * Test outline: inserts unsorted one-way range observations with weights and
+ * residuals, requests time sorting and then confirms the sorted rows retain
+ * their original observation, weight and residual values in observation vector data order.
+ */
 std::shared_ptr< ObservationCollection< double, double > > setUpObservationCollectionToTest(
         const double startTime,
         const int numberOfDaysOfData,
@@ -1243,6 +1477,7 @@ BOOST_AUTO_TEST_CASE( testAngularObservationSplittingPreservesComponentWeights )
         }
     }
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

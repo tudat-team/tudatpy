@@ -67,6 +67,11 @@ set(estimation_HEADERS
         interArcStateContinuityConstraintSettings.h
         interArcContinuityConstraint.h
         compressDopplerObservationCollection.h
+        observationDataset.h
+        observationDatasetAccessorsImplementation.h
+        observationDatasetMutationImplementation.h
+        observationDatasetPrivateImplementation.h
+        observationDatasetRows.h
         )
 
 # Add header files.
