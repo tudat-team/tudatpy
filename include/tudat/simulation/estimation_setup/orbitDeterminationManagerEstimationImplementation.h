@@ -24,6 +24,7 @@
 #include "tudat/simulation/estimation_setup/interArcContinuityConstraint.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
+#include "tudat/simulation/estimation_setup/outlierRejection.h"
 
 namespace tudat
 {
@@ -67,10 +68,18 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
     const auto observationDataset = estimationInput->getObservationDataset( );
+    const std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > > outlierRejection =
+            createOutlierRejection< ObservationScalarType, TimeType >( estimationInput->getOutlierRejectionSettings( ),
+                                                                       observationDataset );
+    const bool applyOutlierRejection = ( outlierRejection != nullptr );
+    const auto carpinoSettings =
+            std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings >( estimationInput->getOutlierRejectionSettings( ) );
+
     // Get number of observations
     observation_models::ObservationVectorData< ObservationScalarType, TimeType > estimationData =
             observationDataset->createObservationVectorData( false );
     int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
+    const int initialNumberOfObservations = totalNumberOfObservations;
     for( int i = 0; i < totalNumberOfObservations; i++ )
     {
         if( !std::isfinite( static_cast< double >( estimationData.getObservationVector( )( i ) ) ) )
@@ -112,6 +121,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
             estimationData, weightsMatrixDiagonals, weightsMatrix, hasOffDiagonalWeights );
     // Declare variables to be returned (i.e. results from best iteration)
     double bestCostFunction = TUDAT_NAN;
+    double bestSelectionCostFunction = TUDAT_NAN;
+    std::vector< bool > bestRejectionStatus;
     double bestRmsResidual = TUDAT_NAN;
     ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
@@ -140,6 +151,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
 
     std::vector< Eigen::VectorXd > residualHistory;
     std::vector< ParameterVectorType > parameterHistory;
+    std::vector< typename EstimationOutput< ObservationScalarType, TimeType >::ActiveFlagsVector > activeFlagsPerIteration;
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration;
 
     // Inter-arc continuity-prior setup. Empty constraint list (the default) skips the feature entirely.
@@ -167,10 +179,49 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
     int bestIteration = -1;
     int numberOfIterations = 0;
 
+    // If an exception leaves the iteration loop, the rejection status of the observations is reset to that of the best iteration
+    // (or to that at the start of the estimation), so that the observation dataset is not left with that of an unfinished iteration
+    struct RejectionStatusGuard {
+        const std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > >& outlierRejection;
+        const int& bestIteration;
+        const std::vector< bool >& bestRejectionStatus;
+        const std::vector< bool > initialRejectionStatus;
+        ~RejectionStatusGuard( )
+        {
+            if( outlierRejection != nullptr && std::uncaught_exceptions( ) > 0 )
+            {
+                outlierRejection->resetRejectionStatus( bestIteration >= 0 ? bestRejectionStatus : initialRejectionStatus );
+            }
+        }
+    };
+    const RejectionStatusGuard rejectionStatusGuard{ outlierRejection,
+                                                     bestIteration,
+                                                     bestRejectionStatus,
+                                                     applyOutlierRejection ? outlierRejection->getRejectionStatus( )
+                                                                           : std::vector< bool >( ) };
 
     while( true )
     {
         oldParameterEstimate = newParameterEstimate;
+        const bool needsParameterCovariance = carpinoSettings && numberOfIterations >= carpinoSettings->getFirstIterationWithRejection( );
+
+        // Update the data of the observations that are used in the estimation: observations may have been rejected or
+        // recovered at the end of the previous iteration.
+        if( applyOutlierRejection && numberOfIterations > 0 )
+        {
+            estimationData = observationDataset->createObservationVectorData( false );
+            computationData = observationDataset->createObservationVectorData( true );
+            totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
+            if( totalNumberOfObservations == 0 )
+            {
+                outlierRejection->resetRejectionStatus( bestRejectionStatus );
+                throw std::runtime_error(
+                        "Error during parameter estimation, all observations have been rejected by the outlier "
+                        "rejection algorithm." );
+            }
+            retrieveObservationWeights< ObservationScalarType, TimeType >(
+                    estimationData, weightsMatrixDiagonals, weightsMatrix, hasOffDiagonalWeights );
+        }
 
         // Compute design matrices (for estimated and consider parameters) and residuals.
         // When saving residual history or applying outlier rejection, all observations are used and active rows extracted below.
@@ -360,6 +411,20 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
         ParameterVectorType parameterAddition = ( leastSquaresOutput.first.cwiseQuotient( estimatedParameterNormalizationTerms ) )
                                                         .template cast< ObservationScalarType >( );
 
+        // Compute the (unnormalized) covariance of the estimated parameters, which is only required by outlier
+        // rejection algorithms. It is computed here, since the normalized inverse covariance and the normalization
+        // terms are moved into the results of the best iteration further down.
+        Eigen::MatrixXd parameterCovariance;
+        if( needsParameterCovariance )
+        {
+            // Constraints add extra rows: invert first, then keep only the estimated parameters' covariance.
+            const Eigen::MatrixXd normalizedCovariance = leastSquaresOutput.second.inverse( );
+            parameterCovariance = normaliseUnnormaliseCovarianceMatrix(
+                    normalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ),
+                    normalizationTerms.segment( 0, numberEstimatedParameters_ ),
+                    false );
+        }
+
         if( estimationInput->iterationCallback_ )
         {
             estimationInput->iterationCallback_(
@@ -417,13 +482,27 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
         }
         // In deviation-based mode, best-iteration selection additionally includes the absolute a priori cost. Residual RMS
         // is unchanged so observation-only diagnostics remain meaningful.
+        // With outlier rejection, the number of observations that is used can differ per iteration. The best iteration is then
+        // selected using the observation (and inter-arc constraint) cost per used observation, scaled to the number of
+        // observations used in the first iteration.
+        const double selectionCostFunction = applyOutlierRejection
+                ? ( costFunction + interArcContribution.totalConstraintCost ) * static_cast< double >( initialNumberOfObservations ) /
+                                static_cast< double >( totalNumberOfObservations ) +
+                        aprioriCost
+                : costFunction + ( aprioriCost + interArcContribution.totalConstraintCost );
         costFunction += aprioriCost + interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 
         if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
         {
-            residualHistory.push_back( residuals.template cast< double >( ) );
+            residualHistory.push_back( computedResiduals.template cast< double >( ) );
+            typename EstimationOutput< ObservationScalarType, TimeType >::ActiveFlagsVector activeFlags( computedResiduals.rows( ) );
+            for( int row = 0; row < activeFlags.rows( ); row++ )
+            {
+                activeFlags( row ) = observationDataset->getObservationRow( computationData.getObservationIds( ).at( row ) ).isActive_;
+            }
+            activeFlagsPerIteration.push_back( activeFlags );
             if( numberOfIterations == 0 )
             {
                 parameterHistory.push_back( oldParameterEstimate );
@@ -458,9 +537,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
         }
 
         // If current iteration is better than previous one, update 'best' data.
-        if( costFunction < bestCostFunction || !( bestCostFunction == bestCostFunction ) )
+        if( selectionCostFunction < bestSelectionCostFunction || !( bestSelectionCostFunction == bestSelectionCostFunction ) )
         {
+            bestSelectionCostFunction = selectionCostFunction;
             bestCostFunction = costFunction;
+            if( applyOutlierRejection )
+            {
+                bestRejectionStatus = outlierRejection->getRejectionStatus( );
+            }
             bestRmsResidual = residualRms;
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
@@ -491,6 +575,25 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
             {
                 bestInterArcContinuityCost = interArcContribution.totalConstraintCost;
                 bestInterArcContinuityDiscrepancies = interArcContribution.perPairDiscrepancies;
+            }
+        }
+
+        // Update which observations are rejected, using the data of the current iteration. The observations that are
+        // rejected here are excluded from the next iteration, and rejected observations that are recovered here are
+        // included again.
+        if( applyOutlierRejection )
+        {
+            // The outlier rejection uses a dense design matrix: a sparse design matrix is converted, a dense one is moved
+            const Eigen::MatrixXd rejectionDesignMatrix =
+                    DesignMatrixTraits::to_dense( std::move( computedDesignMatrixEstimatedParameters ) );
+            const OutlierRejectionInput< ObservationScalarType, TimeType > outlierRejectionInput(
+                    numberOfIterations, computationData, computedResiduals, rejectionDesignMatrix, parameterCovariance, parameterAddition );
+            outlierRejection->updateRejectionStatus( outlierRejectionInput );
+
+            if( estimationInput->getPrintOutput( ) )
+            {
+                std::cout << "Number of rejected observations: " << outlierRejection->getNumberOfRejectedObservations( ) << " out of "
+                          << observationDataset->getNumberOfObservations( ) << std::endl;
             }
         }
 
@@ -528,6 +631,13 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
         {
             break;
         }
+    }
+
+    // Set the rejection status of the observations to that of the best iteration, to which the estimation output and the
+    // residuals in the observation dataset belong (the status was last updated for the iteration after the final one).
+    if( applyOutlierRejection && bestIteration >= 0 )
+    {
+        outlierRejection->resetRejectionStatus( bestRejectionStatus );
     }
 
     if( estimationInput->getPrintOutput( ) )
@@ -568,8 +678,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performEsti
                                                                                      exceptionDuringPropagation,
                                                                                      bestInterArcContinuityCost,
                                                                                      bestInterArcContinuityDiscrepancies,
+                                                                                     activeFlagsPerIteration,
                                                                                      bestWeightsMatrix );
     estimationOutput->setResidualTimes( utilities::staticCastVector< double, TimeType >( bestResidualTimes ) );
+    estimationOutput->setResidualHistoryObservationIds( computationData.getObservationIds( ) );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {

@@ -602,6 +602,7 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "apply_final_parameter_correction" ) = true,
                   py::arg( "apply_apriori_parameter_deviation" ) = false,
                   py::arg( "reset_parameters_to_best_iteration" ) = false,
+                  py::arg( "outlier_rejection_settings" ) = nullptr,
                   R"doc(
 
          Class constructor, using an :class:`~tudatpy.estimation.observations.ObservationDataset`.
@@ -657,6 +658,18 @@ void expose_estimation_analysis( py::module& m )
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
              Instance of the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` class, defining the data and other settings to be used for the estimation.
      )doc" )
+            .def_property( "outlier_rejection_settings",
+                           &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::getOutlierRejectionSettings,
+                           &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::setOutlierRejectionSettings,
+                           R"doc(
+
+         Settings for the algorithm that rejects (and recovers) outlying observations during the estimation, which is
+         applied once per iteration of the estimation. No outlier rejection is performed when this attribute is empty
+         (which is the default). Observations that are rejected during the estimation are marked as rejected in the
+         :class:`~tudatpy.estimation.observations.ObservationDataset` that was provided to this object.
+
+         :type: :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings`
+      )doc" )
             .def_readwrite( "iteration_callback",
                             &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::iterationCallback_,
                             R"doc(
@@ -1062,6 +1075,16 @@ void expose_estimation_analysis( py::module& m )
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
+            .def_property_readonly( "active_flags_per_iteration",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getActiveFlagsPerIterationMatrix,
+                                    R"doc(
+
+         **read-only**
+
+         Matrix of booleans denoting, for each entry of :attr:`residual_history`, whether the observation was used in the corresponding iteration (``False`` if it was rejected). This matrix has the same size and ordering as :attr:`residual_history`, of which the observation ids of the rows are given by :attr:`residual_history_observation_ids`.
+
+         :type: numpy.ndarray[numpy.bool_[m, n]]
+      )doc" )
             .def_property_readonly( "residual_times",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualTimes,
                                     R"doc(
@@ -1071,6 +1094,19 @@ void expose_estimation_analysis( py::module& m )
          Observation times corresponding to the entries of :attr:`final_residuals`, in the same order as :attr:`~tudatpy.estimation.observations.ObservationCollection.concatenated_times` of the observation collection used in the estimation (or the ``"estimation"`` order of the :class:`~tudatpy.estimation.observations.ObservationDataset`). If no observations are rejected, these also correspond to the rows of :attr:`residual_history`.
 
          :type: list[float]
+      )doc" )
+            .def_property_readonly( "residual_history_observation_ids",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualHistoryObservationIds,
+                                    R"doc(
+
+         **read-only**
+
+         Id of the observation in the :class:`~tudatpy.estimation.observations.ObservationDataset` (see
+         :meth:`~tudatpy.estimation.observations.ObservationDataset.get_observation_ids`) to which each row of
+         :attr:`residual_history` and :attr:`active_flags_per_iteration` belongs (an observation with several components,
+         such as an angular position, has one row per component).
+
+         :type: list[int]
       )doc" )
             .def_property_readonly( "parameter_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getParameterHistoryMatrix,
