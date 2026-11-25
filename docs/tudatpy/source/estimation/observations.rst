@@ -84,6 +84,8 @@ Classes
 
    ObservationSelectionConditionType
 
+   ObservationDataField
+
    ObservationVectorData
 
    ObservationSetMetadata
@@ -101,6 +103,9 @@ Classes
    :special-members: __init__
 
 .. autoclass:: tudatpy.estimation.observations.ObservationSelectionConditionType
+   :members:
+
+.. autoclass:: tudatpy.estimation.observations.ObservationDataField
    :members:
 
 .. autoclass:: tudatpy.estimation.observations.ObservationVectorData
