@@ -154,6 +154,13 @@ import tudatpy
 print(tudatpy.is_openmp_available())
 ```
 
+With OpenMP enabled, importing TudatPy sets `GOMP_SPINCOUNT=30000` if neither
+`GOMP_SPINCOUNT` nor `OMP_WAIT_POLICY` is already set. This GNU libgomp setting
+reduces wake-up overhead between short parallel loops and applies throughout
+the process. Set either variable before launching Python to choose your own
+wait policy. If another package has already initialized libgomp, the import
+default may have no effect. Gravity models still use one thread by default.
+
 ### Verify your Build
 
 #### Running `tudatpy` tests

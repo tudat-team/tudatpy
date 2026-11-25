@@ -1262,6 +1262,7 @@ class Builder:
                 self.python_source_dir,
                 mock_prefix / "tudatpy",
             )
+            shutil.copy(self.extension_source_dir / "_openmp_build.py", mock_prefix / "tudatpy")
             ext = ".pyd" if platform == "win32" else ".so"
             kernel_candidates = [self.extension_source_dir / f"kernel{ext}"]
             if platform == "win32":

@@ -1,6 +1,9 @@
 """Check the spherical harmonic gravity API and compare Mars propagation across thread counts."""
 
 import os
+import subprocess
+import sys
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -21,6 +24,36 @@ def test_backend_information():
     if expected is not None:
         assert expected in {"0", "1"}
         assert available == (expected == "1")
+
+
+@pytest.mark.parametrize(
+    ("spin_count", "wait_policy"),
+    [(None, None), ("123", None), (None, "PASSIVE")],
+)
+def test_libgomp_import_default(spin_count, wait_policy):
+    """Set the fallback before kernel import and preserve explicit settings."""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path(tudatpy.__file__).absolute().parent.parent)
+    for key, value in (("GOMP_SPINCOUNT", spin_count), ("OMP_WAIT_POLICY", wait_policy)):
+        if value is None:
+            env.pop(key, None)
+        else:
+            env[key] = value
+    expected_spin = spin_count
+    if spin_count is None and wait_policy is None and tudatpy.is_openmp_available():
+        expected_spin = "30000"
+    subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import os, sys, tudatpy; "
+            "assert 'tudatpy.kernel' not in sys.modules; "
+            f"assert os.getenv('GOMP_SPINCOUNT') == {expected_spin!r}; "
+            f"assert os.getenv('OMP_WAIT_POLICY') == {wait_policy!r}",
+        ],
+        env=env,
+        check=True,
+    )
 
 
 def test_sequential_default_and_existing_positional_arguments():
