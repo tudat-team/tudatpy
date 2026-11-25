@@ -309,7 +309,7 @@ jobs:
       if: always() && steps.build_kernel_non_windows.outcome != 'skipped'
       shell: bash
       run: |
-        warnings=$(grep 'warning:' build.log | grep -vE 'could not create compact unwind|^(ld: warning: *)+$' || true)
+        warnings=$(grep 'warning:' build.log | grep -vE 'could not create compact unwind|^(ld: warning: *)+(\[ *[0-9]+%\].*)?$' || true)
         if [ -n "$warnings" ]; then
           echo "::error::Compiler warnings found:"
           echo "$warnings" | sort -u
