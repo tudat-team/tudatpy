@@ -42,6 +42,37 @@ update_sources(dynamics sources)
 update_sources(estimation sources)
 update_sources(exceptions sources)
 
+# Explicit instantiations of the heavy <STATE_SCALAR_TYPE, TIME_TYPE> propagation/estimation
+# templates, each compiled once; the binding files declare them extern via
+# include/tudatpy/kernelExternTemplates*.h. Each group below is compiled as one unity source.
+set(kernel_instantiation_groups simulators propagation_functions variational observations estimation)
+set(kernel_instantiation_simulators
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationDynamicsSimulator.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationSingleArcDynamicsSimulator.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationMultiArcDynamicsSimulator.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationHybridArcDynamicsSimulator.cpp)
+set(kernel_instantiation_propagation_functions
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationPropagationFunctions.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationStateDerivativeModels.cpp)
+set(kernel_instantiation_variational
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationSingleArcVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationMultiArcVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationHybridArcVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationStateDerivativePartials.cpp)
+set(kernel_instantiation_observations
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationManager1.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationManager2.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationManager3.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationSimulators.cpp)
+set(kernel_instantiation_estimation
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationOrbitDeterminationManager.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationEstimationFunctions.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationParametersToEstimate.cpp)
+foreach (group ${kernel_instantiation_groups})
+    list(APPEND sources ${kernel_instantiation_${group}})
+endforeach ()
+
 YACMA_PYTHON_MODULE(kernel ${sources})
 
 if(TUDAT_BUILD_WITH_MCD_INTERFACE)
@@ -93,8 +124,27 @@ if (TUDAT_BUILD_WITH_PCH)
     endif ()
 endif ()
 
-# Disable unity build for binding target (each file exposes unique symbols)
-set_target_properties(kernel PROPERTIES UNITY_BUILD OFF)
+# These binding files only use the extern <STATE_SCALAR_TYPE, TIME_TYPE> instantiations; compiling
+# them as one unity source parses the propagation/estimation headers once instead of once per file.
+# Other binding sources are not merged.
+set(kernel_shared_propagation_sources
+    ${TUDATPY_SOURCE_DIR}/dynamics/parameters_setup/expose_parameters_setup.cpp
+    ${TUDATPY_SOURCE_DIR}/dynamics/propagation/expose_propagation_state_utilities.cpp
+    ${TUDATPY_SOURCE_DIR}/dynamics/simulator/expose_simulator_dynamics.cpp
+    ${TUDATPY_SOURCE_DIR}/dynamics/simulator/expose_simulator_variational.cpp
+    ${TUDATPY_SOURCE_DIR}/estimation/estimation_analysis/expose_estimation_analysis.cpp
+    ${TUDATPY_SOURCE_DIR}/estimation/estimation_analysis/expose_estimation_analysis_estimator.cpp
+    ${TUDATPY_SOURCE_DIR}/estimation/estimation_analysis/expose_estimation_analysis_ephemeris_fit.cpp
+    ${TUDATPY_SOURCE_DIR}/estimation/observations/expose_observations_simulation.cpp
+    ${TUDATPY_SOURCE_DIR}/estimation/observations_setup/observations_simulation_settings/expose_observations_simulation_settings_factory.cpp
+)
+set_target_properties(kernel PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
+set_source_files_properties(${kernel_shared_propagation_sources}
+    PROPERTIES UNITY_GROUP shared_propagation)
+foreach (group ${kernel_instantiation_groups})
+    set_source_files_properties(${kernel_instantiation_${group}}
+        PROPERTIES UNITY_GROUP instantiation_${group})
+endforeach ()
 
 # Include headers
 target_include_directories(kernel PUBLIC

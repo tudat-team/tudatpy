@@ -20,6 +20,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudatpy/kernelExternTemplatesEstimation.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
 namespace py = pybind11;
