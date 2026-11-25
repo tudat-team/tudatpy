@@ -6,6 +6,8 @@ __version__ = "1.1.0.dev5"
 
 import os as _os
 
+from ._openmp import is_openmp_available as is_openmp_available
+
 # Recent libgomp versions (e.g. conda-forge GCC 15) default to a spin count of 1 when OMP_WAIT_POLICY is unset, so OpenMP
 # worker threads go to sleep directly after each parallel region. The (opt-in) parallel spherical harmonic gravity uses
 # several short parallel regions per acceleration evaluation, for which waking the threads costs more than the work. Keep
@@ -13,10 +15,3 @@ import os as _os
 # This must be set before the kernel (and with it libgomp) is loaded.
 if "OMP_WAIT_POLICY" not in _os.environ and "GOMP_SPINCOUNT" not in _os.environ:
     _os.environ["GOMP_SPINCOUNT"] = "30000"
-
-
-def is_openmp_available() -> bool:
-    """Return whether the installed TudatPy kernel was built with OpenMP support."""
-    from . import kernel
-
-    return kernel.is_openmp_available()
