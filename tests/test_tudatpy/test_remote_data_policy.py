@@ -84,7 +84,7 @@ def test_http_service_outage_requires_remote_data_marker(
 
 
 @pytest.mark.parametrize(
-    "message", ("Error 503: service unavailable", "Service Unavailable", "429")
+    "message", ("Error 503: service unavailable", "Service Unavailable", "429", "OK")
 )
 def test_wrapped_http_service_outage_is_skipped(message):
     exception = RuntimeError("Error while querying Gaia archives")

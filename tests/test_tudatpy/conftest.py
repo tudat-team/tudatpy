@@ -47,15 +47,17 @@ def _is_connectivity_failure(exception):
         exception_message = str(exception)
         # Astroquery's TAP client omits the response object, so its gateway errors are identified
         # by their message. Gaia's TAP backend also returns "Error 500:\nnull" during outages, and
-        # "429" when rate-limiting: match these exact error bodies while leaving other HTTP 500
-        # errors without a response (including query errors) as failures.
+        # "429" when rate-limiting. During maintenance it serves an HTML page with status 200 instead
+        # of redirecting the job submission, which astroquery reports as "OK". Match these exact
+        # error bodies while leaving other HTTP 500 errors without a response (including query
+        # errors) as failures.
         return (
             (
                 exception.response is not None
                 and exception.response.status_code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
             )
             or any(message in exception_message for message in _GATEWAY_ERROR_MESSAGES)
-            or exception_message.split() in (["Error", "500:", "null"], ["429"])
+            or exception_message.split() in (["Error", "500:", "null"], ["429"], ["OK"])
         )
     if isinstance(exception, HTTPError):
         return exception.code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
