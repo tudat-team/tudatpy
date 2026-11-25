@@ -28,6 +28,7 @@ For more information on the tracking data architecture, see the `user guide <htt
    tracking_data/ades
    tracking_data/fdets
    tracking_data/generic_text_file
+   tracking_data/gaia
    tracking_data/ifms
    tracking_data/jpl_radar
    tracking_data/landmarks

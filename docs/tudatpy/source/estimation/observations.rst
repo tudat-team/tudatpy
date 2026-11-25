@@ -18,6 +18,7 @@ The :class:`~tudatpy.estimation.observations.ObservationCollection` and :class:`
 
    /estimation/observations/observations_geometry
    /estimation/observations/observations_processing
+   /estimation/observations/observation_corrections
 
 
 Functions
