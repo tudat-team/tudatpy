@@ -19,6 +19,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 #include <Eigen/Core>
@@ -113,19 +114,50 @@ MatrixType multiplyDesignMatrixByDiagonalWeightMatrix( const MatrixType& designM
     return diagonalOfWeightMatrix.asDiagonal( ) * designMatrix;
 }
 
+//! Function to multiply a (dense or sparse) matrix, or a vector, with one row per observation by the diagonal weights matrix
+/*!
+ * \param matrix Matrix or vector with one row per observation
+ * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
+ * \return matrix, premultiplied by square matrix with diagonalOfWeightMatrix as diagonal elements
+ */
+template< typename MatrixType >
+MatrixType multiplyByWeightMatrix( const MatrixType& matrix, const Eigen::VectorXd& diagonalOfWeightMatrix )
+{
+    return MatrixType( diagonalOfWeightMatrix.asDiagonal( ) * matrix );
+}
+
+//! Function to multiply a (dense or sparse) matrix, or a vector, with one row per observation by a full (sparse) weights matrix
+/*!
+ * \param matrix Matrix or vector with one row per observation
+ * \param weightMatrix Full observation weights matrix W, which may contain off-diagonal entries
+ * \return matrix, premultiplied by weightMatrix
+ */
+template< typename MatrixType >
+MatrixType multiplyByWeightMatrix( const MatrixType& matrix, const Eigen::SparseMatrix< double >& weightMatrix )
+{
+    if( weightMatrix.rows( ) != matrix.rows( ) || weightMatrix.cols( ) != matrix.rows( ) )
+    {
+        throw std::runtime_error( "Error when multiplying by weights matrix, sizes are incompatible." );
+    }
+
+    // Keep the weight matrix sparse when multiplying
+    return MatrixType( weightMatrix * matrix );
+}
+
 //! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 /*!
  * Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
  * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
- * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
+ * \param weights Observation weights: diagonal of the weights matrix (Eigen::VectorXd, assumes all weights to be
+ * uncorrelated), or full (sparse) weights matrix W (Eigen::SparseMatrix< double >)
  * \param inverseOfAPrioriCovarianceMatrix Inverse of a priori covariance matrix
  * (warning printed when exceeded)
  * \return Inverse of covariance matrix at current iteration
  */
-template< typename MatrixType >
+template< typename MatrixType, typename WeightType >
 MatrixType calculateInverseOfUpdatedCovarianceMatrix( const MatrixType& designMatrix,
-                                                      const typename from_eigen< MatrixType >::dense_vector_type& diagonalOfWeightMatrix,
+                                                      const WeightType& weights,
                                                       const MatrixType& inverseOfAPrioriCovarianceMatrix,
                                                       const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
                                                       const typename from_eigen< MatrixType >::dense_vector_type& constraintRightHandside =
@@ -135,8 +167,16 @@ MatrixType calculateInverseOfUpdatedCovarianceMatrix( const MatrixType& designMa
     using traits = typename from_eigen< MatrixType >::traits;
 
     // Information matrix, including a priori information
-    MatrixType inverseOfCovarianceMatrix =
-            inverseOfAPrioriCovarianceMatrix + designMatrix.transpose( ) * diagonalOfWeightMatrix.asDiagonal( ) * designMatrix;
+    MatrixType inverseOfCovarianceMatrix;
+    if constexpr( std::is_same_v< WeightType, Eigen::SparseMatrix< double > > )
+    {
+        inverseOfCovarianceMatrix =
+                inverseOfAPrioriCovarianceMatrix + designMatrix.transpose( ) * multiplyByWeightMatrix( designMatrix, weights );
+    }
+    else
+    {
+        inverseOfCovarianceMatrix = inverseOfAPrioriCovarianceMatrix + designMatrix.transpose( ) * weights.asDiagonal( ) * designMatrix;
+    }
 
     // Add constraints to inverse covariance matrix if required
     if( constraintMultiplier.rows( ) != 0 )
@@ -169,15 +209,14 @@ MatrixType calculateInverseOfUpdatedCovarianceMatrix( const MatrixType& designMa
  * w.r.t. the estimated and consider parameters, W the weights and C the consider covariance. The products are ordered such that
  * no matrix of the size of the design matrix is formed.
  */
-template< typename MatrixType >
+template< typename MatrixType, typename WeightType >
 Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
                                                                    const MatrixType& designMatrix,
-                                                                   const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                                   const WeightType& weights,
                                                                    const MatrixType& considerDesignMatrix,
                                                                    const Eigen::MatrixXd& considerCovariance )
 {
-    const MatrixType considerNormalMatrix =
-            designMatrix.transpose( ) * multiplyDesignMatrixByDiagonalWeightMatrix( considerDesignMatrix, diagonalOfWeightMatrix );
+    const MatrixType considerNormalMatrix = designMatrix.transpose( ) * multiplyByWeightMatrix( considerDesignMatrix, weights );
     Eigen::MatrixXd covarianceTimesConsiderNormalMatrix = normalisedCovarianceMatrix * considerNormalMatrix;
     return covarianceTimesConsiderNormalMatrix * considerCovariance * covarianceTimesConsiderNormalMatrix.transpose( );
 }
@@ -191,7 +230,8 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::
  * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param observationResiduals Difference between measured and simulated observations
- * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
+ * \param weights Observation weights: diagonal of the weights matrix (Eigen::VectorXd, assumes all weights to be
+ * uncorrelated), or full (sparse) weights matrix W (Eigen::SparseMatrix< double >)
  * \param inverseOfAPrioriCovarianceMatrix Inverse of a priori covariance matrix
  * (warning printed when exceeded)
  * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
@@ -201,11 +241,11 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::
  * the same normalized coordinates as the parameter correction
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
-template< typename MatrixType >
+template< typename MatrixType, typename WeightType >
 std::pair< typename from_eigen< MatrixType >::dense_vector_type, MatrixType > performLeastSquaresAdjustmentFromDesignMatrix(
         const MatrixType& designMatrix,
         const typename from_eigen< MatrixType >::dense_vector_type& observationResiduals,
-        const typename from_eigen< MatrixType >::dense_vector_type& diagonalOfWeightMatrix,
+        const WeightType& weights,
         const MatrixType& inverseOfAPrioriCovarianceMatrix,
         typename from_eigen< MatrixType >::value_type limitConditionNumberForWarning = 1.0E8,
         const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
@@ -227,12 +267,12 @@ std::pair< typename from_eigen< MatrixType >::dense_vector_type, MatrixType > pe
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
     {
         rightHandSide = designMatrix.transpose( ) *
-                ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals +
-                                                       designMatrixConsiderParameters * considerParametersDeviations ) );
+                multiplyByWeightMatrix< dense_vector_type >(
+                                observationResiduals + designMatrixConsiderParameters * considerParametersDeviations, weights );
     }
     else
     {
-        rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+        rightHandSide = designMatrix.transpose( ) * multiplyByWeightMatrix< dense_vector_type >( observationResiduals, weights );
     }
 
     const int nParams = static_cast< int >( designMatrix.cols( ) );
@@ -260,7 +300,7 @@ std::pair< typename from_eigen< MatrixType >::dense_vector_type, MatrixType > pe
     if( constraintMultiplier.rows( ) != 0 )
     {
         inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< MatrixType >(
-                designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
+                designMatrix, weights, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
 
         int numberOfConstraints = constraintMultiplier.rows( );
         int numberOfConstrainedParameters = constraintMultiplier.cols( );
@@ -270,8 +310,8 @@ std::pair< typename from_eigen< MatrixType >::dense_vector_type, MatrixType > pe
     }
     else
     {
-        inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< MatrixType >(
-                designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix );
+        inverseOfCovarianceMatrix =
+                calculateInverseOfUpdatedCovarianceMatrix< MatrixType >( designMatrix, weights, inverseOfAPrioriCovarianceMatrix );
     }
 
     // Soft-constraint additions (e.g. inter-arc continuity): inject into the parameter block of the LHS/RHS,
@@ -323,6 +363,38 @@ inline std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustme
     return performLeastSquaresAdjustmentFromDesignMatrix< Eigen::MatrixXd >( designMatrix,
                                                                              observationResiduals,
                                                                              diagonalOfWeightMatrix,
+                                                                             inverseOfAPrioriCovarianceMatrix,
+                                                                             limitConditionNumberForWarning,
+                                                                             constraintMultiplier,
+                                                                             constraintRightHandside,
+                                                                             designMatrixConsiderParameters,
+                                                                             considerParametersDeviations,
+                                                                             additionalNormalMatrix,
+                                                                             additionalRightHandSide,
+                                                                             aprioriParameterDeviation );
+}
+
+//! Function to perform an iteration least squares estimation, for dense matrices and a full (sparse) weights matrix
+/*!
+ * Same as the dense version above, with a full (sparse) observation weights matrix instead of its diagonal.
+ */
+inline std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::SparseMatrix< double >& weightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const double limitConditionNumberForWarning = 1.0E8,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ),
+        const Eigen::VectorXd& aprioriParameterDeviation = Eigen::VectorXd( 0 ) )
+{
+    return performLeastSquaresAdjustmentFromDesignMatrix< Eigen::MatrixXd >( designMatrix,
+                                                                             observationResiduals,
+                                                                             weightMatrix,
                                                                              inverseOfAPrioriCovarianceMatrix,
                                                                              limitConditionNumberForWarning,
                                                                              constraintMultiplier,

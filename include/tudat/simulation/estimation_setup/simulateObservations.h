@@ -13,11 +13,13 @@
 
 #include <memory>
 
+#include <deque>
 #include <functional>
 #include <cmath>
 
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
@@ -164,9 +166,8 @@ simulateObservationsWithCheck(
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
         const bool scaleAngularPositionNoise = false )
 {
-    std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
+    std::multimap< TimeType, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::VectorXd > > observations;
     std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulatedObservation;
-    std::vector< Eigen::VectorXd > dependentVariables;
 
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
@@ -183,16 +184,25 @@ simulateObservationsWithCheck(
         // Check if receiving station can view transmitting station.
         if( std::get< 1 >( simulatedObservation ) )
         {
-            // If viable, add observable and time to vector of simulated data.
-            observations.insert( { observationTimes[ i ], std::get< 0 >( simulatedObservation ) } );
-            dependentVariables.push_back( std::get< 2 >( simulatedObservation ) );
+            // If viable, add observable, time and dependent variables to (time-sorted) simulated data.
+            observations.insert(
+                    std::make_pair( observationTimes[ i ],
+                                    std::make_pair( std::get< 0 >( simulatedObservation ), std::get< 2 >( simulatedObservation ) ) ) );
         }
     }
 
-    // Return pair of simulated ranges and reception times.
-    return std::make_tuple( utilities::createVectorFromMultiMapValues( observations ),
-                            utilities::createVectorFromMultiMapKeys( observations ),
-                            dependentVariables );
+    // Return simulated observations, times and dependent variables, all sorted by time.
+    std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
+                std::vector< TimeType >,
+                std::vector< Eigen::VectorXd > >
+            simulatedObservations;
+    for( const auto& observation : observations )
+    {
+        std::get< 0 >( simulatedObservations ).push_back( observation.second.first );
+        std::get< 1 >( simulatedObservations ).push_back( observation.first );
+        std::get< 2 >( simulatedObservations ).push_back( observation.second.second );
+    }
+    return simulatedObservations;
 }
 
 //! Function to simulate observables, checking whether they are viable according to settings passed to this function
@@ -207,7 +217,7 @@ simulateObservationsWithCheck(
  *  \return Observations at given times (concatenated in an Eigen vector), with associated times and reference link end.
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >
 simulateObservationsWithCheckAndLinkEndIdOutput(
         const std::vector< TimeType >& observationTimes,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
@@ -231,7 +241,9 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
                                                                                                        dependentVariableCalculator,
                                                                                                        ancillarySettings,
                                                                                                        scaleAngularPositionNoise );
-    return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset =
+            std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
+    observationDataset->addObservationSet(
             observationModel->getObservableType( ),
             observationModel->getLinkEnds( ),
             std::get< 0 >( simulatedObservations ),
@@ -239,11 +251,15 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
             referenceLinkEnd,
             std::get< 2 >( simulatedObservations ),
             ( dependentVariableCalculator == nullptr ) ? nullptr : dependentVariableCalculator->getDependentVariableBookkeeping( ),
-            ancillarySettings );
+            ancillarySettings,
+            std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
+            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+            true );
+    return observationDataset;
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulatePerArcSingleObservationSet(
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > simulatePerArcSingleObservationSet(
         const std::shared_ptr< PerArcObservationSimulationSettings< TimeType > > observationsToSimulate,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const SystemOfBodies& bodies )
@@ -390,15 +406,20 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         }
     }
 
-    return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
-            observationModel->getObservableType( ),
-            observationModel->getLinkEnds( ),
-            observations,
-            observationTimes,
-            referenceLinkEnd,
-            observationsDependentVariables,
-            observationsToSimulate->getObservationDependentVariableBookkeeping( ),
-            ancillarySettings );
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset =
+            std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
+    observationDataset->addObservationSet( observationModel->getObservableType( ),
+                                           observationModel->getLinkEnds( ),
+                                           observations,
+                                           observationTimes,
+                                           referenceLinkEnd,
+                                           observationsDependentVariables,
+                                           observationsToSimulate->getObservationDependentVariableBookkeeping( ),
+                                           ancillarySettings,
+                                           std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
+                                           std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                           true );
+    return observationDataset;
 }
 
 //! Function to compute observations at times defined by settings object using a given observation model
@@ -411,13 +432,13 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
  *  \return Pair of observable values and observation time (with associated reference link end)
  */
 template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulateSingleObservationSet(
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > simulateSingleObservationSet(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationsToSimulate,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const SystemOfBodies& bodies )
 {
     // Delcare return type.
-    std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulatedObservations;
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > simulatedObservations;
     //! Function to create an list of obervation viability conditions for a single set of link ends
 
     std::function< Eigen::VectorXd( const double ) > noiseFunction = observationsToSimulate->getObservationNoiseFunction( );
@@ -476,7 +497,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
  *  (reference to link end defined in observationsToSimulate).
  */
 template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulateSingleObservationSet(
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > simulateSingleObservationSet(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationsToSimulate,
         const std::shared_ptr< observation_models::ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >
                 observationSimulator,
@@ -503,20 +524,37 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > simulateObservations(
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > simulateObservationDataset(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationsToSimulate,
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
                 observationSimulators,
         const SystemOfBodies bodies )
 {
-    // Declare return map.
-    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset =
+            std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
 
     // Iterate over all observables.
     for( unsigned int i = 0; i < observationsToSimulate.size( ); i++ )
     {
         observation_models::ObservableType observableType = observationsToSimulate.at( i )->getObservableType( );
         observation_models::LinkEnds linkEnds = observationsToSimulate.at( i )->getLinkEnds( ).linkEnds_;
+
+        // Empty tabulated groups carry metadata only. Keep their set positions
+        // without requiring a model, bodies or dependent-variable evaluation.
+        const auto tabulatedSettings =
+                std::dynamic_pointer_cast< TabulatedObservationSimulationSettings< TimeType > >( observationsToSimulate.at( i ) );
+        if( tabulatedSettings && tabulatedSettings->simulationTimes_.empty( ) )
+        {
+            observationDataset->addObservationSet( observableType,
+                                                   tabulatedSettings->getLinkEnds( ),
+                                                   {},
+                                                   {},
+                                                   tabulatedSettings->getReferenceLinkEndType( ),
+                                                   {},
+                                                   tabulatedSettings->getObservationDependentVariableBookkeeping( ),
+                                                   tabulatedSettings->getAncillarySettings( ) );
+            continue;
+        }
 
         int observationSize = observation_models::getObservableSize( observableType );
 
@@ -533,9 +571,10 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                 }
 
                 // Simulate observations for current observable and link ends set.
-                sortedObservations[ observableType ][ linkEnds ].push_back(
-                        simulateSingleObservationSet< ObservationScalarType, TimeType, 1 >(
-                                observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
+                observationDataset->addObservationSetFromDataset(
+                        *simulateSingleObservationSet< ObservationScalarType, TimeType, 1 >(
+                                observationsToSimulate.at( i ), derivedObservationSimulator, bodies ),
+                        0 );
                 break;
             }
             case 2: {
@@ -549,9 +588,10 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                 }
 
                 // Simulate observations for current observable and link ends set.
-                sortedObservations[ observableType ][ linkEnds ].push_back(
-                        simulateSingleObservationSet< ObservationScalarType, TimeType, 2 >(
-                                observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
+                observationDataset->addObservationSetFromDataset(
+                        *simulateSingleObservationSet< ObservationScalarType, TimeType, 2 >(
+                                observationsToSimulate.at( i ), derivedObservationSimulator, bodies ),
+                        0 );
                 break;
             }
             case 3: {
@@ -565,9 +605,10 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                 }
 
                 // Simulate observations for current observable and link ends set.
-                sortedObservations[ observableType ][ linkEnds ].push_back(
-                        simulateSingleObservationSet< ObservationScalarType, TimeType, 3 >(
-                                observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
+                observationDataset->addObservationSetFromDataset(
+                        *simulateSingleObservationSet< ObservationScalarType, TimeType, 3 >(
+                                observationsToSimulate.at( i ), derivedObservationSimulator, bodies ),
+                        0 );
 
                 break;
             }
@@ -576,14 +617,11 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                                           std::to_string( observationSize ) );
         }
     }
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection =
-            std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( sortedObservations );
-
-    return observationCollection;
+    return observationDataset;
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > setExistingObservations(
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > setExistingObservationDataset(
         const std::map< observation_models::ObservableType,
                         std::pair< observation_models::LinkEnds,
                                    std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
@@ -593,8 +631,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                 ancillarySettings = std::map< observation_models::ObservableType,
                                               std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > >( ) )
 {
-    // Declare return map.
-    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset =
+            std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
 
     // Iterate over all observables.
     for( auto itr : observationsInput )
@@ -619,23 +657,20 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             currentAncillarySettings = ancillarySettings.at( observableType );
         }
 
-        std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
-                std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
-                        observableType,
-                        linkEnds,
-                        observationsTimesAndValues.first,
-                        observationsTimesAndValues.second,
-                        referenceLinkEnd,
-                        std::vector< Eigen::VectorXd >( ),
-                        nullptr,
-                        currentAncillarySettings );
-
-        sortedObservations[ observableType ][ linkEnds ].push_back( observationSet );
+        observationDataset->addObservationSet( observableType,
+                                               linkEnds,
+                                               observationsTimesAndValues.first,
+                                               observationsTimesAndValues.second,
+                                               referenceLinkEnd,
+                                               std::vector< Eigen::VectorXd >( ),
+                                               nullptr,
+                                               currentAncillarySettings,
+                                               std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
+                                               std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                               true );
     }
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection =
-            std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( sortedObservations );
 
-    return observationCollection;
+    return observationDataset;
 }
 
 Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise( const std::function< double( const double ) > noiseFunction,
@@ -692,86 +727,69 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange( const simulation_se
 
 /*!
  * Creates observation simulation settings to be used when simulating observations consistent with an observed observation
- * collection.
+ * dataset.
  *
- * @param observedObservationCollection Observation collection of observed observations (i.e. from ODF file)
+ * @param observedObservationDataset Dataset of observed observations (i.e. from ODF file)
  * @return Observation simulation settings for simulated observations.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >
-getObservationSimulationSettingsFromObservations(
-        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection,
+getObservationSimulationSettingsFromObservationDataset(
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observedObservationDataset,
         const SystemOfBodies& bodies )
 {
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings;
 
-    std::map< observation_models::ObservableType,
-              std::map< observation_models::LinkEnds,
-                        std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > >
-            observationSetList = observedObservationCollection->getObservationsSets( );
-
-    for( auto observableTypeIterator = observationSetList.begin( ); observableTypeIterator != observationSetList.end( );
-         ++observableTypeIterator )
+    for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
     {
-        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
+        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
+                observedObservationDataset->getObservationSetMetadata( setId );
+        const std::shared_ptr< simulation_setup::TabulatedObservationSimulationSettings< TimeType > > singleSetSimulationSettings =
+                std::make_shared< simulation_setup::TabulatedObservationSimulationSettings< TimeType > >(
+                        metadata.observableType_,
+                        observedObservationDataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_,
+                        observedObservationDataset->getObservationTimesForSet( setId ),
+                        metadata.referenceLinkEnd_,
+                        std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+                        nullptr,
+                        observedObservationDataset->getAncillarySettings( metadata.ancillarySettingsId_ ) );
 
-        for( auto linkEndsIterator = observableTypeIterator->second.begin( ); linkEndsIterator != observableTypeIterator->second.end( );
-             ++linkEndsIterator )
+        const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping =
+                observedObservationDataset->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
+        if( dependentVariableBookkeeping != nullptr )
         {
-            observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
-            std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > >
-                    singleObservationSets = linkEndsIterator->second;
-
-            for( unsigned int i = 0; i < singleObservationSets.size( ); ++i )
+            // Deferred dependent variables (light-time correction components) get their size when they are computed
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
+                    dependentVariableBookkeeping->getDependentVariableSettings( );
+            const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& deferredSettings =
+                    dependentVariableBookkeeping->getDeferredSettings( );
+            dependentVariablesList.insert( dependentVariablesList.end( ), deferredSettings.begin( ), deferredSettings.end( ) );
+            if( dependentVariablesList.size( ) > 0 )
             {
-                std::shared_ptr< simulation_setup::TabulatedObservationSimulationSettings< TimeType > > singleSetSimulationSettings =
-                        std::make_shared< simulation_setup::TabulatedObservationSimulationSettings< TimeType > >(
-                                currentObservableType,
-                                currentLinkEnds,
-                                singleObservationSets.at( i )->getObservationTimes( ),
-                                singleObservationSets.at( i )->getReferenceLinkEnd( ),
-                                std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
-                                nullptr,
-                                singleObservationSets.at( i )->getAncillarySettings( ) );
-
-                // Add dependent variables
-                if( singleObservationSets.at( i )->getDependentVariableBookkeeping( ) != nullptr )
-                {
-                    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
-                            singleObservationSets.at( i )->getDependentVariableBookkeeping( )->getDependentVariableSettings( );
-                    if( dependentVariablesList.size( ) > 0 )
-                    {
-                        addDependentVariableToSingleObservationSimulationSettings< TimeType >( singleSetSimulationSettings,
-                                                                                               dependentVariablesList );
-                    }
-                }
-
-                observationSimulationSettings.push_back( singleSetSimulationSettings );
+                singleSetSimulationSettings->getObservationDependentVariableBookkeeping( )->addDependentVariables( dependentVariablesList );
             }
         }
+
+        observationSimulationSettings.push_back( singleSetSimulationSettings );
     }
 
     return observationSimulationSettings;
 }
 
-//! Function that simulates observations from a given observation collection (containing real observations), and computes the residuals and relevant observation dependent variables.
-//! The derived residuals and dependent variables are then appended to the observed observation collection.
+//! Function that simulates observations from a given observation dataset, and computes the residuals and relevant observation dependent variables.
+//! The derived residuals and dependent variables are then appended to the observed observation dataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 void computeResidualsAndDependentVariables(
-        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+        std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
                 observationSimulators,
         const SystemOfBodies& bodies )
 {
     // Retrieve observation simulation settings from observed observation collection and simulate observations
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observationCollection, bodies );
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > computedObservationCollection =
-            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
-
-    // Retrieve observation residuals and add them to the original observation collection
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals =
-            observationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
+            getObservationSimulationSettingsFromObservationDataset< ObservationScalarType, TimeType >( observationDataset, bodies );
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedObservationDataset =
+            simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
     std::map< observation_models::ObservableType,
               std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
@@ -782,61 +800,112 @@ void computeResidualsAndDependentVariables(
         observationSimulatorMap[ observationSimulator->getObservableType( ) ] = observationSimulator;
     }
 
-    // Wrap periodic observable residuals for each observation set.
-    for( auto observableIt : observationCollection->getObservationsSets( ) )
+    if( observationDataset->getNumberOfObservationSets( ) != computedObservationDataset->getNumberOfObservationSets( ) )
     {
-        if( !observation_models::isResidualWrappingRequired( observableIt.first ) )
+        throw std::runtime_error( "Error when computing observation residuals, simulated and observed set counts differ." );
+    }
+
+    for( unsigned int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
+    {
+        // Empty sets (e.g. left by create_new_and_keep) have no residuals, and need no observation simulator
+        if( observationDataset->getNumberOfObservationsForSet( setId ) == 0 )
         {
             continue;
         }
-
-        for( auto linkEndsIt : observableIt.second )
+        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& observedMetadata =
+                observationDataset->getObservationSetMetadata( setId );
+        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& computedMetadata =
+                computedObservationDataset->getObservationSetMetadata( setId );
+        if( observedMetadata.observableType_ != computedMetadata.observableType_ ||
+            observedMetadata.referenceLinkEnd_ != computedMetadata.referenceLinkEnd_ ||
+            observedMetadata.observableSize_ != computedMetadata.observableSize_ ||
+            !( observationDataset->getLinkDefinition( observedMetadata.linkDefinitionId_ ) ==
+               computedObservationDataset->getLinkDefinition( computedMetadata.linkDefinitionId_ ) ) )
         {
-            const observation_models::ResidualWrappingSettings residualWrappingSettings =
-                    observationSimulatorMap.at( observableIt.first )->getResidualWrappingSettings( linkEndsIt.first );
-            for( unsigned int setIndex = 0; setIndex < linkEndsIt.second.size( ); setIndex++ )
+            throw std::runtime_error( "Error when computing observation residuals, simulated and observed set metadata differ." );
+        }
+
+        const std::vector< TimeType > observedTimes = observationDataset->getObservationTimesForSet( setId );
+        const std::vector< TimeType > computedTimes = computedObservationDataset->getObservationTimesForSet( setId );
+        if( observedTimes.size( ) != computedTimes.size( ) )
+        {
+            throw std::runtime_error( "Error when computing observation residuals, simulated and observed row counts differ." );
+        }
+
+        std::map< TimeType, std::deque< std::size_t > > computedIndicesByTime;
+        for( std::size_t i = 0; i < computedTimes.size( ); ++i )
+        {
+            computedIndicesByTime[ computedTimes.at( i ) ].push_back( i );
+        }
+
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observedValues =
+                observationDataset->getObservationsForSet( setId );
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedValues =
+                computedObservationDataset->getObservationsForSet( setId );
+        const std::vector< Eigen::VectorXd > computedDependentVariables = computedObservationDataset->getDependentVariablesForSet( setId );
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals( observedTimes.size( ) );
+        std::vector< Eigen::VectorXd > reorderedDependentVariables;
+        if( !computedDependentVariables.empty( ) )
+        {
+            if( computedDependentVariables.size( ) != computedTimes.size( ) )
             {
-                const std::pair< int, int > observationIndices = observationCollection->getObservationSetStartAndSize( )
-                                                                         .at( observableIt.first )
-                                                                         .at( linkEndsIt.first )
-                                                                         .at( setIndex );
-                wrapObservationResiduals< ObservationScalarType >( residuals,
-                                                                   observationIndices,
-                                                                   observableIt.first,
-                                                                   linkEndsIt.second.at( setIndex )->getObservationsVector( ),
-                                                                   residualWrappingSettings );
+                throw std::runtime_error(
+                        "Error when computing observation residuals, simulated dependent-variable row count is inconsistent." );
+            }
+            reorderedDependentVariables.resize( observedTimes.size( ) );
+        }
+
+        for( std::size_t i = 0; i < observedTimes.size( ); ++i )
+        {
+            auto computedIndexIterator = computedIndicesByTime.find( observedTimes.at( i ) );
+            if( computedIndexIterator == computedIndicesByTime.end( ) || computedIndexIterator->second.empty( ) )
+            {
+                throw std::runtime_error( "Error when computing observation residuals, no simulated row has the observed epoch." );
+            }
+            const std::size_t computedIndex = computedIndexIterator->second.front( );
+            computedIndexIterator->second.pop_front( );
+            residuals.at( i ) = observedValues.at( i ) - computedValues.at( computedIndex );
+            if( !reorderedDependentVariables.empty( ) )
+            {
+                reorderedDependentVariables.at( i ) = computedDependentVariables.at( computedIndex );
             }
         }
-    }
 
-    observationCollection->setResiduals( residuals );
-
-    // Parse all observable types
-    for( auto observableIt : computedObservationCollection->getObservationsSets( ) )
-    {
-        // Parse all link ends
-        for( auto linkEndsIt : observableIt.second )
+        if( observation_models::isResidualWrappingRequired( observedMetadata.observableType_ ) )
         {
-            // Parse all single observation sets for given observable type and link ends
-            for( unsigned int setIndex = 0; setIndex < linkEndsIt.second.size( ); setIndex++ )
+            const observation_models::ResidualWrappingSettings residualWrappingSettings =
+                    observationSimulatorMap.at( observedMetadata.observableType_ )
+                            ->getResidualWrappingSettings(
+                                    observationDataset->getLinkDefinition( observedMetadata.linkDefinitionId_ ).linkEnds_ );
+            for( std::size_t i = 0; i < residuals.size( ); ++i )
             {
-                // Retrieve dependent variables for current single observation set
-                std::vector< Eigen::VectorXd > computedDependentVariables =
-                        linkEndsIt.second.at( setIndex )->getObservationsDependentVariables( );
-                if( computedDependentVariables.size( ) > 0 )
-                {
-                    if( computedDependentVariables.at( 0 ).size( ) > 0 )
-                    {
-                        // If dependent variables were computed for this observation set, add them to the corresponding single observation
-                        // set in the original observation collection
-                        observationCollection->getObservationsSets( )
-                                .at( observableIt.first )
-                                .at( linkEndsIt.first )
-                                .at( setIndex )
-                                ->setObservationsDependentVariables( computedDependentVariables );
-                    }
-                }
+                wrapObservationResiduals< ObservationScalarType >(
+                        residuals.at( i ),
+                        std::make_pair( 0, static_cast< int >( observedMetadata.observableSize_ ) ),
+                        observedMetadata.observableType_,
+                        observedValues.at( i ),
+                        residualWrappingSettings );
             }
+        }
+
+        // Restore the source row order after simulation, which sorts tabulated epochs for deterministic model evaluation.
+        observationDataset->setResidualsForSet( setId, residuals );
+        if( !reorderedDependentVariables.empty( ) )
+        {
+            // The layout of the computed dependent variables differs from that of the dataset if it contained deferred dependent
+            // variables (light-time correction components), which get their size when they are computed
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& computedBookkeeping =
+                    computedObservationDataset->getDependentVariableBookkeeping(
+                            computedObservationDataset->getObservationSetMetadata( setId ).dependentVariableLayoutId_ );
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& observedBookkeeping =
+                    observationDataset->getDependentVariableBookkeeping( observedMetadata.dependentVariableLayoutId_ );
+            if( computedBookkeeping != nullptr && observedBookkeeping != nullptr &&
+                computedBookkeeping->getTotalDependentVariableSize( ) != observedBookkeeping->getTotalDependentVariableSize( ) )
+            {
+                observationDataset->setDependentVariablesForSet( setId, std::vector< Eigen::VectorXd >( ) );
+                observationDataset->resetDependentVariableBookkeepingForSet( setId, computedBookkeeping->clone( ) );
+            }
+            observationDataset->setDependentVariablesForSet( setId, reorderedDependentVariables );
         }
     }
 }
@@ -855,9 +924,8 @@ Eigen::VectorXd getNumericalObservationTimePartial(
         upPerturbedObservationSimulationSettings.push_back(
                 perturbObservationTime< TimeType >( observationSimulationSettings.at( i ), timePerturbation ) );
     }
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-            computedUpperturbedObservationCollection =
-                    simulateObservations( upPerturbedObservationSimulationSettings, observationSimulators, bodies );
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedUpperturbedObservationDataset =
+            simulateObservationDataset( upPerturbedObservationSimulationSettings, observationSimulators, bodies );
 
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >
             downPerturbedObservationSimulationSettings;
@@ -866,12 +934,13 @@ Eigen::VectorXd getNumericalObservationTimePartial(
         downPerturbedObservationSimulationSettings.push_back(
                 perturbObservationTime< TimeType >( observationSimulationSettings.at( i ), -timePerturbation ) );
     }
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-            computedDownperturbedObservationCollection =
-                    simulateObservations( downPerturbedObservationSimulationSettings, observationSimulators, bodies );
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedDownperturbedObservationDataset =
+            simulateObservationDataset( downPerturbedObservationSimulationSettings, observationSimulators, bodies );
 
-    return ( computedUpperturbedObservationCollection->getObservationVector( ).template cast< double >( ) -
-             computedDownperturbedObservationCollection->getObservationVector( ).template cast< double >( ) ) /
+    return ( computedUpperturbedObservationDataset->createObservationVectorData( true ).getObservationVector( ).template cast< double >( ) -
+             computedDownperturbedObservationDataset->createObservationVectorData( true )
+                     .getObservationVector( )
+                     .template cast< double >( ) ) /
             ( 2.0 * timePerturbation );
 }
 
@@ -964,4 +1033,6 @@ void getResidualStatistics(
 }  // namespace simulation_setup
 
 }  // namespace tudat
+// Preserve the original include path for the base-branch simulation API.
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #endif  // TUDAT_SIMULATEOBSERVATIONS_H

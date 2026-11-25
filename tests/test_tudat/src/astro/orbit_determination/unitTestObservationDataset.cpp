@@ -156,6 +156,40 @@ BOOST_AUTO_TEST_CASE( test_dataset_storage_and_observation_vector_data )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationVectorData.getWeightVector( ), expectedWeights, 1.0E-15 );
 }
 
+//! Verify weighted design-matrix output applies sparse observation weights.
+BOOST_AUTO_TEST_CASE( test_weighted_design_matrix_output_uses_sparse_weights )
+{
+    Eigen::MatrixXd normalizedDesignMatrix( 2, 2 );
+    normalizedDesignMatrix << 1.0, 2.0, 3.0, 4.0;
+    Eigen::Matrix2d denseWeights;
+    denseWeights << 4.0, 1.0, 1.0, 3.0;
+    const Eigen::SparseMatrix< double > sparseWeights = denseWeights.sparseView( );
+    const Eigen::Vector2d diagonalWeights = denseWeights.diagonal( );
+    const Eigen::Vector2d normalizationTerms = Eigen::Vector2d::Ones( );
+
+    simulation_setup::CovarianceAnalysisOutput< double, double > covarianceOutput( normalizedDesignMatrix,
+                                                                                   diagonalWeights,
+                                                                                   normalizationTerms,
+                                                                                   Eigen::Matrix2d::Identity( ),
+                                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                                   Eigen::VectorXd::Zero( 0 ),
+                                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                                   false,
+                                                                                   0.0,
+                                                                                   std::vector< Eigen::VectorXd >( ),
+                                                                                   sparseWeights );
+
+    const Eigen::MatrixXd lowerWeightSquareRoot = Eigen::LLT< Eigen::MatrixXd >( denseWeights ).matrixL( );
+    const Eigen::MatrixXd expectedWeightedDesignMatrix = lowerWeightSquareRoot.transpose( ) * normalizedDesignMatrix;
+
+    BOOST_CHECK( covarianceOutput.hasFullWeightMatrix( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput.getWeightsMatrix( ).toDense( ), denseWeights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            std::get< Eigen::MatrixXd >( covarianceOutput.getNormalizedWeightedDesignMatrix( ) ), expectedWeightedDesignMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            std::get< Eigen::MatrixXd >( covarianceOutput.getUnnormalizedWeightedDesignMatrix( ) ), expectedWeightedDesignMatrix, 1.0E-15 );
+}
 
 /*!
  * Verifies empty-set behavior.
@@ -1245,6 +1279,64 @@ BOOST_AUTO_TEST_CASE( test_dataset_copies_own_mutable_metadata_and_support_self_
  * sparse weights, with a dense and with a sparse design matrix, and compares the returned parameter update and normal
  * matrix, and the covariance contribution of a consider parameter, against an independently assembled dense reference.
  */
+//! Verify least-squares adjustment uses a sparse full observation weight matrix.
+BOOST_AUTO_TEST_CASE( test_sparse_weighted_least_squares )
+{
+    Eigen::MatrixXd designMatrix( 3, 2 );
+    designMatrix << 1.0, 2.0, 3.0, -1.0, 0.5, 4.0;
+    Eigen::VectorXd residuals( 3 );
+    residuals << 0.2, -0.4, 0.7;
+
+    Eigen::SparseMatrix< double > sparseWeights( 3, 3 );
+    std::vector< Eigen::Triplet< double > > weightTriplets;
+    weightTriplets.emplace_back( 0, 0, 2.0 );
+    weightTriplets.emplace_back( 1, 1, 3.0 );
+    weightTriplets.emplace_back( 2, 2, 4.0 );
+    weightTriplets.emplace_back( 0, 2, 0.3 );
+    weightTriplets.emplace_back( 2, 0, 0.3 );
+    sparseWeights.setFromTriplets( weightTriplets.begin( ), weightTriplets.end( ) );
+
+    const Eigen::MatrixXd denseWeights = sparseWeights.toDense( );
+    const Eigen::MatrixXd expectedNormalMatrix = designMatrix.transpose( ) * denseWeights * designMatrix;
+    const Eigen::VectorXd expectedRightHandSide = designMatrix.transpose( ) * denseWeights * residuals;
+    const Eigen::VectorXd expectedParameterUpdate =
+            linear_algebra::solveSystemOfEquationsWithSvd( expectedNormalMatrix, expectedRightHandSide );
+
+    const std::pair< Eigen::VectorXd, Eigen::MatrixXd > sparseLeastSquaresOutput =
+            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
+                    designMatrix, residuals, sparseWeights, Eigen::MatrixXd::Zero( designMatrix.cols( ), designMatrix.cols( ) ) );
+
+    // Sparse-weight least squares must produce the same normal matrix and parameter update as the dense reference.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseLeastSquaresOutput.second, expectedNormalMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseLeastSquaresOutput.first, expectedParameterUpdate, 1.0E-15 );
+
+    // The same with a sparse design matrix (solved with sparse QR instead of SVD)
+    const Eigen::SparseMatrix< double > sparseDesignMatrix = designMatrix.sparseView( );
+    const std::pair< Eigen::VectorXd, Eigen::SparseMatrix< double > > sparseDesignMatrixOutput =
+            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix< Eigen::SparseMatrix< double > >(
+                    sparseDesignMatrix, residuals, sparseWeights, Eigen::SparseMatrix< double >( 2, 2 ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::MatrixXd( sparseDesignMatrixOutput.second ), expectedNormalMatrix, 1.0E-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseDesignMatrixOutput.first, expectedParameterUpdate, 1.0E-12 );
+
+    // Contribution of a consider parameter to the covariance, (P H^T W H_c) C (P H^T W H_c)^T, for dense and sparse design matrices
+    Eigen::MatrixXd considerDesignMatrix( 3, 1 );
+    considerDesignMatrix << 0.4, -1.5, 2.0;
+    const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Constant( 1, 1, 0.09 );
+    const Eigen::MatrixXd normalizedCovariance = expectedNormalMatrix.inverse( );
+    const Eigen::MatrixXd covarianceTimesConsiderNormalMatrix =
+            normalizedCovariance * designMatrix.transpose( ) * denseWeights * considerDesignMatrix;
+    const Eigen::MatrixXd expectedConsiderContribution =
+            covarianceTimesConsiderNormalMatrix * considerCovariance * covarianceTimesConsiderNormalMatrix.transpose( );
+
+    const Eigen::MatrixXd considerContribution = linear_algebra::calculateConsiderParametersCovarianceContribution(
+            normalizedCovariance, designMatrix, sparseWeights, considerDesignMatrix, considerCovariance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( considerContribution, expectedConsiderContribution, 1.0E-14 );
+
+    const Eigen::SparseMatrix< double > sparseConsiderDesignMatrix = considerDesignMatrix.sparseView( );
+    const Eigen::MatrixXd sparseConsiderContribution = linear_algebra::calculateConsiderParametersCovarianceContribution(
+            normalizedCovariance, sparseDesignMatrix, sparseWeights, sparseConsiderDesignMatrix, considerCovariance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseConsiderContribution, expectedConsiderContribution, 1.0E-14 );
+}
 
 //! Verify removing rows does not renumber surviving observation identities.
 BOOST_AUTO_TEST_CASE( test_removal_preserves_observation_identity )
@@ -1471,7 +1563,65 @@ BOOST_AUTO_TEST_CASE( test_observation_vector_data_snapshots_and_repeated_residu
     BOOST_CHECK_EQUAL( dataset.getResidualValue( 0 )( 0 ), 3.0 );
 }
 
+//! Verify design matrices use active mixed-dimension observations in estimation order.
+BOOST_AUTO_TEST_CASE( test_time_ordered_design_matrix_uses_active_mixed_dimension_vector_data )
+{
+    auto dataset = std::make_shared< ObservationDataset<> >( );
+    const auto link = createOneWayLinkDefinition( "Station1" );
+    dataset->addObservationSet(
+            angular_position, link, { Eigen::Vector2d( 1.0, 2.0 ), Eigen::Vector2d( 3.0, 4.0 ) }, { 1.0, 2.0 }, receiver );
+    dataset->addObservationSet( one_way_range, link, { Eigen::Vector1d::Constant( 5.0 ) }, { 3.0 }, receiver );
+    dataset->rejectObservations( ObservationSelectionCondition<>::timeBounds( 2.0, 2.0 ) );
+    // Legacy observable ordering puts range first; time ordering puts the angular components first.
+    Eigen::Matrix< double, 3, 1 > design;
+    design << 50.0, 10.0, 20.0;
+    std::vector< int > timeOrder;
+    const auto sorted = simulation_setup::getTimeOrderedDesignMatrix( dataset, design, timeOrder );
+    Eigen::Vector3d expected( 10.0, 20.0, 50.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sorted.first, expected, 1.0E-15 );
+    const std::vector< double > expectedTimes = { 1.0, 1.0, 3.0 };
+    BOOST_CHECK_EQUAL_COLLECTIONS( sorted.second.begin( ), sorted.second.end( ), expectedTimes.begin( ), expectedTimes.end( ) );
+}
 
+//! Verify that the covariance as a function of time uses the full weights matrix, with rows and columns ordered by time.
+BOOST_AUTO_TEST_CASE( test_covariance_history_with_off_diagonal_weights )
+{
+    auto dataset = std::make_shared< ObservationDataset<> >( );
+    dataset->addObservationSet( one_way_range,
+                                createOneWayLinkDefinition( "Station1" ),
+                                { Eigen::Vector1d::Zero( ), Eigen::Vector1d::Zero( ), Eigen::Vector1d::Zero( ) },
+                                { 3.0, 1.0, 2.0 },
+                                receiver );
+    Eigen::Matrix3d weights;
+    weights << 4.0, 1.0, 0.5, 1.0, 3.0, 0.25, 0.5, 0.25, 2.0;
+    const Eigen::SparseMatrix< double > sparseWeights = weights.sparseView( );
+    const Eigen::VectorXd diagonal = weights.diagonal( );
+    const Eigen::MatrixXd design = Eigen::Vector3d( 1.0, 2.0, 3.0 );
+    const Eigen::VectorXd normalization = Eigen::Vector1d::Constant( 2.0 );
+    const Eigen::MatrixXd prior = Eigen::MatrixXd::Identity( 1, 1 );
+
+    // Expected covariance is 1 / ( 4 * H^T W H + 1 ), with H and W restricted to the observations up to the output time
+    const auto history = simulation_setup::calculateCovarianceUsingDataUpToEpoch(
+            dataset, design, normalization, std::vector< double >{ 1.0, 2.0, 3.0 }, sparseWeights, prior );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 1.0 )( 0, 0 ), 1.0 / 49.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 2.0 )( 0, 0 ), 1.0 / 133.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( history.at( 3.0 )( 0, 0 ), 1.0 / 177.0, 1.0E-14 );
+
+    auto input = std::make_shared< simulation_setup::EstimationInput<> >( dataset, prior );
+    auto output = std::make_shared< simulation_setup::EstimationOutput<> >( Eigen::Vector1d::Zero( ),
+                                                                            Eigen::Vector3d::Zero( ),
+                                                                            design,
+                                                                            diagonal,
+                                                                            normalization,
+                                                                            Eigen::MatrixXd::Constant( 1, 1, 44.25 ),
+                                                                            0.0,
+                                                                            0 );
+    output->weightsMatrix_ = sparseWeights;
+    const auto outputHistory = simulation_setup::calculateCovarianceUsingDataUpToEpoch( input, output, std::vector< double >{ 3.0 } );
+    const auto timeStepHistory = simulation_setup::calculateCovarianceUsingDataUpToEpoch( input, output, 1.0 );
+    BOOST_CHECK_CLOSE_FRACTION( outputHistory.at( 3.0 )( 0, 0 ), 1.0 / 177.0, 1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( timeStepHistory.at( 2.0 )( 0, 0 ), 1.0 / 133.0, 1.0E-14 );
+}
 
 //! Verify inspection getters preserve ordering, alignment, and weight correlations.
 BOOST_AUTO_TEST_CASE( test_inspection_ordering_alignment_and_correlations )

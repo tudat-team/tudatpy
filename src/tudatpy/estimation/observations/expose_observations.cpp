@@ -174,6 +174,18 @@ py::dict inspectionData( const InspectionDataset& dataset,
     return result;
 }
 
+void computeDatasetResiduals(
+        const std::shared_ptr< InspectionDataset >& observationDataset,
+        const std::vector< std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >& observationSimulators,
+        const tss::SystemOfBodies& bodies )
+{
+    if( observationDataset == nullptr )
+    {
+        throw std::runtime_error( "Error when computing residuals and dependent variables for dataset, input dataset is None." );
+    }
+    tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >( observationDataset, observationSimulators, bodies );
+}
+
 Eigen::VectorXd castObservationSelectionConditionVectorLimit( const py::object& value )
 {
     Eigen::VectorXd limit;
@@ -4692,29 +4704,94 @@ tudatpy.estimation.observations.ObservationCollection
             :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data` or a custom reader.
         )doc" );
 
+    m.def(
+            "compute_residuals_and_dependent_variables",
+            []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > observationCollection,
+                const std::vector< std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                        observationSimulators,
+                const tss::SystemOfBodies& bodies ) {
+                tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        observationCollection, observationSimulators, bodies );
+            },
+            py::arg( "observation_collection" ),
+            py::arg( "observation_simulators" ),
+            py::arg( "bodies" ),
+            R"doc(
+Computes residuals and dependent variables for a given observation collection.
+
+This function simulates observations based on the settings of the input `observation_collection`
+(which typically contains real data). It then computes the residuals by subtracting the
+simulated observations from the original observations. The computed residuals and any
+observation-dependent variables are then stored in the input `observation_collection`.
+
+Parameters
+----------
+observation_collection : tudatpy.estimation.observations.ObservationCollection
+    The collection of observations for which to compute residuals and dependent variables.
+    This object is modified in-place.
+observation_simulators : list[tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator]
+    List of observation simulators to be used for computing the observations.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    The system of bodies required for the observation simulation.
+)doc" );
+
+    m.def( "observation_simulation_settings_from_dataset",
+           &tss::getObservationSimulationSettingsFromObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observation_dataset" ),
+           py::arg( "bodies" ),
+           R"doc(
+Function to create observation simulation settings matching the observable types, link ends and times of the
+observations in an observation dataset.
+
+One set of (tabulated) observation simulation settings is created per observation set in the dataset, with the
+same observation times, reference link end, ancillary settings and dependent variables. These settings can be used
+to simulate observations at the times of (real) observations, for instance with
+:func:`~tudatpy.estimation.observations.simulate_observation_dataset`. The weights are not part of these settings: the
+observations simulated with them have unit weights.
+
+Parameters
+----------
+observation_dataset : tudatpy.estimation.observations.ObservationDataset
+    Dataset defining the observable types, link ends and observation times.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    System of bodies defining the physical environment.
+
+Returns
+-------
+list[ObservationSimulationSettings]
+    Observation simulation settings, one per observation set in the dataset.
+)doc" );
+
     m.def( "compute_residuals_and_dependent_variables",
-           &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "observation_collection" ),
+           &computeDatasetResiduals,
+           py::arg( "observation_dataset" ),
            py::arg( "observation_simulators" ),
            py::arg( "bodies" ),
            R"doc(
-        Computes residuals and dependent variables for a given observation collection.
+Computes residuals and dependent variables for a given observation dataset.
 
-        This function simulates observations based on the settings of the input `observation_collection`
-        (which typically contains real data). It then computes the residuals by subtracting the
-        simulated observations from the original observations. The computed residuals and any
-        observation-dependent variables are then stored in the input `observation_collection`.
+This function simulates observations based on the settings of the input ``observation_dataset`` (which typically
+contains real data), see :func:`~tudatpy.estimation.observations.observation_simulation_settings_from_dataset`. It
+then computes the residuals by subtracting the simulated observations from the original observations. The computed
+residuals, and the dependent variables defined for each observation set (see
+:meth:`~tudatpy.estimation.observations.ObservationDataset.add_dependent_variable`), are then stored in the input
+``observation_dataset``. Residuals are computed for all observations, including rejected observations.
 
-        Parameters
-        ----------
-        observation_collection : tudatpy.estimation.observations.ObservationCollection
-            The collection of observations for which to compute residuals and dependent variables.
-            This object is modified in-place.
-        observation_simulators : list[tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator]
-            List of observation simulators to be used for computing the observations.
-        bodies : tudatpy.dynamics.environment.SystemOfBodies
-            The system of bodies required for the observation simulation.
-        )doc" );
+The observations are simulated with the current environment. After an estimation, the ephemerides of the propagated
+bodies correspond to the last propagation of the estimation (also if the parameters were reset to those of the best
+iteration), so the residuals stored in the dataset by the estimation (those of the best iteration) can be replaced
+by different values.
+
+Parameters
+----------
+observation_dataset : tudatpy.estimation.observations.ObservationDataset
+    The dataset of observations for which to compute residuals and dependent variables. This object is modified
+    in-place.
+observation_simulators : list[tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator]
+    List of observation simulators to be used for computing the observations.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    The system of bodies required for the observation simulation.
+)doc" );
 
     m.def( "create_filtered_observation_set",
            py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,

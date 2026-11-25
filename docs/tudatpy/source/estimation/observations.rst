@@ -26,29 +26,46 @@ Functions
 
 .. autosummary::
 
+   simulate_observation_dataset
 
 
 
    compute_residuals_and_dependent_variables
 
+   observation_simulation_settings_from_dataset
+
+   create_observation_dataset_from_arrays
+
+   create_single_type_observation_dataset_from_arrays
+
+   create_pseudo_observation_dataset_and_models
+
+   create_pseudo_observation_dataset_and_models_from_observation_times
+
+   create_compressed_doppler_dataset
+
+   create_count_time_compressed_doppler_dataset
+
+
+.. autofunction:: tudatpy.estimation.observations.simulate_observation_dataset
 
 
 
+.. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 
+.. autofunction:: tudatpy.estimation.observations.observation_simulation_settings_from_dataset
 
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_arrays
 
+.. autofunction:: tudatpy.estimation.observations.create_single_type_observation_dataset_from_arrays
 
+.. autofunction:: tudatpy.estimation.observations.create_pseudo_observation_dataset_and_models
 
+.. autofunction:: tudatpy.estimation.observations.create_pseudo_observation_dataset_and_models_from_observation_times
 
+.. autofunction:: tudatpy.estimation.observations.create_compressed_doppler_dataset
 
-
-
-
-
-
-
-
-
+.. autofunction:: tudatpy.estimation.observations.create_count_time_compressed_doppler_dataset
 
 
 Classes
@@ -168,7 +185,6 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_collection
 
-.. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 .. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_single_observation_set
 
 .. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_dataset

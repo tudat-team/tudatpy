@@ -153,6 +153,7 @@ void writeBaseCovarianceFields( cereal::BinaryOutputArchive& archive,
              output.exceptionDuringPropagation_,
              output.considerParametersIncluded_ );
 }
+
 template< typename TimeType >
 void checkBaseOutputArchives( )
 {
@@ -210,6 +211,8 @@ void checkBaseOutputArchives( )
     expectedCovariance->weightsMatrixDiagonal_.setOnes( );
     BOOST_CHECK( *roundTripSerialize( expectedCovariance ) == *expectedCovariance );
 }
+
+
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE( test_PodInputOutputTypes_serialization )
@@ -241,6 +244,8 @@ BOOST_AUTO_TEST_CASE( test_base_output_archives_preserve_diagonal_weights )
     checkBaseOutputArchives< double >( );
     checkBaseOutputArchives< Time >( );
 }
+
+
 BOOST_AUTO_TEST_CASE( test_SparseDesignMatrixSerialization )
 {
     // Sparse 3x2 design matrix with an empty row, an empty column entry and an explicitly stored zero
