@@ -25,6 +25,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
@@ -712,6 +713,25 @@ BOOST_AUTO_TEST_CASE( test_PropagationTerminationDetailsFromHybridConditionSeria
     {
         BOOST_ERROR( "Serialization failed for PropagationTerminationDetailsFromHybridCondition: " << e.what( ) );
     }
+}
+
+BOOST_AUTO_TEST_CASE( test_DefaultProcessingSettingsEquality )
+{
+    const propagators::PropagationPrintSettings firstPrint;
+    const propagators::PropagationPrintSettings secondPrint;
+    const propagators::PropagationPrintSettings timedPrint( false, false, 30.0 );
+    BOOST_CHECK( firstPrint == firstPrint );
+    BOOST_CHECK( firstPrint == secondPrint );
+    BOOST_CHECK( firstPrint != timedPrint );
+    BOOST_CHECK( timedPrint != firstPrint );
+
+    const propagators::SingleArcPropagatorProcessingSettings firstProcessing;
+    const propagators::SingleArcPropagatorProcessingSettings secondProcessing;
+    const propagators::SingleArcPropagatorProcessingSettings timedProcessing( false, false, 1, 30.0 );
+    BOOST_CHECK( firstProcessing == firstProcessing );
+    BOOST_CHECK( firstProcessing == secondProcessing );
+    BOOST_CHECK( firstProcessing != timedProcessing );
+    BOOST_CHECK( timedProcessing != firstProcessing );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

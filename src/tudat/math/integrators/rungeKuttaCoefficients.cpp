@@ -2435,163 +2435,200 @@ void initializeRungeKuttaFeagin1412Coefficients( RungeKuttaCoefficients& rungeKu
 
 const RungeKuttaCoefficients& RungeKuttaCoefficients::get( CoefficientSets coefficientSet )
 {
-    static RungeKuttaCoefficients forwardEulerCoefficients, rungeKutta4Coefficients, explicitMidPointCoefficients,
-            explicitTrapezoidRuleCoefficients, ralstonCoefficients, rungeKutta3Coefficients, ralston3Coefficients, SSPRK3Coefficients,
-            ralston4Coefficients, threeEighthRuleRK4Coefficients, heunEulerCoefficients, rungeKuttaFehlberg12Coefficients,
-            rungeKuttaFehlberg45Coefficients, rungeKuttaFehlberg56Coefficients, rungeKuttaFehlberg78Coefficients,
-            rungeKutta87DormandPrinceCoefficients, rungeKuttaFehlberg89Coefficients, rungeKuttaVerner89Coefficients,
-            rungeKuttaFeagin108Coefficients, rungeKuttaFeagin1210Coefficients, rungeKuttaFeagin1412Coefficients;
-
+    // Function-local const tables are initialized once, with C++ thread-safe publication.
+    // Never rewrite a table while another integrator is copying its coefficients.
     switch( coefficientSet )
     {
-        case forwardEuler:
-            if( !( forwardEulerCoefficients.isFixedStepSize ) )
-            {
-                initializeForwardEulerCoefficients( forwardEulerCoefficients );
-            }
-            return forwardEulerCoefficients;
+        case forwardEuler: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeForwardEulerCoefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKutta4Classic:
-            if( !( rungeKutta4Coefficients.isFixedStepSize ) )
-            {
-                initializeRungeKutta4Coefficients( rungeKutta4Coefficients );
-            }
-            return rungeKutta4Coefficients;
+        case rungeKutta4Classic: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKutta4Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case explicitMidPoint:
-            if( !( explicitMidPointCoefficients.isFixedStepSize ) )
-            {
-                initializeExplicitMidpointCoefficients( explicitMidPointCoefficients );
-            }
-            return explicitMidPointCoefficients;
+        case explicitMidPoint: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeExplicitMidpointCoefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case explicitTrapezoidRule:
-            if( !( explicitTrapezoidRuleCoefficients.isFixedStepSize ) )
-            {
-                initializeExplicitTrapezoidRuleCoefficients( explicitTrapezoidRuleCoefficients );
-            }
-            return explicitTrapezoidRuleCoefficients;
+        case explicitTrapezoidRule: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeExplicitTrapezoidRuleCoefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case ralston:
-            if( !( ralstonCoefficients.isFixedStepSize ) )
-            {
-                initializeRalstonCoefficients( ralstonCoefficients );
-            }
-            return ralstonCoefficients;
+        case ralston: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRalstonCoefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKutta3:
-            if( !( rungeKutta3Coefficients.isFixedStepSize ) )
-            {
-                initializeRungeKutta3Coefficients( rungeKutta3Coefficients );
-            }
-            return rungeKutta3Coefficients;
+        case rungeKutta3: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKutta3Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case ralston3:
-            if( !( ralston3Coefficients.isFixedStepSize ) )
-            {
-                initializeRalston3Coefficients( ralston3Coefficients );
-            }
-            return ralston3Coefficients;
+        case ralston3: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRalston3Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case SSPRK3:
-            if( !( SSPRK3Coefficients.isFixedStepSize ) )
-            {
-                initializeSSPRK3Coefficients( SSPRK3Coefficients );
-            }
-            return SSPRK3Coefficients;
+        case SSPRK3: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeSSPRK3Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case ralston4:
-            if( !( ralston4Coefficients.isFixedStepSize ) )
-            {
-                initializeRalston4Coefficients( ralston4Coefficients );
-            }
-            return ralston4Coefficients;
+        case ralston4: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRalston4Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case threeEighthRuleRK4:
-            if( !( threeEighthRuleRK4Coefficients.isFixedStepSize ) )
-            {
-                initializeThreeEighthRuleRK4Coefficients( threeEighthRuleRK4Coefficients );
-            }
-            return threeEighthRuleRK4Coefficients;
+        case threeEighthRuleRK4: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeThreeEighthRuleRK4Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case heunEuler:
-            if( heunEulerCoefficients.higherOrder != 2 )
-            {
-                initializeHeunEulerCoefficients( heunEulerCoefficients );
-            }
-            return heunEulerCoefficients;
+        case heunEuler: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeHeunEulerCoefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaFehlberg12:
-            if( rungeKuttaFehlberg12Coefficients.higherOrder != 2 )
-            {
-                initializeRungeKuttaFehlberg12Coefficients( rungeKuttaFehlberg12Coefficients );
-            }
-            return rungeKuttaFehlberg12Coefficients;
+        case rungeKuttaFehlberg12: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaFehlberg12Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaFehlberg45:
-            if( rungeKuttaFehlberg45Coefficients.higherOrder != 5 )
-            {
-                initializeRungeKuttaFehlberg45Coefficients( rungeKuttaFehlberg45Coefficients );
-            }
-            return rungeKuttaFehlberg45Coefficients;
+        case rungeKuttaFehlberg45: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaFehlberg45Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaFehlberg56:
-            if( rungeKuttaFehlberg56Coefficients.higherOrder != 6 )
-            {
-                initializeRungeKuttaFehlberg56Coefficients( rungeKuttaFehlberg56Coefficients );
-            }
-            return rungeKuttaFehlberg56Coefficients;
+        case rungeKuttaFehlberg56: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaFehlberg56Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaFehlberg78:
-            if( rungeKuttaFehlberg78Coefficients.higherOrder != 8 )
-            {
-                initializeRungeKuttaFehlberg78Coefficients( rungeKuttaFehlberg78Coefficients );
-            }
-            return rungeKuttaFehlberg78Coefficients;
+        case rungeKuttaFehlberg78: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaFehlberg78Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKutta87DormandPrince:
-            if( rungeKutta87DormandPrinceCoefficients.higherOrder != 7 )
-            {
-                initializeRungeKutta87DormandPrinceCoefficients( rungeKutta87DormandPrinceCoefficients );
-            }
-            return rungeKutta87DormandPrinceCoefficients;
+        case rungeKutta87DormandPrince: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKutta87DormandPrinceCoefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaFehlberg89:
-            if( rungeKuttaFehlberg89Coefficients.higherOrder != 9 )
-            {
-                initializeRungeKuttaFehlberg89Coefficients( rungeKuttaFehlberg89Coefficients );
-            }
-            return rungeKuttaFehlberg89Coefficients;
+        case rungeKuttaFehlberg89: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaFehlberg89Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaVerner89:
-            if( rungeKuttaVerner89Coefficients.higherOrder != 9 )
-            {
-                initializeRungeKuttaVerner89Coefficients( rungeKuttaVerner89Coefficients );
-            }
-            return rungeKuttaVerner89Coefficients;
+        case rungeKuttaVerner89: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaVerner89Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaFeagin108:
-            if( rungeKuttaFeagin108Coefficients.higherOrder != 10 )
-            {
-                initializeRungeKuttaFeagin108Coefficients( rungeKuttaFeagin108Coefficients );
-            }
-            return rungeKuttaFeagin108Coefficients;
+        case rungeKuttaFeagin108: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaFeagin108Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaFeagin1210:
-            if( rungeKuttaFeagin1210Coefficients.higherOrder != 12 )
-            {
-                initializeRungeKuttaFeagin1210Coefficients( rungeKuttaFeagin1210Coefficients );
-            }
-            return rungeKuttaFeagin1210Coefficients;
+        case rungeKuttaFeagin1210: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaFeagin1210Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        case rungeKuttaFeagin1412:
-            if( rungeKuttaFeagin1412Coefficients.higherOrder != 14 )
-            {
-                initializeRungeKuttaFeagin1412Coefficients( rungeKuttaFeagin1412Coefficients );
-            }
-            return rungeKuttaFeagin1412Coefficients;
+        case rungeKuttaFeagin1412: {
+            static const RungeKuttaCoefficients coefficients = []( ) {
+                RungeKuttaCoefficients result;
+                initializeRungeKuttaFeagin1412Coefficients( result );
+                return result;
+            }( );
+            return coefficients;
+        }
 
-        default:  // The default case will never occur because CoefficientsSet is an enum.
+        default:
             throw RungeKuttaCoefficients( );
     }
 }
