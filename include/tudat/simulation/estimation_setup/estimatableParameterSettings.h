@@ -1676,7 +1676,25 @@ inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
 }
+inline std::shared_ptr< EstimatableParameterSettings > marsdenA1Coefficient( const std::string bodyName, const std::string centralBodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, marsden_a1_coefficient, centralBodyName );
+}
 
+inline std::shared_ptr< EstimatableParameterSettings > marsdenA2Coefficient( const std::string bodyName, const std::string centralBodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, marsden_a2_coefficient, centralBodyName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > marsdenA3Coefficient( const std::string bodyName, const std::string centralBodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, marsden_a3_coefficient, centralBodyName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > marsdenTau( const std::string bodyName, const std::string centralBodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, marsden_tau, centralBodyName );
+}
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetDirectionScaling( const std::string targetName,
                                                                                                 const std::string sourceName )
 {

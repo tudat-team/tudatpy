@@ -33,6 +33,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/yarkovskyAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/marsdenAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/rtgAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/customAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/fullRadiationPressureAccelerationPartial.h"
@@ -929,6 +930,24 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                 // Create partial-calculating object.
                 accelerationPartial = std::make_shared< YarkovskyAccelerationPartial >(
                         yarkovskyAcceleration, acceleratedBody.first, acceleratingBody.first );
+            }
+            break;
+        }
+        case marsden_acceleration: {
+            // Check if identifier is consistent with type.
+            std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > marsdenAcceleration =
+                    std::dynamic_pointer_cast< basic_astrodynamics::MarsdenAcceleration >( accelerationModel );
+            if( marsdenAcceleration == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (marsden_acceleration) set when making "
+                        "acceleration partial." );
+            }
+            else
+            {
+                // Create partial-calculating object.
+                accelerationPartial = std::make_shared< MarsdenAccelerationPartial >(
+                        marsdenAcceleration, acceleratedBody.first, acceleratingBody.first );
             }
             break;
         }

@@ -29,6 +29,7 @@ set(acceleration_partials_SOURCES
   "rtgAccelerationPartial.cpp"
   "einsteinInfeldHoffmannPartials.cpp"
   "yarkovskyAccelerationPartial.cpp"
+  "marsdenAccelerationPartial.cpp"
   "fullRadiationPressureAccelerationPartial.cpp"
 )
 

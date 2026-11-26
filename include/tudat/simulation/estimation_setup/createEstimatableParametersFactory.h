@@ -61,6 +61,10 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
 
 #include <tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameter.h>
+#include <tudat/astro/orbit_determination/estimatable_parameters/A1MarsenPramater.h>
+#include <tudat/astro/orbit_determination/estimatable_parameters/A2MarsenPramater.h>
+#include <tudat/astro/orbit_determination/estimatable_parameters/A3MarsenPramater.h>
+#include <tudat/astro/orbit_determination/estimatable_parameters/tauMarsenPramater.h>
 
 namespace tudat
 {
@@ -266,6 +270,36 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     {
                         if( basic_astrodynamics::getAccelerationModelType( accelerationModelListToCheck[ i ] ) ==
                             basic_astrodynamics::yarkovsky_acceleration )
+                        {
+                            accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case marsden_a1_coefficient:
+        case marsden_a2_coefficient:
+        case marsden_a3_coefficient:
+        case marsden_tau: {
+            if( parameterSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected Marsden acceleration parameter settings." );
+            }
+            else
+            {
+                if( accelerationModelMap.at( parameterSettings->parameterType_.second.first )
+                            .count( parameterSettings->parameterType_.second.second ) != 0 )
+
+                {
+                    // Retrieve acceleration model.
+                    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                            accelerationModelListToCheck = accelerationModelMap.at( parameterSettings->parameterType_.second.first )
+                                                                   .at( parameterSettings->parameterType_.second.second );
+                    for( unsigned int i = 0; i < accelerationModelListToCheck.size( ); i++ )
+                    {
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModelListToCheck[ i ] ) ==
+                            basic_astrodynamics::marsden_acceleration )
                         {
                             accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
                         }
@@ -1795,6 +1829,73 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
                 doubleParameterToEstimate = std::make_shared< YarkovskyParameter >(
                         associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
+                break;
+            }
+            case marsden_a1_coefficient:
+            case marsden_a2_coefficient:
+            case marsden_a3_coefficient:
+            case marsden_tau: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating Marsden acceleration parameter, no propagatorSettings provided." );
+                }
+
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                                                                                                               doubleParameterName );
+                std::vector< std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > > associatedMarsdenAccelerationModels;
+                for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+                {
+                    // Create parameter object
+                    if( std::dynamic_pointer_cast< basic_astrodynamics::MarsdenAcceleration >( associatedAccelerationModels.at( i ) ) !=
+                        nullptr )
+                    {
+                        associatedMarsdenAccelerationModels.push_back(
+                                std::dynamic_pointer_cast< basic_astrodynamics::MarsdenAcceleration >(
+                                        associatedAccelerationModels.at( i ) ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                "Error, expected MarsdenAcceleration in list when creating Marsden acceleration parameter" );
+                    }
+                }
+                if( associatedMarsdenAccelerationModels.size( ) != 1 )
+                {
+                    throw std::runtime_error(
+                            "Error, expected single MarsdenAcceleration in list when creating Marsden acceleration parameter, found " +
+                            std::to_string( associatedMarsdenAccelerationModels.size( ) ) );
+                }
+
+                switch( doubleParameterName->parameterType_.first )
+                {
+                    case marsden_a1_coefficient:
+                        doubleParameterToEstimate =
+                                std::make_shared< MarsdenA1Parameter >( associatedMarsdenAccelerationModels.at( 0 ),
+                                                                        currentBodyName,
+                                                                        doubleParameterName->parameterType_.second.second );
+                        break;
+                    case marsden_a2_coefficient:
+                        doubleParameterToEstimate =
+                                std::make_shared< MarsdenA2Parameter >( associatedMarsdenAccelerationModels.at( 0 ),
+                                                                        currentBodyName,
+                                                                        doubleParameterName->parameterType_.second.second );
+                        break;
+                    case marsden_a3_coefficient:
+                        doubleParameterToEstimate =
+                                std::make_shared< MarsdenA3Parameter >( associatedMarsdenAccelerationModels.at( 0 ),
+                                                                        currentBodyName,
+                                                                        doubleParameterName->parameterType_.second.second );
+                        break;
+                    case marsden_tau:
+                        doubleParameterToEstimate =
+                                std::make_shared< MarsdenTauParameter >( associatedMarsdenAccelerationModels.at( 0 ),
+                                                                         currentBodyName,
+                                                                         doubleParameterName->parameterType_.second.second );
+                        break;
+                    default:
+                        break;
+                }
                 break;
             }
             case source_direction_radiation_pressure_scaling_factor:

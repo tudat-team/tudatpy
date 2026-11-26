@@ -154,13 +154,31 @@ public:
         return A3_;
     }
     // Not sure if we need to be able to retrieve this - maybe needed for the partials?
-    /*
-    double getAlpha( ) const { return alpha_; }
-    double getR0( ) const { return r0_; }
-    double getM( ) const { return m_; }
-    double getN( ) const { return n_; }
-    double getK( ) const { return k_; }
-    */
+    double getAlpha( ) const
+    {
+        return alpha_;
+    }
+
+    double getR0( ) const
+    {
+        return r0_;
+    }
+
+    double getM( ) const
+    {
+        return m_;
+    }
+
+    double getN( ) const
+    {
+        return n_;
+    }
+
+    double getK( ) const
+    {
+        return k_;
+    }
+
     double getTau( ) const
     {
         return tau_;
