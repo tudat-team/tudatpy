@@ -12,32 +12,12 @@
 add_subdirectory(shape_based)
 
 set(low_thrust_trajectories_SOURCES
-    "lowThrustLegSettings.cpp"
     "lowThrustLeg.cpp"
     )
 
 set(low_thrust_trajectories_HEADERS
-    "lowThrustLegSettings.h"
     "lowThrustLeg.h"
     )
-
-## Set the source files.
-if(TUDAT_BUILD_WITH_PAGMO)
-    set(low_thrust_trajectories_SOURCES
-        ${low_thrust_trajectories_SOURCES}
-#        "simsFlanaganModel.cpp"
-#        "simsFlanagan.cpp"
-#        "simsFlanaganOptimisationSetup.cpp"
-        )
-
-set(low_thrust_trajectories_HEADERS
-        ${low_thrust_trajectories_HEADERS}
-#        "simsFlanaganModel.h"
-#        "simsFlanagan.h"
-#        "simsFlanaganOptimisationSetup.h"
-        )
-
-endif( )
 
 
 # Add library.

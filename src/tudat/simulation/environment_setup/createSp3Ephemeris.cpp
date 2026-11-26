@@ -14,11 +14,9 @@
 #include <cctype>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
-#endif
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/io/readSp3File.h"
 
@@ -108,7 +106,6 @@ static std::pair< Sp3FrameFamily, std::string > identifySp3Frame( const std::str
     return { Sp3FrameFamily::unknown, frameName };
 }
 
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 //! Map an SP3 time-system tag to the time scale and epoch offset required by Tudat's Earth-rotation model.
 static std::pair< basic_astrodynamics::TimeScales, double > getSp3EarthRotationTimeScaleAndOffset( const std::string& timeScale )
 {
@@ -152,7 +149,6 @@ static std::string getSp3EarthRotationBaseFrame( const Sp3FrameFamily family )
             throw std::invalid_argument( "The requested SP3 frame is not a supported inertial frame." );
     }
 }
-#endif
 
 //! Retrieve one SP3 state history and convert it to the requested environment frame.
 static std::map< double, Eigen::Vector6d > getTransformedSp3StateHistory( const input_output::Sp3FileContents& fileContents,
@@ -215,7 +211,6 @@ static std::map< double, Eigen::Vector6d > getTransformedSp3StateHistory( const 
         return transformedStateHistory;
     }
 
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
     // Construct Tudat's Earth-orientation models only for an inertial/terrestrial rotation.
     const std::pair< basic_astrodynamics::TimeScales, double > earthRotationTime =
             getSp3EarthRotationTimeScaleAndOffset( fileContents.timeScale );
@@ -264,10 +259,6 @@ static std::map< double, Eigen::Vector6d > getTransformedSp3StateHistory( const 
         }
     }
     return transformedStateHistory;
-#else
-    throw std::invalid_argument( "Cannot transform SP3 states from frame '" + fileContents.frameName + "' to frame '" +
-                                 targetFrameOrientation + "': this Tudat build has no SOFA/IERS Earth-orientation support." );
-#endif
 }
 
 //! Create tabulated ephemeris settings from parsed SP3 contents.

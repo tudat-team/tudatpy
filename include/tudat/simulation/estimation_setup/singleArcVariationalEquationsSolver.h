@@ -360,7 +360,7 @@ private:
     std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > variationalPropagationResults_;
 };
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 extern template class SingleArcVariationalEquationsSolver< double, double >;
 #endif
 

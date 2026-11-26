@@ -31,18 +31,6 @@ set(shape_based_methods_HEADERS
   "getRecommendedBaseFunctionsHodographicShaping.h"
   )
 
-if( TUDAT_BUILD_WITH_PAGMO )
-    set(SHAPEBASEDMETHODS_SOURCES
-        ${SHAPEBASEDMETHODS_SOURCES}
-        "hodographicShapingOptimisationSetup.cpp"
-        )
-
-    set(shape_based_methods_HEADERS
-        ${shape_based_methods_HEADERS}
-        "hodographicShapingOptimisationSetup.cpp"
-        )
-endif()
-
 
 # Add library.
 TUDAT_ADD_LIBRARY("shape_based_methods"

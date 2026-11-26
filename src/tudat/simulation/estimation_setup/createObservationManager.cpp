@@ -122,7 +122,7 @@ namespace observation_models
 //         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
 //         const std::shared_ptr< propagators::DependentVariablesInterface > dependentVariablesInterface );
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,

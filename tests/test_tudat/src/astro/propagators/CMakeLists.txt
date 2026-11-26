@@ -31,11 +31,9 @@ if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
     target_link_libraries(tudat_propagators_test_case_support PUBLIC
         ${Tudat_PROPAGATION_LIBRARIES}
     )
-    if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
-        target_link_libraries(tudat_propagators_test_case_support PUBLIC
-            ${Tudat_ESTIMATION_LIBRARIES}
-        )
-    endif ()
+    target_link_libraries(tudat_propagators_test_case_support PUBLIC
+        ${Tudat_ESTIMATION_LIBRARIES}
+    )
     target_link_libraries(tudat_propagators_test_case_support PRIVATE
         "Boost::boost"
     )
@@ -128,11 +126,7 @@ TUDAT_ADD_TEST_CASE(IntegratorSteps PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES}
 
 TUDAT_ADD_TEST_CASE(StateDerivativeModifier PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
-if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
-    TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-else()
-    TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-endif()
+TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(RelativisticTimePropagation PRIVATE_LINKS  ${Tudat_PROPAGATION_LIBRARIES})
 
@@ -140,7 +134,6 @@ TUDAT_ADD_TEST_CASE(IntegratedStateInterpolator PRIVATE_LINKS ${Tudat_PROPAGATIO
 
 TUDAT_ADD_TEST_CASE(StateDerivativeRestrictedThreeBodyProblem PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_basic_mathematics tudat_statistics tudat_input_output)
 
-if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 TUDAT_ADD_TEST_CASE(VariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(FullTwoBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
@@ -165,4 +158,3 @@ TUDAT_ADD_TEST_CASE(NonSequentialVariationalEquations PRIVATE_LINKS ${Tudat_ESTI
 
 TUDAT_ADD_TEST_CASE(ReducedSensitivityMatrixColumns PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
-endif( )

@@ -33,9 +33,7 @@
 #if TUDAT_BUILD_WITH_SERIALIZATION
 #include "tudat/io/serialization/registrations_acceleration.h"
 #include "tudat/io/serialization/registrations_environment.h"
-#if TUDAT_BUILD_WITH_ESTIMATION_TOOLS
 #include "tudat/io/serialization/registrations_estimation.h"
-#endif
 #include "tudat/io/serialization/registrations_math.h"
 #include "tudat/io/serialization/registrations_propagation.h"
 #endif

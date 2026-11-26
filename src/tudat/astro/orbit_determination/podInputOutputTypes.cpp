@@ -59,7 +59,7 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
     return modifiedInverseCovarianceMatrix;
 }
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 template struct CovarianceAnalysisOutput< double, double >;
 template struct EstimationOutput< double, double >;
 #endif
