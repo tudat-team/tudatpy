@@ -100,6 +100,13 @@ CATALOG_DICT = {
     "IRASPSC": "^",
 }
 
+# ADES fields with the uncertainties of an observation as reported by the observer (observation fields), and the corresponding
+# uncertainties adopted by an orbit computing center (residual fields), which also provide the adopted biases
+OBSERVATION_UNCERTAINTY_FIELDS = ("rmsRA", "rmsDec", "rmsCorr", "rmsTime")
+RESIDUAL_UNCERTAINTY_FIELDS = ("sigRA", "sigDec", "sigCorr", "sigTime")
+RESIDUAL_BIAS_FIELDS = ("biasRA", "biasDec", "biasTime")
+RESIDUAL_COLUMNS = [*RESIDUAL_UNCERTAINTY_FIELDS, *RESIDUAL_BIAS_FIELDS]
+
 # output columns that are kept as floats (with NaN for missing values) in the parsed table
 NUMERIC_OUTPUT_COLUMNS = [
     "epoch_seconds_UTC",
@@ -110,6 +117,8 @@ NUMERIC_OUTPUT_COLUMNS = [
     "rmsDec",
     "rmsCorr",
     "rmsTime",
+    "uncTime",
+    *RESIDUAL_COLUMNS,
     "spacecraft_position_x",
     "spacecraft_position_y",
     "spacecraft_position_z",
@@ -348,7 +357,9 @@ def _check_possible_failures(df, obs_kind):
         _check_location_group(df, columns, position_columns)
 
         # check that ra and dec are convertible to floats
-        _check_float_conversion(df, ["ra", "dec", "rmsRA", "rmsDec", "rmsCorr", "rmsTime"])
+        _check_float_conversion(
+            df, ["ra", "dec", "rmsRA", "rmsDec", "rmsCorr", "rmsTime", "uncTime", *RESIDUAL_COLUMNS]
+        )
 
         # check that obsTime is in the right format
         _check_obstime_format(df)
@@ -462,6 +473,8 @@ def _check_possible_failures(df, obs_kind):
                 "rmsPA",
                 "rmsCorr",
                 "rmsTime",
+                "uncTime",
+                *RESIDUAL_COLUMNS,
             ],
         )
 
@@ -622,9 +635,9 @@ def _create_optical_dataframe(df):
         }
     )
 
-    # add the rmsRA, rmsDec, rmsTime if available
+    # add the uncertainties and biases (observation and residual fields) if available
     # for the rows where the info is not available it puts Nan
-    for column in ("rmsRA", "rmsDec", "rmsCorr", "rmsTime"):
+    for column in ("rmsRA", "rmsDec", "rmsCorr", "rmsTime", "uncTime", *RESIDUAL_COLUMNS):
         if column in df.columns:
             result_data_optical[column] = pd.to_numeric(df[column])
 

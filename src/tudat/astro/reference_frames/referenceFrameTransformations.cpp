@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <set>
+#include <stdexcept>
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
@@ -509,6 +510,21 @@ Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix( )
 {
     return ( Eigen::Matrix3d( ) << 1, 0, 0, 0, 0.9174820620691818, -0.3977771559319137, 0, 0.3977771559319137, 0.9174820620691818 )
             .finished( );
+}
+
+//! Get transformation matrix from J2000 to a frame orientation (J2000, ICRF or ECLIPJ2000)
+Eigen::Matrix3d getJ2000ToFrameOrientationTransformationMatrix( const std::string& frameOrientation )
+{
+    if( frameOrientation == "J2000" || frameOrientation == "ICRF" )
+    {
+        return Eigen::Matrix3d::Identity( );
+    }
+    if( frameOrientation == "ECLIPJ2000" )
+    {
+        return getJ2000toECLIPJ2000TransformationMatrix( );
+    }
+    throw std::runtime_error( "Error when getting the rotation from J2000 to frame orientation " + frameOrientation +
+                              ", only J2000, ICRF and ECLIPJ2000 are supported." );
 }
 
 //! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle

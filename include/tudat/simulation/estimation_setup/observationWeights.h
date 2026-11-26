@@ -324,7 +324,7 @@ private:
  * \param numberOfObservations Number of observation events in the set.
  * \param singleObservationSize Number of scalar components in each observation event. For example, this is two for
  * angular-position observations.
- * \param weightSettings Weights to apply.
+ * \param weightSettings Weights to apply, which must be given for all observations of the set (no observation indices).
  * \return Validated weights ordered by observation event and then by scalar component within each event.
  */
 inline ObservationWeights createObservationWeightsForSet( const std::size_t numberOfObservations,
@@ -339,6 +339,10 @@ inline ObservationWeights createObservationWeightsForSet( const std::size_t numb
     if( weightSettings == nullptr )
     {
         throw std::runtime_error( "Error when creating the weights of an observation set, no weight settings provided." );
+    }
+    if( !weightSettings->getObservationIndices( ).empty( ) )
+    {
+        throw std::runtime_error( "Error when creating the weights of an observation set, weights must be given for all observations." );
     }
     weightSettings->validateDimensions( numberOfObservations, singleObservationSize );
 

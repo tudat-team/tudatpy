@@ -106,6 +106,16 @@ std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > evaluateTra
                                      py::arg( "perturbing_bodies_list" ) = settings.lightDeflectionBodies_ )
                                .cast< Eigen::MatrixXd >( );
     }
+    // Only the selected observations are corrected (all observations if none are selected)
+    if( !settings.observationIndices_.empty( ) )
+    {
+        Eigen::MatrixXd selectedCorrections = Eigen::MatrixXd::Zero( corrections.rows( ), corrections.cols( ) );
+        for( const unsigned int index : settings.observationIndices_ )
+        {
+            selectedCorrections.row( index ) = corrections.row( index );
+        }
+        corrections = selectedCorrections;
+    }
     std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > result;
     result.reserve( sourceObservations.size( ) );
     for( Eigen::Index i = 0; i < corrections.rows( ); ++i )
@@ -1864,7 +1874,7 @@ Function to add an observation set to the dataset, with weights defined by weigh
 Same as :meth:`add_observation_set`, but with the weights (which may include correlations between the components of an
 observation, or between the observations in the set) defined by an
 :class:`~tudatpy.data_input.tracking_data.ObservationWeightSettings` object (created e.g. with
-:func:`~tudatpy.data_input.tracking_data.set_block_weights`).
+:func:`~tudatpy.data_input.tracking_data.set_block_weights`), which must give the weights of all observations.
 
 Parameters
 ----------
@@ -2929,11 +2939,11 @@ tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
     List of tracking data objects to convert.
 bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
     System of bodies, used to retrieve the ground station positions for the time scale conversions, and to compute the
-    angular corrections (see ``apply_corrections``).
+    angular corrections (see ``apply_corrections``) and the effect of time biases and uncertainties.
 apply_corrections : bool, default = False
     Whether to apply the corrections stored in the tracking data to the observation values. If ``True``, the
     corrections requested with
-    :meth:`~tudatpy.data_input.tracking_data.TrackingData.set_observation_correction_settings` (light deflection and
+    :meth:`~tudatpy.data_input.tracking_data.TrackingDataCorrectionSettings.set_observation_correction_settings` (light deflection and
     photocenter offset) are also computed and applied, using the environment in ``bodies``. The tracking data objects
     are not modified.
 
@@ -4833,7 +4843,8 @@ tudatpy.estimation.observations.ObservationCollection
         tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
             List of tracking data objects to convert.
         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
-            System of bodies, used to resolve ground station positions for time scale conversions.
+            System of bodies, used to resolve ground station positions for time scale conversions and to compute the
+            effect of time biases and uncertainties.
         apply_corrections : bool, optional
             Whether corrections stored in the tracking data should be applied to
             the observation values during conversion. Default is False.
