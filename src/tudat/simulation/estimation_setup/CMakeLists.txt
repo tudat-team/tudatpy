@@ -41,6 +41,7 @@ set(estimation_HEADERS
         createTorquePartials.h
         createStateDerivativePartials.h
         estimatableParameterSettings.h
+        estimatableParameterSettingsBase.h
         orbitDeterminationTestCaseUtilities.h
         createObservationPartials.h
         podProcessing.h
@@ -124,6 +125,11 @@ if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND estimation_SOURCES ${estimation_INSTANTIATION_SOURCES})
     # The instantiations largely overlap, so compile them as one translation unit
     set_source_files_properties(${estimation_INSTANTIATION_SOURCES} PROPERTIES UNITY_GROUP double_double_instantiations)
+    # These share little with the group above (adding them to it raises its peak memory), so they are compiled on their own
+    list(APPEND estimation_SOURCES
+            createParametersToEstimateDoubleDoubleInstantiation.cpp
+            simulateObservationsDoubleDoubleInstantiation.cpp
+            )
 endif ()
 
 # Add library.

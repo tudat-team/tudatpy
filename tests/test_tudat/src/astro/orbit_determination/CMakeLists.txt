@@ -17,6 +17,27 @@ add_library(tudat_estimation_test_case_support
     executePlanetaryParameterEstimationTestCase.cpp
 )
 
+if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+    # Instantiations declared in estimationExternTemplatesTestCase.h, one group per file to limit the compile memory per file
+    set(ESTIMATION_TEST_INSTANTIATION_SOURCES
+        dynamicsSimulatorsLongDoubleTimeInstantiation.cpp
+        variationalEquationsSolversLongDoubleTimeInstantiation.cpp
+        orbitDeterminationManagerLongDoubleTimeInstantiation.cpp
+        observationManagersLongDoubleTimeInstantiation.cpp
+        dynamicsSimulatorsLongDoubleDoubleInstantiation.cpp
+        variationalEquationsSolversLongDoubleDoubleInstantiation.cpp
+        orbitDeterminationManagerLongDoubleDoubleInstantiation.cpp
+        observationManagersLongDoubleDoubleInstantiation.cpp
+        dynamicsSimulatorsDoubleTimeInstantiation.cpp
+        variationalEquationsSolversDoubleTimeInstantiation.cpp
+        orbitDeterminationManagerDoubleTimeInstantiation.cpp
+        observationManagersDoubleTimeInstantiation.cpp
+    )
+    target_sources(tudat_estimation_test_case_support PRIVATE ${ESTIMATION_TEST_INSTANTIATION_SOURCES})
+    # The precompiled header holds more than these files need and raises their compile memory
+    set_source_files_properties(${ESTIMATION_TEST_INSTANTIATION_SOURCES} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+endif ()
+
 target_include_directories(tudat_estimation_test_case_support PUBLIC
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/tests/test_tudat/include>

@@ -48,6 +48,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/math/basic/leastSquaresPolynomialFit.h"
+#include "tudat/simulation/estimation_setup/estimationExternTemplatesTestCase.h"
 
 namespace tudat
 {

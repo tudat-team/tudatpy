@@ -75,9 +75,15 @@ TUDAT_ADD_TEST_CASE(CentralBodyData
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+# Instantiations declared in estimationExternTemplatesTestCase.h
+set(PROPAGATORS_EXTENDED_PRECISION_TEST_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+    list(APPEND PROPAGATORS_EXTENDED_PRECISION_TEST_LINKS tudat_estimation_test_case_support)
+endif ()
+
 TUDAT_ADD_TEST_CASE(CowellStateDerivative
         PRIVATE_LINKS
-        ${Tudat_PROPAGATION_LIBRARIES}
+        ${PROPAGATORS_EXTENDED_PRECISION_TEST_LINKS}
         )
 
 TUDAT_ADD_TEST_CASE(EnckeStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
@@ -106,7 +112,7 @@ TUDAT_ADD_TEST_CASE(PropagationTerminationReason PRIVATE_LINKS ${Tudat_ESTIMATIO
 
 TUDAT_ADD_TEST_CASE(PropagationTermination PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(RotationalDynamicsPropagator PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+TUDAT_ADD_TEST_CASE(RotationalDynamicsPropagator PRIVATE_LINKS ${PROPAGATORS_EXTENDED_PRECISION_TEST_LINKS})
 
 TUDAT_ADD_TEST_CASE(FullTwoBodyCoupledDynamicsPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
@@ -163,6 +169,6 @@ TUDAT_ADD_TEST_CASE(DependentVariablesInterface PRIVATE_LINKS ${Tudat_ESTIMATION
 
 TUDAT_ADD_TEST_CASE(NonSequentialVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(ReducedSensitivityMatrixColumns PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+TUDAT_ADD_TEST_CASE(ReducedSensitivityMatrixColumns PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} tudat_estimation_test_case_support)
 
 endif( )

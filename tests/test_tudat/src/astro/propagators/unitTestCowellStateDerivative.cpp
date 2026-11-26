@@ -33,6 +33,7 @@
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/estimationExternTemplatesTestCase.h"
 
 namespace tudat
 {

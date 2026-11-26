@@ -38,7 +38,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
-#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettingsBase.h"
 #endif
 
 namespace tudat
