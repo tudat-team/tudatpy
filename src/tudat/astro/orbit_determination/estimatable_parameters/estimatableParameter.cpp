@@ -243,16 +243,16 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case arc_wise_exponential_atmosphere_scale_height:
             parameterDescription = "arc-wise scale height of exponential atmosphere model ";
             break;
-        case A1_parameter_marsden_acceleration:
+        case marsden_a1_coefficient:
             parameterDescription = "A1 parameter of the Marsden acceleration model";
             break;
-        case A2_parameter_marsden_acceleration:
+        case marsden_a2_coefficient:
             parameterDescription = "A2 parameter of the Marsden acceleration model";
             break;
-        case A3_parameter_marsden_acceleration:
+        case marsden_a3_coefficient:
             parameterDescription = "A3 parameter of the Marsden acceleration model";
             break;
-        case tau_parameter_marsden_acceleration:
+        case marsden_tau:
             parameterDescription = "tau parameter of the Marsden acceleration model";
             break;
         default:
@@ -499,16 +499,16 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case arc_wise_exponential_atmosphere_scale_height:
             isDoubleParameter = false;
             break;
-        case A1_parameter_marsden_acceleration:
+        case marsden_a1_coefficient:
             isDoubleParameter = true;
             break;
-        case A2_parameter_marsden_acceleration:
+        case marsden_a2_coefficient:
             isDoubleParameter = true;
             break;
-        case A3_parameter_marsden_acceleration:
+        case marsden_a3_coefficient:
             isDoubleParameter = true;
             break;
-        case tau_parameter_marsden_acceleration:
+        case marsden_tau:
             isDoubleParameter = true;
             break;
         default:

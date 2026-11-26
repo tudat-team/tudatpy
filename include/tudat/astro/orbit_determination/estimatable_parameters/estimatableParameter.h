@@ -111,10 +111,10 @@ enum EstimatebleParametersEnum {
     tangential_accommodation_coefficient,
     normal_velocity_at_wall_ratio,
     three_coefficient_radiation_pressure_coefficients,
-    A1_parameter_marsden_acceleration,
-    A2_parameter_marsden_acceleration,
-    A3_parameter_marsden_acceleration,
-    tau_parameter_marsden_acceleration
+    marsden_a1_coefficient,
+    marsden_a2_coefficient,
+    marsden_a3_coefficient,
+    marsden_tau,
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

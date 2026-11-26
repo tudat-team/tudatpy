@@ -139,6 +139,11 @@ public:
         return currentRotationRswToInertial_;
     }
 
+    Eigen::Matrix< double, 6, 1 > getCurrentRelativeState( ) const
+    {
+        return currentRelativeState_;
+    }
+
     double getA1( ) const
     {
         return A1_;

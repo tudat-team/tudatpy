@@ -2110,6 +2110,114 @@ Returns
 
      )doc" );
 
+    m.def( "marsden_a1_coefficient",
+           &tep::marsdenA1Coefficient,
+           py::arg( "body_name" ),
+           py::arg( "central_body_name" ) = "Sun",
+           R"doc(
+
+ Function for creating parameter settings for the radial Marsden coefficient.
+
+ Function for creating parameter settings for the radial coefficient :math:`A_{1}` of the Marsden non-gravitational acceleration (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.marsden`).
+
+ * The body specified by the ``body_name`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.marsden` acceleration with ``central_body_name`` as body exerting the acceleration
+
+ Parameters
+ ----------
+ body_name : str
+     Name of the body, with whose Marsden acceleration model the estimatable parameter is associated.
+ central_body_name : str, default = "Sun"
+     Name of the body exerting the acceleration.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the radial Marsden coefficient :math:`A_{1}` of the specified body.
+
+
+     )doc" );
+
+    m.def( "marsden_a2_coefficient",
+           &tep::marsdenA2Coefficient,
+           py::arg( "body_name" ),
+           py::arg( "central_body_name" ) = "Sun",
+           R"doc(
+
+ Function for creating parameter settings for the transverse Marsden coefficient.
+
+ Function for creating parameter settings for the transverse coefficient :math:`A_{2}` of the Marsden non-gravitational acceleration (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.marsden`).
+
+ * The body specified by the ``body_name`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.marsden` acceleration with ``central_body_name`` as body exerting the acceleration
+
+ Parameters
+ ----------
+ body_name : str
+     Name of the body, with whose Marsden acceleration model the estimatable parameter is associated.
+ central_body_name : str, default = "Sun"
+     Name of the body exerting the acceleration.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the transverse Marsden coefficient :math:`A_{2}` of the specified body.
+
+
+     )doc" );
+
+    m.def( "marsden_a3_coefficient",
+           &tep::marsdenA3Coefficient,
+           py::arg( "body_name" ),
+           py::arg( "central_body_name" ) = "Sun",
+           R"doc(
+
+ Function for creating parameter settings for the normal Marsden coefficient.
+
+ Function for creating parameter settings for the normal coefficient :math:`A_{3}` of the Marsden non-gravitational acceleration (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.marsden`).
+
+ * The body specified by the ``body_name`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.marsden` acceleration with ``central_body_name`` as body exerting the acceleration
+
+ Parameters
+ ----------
+ body_name : str
+     Name of the body, with whose Marsden acceleration model the estimatable parameter is associated.
+ central_body_name : str, default = "Sun"
+     Name of the body exerting the acceleration.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the normal Marsden coefficient :math:`A_{3}` of the specified body.
+
+
+     )doc" );
+
+    m.def( "marsden_tau",
+           &tep::marsdenTau,
+           py::arg( "body_name" ),
+           py::arg( "central_body_name" ) = "Sun",
+           R"doc(
+
+ Function for creating parameter settings for the Marsden time offset.
+
+ Function for creating parameter settings for the time offset :math:`\tau` (in seconds) between perihelion and peak activity of the Marsden non-gravitational acceleration (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.marsden`).
+
+ * The body specified by the ``body_name`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.marsden` acceleration with ``central_body_name`` as body exerting the acceleration
+
+ Parameters
+ ----------
+ body_name : str
+     Name of the body, with whose Marsden acceleration model the estimatable parameter is associated.
+ central_body_name : str, default = "Sun"
+     Name of the body exerting the acceleration.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the Marsden time offset :math:`\tau` of the specified body.
+
+
+     )doc" );
+
     m.def( "rtg_force_vector",
            &tep::rtgForceVector,
            py::arg( "body_name" ),

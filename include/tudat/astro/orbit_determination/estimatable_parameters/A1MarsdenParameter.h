@@ -33,8 +33,7 @@ public:
     A1MarsdenParameter( const std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > marsdenAcceleration,
                         const std::string& associatedBody,
                         const std::string& centralBody ):
-        EstimatableParameter< double >( A1_parameter_marsden_acceleration, associatedBody, centralBody ),
-        marsdenAcceleration_( marsdenAcceleration )
+        EstimatableParameter< double >( marsden_a1_coefficient, associatedBody, centralBody ), marsdenAcceleration_( marsdenAcceleration )
     {
         if( centralBody == "" )
         {

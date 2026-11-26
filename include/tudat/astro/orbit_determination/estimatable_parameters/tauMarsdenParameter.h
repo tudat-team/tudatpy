@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_A3MARSDENPARAMETER_H
-#define TUDAT_A3MARSDENPARAMETER_H
+#ifndef TUDAT_TAUMARSDENPARAMETER_H
+#define TUDAT_TAUMARSDENPARAMETER_H
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/basic_astro/marsdenAcceleration.h"
@@ -33,8 +33,7 @@ public:
     tauMarsdenParameter( const std::shared_ptr< basic_astrodynamics::MarsdenAcceleration > marsdenAcceleration,
                          const std::string& associatedBody,
                          const std::string& centralBody ):
-        EstimatableParameter< double >( tau_parameter_marsden_acceleration, associatedBody, centralBody ),
-        marsdenAcceleration_( marsdenAcceleration )
+        EstimatableParameter< double >( marsden_tau, associatedBody, centralBody ), marsdenAcceleration_( marsdenAcceleration )
     {
         if( centralBody == "" )
         {
@@ -84,4 +83,4 @@ private:
 
 }  // namespace tudat
 
-#endif  // TUDAT_A1MARSDENPARAMETER_H
+#endif  // TUDAT_TAUMARSDENPARAMETER_H

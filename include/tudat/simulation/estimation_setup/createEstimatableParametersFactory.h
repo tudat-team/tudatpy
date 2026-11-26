@@ -59,12 +59,11 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/specularDiffuseReflectivity.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/panelMaterialProperty.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
-
 #include <tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameter.h>
-#include <tudat/astro/orbit_determination/estimatable_parameters/A1MarsenPramater.h>
-#include <tudat/astro/orbit_determination/estimatable_parameters/A2MarsenPramater.h>
-#include <tudat/astro/orbit_determination/estimatable_parameters/A3MarsenPramater.h>
-#include <tudat/astro/orbit_determination/estimatable_parameters/tauMarsenPramater.h>
+#include <tudat/astro/orbit_determination/estimatable_parameters/A1MarsdenParameter.h>
+#include <tudat/astro/orbit_determination/estimatable_parameters/A2MarsdenParameter.h>
+#include <tudat/astro/orbit_determination/estimatable_parameters/A3MarsdenParameter.h>
+#include <tudat/astro/orbit_determination/estimatable_parameters/tauMarsdenParameter.h>
 
 namespace tudat
 {
@@ -1871,25 +1870,25 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 {
                     case marsden_a1_coefficient:
                         doubleParameterToEstimate =
-                                std::make_shared< MarsdenA1Parameter >( associatedMarsdenAccelerationModels.at( 0 ),
+                                std::make_shared< A1MarsdenParameter >( associatedMarsdenAccelerationModels.at( 0 ),
                                                                         currentBodyName,
                                                                         doubleParameterName->parameterType_.second.second );
                         break;
                     case marsden_a2_coefficient:
                         doubleParameterToEstimate =
-                                std::make_shared< MarsdenA2Parameter >( associatedMarsdenAccelerationModels.at( 0 ),
+                                std::make_shared< A2MarsdenParameter >( associatedMarsdenAccelerationModels.at( 0 ),
                                                                         currentBodyName,
                                                                         doubleParameterName->parameterType_.second.second );
                         break;
                     case marsden_a3_coefficient:
                         doubleParameterToEstimate =
-                                std::make_shared< MarsdenA3Parameter >( associatedMarsdenAccelerationModels.at( 0 ),
+                                std::make_shared< A3MarsdenParameter >( associatedMarsdenAccelerationModels.at( 0 ),
                                                                         currentBodyName,
                                                                         doubleParameterName->parameterType_.second.second );
                         break;
                     case marsden_tau:
                         doubleParameterToEstimate =
-                                std::make_shared< MarsdenTauParameter >( associatedMarsdenAccelerationModels.at( 0 ),
+                                std::make_shared< tauMarsdenParameter >( associatedMarsdenAccelerationModels.at( 0 ),
                                                                          currentBodyName,
                                                                          doubleParameterName->parameterType_.second.second );
                         break;
