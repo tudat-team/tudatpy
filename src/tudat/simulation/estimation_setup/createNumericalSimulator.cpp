@@ -1,4 +1,6 @@
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#endif
 
 namespace tudat
 {

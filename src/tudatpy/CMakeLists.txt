@@ -43,9 +43,11 @@ update_sources(estimation sources)
 update_sources(exceptions sources)
 
 # Explicit instantiations of the heavy <STATE_SCALAR_TYPE, TIME_TYPE> propagation/estimation
-# templates, each compiled once; the binding files declare them extern via
-# include/tudatpy/kernelExternTemplates*.h. Each group below is compiled as one unity source.
-set(kernel_instantiation_groups simulators propagation_functions variational observations estimation)
+# templates, each compiled once; the other kernel sources declare them extern via the per-area headers
+# include/tudatpy/kernelExternTemplates*.h. Each group below is compiled as one unity source; the groups
+# are chosen so that their members need the same Tudat headers (orbit determination manager and
+# estimated parameter creation on their own).
+set(kernel_instantiation_groups simulators propagation_functions variational observations estimation parameters orbit_determination)
 set(kernel_instantiation_simulators
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationDynamicsSimulator.cpp
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationSingleArcDynamicsSimulator.cpp
@@ -66,9 +68,11 @@ set(kernel_instantiation_observations
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationManager3.cpp
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationSimulators.cpp)
 set(kernel_instantiation_estimation
-        ${TUDATPY_SOURCE_DIR}/kernelInstantiationOrbitDeterminationManager.cpp
-        ${TUDATPY_SOURCE_DIR}/kernelInstantiationEstimationFunctions.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationEstimationFunctions.cpp)
+set(kernel_instantiation_parameters
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationParametersToEstimate.cpp)
+set(kernel_instantiation_orbit_determination
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationOrbitDeterminationManager.cpp)
 foreach (group ${kernel_instantiation_groups})
     list(APPEND sources ${kernel_instantiation_${group}})
 endforeach ()
@@ -125,23 +129,28 @@ if (TUDAT_BUILD_WITH_PCH)
 endif ()
 
 # These binding files only use the extern <STATE_SCALAR_TYPE, TIME_TYPE> instantiations; compiling
-# them as one unity source parses the propagation/estimation headers once instead of once per file.
+# each list as one unity source parses its propagation/estimation headers once instead of once per file.
+# The orbit determination manager bindings form their own group, since their headers are the heaviest.
 # Other binding sources are not merged.
 set(kernel_shared_propagation_sources
     ${TUDATPY_SOURCE_DIR}/dynamics/parameters_setup/expose_parameters_setup.cpp
     ${TUDATPY_SOURCE_DIR}/dynamics/propagation/expose_propagation_state_utilities.cpp
     ${TUDATPY_SOURCE_DIR}/dynamics/simulator/expose_simulator_dynamics.cpp
     ${TUDATPY_SOURCE_DIR}/dynamics/simulator/expose_simulator_variational.cpp
+    ${TUDATPY_SOURCE_DIR}/estimation/observations/expose_observations_simulation.cpp
+    ${TUDATPY_SOURCE_DIR}/estimation/observations_setup/observations_simulation_settings/expose_observations_simulation_settings_factory.cpp
+)
+set(kernel_shared_estimation_sources
     ${TUDATPY_SOURCE_DIR}/estimation/estimation_analysis/expose_estimation_analysis.cpp
     ${TUDATPY_SOURCE_DIR}/estimation/estimation_analysis/expose_estimation_analysis_estimator.cpp
     ${TUDATPY_SOURCE_DIR}/estimation/estimation_analysis/expose_estimation_analysis_ephemeris_fit.cpp
-    ${TUDATPY_SOURCE_DIR}/estimation/observations/expose_observations_simulation.cpp
-    ${TUDATPY_SOURCE_DIR}/estimation/observations_setup/observations_simulation_settings/expose_observations_simulation_settings_factory.cpp
 )
 if (TUDAT_BUILD_WITH_UNITY_GROUPS)
     set_target_properties(kernel PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
     set_source_files_properties(${kernel_shared_propagation_sources}
         PROPERTIES UNITY_GROUP shared_propagation)
+    set_source_files_properties(${kernel_shared_estimation_sources}
+        PROPERTIES UNITY_GROUP shared_estimation)
     foreach (group ${kernel_instantiation_groups})
         set_source_files_properties(${kernel_instantiation_${group}}
             PROPERTIES UNITY_GROUP instantiation_${group})

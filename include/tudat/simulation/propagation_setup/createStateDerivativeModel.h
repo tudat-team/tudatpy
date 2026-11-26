@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"

@@ -147,6 +147,35 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
     return currentEstimate;
 }
 
+//! Function to perform an iteration least squares estimation, for dense matrices
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const double limitConditionNumberForWarning,
+        const Eigen::MatrixXd& constraintMultiplier,
+        const Eigen::VectorXd& constraintRightHandside,
+        const Eigen::MatrixXd& designMatrixConsiderParameters,
+        const Eigen::VectorXd& considerParametersDeviations,
+        const Eigen::MatrixXd& additionalNormalMatrix,
+        const Eigen::VectorXd& additionalRightHandSide,
+        const Eigen::VectorXd& aprioriParameterDeviation )
+{
+    return performLeastSquaresAdjustmentFromDesignMatrix< Eigen::MatrixXd >( designMatrix,
+                                                                             observationResiduals,
+                                                                             diagonalOfWeightMatrix,
+                                                                             inverseOfAPrioriCovarianceMatrix,
+                                                                             limitConditionNumberForWarning,
+                                                                             constraintMultiplier,
+                                                                             constraintRightHandside,
+                                                                             designMatrixConsiderParameters,
+                                                                             considerParametersDeviations,
+                                                                             additionalNormalMatrix,
+                                                                             additionalRightHandSide,
+                                                                             aprioriParameterDeviation );
+}
+
 }  // namespace linear_algebra
 
 }  // namespace tudat

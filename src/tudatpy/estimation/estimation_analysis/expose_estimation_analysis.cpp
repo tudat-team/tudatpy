@@ -20,7 +20,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudatpy/kernelExternTemplatesEstimation.h"
+#include "tudatpy/kernelExternTemplatesOrbitDetermination.h"
 #include "tudat/basics/deprecationWarnings.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"

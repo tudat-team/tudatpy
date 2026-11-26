@@ -20,7 +20,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudatpy/kernelExternTemplatesEstimation.h"
+#include "tudatpy/kernelExternTemplatesDynamicsSimulators.h"
+#include "tudatpy/kernelExternTemplatesVariationalEquationsSolvers.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"

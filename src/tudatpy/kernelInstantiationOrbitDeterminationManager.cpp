@@ -8,7 +8,14 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/kernelExternTemplatesEstimation.h"
+#include "tudatpy/kernelExternTemplatesDynamicsSimulators.h"
+#include "tudatpy/kernelExternTemplatesEnvironmentUpdater.h"
+#include "tudatpy/kernelExternTemplatesObservationManagers.h"
+#include "tudatpy/kernelExternTemplatesOrbitDetermination.h"
+#include "tudatpy/kernelExternTemplatesPropagationOutput.h"
+#include "tudatpy/kernelExternTemplatesStateDerivativeModels.h"
+#include "tudatpy/kernelExternTemplatesStateDerivativePartials.h"
+#include "tudatpy/kernelExternTemplatesVariationalEquationsSolvers.h"
 
 namespace tudat
 {

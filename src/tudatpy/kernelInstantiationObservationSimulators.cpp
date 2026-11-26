@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/kernelExternTemplatesEstimation.h"
+#include "tudatpy/kernelExternTemplatesObservationSimulators.h"
 
 namespace tudat
 {

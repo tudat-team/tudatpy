@@ -20,6 +20,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudatpy/kernelExternTemplatesSimulateObservations.h"
 #include "tudat/basics/deprecationWarnings.h"
 #include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/io/serialization/registrations_estimation.h"

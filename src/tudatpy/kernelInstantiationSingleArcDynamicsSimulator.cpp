@@ -8,7 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/kernelExternTemplatesPropagation.h"
+#include "tudatpy/kernelExternTemplatesDynamicsSimulators.h"
+#include "tudatpy/kernelExternTemplatesEnvironmentUpdater.h"
+#include "tudatpy/kernelExternTemplatesPropagationOutput.h"
+#include "tudatpy/kernelExternTemplatesStateDerivativeModels.h"
 
 namespace tudat
 {

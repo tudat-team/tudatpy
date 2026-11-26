@@ -6,7 +6,6 @@
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
-#include "tudat/io/comaModelInputOutput.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 
 #include <deque>
@@ -15,6 +14,12 @@
 
 namespace tudat
 {
+namespace simulation_setup
+{
+class ComaPolyDataset;
+class ComaStokesDataset;
+}  // namespace simulation_setup
+
 namespace aerodynamics
 {
 class SurfaceSphericalHarmonicsCalculator;

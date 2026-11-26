@@ -15,7 +15,7 @@
 // < STATE_SCALAR_TYPE, TIME_TYPE >, instantiated once in src/tudatpy/kernelInstantiationPropagationFunctions.cpp.
 
 #include "tudatpy/scalarTypes.h"
-#include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
+#include "tudat/simulation/environment_setup/setRelativisticTimeConverters.h"
 
 namespace tudat
 {

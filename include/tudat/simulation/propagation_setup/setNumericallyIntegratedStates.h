@@ -28,6 +28,7 @@
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/propagation_setup/addEmptyTabulatedEphemeris.h"
 
 namespace tudat
 {
@@ -38,38 +39,6 @@ namespace propagators
 inline bool isProperTimeIntegratedStateType( const IntegratedStateType stateType )
 {
     return ( stateType == proper_time ) || ( static_cast< int >( stateType ) == 5 );
-}
-
-template< typename StateScalarType, typename TimeType >
-void addEmptyTabulatedEphemeris( const simulation_setup::SystemOfBodies& bodies,
-                                 const std::string& bodyName,
-                                 const std::string& ephemerisOrigin = "",
-                                 const bool isPartOfMultiArc = false )
-{
-    if( bodies.count( bodyName ) == 0 )
-    {
-        throw std::runtime_error( "Error when setting empty tabulated ephemeris for body " + bodyName + ", no such body found" );
-    }
-    std::string ephemerisOriginToUse = ( ephemerisOrigin == "" ) ? bodies.getFrameOrigin( ) : ephemerisOrigin;
-    std::shared_ptr< ephemerides::Ephemeris > tabulatedEphemeris =
-            std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >( ),
-                    ephemerisOriginToUse,
-                    bodies.getFrameOrientation( ) );
-    if( !isPartOfMultiArc )
-    {
-        bodies.at( bodyName )->setEphemeris( tabulatedEphemeris );
-    }
-    else
-    {
-        bodies.at( bodyName )
-                ->setEphemeris( std::make_shared< ephemerides::MultiArcEphemeris >(
-                        std::map< double, std::shared_ptr< ephemerides::Ephemeris > >( { { 0.0, tabulatedEphemeris } } ),
-                        ephemerisOriginToUse,
-                        bodies.getFrameOrientation( ) ) );
-    }
-
-    bodies.processBodyFrameDefinitions< StateScalarType, TimeType >( );
 }
 
 template< typename StateScalarType, typename TimeType >

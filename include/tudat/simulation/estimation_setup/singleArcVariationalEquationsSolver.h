@@ -13,6 +13,8 @@
 
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/createStateDerivativePartials.h"
+#include "tudat/simulation/estimation_setup/setInitialStateVectorFromParameterSet.h"
 
 namespace tudat
 {

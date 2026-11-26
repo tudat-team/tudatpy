@@ -24,7 +24,8 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/io/serialization/base.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
-#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/getProcessedStateStrings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationDetails.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat

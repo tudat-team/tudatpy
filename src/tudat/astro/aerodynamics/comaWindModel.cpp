@@ -1,5 +1,6 @@
 #include "tudat/astro/aerodynamics/comaWindModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/io/comaModelInputOutput.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/utilityMacros.h"
 #include <stdexcept>

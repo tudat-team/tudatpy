@@ -25,7 +25,7 @@
  */
 
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
-#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationDetails.h"
 
 // =====================================================================
 // PropagationTerminationSettings hierarchy  (propagationTerminationSettings.h)

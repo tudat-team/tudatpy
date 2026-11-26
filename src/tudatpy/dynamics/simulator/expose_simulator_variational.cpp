@@ -20,7 +20,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudatpy/kernelExternTemplatesEstimation.h"
+#include "tudatpy/kernelExternTemplatesDynamicsSimulators.h"
+#include "tudatpy/kernelExternTemplatesVariationalEquationsSolvers.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 

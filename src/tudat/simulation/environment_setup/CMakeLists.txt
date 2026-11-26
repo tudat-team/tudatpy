@@ -42,6 +42,7 @@ set(environment_HEADERS
         createRelativisticTimeConverter.h
         createRelativisticTimeConverterImplementation.h
         relativisticTimeConverterSettings.h
+        setRelativisticTimeConverters.h
         spaceTimePropertiesSettings.h
         createMetric.h
         )

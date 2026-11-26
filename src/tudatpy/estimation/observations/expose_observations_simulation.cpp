@@ -19,7 +19,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudatpy/kernelExternTemplatesEstimation.h"
+#include "tudatpy/kernelExternTemplatesObservationSimulators.h"
+#include "tudatpy/kernelExternTemplatesSimulateObservations.h"
 
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/simulatePseudoObservations.h"

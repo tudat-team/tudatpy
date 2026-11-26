@@ -33,6 +33,10 @@ set(estimation_HEADERS
         createEstimatableParameters.h
         createEstimatableParametersInterface.h
         createEstimatableParametersFactory.h
+        getAssociatedMultiArcParameter.h
+        setInitialStateVectorFromParameterSet.h
+        wrapObservationResiduals.h
+        createStateTransitionAndSensitivityMatrixInterpolator.h
         createCartesianStatePartials.h
         createTorquePartials.h
         createStateDerivativePartials.h

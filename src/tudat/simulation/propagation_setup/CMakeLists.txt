@@ -28,7 +28,10 @@ set(propagation_HEADERS
         torqueSettings.h
         createMassRateModels.h
         propagationTermination.h
+        propagationTerminationDetails.h
         propagationSettings.h
+        propagatorType.h
+        getProcessedStateStrings.h
         propagationPrintSettings.h
         propagationProcessingSettings.h
         accelerationSettings.h
@@ -36,6 +39,8 @@ set(propagation_HEADERS
         setNumericallyIntegratedStates.h
         environmentUpdater.h
         dependentVariablesInterface.h
+        getInitialStateOfBody.h
+        addEmptyTabulatedEphemeris.h
         )
 
 # Add header files.

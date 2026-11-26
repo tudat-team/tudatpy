@@ -8,7 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/kernelExternTemplatesPropagation.h"
+#include "tudatpy/kernelExternTemplatesDynamicsSimulators.h"
+#include "tudatpy/kernelExternTemplatesEnvironmentUpdater.h"
+#include "tudatpy/kernelExternTemplatesPropagationOutput.h"
+#include "tudatpy/kernelExternTemplatesRelativisticTimeConverter.h"
+#include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
 
 namespace tudat
 {

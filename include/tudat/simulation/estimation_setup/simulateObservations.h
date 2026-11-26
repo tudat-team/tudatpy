@@ -19,7 +19,7 @@
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
@@ -27,7 +27,7 @@
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
+#include "tudat/simulation/estimation_setup/wrapObservationResiduals.h"
 
 namespace tudat
 {

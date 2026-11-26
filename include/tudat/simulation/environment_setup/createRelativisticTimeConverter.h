@@ -18,45 +18,7 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/relativisticTimeConverterSettings.h"
-
-namespace tudat
-{
-namespace simulation_setup
-{
-
-//! Setup a single relativistic time converter (barycentric -> bodycentric -> topocentric).
-/*!
- *  \param conversionSettings Settings defining the converter and all conversion legs.
- *  \param bodies System of bodies in which the converter is created and stored.
- */
-template< typename StateScalarType = double, typename TimeType = double >
-void setRelativisticTimeConverter(
-        const std::shared_ptr< DirectRelativisticTimeConverterSettings< StateScalarType, TimeType > >& conversionSettings,
-        const SystemOfBodies& bodies );
-
-//! Setup multiple relativistic time converters (one per associated body).
-/*!
- *  \param bodies System of bodies in which converters are created and stored.
- *  \param converterSettings Map from body name to converter settings.
- */
-template< typename StateScalarType = double, typename TimeType = double >
-void setRelativisticTimeConverters(
-        const SystemOfBodies& bodies,
-        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< StateScalarType, TimeType > > >&
-                converterSettings );
-
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
-extern template void setRelativisticTimeConverter< double, double >(
-        const std::shared_ptr< DirectRelativisticTimeConverterSettings< double, double > >& conversionSettings,
-        const SystemOfBodies& bodies );
-
-extern template void setRelativisticTimeConverters< double, double >(
-        const SystemOfBodies& bodies,
-        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< double, double > > >& converterSettings );
-#endif
-
-}  // namespace simulation_setup
-}  // namespace tudat
+#include "tudat/simulation/environment_setup/setRelativisticTimeConverters.h"
 
 #include "tudat/simulation/environment_setup/createRelativisticTimeConverterImplementation.h"
 

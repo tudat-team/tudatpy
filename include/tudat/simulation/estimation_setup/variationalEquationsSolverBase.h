@@ -24,8 +24,7 @@
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
-#include "tudat/simulation/estimation_setup/createStateDerivativePartials.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createStateTransitionAndSensitivityMatrixInterpolator.h"
 
 namespace tudat
 {
@@ -228,23 +227,6 @@ void setVariationalEquationsSolution(
         numericalIntegrationResult.erase( integrationIterator++ );
     }
 }
-
-//! Function to create interpolators for state transition and sensitivity matrices from numerical results.
-/*!
- * Function to create interpolators for state transition and sensitivity matrices from numerical results.
- * \param stateTransitionMatrixInterpolator Interpolator object for state transition matrix (returned by reference).
- * \param sensitivityMatrixInterpolator Interpolator object for sensitivity matrix (returned by reference).
- * \param variationalEquationsSolution Vector of two matrix histories. First vector entry
- *  is state transition matrix history, second entry is sensitivity matrix history.
- * \param clearRawSolution Boolean denoting whether to clear entries of variationalEquationsSolution after creation
- * of interpolators.
- */
-void createStateTransitionAndSensitivityMatrixInterpolator(
-        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,
-        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& sensitivityMatrixInterpolator,
-        std::map< double, Eigen::MatrixXd >& stateTransitionSolution,
-        std::map< double, Eigen::MatrixXd >& sensitivitySolution,
-        const bool clearRawSolution = 1 );
 
 //! Function to retrieve the time at which a propagation terminates, if this is known before the propagation starts
 /*!
