@@ -81,6 +81,8 @@ Functions
 
    body_fixed_to_inertial_rotation_matrix
 
+   calculate_rotation_angles_from_matrix
+
    fk4_b1950_to_icrf_right_ascension_declination
 
 
@@ -97,5 +99,7 @@ Functions
 .. autofunction:: tudatpy.astro.frame_conversion.inertial_to_body_fixed_rotation_matrix
 
 .. autofunction:: tudatpy.astro.frame_conversion.body_fixed_to_inertial_rotation_matrix
+
+.. autofunction:: tudatpy.astro.frame_conversion.calculate_rotation_angles_from_matrix  
 
 .. autofunction:: tudatpy.astro.frame_conversion.fk4_b1950_to_icrf_right_ascension_declination

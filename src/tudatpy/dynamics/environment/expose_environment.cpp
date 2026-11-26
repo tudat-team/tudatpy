@@ -1728,6 +1728,17 @@ bool
              :func:`~tudatpy.dynamics.environment.dsn_default_turnaround_ratios` or
              :func:`~tudatpy.dynamics.environment.cassini_turnaround_ratios`.
      )doc" )
+            .def( "get_transponder_turnaround_ratio_function",
+                  &tsm::VehicleSystems::getTransponderTurnaroundRatio,
+                  R"doc(
+        Get the transponder turnaround ratio of the vehicle as a function of the uplink and downlink frequency band.
+
+        Returns
+        -------
+        Callable[[FrequencyBands, FrequencyBands], float]
+            Function returning the turnaround ratio for a given uplink and downlink band.
+
+     )doc" )
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
                   R"doc(Retrieve standard, DSN turnaround ratios based on the frequency bands of the link)doc" )

@@ -20,7 +20,12 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace py = pybind11;
 namespace tep = tudat::estimatable_parameters;
@@ -38,7 +43,7 @@ void expose_parameters( py::module& m )
                                                                                                    "EstimatableParameter",
                                                                                                    R"doc(
 
-         Estimatable parameter exposed through an untemplated vector-valued interface.
+         Base class for all estimatable parameters exposed through an untemplated vector-valued interface.
 
       )doc" )
             .def_property_readonly( "parameter_identifier",
@@ -71,6 +76,22 @@ void expose_parameters( py::module& m )
 
          :type: int
       )doc" )
+            .def_property_readonly( "time_intervals_of_influence",
+                                    &tep::EstimatableParameterBase::getTimeIntervalsOfInfluencePerEntry,
+                                    R"doc(
+
+         **read-only**
+
+         Time interval ``(start, end)`` in which each entry of the parameter can influence the dynamics, in the order of the
+         parameter value. Empty for global parameters, which influence the dynamics at all times.
+         Arc-wise dynamical parameters (e.g. from :func:`~tudatpy.dynamics.parameters_setup.arcwise_radiation_pressure_coefficient`,
+         :func:`~tudatpy.dynamics.parameters_setup.arcwise_empirical_accelerations` or
+         :func:`~tudatpy.dynamics.parameters_setup.arcwise_constant_drag_coefficient`) give the interval of the arc of each entry,
+         where the last arc ends at an arbitrarily large placeholder time. Desaturation maneuver delta V parameters give
+         the thrust interval of the maneuver of each entry.
+
+         :type: list[tuple[float, float]]
+      )doc" )
             .def( "get_parameter_value",
                   &tep::EstimatableParameterBase::getParameterValueBase,
                   R"doc(
@@ -95,6 +116,319 @@ void expose_parameters( py::module& m )
          parameter_value : numpy.ndarray[numpy.float64[m, 1]]
              New value for this parameter block.
 
+      )doc" );
+
+    py::class_< tep::SphericalHarmonicsCosineCoefficients,
+                std::shared_ptr< tep::SphericalHarmonicsCosineCoefficients >,
+                tep::EstimatableParameterBase >( m,
+                                                 "SphericalHarmonicsCosineCoefficientsParameter",
+                                                 R"doc(
+
+         Estimatable parameter of a block of spherical harmonic cosine coefficients of a body's gravity field.
+
+         Created from the settings of :func:`~tudatpy.dynamics.parameters_setup.spherical_harmonics_c_coefficients`
+         or :func:`~tudatpy.dynamics.parameters_setup.spherical_harmonics_c_coefficients_block`.
+         Entry ``i`` of the parameter value is the cosine coefficient :math:`\bar{C}_{lm}` (geodesy normalized) at the
+         degree and order ``block_indices[i]``. For a gravity field with gravity field variations, these are the nominal coefficients.
+
+      )doc" )
+            .def_property_readonly( "block_indices",
+                                    &tep::SphericalHarmonicsCosineCoefficients::getBlockIndices,
+                                    R"doc(
+
+         **read-only**
+
+         Degree and order :math:`(l, m)` of each entry of the parameter, sorted in the order of the parameter value. For the settings of
+         :func:`~tudatpy.dynamics.parameters_setup.spherical_harmonics_c_coefficients_block`, they are sorted in the same order of the 
+         block indices given by the user.
+
+         :type: list[tuple[int, int]]
+      )doc" );
+
+    py::class_< tep::SphericalHarmonicsSineCoefficients,
+                std::shared_ptr< tep::SphericalHarmonicsSineCoefficients >,
+                tep::EstimatableParameterBase >( m,
+                                                 "SphericalHarmonicsSineCoefficientsParameter",
+                                                 R"doc(
+
+         Estimatable parameter of a block of spherical harmonic sine coefficients of a body's gravity field.
+
+         Created from the settings of :func:`~tudatpy.dynamics.parameters_setup.spherical_harmonics_s_coefficients`
+         or :func:`~tudatpy.dynamics.parameters_setup.spherical_harmonics_s_coefficients_block`.
+         Entry ``i`` of the parameter value is the sine coefficient :math:`\bar{S}_{lm}` (geodesy normalized) at the
+         degree and order ``block_indices[i]``. For a gravity field with gravity field variations, these are the nominal coefficients.
+
+      )doc" )
+            .def_property_readonly( "block_indices",
+                                    &tep::SphericalHarmonicsSineCoefficients::getBlockIndices,
+                                    R"doc(
+
+         **read-only**
+
+         Degree and order :math:`(l, m)` of each entry of the parameter, sorted in the order of the parameter value. For the settings of
+         :func:`~tudatpy.dynamics.parameters_setup.spherical_harmonics_s_coefficients_block`, they are sorted in the same order of the 
+         block indices given by the user.
+
+         :type: list[tuple[int, int]]
+      )doc" );
+
+    py::class_< tep::TidalLoveNumber< Eigen::VectorXd >,
+                std::shared_ptr< tep::TidalLoveNumber< Eigen::VectorXd > >,
+                tep::EstimatableParameterBase >( m,
+                                                 "TidalLoveNumberParameter",
+                                                 R"doc(
+
+         Base class of the estimatable tidal Love numbers :math:`k_{l}` or :math:`k_{lm}` at a single degree of a body's
+         solid body tide.
+
+         Parameters retrieved from a parameter set are instances of one of its derived classes:
+         :class:`~tudatpy.dynamics.parameters.FullDegreeTidalLoveNumberParameter` or
+         :class:`~tudatpy.dynamics.parameters.SingleDegreeVariableTidalLoveNumberParameter`.
+
+      )doc" )
+            .def_property_readonly( "degree",
+                                    &tep::TidalLoveNumber< Eigen::VectorXd >::getDegree,
+                                    R"doc(
+
+         **read-only**
+
+         Degree :math:`l` of the Love number(s).
+
+         :type: int
+      )doc" )
+            .def_property_readonly( "orders",
+                                    &tep::TidalLoveNumber< Eigen::VectorXd >::getOrders,
+                                    R"doc(
+
+         **read-only**
+
+         Orders :math:`m` of the Love number(s). For a :class:`~tudatpy.dynamics.parameters.SingleDegreeVariableTidalLoveNumberParameter`,
+         the orders that are estimated separately, in the order of the parameter value. For a
+         :class:`~tudatpy.dynamics.parameters.FullDegreeTidalLoveNumberParameter`, all orders :math:`0..l`, to which its single Love
+         number applies.
+
+         :type: list[int]
+      )doc" )
+            .def_property_readonly( "use_complex_love_number",
+                                    &tep::TidalLoveNumber< Eigen::VectorXd >::useComplexComponents,
+                                    R"doc(
+
+         **read-only**
+
+         Whether the real and imaginary part of each Love number are estimated (True), or only the real part (False).
+
+         :type: bool
+      )doc" )
+            .def_property_readonly( "deforming_bodies",
+                                    &tep::TidalLoveNumber< Eigen::VectorXd >::getDeformingBodies,
+                                    R"doc(
+
+         **read-only**
+
+         Bodies raising the tides of which the Love number(s) are estimated.
+
+         :type: list[str]
+      )doc" );
+
+    py::class_< tep::FullDegreeTidalLoveNumber,
+                std::shared_ptr< tep::FullDegreeTidalLoveNumber >,
+                tep::TidalLoveNumber< Eigen::VectorXd > >( m,
+                                                           "FullDegreeTidalLoveNumberParameter",
+                                                           R"doc(
+
+         Estimatable tidal Love number :math:`k_{l}` at a single degree, equal for all orders.
+
+         Created from the settings of :func:`~tudatpy.dynamics.parameters_setup.order_invariant_k_love_number`.
+         The parameter value is :math:`[k_{l}]`, or :math:`[\text{Re}(k_{l}), \text{Im}(k_{l})]` if
+         :attr:`~tudatpy.dynamics.parameters.TidalLoveNumberParameter.use_complex_love_number` is True.
+
+      )doc" );
+
+    py::class_< tep::SingleDegreeVariableTidalLoveNumber,
+                std::shared_ptr< tep::SingleDegreeVariableTidalLoveNumber >,
+                tep::TidalLoveNumber< Eigen::VectorXd > >( m,
+                                                           "SingleDegreeVariableTidalLoveNumberParameter",
+                                                           R"doc(
+
+         Estimatable tidal Love numbers :math:`k_{lm}` at a single degree, separate for each order.
+
+         Created from the settings of :func:`~tudatpy.dynamics.parameters_setup.order_varying_k_love_number`.
+         The parameter value has one entry :math:`k_{lm}` per order :math:`m` in
+         :attr:`~tudatpy.dynamics.parameters.TidalLoveNumberParameter.orders`, in that order. If
+         :attr:`~tudatpy.dynamics.parameters.TidalLoveNumberParameter.use_complex_love_number` is True, it has two entries per order instead,
+         :math:`\text{Re}(k_{lm})` followed by :math:`\text{Im}(k_{lm})`.
+
+      )doc" );
+
+    py::class_< tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE >,
+                std::shared_ptr< tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE > >,
+                tep::EstimatableParameterBase >( m,
+                                                 "InitialTranslationalStateParameter",
+                                                 R"doc(
+
+         Estimatable parameter of the initial translational state of a body in a single-arc propagation.
+
+         Created from the settings of :func:`~tudatpy.dynamics.parameters_setup.initial_states` for a single-arc propagator.
+         The parameter value is the Cartesian state :math:`(x, y, z, v_{x}, v_{y}, v_{z})` w.r.t.
+         :attr:`~tudatpy.dynamics.parameters.InitialTranslationalStateParameter.central_body`, at the initial time of the
+         propagation.
+
+      )doc" )
+            .def_property_readonly( "central_body",
+                                    &tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE >::getCentralBody,
+                                    R"doc(
+
+         **read-only**
+
+         Body w.r.t. which the initial state is defined.
+
+         :type: str
+      )doc" )
+            .def_property_readonly( "frame_orientation",
+                                    &tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE >::getFrameOrientation,
+                                    R"doc(
+
+         **read-only**
+
+         Orientation of the frame in which the initial state is defined.
+
+         :type: str
+      )doc" );
+
+    py::class_< tep::ArcWiseInitialTranslationalStateParameter< STATE_SCALAR_TYPE >,
+                std::shared_ptr< tep::ArcWiseInitialTranslationalStateParameter< STATE_SCALAR_TYPE > >,
+                tep::EstimatableParameterBase >( m,
+                                                 "ArcWiseInitialTranslationalStateParameter",
+                                                 R"doc(
+
+         Estimatable parameter of the initial translational states of a body in the arcs of a multi-arc propagation.
+
+         Created from the settings of :func:`~tudatpy.dynamics.parameters_setup.initial_states` for a multi-arc (or the multi-arc
+         part of a hybrid-arc) propagator. The parameter value has six entries per arc, in the order of the arcs: the Cartesian
+         state :math:`(x, y, z, v_{x}, v_{y}, v_{z})` of arc ``i`` w.r.t. ``central_bodies[i]``, at
+         ``arc_start_times[i]``.
+
+      )doc" )
+            .def_property_readonly( "arc_start_times",
+                                    &tep::ArcWiseInitialTranslationalStateParameter< STATE_SCALAR_TYPE >::getArcStartTimes,
+                                    R"doc(
+
+         **read-only**
+
+         Start times of the arcs, at which the initial states are defined.
+
+         :type: list[float]
+      )doc" )
+            .def_property_readonly( "central_bodies",
+                                    &tep::ArcWiseInitialTranslationalStateParameter< STATE_SCALAR_TYPE >::getCentralBodies,
+                                    R"doc(
+
+         **read-only**
+
+         Body w.r.t. which the initial state of each arc is defined.
+
+         :type: list[str]
+      )doc" )
+            .def_property_readonly( "frame_orientation",
+                                    &tep::ArcWiseInitialTranslationalStateParameter< STATE_SCALAR_TYPE >::getFrameOrientation,
+                                    R"doc(
+
+         **read-only**
+
+         Orientation of the frame in which the initial states are defined.
+
+         :type: str
+      )doc" );
+
+    py::class_< tep::SingleArcObservationBiasParameter,
+                std::shared_ptr< tep::SingleArcObservationBiasParameter >,
+                tep::EstimatableParameterBase >( m,
+                                                 "SingleArcObservationBiasParameter",
+                                                 R"doc(
+
+         Estimatable parameter of a constant observation bias of one observable and link.
+
+         Created from the settings of :func:`~tudatpy.dynamics.parameters_setup.absolute_observation_bias` or
+         :func:`~tudatpy.dynamics.parameters_setup.relative_observation_bias`. The parameter value has one entry per
+         component of the observable.
+
+      )doc" )
+            .def_property_readonly( "link_ends",
+                                    &tep::SingleArcObservationBiasParameter::getLinkEnds,
+                                    R"doc(
+
+         **read-only**
+
+         Link ends of the observations to which the bias applies.
+
+         :type: dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`]
+      )doc" )
+            .def_property_readonly( "observable_type",
+                                    &tep::SingleArcObservationBiasParameter::getObservableType,
+                                    R"doc(
+
+         **read-only**
+
+         Observable type to which the bias applies.
+
+         :type: :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
+      )doc" );
+
+    py::class_< tep::MultiArcObservationBiasParameter,
+                std::shared_ptr< tep::MultiArcObservationBiasParameter >,
+                tep::EstimatableParameterBase >( m,
+                                                 "MultiArcObservationBiasParameter",
+                                                 R"doc(
+
+         Estimatable parameter of arc-wise constant observation biases of one observable and link.
+
+         Created from the settings of :func:`~tudatpy.dynamics.parameters_setup.arcwise_absolute_observation_bias` or
+         :func:`~tudatpy.dynamics.parameters_setup.arcwise_relative_observation_bias`. The parameter value has one entry per
+         component of the observable for each arc, in the order of the arcs: entries ``i * n`` to ``(i + 1) * n - 1`` are the
+         bias of the arc starting at ``arc_start_times[i]``, for an observable of size ``n``.
+
+      )doc" )
+            .def_property_readonly( "link_ends",
+                                    &tep::MultiArcObservationBiasParameter::getLinkEnds,
+                                    R"doc(
+
+         **read-only**
+
+         Link ends of the observations to which the biases apply.
+
+         :type: dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`]
+      )doc" )
+            .def_property_readonly( "observable_type",
+                                    &tep::MultiArcObservationBiasParameter::getObservableType,
+                                    R"doc(
+
+         **read-only**
+
+         Observable type to which the biases apply.
+
+         :type: :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
+      )doc" )
+            .def_property_readonly( "arc_start_times",
+                                    &tep::MultiArcObservationBiasParameter::getArcStartTimes,
+                                    R"doc(
+
+         **read-only**
+
+         Start times of the bias arcs. An observation belongs to the arc in which the time of the link end given by
+         :attr:`~tudatpy.dynamics.parameters.MultiArcObservationBiasParameter.link_end_index` falls.
+
+         :type: list[float]
+      )doc" )
+            .def_property_readonly( "link_end_index",
+                                    &tep::MultiArcObservationBiasParameter::getLinkEndIndex,
+                                    R"doc(
+
+         **read-only**
+
+         Index, in the link-end order of the observable, of the link end whose time determines the arc of an observation (the
+         ``time_link_end`` of the settings).
+
+         :type: int
       )doc" );
 
     // ESTIMATABLE PARAMETER SET CLASS
@@ -249,7 +583,8 @@ void expose_parameters( py::module& m )
          :meth:`~tudatpy.dynamics.parameters.EstimatableParameterSet.indices_for_parameter_type`.
 
          Returned parameter objects are instances of
-         :class:`~tudatpy.dynamics.parameters.EstimatableParameter`.
+         :class:`~tudatpy.dynamics.parameters.EstimatableParameter`, or of its derived class for the parameter type, if one is
+         exposed (e.g. :class:`~tudatpy.dynamics.parameters.SphericalHarmonicsCosineCoefficientsParameter`).
 
          Parameters
          ----------
@@ -259,7 +594,7 @@ void expose_parameters( py::module& m )
          Returns
          -------
          List[ :class:`~tudatpy.dynamics.parameters.EstimatableParameter` ]
-             Matching parameter objects in parameter-set order.
+             Matching parameter objects in parameter-set order, as their derived class where one is exposed.
 
       )doc" )
             .def( "indices_for_parameter_description",
