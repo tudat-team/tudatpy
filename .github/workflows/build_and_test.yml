@@ -55,17 +55,17 @@ jobs:
           - os: ubuntu-latest
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
-            build_jobs: 2
+            build_jobs: 3
             ccache: ON
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
-            build_jobs: 2
+            build_jobs: 3
             ccache: OFF
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
-            build_jobs: 2
+            build_jobs: 3
             ccache: ON
         build_type: [Release]
         compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
@@ -274,7 +274,7 @@ jobs:
         if errorlevel 1 exit /b 1
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j4
 
     - name: Build Python package
       shell: bash -l {0}
