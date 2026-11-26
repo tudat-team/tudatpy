@@ -107,6 +107,11 @@ cmake_dependent_option(
     "TUDAT_BUILD_TESTS"
     OFF
 )
+option(TUDAT_BUILD_WITH_OPENMP "Enable opt-in parallel spherical-harmonic gravity." OFF)
+if(TUDAT_BUILD_WITH_OPENMP)
+    find_package(OpenMP REQUIRED COMPONENTS CXX)
+endif()
+
 option(
     TUDAT_BUILD_WITH_SERIALIZATION
     "Build Tudat binary/JSON serialization, polymorphic registrations, and Python pickle/file-I/O bindings."

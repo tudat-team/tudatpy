@@ -40,6 +40,12 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
     target_compile_definitions("${target_name}"
             PUBLIC TUDAT_BUILD_WITH_SERIALIZATION=$<BOOL:${TUDAT_BUILD_WITH_SERIALIZATION}>)
 
+    target_compile_definitions("${target_name}"
+            PUBLIC TUDAT_BUILD_WITH_OPENMP=$<BOOL:${TUDAT_BUILD_WITH_OPENMP}>)
+    if(TUDAT_BUILD_WITH_OPENMP)
+        target_link_libraries("${target_name}" PUBLIC OpenMP::OpenMP_CXX)
+    endif()
+
     # Keep Cereal private unless the library's installed headers expose Tudat serialization APIs.
     if(PARSED_ARGS_PUBLIC_SERIALIZATION)
         set(serialization_public_link cereal::cereal)

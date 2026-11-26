@@ -25,6 +25,17 @@ void add_exceptions_to_kernel( py::module_& m );
 
 PYBIND11_MODULE( kernel, m )
 {
+    m.def(
+            "is_openmp_available",
+            []( ) {
+#if defined( TUDAT_BUILD_WITH_OPENMP ) && TUDAT_BUILD_WITH_OPENMP
+                return true;
+#else
+                return false;
+#endif
+            },
+            R"doc(Return whether this Tudat build supports OpenMP.)doc" );
+
     auto math = m.def_submodule( "math" );
     auto astro = m.def_submodule( "astro" );
     auto trajectory_design = m.def_submodule( "trajectory_design" );

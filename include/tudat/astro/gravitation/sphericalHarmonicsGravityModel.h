@@ -43,6 +43,8 @@ class SphericalHarmonicsGravitationalAccelerationModel : public basic_astrodynam
                                                          public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
 {
 private:
+    int numberOfThreads_ = 1;
+    std::vector< Eigen::Vector3d > termBuffer_;
     //! Typedef for base class.
     typedef SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > Base;
 
@@ -163,6 +165,19 @@ public:
         sphericalHarmonicsCache_.getLegendreCache( ).setthrowExceptionForSingularDerivative( false );
     }
 
+    //! Model-local execution policy. A model must not be evaluated by concurrent callers.
+    void setNumberOfThreads( const int numberOfThreads )
+    {
+        utilities::validateNumberOfThreads( numberOfThreads );
+        sphericalHarmonicsCache_.getLegendreCache( ).setNumberOfThreads( numberOfThreads );
+        numberOfThreads_ = numberOfThreads;
+        this->currentTime_ = TUDAT_NAN;
+    }
+    int getNumberOfThreads( ) const
+    {
+        return numberOfThreads_;
+    }
+
     //! Get gravitational acceleration in body-fixed frame of body undergoing acceleration.
     /*!
      * Returns the gravitational acceleration in body-fixed frame of body undergoing acceleration computed
@@ -184,39 +199,51 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-            cosineSphericalHarmonicsBlock.update( );
-            sineSphericalHarmonicsBlock.update( );
-
-            rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
-            this->updateBaseMembers( );
-
-            currentInertialRelativePosition_ = this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration;
-
-            currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * ( currentInertialRelativePosition_ );
-
-            currentAcceleration_ = computeGeodesyNormalizedGravitationalAccelerationSum( currentRelativePosition_,
-                                                                                         gravitationalParameter,
-                                                                                         equatorialRadius,
-                                                                                         cosineSphericalHarmonicsBlock,
-                                                                                         sineSphericalHarmonicsBlock,
-                                                                                         sphericalHarmonicsCache_,
-                                                                                         accelerationPerTerm_,
-                                                                                         saveSphericalHarmonicTermsSeparately_,
-                                                                                         rotationToIntegrationFrame_.toRotationMatrix( ),
-                                                                                         false,
-                                                                                         colatitudeCutoffForBoschFormulation_ );
-            currentAccelerationInBodyFixedFrame_ = rotationToIntegrationFrame_.inverse( ) * currentAcceleration_;
-
-            if( this->updatePotential_ )
+            try
             {
-                this->currentPotential_ = gravitation::calculateSphericalHarmonicGravitationalPotential( currentRelativePosition_,
-                                                                                                         gravitationalParameter,
-                                                                                                         equatorialRadius,
-                                                                                                         cosineSphericalHarmonicsBlock,
-                                                                                                         sineSphericalHarmonicsBlock,
-                                                                                                         sphericalHarmonicsCache_ );
+                cosineSphericalHarmonicsBlock.update( );
+                sineSphericalHarmonicsBlock.update( );
+
+                rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
+                this->updateBaseMembers( );
+
+                currentInertialRelativePosition_ = this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration;
+
+                currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * ( currentInertialRelativePosition_ );
+
+                currentAcceleration_ =
+                        computeGeodesyNormalizedGravitationalAccelerationSum( currentRelativePosition_,
+                                                                              gravitationalParameter,
+                                                                              equatorialRadius,
+                                                                              cosineSphericalHarmonicsBlock,
+                                                                              sineSphericalHarmonicsBlock,
+                                                                              sphericalHarmonicsCache_,
+                                                                              accelerationPerTerm_,
+                                                                              saveSphericalHarmonicTermsSeparately_,
+                                                                              rotationToIntegrationFrame_.toRotationMatrix( ),
+                                                                              false,
+                                                                              colatitudeCutoffForBoschFormulation_,
+                                                                              numberOfThreads_,
+                                                                              &termBuffer_ );
+                currentAccelerationInBodyFixedFrame_ = rotationToIntegrationFrame_.inverse( ) * currentAcceleration_;
+
+                if( this->updatePotential_ )
+                {
+                    this->currentPotential_ = gravitation::calculateSphericalHarmonicGravitationalPotential( currentRelativePosition_,
+                                                                                                             gravitationalParameter,
+                                                                                                             equatorialRadius,
+                                                                                                             cosineSphericalHarmonicsBlock,
+                                                                                                             sineSphericalHarmonicsBlock,
+                                                                                                             sphericalHarmonicsCache_ );
+                }
+                currentTime_ = currentTime;
             }
-            currentTime_ = currentTime;
+            catch( ... )
+            {
+                this->currentTime_ = TUDAT_NAN;
+                sphericalHarmonicsCache_.getLegendreCache( ).invalidate( );
+                throw;
+            }
         }
     }
 

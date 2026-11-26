@@ -12,6 +12,7 @@
 set(basics_SOURCES
         "utilities.cpp"
         "deprecationWarnings.cpp"
+        "parallelFor.cpp"
         )
 
 if (TUDAT_BUILD_WITH_SERIALIZATION)
@@ -29,6 +30,7 @@ set(basics_HEADERS
         "tudatExceptions.h"
         "tudatTypeTraits.h"
         "deprecationWarnings.h"
+        "parallelFor.h"
         )
 
 # Add library.

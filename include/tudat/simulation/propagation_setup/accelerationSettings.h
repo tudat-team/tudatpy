@@ -29,6 +29,8 @@
 
 // #include "tudat/math/interpolators/createInterpolator.h"
 
+#include "tudat/basics/parallelFor.h"
+
 namespace tudat
 {
 
@@ -225,10 +227,15 @@ public:
      *  \param maximumDegree Maximum degree
      *  \param maximumOrder Maximum order
      */
-    SphericalHarmonicAccelerationSettings( const int maximumDegree, const int maximumOrder, const bool removePointMass = false ):
+    SphericalHarmonicAccelerationSettings( const int maximumDegree,
+                                           const int maximumOrder,
+                                           const bool removePointMass = false,
+                                           const int numberOfThreads = 1 ):
         AccelerationSettings( basic_astrodynamics::spherical_harmonic_gravity ), maximumDegree_( maximumDegree ),
-        maximumOrder_( maximumOrder ), removePointMass_( removePointMass )
-    {}
+        maximumOrder_( maximumOrder ), removePointMass_( removePointMass ), numberOfThreads_( numberOfThreads )
+    {
+        utilities::validateNumberOfThreads( numberOfThreads );
+    }
 
     // Maximum degree that is to be used for spherical harmonic acceleration
     int maximumDegree_;
@@ -237,6 +244,9 @@ public:
     int maximumOrder_;
 
     bool removePointMass_;
+
+    // Number of parallel threads used to evaluate the acceleration
+    int numberOfThreads_ = 1;
 
 protected:
     // Default constructor for serialization
@@ -251,7 +261,7 @@ protected:
             return false;
         }
         return AccelerationSettings::equals( other ) && maximumDegree_ == rhs->maximumDegree_ && maximumOrder_ == rhs->maximumOrder_ &&
-                removePointMass_ == rhs->removePointMass_;
+                removePointMass_ == rhs->removePointMass_ && numberOfThreads_ == rhs->numberOfThreads_;
     }
 
 private:
@@ -264,6 +274,7 @@ private:
         ar( CEREAL_NVP( maximumDegree_ ) );
         ar( CEREAL_NVP( maximumOrder_ ) );
         ar( CEREAL_NVP( removePointMass_ ) );
+        ar( CEREAL_NVP( numberOfThreads_ ) );
     }
 
     template< class Archive >
@@ -273,15 +284,17 @@ private:
         ar( CEREAL_NVP( maximumDegree_ ) );
         ar( CEREAL_NVP( maximumOrder_ ) );
         ar( CEREAL_NVP( removePointMass_ ) );
+        ar( CEREAL_NVP( numberOfThreads_ ) );
     }
 };
 
 //! @get_docstring(sphericalHarmonicAcceleration)
 inline std::shared_ptr< AccelerationSettings > sphericalHarmonicAcceleration( const int maximumDegree,
                                                                               const int maximumOrder,
-                                                                              const bool removePointMass = false )
+                                                                              const bool removePointMass = false,
+                                                                              const int numberOfThreads = 1 )
 {
-    return std::make_shared< SphericalHarmonicAccelerationSettings >( maximumDegree, maximumOrder, removePointMass );
+    return std::make_shared< SphericalHarmonicAccelerationSettings >( maximumDegree, maximumOrder, removePointMass, numberOfThreads );
 }
 
 // Class for providing acceleration settings for mutual spherical harmonics acceleration model.

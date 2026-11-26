@@ -58,4 +58,5 @@ set(basic_mathematics_HEADERS
 TUDAT_ADD_LIBRARY("basic_mathematics"
         "${basic_mathematics_SOURCES}"
         "${basic_mathematics_HEADERS}"
+        PUBLIC_LINKS tudat_basics
         )

@@ -274,6 +274,11 @@ class Installer:
                 _skip=["__pycache__"],
             )
 
+            self.link_single(
+                self.build_dir / "src/tudatpy/_openmp_build.py",
+                self.pylib_dir / "tudatpy/_openmp_build.py",
+            )
+
             # Install kernel
             if sys.platform == "win32":
                 # Support both multi-config and single-config generators.

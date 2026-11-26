@@ -11,6 +11,19 @@ include(PythonExtension)
 
 copy_python_in_build()
 
+# Keep the setting with the matching kernel, including when several builds
+# share the same source tree.
+if(TUDAT_BUILD_WITH_OPENMP)
+    set(TUDATPY_OPENMP_ENABLED True)
+else()
+    set(TUDATPY_OPENMP_ENABLED False)
+endif()
+configure_file(
+    "${PROJECT_SOURCE_DIR}/configuration/tudatpy/_openmp_build.py.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/_openmp_build.py"
+    @ONLY
+)
+
 # Setup the installation path.
 set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/tudatpy")
 # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TUDATPY_SOURCE_DIR})
@@ -147,4 +160,9 @@ install(
 install(
     DIRECTORY ${TUDATPY_SOURCE_DIR}
     DESTINATION ${YACMA_PYTHON_MODULES_INSTALL_PATH}
+)
+
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/_openmp_build.py
+    DESTINATION ${TUDATPY_INSTALL_PATH}
 )

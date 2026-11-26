@@ -19,6 +19,7 @@ For complete example applications see our [examples page](https://docs.tudat.spa
   - [Prerequisites](#prerequisites)
   - [Compilation Steps](#compilation-steps)
   - [Verify your Build](#verify-your-build)
+  - [Optional: OpenMP Support](#optional-openmp-support)
   - [Optional: Mars Climate Database Interface](#optional-mars-climate-database-interface)
 - [Contributing](#contributing)
 - [Citation](#citation)
@@ -164,6 +165,37 @@ Total Test time (real) = 490.77 sec
 ````
 
 Note that when running tests in parallel with `-j`, CTest may execute tests in a non-sequential order to minimize total execution time.
+
+### Optional: OpenMP Support
+
+To enable OpenMP, configure and build in a separate directory after activating
+the build environment:
+
+```bash
+cmake -S . -B build-openmp -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+  -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" -DCMAKE_BUILD_TYPE=Release \
+  -DBoost_NO_BOOST_CMAKE=ON -DTUDAT_BUILD_WITH_OPENMP=ON
+cmake --build build-openmp --parallel 1
+python install.py --build-dir build-openmp
+```
+
+OpenMP defaults to `OFF`. CMake requires an OpenMP-capable C++ compiler and
+runtime when this option is enabled.
+
+To check whether the installed Python package was built with OpenMP:
+
+```python
+import tudatpy
+
+print(tudatpy.is_openmp_available())
+```
+
+With OpenMP enabled, importing TudatPy sets `GOMP_SPINCOUNT=30000` if neither
+`GOMP_SPINCOUNT` nor `OMP_WAIT_POLICY` is already set. This GNU libgomp setting
+reduces wake-up overhead between short parallel loops and applies throughout
+the process. Set either variable before launching Python to choose your own
+wait policy. If another package has already initialized libgomp, the import
+default may have no effect. Gravity models still use one thread by default.
 
 ### Optional: Mars Climate Database Interface
 

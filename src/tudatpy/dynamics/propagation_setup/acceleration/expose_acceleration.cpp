@@ -48,7 +48,6 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
-namespace tse = tudat::serialization;
 
 namespace tudat
 {
@@ -231,8 +230,13 @@ void expose_acceleration_setup( py::module& m )
          Class for providing settings for spherical harmonics acceleration model,
          including the maximum degree and order up to which the field is to be expanded. Note that
          the minimum degree and order are currently always set to zero.
-      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
-            TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
+      )doc" )
+            .def_property_readonly(
+                    "number_of_threads",
+                    []( const tss::SphericalHarmonicAccelerationSettings& settings ) { return settings.numberOfThreads_; },
+                    R"doc(Number of parallel threads used to evaluate this acceleration.
+)doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
+                    TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
 
     //            .def(py::init<const int, const int>(),
     //            py::arg("maximum_degree"),
@@ -669,12 +673,17 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
 )doc" );
 
-    m.def( "spherical_harmonic_gravity",
-           &tss::sphericalHarmonicAcceleration,
-           py::arg( "maximum_degree" ),
-           py::arg( "maximum_order" ),
-           py::arg( "remove_point_mass" ) = false,
-           R"doc(
+    m.def(
+            "spherical_harmonic_gravity",
+            []( const int maximumDegree, const int maximumOrder, const bool removePointMass, const int numberOfThreads ) {
+                return tss::sphericalHarmonicAcceleration( maximumDegree, maximumOrder, removePointMass, numberOfThreads );
+            },
+            py::arg( "maximum_degree" ),
+            py::arg( "maximum_order" ),
+            py::arg( "remove_point_mass" ) = false,
+            py::kw_only( ),
+            py::arg( "number_of_threads" ) = 1,
+            R"doc(
 
  Creates settings for the spherical harmonic gravity acceleration.
 
@@ -702,6 +711,20 @@ ThreeCoefficientRadiationPressureAccelerationSettings
  remove_point_mass : bool, default=False
      Whether the central (degree zero) term is excluded, e.g. when the point mass of the body is part of another
      acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
+ number_of_threads : int, default=1
+     Number of parallel threads used to evaluate this acceleration. More than one requires a build configured with
+     ``TUDAT_BUILD_WITH_OPENMP=ON`` (see :func:`tudatpy.is_openmp_available`).
+
+     The runtime gains of using this feature are limited by the overhead of the parallelization itself. We recommend
+     not parallelizing for maximum degree < 20 and to use at most :math:`\approx l_{\max}/12` parallel threads for
+     higher maximum degrees.
+
+ Raises
+ ------
+ ValueError
+     If ``number_of_threads`` is not positive.
+ RuntimeError
+     If multiple threads are requested without the optional OpenMP backend.
  Returns
  -------
  SphericalHarmonicAccelerationSettings
@@ -710,6 +733,15 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
 
 
+
+ Notes
+ -----
+ Parallel evaluation (if ``number_of_threads`` > 1) fills the Legendre cache by
+ order after computing its diagonal sequentially, then computes the first
+ derivatives by degree. Each degree's potential-gradient terms are summed in
+ order, and the degree sums are added sequentially before transforming the
+ result. When evaluated inside an active OpenMP parallel region, the acceleration
+ is computed on a single thread.
 
  Examples
  --------

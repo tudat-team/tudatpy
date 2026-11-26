@@ -39,6 +39,7 @@
 #include <vector>
 
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/basics/parallelFor.h"
 
 namespace tudat
 {
@@ -194,6 +195,21 @@ public:
         currentPolynomialParameter_ = TUDAT_NAN;
     }
 
+    //! Local execution policy; independent copies own independent cache storage.
+    void setNumberOfThreads( const int numberOfThreads )
+    {
+        utilities::validateNumberOfThreads( numberOfThreads );
+        numberOfThreads_ = numberOfThreads;
+    }
+    int getNumberOfThreads( ) const
+    {
+        return numberOfThreads_;
+    }
+    void invalidate( )
+    {
+        currentPolynomialParameter_ = TUDAT_NAN;
+    }
+
     double getVerticalLegendreValuesComputationMultipliersOne( const int degree, const int order );
 
     double getVerticalLegendreValuesComputationMultipliersTwo( const int degree, const int order );
@@ -204,6 +220,7 @@ public:
     }
 
 private:
+    int numberOfThreads_ = 1;
     //! Maximum degree of cache.
     int maximumDegree_;
 

@@ -1,0 +1,3 @@
+"""OpenMP configuration for the adjacent compiled kernel."""
+
+ENABLED = @TUDATPY_OPENMP_ENABLED@
