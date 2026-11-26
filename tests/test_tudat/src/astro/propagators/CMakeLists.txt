@@ -75,7 +75,7 @@ TUDAT_ADD_TEST_CASE(CentralBodyData
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
-# Instantiations declared in estimationExternTemplatesTestCase.h
+# Instantiations declared in dynamicsSimulatorExternTemplatesTestCase.h
 set(PROPAGATORS_EXTENDED_PRECISION_TEST_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
     list(APPEND PROPAGATORS_EXTENDED_PRECISION_TEST_LINKS tudat_estimation_test_case_support)

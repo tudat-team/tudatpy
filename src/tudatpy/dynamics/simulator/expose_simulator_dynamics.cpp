@@ -22,10 +22,6 @@
 #include "scalarTypes.h"
 #include "tudatpy/kernelExternTemplatesDynamicsSimulators.h"
 #include "tudatpy/kernelExternTemplatesVariationalEquationsSolvers.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
-#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
-#include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
-#include "tudat/simulation/propagation_setup/hybridArcDynamicsSimulator.h"
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 

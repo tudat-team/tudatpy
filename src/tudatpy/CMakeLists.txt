@@ -45,9 +45,9 @@ update_sources(exceptions sources)
 # Explicit instantiations of the heavy <STATE_SCALAR_TYPE, TIME_TYPE> propagation/estimation
 # templates, each compiled once; the other kernel sources declare them extern via the per-area headers
 # include/tudatpy/kernelExternTemplates*.h. Each group below is compiled as one unity source; the groups
-# are chosen so that their members need the same Tudat headers (orbit determination manager and
-# estimated parameter creation on their own).
-set(kernel_instantiation_groups simulators propagation_functions variational observations estimation parameters orbit_determination)
+# are chosen so that their members need the same Tudat headers. The estimation functions, orbit
+# determination manager and estimated parameter creation are compiled as separate sources.
+set(kernel_instantiation_groups simulators propagation_functions variational observations)
 set(kernel_instantiation_simulators
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationDynamicsSimulator.cpp
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationSingleArcDynamicsSimulator.cpp
@@ -67,15 +67,13 @@ set(kernel_instantiation_observations
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationManager2.cpp
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationManager3.cpp
         ${TUDATPY_SOURCE_DIR}/kernelInstantiationObservationSimulators.cpp)
-set(kernel_instantiation_estimation
-        ${TUDATPY_SOURCE_DIR}/kernelInstantiationEstimationFunctions.cpp)
-set(kernel_instantiation_parameters
-        ${TUDATPY_SOURCE_DIR}/kernelInstantiationParametersToEstimate.cpp)
-set(kernel_instantiation_orbit_determination
-        ${TUDATPY_SOURCE_DIR}/kernelInstantiationOrbitDeterminationManager.cpp)
 foreach (group ${kernel_instantiation_groups})
     list(APPEND sources ${kernel_instantiation_${group}})
 endforeach ()
+list(APPEND sources
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationEstimationFunctions.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationParametersToEstimate.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelInstantiationOrbitDeterminationManager.cpp)
 
 YACMA_PYTHON_MODULE(kernel ${sources})
 
@@ -155,6 +153,9 @@ if (TUDAT_BUILD_WITH_UNITY_GROUPS)
         set_source_files_properties(${kernel_instantiation_${group}}
             PROPERTIES UNITY_GROUP instantiation_${group})
     endforeach ()
+else ()
+    # Not with a global unity build either: binding files define the same namespace aliases for different namespaces
+    set_target_properties(kernel PROPERTIES UNITY_BUILD OFF)
 endif ()
 
 # Include headers

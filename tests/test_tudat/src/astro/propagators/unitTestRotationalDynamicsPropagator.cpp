@@ -45,7 +45,7 @@
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
-#include "tudat/simulation/estimation_setup/estimationExternTemplatesTestCase.h"
+#include "tudat/simulation/estimation_setup/dynamicsSimulatorExternTemplatesTestCase.h"
 
 namespace tudat
 {

@@ -24,18 +24,25 @@ if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
         variationalEquationsSolversLongDoubleTimeInstantiation.cpp
         orbitDeterminationManagerLongDoubleTimeInstantiation.cpp
         observationManagersLongDoubleTimeInstantiation.cpp
-        dynamicsSimulatorsLongDoubleDoubleInstantiation.cpp
-        variationalEquationsSolversLongDoubleDoubleInstantiation.cpp
-        orbitDeterminationManagerLongDoubleDoubleInstantiation.cpp
-        observationManagersLongDoubleDoubleInstantiation.cpp
         dynamicsSimulatorsDoubleTimeInstantiation.cpp
         variationalEquationsSolversDoubleTimeInstantiation.cpp
         orbitDeterminationManagerDoubleTimeInstantiation.cpp
         observationManagersDoubleTimeInstantiation.cpp
     )
+    # < long double, double > is only used by the extended-precision tests
+    if (TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
+        list(APPEND ESTIMATION_TEST_INSTANTIATION_SOURCES
+            dynamicsSimulatorsLongDoubleDoubleInstantiation.cpp
+            variationalEquationsSolversLongDoubleDoubleInstantiation.cpp
+            orbitDeterminationManagerLongDoubleDoubleInstantiation.cpp
+            observationManagersLongDoubleDoubleInstantiation.cpp
+        )
+    endif ()
     target_sources(tudat_estimation_test_case_support PRIVATE ${ESTIMATION_TEST_INSTANTIATION_SOURCES})
-    # The precompiled header holds more than these files need and raises their compile memory
-    set_source_files_properties(${ESTIMATION_TEST_INSTANTIATION_SOURCES} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+    # The precompiled header holds more than these files need and raises their compile memory; a global unity build
+    # (CMAKE_UNITY_BUILD) would merge them again
+    set_source_files_properties(${ESTIMATION_TEST_INSTANTIATION_SOURCES}
+        PROPERTIES SKIP_PRECOMPILE_HEADERS ON SKIP_UNITY_BUILD_INCLUSION ON)
 endif ()
 
 target_include_directories(tudat_estimation_test_case_support PUBLIC
