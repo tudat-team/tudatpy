@@ -245,7 +245,7 @@ public:
 
     bool removePointMass_;
 
-    //! Execution policy, deliberately excluded from scientific archives and equality.
+    // Number of parallel threads used to evaluate the acceleration
     int numberOfThreads_ = 1;
 
 protected:
@@ -261,7 +261,7 @@ protected:
             return false;
         }
         return AccelerationSettings::equals( other ) && maximumDegree_ == rhs->maximumDegree_ && maximumOrder_ == rhs->maximumOrder_ &&
-                removePointMass_ == rhs->removePointMass_;
+                removePointMass_ == rhs->removePointMass_ && numberOfThreads_ == rhs->numberOfThreads_;
     }
 
 private:
@@ -274,6 +274,7 @@ private:
         ar( CEREAL_NVP( maximumDegree_ ) );
         ar( CEREAL_NVP( maximumOrder_ ) );
         ar( CEREAL_NVP( removePointMass_ ) );
+        ar( CEREAL_NVP( numberOfThreads_ ) );
     }
 
     template< class Archive >
@@ -283,7 +284,7 @@ private:
         ar( CEREAL_NVP( maximumDegree_ ) );
         ar( CEREAL_NVP( maximumOrder_ ) );
         ar( CEREAL_NVP( removePointMass_ ) );
-        numberOfThreads_ = 1;
+        ar( CEREAL_NVP( numberOfThreads_ ) );
     }
 };
 

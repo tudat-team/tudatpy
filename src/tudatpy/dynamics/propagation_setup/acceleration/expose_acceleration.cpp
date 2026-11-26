@@ -234,10 +234,7 @@ void expose_acceleration_setup( py::module& m )
             .def_property_readonly(
                     "number_of_threads",
                     []( const tss::SphericalHarmonicAccelerationSettings& settings ) { return settings.numberOfThreads_; },
-                    R"doc(Requested upper bound on inner gravity threads; defaults to one.
-
-This execution policy is not stored in scientific archives or pickle data.
-Deserialized settings use one thread. Construct new settings to change it.
+                    R"doc(Number of parallel threads used to evaluate this acceleration.
 )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
                     TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
 
@@ -715,21 +712,12 @@ ThreeCoefficientRadiationPressureAccelerationSettings
      Whether the central (degree zero) term is excluded, e.g. when the point mass of the body is part of another
      acceleration model (such as the Einstein-Infeld-Hoffmann acceleration).
  number_of_threads : int, default=1
-     Positive upper bound on native threads for this acceleration model and its Legendre cache.
-     More than one requires a build configured with ``TUDAT_BUILD_WITH_OPENMP=ON``;
-     see :func:`tudatpy.is_openmp_available`. Existing scripts remain sequential by default.
-     Runtime limits can reduce the actual team size. Inner execution is sequential inside
-     an active OpenMP region. When combining with independent arc workers, budget both
-     levels explicitly. Execution policy is not serialized; loaded settings use one thread.
+     Number of parallel threads used to evaluate this acceleration. More than one requires a build configured with
+     ``TUDAT_BUILD_WITH_OPENMP=ON`` (see :func:`tudatpy.is_openmp_available`).
 
      The runtime gains of using this feature are limited by the overhead of the parallelization itself. We recommend
      not parallelizing for maximum degree < 20 and to use at most :math:`\approx l_{\max}/12` parallel threads for
      higher maximum degrees.
-
-     Buffers belong to each native model. The calling thread updates the environment
-     before native workers read it; inner workers do not invoke Python callbacks.
-     This option adds no GIL release or change to callback lifetime rules of the caller.
-     Worker exceptions are rethrown on the calling thread after all workers finish.
 
  Raises
  ------
@@ -748,11 +736,12 @@ ThreeCoefficientRadiationPressureAccelerationSettings
 
  Notes
  -----
- Parallel evaluation fills the Legendre cache by order after computing its
- diagonal sequentially, then computes the first derivatives by degree. Each
- degree's potential-gradient terms are summed in order, and the degree sums
- are added sequentially before transforming the result. Both thread policies
- use this grouping, including near the poles and when saving individual terms.
+ Parallel evaluation (if ``number_of_threads`` > 1) fills the Legendre cache by
+ order after computing its diagonal sequentially, then computes the first
+ derivatives by degree. Each degree's potential-gradient terms are summed in
+ order, and the degree sums are added sequentially before transforming the
+ result. When evaluated inside an active OpenMP parallel region, the acceleration
+ is computed on a single thread.
 
  Examples
  --------

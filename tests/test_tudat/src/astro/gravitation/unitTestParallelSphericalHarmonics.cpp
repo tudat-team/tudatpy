@@ -2,9 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <atomic>
 #include <future>
-#include <sstream>
 #include "tudat/math/integrators/rungeKutta4Integrator.h"
-#include <cereal/archives/binary.hpp>
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #if defined( TUDAT_BUILD_WITH_OPENMP ) && TUDAT_BUILD_WITH_OPENMP
@@ -22,21 +20,29 @@ constexpr int workers = 1;
 
 BOOST_AUTO_TEST_CASE( policyValidation )
 {
-    // Validate thread counts and backend availability before starting any work.
+    // Test that the Legendre cache uses one thread by default, that non-positive thread counts (and, without OpenMP, more
+    // than one thread) are rejected by the cache and the acceleration settings, and that the settings store the requested
+    // number of threads without changing the other settings.
     LegendreCache cache( 20, 20 );
     BOOST_CHECK_EQUAL( cache.getNumberOfThreads( ), 1 );
+    // Zero threads is rejected by the cache, a negative number by the acceleration settings
     BOOST_CHECK_THROW( cache.setNumberOfThreads( 0 ), std::invalid_argument );
     BOOST_CHECK_THROW( simulation_setup::sphericalHarmonicAcceleration( 20, 20, false, -1 ), std::invalid_argument );
 #if !defined( TUDAT_BUILD_WITH_OPENMP ) || !TUDAT_BUILD_WITH_OPENMP
+    // Without OpenMP, more than one thread is rejected by the cache and by the acceleration settings
     BOOST_CHECK_THROW( cache.setNumberOfThreads( 2 ), std::runtime_error );
     BOOST_CHECK_THROW( simulation_setup::sphericalHarmonicAcceleration( 20, 20, false, 2 ), std::runtime_error );
 #endif
     auto settings = std::dynamic_pointer_cast< simulation_setup::SphericalHarmonicAccelerationSettings >(
             simulation_setup::sphericalHarmonicAcceleration( 20, 20, true, workers ) );
+    // Settings store the requested number of threads, and the remove-point-mass flag is unaffected
     BOOST_CHECK_EQUAL( settings->numberOfThreads_, workers );
     BOOST_CHECK( settings->removePointMass_ );
 }
 
+// Check that a Legendre cache using count threads gives polynomials and first (and second) derivatives that are bitwise
+// identical to those of a single-thread cache, and that a copy of the multi-thread cache keeps its number of threads and is
+// independent of the original.
 void compareCaches( const int count )
 {
     for( bool normalized : { false, true } )
@@ -57,7 +63,8 @@ void compareCaches( const int count )
                         {
                             serial.update( x, consistency );
                             parallel.update( x, consistency );
-                            // Same recurrence and operation order: exact parity is expected on this build.
+                            // Polynomials and derivatives are bitwise identical for both caches (same recurrence and
+                            // operation order)
                             for( int n = 0; n <= degree; ++n )
                                 for( int m = 0; m <= std::min( n, order ); ++m )
                                 {
@@ -72,7 +79,9 @@ void compareCaches( const int count )
                     auto copy = parallel;
                     copy.resetMaximumDegreeAndOrder( 3, 1 );
                     copy.update( -.2 );
+                    // Resizing the copy does not change the original
                     BOOST_CHECK_EQUAL( parallel.getMaximumDegree( ), degree );
+                    // The copy keeps the number of threads of the original
                     BOOST_CHECK_EQUAL( copy.getNumberOfThreads( ), count );
                 }
             }
@@ -80,14 +89,18 @@ void compareCaches( const int count )
 
 BOOST_AUTO_TEST_CASE( cacheParityAndCopies )
 {
-    // Compare copied caches with serial caches across thread counts.
+    // Test that a multi-thread Legendre cache gives bitwise identical polynomials and derivatives as a single-thread cache
+    // (for both normalizations, several degrees/orders and arguments, including arguments close to +/-1), and that copies of
+    // a multi-thread cache keep their number of threads and are independent of the original.
     compareCaches( workers );
 }
 
 BOOST_AUTO_TEST_CASE( joinedExceptionAndRetry )
 {
-    // Join workers before reporting an exception and allow the cache to be retried.
+    // Test that parallelFor rethrows an exception from one index only after all other indices have been processed, and
+    // that a Legendre cache whose update threw an exception recomputes the next update (instead of reusing partial results).
     std::atomic< int > completed{ 0 };
+    // An exception thrown by one index is rethrown on the calling thread
     BOOST_CHECK_THROW( utilities::parallelFor( 20,
                                                workers,
                                                1,
@@ -102,9 +115,12 @@ BOOST_AUTO_TEST_CASE( joinedExceptionAndRetry )
     cache.setNumberOfThreads( workers );
     cache.setComputeFirstDerivatives( true );
     cache.setthrowExceptionForSingularDerivative( true );
+    // The singular derivative at the pole throws an exception, when requested
     BOOST_CHECK_THROW( cache.update( 1.0 ), std::runtime_error );
+    // The failed update resets the current argument, so that an update with the same argument is not skipped
     BOOST_CHECK( std::isnan( cache.getCurrentPolynomialParameter( ) ) );
     BOOST_CHECK_THROW( cache.update( 1.0 ), std::runtime_error );
+    // Without the exception, the update at the pole succeeds and sets the current argument
     cache.setthrowExceptionForSingularDerivative( false );
     BOOST_CHECK_NO_THROW( cache.update( 1.0 ) );
     BOOST_CHECK_EQUAL( cache.getCurrentPolynomialParameter( ), 1.0 );
@@ -112,12 +128,15 @@ BOOST_AUTO_TEST_CASE( joinedExceptionAndRetry )
     LegendreCache reference( 20, 20, true );
     reference.setComputeFirstDerivatives( true );
     reference.update( .5 );
+    // After the failed updates, the cache gives the same derivatives as a cache that never failed
     BOOST_CHECK_EQUAL( cache.getLegendrePolynomialDerivative( 15, 5 ), reference.getLegendrePolynomialDerivative( 15, 5 ) );
 }
 
 BOOST_AUTO_TEST_CASE( modelParityNearPolesAndWithSavedTerms )
 {
-    // Compare polar and ordinary positions while keeping the position callback on the caller thread.
+    // Test that the multi-thread spherical harmonic acceleration is bitwise identical to the single-thread one, at an
+    // ordinary position and close to both poles, also when saving the acceleration per term, and that the position function
+    // is only called on the calling thread.
     Eigen::MatrixXd c = Eigen::MatrixXd::Zero( 21, 21 ), s = c;
     c( 0, 0 ) = 1.;
     c( 2, 0 ) = -.001;
@@ -125,22 +144,25 @@ BOOST_AUTO_TEST_CASE( modelParityNearPolesAndWithSavedTerms )
     Eigen::Vector3d position( 7.e6, 2.e6, 1.e6 );
     const auto caller = std::this_thread::get_id( );
     auto getPosition = [ & ]( Eigen::Vector3d& out ) {
+        // The position function is never called by a worker thread
         BOOST_CHECK( std::this_thread::get_id( ) == caller );
         out = position;
     };
     gravitation::SphericalHarmonicsGravitationalAccelerationModel serial( getPosition, 3.986e14, 6.378e6, c, s );
     auto parallel = serial;
     parallel.setNumberOfThreads( workers );
+    // Setting the number of threads of the copy leaves the original model at one thread
     BOOST_CHECK_EQUAL( serial.getNumberOfThreads( ), 1 );
     for( auto p : { Eigen::Vector3d( 7.e6, 2.e6, 1.e6 ), Eigen::Vector3d( 7., 0., 7.e6 ), Eigen::Vector3d( 7., 0., -7.e6 ) } )
     {
         position = p;
         serial.updateMembers( );
         parallel.updateMembers( );
+        // The acceleration is finite (also close to the poles), and identical for both models
         BOOST_CHECK( serial.getAcceleration( ).allFinite( ) );
         BOOST_CHECK_EQUAL( ( serial.getAcceleration( ) - parallel.getAcceleration( ) ).norm( ), 0. );
     }
-    // Compare the saved vectors themselves as well as the total acceleration.
+    // With the acceleration saved per term (at an ordinary position and close to the pole)
     serial.setSaveSphericalHarmonicTermsSeparately( true );
     parallel.setSaveSphericalHarmonicTermsSeparately( true );
     const std::vector< std::pair< int, int > > terms{ { 0, 0 }, { 2, 0 }, { 20, 5 } };
@@ -149,9 +171,11 @@ BOOST_AUTO_TEST_CASE( modelParityNearPolesAndWithSavedTerms )
         position = p;
         serial.updateMembers( );
         parallel.updateMembers( );
+        // The total acceleration is identical for both models
         BOOST_CHECK_EQUAL( ( serial.getAcceleration( ) - parallel.getAcceleration( ) ).norm( ), 0. );
         const auto serialTerms = serial.getConcatenatedAccelerationComponents( terms );
         const auto parallelTerms = parallel.getConcatenatedAccelerationComponents( terms );
+        // The accelerations per term are finite, and identical for both models
         BOOST_CHECK( parallelTerms.allFinite( ) );
         BOOST_CHECK_EQUAL( ( serialTerms - parallelTerms ).norm( ), 0. );
     }
@@ -159,7 +183,9 @@ BOOST_AUTO_TEST_CASE( modelParityNearPolesAndWithSavedTerms )
 
 BOOST_AUTO_TEST_CASE( independentConcurrentCachesAndNestedTeam )
 {
-    // Separate caches on std::threads share neither policy nor mutable scratch.
+    // Test that a multi-thread and a single-thread Legendre cache, updated concurrently on separate std::threads, give
+    // identical results (no shared thread setting or scratch data between caches), and that parallelFor called inside an
+    // active OpenMP region does not create a nested team of threads.
     auto evaluate = []( int count ) {
         LegendreCache cache( 100, 100, true );
         cache.setNumberOfThreads( count );
@@ -169,6 +195,7 @@ BOOST_AUTO_TEST_CASE( independentConcurrentCachesAndNestedTeam )
     };
     auto a = std::async( std::launch::async, evaluate, workers );
     auto b = std::async( std::launch::async, evaluate, 1 );
+    // Concurrently updated multi-thread and single-thread caches give identical derivatives
     BOOST_CHECK_EQUAL( a.get( ), b.get( ) );
 #if defined( TUDAT_BUILD_WITH_OPENMP ) && TUDAT_BUILD_WITH_OPENMP
     std::atomic< int > wrongLevel{ 0 };
@@ -178,40 +205,17 @@ BOOST_AUTO_TEST_CASE( independentConcurrentCachesAndNestedTeam )
             if( omp_get_level( ) != 1 ) ++wrongLevel;
         } );
     }
+    // Inside the outer OpenMP region, all indices of parallelFor run at nesting level 1 (no nested team)
     BOOST_CHECK_EQUAL( wrongLevel.load( ), 0 );
 #endif
 }
 
-BOOST_AUTO_TEST_CASE( executionPolicyExcludedFromArchive )
-{
-    // Check that archive bytes are independent of thread count and loading restores one thread.
-    simulation_setup::SphericalHarmonicAccelerationSettings source( 100, 50, true, workers );
-    std::stringstream bytes;
-    {
-        cereal::BinaryOutputArchive archive( bytes );
-        archive( source );
-    }
-    simulation_setup::SphericalHarmonicAccelerationSettings restored( 1, 1, false, workers );
-    {
-        cereal::BinaryInputArchive archive( bytes );
-        archive( restored );
-    }
-    BOOST_CHECK_EQUAL( restored.maximumDegree_, 100 );
-    BOOST_CHECK_EQUAL( restored.maximumOrder_, 50 );
-    BOOST_CHECK( restored.removePointMass_ );
-    BOOST_CHECK_EQUAL( restored.numberOfThreads_, 1 );
-    std::stringstream serialBytes;
-    source.numberOfThreads_ = 1;
-    {
-        cereal::BinaryOutputArchive archive( serialBytes );
-        archive( source );
-    }
-    BOOST_CHECK_EQUAL( bytes.str( ), serialBytes.str( ) );
-}
-
 BOOST_AUTO_TEST_CASE( reusableTermStorageResizesAndOverwrites )
 {
-    // Reuse degree-sum storage across growing and shrinking expansions, with stale entries poisoned.
+    // Test that the per-degree buffer passed to computeGeodesyNormalizedGravitationalAccelerationSum is resized when the
+    // maximum degree increases and decreases between calls, and that all its entries used in a call are overwritten (entries
+    // are set to NaN before each call), so that reusing the buffer gives an acceleration identical to the single-thread one
+    // computed without a buffer.
     std::vector< Eigen::Vector3d > terms;
     for( int degree : { 3, 20, 3 } )
     {
@@ -239,8 +243,10 @@ BOOST_AUTO_TEST_CASE( reusableTermStorageResizesAndOverwrites )
                                                                                                    1.e-6,
                                                                                                    workers,
                                                                                                    &terms );
+            // No NaN entry of the previous call is used, and the acceleration is identical to the reference
             BOOST_CHECK( actual.allFinite( ) );
             BOOST_CHECK_EQUAL( ( reference - actual ).norm( ), 0. );
+            // The buffer holds one sum per degree with multiple threads, and is not used with one thread
             BOOST_CHECK_EQUAL( terms.size( ), workers > 1 ? degree + 1 : 0 );
         }
     }
@@ -248,7 +254,8 @@ BOOST_AUTO_TEST_CASE( reusableTermStorageResizesAndOverwrites )
 
 BOOST_AUTO_TEST_CASE( nativePropagationParity )
 {
-    // Compare complete fixed-step trajectories for serial and threaded gravity.
+    // Test that a fixed-step RK4 propagation (500 steps) with the multi-thread spherical harmonic acceleration gives a
+    // trajectory that is bitwise identical to that with the single-thread acceleration.
     const auto propagate = []( const int count ) {
         Eigen::MatrixXd c = Eigen::MatrixXd::Zero( 21, 21 ), s = c;
         c( 0, 0 ) = 1.;
@@ -277,6 +284,7 @@ BOOST_AUTO_TEST_CASE( nativePropagationParity )
     BOOST_REQUIRE_EQUAL( serial.size( ), parallel.size( ) );
     for( std::size_t i = 0; i < serial.size( ); ++i )
     {
+        // Each multi-thread state is finite and identical to the single-thread state
         BOOST_CHECK( parallel[ i ].allFinite( ) );
         BOOST_CHECK_EQUAL( ( serial[ i ] - parallel[ i ] ).norm( ), 0. );
     }
