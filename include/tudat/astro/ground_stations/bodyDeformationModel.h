@@ -54,11 +54,22 @@ public:
         modelList_( modelList ), throwExceptionWhenNotAvailable_( throwExceptionWhenNotAvailable )
     {}
 
+    //! Function to apply the closure of this model: (re)set the function returning the deformation models of the body
+    void applyEnvironmentModelClosure(
+            const std::function< std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >&( ) > modelList )
+    {
+        modelList_ = modelList;
+    }
+
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
                                                const std::string& targetFrameOrigin = "" )
     {
         Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
+        if( modelList_ == nullptr )
+        {
+            throw std::runtime_error( "Error in body deformation station motion model, model is not closed (no deformation models)" );
+        }
         std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& currentModels = modelList_( );
         for( unsigned int i = 0; i < currentModels.size( ); i++ )
         {

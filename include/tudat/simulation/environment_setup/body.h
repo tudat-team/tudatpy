@@ -694,6 +694,14 @@ public:
      */
     std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( );
 
+    //! Function to retrieve container object with hardware systems present on/in body, without creating it if it does not exist
+    /*!
+     * Function to retrieve container object with hardware systems present on/in body. Unlike getVehicleSystems, no object is
+     * created if none exists.
+     * \return Container object with hardware systems present on/in body (nullptr if none exists).
+     */
+    std::shared_ptr< system_models::VehicleSystems > getExistingVehicleSystems( );
+
     //! Function to set container object with hardware systems present on/in body
     /*!
      * Function to set container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).

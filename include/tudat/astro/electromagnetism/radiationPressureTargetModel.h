@@ -242,45 +242,24 @@ public:
             const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {},
             const std::map< std::string, int > maximumNumberOfPixelsPerSource = {},
             bool panelGeometryDefined = false ):
-        RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
-        segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),
-        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource ), allPanels_( allPanels ),
-        panelGeometryDefined_( panelGeometryDefined )
+        RadiationPressureTargetModel( sourceToTargetOccultingBodies ), maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource )
     {
-        totalNumberOfPanels_ = allPanels.size( );
-        panelForces_.resize( totalNumberOfPanels_ );
-        surfacePanelCosines_.resize( totalNumberOfPanels_ );
-        surfaceNormals_.resize( totalNumberOfPanels_ );
-        illuminatedPanelFractions_.resize( totalNumberOfPanels_ );
-
-        // create panelTypeIdList for dependent variable save
-        panelTypeIdList_ = std::vector< std::string >( totalNumberOfPanels_ );
-        for( int i = 0; i < totalNumberOfPanels_; i++ )
-        {
-            panelTypeIdList_[ i ] = allPanels_[ i ]->getPanelTypeId( );
-        }
-        // create map of self-shadowing objects per source
-        for( auto it : maximumNumberOfPixelsPerSource_ )
-        {
-            if( it.second < 0 || it.second == 1 )
-            {
-                throw std::runtime_error( "Error, invalid maximum number of pixels for source " + it.first + ", value should be > 2." );
-            }
-            if( it.second > 1 && !panelGeometryDefined_ )
-            {
-                throw std::runtime_error( "Error, maximum number of pixels given for source " + it.first +
-                                          ", however, no panel geometry is defined." );
-            }
-            if( it.second == 0 )
-            {
-                continue;
-            }
-            selfShadowingPerSource_[ it.first ] =
-                    std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allPanels_, it.second ) );
-        }
-
-        unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0 );
+        applyEnvironmentModelClosure(
+                bodyFixedPanels, allPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, panelGeometryDefined );
     }
+
+    //! Constructor for model without panels (which are set by the closure of the model)
+    explicit PaneledRadiationPressureTargetModel( const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies,
+                                                  const std::map< std::string, int > maximumNumberOfPixelsPerSource );
+
+    //! Function to apply the closure of this model: (re)set the panels of the target, and the rotations of the vehicle parts to
+    //! which they are fixed
+    void applyEnvironmentModelClosure(
+            const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& bodyFixedPanels,
+            const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels,
+            const std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >& segmentFixedPanels,
+            const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations,
+            const bool panelGeometryDefined );
 
     void enableTorqueComputation( const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
     {
@@ -447,7 +426,7 @@ private:
     std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > selfShadowingPerSource_;
     std::vector< std::string > panelTypeIdList_;
     std::vector< double > unityIlluminationFraction_;
-    const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels_;
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels_;
     bool panelGeometryDefined_;
 };
 

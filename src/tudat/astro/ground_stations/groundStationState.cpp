@@ -175,11 +175,29 @@ Eigen::Vector6d PiecewiseConstantStationMotionModel::getBodyFixedStationMotion(
     return stationMotion;
 }
 
+void BodyCentricToBarycentricRelativisticStationMotion::applyEnvironmentModelClosure(
+        const std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction,
+        const std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction,
+        const std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction,
+        const std::function< double( ) > centralBodyGravitationalParameterFunction )
+{
+    bodyBarycentricStateFunction_ = bodyBarycentricStateFunction;
+    centralBodyBarycentricPositionFunction_ = centralBodyBarycentricPositionFunction;
+    inertialToBodyFixedRotationFunction_ = inertialToBodyFixedRotationFunction;
+    centralBodyGravitationalParameterFunction_ = centralBodyGravitationalParameterFunction;
+}
+
 Eigen::Vector6d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedStationMotion(
         const double time,
         const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
         const std::string& targetFrameOrigin )
 {
+    if( bodyBarycentricStateFunction_ == nullptr || inertialToBodyFixedRotationFunction_ == nullptr ||
+        ( useGeneralRelativisticCorrection_ &&
+          ( centralBodyGravitationalParameterFunction_ == nullptr || centralBodyBarycentricPositionFunction_ == nullptr ) ) )
+    {
+        throw std::runtime_error( "Error in body- to barycentric station motion model, model is not closed (no body functions)" );
+    }
     Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
 
     if( targetFrameOrigin == "SSB" )

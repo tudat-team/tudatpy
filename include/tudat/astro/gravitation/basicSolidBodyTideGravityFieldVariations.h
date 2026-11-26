@@ -259,6 +259,13 @@ public:
         return deformingBodyStateFunctions_;
     }
 
+    //! Function to apply the closure of this model: (re)set the functions for the states, orientation and masses of the bodies
+    void applyEnvironmentModelClosure( const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
+                                       const std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction,
+                                       const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyStateFunctions,
+                                       const std::function< double( ) > deformedBodyMass,
+                                       const std::vector< std::function< double( ) > >& deformingBodyMasses );
+
     //! Get a string with the concatenation of all the bodies causing the deformation.
     /*!
      *  Get a string with the concatenation of all the bodies causing the deformation.

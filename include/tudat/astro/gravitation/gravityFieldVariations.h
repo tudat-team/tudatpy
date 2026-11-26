@@ -400,6 +400,11 @@ public:
         return variationObjects_;
     }
 
+    bool isVariationInterpolated( const int variationIndex )
+    {
+        return createInterpolator_.count( variationIndex ) > 0;
+    }
+
     //! Function to retrieve the tidal gravity field variation with the specified bodies causing deformation
     /*!
      * Function to retrieve the tidal gravity field variation with the specified bodies causing deformation. If the

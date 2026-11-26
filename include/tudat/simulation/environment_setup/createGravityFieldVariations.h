@@ -1133,6 +1133,13 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
         const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
 
+//! Function to create a set of gravity field variations without closure (links to other bodies). The closure is applied by
+//! applyEnvironmentModelClosure (for instance through closeSystemOfBodies).
+std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSetWithoutClosure(
+        const std::string& body,
+        const SystemOfBodies& bodies,
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
+
 //! Function to create a single gravity field variation object.
 /*!
  * Function to create a single gravity field variation object.
@@ -1142,12 +1149,18 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
  * or they are directly calculated from the current state during numerical propagation.
  * \param body Body for which gravity field variations are createad
  * \param bodies List of body objects in simulations.
- * \return Single gravity field variation object.
+ * \return Single gravity field variation object, without closure (applied to the set of variations by
+ * createGravityFieldModelVariationsSet).
  */
 std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const std::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
         const SystemOfBodies& bodies );
+
+//! Function to apply the closure of a set of gravity field variations (tidal variations are linked to the bodies involved)
+bool applyEnvironmentModelClosure( const std::shared_ptr< gravitation::GravityFieldVariationsSet > variationSet,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies );
 
 }  // namespace simulation_setup
 }  // namespace tudat

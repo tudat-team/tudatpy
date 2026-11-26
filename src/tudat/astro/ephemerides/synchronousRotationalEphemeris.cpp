@@ -36,7 +36,7 @@ Eigen::Matrix3d SynchronousRotationalEphemeris::getFullyLockedRotationToBaseFram
 //! Calculate rotation quaternion from target frame to base frame.
 Eigen::Matrix3d SynchronousRotationalEphemeris::getFullyLockedRotationToBaseFrame( const double currentTime )
 {
-    Eigen::Vector6d relativeState = relativeStateFunction_( currentTime, isBodyInPropagation_ );
+    Eigen::Vector6d relativeState = computeRelativeState( currentTime );
     return getFullyLockedRotationToBaseFrame( relativeState, currentTime );
 }
 
@@ -57,14 +57,14 @@ Eigen::Matrix3d SynchronousRotationalEphemeris::getLibrationRotation( const Eige
 
 Eigen::Matrix3d SynchronousRotationalEphemeris::getLibrationRotation( const double currentTime )
 {
-    Eigen::Vector6d relativeState = relativeStateFunction_( currentTime, isBodyInPropagation_ );
+    Eigen::Vector6d relativeState = computeRelativeState( currentTime );
     return getLibrationRotation( relativeState, currentTime );
 }
 
 //! Calculate rotation quaternion from target frame to base frame.
 Eigen::Quaterniond SynchronousRotationalEphemeris::getRotationToBaseFrame( const double currentTime )
 {
-    Eigen::Vector6d relativeState = relativeStateFunction_( currentTime, isBodyInPropagation_ );
+    Eigen::Vector6d relativeState = computeRelativeState( currentTime );
     return Eigen::Quaterniond( getFullyLockedRotationToBaseFrame( relativeState, currentTime ) *
                                getLibrationRotation( relativeState, currentTime ) );
 }
@@ -78,6 +78,15 @@ Eigen::Matrix3d SynchronousRotationalEphemeris::getDerivativeOfRotationToBaseFra
         warningPrinted_ = true;
     }
     return Eigen::Matrix3d::Zero( );
+}
+
+Eigen::Vector6d SynchronousRotationalEphemeris::computeRelativeState( const double time )
+{
+    if( relativeStateFunction_ == nullptr )
+    {
+        throw std::runtime_error( "Error in synchronous rotation model, model is not closed (no relative state function)" );
+    }
+    return relativeStateFunction_( time, isBodyInPropagation_ );
 }
 
 }  // namespace ephemerides

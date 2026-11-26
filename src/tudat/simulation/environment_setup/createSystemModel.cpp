@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -53,6 +54,29 @@ void addVariableDirectionEngineModel( const std::string& bodyName,
         bodies.at( bodyName )->getVehicleSystems( )->setEngineModel( vehicleEngineModel );
     }
 }
+
+namespace
+{
+
+//! Function to create the surface normal (in body-fixed frame) of a panel that points towards (or away from) a body
+std::function< Eigen::Vector3d( ) > createBodyTrackingSurfaceNormalFunction( const std::shared_ptr< Body > panelledBody,
+                                                                             const std::shared_ptr< Body > trackedBody,
+                                                                             const bool isPointingTowardsTrackedBody )
+{
+    const double sign = isPointingTowardsTrackedBody ? +1.0 : -1.0;
+
+    // Construct surface normal function always pointing towards/away from tracked body
+    return [ = ]( ) {
+        const Eigen::Quaterniond rotationFromPropagationToLocalFrame = panelledBody->getCurrentRotationToLocalFrame( );
+        const Eigen::Vector3d relativeSourcePositionInPropagationFrame = trackedBody->getPosition( ) - panelledBody->getPosition( );
+        const Eigen::Vector3d relativeSourcePositionInLocalFrame =
+                rotationFromPropagationToLocalFrame * relativeSourcePositionInPropagationFrame;
+        Eigen::Vector3d surfaceNormal = sign * relativeSourcePositionInLocalFrame.normalized( );
+        return surfaceNormal;
+    };
+}
+
+}  // namespace
 
 std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string > createBodyExteriorPanel(
         const std::shared_ptr< BodyPanelSettings > panelSettings,
@@ -114,20 +138,9 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         else if( variableBodyPanelGeometrySettings->bodyToTrack_.first != "" )
         {
             // Tracking a body means setting the surface normal towards the tracked body in the source local frame
+            // (surface normal is set by the closure of the vehicle systems)
             trackedBodyName = variableBodyPanelGeometrySettings->bodyToTrack_.first;
-            const auto bodyToTrack = bodies.at( trackedBodyName );
-            const auto targetBody = bodies.at( bodyName );
-            const auto sign = variableBodyPanelGeometrySettings->bodyToTrack_.second ? +1.0 : -1.0;
-
-            // Construct surface normal function always pointing towards/away from tracked body
-            localFrameSurfaceNormal = [ = ]( ) {
-                const Eigen::Quaterniond rotationFromPropagationToLocalFrame = targetBody->getCurrentRotationToLocalFrame( );
-                const Eigen::Vector3d relativeSourcePositionInPropagationFrame = bodyToTrack->getPosition( ) - targetBody->getPosition( );
-                const Eigen::Vector3d relativeSourcePositionInLocalFrame =
-                        rotationFromPropagationToLocalFrame * relativeSourcePositionInPropagationFrame;
-                Eigen::Vector3d surfaceNormal = sign * relativeSourcePositionInLocalFrame.normalized( );
-                return surfaceNormal;
-            };
+            localFrameSurfaceNormal = nullptr;
         }
         else
         {
@@ -146,6 +159,11 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
                                                                      geometry3dLoaded );
 
     exteriorPanel->setPanelTypeId( panelSettings->panelTypeId_ );
+    if( trackedBodyName != "" )
+    {
+        exteriorPanel->setIsPointingTowardsTrackedBody(
+                std::dynamic_pointer_cast< FrameVariableBodyPanelGeometrySettings >( panelSettings->panelGeometry_ )->bodyToTrack_.second );
+    }
 
     if( panelSettings->reflectionLawSettings_ != nullptr )
     {
@@ -184,9 +202,61 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
     return std::make_pair( exteriorPanel, panelFixedFrame );
 }
 
+bool applyEnvironmentModelClosure( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems,
+                                   const std::string& bodyName,
+                                   const SystemOfBodies& bodies )
+{
+    // Surface normals of panels tracking a body
+    for( std::shared_ptr< system_models::VehicleExteriorPanel > panel : vehicleSystems->getAllPanels( ) )
+    {
+        if( panel->getTrackedBody( ) != "" )
+        {
+            if( bodies.count( panel->getTrackedBody( ) ) == 0 )
+            {
+                throw std::runtime_error( "Error when applying closure of exterior panels of body " + bodyName + ", tracked body " +
+                                          panel->getTrackedBody( ) + " not found" );
+            }
+            panel->applyEnvironmentModelClosure( createBodyTrackingSurfaceNormalFunction(
+                    bodies.at( bodyName ), bodies.at( panel->getTrackedBody( ) ), panel->getIsPointingTowardsTrackedBody( ) ) );
+        }
+    }
+
+    // Input variables of parameterized thrust magnitude (which may require closed flight conditions)
+    for( auto engineModel : vehicleSystems->getEngineModels( ) )
+    {
+        std::shared_ptr< propulsion::ParameterizedThrustMagnitudeWrapper > parameterizedThrustMagnitude =
+                std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >(
+                        engineModel.second->getThrustMagnitudeWrapper( ) );
+        if( parameterizedThrustMagnitude != nullptr )
+        {
+            std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodies.at( bodyName )->getFlightConditions( );
+            if( flightConditions != nullptr && flightConditions->getAerodynamicAngleCalculator( ) == nullptr )
+            {
+                return false;
+            }
+            parameterizedThrustMagnitude->applyEnvironmentModelClosure(
+                    getPropulsionInputVariables( bodies.at( bodyName ),
+                                                 parameterizedThrustMagnitude->getThrustIndependentVariables( ),
+                                                 parameterizedThrustMagnitude->getThrustGuidanceInputFunctions( ) ),
+                    getPropulsionInputVariables( bodies.at( bodyName ),
+                                                 parameterizedThrustMagnitude->getSpecificImpulseDependentVariables( ),
+                                                 parameterizedThrustMagnitude->getSpecificImpulseGuidanceInputFunctions( ) ) );
+        }
+    }
+    return true;
+}
+
 void addBodyExteriorPanelledShape( const std::shared_ptr< FullPanelledBodySettings > panelSettings,
                                    const std::string& bodyName,
                                    const simulation_setup::SystemOfBodies& bodies )
+{
+    addBodyExteriorPanelledShapeWithoutClosure( panelSettings, bodyName, bodies );
+    applyEnvironmentModelClosure( bodies.at( bodyName )->getVehicleSystems( ), bodyName, bodies );
+}
+
+void addBodyExteriorPanelledShapeWithoutClosure( const std::shared_ptr< FullPanelledBodySettings > panelSettings,
+                                                 const std::string& bodyName,
+                                                 const simulation_setup::SystemOfBodies& bodies )
 {
     if( bodies.count( bodyName ) == 0 )
     {

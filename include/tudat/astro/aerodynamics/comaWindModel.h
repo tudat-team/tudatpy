@@ -119,6 +119,13 @@ public:
     ComaWindModel( const ComaWindModel& ) = delete;
     ComaWindModel& operator=( const ComaWindModel& ) = delete;
 
+    //! Function to apply the closure of this model: (re)set the coma model, the state functions of Sun and comet, and the comet
+    //! rotation. The spherical harmonics calculator of the coma model is used.
+    void applyEnvironmentModelClosure( const std::shared_ptr< ComaModel > comaModel,
+                                       const std::function< Eigen::Vector6d( ) > sunStateFunction,
+                                       const std::function< Eigen::Vector6d( ) > cometStateFunction,
+                                       const std::function< Eigen::Matrix3d( ) > cometRotationFunction );
+
     //! Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
     /*!
      * Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere

@@ -2101,6 +2101,11 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                                                                              nameOfCentralBody );
             break;
         case aerodynamic:
+            // Flight conditions are added (with the closure of the models that require them), if not yet extant
+            if( bodies.count( nameOfBodyUndergoingAcceleration ) > 0 && bodyUndergoingAcceleration->getFlightConditions( ) == nullptr )
+            {
+                addAtmosphericFlightConditions( bodies, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration );
+            }
             accelerationModelPointer = createAerodynamicAcceleratioModel( bodyUndergoingAcceleration,
                                                                           bodyExertingAcceleration,
                                                                           nameOfBodyUndergoingAcceleration,

@@ -174,6 +174,40 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
     return windModel;
 }
 
+//! Function to apply the closure of an atmosphere model (links of coma and coma wind models to the states and rotation of bodies)
+bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies )
+{
+    if( bodies.count( "Sun" ) == 0 )
+    {
+        throw std::runtime_error( "Error when applying closure of coma model of body " + body + ", Sun not found in system of bodies" );
+    }
+    std::function< Eigen::Vector6d( ) > sunStateFunction = std::bind( &Body::getState, bodies.at( "Sun" ) );
+    std::function< Eigen::Vector6d( ) > bodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
+    std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
+            std::bind( &Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
+
+    std::shared_ptr< aerodynamics::ComaModel > comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
+    if( comaModel != nullptr )
+    {
+        comaModel->applyEnvironmentModelClosure( sunStateFunction, bodyStateFunction, bodyOrientationFunction );
+    }
+
+    std::shared_ptr< aerodynamics::ComaWindModel > comaWindModel =
+            std::dynamic_pointer_cast< aerodynamics::ComaWindModel >( atmosphereModel->getWindModel( ) );
+    if( comaWindModel != nullptr )
+    {
+        if( comaModel == nullptr )
+        {
+            throw std::runtime_error( "Error when applying closure of coma wind model of body " + body +
+                                      ", atmosphere model must be a ComaModel" );
+        }
+        comaWindModel->applyEnvironmentModelClosure( comaModel, sunStateFunction, bodyStateFunction, bodyOrientationFunction );
+    }
+    return true;
+}
+
 //! Function to create an atmosphere model.
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& bodyName,

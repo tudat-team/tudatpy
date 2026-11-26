@@ -1714,6 +1714,18 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
         const std::string& body,
         const SystemOfBodies& bodies );
 
+//! Function to create an aerodynamic coefficient interface without closure (moment contribution, panels of vehicle)
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterfaceWithoutClosure(
+        const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies );
+
+//! Function to apply the closure of an aerodynamic coefficient interface. Returns false if the closure cannot yet be applied
+//! (moment contribution requires closed flight conditions).
+bool applyEnvironmentModelClosure( const std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface,
+                                   const std::string& body,
+                                   const SystemOfBodies& bodies );
+
 std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterfaceDeprecated(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body );

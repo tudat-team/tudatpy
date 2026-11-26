@@ -193,6 +193,19 @@ void SolidBodyTideGravityFieldVariations::setBodyGeometryParameters( const int b
     iLongitude = mathematical_constants::COMPLEX_I * relativeDeformingBodySphericalPosition.z( );
     sineOfLatitude = std::sin( mathematical_constants::PI / 2.0 - relativeDeformingBodySphericalPosition.y( ) );
 }
+void SolidBodyTideGravityFieldVariations::applyEnvironmentModelClosure(
+        const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
+        const std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction,
+        const std::vector< std::function< Eigen::Vector6d( const double ) > >& deformingBodyStateFunctions,
+        const std::function< double( ) > deformedBodyMass,
+        const std::vector< std::function< double( ) > >& deformingBodyMasses )
+{
+    deformedBodyStateFunction_ = deformedBodyStateFunction;
+    deformedBodyOrientationFunction_ = deformedBodyOrientationFunction;
+    deformingBodyStateFunctions_ = deformingBodyStateFunctions;
+    deformedBodyMass_ = deformedBodyMass;
+    deformingBodyMasses_ = deformingBodyMasses;
+}
 
 //! Function for calculating spherical harmonic coefficient corrections.
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariations::calculateBasicSphericalHarmonicsCorrections(
@@ -201,6 +214,11 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
     // Initialize corrections to zero.
     Eigen::MatrixXd cTermCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sTermCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+
+    if( deformedBodyStateFunction_ == nullptr || deformingBodyStateFunctions_.size( ) != deformingBodies_.size( ) )
+    {
+        throw std::runtime_error( "Error in solid body tide gravity field variation, model is not closed (no body state functions)" );
+    }
 
     // Iterate over all bodies causing deformation and calculate and add associated corrections
     for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )

@@ -26,6 +26,14 @@ void CustomBodyFixedDirectionCalculator::update( const double time )
     }
 }
 
+void StateBasedBodyFixedDirectionCalculator::applyEnvironmentModelClosure(
+        const std::function< void( Eigen::Vector6d& ) > relativeStateFunction,
+        const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame )
+{
+    relativeStateFunction_ = relativeStateFunction;
+    InertialBodyFixedDirectionCalculator::applyEnvironmentModelClosure( rotationMatrixToPropagationFrame );
+}
+
 Eigen::Quaterniond DirectionBasedRotationalEphemeris::getRotationToBaseFrame( const double currentTime )
 {
     Eigen::Vector3d eulerAngles = getEulerAngles( currentTime );

@@ -31,6 +31,12 @@ public:
         aerodynamicAngleCalculator->setAerodynamicAngleClosureIsIncomplete( );
     }
 
+    //! Constructor for model without aerodynamic angle calculator (which is set by the closure of the model)
+    AerodynamicAngleRotationalEphemeris( const std::string& centralBodyName,
+                                         const std::string& baseFrameOrientation,
+                                         const std::string& targetFrameOrientation,
+                                         const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr );
+
     //! Virtual destructor.
     /*!
      * Virtual destructor.
@@ -75,9 +81,36 @@ public:
         return aerodynamicAngleCalculator_;
     }
 
+    //! Function to apply the closure of this model: (re)set the aerodynamic angle calculator
+    void applyEnvironmentModelClosure( const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator );
+
+    std::string getCentralBodyName( )
+    {
+        return centralBodyName_;
+    }
+
+    //! Function to set that the angle of attack is to be computed from trim conditions (applied by the closure of this model)
+    void setIsPitchTrimmed( const bool isPitchTrimmed,
+                            const std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction = nullptr );
+
+    bool getIsPitchTrimmed( )
+    {
+        return isPitchTrimmed_;
+    }
+
+    std::function< Eigen::Vector2d( const double ) > getTrimSideslipAndBankAngleFunction( )
+    {
+        return trimSideslipAndBankAngleFunction_;
+    }
+
     void setAerodynamicAngleFunction( const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction )
     {
         aerodynamicAngleFunction_ = aerodynamicAngleFunction;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getAerodynamicAngleFunction( )
+    {
+        return aerodynamicAngleFunction_;
     }
 
     void addSideslipBankAngleFunctions( std::function< Eigen::Vector2d( const double ) > sideslipAndBankAngleFunction )
@@ -108,6 +141,12 @@ protected:
     void updateBodyAngles( );
 
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
+
+    std::string centralBodyName_;
+
+    bool isPitchTrimmed_ = false;
+
+    std::function< Eigen::Vector2d( const double ) > trimSideslipAndBankAngleFunction_;
 
     std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction_;
 

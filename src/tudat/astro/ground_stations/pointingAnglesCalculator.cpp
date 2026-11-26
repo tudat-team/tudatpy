@@ -17,6 +17,14 @@ namespace tudat
 namespace ground_stations
 {
 
+void PointingAnglesCalculator::applyEnvironmentModelClosure(
+        const std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame,
+        const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame )
+{
+    rotationFromInertialToBodyFixedFrame_ = rotationFromInertialToBodyFixedFrame;
+    rotationFromBodyFixedToTopoCentricFrame_ = rotationFromBodyFixedToTopoCentricFrame;
+}
+
 //! Function to calculate the elevation angle given a vector in the topocentric frame.
 double PointingAnglesCalculator::calculateElevationAngle( const Eigen::Vector3d& vectorInTopoCentricFrame )
 {
@@ -78,6 +86,10 @@ Eigen::Vector3d PointingAnglesCalculator::convertVectorFromInertialToTopocentric
                                                                                        const double time )
 {
     // Calculate anf combine constituent rotations.
+    if( rotationFromInertialToBodyFixedFrame_ == nullptr || rotationFromBodyFixedToTopoCentricFrame_ == nullptr )
+    {
+        throw std::runtime_error( "Error in pointing angles calculator, model is not closed (no rotation functions)" );
+    }
     return rotationFromBodyFixedToTopoCentricFrame_( time ) * rotationFromInertialToBodyFixedFrame_( time ) * inertialVector;
 }
 
