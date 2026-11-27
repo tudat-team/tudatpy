@@ -18,6 +18,7 @@
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "boost/algorithm/string.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 
@@ -148,6 +149,15 @@ void validateTleChecksumOrThrow( const std::string& line )
 namespace
 {
 
+//! Replace blanks in a fixed-column numeric TLE field by zeros, so that a blank field (or blank digits in it) reads as 0.
+//! Follows the blank-field handling of the SGP4 reference implementation (Vallado et al., 2006, "Revisiting Spacetrack
+//! Report #3", AIAA 2006-6753, twoline2rv), which fills blank numeric columns with '0' before reading them.
+std::string blanksToZeros( std::string field )
+{
+    std::replace( field.begin( ), field.end( ), ' ', '0' );
+    return field;
+}
+
 //! Format a value as a fixed-width, space-padded field with the given number of decimals (e.g. degrees fields).
 std::string formatTleFixedField( const double value, const int totalWidth, const int fractionDigits )
 {
@@ -216,18 +226,28 @@ void Tle::computeRawLines( )
     char dayFractionBuffer[ 16 ];
     std::snprintf( dayFractionBuffer, sizeof( dayFractionBuffer ), "%012.8f", epochDayFraction );
 
-    std::string pieceField = internationalDesignatorPiece_;
-    pieceField.resize( 3, ' ' );
+    // International designator (columns 10-17). A TLE without one (launch year and number 0, no piece) is written with
+    // these columns blank, as it is read.
+    std::string internationalDesignatorField;
+    if( internationalDesignatorLaunchYear_ == 0 && internationalDesignatorLaunchNumber_ == 0 && internationalDesignatorPiece_.empty( ) )
+    {
+        internationalDesignatorField = std::string( 8, ' ' );
+    }
+    else
+    {
+        std::string pieceField = internationalDesignatorPiece_;
+        pieceField.resize( 3, ' ' );
+        internationalDesignatorField = utilities::paddedZeroIntString( internationalDesignatorLaunchYear_ % 100, 2 ) +
+                utilities::paddedZeroIntString( internationalDesignatorLaunchNumber_, 3 ) + pieceField;
+    }
 
     // Physical rates are stored in radians/minute^{1,2,3}; the TLE fields are in revolutions/day^{1,2,3}.
     const double revPerDayToRadPerMin = 2.0 * mathematical_constants::PI / 1440.0;
 
     // ---- Line 1: identification, epoch and drag/ballistic terms ----
     std::string line1 = "1 " + utilities::paddedZeroIntString( noradCatalogNumber_, 5 ) + std::string( 1, classification_ ) + " " +
-            utilities::paddedZeroIntString( internationalDesignatorLaunchYear_ % 100, 2 ) +
-            utilities::paddedZeroIntString( internationalDesignatorLaunchNumber_, 3 ) + pieceField + " " +
-            utilities::paddedZeroIntString( epochYear % 100, 2 ) + std::string( dayFractionBuffer ) + " " +
-            formatTleSignedDecimalField( meanMotionFirstDerivative_ / revPerDayToRadPerMin, 8 ) + " " +
+            internationalDesignatorField + " " + utilities::paddedZeroIntString( epochYear % 100, 2 ) + std::string( dayFractionBuffer ) +
+            " " + formatTleSignedDecimalField( meanMotionFirstDerivative_ / revPerDayToRadPerMin, 8 ) + " " +
             formatTleExponentialField( meanMotionSecondDerivative_ / ( revPerDayToRadPerMin / 1440.0 / 1440.0 ) ) + " " +
             formatTleExponentialField( bStar_ ) + " " + std::to_string( ephemerisType_ ) + " " +
             utilities::paddedZeroIntString( elementSetNumber_, 4 );
@@ -321,15 +341,16 @@ Tle::Tle( const std::string& lines )
     validateTleChecksumOrThrow( line2 );
 
     noradCatalogNumber_ = std::stoi( line1.substr( 2, 5 ) );
-    classification_ = line1.at( 7 );
+    // A blank classification is read as unclassified ('U'), as in the SGP4 reference implementation.
+    classification_ = ( line1.at( 7 ) == ' ' ) ? 'U' : line1.at( 7 );
 
-    // IF missing INTLDES, replace with mock designation
+    // A blank international designator (e.g. analyst objects or old element sets) is kept as "none": launch year and
+    // launch number 0 and an empty piece. No designator is invented.
     std::string launchYearStr = boost::algorithm::trim_copy( line1.substr( 9, 2 ) );
     internationalDesignatorLaunchYear_ = launchYearStr.empty( ) ? 0 : std::stoi( launchYearStr );
     std::string launchNumberStr = boost::algorithm::trim_copy( line1.substr( 11, 3 ) );
     internationalDesignatorLaunchNumber_ = launchNumberStr.empty( ) ? 0 : std::stoi( launchNumberStr );
-    internationalDesignatorPiece_ =
-            boost::algorithm::trim_copy( line1.substr( 14, 3 ) ).empty( ) ? "A" : boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
+    internationalDesignatorPiece_ = boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
 
     int epochYear = std::stoi( line1.substr( 18, 2 ) );
     double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
@@ -356,18 +377,20 @@ Tle::Tle( const std::string& lines )
     // Mean motion first derivative (rev/day^2)
     meanMotionFirstDerivative_ = std::stod( line1.substr( 33, 10 ) );
     meanMotionFirstDerivative_ *= 2.0 * mathematical_constants::PI / ( ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) );
-    // Mean motion second derivative (rev/day^3), mantissa+exponent format
-    const double nDdotMantissa = std::stod( line1.substr( 44, 6 ) );
-    const int nDdotExponent = std::stoi( line1.substr( 50, 2 ) );
+    // Mean motion second derivative (rev/day^3), mantissa+exponent format. Blank columns read as 0 (see blanksToZeros).
+    const double nDdotMantissa = std::stod( blanksToZeros( line1.substr( 44, 6 ) ) );
+    const int nDdotExponent = std::stoi( blanksToZeros( line1.substr( 50, 2 ) ) );
     meanMotionSecondDerivative_ = nDdotMantissa * 1.0e-5 * std::pow( 10.0, nDdotExponent );
     meanMotionSecondDerivative_ *= 2.0 * mathematical_constants::PI / ( ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) );
 
-    double bStar = std::stod( line1.substr( 53, 6 ) );
-    double bStarExp = std::stod( line1.substr( 59, 2 ) );
+    double bStar = std::stod( blanksToZeros( line1.substr( 53, 6 ) ) );
+    double bStarExp = std::stod( blanksToZeros( line1.substr( 59, 2 ) ) );
     bStar_ = bStar * std::pow( 10, bStarExp - 5 );
 
-    ephemerisType_ = std::stoi( line1.substr( 62, 1 ) );
-    elementSetNumber_ = std::stoi( line1.substr( 64, 4 ) );
+    // Blank ephemeris type and element set number read as 0 (ephemeris type 0 = SGP4/SDP4; also the CCSDS OMM default,
+    // CCSDS 502.0-B-3 Table 4-3).
+    ephemerisType_ = std::stoi( blanksToZeros( line1.substr( 62, 1 ) ) );
+    elementSetNumber_ = std::stoi( blanksToZeros( line1.substr( 64, 4 ) ) );
 
     // ---- Line 2: classical elements ----
     inclination_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 8, 8 ) ) );
@@ -383,7 +406,7 @@ Tle::Tle( const std::string& lines )
     double meanMotionRevDay = std::stod( line2.substr( 52, 11 ) );
     meanMotion_ = meanMotionRevDay * 2.0 * mathematical_constants::PI / ( 60.0 * 24.0 );
 
-    revolutionNumberAtEpoch_ = std::stoi( line2.substr( 63, 5 ) );
+    revolutionNumberAtEpoch_ = std::stoi( blanksToZeros( line2.substr( 63, 5 ) ) );
 }
 
 Tle::Tle( const std::string& tleLine1, const std::string& tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) {}
