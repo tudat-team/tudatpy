@@ -138,8 +138,7 @@ class BuildParser(argparse.ArgumentParser):
             action="store_false",
             help=(
                 "Compile every source separately instead of merging the heaviest ones; "
-                "faster incremental rebuilds, more RAM and time for full builds; "
-                "requires --force-setup for an existing build directory [Default: False]"
+                "faster incremental rebuilds, more RAM and time for full builds [Default: False]"
             ),
         )
         cmake_group.add_argument(
