@@ -160,6 +160,10 @@ only needs to provide (for coefficient models that provide this freedom) the phy
 Can be used for a custom coefficient interface with other variables, at the expense of being able to use the FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
 
 )doc" )
+            .value( "specific_gas_constant_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::specific_gas_constant_dependent,
+                    R"doc(
+      )doc" )
             .export_values( );
 
     py::enum_< ta::AerodynamicCoefficientFrames >( m,
@@ -475,6 +479,10 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
 
         Enum defining Gas-Surface Interaction Model (GSIM) for panelled aerodynamic force
 
+        Each model gives the pressure coefficient :math:`C_{p}` and the shear stress coefficient :math:`C_{\tau}` of a panel,
+        with :math:`\delta` the angle between the panel outward unit normal and the direction the flow comes from.
+        The Storch, Sentman and Cook models are implemented as in ADBSat :cite:p:`sinpetru2022`.
+
 .)doc" )
             .value( "newton",
                     ta::newton,
@@ -495,8 +503,38 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
              C_{\tau} &= 2 \sigma_{T} \sin \delta \cos \delta
 )doc" )
 
-            .value( "sentman", ta::sentman )
-            .value( "cook", ta::cook );
+            .value( "sentman",
+                    ta::sentman,
+                    R"doc(
+        Sentman GSIM, for which
+
+         .. math::
+             C_{p}   &= \left( \cos^{2} \delta + \frac{1}{2 s^{2}} \right) \left( 1 + \mathrm{erf}( s \cos \delta ) \right)
+                        + \frac{\cos \delta}{s \sqrt{\pi}} e^{-s^{2} \cos^{2} \delta}
+                        + \frac{1}{2} \sqrt{ \frac{1}{2} \left( 1 + \alpha_{E} \left( \frac{4 R T_{W}}{V^{2}} - 1 \right) \right) }
+                          \left( \sqrt{\pi} \cos \delta \left( 1 + \mathrm{erf}( s \cos \delta ) \right) + \frac{1}{s} e^{-s^{2} \cos^{2} \delta} \right) \\
+             C_{\tau} &= \sin \delta \cos \delta \left( 1 + \mathrm{erf}( s \cos \delta ) \right) + \frac{\sin \delta}{s \sqrt{\pi}} e^{-s^{2} \cos^{2} \delta}
+
+        with :math:`s = V / \sqrt{2 R T_{\infty}}` the speed ratio, :math:`V` the airspeed, :math:`T_{\infty}` the freestream temperature,
+        :math:`R` the specific gas constant of the atmosphere (from its pressure, density and temperature), :math:`T_{W}` the panel temperature and :math:`\alpha_{E}` the panel energy accommodation coefficient.
+        The square root is the ratio of the reflected to the incoming molecule speed, for re-emitted molecules with an average energy of :math:`2 kT`.
+        Values of :math:`\alpha_{E}` fitted with the :math:`3/2 kT` form of the reflected energy do not carry over directly to this model.
+)doc" )
+            .value( "cook",
+                    ta::cook,
+                    R"doc(
+        Cook GSIM, for which
+
+         .. math::
+             C_{D}   &= 2 \cos \delta \left( 1 + \frac{2}{3} \cos \delta \sqrt{ 1 + \alpha_{E} \left( \frac{T_{W}}{T_{i}} - 1 \right) } \right) \\
+             C_{L}   &= \frac{4}{3} \sin \delta \cos \delta \sqrt{ 1 + \alpha_{E} \left( \frac{T_{W}}{T_{i}} - 1 \right) } \\
+             C_{p}   &= C_{D} \cos \delta + C_{L} \sin \delta \\
+             C_{\tau} &= C_{D} \sin \delta - C_{L} \cos \delta
+
+        with :math:`C_{D}` and :math:`C_{L}` the panel drag and lift coefficients, :math:`T_{i} = V^{2} / ( 3 R )` the kinetic temperature
+        of the incoming flow, :math:`V` the airspeed, :math:`R` the specific gas constant of the atmosphere (from its pressure, density and temperature), :math:`T_{W}` the panel temperature and
+        :math:`\alpha_{E}` the panel energy accommodation coefficient.
+)doc" );
 
     m.def( "panelled",
            py::overload_cast< const ta::GasSurfaceInteractionModelType, const double, const int, const bool >(
@@ -516,10 +554,12 @@ void expose_aerodynamic_coefficient_setup( py::module& m )
  Using the panel geometry and the gas surface interaction model (defined as input to this function), the force coefficient vector is computed as:
 
  .. math::
-    \mathbf{C} = \sum_{k=1}^{N}\frac{A_k f_k}{ A} \left( -C_{p,k} \hat{\mathbf{N}}_k + C_{\tau,k} \left( \left( \hat{\mathbf{v}} \times \hat{\mathbf{N}}_k \right) \times \hat{\mathbf{N}}_k \right) \right)
+    \mathbf{C} = \sum_{k=1}^{N}\frac{A_k f_k}{ A} \left( -C_{p,k} \hat{\mathbf{N}}_k + C_{\tau,k} \hat{\mathbf{t}}_k \right), \qquad
+    \hat{\mathbf{t}}_k = \frac{\hat{\mathbf{v}} - \left( \hat{\mathbf{v}} \cdot \hat{\mathbf{N}}_k \right) \hat{\mathbf{N}}_k}{\sin \delta_k}
 
  with :math:`C_{p,k}` and :math:`C_{\tau,k}` the pressure coefficient and shear stress coefficient on panel :math:`k`,
- :math:`\hat{\mathbf{N}}_k` the panel surface outward unit normal and :math:`\hat{\mathbf{v}}` the freestream velocity normal vector.
+ :math:`\hat{\mathbf{N}}_k` the panel surface outward unit normal, :math:`\hat{\mathbf{v}}` the freestream velocity unit vector,
+ :math:`\delta_k` the angle between :math:`-\hat{\mathbf{v}}` and :math:`\hat{\mathbf{N}}_k`, and :math:`\hat{\mathbf{t}}_k` the unit vector along the panel in the direction of the flow.
  The quantities :math:`A_{k}` and :math:`f_{k}` represent the surface area of panel :math:`k` and its fraction that is shadowed from the freestream velocity by other
  panels of the body, :math:`A` is the reference area.
 

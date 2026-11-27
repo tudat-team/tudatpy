@@ -40,6 +40,12 @@ enum PanelMaterialPropertyType {
     normal_velocity_ratio_property
 };
 
+//! Base class for models that compute aerodynamic coefficients by summing the pressure and shear force on each panel.
+/*!
+ * The panel force and the Storch, Sentman and Cook coefficients are based on ADBSat: Sinpetru et al., "ADBSat: Methodology
+ * of a novel panel method tool for aerodynamic analysis of satellites", Computer Physics Communications 275 (2022) 108326,
+ * and its code at https://github.com/nhcrisp/ADBSat (toolbox/calc/calc_coeff.m and toolbox/fmf_eq/).
+ */
 class GasSurfaceInteractionModel
 {
 public:
@@ -261,10 +267,14 @@ inline std::vector< AerodynamicCoefficientsIndependentVariables > createIndepend
             return { angle_of_attack_dependent, angle_of_sideslip_dependent };
         }
         case sentman: {
-            return { angle_of_attack_dependent, angle_of_sideslip_dependent, temperature_dependent, velocity_dependent };
+            return { angle_of_attack_dependent,
+                     angle_of_sideslip_dependent,
+                     temperature_dependent,
+                     velocity_dependent,
+                     specific_gas_constant_dependent };
         }
         case cook: {
-            return { angle_of_attack_dependent, angle_of_sideslip_dependent, temperature_dependent };
+            return { angle_of_attack_dependent, angle_of_sideslip_dependent, velocity_dependent, specific_gas_constant_dependent };
         }
         default:
             throw std::runtime_error( "Error, unknown gas surface interaction model " );

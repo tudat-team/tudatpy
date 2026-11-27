@@ -209,6 +209,15 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
         case velocity_dependent:
             currentIndependentVariable = getCurrentAirspeed( );
             break;
+        case specific_gas_constant_dependent:
+            // Ideal gas law, p = rho R T
+            currentIndependentVariable = getCurrentPressure( ) / ( getCurrentDensity( ) * getCurrentFreestreamTemperature( ) );
+            if( !( currentIndependentVariable > 0.0 ) )
+            {
+                throw std::runtime_error( "Error, specific gas constant from atmosphere pressure, density and temperature is " +
+                                          std::to_string( currentIndependentVariable ) + "; the atmosphere model must define all three." );
+            }
+            break;
 
         // number density of atmospheric species
         case he_number_density_dependent:

@@ -1211,7 +1211,7 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
     double panelArea = 0.5;
     double referenceArea = 1.0;
     double panelTemperature = 300.0;
-    double energyAccomodationCoefficient = 1.0;
+    double energyAccomodationCoefficient = 0.93;
     double normalAccomodationCoefficient = 1.0;
     double tangentialAccomodationCoefficient = 1.0;
     double normalVelocityAtWallRatio = 1.0;
@@ -1278,7 +1278,7 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
     // TEST 2: Storch
     {
         StorchGasSurfaceInteractionModel storchModel( allPanels, referenceArea, 0, false );
-        Eigen::Vector3d forceCoefficients, actualForceCoefficients, panelNormal, incomingDirection;
+        Eigen::Vector3d forceCoefficients, actualForceCoefficients, panelNormal, incomingDirection, tangentialDirection;
         double Cp, Ct, cosineDelta, sineDelta;
         for( unsigned int i = 0; i < angleOfAttack.size( ); i++ )
         {
@@ -1295,12 +1295,13 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
                 cosineDelta = panelNormal.dot( -incomingDirection );
                 cosineDelta = cosineDelta > 0 ? cosineDelta : 0.0;
                 sineDelta = std::sqrt( std::max( 0.0, 1 - cosineDelta * cosineDelta ) );
+                // Unit vector along the panel, in the direction of the flow
+                tangentialDirection = ( incomingDirection - incomingDirection.dot( panelNormal ) * panelNormal ).normalized( );
 
                 Cp = 2 * cosineDelta * ( normalVelocityAtWallRatio + ( 2 - normalAccomodationCoefficient ) * cosineDelta );
                 Ct = 2 * tangentialAccomodationCoefficient * sineDelta * cosineDelta;
 
-                actualForceCoefficients = ( -Cp * panelNormal - Ct * ( incomingDirection.cross( panelNormal ) ).cross( panelNormal ) ) *
-                        panelArea / referenceArea;
+                actualForceCoefficients = ( -Cp * panelNormal + Ct * tangentialDirection ) * panelArea / referenceArea;
                 for( int k = 0; k < 3; k++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( forceCoefficients( k ) - actualForceCoefficients( k ) ), tolerance );
@@ -1314,11 +1315,10 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
         sentmanModel.setFreeStreamTemperature( freeStreamTemperature );
         sentmanModel.setAirSpeed( airSpeed );
         sentmanModel.setSpecifiGasConstant( specificGasConstant );
-        Eigen::Vector3d forceCoefficients, actualForceCoefficients, panelNormal, incomingDirection;
+        Eigen::Vector3d forceCoefficients, actualForceCoefficients, panelNormal, incomingDirection, tangentialDirection;
         double Cp, Ct, cosineDelta, sineDelta, erf, exp;
         double speedRatio = airSpeed / std::sqrt( 2 * specificGasConstant * freeStreamTemperature );
         double sqrtPi = std::sqrt( mathematical_constants::PI );
-        double incidentTemperature = 2.0 / 3.0 * speedRatio * speedRatio * freeStreamTemperature;
         for( unsigned int i = 0; i < angleOfAttack.size( ); i++ )
         {
             for( unsigned int j = 0; j < angleOfSideslip.size( ); j++ )
@@ -1336,17 +1336,22 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
                 erf = std::erf( speedRatio * cosineDelta );
                 exp = std::exp( -speedRatio * speedRatio * cosineDelta * cosineDelta );
                 sineDelta = std::sqrt( std::max( 0.0, 1 - cosineDelta * cosineDelta ) );
-                // Cp
-                Cp = ( cosineDelta * cosineDelta ) * ( 1 + erf ) + cosineDelta / ( speedRatio * sqrtPi ) * exp +
+                // Unit vector along the panel, in the direction of the flow
+                tangentialDirection = ( incomingDirection - incomingDirection.dot( panelNormal ) * panelNormal ).normalized( );
+                // Cp, written as in ADBSat toolbox/fmf_eq/coeff_sentman.m
+                Cp = ( cosineDelta * cosineDelta + 1.0 / ( 2 * speedRatio * speedRatio ) ) * ( 1 + erf ) +
+                        cosineDelta / ( sqrtPi * speedRatio ) * exp +
                         0.5 *
-                                std::sqrt( 2.0 / 3.0 *
-                                           ( 1 + ( energyAccomodationCoefficient * panelTemperature ) / ( incidentTemperature - 1 ) ) ) *
+                                std::sqrt(
+                                        0.5 *
+                                        ( 1 +
+                                          energyAccomodationCoefficient *
+                                                  ( 2 * panelTemperature / ( freeStreamTemperature * speedRatio * speedRatio ) - 1 ) ) ) *
                                 ( sqrtPi * cosineDelta * ( 1 + erf ) + 1.0 / speedRatio * exp );
                 // Ct
                 Ct = sineDelta * cosineDelta * ( 1 + erf ) + sineDelta / ( speedRatio * sqrtPi ) * exp;
 
-                actualForceCoefficients = ( -Cp * panelNormal - Ct * ( incomingDirection.cross( panelNormal ) ).cross( panelNormal ) ) *
-                        panelArea / referenceArea;
+                actualForceCoefficients = ( -Cp * panelNormal + Ct * tangentialDirection ) * panelArea / referenceArea;
 
                 for( int k = 0; k < 3; k++ )
                 {
@@ -1358,8 +1363,11 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
     // TEST 4: Cook
     {
         CookGasSurfaceInteractionModel cookModel( allPanels, referenceArea, 0, false );
-        cookModel.setFreeStreamTemperature( freeStreamTemperature );
-        Eigen::Vector3d forceCoefficients, actualForceCoefficients, panelNormal, incomingDirection;
+        cookModel.setAirSpeed( airSpeed );
+        cookModel.setSpecifiGasConstant( specificGasConstant );
+        // Kinetic temperature of the incoming flow, as in ADBSat toolbox/fmf_eq/coeff_cook.m
+        double kineticTemperature = airSpeed * airSpeed / ( 3 * specificGasConstant );
+        Eigen::Vector3d forceCoefficients, actualForceCoefficients, panelNormal, incomingDirection, tangentialDirection;
         double Cp, Ct, cosineDelta, sineDelta, sqrt, Cd, Cl;
         for( unsigned int i = 0; i < angleOfAttack.size( ); i++ )
         {
@@ -1375,8 +1383,10 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
                 panelNormal = localFrameSurfaceNormal( );
                 cosineDelta = panelNormal.dot( -incomingDirection );
                 cosineDelta = cosineDelta > 0 ? cosineDelta : 0.0;
-                sqrt = std::sqrt( 1 + (energyAccomodationCoefficient)*panelTemperature / ( freeStreamTemperature - 1 ) );
+                sqrt = std::sqrt( 1 + energyAccomodationCoefficient * ( panelTemperature / kineticTemperature - 1 ) );
                 sineDelta = std::sqrt( std::max( 0.0, 1 - cosineDelta * cosineDelta ) );
+                // Unit vector along the panel, in the direction of the flow
+                tangentialDirection = ( incomingDirection - incomingDirection.dot( panelNormal ) * panelNormal ).normalized( );
                 Cd = 2 * cosineDelta * ( 1 + 2.0 / 3.0 * cosineDelta * sqrt );
                 // Cl
                 Cl = 4.0 / 3.0 * sineDelta * cosineDelta * sqrt;
@@ -1384,13 +1394,14 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients )
                 Cp = cosineDelta * Cd + sineDelta * Cl;
                 Ct = sineDelta * Cd - cosineDelta * Cl;
 
-                actualForceCoefficients = ( -Cp * panelNormal - Ct * ( incomingDirection.cross( panelNormal ) ).cross( panelNormal ) ) *
-                        panelArea / referenceArea;
+                actualForceCoefficients = ( -Cp * panelNormal + Ct * tangentialDirection ) * panelArea / referenceArea;
 
                 for( int k = 0; k < 3; k++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( forceCoefficients( k ) - actualForceCoefficients( k ) ), tolerance );
                 }
+                // The force component along the flow must equal the drag coefficient
+                BOOST_CHECK_SMALL( std::fabs( forceCoefficients.dot( incomingDirection ) - Cd * panelArea / referenceArea ), tolerance );
             }
         }
     }
