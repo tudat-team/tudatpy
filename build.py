@@ -63,9 +63,15 @@ class BuildParser(argparse.ArgumentParser):
             "--skip-kernel",
             dest="skip_kernel",
             action="store_true",
+            help="Don't build the tudatpy kernel, stubs and API documentation [Default: False]",
+        )
+        basic_group.add_argument(
+            "--targets",
+            nargs="+",
+            metavar="<target>",
             help=(
-                "Don't build the tudatpy kernel, stubs and API documentation; "
-                "requires --force-setup for an existing build directory [Default: False]"
+                "Only build these CMake targets (e.g. kernel, or test_<directory>_<name> with copy_test_data), "
+                "without stubs and API documentation [Default: all]"
             ),
         )
         basic_group.add_argument(
@@ -124,10 +130,7 @@ class BuildParser(argparse.ArgumentParser):
             "--no-serialization",
             dest="build_with_serialization",
             action="store_false",
-            help=(
-                "Build without serialization support; "
-                "requires --force-setup for an existing build directory [Default: False]"
-            ),
+            help="Build without serialization support [Default: False]",
         )
         cmake_group.add_argument(
             "--no-unity-groups",
@@ -1441,6 +1444,8 @@ class Builder:
                 build_command.extend(["--config", self.args.build_type])
             if self.args.verbose:
                 build_command.append("--verbose")
+            if self.args.targets:
+                build_command.extend(["--target", *self.args.targets])
             outcome = subprocess.run(build_command)
             if outcome.returncode:
                 exit(outcome.returncode)
@@ -1495,8 +1500,8 @@ if __name__ == "__main__":
     if not args.skip_build:
         builder.build_libraries()
 
-    # Stubs and API documentation require the kernel
-    if args.skip_kernel:
+    # Stubs and API documentation require the (complete) kernel
+    if args.skip_kernel or args.targets:
         exit(0)
 
     with builder.mock_environment() as mock_env:

@@ -283,6 +283,11 @@ else ()
 endif ()
 if (NOT TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=0)
+    if (TUDAT_BUILD_TESTS)
+        message(WARNING "TUDAT_BUILD_TESTS=ON with TUDAT_BUILD_EXPLICIT_INSTANTIATIONS=OFF: each test compiles the "
+                "propagation and estimation templates itself (about 3x the compile time and 2x the memory per test). "
+                "Set TUDAT_BUILD_EXPLICIT_INSTANTIATIONS=ON.")
+    endif ()
 else ()
     add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=1)
 endif ()
