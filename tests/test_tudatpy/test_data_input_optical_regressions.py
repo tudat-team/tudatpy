@@ -139,7 +139,7 @@ def weighting_bodies():
 def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, technique, sigma):
     """Without extra details, assign catalogue U's weight for CCD and photographic data."""
     optical_table["note2"] = technique
-    data, _ = read_optical_data(optical_table, add_weights=True, add_ancillary_data=False)
+    data, _ = read_optical_data(optical_table, vfcc17_weights=True, add_ancillary_data=False)
     # The observing method and catalogue must remain available to choose the weight.
     metadata = data[0].get_ancillary_settings_string_vector()
     assert metadata["note2"] == [technique]
@@ -151,22 +151,22 @@ def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, t
 
 
 @pytest.mark.parametrize(
-    "scheme,observations_per_night", [("ADES", [1, 1, 1]), ("ADES_NIGHT", [2, 2, 1])]
+    "nightly_deweighting,observations_per_night", [(False, [1, 1, 1]), (True, [2, 2, 1])]
 )
 def test_ades_weights_from_uncertainties_and_local_night(
-    optical_table, scheme, observations_per_night
+    optical_table, nightly_deweighting, observations_per_night
 ):
-    """Weight three positions by their uncertainties; for ADES_NIGHT the first two share a night."""
+    """Weight three positions by their uncertainties; per night, the first two share a night."""
     table = pd.concat([optical_table] * 3, ignore_index=True)
     # Station 500 is at zero longitude, so the local night is the integer part of the Julian date.
     table["epoch"] = [2460310.55, 2460310.65, 2460311.65]
     table["DEC"] = [0.0, 30.0, 60.0]
     table["rmsRA"] = [0.15, 0.2, 0.3]
     table["rmsDec"] = [0.13, 0.1, 0.2]
-    data, _ = read_optical_data(table, weighing_scheme=scheme)
+    data, _ = read_optical_data(table, ades_weights=True, nightly_deweighting=nightly_deweighting)
     collection = create_observation_collection_from_tracking_data(data, weighting_bodies())
 
-    # The RA uncertainty is scaled by 1/cos(Dec); for ADES_NIGHT, weights are divided by N.
+    # The RA uncertainty is scaled by 1/cos(Dec); with nightly deweighting, weights are divided by N.
     arcsec = np.deg2rad(1.0 / 3600.0)
     expected = (
         np.column_stack(

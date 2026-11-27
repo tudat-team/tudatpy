@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -26,6 +27,8 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/trackingDataCorrectionSettings.h"
+#include "tudat/io/trackingDataWeightSettings.h"
 
 namespace tudat
 {
@@ -52,11 +55,9 @@ public:
                   const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                   const std::vector< TimeType > epochs,
                   const std::string referenceLinkEnd,
-                  const std::string timeScale = "TDB",
-                  const std::string weighingScheme = "" ):
+                  const std::string timeScale = "TDB" ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), epochs_( epochs ),
-        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), weighingScheme_( weighingScheme ),
-        numberOfObservations_( observations.size( ) ),
+        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), numberOfObservations_( observations.size( ) ),
         singleObservationSize_( !observations.empty( ) ? static_cast< unsigned int >( observations[ 0 ].size( ) ) : 0 )
     {
         // Check inputs size consistency
@@ -127,12 +128,6 @@ public:
     const std::string& getTimeScale( ) const
     {
         return timeScale_;
-    }
-
-    //! Function that returns the requested weighing scheme
-    const std::string& getWeighingScheme( ) const
-    {
-        return weighingScheme_;
     }
 
     //! Function that returns observation values
@@ -256,6 +251,26 @@ public:
         observationMetadataKeys_.insert( key );
     }
 
+    //! Attach one numerical value per observation under a user-defined key.
+    void addNumericalObservationMetadata( const std::string& key, const std::vector< double >& values )
+    {
+        if( values.size( ) != numberOfObservations_ )
+        {
+            throw std::runtime_error( "Numerical observation metadata '" + key + "' must have one entry per observation." );
+        }
+        numericalObservationMetadata_[ key ] = values;
+    }
+
+    const std::map< std::string, std::vector< double > >& getNumericalObservationMetadata( ) const
+    {
+        return numericalObservationMetadata_;
+    }
+
+    const std::vector< double >& getNumericalObservationMetadata( const std::string& key ) const
+    {
+        return numericalObservationMetadata_.at( key );
+    }
+
     bool isObservationMetadata( const std::string& key ) const
     {
         return observationMetadataKeys_.count( key ) != 0;
@@ -291,157 +306,17 @@ public:
         return ancillarySettingsDoubleVector_;
     }
 
-    //! Set observation weights to the tracking data object (optional)
-    void setObservationWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& observationWeights )
+    //! Function that returns the settings that define the observation weights (set and retrieve the weights through these settings)
+    const std::shared_ptr< TrackingDataWeightSettings >& getWeightSettings( ) const
     {
-        // Check size consistency (for the total number of observations)
-        if( observationWeights.size( ) != numberOfObservations_ )
-        {
-            throw std::runtime_error( "Error when adding observation weights to tracking data object, size of weights (" +
-                                      std::to_string( observationWeights.size( ) ) + ") does not match number of observations (" +
-                                      std::to_string( numberOfObservations_ ) + ")." );
-        }
-
-        // Check size consistency (for a single observable)
-        for( auto weight : observationWeights )
-        {
-            if( weight.size( ) != singleObservationSize_ )
-            {
-                throw std::runtime_error( "Error when adding observation weights to tracking data object, size of single weight (" +
-                                          std::to_string( weight.size( ) ) + ") does not match single observable size (should be " +
-                                          std::to_string( singleObservationSize_ ) + ")." );
-            }
-        }
-
-        // Warn only after the complete replacement has passed validation. Rejected
-        // replacements must leave the existing weights untouched.
-        if( !weights_.empty( ) )
-        {
-            std::cerr << "Warning when adding observation weights to tracking data object, weights already existed and are overwritten ."
-                      << std::endl;
-        }
-
-        // If all sizes are consistent, store observation weights
-        weights_ = observationWeights;
+        return weightSettings_;
     }
 
-    //! Function that reset a specific observation weight (only possible if weights are already available)
-    void setSingleObservationWeight( const unsigned int index, const Eigen::Matrix< double, Eigen::Dynamic, 1 >& observationWeight )
+    //! Function that returns the settings that define the observation corrections (set and retrieve the corrections through these
+    //! settings)
+    const std::shared_ptr< TrackingDataCorrectionSettings< ObservationScalarType > >& getCorrectionSettings( ) const
     {
-        // Check if weights are already available
-        if( weights_.empty( ) )
-        {
-            throw std::runtime_error( "Error when resetting single observation weight in TrackingData object, weights not yet defined." );
-        }
-
-        // Check that the observation index for which the weight needs resetting does not exceed the size of the observation vector
-        if( index >= numberOfObservations_ )
-        {
-            throw std::runtime_error(
-                    "Error when resetting single observation weight in TrackingData object, index exceeds number of observations contained "
-                    "in TrackingData object." );
-        }
-
-        // Check size consistency
-        if( observationWeight.size( ) != singleObservationSize_ )
-        {
-            throw std::runtime_error( "Error when resetting single observation weight in TrackingData object, weight size (" +
-                                      std::to_string( observationWeight.size( ) ) + ") inconsistent with observation size (" +
-                                      std::to_string( singleObservationSize_ ) + ")." );
-        }
-
-        // Overwrites specific weight entry
-        weights_.at( index ) = observationWeight;
-    }
-
-    //! Function that returns a vector of observation weights (empty if observation weights are not provided)
-    const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getObservationWeights( ) const
-    {
-        return weights_;
-    }
-
-    //! Function that returns a concatenated vector of observation weights (size zero if no observation weights provided)
-    Eigen::VectorXd getObservationWeightsVector( ) const
-    {
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
-                Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( weights_.size( ) * singleObservationSize_, 1 );
-        for( unsigned int i = 0; i < weights_.size( ); i++ )
-        {
-            weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
-        }
-        return weightsVector;
-    }
-
-    //! Set corrections to the observations (optional)
-    void setObservationCorrections( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationCorrections )
-    {
-        // Check size consistency (for the total number of observations)
-        if( observationCorrections.size( ) != numberOfObservations_ )
-        {
-            throw std::runtime_error( "Error when adding observation corrections to tracking data object, size of corrections (" +
-                                      std::to_string( observationCorrections.size( ) ) + ") does not match number of observations (" +
-                                      std::to_string( numberOfObservations_ ) + ")." );
-        }
-
-        // Check size consistency (for a single observable)
-        for( auto correction : observationCorrections )
-        {
-            if( correction.size( ) != singleObservationSize_ )
-            {
-                throw std::runtime_error( "Error when adding observation corrections to tracking data object, size of single correction (" +
-                                          std::to_string( correction.size( ) ) + ") does not match single observable size (should be " +
-                                          std::to_string( singleObservationSize_ ) + ")." );
-            }
-        }
-
-        // Warn only after the complete replacement has passed validation. Rejected
-        // replacements must leave the existing corrections untouched.
-        if( !observationCorrections_.empty( ) )
-        {
-            std::cerr << "Warning when adding observation corrections to tracking data object, corrections already existed and are "
-                         "overwritten ."
-                      << std::endl;
-        }
-
-        // If all sizes are consistent, store observation corrections
-        observationCorrections_ = observationCorrections;
-    }
-
-    //! Function that (re-)sets a single observation correction
-    void setSingleObservationCorrection( const unsigned int index,
-                                         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationCorrection )
-    {
-        // Check that observation corrections are already defined
-        if( observationCorrections_.empty( ) )
-        {
-            throw std::runtime_error(
-                    "Error when resetting single observation correction in TrackingData object, corrections not yet defined." );
-        }
-
-        // Check that the index of the observation correction that needs overwriting does not exceed the size of the observation vector
-        if( index >= numberOfObservations_ )
-        {
-            throw std::runtime_error(
-                    "Error when resetting single observation correction in TrackingData object, index exceeds number of observations "
-                    "contained in TrackingData object." );
-        }
-
-        // Check size consistency
-        if( observationCorrection.size( ) != singleObservationSize_ )
-        {
-            throw std::runtime_error( "Error when resetting single observation correction in TrackingData object, new correction size (" +
-                                      std::to_string( observationCorrection.size( ) ) + ") inconsistent with observation size (" +
-                                      std::to_string( singleObservationSize_ ) + ")." );
-        }
-
-        // Overwrites specific correction entry
-        observationCorrections_.at( index ) = observationCorrection;
-    }
-
-    //! Function that return a vector of observation corrections (empty of observation corrections are not provided)
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getObservationCorrections( ) const
-    {
-        return observationCorrections_;
+        return correctionSettings_;
     }
 
     //! Function that remove a single observation entry
@@ -458,23 +333,20 @@ public:
         observations_.erase( observations_.begin( ) + index );
         epochs_.erase( epochs_.begin( ) + index );
 
+        // Keep every per-observation metadata vector aligned with the data.
         for( const auto& key : observationMetadataKeys_ )
         {
             auto& values = ancillarySettingsStringVector_.at( key );
             values.erase( values.begin( ) + index );
         }
-
-        // Remove associated weight (if it exists)
-        if( !weights_.empty( ) )
+        for( auto& metadata : numericalObservationMetadata_ )
         {
-            weights_.erase( weights_.begin( ) + index );
+            metadata.second.erase( metadata.second.begin( ) + index );
         }
 
-        // Remove associated correction (if it exists)
-        if( !observationCorrections_.empty( ) )
-        {
-            observationCorrections_.erase( observationCorrections_.begin( ) + index );
-        }
+        // Keep the per-observation weight and correction settings aligned with the remaining observations.
+        weightSettings_->removeObservation( index );
+        correctionSettings_->removeObservation( index );
 
         // Update total number of observations contained in TrackingData object
         numberOfObservations_ = observations_.size( );
@@ -493,21 +365,28 @@ private:
 
     const std::string timeScale_;
 
-    const std::string weighingScheme_;
-
     unsigned int numberOfObservations_;
 
     const unsigned int singleObservationSize_;
 
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights_;
+    //! Settings that define the weights of the observations
+    std::shared_ptr< TrackingDataWeightSettings > weightSettings_ =
+            std::make_shared< TrackingDataWeightSettings >( numberOfObservations_, singleObservationSize_, observableType_ );
 
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationCorrections_;
+    //! Settings that define the corrections to the observations
+    std::shared_ptr< TrackingDataCorrectionSettings< ObservationScalarType > > correctionSettings_ =
+            std::make_shared< TrackingDataCorrectionSettings< ObservationScalarType > >( numberOfObservations_,
+                                                                                         singleObservationSize_,
+                                                                                         observableType_,
+                                                                                         referenceLinkEnd_ );
 
     std::map< std::string, std::string > ancillarySettingsString_;
 
     std::map< std::string, std::vector< std::string > > ancillarySettingsStringVector_;
 
     std::set< std::string > observationMetadataKeys_;
+
+    std::map< std::string, std::vector< double > > numericalObservationMetadata_;
 
     std::map< std::string, double > ancillarySettingsDouble_;
 

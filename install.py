@@ -21,7 +21,8 @@ class InstallParser(argparse.ArgumentParser):
             action="store_true",
             help=(
                 "Install using links to the source checkout. Changes or branch switches "
-                "in this checkout immediately affect the installed Python package."
+                "in this checkout immediately affect the installed Python package. "
+                "Run again to add links for newly introduced files."
             ),
         )
 
@@ -101,23 +102,25 @@ class Installer:
             )
             exit(0)
 
+        self.previous_manifest = []
         if self.manifest.exists():
-            raise RuntimeError("Delete current manifest before installation")
-        # if self.manifest.exists():
-        #     print(
-        #         "WARNING: Installation manifest already exists."
-        #         "Uninstalling libraries before performing new installation."
-        #     )
-        #     for line in self.manifest.read_text().splitlines():
-        #         path = Path(line.strip())
-        #         if path.exists():
-        #             try:
-        #                 path.unlink()
-        #             except PermissionError:
-        #                 path.rmdir()
-        #         else:
-        #             print(f"Not installed: {path}")
-        #     self.manifest.unlink()
+            if not self.args.editable:
+                raise RuntimeError("Delete current manifest before installation")
+
+            if self.args.install_tudatpy:
+                init_link = self.pylib_dir / "tudatpy/__init__.py"
+                source_init = self.base_tudatpy / "src/tudatpy/__init__.py"
+                if not init_link.is_symlink() or init_link.resolve() != source_init.resolve():
+                    raise RuntimeError(
+                        "The existing tudatpy installation is not editable from this checkout. "
+                        "Uninstall it before installing from a different checkout."
+                    )
+
+            for line in self.manifest.read_text().splitlines():
+                code, path = line.split(" ", 1)
+                if code not in ("000", "999"):
+                    raise ValueError(f"Unknown installation manifest code: {code}")
+                self.previous_manifest.append((code, Path(path)))
 
         self.directories = []
         self.manifest_list = []
@@ -311,26 +314,32 @@ class Installer:
                     self.pylib_dir / "tudatpy-stubs",
                 )
 
-        # Filter elements inside created directories out of manifest
-        manifest_list = []
-        for item in self.manifest_list:
-            item_path = Path(item)
-            in_directory = False
-            for directory in self.directories:
-                if directory in item_path.parents:
-                    in_directory = True
-                    break
-            if not in_directory:
-                manifest_list.append("000 " + item)  # File label 000
-
-        # Add created directories to manifest [With directory label 999 ]
-        for directory in self.directories:
-            manifest_list.append("999 " + str(directory))
-
-        # Write manifest
-        with self.manifest.open("w") as manifest:
-            for item in manifest_list:
-                manifest.write(f"{item}\n")
+        # Preserve ownership from earlier installs, including existing links that
+        # link_single skipped. A tracked directory already covers new files and
+        # subdirectories beneath it, so it must appear only once in the manifest.
+        directories = list(
+            dict.fromkeys(
+                [path for code, path in self.previous_manifest if code == "999"] + self.directories
+            )
+        )
+        directories = [
+            directory
+            for directory in directories
+            if not any(parent in directory.parents for parent in directories)
+        ]
+        links = list(
+            dict.fromkeys(
+                [path for code, path in self.previous_manifest if code == "000"]
+                + [Path(item) for item in self.manifest_list]
+            )
+        )
+        manifest_list = [
+            f"000 {link}"
+            for link in links
+            if not any(directory in link.parents for directory in directories)
+        ]
+        manifest_list.extend(f"999 {directory}" for directory in directories)
+        self.manifest.write_text("".join(f"{item}\n" for item in manifest_list))
 
         return None
 

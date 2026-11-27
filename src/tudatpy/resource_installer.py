@@ -214,20 +214,22 @@ def _download_with_requests(url: str, dest_path: Path, retries: int = 3) -> None
                 progress.close()
 
 
-def _sha256_file(path: Path) -> str:
-    """Return the SHA-256 hexadecimal digest of a file.
+def _file_digest(path: Path, algorithm: str = "sha256") -> str:
+    """Return the hexadecimal digest of a file.
 
     Parameters
     ----------
     path : Path
         File whose contents are hashed.
+    algorithm : str, default="sha256"
+        Name of the ``hashlib`` hash algorithm.
 
     Returns
     -------
     str
         Lowercase hexadecimal digest.
     """
-    h = hashlib.sha256()
+    h = hashlib.new(algorithm)
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
@@ -249,7 +251,12 @@ def _verify_sha256(path: Path, expected_hash: str) -> bool:
     bool
         Whether the actual and expected digests match.
     """
-    return _sha256_file(path).lower() == expected_hash.lower()
+    return _file_digest(path).lower() == expected_hash.lower()
+
+
+def _verify_md5(path: Path, expected_md5: str) -> bool:
+    """Check whether the computed MD5 matches the expected value"""
+    return _file_digest(path, "md5").lower() == expected_md5.lower()
 
 
 def _checksum_mismatch_message(path: Path, expected_hash: str) -> str:
@@ -328,11 +335,10 @@ def _download_file(
         ``True`` when downloaded, or ``False`` when an existing file was kept.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    if dest_path.exists():
-        if not force:
-            return False
-        dest_path.unlink()
+    if dest_path.exists() and not force:
+        return False
 
+    # Replaces an existing file only after a completed download
     _download_with_requests(url, dest_path)
 
     if expected_hash and not _verify_sha256(dest_path, expected_hash):

@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -41,6 +42,18 @@ namespace observation_models
 
 using namespace simulation_setup;
 
+//! Print (once) that SingleObservationSet and ObservationCollection are deprecated in favour of ObservationDataset.
+inline void printObservationCollectionDeprecationWarning( )
+{
+    static const bool warningPrinted =
+            ( std::cerr << "Warning: SingleObservationSet and ObservationCollection are deprecated and will be removed in a future "
+                           "version. Use ObservationDataset instead, see the migration guide: "
+                           "https://docs.tudat.space/en/latest/user-guide/project-updates/migration-guide.html"
+                        << std::endl,
+              true );
+    static_cast< void >( warningPrinted );
+}
+
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -64,6 +77,7 @@ public:
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
         numberOfObservations_( observations_.size( ) ), weights_( weights ), residuals_( residuals )
     {
+        printObservationCollectionDeprecationWarning( );
         if( dependentVariableBookkeeping_ != nullptr )
         {
             if( dependentVariableBookkeeping_->getObservableType( ) != observableType_ )
