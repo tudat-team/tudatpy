@@ -37,6 +37,54 @@ using namespace gravitation;
 using namespace basic_astrodynamics;
 using namespace electromagnetism;
 
+//! Function to retrieve the (deprecated) scaled mean moment of inertia from gravity field settings (NaN if not defined)
+double getDeprecatedScaledMeanMomentOfInertia( const std::shared_ptr< GravityFieldSettings > gravityFieldSettings )
+{
+    const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+    return ( sphericalHarmonicsSettings == nullptr ) ? TUDAT_NAN : sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( );
+}
+
+//! Function to retrieve the scaled mean moment of inertia, using the deprecated value from the gravity field settings only if the
+//! scaled mean moment of inertia is not defined (NaN)
+double getScaledMeanMomentOfInertiaWithDeprecatedFallback( const double scaledMeanMomentOfInertia,
+                                                           const std::shared_ptr< GravityFieldSettings > gravityFieldSettings )
+{
+    return std::isfinite( scaledMeanMomentOfInertia ) ? scaledMeanMomentOfInertia
+                                                      : getDeprecatedScaledMeanMomentOfInertia( gravityFieldSettings );
+}
+
+//! Function to determine the settings from which the rigid body properties of a body are to be created
+std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSettings( const std::shared_ptr< BodySettings >& bodySettings )
+{
+    const std::shared_ptr< RigidBodyPropertiesSettings > explicitSettings = bodySettings->rigidBodyPropertiesSettings;
+    if( bodySettings->gravityFieldSettings == nullptr )
+    {
+        return explicitSettings;
+    }
+
+    // The scaled mean moment on gravity settings is retained only for older input files.
+    const double legacyScaledMeanMomentOfInertia = getDeprecatedScaledMeanMomentOfInertia( bodySettings->gravityFieldSettings );
+
+    if( explicitSettings == nullptr )
+    {
+        // Body::setGravityFieldModel already created gravity-derived properties, so new settings are only needed to transfer a
+        // legacy moment. A constant mass specified in BodySettings takes precedence over gravity-derived mass.
+        return ( std::isnan( bodySettings->constantMass ) && std::isfinite( legacyScaledMeanMomentOfInertia ) )
+                ? fromGravityFieldRigidBodyPropertiesSettings( legacyScaledMeanMomentOfInertia )
+                : nullptr;
+    }
+
+    const std::shared_ptr< FromGravityFieldRigidBodyPropertiesSettings > gravityDerivedSettings =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyPropertiesSettings >( explicitSettings );
+    if( gravityDerivedSettings != nullptr )
+    {
+        return fromGravityFieldRigidBodyPropertiesSettings( getScaledMeanMomentOfInertiaWithDeprecatedFallback(
+                gravityDerivedSettings->getScaledMeanMomentOfInertia( ), bodySettings->gravityFieldSettings ) );
+    }
+    return explicitSettings;
+}
+
 void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,
                                          const std::string bodyName,
                                          const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings )
@@ -91,6 +139,16 @@ void addGravityFieldModel( const SystemOfBodies& bodies,
     }
     bodies.at( bodyName )
             ->setGravityFieldModel( createGravityFieldModel( gravityFieldSettings, bodyName, bodies, gravityFieldVariationSettings ) );
+
+    // Keep the legacy settings route functional without copying its value into the runtime gravity model. An explicitly defined
+    // scaled mean moment of inertia takes precedence. Explicit non-gravity rigid-body properties are preserved by Body.
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityDerivedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( bodies.at( bodyName )->getMassProperties( ) );
+    if( gravityDerivedRigidBodyProperties != nullptr )
+    {
+        gravityDerivedRigidBodyProperties->setScaledMeanMomentOfInertia( getScaledMeanMomentOfInertiaWithDeprecatedFallback(
+                gravityDerivedRigidBodyProperties->getScaledMeanMomentOfInertia( ), gravityFieldSettings ) );
+    }
 
     if( gravityFieldVariationSettings.size( ) > 0 )
     {

@@ -11,6 +11,8 @@
 #ifndef TUDAT_CREATEBODIESFACTORY_H
 #define TUDAT_CREATEBODIESFACTORY_H
 
+#include <cmath>
+
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
@@ -70,6 +72,26 @@ void setSimpleRotationSettingsFromSpice( const BodyListSettings& bodySettings, c
  */
 std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings );
+
+//! Function to determine the settings from which the rigid body properties of a body are to be created
+/*!
+ * Function to determine the settings from which the rigid body properties of a body are to be created, translating the deprecated
+ * scaled mean moment of inertia of spherical harmonic gravity field settings. The body settings are not modified. The returned
+ * settings are:
+ *  - The rigid body properties settings of the body settings (which may be nullptr), if no gravity field settings are defined.
+ *  - nullptr, if gravity field settings but no rigid body properties settings are defined. The existing rigid body properties are
+ *    then retained: those derived from the gravity field (created when setting the gravity field), or those created from the
+ *    constant mass of the body settings, if defined. The exception is a deprecated scaled mean moment of inertia without a
+ *    constant mass, for which new gravity-derived settings with this moment are returned.
+ *  - New gravity-derived settings, if gravity field settings and gravity-derived rigid body properties settings are defined. Their
+ *    scaled mean moment of inertia is that of the rigid body properties settings, if defined (not NaN), and the deprecated one
+ *    of the gravity field settings otherwise.
+ *  - The rigid body properties settings of the body settings, if both these and gravity field settings are defined, and the
+ *    rigid body properties settings are not gravity-derived. These then override the gravity-derived properties.
+ * \param bodySettings Settings of the body for which the rigid body properties settings are to be determined
+ * \return Settings from which the rigid body properties are to be created (nullptr if existing properties are to be retained)
+ */
+std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSettings( const std::shared_ptr< BodySettings >& bodySettings );
 
 //! Function to create a map of bodies objects.
 /*!
@@ -208,15 +230,15 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
 
-    // Create gravity field model objects for each body (if required).
+    // Create rigid-body properties for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings != nullptr )
+        const std::shared_ptr< RigidBodyPropertiesSettings > rigidBodySettings =
+                resolveRigidBodyPropertiesSettings( orderedBodySettings.at( i ).second );
+        if( rigidBodySettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setMassProperties( createRigidBodyProperties( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings,
-                                                                    orderedBodySettings.at( i ).first,
-                                                                    bodyList ) );
+                    ->setMassProperties( createRigidBodyProperties( rigidBodySettings, orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 

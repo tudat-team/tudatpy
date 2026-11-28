@@ -145,6 +145,30 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::SystemOfBodies& bodies );
 
+//! Function that adds the environment updates required by the solid-body tide variations of updated gravity fields
+/*!
+ * Function that adds the environment updates required by the solid-body tide variations of updated gravity fields: the
+ * translational and rotational state of the deformed body, and the translational state of the deforming bodies.
+ * \param environmentModelsToUpdate List of required environment model updates, to which the updates are added (returned by reference).
+ * \param bodies List of body objects that comprises the environment
+ */
+void addSolidBodyTideEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const simulation_setup::SystemOfBodies& bodies );
+
+//! Function that adds the gravity field updates required by the mass distribution updates of bodies with rigid body properties
+//! derived from a time-dependent spherical harmonic gravity field
+/*!
+ * Function that adds the gravity field updates required by the mass distribution updates of bodies with rigid body properties
+ * derived from a time-dependent spherical harmonic gravity field, since the center of mass and inertia tensor of these bodies are
+ * computed from the current gravity field coefficients.
+ * \param environmentModelsToUpdate List of required environment model updates, to which the updates are added (returned by reference).
+ * \param bodies List of body objects that comprises the environment
+ */
+void addGravityDerivedMassDistributionEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const simulation_setup::SystemOfBodies& bodies );
+
 //! Get list of required environment model update settings from a list of propagation settings.
 /*!
  * Get list of required environment model update settings from a list of propagation settings.
@@ -248,6 +272,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     // Remove variables from environment updates that are numerically propagated.
     if( !isPartOfMultiTypePropagation )
     {
+        addGravityDerivedMassDistributionEnvironmentUpdates( environmentModelsToUpdate, bodies );
+        addSolidBodyTideEnvironmentUpdates( environmentModelsToUpdate, bodies );
         addEphemerisOriginsOfUpdatedStates( environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ), bodies );
         removePropagatedStatesFomEnvironmentUpdates( environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
         checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodies );

@@ -56,8 +56,15 @@ std::shared_ptr< simulation_setup::Body > createBodyForFullTwoBodyTorqueTest( co
                                                                               const double scaledMeanMomentOfInertia = TUDAT_NAN )
 {
     std::shared_ptr< simulation_setup::Body > body = std::make_shared< simulation_setup::Body >( );
-    body->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >(
-            gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "BodyFixed", scaledMeanMomentOfInertia ) );
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField =
+            std::make_shared< gravitation::SphericalHarmonicsGravityField >(
+                    gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "BodyFixed" );
+    body->setGravityFieldModel( gravityField );
+    if( std::isfinite( scaledMeanMomentOfInertia ) )
+    {
+        body->setMassProperties(
+                std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >( gravityField, scaledMeanMomentOfInertia ) );
+    }
 
     Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
     bodyState.segment( 0, 3 ) = position;
@@ -785,7 +792,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                                                                                     cosineCoefficientsOfBody2,
                                                                                     sineCoefficientsOfBody2,
                                                                                     Eigen::Quaterniond::Identity( ),
-                                                                                    Eigen::Quaterniond::Identity( ) );
+                                                                                    Eigen::Quaterniond::Identity( ),
+                                                                                    0.4 );
         bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
         bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
 
@@ -840,7 +848,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                                                                                         cosineCoefficientsOfBody2,
                                                                                         sineCoefficientsOfBody2,
                                                                                         orientationCase.first,
-                                                                                        orientationCase.second );
+                                                                                        orientationCase.second,
+                                                                                        0.4 );
 
             bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
             bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );

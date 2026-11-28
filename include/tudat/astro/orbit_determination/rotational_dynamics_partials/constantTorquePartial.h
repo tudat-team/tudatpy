@@ -17,6 +17,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -38,21 +39,22 @@ public:
      * Constructor
      * \param angularVelocityFunction Function returning body angular velocity vector in body fixed frame.
      * \param inertiaTensorFunction Function returning body inertia tensor
-     * \param inertiaTensorNormalizationFunction Function the inertia tensor normalization factor
-     * \param bodyGravitationalParameterFunction Function returning body gravitational parameter
+     * \param rigidBodyProperties Rigid body properties of body undergoing torque (inertia tensor depends on gravitational parameter
+     * and degree two gravity field coefficients only if these are derived from the gravity field)
      * \param torqueVector List of torques acting on body
      * \param acceleratedBody Name of body undergoing torque
      */
     ConstantTorquePartial( const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
                            const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
-                           const std::function< double( ) > inertiaTensorNormalizationFunction,
-                           const std::function< double( ) > bodyGravitationalParameterFunction,
+                           const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties,
                            const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector,
                            const std::string acceleratedBody ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
         angularVelocityFunction_( angularVelocityFunction ), inertiaTensorFunction_( inertiaTensorFunction ), torqueVector_( torqueVector ),
-        getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ),
-        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction )
+        getInertiaTensorNormalizationFactor_(
+                simulation_setup::getInertiaTensorNormalizationFunctionOfGravityDerivedProperties( rigidBodyProperties ) ),
+        bodyGravitationalParameterFunction_(
+                simulation_setup::getGravitationalParameterFunctionOfGravityDerivedProperties( rigidBodyProperties ) )
     {}
 
     //! Destructor
@@ -122,7 +124,11 @@ public:
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );
 
-            currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+            // This function is not defined for all bodies, and is only used by partials that check for its existence
+            if( getInertiaTensorNormalizationFactor_ != nullptr )
+            {
+                currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+            }
 
             currentTotalTorque_.setZero( );
             for( auto it = torqueVector_.begin( ); it != torqueVector_.end( ); it++ )

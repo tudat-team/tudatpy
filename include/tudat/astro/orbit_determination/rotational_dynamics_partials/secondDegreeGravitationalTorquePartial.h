@@ -15,6 +15,7 @@
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -50,16 +51,22 @@ public:
     /*!
      * Constructor
      * \param torqueModel Torque model for which partial derivatives are to be computed
-     * \param getInertiaTensorNormalizationFactor Function the inertia tensor normalization factor
+     * \param rigidBodyPropertiesOfBodyUndergoingTorque Rigid body properties of body undergoing torque (inertia tensor depends on
+     * gravitational parameter and degree two gravity field coefficients only if these are derived from the gravity field)
      * \param acceleratedBody Name of body undergoing torque
      * \param acceleratingBody Name of body exerting torque
      */
-    SecondDegreeGravitationalTorquePartial( const std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel,
-                                            const std::function< double( ) > getInertiaTensorNormalizationFactor,
-                                            const std::string acceleratedBody,
-                                            const std::string acceleratingBody ):
+    SecondDegreeGravitationalTorquePartial(
+            const std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel,
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyUndergoingTorque,
+            const std::string acceleratedBody,
+            const std::string acceleratingBody ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::second_order_gravitational_torque ),
-        torqueModel_( torqueModel ), getInertiaTensorNormalizationFactor_( getInertiaTensorNormalizationFactor )
+        torqueModel_( torqueModel ),
+        getInertiaTensorNormalizationFactor_( simulation_setup::getInertiaTensorNormalizationFunctionOfGravityDerivedProperties(
+                rigidBodyPropertiesOfBodyUndergoingTorque ) ),
+        bodyGravitationalParameterFunction_(
+                simulation_setup::getGravitationalParameterFunctionOfGravityDerivedProperties( rigidBodyPropertiesOfBodyUndergoingTorque ) )
     {
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }
@@ -163,6 +170,10 @@ protected:
      */
     void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& gravitationalParameterPartial );
 
+    //! Function to compute partial of torque w.r.t. gravitational parameter of body undergoing torque (torque is proportional to its
+    //! gravity-derived inertia tensor, and therefore to its gravitational parameter)
+    void wrtGravitationalParameterOfRotatingBody( Eigen::MatrixXd& gravitationalParameterPartial );
+
     //! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
     /*!
      * Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
@@ -193,6 +204,10 @@ protected:
 
     //! Function the inertia tensor normalization factor
     std::function< double( ) > getInertiaTensorNormalizationFactor_;
+
+    //! Function returning gravitational parameter of body undergoing torque, if its inertia tensor is derived from its gravity field
+    //! (empty otherwise)
+    std::function< double( ) > bodyGravitationalParameterFunction_;
 
     //! Current quaternion elements
     Eigen::Vector4d currentQuaternionVector_;

@@ -100,14 +100,16 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                                                                 phobosCosineGravityFieldCoefficients,
                                                                 phobosSineGravityFieldCoefficients,
                                                                 scaledMeanMomentOfInertia );
+        const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > phobosGravityField =
+                std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
+                                                                                 phobosReferenceRadius,
+                                                                                 phobosCosineGravityFieldCoefficients,
+                                                                                 phobosSineGravityFieldCoefficients,
+                                                                                 "Phobos_Fixed" );
+        bodies.at( "Phobos" )->setGravityFieldModel( phobosGravityField );
         bodies.at( "Phobos" )
-                ->setGravityFieldModel(
-                        std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
-                                                                                         phobosReferenceRadius,
-                                                                                         phobosCosineGravityFieldCoefficients,
-                                                                                         phobosSineGravityFieldCoefficients,
-                                                                                         "Phobos_Fixed",
-                                                                                         scaledMeanMomentOfInertia ) );
+                ->setMassProperties( std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                        phobosGravityField, scaledMeanMomentOfInertia ) );
         double testTime = 1000.0;
         bodies.at( "Phobos" )->getMassProperties( )->update( testTime );
         std::cout << bodies.at( "Phobos" )->getBodyInertiaTensor( ) << std::endl;
@@ -285,7 +287,9 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
         // Calculate numerical partials wrt parameters
         Eigen::Vector3d testPartialWrtMarsGravitationalParameter =
-                calculateTorqueWrtParameterPartials( marsGravitationalParameterParameter, gravitationalTorque, 1.0E12 );
+                calculateTorqueWrtParameterPartials( marsGravitationalParameterParameter, gravitationalTorque, 1.0E12, [ = ]( ) {
+                    mars->getMassProperties( )->update( testTime );
+                } );
         Eigen::Vector3d testPartialWrtMeanMomentOfInertia =
                 calculateTorqueWrtParameterPartials( phobosMeanMomentOfInertia, gravitationalTorque, 1.0E-1 );
         std::function< void( ) > updateFunction =
@@ -328,6 +332,15 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                 partialWrtMarsState.block( 0, 3, 3, 3 ), testPartialWrtMarsVelocity, std::numeric_limits< double >::epsilon( ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 1.0E-6 );
+
+        // Check partial w.r.t. Phobos gravitational parameter, to which its gravity-derived inertia tensor is proportional
+        std::shared_ptr< EstimatableParameter< double > > phobosGravitationalParameterParameter =
+                std::make_shared< GravitationalParameter >( phobos->getGravityFieldModel( ), "Phobos" );
+        const Eigen::Vector3d partialWrtPhobosGravitationalParameter = torquePartial->wrtParameter( phobosGravitationalParameterParameter );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                calculateTorqueWrtParameterPartials( phobosGravitationalParameterParameter, gravitationalTorque, 1.0E2, updateFunction ),
+                partialWrtPhobosGravitationalParameter,
+                1.0E-6 );
 
         // Check derivative of z-component w.r.t. C20 separately: value is slightly non-zero due to rounding error
         BOOST_CHECK_SMALL( std::fabs( testPartialWrtPhobosCosineCoefficients( 2, 2 ) ), 2.0E6 );
@@ -405,13 +418,16 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
                                                             phobosSineGravityFieldCoefficients,
                                                             scaledMeanMomentOfInertia );
 
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > phobosGravityField =
+            std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
+                                                                             phobosReferenceRadius,
+                                                                             phobosCosineGravityFieldCoefficients,
+                                                                             phobosSineGravityFieldCoefficients,
+                                                                             "Phobos_Fixed" );
+    bodies.at( "Phobos" )->setGravityFieldModel( phobosGravityField );
     bodies.at( "Phobos" )
-            ->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
-                                                                                                     phobosReferenceRadius,
-                                                                                                     phobosCosineGravityFieldCoefficients,
-                                                                                                     phobosSineGravityFieldCoefficients,
-                                                                                                     "Phobos_Fixed",
-                                                                                                     scaledMeanMomentOfInertia ) );
+            ->setMassProperties( std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >( phobosGravityField,
+                                                                                                            scaledMeanMomentOfInertia ) );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
@@ -641,6 +657,18 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     {
         BOOST_CHECK_SMALL( std::fabs( partialWrtMeanMomentOfInertia( i, 0 ) - testPartialWrtMeanMomentOfInertia( i, 0 ) ), 1.0E1 );
     }
+
+    // Check that the partials w.r.t. gravity field parameters are zero when the inertia tensor is explicitly defined
+    phobos->setMassProperties( createRigidBodyProperties(
+            constantRigidBodyPropertiesSettings( phobos->getBodyMass( ), Eigen::Vector3d::Zero( ), phobos->getBodyInertiaTensor( ) ),
+            "Phobos",
+            bodies ) );
+    torquePartial =
+            createAnalyticalTorquePartial( inertialTorqueModel, std::make_pair( "Phobos", phobos ), std::make_pair( "Phobos", phobos ) );
+    torquePartial->update( testTime );
+    BOOST_CHECK_EQUAL( torquePartial->wrtParameter( phobosGravitationalParameterParameter ).norm( ), 0.0 );
+    BOOST_CHECK_EQUAL( torquePartial->wrtParameter( phobosCosineCoefficientsParameter ).norm( ), 0.0 );
+    BOOST_CHECK_EQUAL( torquePartial->wrtParameter( phobosSineCoefficientsParameter ).norm( ), 0.0 );
 }
 
 class EffectiveTorqueModel : public basic_astrodynamics::TorqueModel
@@ -711,13 +739,16 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
                                                             phobosSineGravityFieldCoefficients,
                                                             phobosScaledMeanMomentOfInertia );
 
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > phobosGravityField =
+            std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
+                                                                             phobosReferenceRadius,
+                                                                             phobosCosineGravityFieldCoefficients,
+                                                                             phobosSineGravityFieldCoefficients,
+                                                                             "Phobos_Fixed" );
+    bodies.at( "Phobos" )->setGravityFieldModel( phobosGravityField );
     bodies.at( "Phobos" )
-            ->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
-                                                                                                     phobosReferenceRadius,
-                                                                                                     phobosCosineGravityFieldCoefficients,
-                                                                                                     phobosSineGravityFieldCoefficients,
-                                                                                                     "Phobos_Fixed",
-                                                                                                     phobosScaledMeanMomentOfInertia ) );
+            ->setMassProperties( std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                    phobosGravityField, phobosScaledMeanMomentOfInertia ) );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );

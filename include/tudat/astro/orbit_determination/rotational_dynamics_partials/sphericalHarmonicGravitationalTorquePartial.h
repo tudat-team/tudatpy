@@ -15,6 +15,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -50,9 +51,12 @@ public:
             const std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > torqueModel,
             const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial,
             const std::string acceleratedBody,
-            const std::string acceleratingBody ):
+            const std::string acceleratingBody,
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyPropertiesOfBodyExertingTorque ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravitational_torque ),
-        torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial )
+        torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial ),
+        perturberMassIsGravityDerived_( std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                                                rigidBodyPropertiesOfBodyExertingTorque ) != nullptr )
     {
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }
@@ -171,6 +175,11 @@ protected:
             Eigen::MatrixXd& partialMatrix,
             const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction );
 
+    //! Function to compute the partial w.r.t. the gravitational parameter of the body exerting the torque
+    void getPerturberGravitationalParameterPartial(
+            Eigen::MatrixXd& partialMatrix,
+            const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction );
+
     //! Current quaternion elements
     Eigen::Vector4d currentQuaternionVector_;
 
@@ -205,6 +214,9 @@ protected:
 
     //! Partial for associated spherical harmonic acceleration
     const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial_;
+
+    //! Boolean denoting whether the mass of the body exerting the torque is computed from its gravitational parameter
+    const bool perturberMassIsGravityDerived_;
 };
 
 }  // namespace acceleration_partials
