@@ -1,7 +1,4 @@
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
-#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
-#include "tudat/simulation/propagation_setup/propagationResults.h"
-#endif
 
 namespace tudat
 {
@@ -61,11 +58,6 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
     }
     return modifiedInverseCovarianceMatrix;
 }
-
-#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
-template struct CovarianceAnalysisOutput< double, double >;
-template struct EstimationOutput< double, double >;
-#endif
 
 }  // namespace simulation_setup
 

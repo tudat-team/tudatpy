@@ -112,6 +112,8 @@ function("TUDAT_ADD_TEST_CASE" arg1)
         set_property(TARGET ${target_name} PROPERTY CXX_STANDARD_REQUIRED YES)
         set_property(TARGET ${target_name} PROPERTY CXX_EXTENSIONS NO)
         add_test(${target_name} "${PROJECT_BINARY_DIR}/tests/${target_name}")
+        # Tests read their data from the build tree, also when built as single targets
+        add_dependencies(${target_name} copy_test_data)
 
         if (TUDAT_INSTALL_TESTS)
             #==========================================================================

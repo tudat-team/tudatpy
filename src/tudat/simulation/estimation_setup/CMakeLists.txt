@@ -88,11 +88,9 @@ set(estimation_SOURCES
         createLightTimeCorrection.cpp
         createAtmosphericLightTimeCorrection.cpp
         createLightTimeCorrectionPartials.cpp
-        orbitDeterminationManager.cpp
         createCartesianStatePartials.cpp
         createStateDerivativePartials.cpp
         orbitDeterminationTestCases.cpp
-        createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
         createObservationCollection.cpp
@@ -129,6 +127,8 @@ if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
     list(APPEND estimation_SOURCES
             createParametersToEstimateDoubleDoubleInstantiation.cpp
             simulateObservationsDoubleDoubleInstantiation.cpp
+            orbitDeterminationManager.cpp
+            createNumericalSimulator.cpp
             )
 endif ()
 

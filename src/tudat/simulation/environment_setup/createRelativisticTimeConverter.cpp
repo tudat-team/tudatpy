@@ -9,7 +9,6 @@
  *
  */
 
-#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 #include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
 
 namespace tudat
@@ -27,4 +26,3 @@ template void setRelativisticTimeConverters< double, double >(
 
 }  // namespace simulation_setup
 }  // namespace tudat
-#endif

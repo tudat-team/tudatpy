@@ -1,6 +1,5 @@
-#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
-#endif
+#include "tudat/simulation/propagation_setup/propagationResults.h"
 
 namespace tudat
 {
@@ -8,9 +7,10 @@ namespace tudat
 namespace simulation_setup
 {
 
-#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 template class OrbitDeterminationManager< double, double >;
-#endif
+
+template struct CovarianceAnalysisOutput< double, double >;
+template struct EstimationOutput< double, double >;
 
 }  // namespace simulation_setup
 

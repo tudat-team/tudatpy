@@ -245,15 +245,10 @@ if (NOT TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
-if (NOT TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
-    add_definitions(-DTUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=0)
-    if (TUDAT_BUILD_TESTS)
-        message(WARNING "TUDAT_BUILD_TESTS=ON with TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=OFF: each test compiles the "
-                "propagation and estimation templates itself (about 3x the compile time and 2x the memory per test). "
-                "Set TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=ON.")
-    endif ()
-else ()
-    add_definitions(-DTUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=1)
+if (TUDAT_BUILD_TESTS AND NOT TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
+    message(WARNING "TUDAT_BUILD_TESTS=ON with TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=OFF: each test compiles the "
+            "propagation and estimation templates itself (about 3x the compile time and 2x the memory per test). "
+            "Set TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=ON.")
 endif ()
 # Long double state scalar type in the tudatpy kernel (CMAKE_CXX_FLAGS is overwritten in cmake/tudat/compiler.cmake)
 if (TUDATPY_LONG_DOUBLE_STATE)

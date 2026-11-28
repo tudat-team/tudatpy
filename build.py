@@ -70,7 +70,7 @@ class BuildParser(argparse.ArgumentParser):
             nargs="+",
             metavar="<target>",
             help=(
-                "Only build these CMake targets (e.g. kernel, or test_<directory>_<name> with copy_test_data), "
+                "Only build these CMake targets (e.g. kernel, or test_<directory>_<name>), "
                 "without stubs and API documentation [Default: all]"
             ),
         )
@@ -137,8 +137,9 @@ class BuildParser(argparse.ArgumentParser):
             dest="build_with_unity_groups",
             action="store_false",
             help=(
-                "Compile every source separately instead of merging the heaviest ones; "
-                "faster incremental rebuilds, more RAM and time for full builds [Default: False]"
+                "Switch off the unity build of the groups of large tudatpy sources listed in "
+                "src/tudatpy/CMakeLists.txt: faster rebuilds after changing one of them, more RAM and time "
+                "for full builds [Default: False]"
             ),
         )
         cmake_group.add_argument(
@@ -148,6 +149,16 @@ class BuildParser(argparse.ArgumentParser):
             help=(
                 "Add debug symbols and frame pointers without changing the "
                 "optimization level, for use with profilers. [Default: False]"
+            ),
+        )
+        cmake_group.add_argument(
+            "--development-compiler-settings",
+            dest="development_compiler_settings",
+            action="store_true",
+            help=(
+                "For builds that are recompiled after changes: no unity build for the Tudat libraries "
+                "(CMAKE_UNITY_BUILD=OFF; the tudatpy unity groups stay), and -O1 instead of -O3 (Release) or "
+                "-Og (Debug). Faster rebuilds, slower code [Default: False]"
             ),
         )
 
@@ -1390,6 +1401,8 @@ class Builder:
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                     f"-DTUDAT_BUILD_WITH_PROFILING_SYMBOLS={'ON' if self.args.build_with_profiling_symbols else 'OFF'}",
+                    f"-DTUDAT_BUILD_WITH_REDUCED_OPTIMIZATION={'ON' if self.args.development_compiler_settings else 'OFF'}",
+                    f"-DCMAKE_UNITY_BUILD={'OFF' if self.args.development_compiler_settings else 'ON'}",
                 ]
 
                 # Add Fortran compiler path if building with MCD

@@ -76,7 +76,6 @@ set(environment_SOURCES
         createSurfacePropertyDistribution.cpp
         createClimateModel.cpp
         createCameras.cpp
-        createRelativisticTimeConverter.cpp
         createMetric.cpp
         )
 
@@ -85,7 +84,7 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
 endif ()
 
 if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
-    list(APPEND environment_SOURCES createSystemOfBodiesDoubleDoubleInstantiation.cpp)
+    list(APPEND environment_SOURCES createSystemOfBodiesDoubleDoubleInstantiation.cpp createRelativisticTimeConverter.cpp)
 endif ()
 
 # Add library.
