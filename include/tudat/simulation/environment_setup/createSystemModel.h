@@ -25,6 +25,7 @@
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/astro/system_models/vehicleExteriorPanels.h"
 
 namespace tudat
 {

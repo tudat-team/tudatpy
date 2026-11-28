@@ -22,11 +22,14 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
-#include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
-#include "tudat/io/serialization/core.h"
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 #include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat

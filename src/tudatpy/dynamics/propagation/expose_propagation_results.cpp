@@ -21,7 +21,7 @@
 
 #include <tudat/simulation/propagation_setup/dependentVariablesInterface.h>
 #include <tudat/simulation/propagation_setup/propagationResults.h>
-#include <tudat/simulation/propagation_setup/propagationTermination.h>
+#include <tudat/simulation/propagation_setup/propagationTerminationDetails.h>
 #include <tudat/io/serialization/pybind_helpers.h>
 #include <tudat/io/serialization/registrations_propagation.h>
 

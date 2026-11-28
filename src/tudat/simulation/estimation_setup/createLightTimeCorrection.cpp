@@ -23,6 +23,8 @@
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/math/basic/coordinateConversions.h"
+#include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {

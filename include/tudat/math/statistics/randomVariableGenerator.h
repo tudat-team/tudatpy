@@ -14,11 +14,15 @@
 #include <ctime>
 
 #include <functional>
+#include <memory>
+#include <vector>
 
-#include <boost/random.hpp>
+#include <Eigen/Core>
+
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_01.hpp>
 
-#include "tudat/math/statistics/boostProbabilityDistributions.h"
+#include "tudat/math/statistics/continuousProbabilityDistributions.h"
 
 namespace tudat
 {

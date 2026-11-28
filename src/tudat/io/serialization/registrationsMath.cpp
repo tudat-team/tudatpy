@@ -10,7 +10,8 @@
 
 #include <cereal/types/polymorphic.hpp>
 
-#include "tudat/io/serialization/archives.h"
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
 
 /**
  * @file registrationsMath.cpp

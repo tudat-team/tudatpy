@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/io/multiDimensionalArrayReader.h"

@@ -9,6 +9,7 @@
  */
 
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {
@@ -16,6 +17,15 @@ namespace tudat
 namespace ground_stations
 {
 
+std::shared_ptr< system_models::VehicleSystems > GroundStation::getVehicleSystems( )
+{
+    if( vehicleSystems_ == nullptr )
+    {
+        vehicleSystems_ = std::make_shared< system_models::VehicleSystems >( );
+    }
+    return vehicleSystems_;
 }
+
+}  // namespace ground_stations
 
 }  // namespace tudat

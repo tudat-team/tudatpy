@@ -39,6 +39,7 @@
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/simulation/estimation_setup/compareEstimationAndCovarianceResultsTestCase.h"
+#include "tudat/simulation/estimation_setup/estimationExternTemplatesTestCase.h"
 
 namespace tudat
 {

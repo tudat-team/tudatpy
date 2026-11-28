@@ -13,9 +13,13 @@ set(propagation_HEADERS
         createAccelerationModels.h
         dynamicsSimulator.h
         dynamicsSimulatorBase.h
+        dynamicsSimulatorBaseImplementation.h
         singleArcDynamicsSimulator.h
+        singleArcDynamicsSimulatorImplementation.h
         multiArcDynamicsSimulator.h
+        multiArcDynamicsSimulatorImplementation.h
         hybridArcDynamicsSimulator.h
+        hybridArcDynamicsSimulatorImplementation.h
         createTorqueModel.h
         createStateDerivativeModel.h
         createEnvironmentUpdater.h
@@ -24,7 +28,10 @@ set(propagation_HEADERS
         torqueSettings.h
         createMassRateModels.h
         propagationTermination.h
+        propagationTerminationDetails.h
         propagationSettings.h
+        propagatorType.h
+        getProcessedStateStrings.h
         propagationPrintSettings.h
         propagationProcessingSettings.h
         accelerationSettings.h
@@ -32,6 +39,8 @@ set(propagation_HEADERS
         setNumericallyIntegratedStates.h
         environmentUpdater.h
         dependentVariablesInterface.h
+        getInitialStateOfBody.h
+        addEmptyTabulatedEphemeris.h
         )
 
 # Add header files.
@@ -62,12 +71,15 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
 endif ()
 
 if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
-    list(APPEND propagation_SOURCES
+    set(propagation_INSTANTIATION_SOURCES
             dynamicsSimulatorDoubleDoubleInstantiation.cpp
             singleArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
             multiArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
             hybridArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
             )
+    list(APPEND propagation_SOURCES ${propagation_INSTANTIATION_SOURCES})
+    # The instantiations largely overlap, so compile them as one translation unit
+    set_source_files_properties(${propagation_INSTANTIATION_SOURCES} PROPERTIES UNITY_GROUP double_double_instantiations)
 endif ()
 
 # Add library.
@@ -79,3 +91,8 @@ TUDAT_ADD_LIBRARY("propagation_setup"
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )
+
+# Not with a global unity build (CMAKE_UNITY_BUILD), which already batches all sources of the library
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS AND TUDAT_BUILD_WITH_UNITY_GROUPS AND NOT CMAKE_UNITY_BUILD)
+    set_target_properties(tudat_propagation_setup PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
+endif ()

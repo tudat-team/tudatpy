@@ -97,34 +97,34 @@
      if (TUDAT_BUILD_MSVC OR TUDAT_BUILD_CLANG_CL)
          set(TUDAT_OPTIMIZATION_REGEX "(^| )[/-]O[d123x]?([ ]|$)")
 
-        if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
+        if (TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION)
             set(TUDAT_OPT_DEBUG "/O1")
             set(TUDAT_OPT_RELEASE "/O1")
             set(TUDAT_OPT_RELWITHDEBINFO "/O1")
             set(TUDAT_OPT_MINSIZEREL "/O1")
-            message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON: forcing reduced optimization flags.")
+            message(STATUS "TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION=ON: forcing reduced optimization flags.")
         else ()
             set(TUDAT_OPT_DEBUG "/Od")
             set(TUDAT_OPT_RELEASE "/O2")
             set(TUDAT_OPT_RELWITHDEBINFO "/O2")
             set(TUDAT_OPT_MINSIZEREL "/O1")
-            message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=OFF: using default optimization policy (Debug=/Od).")
+            message(STATUS "TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION=OFF: using default optimization policy (Debug=/Od).")
         endif ()
      else ()
          set(TUDAT_OPTIMIZATION_REGEX "(^| )-O[^ ]*([ ]|$)")
 
-        if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
+        if (TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION)
             set(TUDAT_OPT_DEBUG "-O1")
             set(TUDAT_OPT_RELEASE "-O1")
             set(TUDAT_OPT_RELWITHDEBINFO "-O1")
             set(TUDAT_OPT_MINSIZEREL "-O1")
-            message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON: forcing reduced optimization flags.")
+            message(STATUS "TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION=ON: forcing reduced optimization flags.")
         else ()
             set(TUDAT_OPT_DEBUG "-Og")
             set(TUDAT_OPT_RELEASE "-O3")
             set(TUDAT_OPT_RELWITHDEBINFO "-O2")
             set(TUDAT_OPT_MINSIZEREL "-Os")
-            message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=OFF: using default optimization policy (Debug=-Og).")
+            message(STATUS "TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION=OFF: using default optimization policy (Debug=-Og).")
         endif ()
      endif ()
 
@@ -344,6 +344,9 @@
      set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare -Wno-maybe-uninitialized -Wno-stringop-overflow")
+    # GCC collects garbage after 30% heap growth instead of 100%: peak RSS of the largest kernel
+    # unity TU 8.76 -> 7.21 GB for 6.6% more compile time. Generated code is unchanged.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --param ggc-min-expand=30")
 
      # MinGW fixes
      if (MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)

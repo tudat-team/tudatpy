@@ -20,8 +20,11 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/basics/utilities.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;

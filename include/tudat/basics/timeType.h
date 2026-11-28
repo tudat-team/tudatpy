@@ -22,7 +22,8 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
-#include "tudat/io/serialization/core.h"
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
 #include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat

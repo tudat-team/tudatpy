@@ -21,7 +21,11 @@
 
 #include "tudat/simulation/propagation_setup/propagationPrintSettings.h"
 #include "tudat/math/interpolators/createInterpolator.h"
-#include "tudat/io/serialization/core.h"
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 #include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat

@@ -20,6 +20,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudatpy/kernelExternTemplatesOrbitDetermination.h"
 #include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
 
 namespace py = pybind11;

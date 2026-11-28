@@ -21,7 +21,6 @@
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <Eigen/LU>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/nearestNeighbourSearch.h"
@@ -245,32 +244,7 @@ private:
         return principalPoint_ + kMatrix_ * Eigen::Vector3d( x, y, x * y );
     }
 
-    Eigen::Vector2d pixelLineToFocalPlaneCoordinates( const Eigen::Vector2d& pixelLine ) const
-    {
-        const Eigen::Vector2d target = pixelLine - principalPoint_;
-        Eigen::Vector2d focalPlaneCoordinates = kMatrix_.block< 2, 2 >( 0, 0 ).fullPivLu( ).solve( target );
-
-        for( unsigned int i = 0; i < 20; ++i )
-        {
-            const double x = focalPlaneCoordinates.x( );
-            const double y = focalPlaneCoordinates.y( );
-            const Eigen::Vector2d residual = focalPlaneCoordinatesToPixelLine( x, y ) - pixelLine;
-            if( residual.norm( ) < 1.0E-13 )
-            {
-                return focalPlaneCoordinates;
-            }
-
-            Eigen::Matrix2d jacobian;
-            jacobian( 0, 0 ) = kMatrix_( 0, 0 ) + kMatrix_( 0, 2 ) * y;
-            jacobian( 0, 1 ) = kMatrix_( 0, 1 ) + kMatrix_( 0, 2 ) * x;
-            jacobian( 1, 0 ) = kMatrix_( 1, 0 ) + kMatrix_( 1, 2 ) * y;
-            jacobian( 1, 1 ) = kMatrix_( 1, 1 ) + kMatrix_( 1, 2 ) * x;
-
-            focalPlaneCoordinates -= jacobian.fullPivLu( ).solve( residual );
-        }
-
-        throw std::runtime_error( "Error when converting PSF pixel/line coordinates to camera-frame unit vector: Newton solve failed." );
-    }
+    Eigen::Vector2d pixelLineToFocalPlaneCoordinates( const Eigen::Vector2d& pixelLine ) const;
 
     double focalLength_;
     Eigen::Vector2d principalPoint_;

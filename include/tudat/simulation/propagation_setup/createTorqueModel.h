@@ -19,16 +19,32 @@
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
-#include "tudat/astro/gravitation/fourthDegreeFullTwoBodyGravitationalTorque.h"
-#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
-#include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
-#include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
-#include "tudat/astro/aerodynamics/aerodynamicTorque.h"
-#include "tudat/astro/electromagnetism/radiationPressureTorque.h"
-#include "tudat/astro/basic_astro/customTorque.h"
 
 namespace tudat
 {
+
+namespace basic_astrodynamics
+{
+class CustomTorqueModel;
+}  // namespace basic_astrodynamics
+
+namespace aerodynamics
+{
+class AerodynamicTorque;
+}  // namespace aerodynamics
+
+namespace gravitation
+{
+class SecondDegreeGravitationalTorqueModel;
+class SphericalHarmonicGravitationalTorqueModel;
+class FullTwoBodySphericalHarmonicTorque;
+class FourthDegreeFullTwoBodyGravitationalTorqueModel;
+}  // namespace gravitation
+
+namespace electromagnetism
+{
+class IsotropicPointSourceRadiationPressureTorque;
+}  // namespace electromagnetism
 
 namespace simulation_setup
 {

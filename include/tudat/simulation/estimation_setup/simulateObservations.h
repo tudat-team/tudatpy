@@ -19,7 +19,7 @@
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
@@ -27,7 +27,7 @@
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
+#include "tudat/simulation/estimation_setup/wrapObservationResiduals.h"
 
 namespace tudat
 {
@@ -684,12 +684,6 @@ removeLinkIdFromSimulatedObservations(
     return observationsWithoutLinkEndId;
 }
 
-std::map< double, Eigen::VectorXd > getTargetAnglesAndRange( const simulation_setup::SystemOfBodies& bodies,
-                                                             const std::pair< std::string, std::string > groundStationId,
-                                                             const std::string& targetBody,
-                                                             const std::vector< double > times,
-                                                             const bool transmittingToTarget );
-
 /*!
  * Creates observation simulation settings to be used when simulating observations consistent with an observed observation
  * collection.
@@ -960,6 +954,13 @@ void getResidualStatistics(
         rmsValues( i ) = linear_algebra::getVectorEntryRootMeanSquare( currentResiduals );
     }
 }
+
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
+extern template std::shared_ptr< observation_models::ObservationCollection< double, double > > simulateObservations< double, double >(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > >& observationsToSimulate,
+        const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< double, double > > >& observationSimulators,
+        const SystemOfBodies bodies );
+#endif
 
 }  // namespace simulation_setup
 

@@ -13,6 +13,7 @@
 #include <functional>
 
 #include "tudat/simulation/estimation_setup/createObservationViability.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 
 namespace tudat
 {

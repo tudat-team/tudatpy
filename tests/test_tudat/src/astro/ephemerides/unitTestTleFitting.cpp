@@ -9,9 +9,21 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/equinoctialElementConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/ephemerides/tleEphemeris.h"
 #include "tudat/astro/ephemerides/tleFitting.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 namespace tudat
 {

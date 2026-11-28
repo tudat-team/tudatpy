@@ -29,6 +29,7 @@
 #include <tudat/simulation/propagation_setup/propagationSettings.h>
 
 #include "scalarTypes.h"
+#include "tudatpy/kernelExternTemplatesDynamicsSimulators.h"
 
 namespace py = pybind11;
 

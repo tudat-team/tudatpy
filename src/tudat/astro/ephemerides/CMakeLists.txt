@@ -26,6 +26,7 @@ set(ephemerides_SOURCES
         "tabulatedRotationalEphemeris.cpp"
         "synchronousRotationalEphemeris.cpp"
         "fullPlanetaryRotationModel.cpp"
+        "iauRotationModel.cpp"
         "tleEphemeris.cpp"
         "tleFitting.cpp"
         "aeordynamicAngleRotationalEphemeris.cpp"

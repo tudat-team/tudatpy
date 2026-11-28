@@ -30,6 +30,7 @@
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
+#include "tudat/simulation/estimation_setup/estimationExternTemplatesTestCase.h"
 
 namespace tudat
 {

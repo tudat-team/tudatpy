@@ -17,50 +17,13 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/observation_models/observationBias.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettingsBase.h"
 
 namespace tudat
 {
 
 namespace estimatable_parameters
 {
-
-//! Class for providing settings for parameters to estimate
-/*!
- *  Class for providing settings for parameters to estimate. This class is a functional base class for parameters that
- *  require no information in addition to their type.
- *  This class can be used for the easy setup of parameter objects (see createEstimatableParameters.h), but users may also
- *  chose to do so manually. (Derived) Class members are all public, for ease of access and modification.
- */
-class EstimatableParameterSettings
-{
-public:
-    //! Constructor.
-    /*!
-     *  Constructor, takes parameter type and body of which it is a property.
-     *  \param associatedBody Body of which parameter is a property.
-     *  \param parameterType Type of parameter.
-     *  \param pointOnBodyId Reference point on body associated with parameter (empty by default).
-     */
-    EstimatableParameterSettings( const std::string associatedBody,
-                                  const EstimatebleParametersEnum parameterType,
-                                  const std::string pointOnBodyId = "" ):
-        parameterType_( std::make_pair( parameterType, std::make_pair( associatedBody, pointOnBodyId ) ) )
-    {}
-
-    //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
-    virtual ~EstimatableParameterSettings( ) {}
-
-    //! Identifier for parameter.
-    /*!
-     *  Identifier for parameter, contains type of parameter and body of which parameter is a property.
-     */
-    EstimatebleParameterIdentifier parameterType_;
-
-    std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
-};
 
 //! Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
 /*!

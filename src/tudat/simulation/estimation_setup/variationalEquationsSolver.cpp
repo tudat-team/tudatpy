@@ -8,7 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
+#include "tudat/simulation/estimation_setup/createStateTransitionAndSensitivityMatrixInterpolator.h"
+#include "tudat/basics/utilities.h"
+#include "tudat/math/interpolators/lagrangeInterpolator.h"
 
 namespace tudat
 {

@@ -33,14 +33,13 @@
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/spaceTimePropertiesSettings.h"
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
-
-class SpaceTimeMetricSettings;
 
 //! Struct holding settings for a body to be created.
 /*!
@@ -91,93 +90,6 @@ struct BodySettings {
 
     std::vector< std::shared_ptr< CameraSettings > > cameraSettings;
 };
-
-class SpaceTimePropertiesSettings
-{
-public:
-    SpaceTimePropertiesSettings( const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings = nullptr,
-                                 const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet =
-                                         std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
-                                 const double equivalencePrincipleLpiViolationParameter = 0.0 ):
-        metricSettings_( metricSettings ), ppnParameterSet_( ppnParameterSet ),
-        equivalencePrincipleLpiViolationParameter_( equivalencePrincipleLpiViolationParameter )
-    {
-        if( ppnParameterSet_ == nullptr )
-        {
-            ppnParameterSet_ = std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 );
-        }
-    }
-
-    std::shared_ptr< SpaceTimeMetricSettings > getMetricSettings( ) const
-    {
-        return metricSettings_;
-    }
-
-    void setMetricSettings( const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings )
-    {
-        metricSettings_ = metricSettings;
-    }
-
-    std::shared_ptr< relativity::PPNParameterSet > getPpnParameterSet( ) const
-    {
-        return ppnParameterSet_;
-    }
-
-    void setPpnParameterSet( const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet )
-    {
-        if( ppnParameterSet == nullptr )
-        {
-            throw std::runtime_error( "Error when setting PPN parameter set, input is nullptr." );
-        }
-        ppnParameterSet_ = ppnParameterSet;
-    }
-
-    double getEquivalencePrincipleLpiViolationParameter( ) const
-    {
-        return equivalencePrincipleLpiViolationParameter_;
-    }
-
-    void setEquivalencePrincipleLpiViolationParameter( const double equivalencePrincipleLpiViolationParameter )
-    {
-        equivalencePrincipleLpiViolationParameter_ = equivalencePrincipleLpiViolationParameter;
-    }
-
-private:
-    std::shared_ptr< SpaceTimeMetricSettings > metricSettings_;
-
-    std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
-
-    double equivalencePrincipleLpiViolationParameter_;
-};
-
-//! Factory function for PPN parameter settings.
-/*!
- *  \param parameterGamma First-order PPN parameter gamma.
- *  \param parameterBeta First-order PPN parameter beta.
- *  \param parameterEpsilon Second-order post-Newtonian parameter epsilon.
- *  \return Shared pointer to PPN parameter settings.
- */
-inline std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet( const double parameterGamma = 1.0,
-                                                                       const double parameterBeta = 1.0,
-                                                                       const double parameterEpsilon = 0.0 )
-{
-    return std::make_shared< relativity::PPNParameterSet >( parameterGamma, parameterBeta, 0.0, parameterEpsilon );
-}
-
-//! Factory function for system-level space-time properties settings.
-/*!
- *  \param metricSettings Optional settings defining which metric model to build.
- *  \param ppnParameterSet Optional PPN parameter settings. If null, GR defaults are used.
- *  \param equivalencePrincipleLpiViolationParameter Equivalence-principle local-position-invariance violation parameter.
- *  \return Shared pointer to space-time properties settings.
- */
-inline std::shared_ptr< SpaceTimePropertiesSettings > spaceTimePropertiesSettings(
-        const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings = nullptr,
-        const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet = nullptr,
-        const double equivalencePrincipleLpiViolationParameter = 0.0 )
-{
-    return std::make_shared< SpaceTimePropertiesSettings >( metricSettings, ppnParameterSet, equivalencePrincipleLpiViolationParameter );
-}
 
 class BodyListSettings
 {

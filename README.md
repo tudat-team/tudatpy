@@ -19,6 +19,7 @@ For complete example applications see our [examples page](https://docs.tudat.spa
   - [Prerequisites](#prerequisites)
   - [Compilation Steps](#compilation-steps)
   - [Verify your Build](#verify-your-build)
+  - [Build options](#build-options)
   - [Optional: Mars Climate Database Interface](#optional-mars-climate-database-interface)
 - [Contributing](#contributing)
 - [Citation](#citation)
@@ -93,9 +94,12 @@ python build.py -j <number-of-cores>  # Compile Tudatpy
 python build.py --docs                # Compile Tudatpy and build API docs
 ```
 
-This script compiles `tudatpy`. It will take some time to execute, but you can speed up the process by increasing the number of cores used with the `-j` flag.
-Once the project is built, all the build output is dumped by default in a directory called `build`, which is not tracked by Git.
+This script compiles `tudatpy`. It will take some time to execute, but you can speed up the process by increasing the number of parallel threads used with the `-j` flag.
+For instance, `-j 8` compiles with 8 parallel threads. Assume about 3 GB of RAM per thread: your computer may become unresponsive if the build needs more RAM than is available.
+Once the project is built, all the build output is by default put into a directory called `build`, which is not tracked by Git.
 You can add the `--docs` flag to build the API documentation, which will be saved inside the build directory.
+The default build settings are optimized for a single build of the tudatpy kernel from scratch.
+For settings that are better suited for development and frequent recompilation, see [Build options](#build-options).
 
 7. Install
 
@@ -164,6 +168,34 @@ Total Test time (real) = 490.77 sec
 ````
 
 Note that when running tests in parallel with `-j`, CTest may execute tests in a non-sequential order to minimize total execution time.
+
+### Build options
+
+Running `build.py` without options assumes that you are compiling `tudatpy` from scratch, with the goal of running Python scripts.
+When you change the C++ code of Tudat or `tudatpy` and recompile frequently, other settings reduce the recompilation time.
+By default, `build.py` uses a unity build: CMake merges several source files into one file and compiles them together. This makes a build from scratch faster, but a change to one source file recompiles all source files merged with it.
+`build.py` runs the CMake configuration on every call, so the options of the latest call apply to the build directory.
+`python build.py -h` lists all options; the main ones are:
+
+- `-j <n>`: compile with `n` parallel threads (default: 1). Most source files need less than 2 GB of RAM to compile, the largest ones up to 3.5 GB (4.5 GB for Debug builds).
+  Building the kernel with `-j 8` used up to 17 GB of RAM in our tests.
+- `--development-compiler-settings`: switch off the unity build for the Tudat libraries, and compile with `-O1` instead of `-O3` (faster compilation, slightly slower runtime). Use this when you change the C++ code and recompile frequently.
+- `--tests`: also build the Tudat C++ unit tests (see [Running `tudat` tests](#running-tudat-tests)).
+- `--targets <target> ...`: build only the given CMake targets, without stubs and API documentation. For instance `--targets kernel` for the `tudatpy` kernel, or `--targets test_<directory>_<name>` for a single unit test (`unitTest<name>.cpp` in `tests/test_tudat/src/.../<directory>`).
+- `--build-dir <dir>`: use `<dir>` instead of `build` as build directory. Changing `--development-compiler-settings` or `--build-type` recompiles everything, so use a separate build directory for each combination you use.
+- `--build-type Debug`: compile with debug symbols, for use with a debugger. Compared to the default `Release` build, this needs about 30 % more RAM per thread, linking the kernel takes about 30 s longer, and the compiled code runs about 2 times slower (with `--development-compiler-settings`, Debug builds use `-O1` instead of `-Og`).
+- `--skip-kernel`: do not build the `tudatpy` kernel, its stubs and the API documentation; use it with `--tests` when you only work on Tudat and its unit tests.
+- `--clean`: remove the build directory before building.
+- `--docs`: also build the API documentation, in `<build-dir>/api-docs`.
+- `--skip-stubs`: do not generate the Python stubs (`.pyi` files in `<build-dir>/tudatpy-stubs`), which give code completion and type hints for `tudatpy` in IDEs. This saves time when you rebuild the kernel frequently.
+- `--stubs-only`: only generate the stubs (and the API documentation with `--docs`) for an existing build, without running CMake and without compiling.
+
+For example, when developing:
+
+```
+python build.py --development-compiler-settings --build-dir build-dev --targets kernel -j <n>
+python build.py --development-compiler-settings --build-dir build-dev --tests --targets test_<directory>_<name> -j <n>
+```
 
 ### Optional: Mars Climate Database Interface
 

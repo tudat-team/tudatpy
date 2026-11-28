@@ -28,6 +28,7 @@
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"

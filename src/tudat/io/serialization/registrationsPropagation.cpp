@@ -18,9 +18,6 @@
  *
  * Includes registrations for:
  *   - SimulationResults hierarchy (propagationResults.h)
- *   - VariableSettings / SingleDependentVariableSaveSettings hierarchy (propagationOutputSettings.h)
- *   - PropagationTerminationSettings hierarchy (propagationTerminationSettings.h)
- *   - PropagationTerminationDetails hierarchy (propagationTermination.h)
  *   - PropagatorProcessingSettings hierarchy (propagationProcessingSettings.h)
  *   - DependentVariablesInterface hierarchy (dependentVariablesInterface.h)
  *
@@ -28,9 +25,6 @@
  */
 
 #include "tudat/simulation/propagation_setup/propagationResults.h"
-#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
-#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
-#include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
@@ -121,131 +115,5 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::DependentVariablesInte
                                       tudat::propagators::MultiArcDependentVariablesInterfaceTime )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::DependentVariablesInterfaceTime,
                                       tudat::propagators::HybridArcDependentVariablesInterfaceTime )
-
-// =====================================================================
-// VariableSettings / DependentVariableSaveSettings hierarchy  (propagationOutputSettings.h)
-// =====================================================================
-
-CEREAL_REGISTER_TYPE( tudat::propagators::VariableSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleAccelerationDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleTorqueDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::BodyAerodynamicAngleVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::LocalWindVelocityDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::ControlSurfaceCoefficientDependentVariableSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleVariationSphericalHarmonicAccelerationSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::AccelerationPartialWrtStateSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::TotalAccelerationPartialWrtStateSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::MinimumConstellationDistanceDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::MinimumConstellationStationDistanceDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::CustomDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::TotalGravityFieldVariationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::IlluminatedPanelFractionDependentVariableSaveSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::CrossSectionDependentVariableSaveSettings )
-
-// VariableSettings -> derived
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::SingleDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::SingleAccelerationDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::SingleTorqueDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::BodyAerodynamicAngleVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::LocalWindVelocityDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::ControlSurfaceCoefficientDependentVariableSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::SingleVariationSphericalHarmonicAccelerationSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::AccelerationPartialWrtStateSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::TotalAccelerationPartialWrtStateSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::MinimumConstellationDistanceDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::MinimumConstellationStationDistanceDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::CustomDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::TotalGravityFieldVariationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
-                                      tudat::propagators::IlluminatedPanelFractionDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::CrossSectionDependentVariableSaveSettings )
-
-// SingleDependentVariableSaveSettings -> further derived
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::SingleAccelerationDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::SingleTorqueDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::BodyAerodynamicAngleVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::LocalWindVelocityDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::ControlSurfaceCoefficientDependentVariableSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::SingleVariationSphericalHarmonicAccelerationSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::AccelerationPartialWrtStateSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::TotalAccelerationPartialWrtStateSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::MinimumConstellationDistanceDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::MinimumConstellationStationDistanceDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::CustomDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::TotalGravityFieldVariationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::IlluminatedPanelFractionDependentVariableSaveSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
-                                      tudat::propagators::CrossSectionDependentVariableSaveSettings )
-
-// =====================================================================
-// PropagationTerminationSettings hierarchy  (propagationTerminationSettings.h)
-// =====================================================================
-
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTimeTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationCPUTimeTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationDependentVariableTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationCustomTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationHybridTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::NonSequentialPropagationTerminationSettings )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationTimeTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationCPUTimeTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationDependentVariableTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationCustomTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationHybridTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::NonSequentialPropagationTerminationSettings )
-
-// =====================================================================
-// PropagationTerminationDetails hierarchy  (propagationTermination.h)
-// =====================================================================
-
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetails )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationDetails,
-                                      tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
 
 CEREAL_REGISTER_DYNAMIC_INIT( tudat_serialization_propagation )

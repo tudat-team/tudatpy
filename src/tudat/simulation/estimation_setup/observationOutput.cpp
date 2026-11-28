@@ -13,6 +13,7 @@
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/observationViabilityCalculator.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 
 namespace tudat
 {

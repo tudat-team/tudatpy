@@ -29,7 +29,7 @@
 #include "tudat/simulation/environment_setup/createMetric.h"
 #include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
 
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/propagation_setup/propagationPrintSettings.h"
 
 namespace tudat

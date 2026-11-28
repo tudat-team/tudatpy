@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 
 #if TUDAT_BUILD_WITH_NRLMSISE

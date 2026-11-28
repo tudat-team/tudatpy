@@ -19,11 +19,15 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
-#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 // #include "tudat/simulation/environment_setup/createSystemModel.h"
 
 namespace tudat
 {
+namespace electromagnetism
+{
+class RadiationPressureTargetModel;
+}  // namespace electromagnetism
+
 namespace simulation_setup
 {
 

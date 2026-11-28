@@ -8,7 +8,7 @@
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/simulation/propagation_setup/propagationPrintSettings.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
-#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationDetails.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 

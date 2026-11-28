@@ -19,7 +19,7 @@
 #include <pybind11/stl.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/environment_setup/createRelativisticTimeConverter.h>
+#include <tudat/simulation/environment_setup/setRelativisticTimeConverters.h>
 #include <tudat/simulation/environment_setup/body.h>
 #include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
 #include <tudat/simulation/environment_setup/createBodiesFactory.h>
@@ -28,7 +28,7 @@
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/createCameras.h>
 #include <tudat/simulation/environment_setup/createSystemModel.h>
-#include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
+#include <tudat/simulation/propagation_setup/addEmptyTabulatedEphemeris.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 
 #include "aerodynamic_coefficients/expose_aerodynamic_coefficients.h"

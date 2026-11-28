@@ -1200,6 +1200,32 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
                                                          anglesBaseFrame );
 }
 
+// Original function - uses default values for all parameters
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const std::string& baseFrameOrientation = "J2000",
+                                                                           const std::string& targetFrameOrientation = "Mars_Fixed" );
+
+// New overload - allows customizing the basic angles
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const std::string& baseFrameOrientation,
+                                                                           const std::string& targetFrameOrientation,
+                                                                           const double angleN,
+                                                                           const double angleJ,
+                                                                           const double anglePsiAtEpoch,
+                                                                           const double anglePsiRateAtEpoch );
+
+// New fully customizable overload - allows customizing all parameters
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const double angleN,
+        const double angleJ,
+        const double anglePsiAtEpoch,
+        const double anglePsiRateAtEpoch,
+        const std::map< double, std::pair< double, double > >& nutationCorrectionSettings,
+        const std::vector< std::map< double, std::pair< double, double > > >& meanMotionTimeDependentPhaseNutationCorrections,
+        const std::map< double, std::pair< double, double > >& rotationRateCorrections,
+        const std::map< double, std::pair< double, double > >& xPolarMotionCoefficients,
+        const std::map< double, std::pair< double, double > >& yPolarMotionCoefficients );
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

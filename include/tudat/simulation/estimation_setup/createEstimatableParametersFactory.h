@@ -13,6 +13,7 @@
 
 #include "tudat/simulation/estimation_setup/createEstimatableParametersInterface.h"
 
+#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
@@ -58,8 +59,13 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/rtgForceVector.h"
 #include "tudat/astro/relativity/metric.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
+#include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
+#include "tudat/simulation/estimation_setup/getAssociatedMultiArcParameter.h"
+#include "tudat/simulation/estimation_setup/setInitialStateVectorFromParameterSet.h"
+#include "tudat/simulation/propagation_setup/getInitialStateOfBody.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/specularDiffuseReflectivity.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/panelMaterialProperty.h"
@@ -3496,236 +3502,25 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
             doubleParametersToEstimate, vectorParametersToEstimate, initialDynamicalParametersToEstimate, considerParameters );
 }
 
-//! Function to get the multi-arc parameter equivalent of a single-arc initial state parameter
-/*!
- *  Function to get the multi-arc parameter equivalent of a single-arc initial state parameter. The initial state arcs are
- *  provided as input to this function.
- *  \param singleArcParameter Single-arc parameter object for which the multi-arc equivalent is to be created.
- *  \param arcStartTimes Vector of start times for separate arcs.
- *  \return Multi-arc parameter equivalent of single-arc initial state parameter input
- */
-template< typename StateScalarType >
-std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
-getAssociatedMultiArcParameter(
-        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
-                singleArcParameter,
-        const std::vector< double >& arcStartTimes )
-{
-    std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
-            multiArcParameter;
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
+extern template std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >
+getInitialStateParameterSettings< double, double >( const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
+                                                    const SystemOfBodies& bodies,
+                                                    const std::vector< double > arcStartTimes );
 
-    // Check state type
-    switch( singleArcParameter->getParameterName( ).first )
-    {
-        case estimatable_parameters::initial_body_state: {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >
-                    singleArcTranslationalStateParameter =
-                            std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >(
-                                    singleArcParameter );
-            if( singleArcTranslationalStateParameter == nullptr )
-            {
-                throw std::runtime_error(
-                        "Error when getting multi-arc parameter from single-arc equivalent, single-arc translational state is "
-                        "inconsistent " );
-            }
+extern template std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >
+getInitialMultiArcParameterSettings< double, double >(
+        const std::shared_ptr< propagators::MultiArcPropagatorSettings< double, double > > propagatorSettings,
+        const SystemOfBodies& bodies,
+        const std::vector< double > arcStartTimes );
 
-            // Retrieve single-arc initial state
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > singleArcInitialState =
-                    singleArcTranslationalStateParameter->getParameterValue( );
-
-            // Create multi-arc initial states. First arc initial state is taken from single-arc, other initial states set to zero.
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > multiArcInitialStates =
-                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 6 * arcStartTimes.size( ) );
-            multiArcInitialStates.segment( 0, 6 ) = singleArcInitialState;
-
-            // Creater multi-arc parameter
-            std::vector< std::string > centralBodyList;
-            for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
-            {
-                centralBodyList.push_back( singleArcTranslationalStateParameter->getCentralBody( ) );
-            }
-            multiArcParameter = std::make_shared< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
-                    singleArcTranslationalStateParameter->getParameterName( ).second.first,
-                    arcStartTimes,
-                    multiArcInitialStates,
-                    centralBodyList,
-                    singleArcTranslationalStateParameter->getFrameOrientation( ) );
-            break;
-        }
-        default:
-            throw std::runtime_error( "Error when getting multi-arc parameter from single-arc equivalent, parameter type " +
-                                      getParameterTypeString( singleArcParameter->getParameterName( ).first ) + " not recognized." );
-    }
-    return multiArcParameter;
-}
-
-//! Function to get initial state vector of estimated dynamical states.
-/*!
- *  Function to get initial state vector of estimated dynamical states (i.e. presently estimated state at propagation
- *  start time.
- *  \param estimatableParameters Object containing all parameters that are to be estimated.
- *  \param propagatorSettings Object containing propagation settings to be used
- *  \return State vector of estimated dynamics at propagation start time.
- */
-template< typename InitialStateParameterType = double, typename TimeType = double >
-void setInitialStateVectorFromParameterSet(
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > estimatableParameters,
-        const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings )
-{
-    typedef Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > VectorType;
-
-    // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr<
-            estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
-
-    // Initialize state vector.
-    Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateVector =
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero(
-                    estimatableParameters->getInitialDynamicalStateParameterSize( ), 1 );
-
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< InitialStateParameterType, TimeType > >(
-                propagatorSettings ) != nullptr )
-    {
-        int vectorSize = 0;
-        // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
-        for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
-        {
-            if( isParameterDynamicalPropertyInitialState( initialDynamicalParameters.at( i )->getParameterName( ).first ) )
-            {
-                int currentParameterSize = initialDynamicalParameters.at( i )->getParameterSize( );
-                initialStateVector.block( vectorSize, 0, currentParameterSize, 1 ) =
-                        initialDynamicalParameters.at( i )->getParameterValue( );
-
-                vectorSize += currentParameterSize;
-            }
-        }
-
-        propagatorSettings->resetInitialStates( initialStateVector.block( 0, 0, vectorSize, 1 ) );
-    }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >(
-                     propagatorSettings ) )
-    {
-        std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
-                std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >(
-                        propagatorSettings );
-
-        std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > >
-                singleArcSettings = multiArcSettings->getSingleArcSettings( );
-        int numberOfArcs = singleArcSettings.size( );
-
-        // Counting in how many arcs each body has already been propagated/estimated.
-        std::map< propagators::IntegratedStateType, std::map< std::string, unsigned int > > initialStatesBodiesCounter;
-
-        for( int i = 0; i < numberOfArcs; i++ )
-        {
-            std::map< propagators::IntegratedStateType, std::map< std::pair< std::string, std::string >, VectorType > >
-                    currentArcInitialStates;
-
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >
-                    singleArcTranslationalStatePropagatorSettings = std::dynamic_pointer_cast<
-                            propagators::TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
-                            singleArcSettings.at( i ) );
-
-            if( singleArcTranslationalStatePropagatorSettings == nullptr )
-            {
-                throw std::runtime_error( "Propagator settings for arc " + std::to_string( i ) +
-                                          " are not translational state propagator settings. "
-                                          " Other propagator settings not supported (yet) for multi-arc propagation." );
-            }
-            else
-            {
-                for( unsigned int j = 0; j < initialDynamicalParameters.size( ); j++ )
-                {
-                    VectorType currentParameterValue = initialDynamicalParameters.at( j )->getParameterValue( );
-                    int currentParameterSize = initialDynamicalParameters.at( j )->getParameterSize( );
-                    std::pair< std::string, std::string > bodyIdentifier = initialDynamicalParameters.at( j )->getParameterName( ).second;
-                    //                    std::cout << "body identifier: " << bodyIdentifier.first << " & " << bodyIdentifier.second <<
-                    //                    "\n\n";
-
-                    auto itr = std::find( singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.begin( ),
-                                          singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.end( ),
-                                          bodyIdentifier.first );
-                    if( itr != singleArcTranslationalStatePropagatorSettings->bodiesToIntegrate_.cend( ) )
-                    {
-                        //                        std::cout << "body " << bodyIdentifier.first << " - detected for arc " << i << "\n\n";
-
-                        switch( initialDynamicalParameters.at( j )->getParameterName( ).first )
-                        {
-                            case estimatable_parameters::arc_wise_initial_body_state: {
-                                //                                std::cout << "current parameter size: " << currentParameterSize << "\n\n";
-
-                                if( ( initialStatesBodiesCounter.count( propagators::translational_state ) == 0 ) ||
-                                    initialStatesBodiesCounter.at( propagators::translational_state ).count( bodyIdentifier.first ) == 0 )
-                                {
-                                    initialStatesBodiesCounter[ propagators::translational_state ][ bodyIdentifier.first ] = 0;
-                                }
-                                int index = initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first );
-                                //                                std::cout << "index: " << index << "\n\n";
-
-                                //                                if ( currentParameterSize / numberOfArcs != 6 )
-                                //                                {
-                                //                                    throw std::runtime_error("Error when moving initial states from
-                                //                                    parameters to propagator settings. Incompatible multi-arc
-                                //                                    translational state size found");
-                                //                                }
-                                //                                std::cout << "full parameters values: " <<
-                                //                                currentParameterValue.transpose( ) << "\n\n"; std::cout << "subset
-                                //                                parameters values: " << currentParameterValue.segment( index * 6, 6
-                                //                                ).transpose( ) << "\n\n";
-                                currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] =
-                                        currentParameterValue.segment( index * 6, 6 );
-
-                                // update counter of propagated/estimated bodies
-                                initialStatesBodiesCounter.at( propagators::translational_state ).at( bodyIdentifier.first )++;
-
-                                break;
-                            }
-                            default:
-                                throw std::runtime_error(
-                                        "Error when moving initial states from parameters to propagator settings. Multi-arc parameter type "
-                                        "not recognized" );
-                        }
-                    }
-                }
-            }
-            propagators::resetSingleArcInitialStates( singleArcSettings.at( i ), currentArcInitialStates );
-            multiArcSettings->updateInitialState( );
-        }
-    }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >(
-                     propagatorSettings ) )
-    {
-        std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > hybridArcSettings =
-                std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >(
-                        propagatorSettings );
-
-        std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > singleArcSettings =
-                hybridArcSettings->getSingleArcPropagatorSettings( );
-        std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
-                hybridArcSettings->getMultiArcPropagatorSettings( );
-
-        setInitialStateVectorFromParameterSet< InitialStateParameterType, TimeType >(
-                std::make_shared< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >(
-                        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >( ),
-                        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >( ),
-                        estimatableParameters->getEstimatedSingleArcInitialStateParameters( ) ),
-                singleArcSettings );
-        setInitialStateVectorFromParameterSet< InitialStateParameterType, TimeType >(
-                std::make_shared< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >(
-                        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >( ),
-                        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >( ),
-                        estimatableParameters->getEstimatedMultiArcInitialStateParameters( ) ),
-                multiArcSettings );
-
-        hybridArcSettings->updateInitialState( );
-    }
-    else
-    {
-        throw std::runtime_error( "Error when setting initial state vector from parameter set; type not identified" );
-    }
-}
+extern template std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > createParametersToEstimate< double, double >(
+        const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterNames,
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
+        const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterNames,
+        bool printParameterOrderWarning );
+#endif
 
 }  // namespace simulation_setup
 

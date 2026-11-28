@@ -99,6 +99,11 @@ option(
     "Build C++ tests for tudat."
     ON
 )
+option(
+    TUDAT_BUILD_KERNEL
+    "Build the tudatpy kernel (Python extension module)."
+    ON
+)
 include(CMakeDependentOption)
 cmake_dependent_option(
     TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
@@ -118,6 +123,11 @@ option(
     ON
 )
 option(
+    TUDAT_BUILD_WITH_UNITY_GROUPS
+    "Compile the heaviest template-instantiation and binding sources as merged (unity) groups: less RAM and time for full builds, but editing one source recompiles its whole group."
+    ON
+)
+option(
     TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS
     "Enable PYBIND11_DETAILED_ERROR_MESSAGES for TudatPy bindings."
     OFF
@@ -127,9 +137,15 @@ option(
     "Add debug symbols and frame pointers without changing the optimization level (for profiling)."
     OFF
 )
+# Renamed option: stop when the old name is switched on, drop it from existing caches otherwise
+if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
+    message(FATAL_ERROR "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME was renamed to TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION; "
+            "reconfigure with -UTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME -DTUDAT_BUILD_WITH_REDUCED_OPTIMIZATION=ON")
+endif ()
+unset(TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME CACHE)
 option(
-    TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME
-    "Force optimization independently of CMAKE_BUILD_TYPE: ON uses -O1 (/O1); OFF uses -O3 (/O2) with -Og (/Od) for Debug."
+    TUDAT_BUILD_WITH_REDUCED_OPTIMIZATION
+    "Use -O1 (/O1) for every build type instead of -O3 (/O2) for Release and -Og (/Od) for Debug; faster compilation, slower code."
     OFF
 )
 option(
@@ -229,10 +245,10 @@ if (NOT TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
-if (NOT TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
-    add_definitions(-DTUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=0)
-else ()
-    add_definitions(-DTUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=1)
+if (TUDAT_BUILD_TESTS AND NOT TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
+    message(WARNING "TUDAT_BUILD_TESTS=ON with TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=OFF: each test compiles the "
+            "propagation and estimation templates itself (about 3x the compile time and 2x the memory per test). "
+            "Set TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=ON.")
 endif ()
 # Long double state scalar type in the tudatpy kernel (CMAKE_CXX_FLAGS is overwritten in cmake/tudat/compiler.cmake)
 if (TUDATPY_LONG_DOUBLE_STATE)
@@ -620,25 +636,27 @@ message(
 message(STATUS Tudat: [Tudat_PROPAGATION_LIBRARIES] ${Tudat_PROPAGATION_LIBRARIES})
 message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
 
-# Pybind11 dependency
-include(YACMAPythonSetup)
-set(PYBIND11_FINDPYTHON ON)
-find_package(pybind11 CONFIG REQUIRED)
-set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS}) # TODO: Check
-set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})  # TODO: Check
+if (TUDAT_BUILD_KERNEL)
+    # Pybind11 dependency
+    include(YACMAPythonSetup)
+    set(PYBIND11_FINDPYTHON ON)
+    find_package(pybind11 CONFIG REQUIRED)
+    set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS}) # TODO: Check
+    set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})  # TODO: Check
 
-# Source directory for tudatpy
-set(TUDATPY_SOURCE_DIR ${BASE_DIRECTORY}/src/tudatpy)
+    # Source directory for tudatpy
+    set(TUDATPY_SOURCE_DIR ${BASE_DIRECTORY}/src/tudatpy)
 
-# Add docs to build directory
-file(
-    COPY ${BASE_DIRECTORY}/docs/tudatpy
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/docs
-)
+    # Add docs to build directory
+    file(
+        COPY ${BASE_DIRECTORY}/docs/tudatpy
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/docs
+    )
 
-# Include tudatpy CMake configuration
-include_directories(include/tudatpy)
-add_subdirectory(src/tudatpy)
+    # Include tudatpy CMake configuration
+    include_directories(include/tudatpy)
+    add_subdirectory(src/tudatpy)
+endif ()
 
 # +============================================================================
 # CLEAN UP (Project name independent)

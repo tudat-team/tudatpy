@@ -33,19 +33,28 @@ set(estimation_HEADERS
         createEstimatableParameters.h
         createEstimatableParametersInterface.h
         createEstimatableParametersFactory.h
+        getAssociatedMultiArcParameter.h
+        setInitialStateVectorFromParameterSet.h
+        wrapObservationResiduals.h
+        createStateTransitionAndSensitivityMatrixInterpolator.h
         createCartesianStatePartials.h
         createTorquePartials.h
         createStateDerivativePartials.h
         estimatableParameterSettings.h
+        estimatableParameterSettingsBase.h
         orbitDeterminationTestCaseUtilities.h
         createObservationPartials.h
         podProcessing.h
         determinePostFitParameterInfluence.h
         variationalEquationsSolver.h
         variationalEquationsSolverBase.h
+        variationalEquationsSolverBaseImplementation.h
         singleArcVariationalEquationsSolver.h
+        singleArcVariationalEquationsSolverImplementation.h
         multiArcVariationalEquationsSolver.h
+        multiArcVariationalEquationsSolverImplementation.h
         hybridArcVariationalEquationsSolver.h
+        hybridArcVariationalEquationsSolverImplementation.h
         createNumericalSimulator.h
         createEulerAngleObservationPartials.h
         createInverseAprioriCovariance.h
@@ -79,11 +88,9 @@ set(estimation_SOURCES
         createLightTimeCorrection.cpp
         createAtmosphericLightTimeCorrection.cpp
         createLightTimeCorrectionPartials.cpp
-        orbitDeterminationManager.cpp
         createCartesianStatePartials.cpp
         createStateDerivativePartials.cpp
         orbitDeterminationTestCases.cpp
-        createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
         createObservationCollection.cpp
@@ -106,12 +113,22 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
 endif ()
 
 if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
-    list(APPEND estimation_SOURCES
+    set(estimation_INSTANTIATION_SOURCES
             variationalEquationsSolverDoubleDoubleInstantiation.cpp
             singleArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
             multiArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
             hybridArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
             createObservationManagersBaseDoubleDoubleInstantiation.cpp
+            )
+    list(APPEND estimation_SOURCES ${estimation_INSTANTIATION_SOURCES})
+    # The instantiations largely overlap, so compile them as one translation unit
+    set_source_files_properties(${estimation_INSTANTIATION_SOURCES} PROPERTIES UNITY_GROUP double_double_instantiations)
+    # These share little with the group above (adding them to it raises its peak memory), so they are compiled on their own
+    list(APPEND estimation_SOURCES
+            createParametersToEstimateDoubleDoubleInstantiation.cpp
+            simulateObservationsDoubleDoubleInstantiation.cpp
+            orbitDeterminationManager.cpp
+            createNumericalSimulator.cpp
             )
 endif ()
 
@@ -123,3 +140,8 @@ TUDAT_ADD_LIBRARY("estimation_setup"
 #        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
+
+# Not with a global unity build (CMAKE_UNITY_BUILD), which already batches all sources of the library
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS AND TUDAT_BUILD_WITH_UNITY_GROUPS AND NOT CMAKE_UNITY_BUILD)
+    set_target_properties(tudat_estimation_setup PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
+endif ()

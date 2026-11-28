@@ -306,7 +306,7 @@ std::pair< typename from_eigen< MatrixType >::dense_vector_type, MatrixType > pe
  * Dense version of the function above, which also accepts arguments that are convertible to dense dynamic-size matrices and
  * vectors (e.g. fixed-size matrices or expressions), for which the template arguments of the general version cannot be deduced.
  */
-inline std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
@@ -318,21 +318,7 @@ inline std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustme
         const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
         const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ),
-        const Eigen::VectorXd& aprioriParameterDeviation = Eigen::VectorXd( 0 ) )
-{
-    return performLeastSquaresAdjustmentFromDesignMatrix< Eigen::MatrixXd >( designMatrix,
-                                                                             observationResiduals,
-                                                                             diagonalOfWeightMatrix,
-                                                                             inverseOfAPrioriCovarianceMatrix,
-                                                                             limitConditionNumberForWarning,
-                                                                             constraintMultiplier,
-                                                                             constraintRightHandside,
-                                                                             designMatrixConsiderParameters,
-                                                                             considerParametersDeviations,
-                                                                             additionalNormalMatrix,
-                                                                             additionalRightHandSide,
-                                                                             aprioriParameterDeviation );
-}
+        const Eigen::VectorXd& aprioriParameterDeviation = Eigen::VectorXd( 0 ) );
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!

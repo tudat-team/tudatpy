@@ -30,7 +30,6 @@
 
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
-#include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/io/serialization/base.h"
 
 namespace tudat

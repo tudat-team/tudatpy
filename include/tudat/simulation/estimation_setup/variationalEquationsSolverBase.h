@@ -24,8 +24,7 @@
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
-#include "tudat/simulation/estimation_setup/createStateDerivativePartials.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createStateTransitionAndSensitivityMatrixInterpolator.h"
 
 namespace tudat
 {
@@ -141,26 +140,7 @@ protected:
      *  order determined by order of bodiesToIntegrate_.
      *  \return Initial matrix of numerical soluation to variation + state equations.
      */
-    MatrixType createInitialConditions( const VectorType initialStateEstimate )
-    {
-        if( stateTransitionMatrixSize_ != initialStateEstimate.rows( ) )
-        {
-            throw std::runtime_error( "Error when getting initial condition for variational equations, sizes are incompatible: " +
-                                      std::to_string( stateTransitionMatrixSize_ ) + ", " +
-                                      std::to_string( initialStateEstimate.rows( ) ) );
-        }
-
-        // Initialize initial conditions to zeros.
-        MatrixType varSystemInitialState = MatrixType( stateTransitionMatrixSize_, propagatedParameterVectorSize_ + 1 ).setZero( );
-
-        // Set initial state transition matrix to identity
-        varSystemInitialState.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).setIdentity( );
-
-        // Set initial body states to current estimate of initial body states.
-        varSystemInitialState.block( 0, propagatedParameterVectorSize_, stateTransitionMatrixSize_, 1 ) = initialStateEstimate;
-
-        return varSystemInitialState;
-    }
+    MatrixType createInitialConditions( const VectorType initialStateEstimate );
 
     //! Create initial matrix of numerical soluation to variational equations
     /*!
@@ -168,16 +148,7 @@ protected:
      *  transition matrix Phi is identity matrix. Initial sensitivity matrix S is all zeros.
      *  \return Initial matrix solution to variational equations.
      */
-    Eigen::MatrixXd createInitialVariationalEquationsSolution( )
-    {
-        // Initialize initial conditions to zeros.
-        Eigen::MatrixXd varSystemInitialState = Eigen::MatrixXd::Zero( stateTransitionMatrixSize_, propagatedParameterVectorSize_ );
-
-        // Set initial state transition matrix to identity
-        varSystemInitialState.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).setIdentity( );
-
-        return varSystemInitialState;
-    }
+    Eigen::MatrixXd createInitialVariationalEquationsSolution( );
 
     //! Object containing all parameters that are to be estimated and their current  settings and values.
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
@@ -256,23 +227,6 @@ void setVariationalEquationsSolution(
         numericalIntegrationResult.erase( integrationIterator++ );
     }
 }
-
-//! Function to create interpolators for state transition and sensitivity matrices from numerical results.
-/*!
- * Function to create interpolators for state transition and sensitivity matrices from numerical results.
- * \param stateTransitionMatrixInterpolator Interpolator object for state transition matrix (returned by reference).
- * \param sensitivityMatrixInterpolator Interpolator object for sensitivity matrix (returned by reference).
- * \param variationalEquationsSolution Vector of two matrix histories. First vector entry
- *  is state transition matrix history, second entry is sensitivity matrix history.
- * \param clearRawSolution Boolean denoting whether to clear entries of variationalEquationsSolution after creation
- * of interpolators.
- */
-void createStateTransitionAndSensitivityMatrixInterpolator(
-        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,
-        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& sensitivityMatrixInterpolator,
-        std::map< double, Eigen::MatrixXd >& stateTransitionSolution,
-        std::map< double, Eigen::MatrixXd >& sensitivitySolution,
-        const bool clearRawSolution = 1 );
 
 //! Function to retrieve the time at which a propagation terminates, if this is known before the propagation starts
 /*!
@@ -736,5 +690,7 @@ extern template class VariationalEquationsSolver< double, double >;
 }  // namespace propagators
 
 }  // namespace tudat
+
+#include "tudat/simulation/estimation_setup/variationalEquationsSolverBaseImplementation.h"
 
 #endif  // TUDAT_VARIATIONALEQUATIONSSOLVER_BASE_H

@@ -31,7 +31,8 @@
 
 #include <tudat/io/streamFilters.h>
 
-#include <tudat/paths.hpp>
+#include <tudat/config.hpp>
+#include <tudat/resource/resource.h>
 
 using namespace tudat::paths;
 

@@ -19,6 +19,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudatpy/kernelExternTemplatesParameters.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace py = pybind11;

@@ -11,15 +11,23 @@
 #ifndef TUDAT_OBSERVATIONOUTPUTSETTINGS
 #define TUDAT_OBSERVATIONOUTPUTSETTINGS
 
+#include <map>
 #include <memory>
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include <Eigen/Core>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
-#include "tudat/io/serialization/core.h"
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/vector.hpp>
 #include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
@@ -27,6 +35,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 using namespace observation_models;
 
@@ -832,6 +842,12 @@ inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeCorrecti
     return std::make_shared< LightTimeCorrectionComponentsDependentVariableSettings >(
             transmitterLinkEndType, receiverLinkEndType, transmitterLinkEndId, receiverLinkEndId, correctionTypeFilter );
 }
+
+std::map< double, Eigen::VectorXd > getTargetAnglesAndRange( const simulation_setup::SystemOfBodies& bodies,
+                                                             const std::pair< std::string, std::string > groundStationId,
+                                                             const std::string& targetBody,
+                                                             const std::vector< double > times,
+                                                             const bool transmittingToTarget );
 
 }  // namespace simulation_setup
 

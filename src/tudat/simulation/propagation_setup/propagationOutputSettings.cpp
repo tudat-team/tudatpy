@@ -10,6 +10,8 @@
 
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+
 namespace tudat
 {
 

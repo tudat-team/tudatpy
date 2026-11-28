@@ -20,7 +20,12 @@
 #include <numeric>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
-#include "tudat/astro/observation_models.h"
+#include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
+#include "tudat/astro/observation_models/lightTimeSolution.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readDsnAmcFile.h"

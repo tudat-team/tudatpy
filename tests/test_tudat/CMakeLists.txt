@@ -1,4 +1,9 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# Only the tests see the extern template declarations, so that switching the tests on or off does not recompile the
+# libraries and the kernel; the libraries compile these instantiations in their *Instantiation.cpp sources
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
+    add_compile_definitions(TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS=1)
+endif ()
 add_subdirectory(src/astro)
 add_subdirectory(src/basics)
 add_subdirectory(src/interface)

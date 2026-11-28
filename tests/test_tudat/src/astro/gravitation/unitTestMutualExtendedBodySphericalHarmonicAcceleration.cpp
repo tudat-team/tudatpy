@@ -9,8 +9,22 @@
 
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/gravitation/centralGravityModel.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
+#include "tudat/astro/gravitation/mutualForcePotential.h"
+#include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
+#include "tudat/astro/gravitation/thirdBodyPerturbation.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 
 namespace tudat
 {

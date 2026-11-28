@@ -148,6 +148,13 @@ bool NonSequentialPropagationTerminationCondition::checkStopCondition( const dou
     return stopPropagation;
 }
 
+PropagationTerminationDetailsFromHybridCondition::PropagationTerminationDetailsFromHybridCondition(
+        const bool terminationOnExactCondition,
+        const std::shared_ptr< HybridPropagationTerminationCondition > terminationCondition ):
+    PropagationTerminationDetails( termination_condition_reached, terminationOnExactCondition ),
+    isConditionMetWhenStopping_( terminationCondition->getIsConditionMetWhenStopping( ) )
+{}
+
 }  // namespace propagators
 
 }  // namespace tudat

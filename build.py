@@ -60,6 +60,21 @@ class BuildParser(argparse.ArgumentParser):
             help="Don't build the libraries [Default: False]",
         )
         basic_group.add_argument(
+            "--skip-kernel",
+            dest="skip_kernel",
+            action="store_true",
+            help="Don't build the tudatpy kernel, stubs and API documentation [Default: False]",
+        )
+        basic_group.add_argument(
+            "--targets",
+            nargs="+",
+            metavar="<target>",
+            help=(
+                "Only build these CMake targets (e.g. kernel, or test_<directory>_<name>), "
+                "without stubs and API documentation [Default: all]"
+            ),
+        )
+        basic_group.add_argument(
             "--skip-stubs",
             dest="skip_stubs",
             action="store_true",
@@ -112,12 +127,38 @@ class BuildParser(argparse.ArgumentParser):
             help="Build with Mars Climate Database support [Default: False]",
         )
         cmake_group.add_argument(
+            "--no-serialization",
+            dest="build_with_serialization",
+            action="store_false",
+            help="Build without serialization support [Default: False]",
+        )
+        cmake_group.add_argument(
+            "--no-unity-groups",
+            dest="build_with_unity_groups",
+            action="store_false",
+            help=(
+                "Switch off the unity build of the groups of large tudatpy sources listed in "
+                "src/tudatpy/CMakeLists.txt: faster rebuilds after changing one of them, more RAM and time "
+                "for full builds [Default: False]"
+            ),
+        )
+        cmake_group.add_argument(
             "--profiling",
             dest="build_with_profiling_symbols",
             action="store_true",
             help=(
                 "Add debug symbols and frame pointers without changing the "
                 "optimization level, for use with profilers. [Default: False]"
+            ),
+        )
+        cmake_group.add_argument(
+            "--development-compiler-settings",
+            dest="development_compiler_settings",
+            action="store_true",
+            help=(
+                "For builds that are recompiled after changes: no unity build for the Tudat libraries "
+                "(CMAKE_UNITY_BUILD=OFF; the tudatpy unity groups stay), and -O1 instead of -O3 (Release) or "
+                "-Og (Debug). Faster rebuilds, slower code [Default: False]"
             ),
         )
 
@@ -1354,9 +1395,14 @@ class Builder:
                     "-DBoost_NO_BOOST_CMAKE=ON",
                     f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                     f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                    f"-DTUDAT_BUILD_KERNEL={'OFF' if self.args.skip_kernel else 'ON'}",
+                    f"-DTUDAT_BUILD_WITH_SERIALIZATION={'ON' if self.args.build_with_serialization else 'OFF'}",
+                    f"-DTUDAT_BUILD_WITH_UNITY_GROUPS={'ON' if self.args.build_with_unity_groups else 'OFF'}",
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                     f"-DTUDAT_BUILD_WITH_PROFILING_SYMBOLS={'ON' if self.args.build_with_profiling_symbols else 'OFF'}",
+                    f"-DTUDAT_BUILD_WITH_REDUCED_OPTIMIZATION={'ON' if self.args.development_compiler_settings else 'OFF'}",
+                    f"-DCMAKE_UNITY_BUILD={'OFF' if self.args.development_compiler_settings else 'ON'}",
                 ]
 
                 # Add Fortran compiler path if building with MCD
@@ -1409,6 +1455,8 @@ class Builder:
                 build_command.extend(["--config", self.args.build_type])
             if self.args.verbose:
                 build_command.append("--verbose")
+            if self.args.targets:
+                build_command.extend(["--target", *self.args.targets])
             outcome = subprocess.run(build_command)
             if outcome.returncode:
                 exit(outcome.returncode)
@@ -1462,6 +1510,10 @@ if __name__ == "__main__":
     # Build libraries
     if not args.skip_build:
         builder.build_libraries()
+
+    # Stubs and API documentation require the (complete) kernel
+    if args.skip_kernel or args.targets:
+        exit(0)
 
     with builder.mock_environment() as mock_env:
 

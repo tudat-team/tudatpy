@@ -34,6 +34,8 @@
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
+#include "tudat/simulation/propagation_setup/propagatorType.h"
+#include "tudat/simulation/propagation_setup/getProcessedStateStrings.h"
 
 #include <cereal/access.hpp>
 
@@ -42,65 +44,6 @@ namespace tudat
 
 namespace propagators
 {
-
-struct PropagatorType {
-    PropagatorType( const TranslationalPropagatorType translationalPropagatorType ):
-        translationalPropagatorType_( translationalPropagatorType )
-    {}
-
-    PropagatorType( const RotationalPropagatorType rotationalPropagatorType ): rotationalPropagatorType_( rotationalPropagatorType ) {}
-
-    PropagatorType( ): otherPropagator_( true ) {}
-
-    PropagatorType( const int customStateSize ): customStateSize_( customStateSize ) {}
-
-    TranslationalPropagatorType translationalPropagatorType_ = undefined_translational_propagator;
-    RotationalPropagatorType rotationalPropagatorType_ = undefined_rotational_propagator;
-    bool otherPropagator_ = false;
-    int customStateSize_ = 0;
-
-private:
-    friend class cereal::access;
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( CEREAL_NVP( translationalPropagatorType_ ) );
-        ar( CEREAL_NVP( rotationalPropagatorType_ ) );
-        ar( CEREAL_NVP( otherPropagator_ ) );
-        ar( CEREAL_NVP( customStateSize_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( CEREAL_NVP( translationalPropagatorType_ ) );
-        ar( CEREAL_NVP( rotationalPropagatorType_ ) );
-        ar( CEREAL_NVP( otherPropagator_ ) );
-        ar( CEREAL_NVP( customStateSize_ ) );
-    }
-
-public:
-    //! Equality comparison for PropagatorType
-    bool operator==( const PropagatorType& rhs ) const
-    {
-        return equals( rhs );
-    }
-
-    bool operator!=( const PropagatorType& rhs ) const
-    {
-        return !( *this == rhs );
-    }
-
-    //! Equality comparison via equals method
-    bool equals( const PropagatorType& rhs ) const
-    {
-        return translationalPropagatorType_ == rhs.translationalPropagatorType_ &&
-                rotationalPropagatorType_ == rhs.rotationalPropagatorType_ && otherPropagator_ == rhs.otherPropagator_ &&
-                customStateSize_ == rhs.customStateSize_;
-    }
-
-private:
-};
 
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
 template< typename StateScalarType = double >
@@ -3020,133 +2963,6 @@ std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string
     }
 
     return integratedStateList;
-}
-
-inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
-        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >
-                integratedTypeAndBodyList )
-{
-    unsigned int stateVectorIndex = 0;
-    std::map< std::pair< int, int >, std::string > stringPerIndex;
-
-    for( auto integratedTypeAndBody : integratedTypeAndBodyList )
-    {
-        // Extract state type and list of body names
-        IntegratedStateType stateType = integratedTypeAndBody.first;
-        std::vector< std::tuple< std::string, std::string, PropagatorType > > bodyList = integratedTypeAndBody.second;
-
-        int stateSize = -1;
-
-        // Loop trough list of body names
-        for( unsigned int i = 0; i < bodyList.size( ); i++ )
-        {
-            std::string currentString = getIntegratedStateTypString( stateType );
-            switch( stateType )
-            {
-                case translational_state:
-                    stateSize = getSingleIntegrationSize( stateType );
-                    currentString += ", in Cartesian elements, of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " +
-                            std::get< 1 >( bodyList.at( i ) );
-                    break;
-                case rotational_state:
-                    stateSize = getSingleIntegrationSize( stateType );
-                    currentString += ", in quaternions and body-fixed angular velocity, of body " + std::get< 0 >( bodyList.at( i ) );
-                    break;
-                case body_mass_state:
-                    stateSize = getSingleIntegrationSize( stateType );
-                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-                    break;
-                case proper_time:
-                    stateSize = getSingleIntegrationSize( stateType );
-                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-                    break;
-                case custom_state: {
-                    stateSize = std::get< 2 >( bodyList.at( i ) ).customStateSize_;
-                    if( stateSize <= 0 )
-                    {
-                        throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
-                    }
-                    if( std::get< 0 >( bodyList.at( i ) ) != "" )
-                    {
-                        currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-                    }
-                    break;
-                }
-                default:
-                    throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
-            }
-            stringPerIndex[ std::make_pair( stateVectorIndex, stateSize ) ] = currentString;
-            // Remember where we are at trough the state vector
-            stateVectorIndex += stateSize;
-        }
-    }
-    return stringPerIndex;
-}
-
-inline std::map< std::pair< int, int >, std::string > getPropagatedStateStrings(
-        const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >
-                integratedTypeAndBodyList )
-{
-    unsigned int stateVectorIndex = 0;
-    std::map< std::pair< int, int >, std::string > stringPerIndex;
-
-    for( auto integratedTypeAndBody : integratedTypeAndBodyList )
-    {
-        // Extract state type and list of body names
-        IntegratedStateType stateType = integratedTypeAndBody.first;
-        std::vector< std::tuple< std::string, std::string, PropagatorType > > bodyList = integratedTypeAndBody.second;
-
-        int stateSize = -1;
-
-        // Loop trough list of body names
-        for( unsigned int i = 0; i < bodyList.size( ); i++ )
-        {
-            std::string currentString = getIntegratedStateTypString( stateType );
-            switch( stateType )
-            {
-                case translational_state: {
-                    TranslationalPropagatorType propagatorType = std::get< 2 >( bodyList.at( i ) ).translationalPropagatorType_;
-                    stateSize = getTranslationalStateSize( propagatorType );
-                    currentString += " (" + getTranslationalPropagatorName( propagatorType ) + " formulation)";
-                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) ) + " w.r.t. " + std::get< 1 >( bodyList.at( i ) );
-                    break;
-                }
-                case rotational_state: {
-                    RotationalPropagatorType propagatorType = std::get< 2 >( bodyList.at( i ) ).rotationalPropagatorType_;
-                    stateSize = getRotationalStateSize( propagatorType );
-                    currentString += " (" + getRotationalPropagatorName( propagatorType ) + " formulation)";
-                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-                    break;
-                }
-                case body_mass_state:
-                    stateSize = getSingleIntegrationSize( stateType );
-                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-                    break;
-                case proper_time:
-                    stateSize = getSingleIntegrationSize( stateType );
-                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-                    break;
-                case custom_state: {
-                    stateSize = std::get< 2 >( bodyList.at( i ) ).customStateSize_;
-                    if( stateSize <= 0 )
-                    {
-                        throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
-                    }
-                    if( std::get< 0 >( bodyList.at( i ) ) != "" )
-                    {
-                        currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
-                    }
-                    break;
-                }
-                default:
-                    throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
-            }
-            stringPerIndex[ std::make_pair( stateVectorIndex, stateSize ) ] = currentString;
-            // Remember where we are at trough the state vector
-            stateVectorIndex += stateSize;
-        }
-    }
-    return stringPerIndex;
 }
 
 // addition for thesis work (Jonas Hener), considered generally useful

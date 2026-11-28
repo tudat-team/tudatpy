@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/astro/aerodynamics/flightConditions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
