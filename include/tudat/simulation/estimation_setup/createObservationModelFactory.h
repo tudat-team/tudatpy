@@ -2806,7 +2806,7 @@ public:
     }
 };
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 extern template std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > createObservationSimulators< double, double >(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationSettingsList,
         const simulation_setup::SystemOfBodies& bodies );

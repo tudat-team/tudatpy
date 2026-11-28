@@ -441,7 +441,6 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             }
             break;
         }
-            // #if TUDAT_BUILD_WITH_SOFA_INTERFACE
         case gcrs_to_itrs_rotation_model: {
             // Check whether settings for simple rotation model are consistent with its type.
             std::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings =
@@ -456,7 +455,6 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                 break;
             }
         }
-            // #endif
 
         case spice_rotation_model: {
             std::shared_ptr< SpiceRotationModelSettings > spiceRotationModelSettings =

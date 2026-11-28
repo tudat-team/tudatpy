@@ -12,8 +12,6 @@
 #ifndef TUDAT_GCRSTOITRSROTATIONMODEL_H
 #define TUDAT_GCRSTOITRSROTATIONMODEL_H
 
-// #if TUDAT_BUILD_WITH_SOFA_INTERFACE
-
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
@@ -376,7 +374,5 @@ private:
 }  // namespace ephemerides
 
 }  // namespace tudat
-
-// #endif
 
 #endif  // TUDAT_GCRSTOITRSROTATIONMODEL_H

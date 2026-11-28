@@ -17,7 +17,7 @@ add_library(tudat_estimation_test_case_support
     executePlanetaryParameterEstimationTestCase.cpp
 )
 
-if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
     # Instantiations declared in estimationExternTemplatesTestCase.h, one group per file to limit the compile memory per file
     set(ESTIMATION_TEST_INSTANTIATION_SOURCES
         dynamicsSimulatorsLongDoubleTimeInstantiation.cpp

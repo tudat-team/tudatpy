@@ -402,7 +402,7 @@ protected:
     std::shared_ptr< MultiArcResults > propagationResults_;
 };
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 extern template class MultiArcDynamicsSimulator< double, double >;
 #endif
 

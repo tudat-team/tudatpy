@@ -6,7 +6,7 @@ namespace tudat
 namespace observation_models
 {
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 template std::map< ObservableType, std::shared_ptr< ObservationManagerBase< double, double > > >
 createObservationManagersBase< double, double >(
         const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,

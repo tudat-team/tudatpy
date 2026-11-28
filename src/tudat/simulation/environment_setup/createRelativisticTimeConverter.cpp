@@ -9,7 +9,7 @@
  *
  */
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 #include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
 
 namespace tudat

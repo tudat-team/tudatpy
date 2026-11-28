@@ -1,15 +1,12 @@
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h"
-#endif
 
 namespace tudat
 {
 namespace propagators
 {
 
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 //! Function to retrieve specific acceleration partial object from list of state derivative partials
 std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
         const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
@@ -71,7 +68,6 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
 
     return matchingAccelerationPartial;
 }
-#endif
 
 // template class DynamicsStateDerivativeModel< double, double >;
 

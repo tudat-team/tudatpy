@@ -1388,7 +1388,6 @@ class Builder:
                     f"-DTUDAT_BUILD_WITH_SERIALIZATION={'ON' if self.args.build_with_serialization else 'OFF'}",
                     f"-DTUDAT_BUILD_WITH_UNITY_GROUPS={'ON' if self.args.build_with_unity_groups else 'OFF'}",
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
-                    f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                     f"-DTUDAT_BUILD_WITH_PROFILING_SYMBOLS={'ON' if self.args.build_with_profiling_symbols else 'OFF'}",
                 ]

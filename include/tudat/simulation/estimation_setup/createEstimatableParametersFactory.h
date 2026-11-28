@@ -3502,7 +3502,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
             doubleParametersToEstimate, vectorParametersToEstimate, initialDynamicalParametersToEstimate, considerParameters );
 }
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 extern template std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >
 getInitialStateParameterSettings< double, double >( const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
                                                     const SystemOfBodies& bodies,

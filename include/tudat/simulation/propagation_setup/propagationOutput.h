@@ -36,10 +36,8 @@
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettingsBase.h"
-#endif
 
 namespace tudat
 {
@@ -215,7 +213,6 @@ inline Eigen::VectorXd getVectorFunctionFromMatrixFunction( const std::function<
     return vectorEvaluation;
 }
 
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 inline std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationDerivativePartialForDependentVariable(
         const orbit_determination::StateDerivativePartialsMap& stateDerivativePartials,
         const std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialDependentVariableSettings )
@@ -335,7 +332,6 @@ inline std::pair< std::function< Eigen::VectorXd( ) >, int > getAccelerationDeri
 
     return std::make_pair( variableFunction, 3 * parameterColumns );
 }
-#endif
 
 //! Function to compute the Fay-Riddell equilibrium heat flux from body properties
 /*!
@@ -1557,7 +1553,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             parameterSize = 3;
             break;
         }
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
         case acceleration_partial_wrt_body_translational_state: {
             std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialVariableSettings =
                     std::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
@@ -1794,7 +1789,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             }
             break;
         }
-#endif
         case minimum_constellation_distance: {
             std::shared_ptr< MinimumConstellationDistanceDependentVariableSaveSettings > minimumDistanceDependentVariable =
                     std::dynamic_pointer_cast< MinimumConstellationDistanceDependentVariableSaveSettings >( dependentVariableSettings );
@@ -3586,23 +3580,15 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
             ( variable->dependentVariableType_ != total_acceleration_derivative_partial_wrt_parameter ) &&
             isScalarDependentVariable( variable, bodies ) )
         {
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             std::function< double( ) > doubleFunction = getDoubleDependentVariableFunction(
                     variable, bodies, stateDerivativeModels, stateDerivativePartials, parametersToEstimate );
-#else
-            std::function< double( ) > doubleFunction = getDoubleDependentVariableFunction( variable, bodies, stateDerivativeModels );
-#endif
             vectorFunction = std::make_pair( std::bind( &getVectorFromDoubleFunction, doubleFunction ), 1 );
         }
         // Create vector parameter
         else
         {
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             vectorFunction = getVectorDependentVariableFunction(
                     variable, bodies, stateDerivativeModels, stateDerivativePartials, parametersToEstimate );
-#else
-            vectorFunction = getVectorDependentVariableFunction( variable, bodies, stateDerivativeModels );
-#endif
         }
         vectorFunctionList.push_back( vectorFunction );
         vectorVariableList.push_back( std::make_pair( getDependentVariableId( variable ), vectorFunction.second ) );

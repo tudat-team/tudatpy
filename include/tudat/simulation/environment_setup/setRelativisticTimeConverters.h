@@ -45,7 +45,7 @@ void setRelativisticTimeConverters(
         const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< StateScalarType, TimeType > > >&
                 converterSettings );
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 extern template void setRelativisticTimeConverter< double, double >(
         const std::shared_ptr< DirectRelativisticTimeConverterSettings< double, double > >& conversionSettings,
         const SystemOfBodies& bodies );

@@ -1113,7 +1113,6 @@ std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyM
     return modelForBody;
 }
 
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 //! Function to retrieve specific acceleration partial object from list of state derivative partials
 /*!
  * Function to retrieve specific acceleration partial object from list of state derivative partials
@@ -1129,7 +1128,6 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
         const basic_astrodynamics::AvailableAcceleration accelerationType,
         const std::string& bodyExertingAcceleration,
         const std::string& bodyUndergoignAcceleration );
-#endif
 
 template< typename StateScalarType, typename TimeType, int NumberOfColumns >
 struct PostProcessingFunctionProvider {

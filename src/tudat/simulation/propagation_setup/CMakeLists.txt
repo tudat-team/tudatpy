@@ -70,7 +70,7 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
     list(APPEND propagation_SOURCES propagationSettingsSerialization.cpp)
 endif ()
 
-if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
     set(propagation_INSTANTIATION_SOURCES
             dynamicsSimulatorDoubleDoubleInstantiation.cpp
             singleArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
@@ -93,6 +93,6 @@ TUDAT_ADD_LIBRARY("propagation_setup"
         )
 
 # Not with a global unity build (CMAKE_UNITY_BUILD), which already batches all sources of the library
-if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS AND TUDAT_BUILD_WITH_UNITY_GROUPS AND NOT CMAKE_UNITY_BUILD)
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS AND TUDAT_BUILD_WITH_UNITY_GROUPS AND NOT CMAKE_UNITY_BUILD)
     set_target_properties(tudat_propagation_setup PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE GROUP)
 endif ()

@@ -24,7 +24,7 @@
     PREFIX template class tudat::propagators::MultiArcDynamicsSimulator< StateScalarType, TimeType >;  \
     PREFIX template class tudat::propagators::HybridArcDynamicsSimulator< StateScalarType, TimeType >;
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS && TUDAT_BUILD_WITH_ESTIMATION_TOOLS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 TUDAT_TEST_DYNAMICS_SIMULATOR_INSTANTIATIONS( extern, long double, tudat::Time )
 #if TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS
 TUDAT_TEST_DYNAMICS_SIMULATOR_INSTANTIATIONS( extern, long double, double )

@@ -245,8 +245,6 @@ private:
     double rotationRate_;
 };
 
-// #ifdef TUDAT_BUILD_WITH_SOFA_INTERFACE
-
 // Struct that holds settings for EOP short-period variation
 struct EopCorrectionSettings {
     // Constructor
@@ -442,7 +440,6 @@ private:
 
     std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > shortTermInterpolatorSettings_;
 };
-// #endif
 
 // RotationModelSettings derived class for defining settings of a synchronous rotational ephemeris (body-fixed x-axis always
 // pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)

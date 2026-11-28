@@ -84,7 +84,7 @@ if (TUDAT_BUILD_WITH_SERIALIZATION)
     list(APPEND environment_SOURCES gravityFieldVariationSettingsSerialization.cpp)
 endif ()
 
-if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+if (TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS)
     list(APPEND environment_SOURCES createSystemOfBodiesDoubleDoubleInstantiation.cpp)
 endif ()
 

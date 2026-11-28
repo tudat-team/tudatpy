@@ -323,7 +323,7 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
  */
 simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( const double secondsSinceJ2000 = 0 );
 
-#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+#if TUDAT_BUILD_TESTS_WITH_EXPLICIT_INSTANTIATIONS
 extern template SystemOfBodies createSystemOfBodies< double, double >( const BodyListSettings& bodySettings );
 #endif
 

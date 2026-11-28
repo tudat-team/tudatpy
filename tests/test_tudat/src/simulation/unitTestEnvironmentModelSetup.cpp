@@ -1393,7 +1393,6 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
             std::numeric_limits< double >::epsilon( ) );
 }
 
-// #if TUDAT_BUILD_WITH_SOFA_INTERFACE
 //! Test set up of GCRS<->ITRS rotation model
 BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
 {

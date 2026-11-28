@@ -10,6 +10,4 @@
 
 add_subdirectory(spice)
 
-if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
-    add_subdirectory(sofa)
-endif ()
+add_subdirectory(sofa)

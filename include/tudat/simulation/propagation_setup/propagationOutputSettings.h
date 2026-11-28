@@ -33,12 +33,10 @@ namespace simulation_setup
 class SystemOfBodies;
 }  // namespace simulation_setup
 
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 namespace estimatable_parameters
 {
 class EstimatableParameterSettings;
 }  // namespace estimatable_parameters
-#endif
 
 namespace propagators
 {
@@ -1120,7 +1118,6 @@ private:
     }
 };
 
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 //! Class to define partial of a single acceleration derivative model w.r.t. an estimatable parameter.
 class AccelerationDerivativePartialWrtParameterSaveSettings : public SingleDependentVariableSaveSettings
 {
@@ -1165,7 +1162,6 @@ public:
     //! Dependent variable size, resolved from the estimatable parameter set during output setup.
     int dependentVariableSize_;
 };
-#endif
 
 //! Class to define partial of the total acceleration of a given body w.r.t. translational state.
 class MinimumConstellationDistanceDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -2102,7 +2098,6 @@ inline std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > totalAcce
     return std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( bodyUndergoingAcceleration, derivativeWrtBody );
 }
 
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 inline std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > accelerationDerivativePartialWrtParameterDependentVariable(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration,
@@ -2120,7 +2115,6 @@ totalAccelerationDerivativePartialWrtParameterDependentVariable(
 {
     return std::make_shared< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( bodyUndergoingAcceleration, parameterSettings );
 }
-#endif
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariation( const std::string& bodyName,
                                                                                                               const int minimumDegree,
